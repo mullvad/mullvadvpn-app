@@ -74,23 +74,26 @@ EOF
 }
 
 function upload {
-    version=$1
+    local version=$1
+    local files
+    local checksums_filename
 
+    checksums_filename="desktop+$(hostname)+$version.sha256"
+    rm -f "$checksums_filename"
     files=( * )
-    checksums_path="desktop+$(hostname)+$version.sha256"
-    sha256sum "${files[@]}" > "$checksums_path"
+    sha256sum "${files[@]}" > "$checksums_filename"
 
     case "$(uname -s)" in
         # Linux is both the build and upload server. Just copy directly to target dir
         Linux*)
-            cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
+            cp "${files[@]}" "$checksums_filename" "$UPLOAD_DIR/"
             ;;
         # Other platforms need to transfer their artifacts to the Linux build machine.
         Darwin*|MINGW*|MSYS_NT*)
             for file in "${files[@]}"; do
                 upload_sftp "$file" || return 1
             done
-            upload_sftp "$checksums_path" || return 1
+            upload_sftp "$checksums_filename" || return 1
             ;;
     esac
 }
@@ -100,7 +103,7 @@ function upload {
 # means in a container on Linux, and straight up in the local shell elsewhere.
 function run_in_build_env {
     if [[ "$(uname -s)" == "Linux" ]]; then
-        USE_MOLD=false ./building/container-run.sh linux "$@"
+        ./building/container-run.sh linux "$@"
     else
         bash -c "$*"
     fi
@@ -156,8 +159,15 @@ function checkout_ref {
 
     # Clean our working dir and check out the code we want to build
     rm -r dist/ 2&>/dev/null || true
-    git reset --hard
+
+    # Reset to main in case there is some issue on the current branch that prevents resetting to it.
+    git reset --hard origin/main
+
     git checkout "$ref"
+
+    # Return an error if it's not possible to reset to the current branch. Some errors will result in exit code 0 from `checkout` but >0 from `reset`.
+    git reset --hard || return 1
+
     git submodule update
     git submodule update --init wireguard-go-rs/libwg/wireguard-go || true
     git clean -df

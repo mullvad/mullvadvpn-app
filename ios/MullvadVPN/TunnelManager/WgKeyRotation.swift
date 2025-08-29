@@ -89,7 +89,7 @@ struct WgKeyRotation: Sendable {
     /**
      Returns the date of next key rotation, as it normally occurs in the app process using the following rules:
 
-     1. Returns the date relative to key creation date + 14 days, if last rotation attempt was successful.
+     1. Returns the date relative to key creation date + 30 days, if last rotation attempt was successful.
      2. Returns the date relative to last rotation attempt date + 24 hours, if last rotation attempt was unsuccessful.
 
      If the date produced is in the past then `Date()` is returned instead.

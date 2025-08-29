@@ -12,22 +12,33 @@ import {
   InconsistentVersionNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
-  UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
-import useActions from '../lib/actionsHook';
-import { Link } from '../lib/components';
-import { Colors } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
-import { formatHtml } from '../lib/html-formatter';
 import {
+  useAppUpgradeDownloadProgressValue,
+  useAppUpgradeEventType,
+  useHasAppUpgradeError,
+} from '../hooks';
+import useActions from '../lib/actionsHook';
+import { Button } from '../lib/components';
+import { TransitionType, useHistory } from '../lib/history';
+import {
+  AppUpgradeErrorNotificationProvider,
+  AppUpgradeProgressNotificationProvider,
+  AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
+  NoOpenVpnServerAvailableNotificationProvider,
+  OpenVpnSupportEndingNotificationProvider,
+  UnsupportedWireGuardPortNotificationProvider,
 } from '../lib/notifications';
-import { RoutePath } from '../lib/routes';
+import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
+import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import accountActions from '../redux/account/actions';
+import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
+import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
@@ -36,10 +47,10 @@ import {
   NotificationContent,
   NotificationIndicator,
   NotificationOpenLinkAction,
-  NotificationSubtitle,
   NotificationTitle,
   NotificationTroubleshootDialogAction,
 } from './NotificationBanner';
+import { NotificationSubtitle } from './NotificationSubtitle';
 
 interface IProps {
   className?: string;
@@ -51,8 +62,14 @@ export default function NotificationArea(props: IProps) {
   const account = useSelector((state: IReduxState) => state.account);
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
+  const connection = useSelector((state: IReduxState) => state.connection);
   const version = useSelector((state: IReduxState) => state.version);
-  const blockWhenDisconnected = useSelector(
+  const tunnelProtocol = useTunnelProtocol();
+  const fullRelayList = useSelector((state) => state.settings.relayLocations);
+  const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+
+  const blockWhenDisconnectedSetting = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
   const hasExcludedApps = useSelector(
@@ -62,7 +79,8 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog } = useAppContext();
+  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade, appUpgradeInstallerStart } =
+    useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -82,15 +100,59 @@ export default function NotificationArea(props: IProps) {
     await setSplitTunnelingState(false);
   }, [setSplitTunnelingState]);
 
+  const updateDismissedForVersion = useSelector(
+    (state) => state.settings.guiSettings.updateDismissedForVersion,
+  );
+  const hasAppUpgradeError = useHasAppUpgradeError();
+  const { error } = useAppUpgradeError();
+
+  const restartAppUpgrade = useCallback(() => {
+    appUpgrade();
+  }, [appUpgrade]);
+  const restartAppUpgradeInstaller = useCallback(() => {
+    appUpgradeInstallerStart();
+  }, [appUpgradeInstallerStart]);
+
+  const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+
+  const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
+  const appUpgradeEventType = useAppUpgradeEventType();
+  const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType); // TODO: Remove and read value from redux
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({
       tunnelState,
-      blockWhenDisconnected,
+      blockWhenDisconnectedSetting,
       hasExcludedApps,
     }),
-
+    new AppUpgradeErrorNotificationProvider({
+      hasAppUpgradeError,
+      appUpgradeError: error,
+      restartAppUpgrade,
+      restartAppUpgradeInstaller,
+    }),
+    new AppUpgradeReadyNotificationProvider({
+      appUpgradeEventType,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+    }),
+    new AppUpgradeProgressNotificationProvider({
+      appUpgradeStep,
+      appUpgradeEventType,
+      appUpgradeDownloadProgressValue,
+    }),
+    new NoOpenVpnServerAvailableNotificationProvider({
+      connection,
+      tunnelProtocol,
+      relayLocations: fullRelayList,
+    }),
+    new UnsupportedWireGuardPortNotificationProvider({
+      connection,
+      relaySettings,
+      tunnelProtocol,
+      allowedPortRanges,
+    }),
     new ErrorNotificationProvider({
       tunnelState,
       hasExcludedApps,
@@ -119,7 +181,14 @@ export default function NotificationArea(props: IProps) {
       changelog,
       close,
     }),
-    new UpdateAvailableNotificationProvider(version),
+    new AppUpgradeAvailableNotificationProvider({
+      platform: window.env.platform,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+      suggestedIsBeta: version.suggestedIsBeta,
+      updateDismissedForVersion,
+      close: setDismissedUpgrade,
+    }),
+    new OpenVpnSupportEndingNotificationProvider({ tunnelProtocol }),
   );
 
   const notificationProvider = notificationProviders.find((notification) =>
@@ -140,18 +209,10 @@ export default function NotificationArea(props: IProps) {
             <NotificationTitle data-testid="notificationTitle">
               {notification.title}
             </NotificationTitle>
-            <NotificationSubtitle data-testid="notificationSubTitle">
-              {notification.subtitleAction?.type === 'navigate' ? (
-                <Link
-                  variant="labelTiny"
-                  color={Colors.white60}
-                  {...notification.subtitleAction.link}>
-                  {formatHtml(notification.subtitle ?? '')}
-                </Link>
-              ) : (
-                formatHtml(notification.subtitle ?? '')
-              )}
-            </NotificationSubtitle>
+            <NotificationSubtitle
+              data-testid="notificationSubTitle"
+              subtitle={notification.subtitle}
+            />
           </NotificationContent>
           {notification.action && (
             <NotificationActionWrapper
@@ -191,11 +252,11 @@ function NotificationActionWrapper({
   const handleClick = useCallback(() => {
     if (action) {
       switch (action.type) {
-        case 'open-url':
-          if (action.withAuth) {
-            return openUrlWithAuth(action.url);
+        case 'navigate-external':
+          if (action.link.withAuth) {
+            return openUrlWithAuth(action.link.to);
           } else {
-            return openUrl(action.url);
+            return openUrl(action.link.to);
           }
         case 'troubleshoot-dialog':
           setIsModalOpen(true);
@@ -211,13 +272,13 @@ function NotificationActionWrapper({
 
   const goToProblemReport = useCallback(() => {
     closeTroubleshootModal();
-    push(RoutePath.problemReport, { transition: transitions.show });
+    push(RoutePath.problemReport, { transition: TransitionType.show });
   }, [closeTroubleshootModal, push]);
 
   let actionComponent: React.ReactElement | undefined;
   if (action) {
     switch (action.type) {
-      case 'open-url':
+      case 'navigate-external':
         actionComponent = <NotificationOpenLinkAction onClick={handleClick} />;
         break;
       case 'troubleshoot-dialog':
@@ -237,43 +298,38 @@ function NotificationActionWrapper({
   }
 
   const problemReportButton = action.troubleshoot?.buttons ? (
-    <AppButton.BlueButton key="problem-report" onClick={goToProblemReport}>
-      {messages.pgettext('in-app-notifications', 'Send problem report')}
-    </AppButton.BlueButton>
+    <Button key="problem-report" onClick={goToProblemReport}>
+      <Button.Text>
+        {
+          // TRANSLATORS: Button label to send a problem report.
+          messages.pgettext('in-app-notifications', 'Send problem report')
+        }
+      </Button.Text>
+    </Button>
   ) : (
-    <AppButton.GreenButton key="problem-report" onClick={goToProblemReport}>
-      {messages.pgettext('in-app-notifications', 'Send problem report')}
-    </AppButton.GreenButton>
+    <Button variant="success" key="problem-report" onClick={goToProblemReport}>
+      <Button.Text>
+        {
+          // TRANSLATORS: Button label to send a problem report.
+          messages.pgettext('in-app-notifications', 'Send problem report')
+        }
+      </Button.Text>
+    </Button>
   );
 
   let buttons = [
     problemReportButton,
-    <AppButton.BlueButton key="back" onClick={closeTroubleshootModal}>
-      {messages.gettext('Back')}
-    </AppButton.BlueButton>,
+    <Button key="back" onClick={closeTroubleshootModal}>
+      <Button.Text>{messages.gettext('Back')}</Button.Text>
+    </Button>,
   ];
 
   if (action.troubleshoot?.buttons) {
-    const actionButtons = action.troubleshoot.buttons.map(({ variant, label, action }) => {
-      if (variant === 'success')
-        return (
-          <AppButton.GreenButton key={label} onClick={action}>
-            {label}
-          </AppButton.GreenButton>
-        );
-      else if (variant === 'destructive')
-        return (
-          <AppButton.RedButton key={label} onClick={action}>
-            {label}
-          </AppButton.RedButton>
-        );
-      else
-        return (
-          <AppButton.BlueButton key={label} onClick={action}>
-            {label}
-          </AppButton.BlueButton>
-        );
-    });
+    const actionButtons = action.troubleshoot.buttons.map(({ variant, label, action }) => (
+      <Button key={label} variant={variant} onClick={action}>
+        <Button.Text>{label}</Button.Text>
+      </Button>
+    ));
 
     buttons = actionButtons.concat(buttons);
   }

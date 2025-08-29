@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
@@ -31,8 +33,6 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Preview
 @Composable
@@ -58,21 +58,24 @@ fun ObfuscationModeCell(
     isSelected: Boolean,
     onSelected: (ObfuscationMode) -> Unit,
     onNavigate: () -> Unit,
+    modifier: Modifier = Modifier,
     testTag: String? = null,
 ) {
     Row(
         modifier =
-            Modifier.height(IntrinsicSize.Min)
+            modifier
+                .height(IntrinsicSize.Min)
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .let { if (testTag != null) it.testTag(testTag) else it }
+                .semantics { selected = isSelected }
     ) {
         TwoRowCell(
             modifier = Modifier.weight(1f),
-            titleStyle = MaterialTheme.typography.listItemText,
+            titleStyle = MaterialTheme.typography.bodyLarge,
             titleColor = MaterialTheme.colorScheme.onSurface,
-            subtitleStyle = MaterialTheme.typography.listItemSubText,
-            subtitleColor = MaterialTheme.colorScheme.onSurface,
+            subtitleStyle = MaterialTheme.typography.labelLarge,
+            subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
             titleText = obfuscationMode.toTitle(),
             subtitleText = stringResource(id = R.string.port_x, port.toSubTitle()),
             onCellClicked = { onSelected(obfuscationMode) },

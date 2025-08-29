@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -eu
-shopt -s nullglob
+shopt -s nullglob globstar
 
 CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
 
@@ -11,6 +11,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$SCRIPT_DIR/buildserver-config.sh"
 
 cd "$UPLOAD_DIR"
+
+function invalidate_bunny_cdn_cache {
+    curl --request POST \
+        --url "https://api.bunny.net/pullzone/${BUNNYCDN_PULL_ZONE_ID}/purgeCache" \
+        --header "AccessKey: ${BUNNYCDN_API_KEY}" \
+        --header 'content-type: application/json' \
+        --fail-with-body
+}
 
 function rsync_upload {
     local file=$1
@@ -23,35 +31,48 @@ function rsync_upload {
 
 while true; do
     sleep 10
-    for checksums_path in *.sha256; do
+
+    should_invalidate_bunny_cdn_cache="false"
+
+    for checksums_path in **/*.sha256; do
         sleep 1
 
+        checksums_dir=$(dirname "$checksums_path")
+        checksums_filename=$(basename "$checksums_path")
+
         # Parse the platform name and version out of the filename of the checksums file.
-        platform="$(echo "$checksums_path" | cut -d + -f 1)"
-        version="$(echo "$checksums_path" | cut -d + -f 3,4 | sed 's/\.sha256//')"
-        if ! sha256sum --quiet -c "$checksums_path"; then
+        platform="$(echo "$checksums_filename" | cut -d + -f 1)"
+        version="$(echo "$checksums_filename" | cut -d + -f 3,4 | sed 's/\.sha256//')"
+        if ! (cd "$checksums_dir" && sha256sum --quiet -c "$checksums_filename"); then
             echo "Failed to verify checksums for $version"
             continue
         fi
 
-        if [[ $version == *"-dev-"* ]]; then
+        if [[ "$platform" == "installer-downloader" ]]; then
+            upload_path="desktop/installer-downloader"
+        elif [[ $version == *"-dev-"* ]]; then
             upload_path="$platform/builds"
         else
             upload_path="$platform/releases"
+            should_invalidate_bunny_cdn_cache="true"
         fi
 
-        files=$(awk '{print $2}' < "$checksums_path")
-        for file in $files; do
+        # Read all files listed in the checksum file at $checksums_path into an array.
+        # sed is used to trim surrounding whitespace and asterisks from filenames.
+        readarray -t files < <(cut -f 2- -d ' ' < "$checksums_path" | sed 's/^[ \t\*]*\(.*\)[ \t]*$/\1/')
+        for filename in "${files[@]}"; do
+            file="$checksums_dir/$filename"
+
             file_upload_dir="$upload_path/$version"
-            if [[ $platform == "desktop" && ! $file == MullvadVPN-* ]]; then
+            if [[ $platform == "desktop" && ! $filename == MullvadVPN-* ]]; then
                 file_upload_dir="$file_upload_dir/additional-files"
-            elif [[ $platform == "android" && ! $file =~ MullvadVPN-"$version"(.apk|.play.apk|.play.aab) ]]; then
+            elif [[ $platform == "android" && ! $filename =~ MullvadVPN-"$version"(.apk|.play.apk|.play.aab) ]]; then
                 file_upload_dir="$file_upload_dir/additional-files"
             fi
 
             rsync_upload "$file" "$file_upload_dir/" || continue
 
-            if [[ $file == MullvadVPN-* ]]; then
+            if [[ $filename == MullvadVPN-* || $filename == Install* ]]; then
                 rm -f "$file.asc"
                 gpg -u $CODE_SIGNING_KEY_FINGERPRINT --pinentry-mode loopback --sign --armor --detach-sign "$file"
                 rsync_upload "$file.asc" "$file_upload_dir/" || continue
@@ -65,4 +86,9 @@ while true; do
         # shellcheck disable=SC2216
         yes | rm "$checksums_path"
     done
+
+    if [[ "$should_invalidate_bunny_cdn_cache" == "true" ]]; then
+        echo "Invalidating Bunny CDN cache"
+        invalidate_bunny_cdn_cache || continue
+    fi
 done

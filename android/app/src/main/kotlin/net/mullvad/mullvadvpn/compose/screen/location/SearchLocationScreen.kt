@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,7 +45,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -56,6 +54,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
@@ -73,33 +73,33 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Default|Not found|Results")
+@Preview("Loading|Default|No Locations|Not found|Results")
 @Composable
 private fun PreviewSearchLocationScreen(
     @PreviewParameter(SearchLocationsUiStatePreviewParameterProvider::class)
-    state: SearchLocationUiState
+    state: Lce<Unit, SearchLocationUiState, Unit>
 ) {
     AppTheme {
         SearchLocationScreen(
             state = state,
-            SnackbarHostState(),
-            {},
-            { _, _, _ -> },
-            {},
-            {},
-            {},
-            { _, _ -> },
-            { _, _ -> },
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
+            snackbarHostState = SnackbarHostState(),
+            onSelectRelayItem = { _, _ -> },
+            onToggleExpand = { _, _, _ -> },
+            onSearchInputChanged = {},
+            onCreateCustomList = {},
+            onAddLocationToList = { _, _ -> },
+            onRemoveLocationFromList = { _, _ -> },
+            onEditCustomListName = {},
+            onEditLocationsCustomList = {},
+            onDeleteCustomList = {},
+            onRemoveOwnershipFilter = {},
+            onRemoveProviderFilter = {},
+            onGoBack = {},
         )
     }
 }
@@ -148,6 +148,34 @@ fun SearchLocation(
                         message = context.getString(R.string.error_occurred)
                     )
                 }
+            is SearchLocationSideEffect.EntryAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                R.string.relay_item_already_selected_as_entry,
+                                it.relayItem.name,
+                            )
+                    )
+                }
+            is SearchLocationSideEffect.ExitAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                R.string.relay_item_already_selected_as_exit,
+                                it.relayItem.name,
+                            )
+                    )
+                }
+            is SearchLocationSideEffect.RelayItemInactive -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                    )
+                }
+            }
         }
     }
 
@@ -174,14 +202,13 @@ fun SearchLocation(
     SearchLocationScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSelectRelay = viewModel::selectRelay,
+        onSelectRelayItem = viewModel::selectRelayItem,
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
                 navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
             },
-        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
         onAddLocationToList = viewModel::addLocationToList,
         onRemoveLocationFromList = viewModel::removeLocationFromList,
         onEditCustomListName =
@@ -218,13 +245,12 @@ fun SearchLocation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
-    state: SearchLocationUiState,
+    state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
-    onEditCustomLists: () -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
@@ -249,7 +275,6 @@ fun SearchLocationScreen(
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
             onCreateCustomList = onCreateCustomList,
-            onEditCustomLists = onEditCustomLists,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
             onEditCustomListName = onEditCustomListName,
@@ -259,10 +284,11 @@ fun SearchLocationScreen(
         )
         Column(modifier = Modifier.padding(it)) {
             val focusRequester = remember { FocusRequester() }
-            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            LaunchedEffect(state is Lce.Content) { focusRequester.requestFocus() }
             SearchBar(
                 modifier = Modifier.focusRequester(focusRequester),
-                searchTerm = state.searchTerm,
+                searchTerm = state.contentOrNull()?.searchTerm ?: "",
+                enabled = state is Lce.Content,
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 onSearchInputChanged = onSearchInputChanged,
@@ -274,6 +300,7 @@ fun SearchLocationScreen(
             LazyColumn(
                 modifier =
                     Modifier.fillMaxSize()
+                        .padding(horizontal = Dimens.mediumPadding)
                         .background(color = backgroundColor)
                         .drawVerticalScrollbar(
                             lazyListState,
@@ -283,21 +310,27 @@ fun SearchLocationScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 filterRow(
-                    filters = state.filterChips,
+                    filters = state.contentOrNull()?.filterChips ?: emptyList(),
                     onBackgroundColor = onBackgroundColor,
                     onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
                 when (state) {
-                    is SearchLocationUiState.NoQuery -> {
-                        noQuery()
+                    is Lce.Loading -> {
+                        loading()
                     }
-                    is SearchLocationUiState.Content -> {
+                    is Lce.Error -> {
+                        // Relay list is empty
+                        item { EmptyRelayListText() }
+                    }
+                    is Lce.Content -> {
                         relayListContent(
-                            backgroundColor = backgroundColor,
-                            customLists = state.customLists,
-                            relayListItems = state.relayListItems,
-                            onSelectRelay = onSelectRelay,
+                            relayListItems = state.value.relayListItems,
+                            customLists = state.value.customLists,
+                            onSelectHop = { error("Can not select hop in search screen") },
+                            onSelectRelayItem = {
+                                onSelectRelayItem(it, state.value.relayListType)
+                            },
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
                                 locationBottomSheetState = newSheetState
@@ -326,6 +359,7 @@ fun SearchLocationScreen(
 @Composable
 private fun SearchBar(
     searchTerm: String,
+    enabled: Boolean,
     backgroundColor: Color,
     onBackgroundColor: Color,
     onSearchInputChanged: (String) -> Unit,
@@ -336,6 +370,7 @@ private fun SearchBar(
     SearchBarDefaults.InputField(
         modifier = modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
         query = searchTerm,
+        enabled = enabled,
         onQueryChange = onSearchInputChanged,
         onSearch = { hideKeyboard() },
         expanded = true,
@@ -376,18 +411,6 @@ private fun SearchBar(
     )
 }
 
-private fun LazyListScope.noQuery() {
-    item(contentType = ContentType.DESCRIPTION) {
-        Text(
-            text = stringResource(R.string.search_query_empty),
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(Dimens.mediumPadding),
-        )
-    }
-}
-
 private fun LazyListScope.filterRow(
     filters: List<FilterChip>,
     onBackgroundColor: Color,
@@ -417,6 +440,10 @@ private fun Title(text: String, onBackgroundColor: Color) {
         modifier =
             Modifier.fillMaxWidth()
                 .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
     )
+}
+
+private fun LazyListScope.loading() {
+    item(contentType = ContentType.PROGRESS) { MullvadCircularProgressIndicatorLarge() }
 }

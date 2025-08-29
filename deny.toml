@@ -51,18 +51,10 @@ allow = [
     "BSD-3-Clause",
     "BSD-2-Clause",
     "CC0-1.0",
-    # https://github.com/briansmith/ring/issues/902
-    "LicenseRef-ring",
     "Unicode-DFS-2016",
     "Zlib",
-    "Unicode-3.0"
-]
-
-[[licenses.clarify]]
-name = "ring"
-expression = "LicenseRef-ring"
-license-files = [
-    { path = "LICENSE", hash = 0xbd0eed23 }
+    "Unicode-3.0",
+    "CDLA-Permissive-2.0"
 ]
 
 [licenses.private]
@@ -105,7 +97,7 @@ deny = [
 unknown-registry = "deny"
 unknown-git = "deny"
 
-# We should never depend on git repositories outside our own github organization.
+# We must never depend on git repositories outside our own github organization.
 # We can't say anything about their availability. They might go away at any point
 # in time. Instead of using third party git repositories, always fork the repository
 # into our github organization and depend on that.

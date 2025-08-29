@@ -1,19 +1,20 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
-
-    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.model"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
-        minSdk = Versions.minSdkVersion
+        minSdk = libs.versions.min.sdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -22,9 +23,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-        allWarningsAsErrors = true
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
+            allWarningsAsErrors = true
+        }
     }
 
     lint {
@@ -42,10 +45,10 @@ dependencies {
     ksp(libs.arrow.optics.ksp)
 
     // Test dependencies
-    testRuntimeOnly(Dependencies.junitJupiterEngine)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 
     testImplementation(libs.kotlin.test)
-    testImplementation(Dependencies.junitJupiterApi)
+    testImplementation(libs.junit.jupiter.api)
 
     testImplementation(projects.lib.commonTest)
 }

@@ -49,12 +49,7 @@ class LoginViewController: UIViewController, RootContainment {
 
     private lazy var accountInputAccessoryLoginButton: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(
-            title: NSLocalizedString(
-                "LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE",
-                tableName: "Login",
-                value: "Log in",
-                comment: ""
-            ),
+            title: NSLocalizedString("Log in", comment: ""),
             style: .done,
             target: self,
             action: #selector(doLogin)
@@ -107,8 +102,11 @@ class LoginViewController: UIViewController, RootContainment {
         false
     }
 
-    init(interactor: LoginInteractor) {
+    private let alertPresenter: AlertPresenter
+
+    init(interactor: LoginInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
+        self.alertPresenter = alertPresenter
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -129,7 +127,7 @@ class LoginViewController: UIViewController, RootContainment {
         updateLastUsedAccount()
 
         contentView.accountInputGroup.didRemoveLastUsedAccount = { [weak self] in
-            self?.interactor.removeLastUsedAccount()
+            self?.showLastUsedAccountRemovalWarning()
         }
 
         contentView.accountInputGroup.didEnterAccount = { [weak self] in
@@ -232,10 +230,82 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     @objc private func createNewAccount() {
-        start(action: .createAccount)
+        if interactor.hasLastAccountNumber {
+            let message = NSMutableAttributedString(
+                markdownString: NSLocalizedString("""
+                You already have a saved account number, by creating a new account the saved account number \
+                will be removed from this device. This cannot be undone.
+                Do you want to create a new account?
+                """, comment: ""),
+                options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+            )
+
+            let presentation = AlertPresentation(
+                id: "create-account-confirmation-dialog",
+                icon: .info,
+                attributedMessage: message,
+                buttons: [
+                    AlertAction(
+                        title: NSLocalizedString("Create new account", comment: ""),
+                        style: .default,
+                        accessibilityId: .createAccountConfirmationButton,
+                        handler: {
+                            self.start(action: .createAccount)
+                        }
+                    ),
+                    AlertAction(
+                        title: NSLocalizedString("Cancel", comment: ""),
+                        style: .default,
+                        accessibilityId: .createAccountCancelButton
+                    ),
+                ]
+            )
+            alertPresenter.showAlert(presentation: presentation, animated: true)
+        } else {
+            start(action: .createAccount)
+        }
     }
 
     // MARK: - Private
+
+    private func showLastUsedAccountRemovalWarning() {
+        let message = NSMutableAttributedString(
+            markdownString: NSLocalizedString(
+                """
+                Removing the saved account number from this device cannot be undone.
+                Do you want to remove the saved account number?
+                """,
+                comment: ""
+            ),
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+        )
+
+        let presentation = AlertPresentation(
+            id: "remove-saved-account-number-dialog",
+            icon: .info,
+            attributedMessage: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Remove", comment: ""),
+                    style: .destructive,
+                    accessibilityId: .removeLastUsedAccountButton,
+                    handler: {
+                        self.interactor.removeLastUsedAccount()
+                        self.contentView.accountInputGroup.setLastUsedAccount(
+                            nil,
+                            animated: true
+                        )
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString("Cancel", comment: ""),
+                    style: .default,
+                    accessibilityId: .cancelRemoveLastUsedAccountButton
+                ),
+            ]
+        )
+        self.alertPresenter.showAlert(presentation: presentation, animated: true)
+    }
 
     private func updateLastUsedAccount() {
         contentView.accountInputGroup.setLastUsedAccount(
@@ -320,65 +390,30 @@ private extension LoginState {
     var localizedTitle: String {
         switch self {
         case .default:
-            return NSLocalizedString(
-                "HEADING_TITLE_DEFAULT",
-                tableName: "Login",
-                value: "Login",
-                comment: ""
-            )
+            return NSLocalizedString("Login", comment: "")
 
         case .authenticating:
-            return NSLocalizedString(
-                "HEADING_TITLE_AUTHENTICATING",
-                tableName: "Login",
-                value: "Logging in...",
-                comment: ""
-            )
+            return NSLocalizedString("Logging in...", comment: "")
 
         case .failure:
-            return NSLocalizedString(
-                "HEADING_TITLE_FAILURE",
-                tableName: "Login",
-                value: "Login failed",
-                comment: ""
-            )
+            return NSLocalizedString("Login failed", comment: "")
 
         case .success:
-            return NSLocalizedString(
-                "HEADING_TITLE_SUCCESS",
-                tableName: "Login",
-                value: "Logged in",
-                comment: ""
-            )
+            return NSLocalizedString("Logged in", comment: "")
         }
     }
 
     var localizedMessage: String {
         switch self {
         case .default:
-            return NSLocalizedString(
-                "SUBHEAD_TITLE_DEFAULT",
-                tableName: "Login",
-                value: "Enter your account number",
-                comment: ""
-            )
+            return NSLocalizedString("Enter your account number", comment: "")
 
         case let .authenticating(method):
             switch method {
             case .useExistingAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_AUTHENTICATING",
-                    tableName: "Login",
-                    value: "Checking account number",
-                    comment: ""
-                )
+                return NSLocalizedString("Checking account number", comment: "")
             case .createAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_CREATING_ACCOUNT",
-                    tableName: "Login",
-                    value: "Creating new account",
-                    comment: ""
-                )
+                return NSLocalizedString("Creating new account", comment: "")
             }
 
         case let .failure(_, error):
@@ -387,19 +422,9 @@ private extension LoginState {
         case let .success(method):
             switch method {
             case .useExistingAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_SUCCESS",
-                    tableName: "Login",
-                    value: "Correct account number",
-                    comment: ""
-                )
+                return NSLocalizedString("Correct account number", comment: "")
             case .createAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_CREATED_ACCOUNT",
-                    tableName: "Login",
-                    value: "Account created",
-                    comment: ""
-                )
+                return NSLocalizedString("Account created", comment: "")
             }
         }
     }
@@ -416,6 +441,4 @@ private extension LoginState {
             return .hidden
         }
     }
-
-    // swiftlint:disable:next file_length
 }

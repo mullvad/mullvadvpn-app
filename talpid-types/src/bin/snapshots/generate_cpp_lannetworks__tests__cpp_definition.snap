@@ -1,0 +1,34 @@
+---
+source: talpid-types/src/bin/generate-cpp-lannetworks.rs
+expression: out
+snapshot_kind: text
+---
+#pragma once
+#include <libwfp/ipaddress.h>
+#include <libwfp/ipnetwork.h>
+
+static const wfp::IpNetwork g_ipv4LanNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 10, 0, 0, 0 }), 8),
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 172, 16, 0, 0 }), 12),
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), 16),
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 169, 254, 0, 0 }), 16),
+};
+
+static const wfp::IpNetwork g_ipv6LanNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xfe80, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 10),
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xfc00, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 7),
+};
+
+static const wfp::IpNetwork g_ipv4MulticastNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 255, 255, 255, 255 }), 32),
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 224, 0, 0, 0 }), 24),
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 0, 0, 0 }), 8),
+};
+
+static const wfp::IpNetwork g_ipv6MulticastNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff01, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff02, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff03, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff04, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff05, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
+};

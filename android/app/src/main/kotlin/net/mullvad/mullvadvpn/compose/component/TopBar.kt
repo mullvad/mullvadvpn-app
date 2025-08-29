@@ -47,11 +47,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_SETTINGS_BUTTON
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_TEST_TAG
 
 @Preview
 @Composable
@@ -132,7 +132,7 @@ fun MullvadTopBar(
                     BoxWithConstraints {
                         val logoTextPainter = painterResource(id = R.drawable.logo_text)
                         val logoHeight = Dimens.mediumPadding
-                        val logoStartEndPadding = Dimens.mediumPadding
+                        val logoStartEndPadding = Dimens.smallPadding
 
                         val shouldShowText =
                             remember(maxWidth) {
@@ -149,7 +149,7 @@ fun MullvadTopBar(
                                 tint = iconTintColor,
                                 contentDescription = null, // No meaningful user info or action.
                                 modifier =
-                                    Modifier.padding(horizontal = Dimens.mediumPadding)
+                                    Modifier.padding(horizontal = logoStartEndPadding)
                                         .height(logoHeight),
                             )
                         }
@@ -160,7 +160,7 @@ fun MullvadTopBar(
         actions = {
             if (onAccountClicked != null) {
                 IconButton(
-                    modifier = Modifier.testTag(TOP_BAR_ACCOUNT_BUTTON),
+                    modifier = Modifier.testTag(TOP_BAR_ACCOUNT_BUTTON_TEST_TAG),
                     enabled = enabled,
                     onClick = onAccountClicked,
                 ) {
@@ -174,7 +174,7 @@ fun MullvadTopBar(
 
             if (onSettingsClicked != null) {
                 IconButton(
-                    modifier = Modifier.testTag(TOP_BAR_SETTINGS_BUTTON),
+                    modifier = Modifier.testTag(TOP_BAR_SETTINGS_BUTTON_TEST_TAG),
                     enabled = enabled,
                     onClick = onSettingsClicked,
                 ) {
@@ -372,7 +372,7 @@ fun MullvadTopBarWithDeviceName(
                     } ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelLarge,
                 color = iconTintColor,
             )
             if (daysLeftUntilExpiry != null) {
@@ -390,7 +390,7 @@ fun MullvadTopBarWithDeviceName(
                                 stringResource(id = R.string.out_of_time)
                             },
                         ),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelLarge,
                     color = iconTintColor,
                 )
             } else {

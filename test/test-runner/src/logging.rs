@@ -9,8 +9,8 @@ use tokio::{
     fs::File,
     io::{self, AsyncBufReadExt, BufReader},
     sync::{
-        broadcast::{channel, Receiver, Sender},
         Mutex,
+        broadcast::{Receiver, Sender, channel},
     },
 };
 
@@ -20,7 +20,7 @@ const INCLUDE_LOG_FILE_EXT: &str = "log";
 /// Ignore log files that contain ".old"
 const EXCLUDE_LOG_FILE_CONTAIN: &str = ".old";
 /// Maximum number of lines that each log file may contain
-const TRUNCATE_LOG_FILE_LINES: usize = 100;
+const TRUNCATE_LOG_FILE_LINES: usize = 200;
 
 pub static LOGGER: LazyLock<StdOutBuffer> = LazyLock::new(|| {
     let (sender, listener) = channel(MAX_OUTPUT_BUFFER);
@@ -76,7 +76,7 @@ pub async fn get_mullvad_app_logs() -> LogOutput {
 
 async fn read_settings_file() -> Result<String, Error> {
     let mut settings_path = mullvad_paths::get_default_settings_dir()
-        .map_err(|error| Error::Logs(format!("{}", error)))?;
+        .map_err(|error| Error::Logs(format!("{error}")))?;
     settings_path.push("settings.json");
     read_truncated(&settings_path, None)
         .await
@@ -85,10 +85,10 @@ async fn read_settings_file() -> Result<String, Error> {
 
 async fn read_log_files() -> Result<Vec<Result<LogFile, Error>>, Error> {
     let log_dir =
-        mullvad_paths::get_default_log_dir().map_err(|error| Error::Logs(format!("{}", error)))?;
+        mullvad_paths::get_default_log_dir().map_err(|error| Error::Logs(format!("{error}")))?;
     let paths = list_logs(log_dir)
         .await
-        .map_err(|error| Error::Logs(format!("{}", error)))?;
+        .map_err(|error| Error::Logs(format!("{error}")))?;
     let mut log_files = Vec::new();
     for path in paths {
         let log_file = read_truncated(&path, Some(TRUNCATE_LOG_FILE_LINES))
@@ -135,7 +135,9 @@ async fn read_truncated<T: AsRef<Path>>(
         output.push(line);
     }
     if let Some(max_number_of_lines) = truncate_lines {
-        output.truncate(max_number_of_lines);
+        if output.len() > max_number_of_lines {
+            output = output.split_off(output.len() - max_number_of_lines);
+        }
     }
     Ok(output.join("\n"))
 }

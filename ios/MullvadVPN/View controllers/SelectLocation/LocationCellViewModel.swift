@@ -68,12 +68,12 @@ extension LocationCellViewModel {
      We check this by doing the following, in order:
 
      1. Count hostnames in the tree. More than one means that there are other locations than
-     the excluded one for the relay selector to choose from. No exlusion.
+     the excluded one for the relay selector to choose from. No exclusion.
 
      2. Count hostnames in the excluded node. More than one means that there are multiple
      locations for the relay selector to choose from. No exclusion.
 
-     3. Check existance of a location in the tree that matches the currently excluded location.
+     3. Check existence of a location in the tree that matches the currently excluded location.
      No match means no exclusion.
      */
     func shouldExcludeLocation(_ excludedLocation: LocationCellViewModel?) -> Bool {
@@ -87,7 +87,7 @@ extension LocationCellViewModel {
             if case .hostname = location { true } else { false }
         }.count
 
-        // If the there's more than one selectable relay in the current node we don't need
+        // If there's more than one selectable relay in the current node we don't need
         // to show this in the location tree and can return early.
         guard hostCount == 1 else { return false }
 
@@ -97,7 +97,7 @@ extension LocationCellViewModel {
             if case .hostname = location { true } else { false }
         }.count
 
-        // If the there's more than one selectable relay in the excluded node we don't need
+        // If there's more than one selectable relay in the excluded node we don't need
         // to show this in the location tree and can return early.
         guard excludedHostCount == 1 else { return false }
 

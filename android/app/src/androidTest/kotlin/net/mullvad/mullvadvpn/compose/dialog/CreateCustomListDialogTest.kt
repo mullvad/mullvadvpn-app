@@ -12,9 +12,9 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
-import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
+import net.mullvad.mullvadvpn.lib.ui.tag.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

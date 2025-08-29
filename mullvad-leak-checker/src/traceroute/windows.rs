@@ -1,14 +1,14 @@
 use std::{net::IpAddr, str};
 
-use anyhow::{anyhow, Context};
-use futures::{select, stream::FuturesUnordered, FutureExt, StreamExt};
+use anyhow::{Context, anyhow};
+use futures::{FutureExt, StreamExt, select, stream::FuturesUnordered};
 
 use tokio::time::sleep;
 
 use crate::{
-    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT},
-    util::{get_interface_ip, Ip},
     LeakInfo, LeakStatus,
+    traceroute::{DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT, TracerouteOpt},
+    util::{Ip, get_interface_ip},
 };
 
 /// Implementation of traceroute using `ping.exe`

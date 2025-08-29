@@ -8,7 +8,7 @@ import workspaceConfig from '../../eslint.config.mjs';
 export default [
   ...workspaceConfig,
   react.configs.flat.recommended,
-  { ignores: ['build/'] },
+  { ignores: ['build/', 'build-standalone/'] },
   {
     files: ['**/*'],
     ignores: ['src/renderer/'],
@@ -51,7 +51,7 @@ export default [
     rules: { '@typescript-eslint/no-unused-expressions': 'off' },
   },
   {
-    files: ['tasks/*', 'scripts/*', 'gulpfile.js', 'init.js'],
+    files: ['tasks/*', 'scripts/*'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 ];

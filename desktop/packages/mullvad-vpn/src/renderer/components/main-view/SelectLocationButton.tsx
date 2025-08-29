@@ -5,10 +5,10 @@ import styled from 'styled-components';
 import { ICustomList } from '../../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../shared/gettext';
 import log from '../../../shared/logging';
+import { RoutePath } from '../../../shared/routes';
 import { useAppContext } from '../../context';
 import { Button, ButtonProps, Icon } from '../../lib/components';
-import { transitions, useHistory } from '../../lib/history';
-import { RoutePath } from '../../lib/routes';
+import { TransitionType, useHistory } from '../../lib/history';
 import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
 import { MultiButton } from '../MultiButton';
@@ -37,7 +37,7 @@ function SelectLocationButton(props: ButtonProps) {
   );
 
   const onSelectLocation = useCallback(() => {
-    push(RoutePath.selectLocation, { transition: transitions.show });
+    push(RoutePath.selectLocation, { transition: TransitionType.show });
   }, [push]);
 
   return (
@@ -130,7 +130,7 @@ function ReconnectButton(props: ButtonProps) {
   return (
     <StyledReconnectButton
       onClick={onReconnect}
-      size="auto"
+      width="fit"
       aria-label={messages.gettext('Reconnect')}
       {...props}>
       <Icon icon="reconnect" />

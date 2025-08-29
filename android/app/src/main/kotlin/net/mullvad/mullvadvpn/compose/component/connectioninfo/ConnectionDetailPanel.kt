@@ -16,15 +16,18 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectionDetails
-import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_IN_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.constant.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_IN_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 
 @Composable
-fun ConnectionDetailPanel(connectionDetails: ConnectionDetails) {
+fun ConnectionDetailPanel(
+    connectionDetails: ConnectionDetails,
+    enableSelectableText: Boolean = true,
+) {
 
     ConnectionInfoHeader(
         stringResource(R.string.connect_panel_connection_details),
@@ -37,6 +40,7 @@ fun ConnectionDetailPanel(connectionDetails: ConnectionDetails) {
             it.outIpv4Address,
             it.outIpv6Address,
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
+            enableSelectableText = enableSelectableText,
         )
     }
 }
@@ -48,6 +52,7 @@ fun ConnectionDetails(
     outIPV4: String?,
     outIPV6: String?,
     modifier: Modifier = Modifier,
+    enableSelectableText: Boolean = true,
 ) {
     ConstraintLayout(modifier = modifier.fillMaxWidth()) {
         val (inAddrHeader, inAddr, outAddrV4Header, outAddrV4, outAddrV6Header, outAddrV6) =
@@ -70,7 +75,7 @@ fun ConnectionDetails(
         Text(
             text = stringResource(R.string.connection_details_in),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier =
@@ -85,7 +90,7 @@ fun ConnectionDetails(
         Text(
             text = inIPV4,
             color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier =
@@ -105,10 +110,10 @@ fun ConnectionDetails(
                     buildString {
                         append(stringResource(R.string.connection_details_out))
                         append(SPACE_CHAR)
-                        append(stringResource(R.string.connection_details_ipv4))
+                        append(stringResource(R.string.ipv4))
                     },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier =
@@ -131,15 +136,21 @@ fun ConnectionDetails(
                         width = Dimension.fillToConstraints
                     }
             ) {
-                SelectionContainer {
-                    Text(
-                        modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_OUT_TEST_TAG),
-                        text = outIPV4,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                val outIpV4Text =
+                    @Composable {
+                        Text(
+                            modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_OUT_TEST_TAG),
+                            text = outIPV4,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                if (enableSelectableText) {
+                    SelectionContainer(content = outIpV4Text)
+                } else {
+                    outIpV4Text()
                 }
             }
         }
@@ -150,10 +161,10 @@ fun ConnectionDetails(
                     buildString {
                         append(stringResource(R.string.connection_details_out))
                         append(SPACE_CHAR)
-                        append(stringResource(R.string.connection_details_ipv6))
+                        append(stringResource(R.string.ipv6))
                     },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier =
@@ -176,14 +187,20 @@ fun ConnectionDetails(
                         width = Dimension.fillToConstraints
                     }
             ) {
-                SelectionContainer {
-                    Text(
-                        text = outIPV6,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                val outIpV6Text =
+                    @Composable {
+                        Text(
+                            text = outIPV6,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                if (enableSelectableText) {
+                    SelectionContainer(content = outIpV6Text)
+                } else {
+                    outIpV6Text()
                 }
             }
         }
@@ -192,7 +209,11 @@ fun ConnectionDetails(
 
 @Composable
 fun TunnelEndpoint.toInAddress(): String {
-    val relayEndpoint = this.obfuscation?.endpoint ?: this.endpoint
+    // Order is important
+    // First we check for obfuscation (Shadowsocks, UDP-Over-UDP)
+    // Then we check for entry if we have multihop
+    // Finally we check for exit endpoint
+    val relayEndpoint = obfuscation?.endpoint ?: entryEndpoint ?: endpoint
 
     val host = relayEndpoint.address.address.hostAddress ?: ""
     val port = relayEndpoint.address.port

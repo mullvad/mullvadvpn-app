@@ -19,7 +19,9 @@ mod imp;
 pub use self::imp::MacosVersion;
 #[cfg(windows)]
 pub use self::imp::WindowsVersion;
+#[cfg(target_os = "android")]
+pub use self::imp::set_extra_metadata;
 pub use self::imp::{extra_metadata, short_version, version};
 
-pub use arch::get_native_arch;
 pub use arch::Architecture;
+pub use arch::get_native_arch;

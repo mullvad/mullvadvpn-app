@@ -22,6 +22,10 @@ talpid-dbus = { path = "../talpid-dbus", optional = true }
 workspace = true
 features = [
     "Win32_Foundation",
+    "Win32",
+    "Win32_Storage",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Diagnostics_Debug",
     "Win32_System_LibraryLoader",
     "Win32_System_SystemInformation",
     "Win32_System_SystemServices",

@@ -11,39 +11,34 @@ import UIKit
 /// Content configuration presenting a label and switch control.
 struct ListCellContentConfiguration: UIContentConfiguration, Equatable {
     struct TextProperties: Equatable {
-        var font = UIFont.systemFont(ofSize: 17)
+        var font = UIFont.mullvadSmall
         var color = UIColor.Cell.titleTextColor
     }
 
     struct SecondaryTextProperties: Equatable {
-        var font = UIFont.systemFont(ofSize: 17)
-        var color = UIColor.Cell.detailTextColor.withAlphaComponent(0.8)
+        var font = UIFont.mullvadSmall
+        var color = UIColor.Cell.detailTextColor.withAlphaComponent(0.6)
     }
 
     struct TertiaryTextProperties: Equatable {
-        var font = UIFont.systemFont(ofSize: 15)
+        var font = UIFont.mullvadTiny
         var color = UIColor.Cell.titleTextColor.withAlphaComponent(0.6)
     }
 
     /// Primary text label.
     var text: String?
-    let textProperties = TextProperties()
+    var textProperties = TextProperties()
 
     /// Secondary (trailing) text label.
     var secondaryText: String?
-    let secondaryTextProperties = SecondaryTextProperties()
+    var secondaryTextProperties = SecondaryTextProperties()
 
     /// Tertiary (below primary) text label.
     var tertiaryText: String?
-    let tertiaryTextProperties = TertiaryTextProperties()
+    var tertiaryTextProperties = TertiaryTextProperties()
 
     /// Content view layout margins.
-    var directionalLayoutMargins = NSDirectionalEdgeInsets(
-        top: 8,
-        leading: 24,
-        bottom: 8,
-        trailing: 24
-    )
+    var directionalLayoutMargins = UIMetrics.SettingsCell.defaultLayoutMargins
 
     func makeContentView() -> UIView & UIContentView {
         return ListCellContentView(configuration: self)

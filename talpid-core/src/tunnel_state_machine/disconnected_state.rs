@@ -7,11 +7,9 @@ use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::{dns, tunnel_state_machine::ErrorState};
 use futures::StreamExt;
-#[cfg(target_os = "macos")]
-use std::net::Ipv4Addr;
+use talpid_types::ErrorExt;
 #[cfg(target_os = "macos")]
 use talpid_types::tunnel::ErrorStateCause;
-use talpid_types::ErrorExt;
 
 /// No tunnel is running.
 pub struct DisconnectedState(());
@@ -32,7 +30,7 @@ impl DisconnectedState {
             );
         }
         #[cfg(target_os = "macos")]
-        if shared_values.block_when_disconnected {
+        if shared_values.block_when_disconnected.bool() {
             if let Err(err) = Self::setup_local_dns_config(shared_values) {
                 log::error!(
                     "{}",
@@ -66,7 +64,7 @@ impl DisconnectedState {
                 // Being disconnected and having lockdown mode enabled implies that your internet
                 // access is locked down
                 #[cfg(not(target_os = "android"))]
-                locked_down: shared_values.block_when_disconnected,
+                locked_down: shared_values.block_when_disconnected.bool(),
             },
         )
     }
@@ -76,12 +74,18 @@ impl DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) {
-        let result = if shared_values.block_when_disconnected {
+        let result = if shared_values.block_when_disconnected.bool() {
+            #[cfg(target_os = "windows")]
+            {
+                // Respect the persist flag of BlockWhenDisconnected.
+                shared_values
+                    .firewall
+                    .persist(shared_values.block_when_disconnected.should_persist());
+            }
+
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
                 allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
-                #[cfg(target_os = "macos")]
-                dns_redirect_port: shared_values.filtering_resolver.listening_port(),
             };
 
             shared_values.firewall.apply_policy(policy).map_err(|e| {
@@ -114,7 +118,7 @@ impl DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) {
-        if should_reset_firewall && !shared_values.block_when_disconnected {
+        if should_reset_firewall && !shared_values.block_when_disconnected.bool() {
             if let Err(error) = shared_values.split_tunnel.clear_tunnel_addresses() {
                 log::error!(
                     "{}",
@@ -149,8 +153,8 @@ impl DisconnectedState {
         shared_values.dns_monitor.set(
             "lo",
             dns::DnsConfig::default().resolve(
-                &[Ipv4Addr::LOCALHOST.into()],
-                shared_values.filtering_resolver.listening_port(),
+                &[shared_values.filtering_resolver.listening_addr().ip()],
+                shared_values.filtering_resolver.listening_addr().port(),
             ),
         )
     }
@@ -203,7 +207,7 @@ impl TunnelState for DisconnectedState {
                     #[cfg(windows)]
                     Self::register_split_tunnel_addresses(shared_values, true);
                     #[cfg(target_os = "macos")]
-                    if block_when_disconnected {
+                    if block_when_disconnected.bool() {
                         if let Err(err) = Self::setup_local_dns_config(shared_values) {
                             log::error!(
                                 "{}",

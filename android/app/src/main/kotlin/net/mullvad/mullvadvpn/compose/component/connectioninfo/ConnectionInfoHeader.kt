@@ -13,7 +13,7 @@ fun ConnectionInfoHeader(text: String, modifier: Modifier = Modifier) {
     Text(
         modifier = modifier.padding(top = Dimens.smallPadding),
         text = text,
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         overflow = TextOverflow.Ellipsis,
     )

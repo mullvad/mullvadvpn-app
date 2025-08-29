@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+import MullvadTypes
 import UIKit
 
 /// Type implementing the shadowsocks cipher picker.
@@ -25,12 +26,7 @@ struct ShadowsocksCipherPicker {
         let dataSource = ShadowsocksCipherPickerDataSource()
         let controller = ListItemPickerViewController(dataSource: dataSource, selectedItemID: currentValue)
 
-        controller.navigationItem.title = NSLocalizedString(
-            "SELECT_SHADOWSOCKS_CIPHER_NAV_TITLE",
-            tableName: "APIAccess",
-            value: "Cipher",
-            comment: ""
-        )
+        controller.navigationItem.title = NSLocalizedString("Cipher", comment: "")
 
         controller.onSelect = { selectedItem in
             navigationController.popViewController(animated: true)

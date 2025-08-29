@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -47,7 +48,7 @@ class BillingPaymentRepository(
                 .associate { it.products.first() to it.purchaseState.toPaymentStatus() }
         emit(
             billingRepository
-                .queryProducts(listOf(ProductIds.OneMonth))
+                .queryProducts(listOf(ProductIds.OneMonth, ProductIds.ThreeMonths))
                 .toPaymentAvailability(productIdToPaymentStatus)
         )
     }
@@ -121,14 +122,14 @@ class BillingPaymentRepository(
                             return@flow
                         }
                 if (purchase.purchaseState == Purchase.PurchaseState.PENDING) {
-                    emit(PurchaseResult.Completed.Pending)
+                    emit(PurchaseResult.Completed.Pending(ProductId(purchase.products.first())))
                 } else {
                     emit(PurchaseResult.VerificationStarted)
                     emit(
                         verifyPurchase(event.purchases.first())
                             .fold(
                                 { PurchaseResult.Error.VerificationError(null) },
-                                { PurchaseResult.Completed.Success },
+                                { productId -> PurchaseResult.Completed.Success(productId) },
                             )
                     )
                 }
@@ -145,6 +146,7 @@ class BillingPaymentRepository(
         }
         val purchases = purchasesResult.nonPendingPurchases()
         if (purchases.isEmpty()) {
+            Logger.d("No purchases to verify")
             return@either VerificationResult.NothingToVerify
         }
         verifyPurchase(purchases.first())
@@ -163,11 +165,32 @@ class BillingPaymentRepository(
             }
         }
 
-    private suspend fun verifyPurchase(purchase: Purchase) =
-        playPurchaseRepository.verifyPlayPurchase(
-            PlayPurchase(
-                productId = purchase.products.first(),
-                purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
-            )
-        )
+    private suspend fun verifyPurchase(
+        purchase: Purchase
+    ): Either<PlayPurchaseVerifyError, ProductId> =
+        either {
+                ensure(purchase.products.isNotEmpty()) {
+                    Logger.e("Purchase has no products")
+                    PlayPurchaseVerifyError.OtherError
+                }
+                ensure(purchase.purchaseToken.isNotEmpty()) {
+                    Logger.e("Purchase has no purchase token")
+                    PlayPurchaseVerifyError.OtherError
+                }
+                playPurchaseRepository
+                    .verifyPlayPurchase(
+                        PlayPurchase(
+                            productId = purchase.products.first(),
+                            purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
+                        )
+                    )
+                    .also { Logger.d("Purchase verification result $it") }
+                    .bind()
+            }
+            .onLeft {
+                Logger.e(
+                    "Failed to verify purchase token ending with ${purchase.purchaseToken.takeLast(2)}"
+                )
+            }
+            .map { ProductId(purchase.products.first()) }
 }

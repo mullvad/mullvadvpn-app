@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,13 +59,14 @@ fun MullvadExposedDropdownMenuBox(
 @Composable
 fun MullvadDropdownMenuItem(
     text: String,
+    style: TextStyle = MaterialTheme.typography.bodyLarge,
     onClick: () -> Unit,
     content: @Composable (() -> Unit)? = null,
 ) {
     DropdownMenuItem(
         leadingIcon = content,
         colors = menuItemColors,
-        text = { Text(text = text) },
+        text = { Text(text = text, style = style) },
         onClick = onClick,
     )
 }

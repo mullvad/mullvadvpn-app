@@ -7,6 +7,19 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+inline fun <T> Flow<T>.onFirst(crossinline action: suspend (T) -> Unit): Flow<T> {
+    return flow {
+        var first = true
+        collect { value ->
+            if (first) {
+                action(value)
+                first = false
+            }
+            emit(value)
+        }
+    }
+}
+
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,
     flow2: Flow<T2>,

@@ -16,7 +16,7 @@ protocol Connection {
 
 /// Minimal implementation of UDP connection capable of sending data.
 /// > Warning: Do not use this implementation in production code. See the warning in `start()`.
-class UDPConnection: Connection {
+class UDPConnection: Connection, @unchecked Sendable {
     private let dispatchQueue = DispatchQueue(label: "UDPConnection")
     private let nwConnection: NWConnection
 

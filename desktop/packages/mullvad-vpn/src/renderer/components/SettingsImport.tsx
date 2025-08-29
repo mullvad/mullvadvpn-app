@@ -3,27 +3,23 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Flex, Icon, IconProps } from '../lib/components';
-import { Colors, spacings } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
+import { Button, Flex, Icon, IconProps, LabelTiny } from '../lib/components';
+import { colors, spacings } from '../lib/foundations';
+import { TransitionType, useHistory } from '../lib/history';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import { measurements, normalText, tinyText } from './common-styles';
+import { ButtonGroup } from './ButtonGroup';
+import { measurements, normalText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { SmallButton, SmallButtonColor, SmallButtonGrid } from './SmallButton';
-
-const StyledSmallButtonGrid = styled(SmallButtonGrid)({
-  margin: `0 ${measurements.horizontalViewMargin}`,
-});
 
 type ImportStatus = { successful: boolean } & ({ type: 'file'; name: string } | { type: 'text' });
 
@@ -72,7 +68,7 @@ export default function SettingsImport() {
   }, [clearAllRelayOverrides, hideClearDialog, setImportStatus]);
 
   const navigateTextImport = useCallback(() => {
-    history.push(RoutePath.settingsTextImport, { transition: transitions.show });
+    history.push(RoutePath.settingsTextImport, { transition: TransitionType.show });
   }, [history]);
 
   const importFile = useCallback(async () => {
@@ -104,6 +100,11 @@ export default function SettingsImport() {
     }
   });
 
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => void onMount(), []);
 
   return (
@@ -149,37 +150,38 @@ export default function SettingsImport() {
             </SettingsHeader>
 
             <Flex $flexDirection="column" $flex={1}>
-              <StyledSmallButtonGrid>
-                <SmallButton onClick={navigateTextImport}>
-                  {messages.pgettext('settings-import', 'Import via text')}
-                </SmallButton>
-                <SmallButton onClick={importFile}>
-                  {messages.pgettext('settings-import', 'Import file')}
-                </SmallButton>
-              </StyledSmallButtonGrid>
+              <ButtonGroup $gap="small" $margin="medium">
+                <Button onClick={navigateTextImport}>
+                  <Button.Text>
+                    {messages.pgettext('settings-import', 'Import via text')}
+                  </Button.Text>
+                </Button>
+                <Button onClick={importFile}>
+                  <Button.Text>{messages.pgettext('settings-import', 'Import file')}</Button.Text>
+                </Button>
+              </ButtonGroup>
 
               <SettingsImportStatus status={importStatus} />
             </Flex>
 
             <Footer>
-              <SmallButton
-                onClick={showClearDialog}
-                color={SmallButtonColor.red}
-                disabled={!activeOverrides}>
-                {messages.pgettext('settings-import', 'Clear all overrides')}
-              </SmallButton>
+              <Button variant="destructive" onClick={showClearDialog} disabled={!activeOverrides}>
+                <Button.Text>
+                  {messages.pgettext('settings-import', 'Clear all overrides')}
+                </Button.Text>
+              </Button>
             </Footer>
 
             <ModalAlert
               isOpen={clearDialogVisible}
               type={ModalAlertType.warning}
               gridButtons={[
-                <SmallButton key="cancel" onClick={hideClearDialog}>
-                  {messages.gettext('Cancel')}
-                </SmallButton>,
-                <SmallButton key="confirm" onClick={confirmClear} color={SmallButtonColor.red}>
-                  {messages.gettext('Clear')}
-                </SmallButton>,
+                <Button key="cancel" onClick={hideClearDialog}>
+                  <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+                </Button>,
+                <Button key="confirm" onClick={confirmClear} variant="destructive">
+                  <Button.Text>{messages.gettext('Clear')}</Button.Text>
+                </Button>,
               ]}
               close={hideClearDialog}
               title={messages.pgettext('settings-import', 'Clear all overrides?')}
@@ -206,12 +208,8 @@ const StyledStatusTitle = styled.div(normalText, {
   alignItems: 'center',
   fontWeight: 'bold',
   lineHeight: '20px',
-  color: Colors.white,
+  color: colors.white,
   gap: spacings.tiny,
-});
-
-const StyledStatusSubTitle = styled.div(tinyText, {
-  color: Colors.white60,
 });
 
 interface ImportStatusProps {
@@ -238,9 +236,9 @@ function SettingsImportStatus(props: ImportStatusProps) {
     iconProps = props.status.successful
       ? {
           icon: 'checkmark',
-          color: Colors.green,
+          color: 'green',
         }
-      : { icon: 'cross', color: Colors.red };
+      : { icon: 'cross', color: 'red' };
 
     if (props.status.successful) {
       subtitle =
@@ -280,7 +278,9 @@ function SettingsImportStatus(props: ImportStatusProps) {
         {iconProps !== undefined && <Icon {...iconProps} size="medium" />}
       </StyledStatusTitle>
       {subtitle !== undefined && (
-        <StyledStatusSubTitle data-testid="status-subtitle">{subtitle}</StyledStatusSubTitle>
+        <LabelTiny data-testid="status-subtitle" color="whiteAlpha60">
+          {subtitle}
+        </LabelTiny>
       )}
     </StyledStatusContainer>
   );

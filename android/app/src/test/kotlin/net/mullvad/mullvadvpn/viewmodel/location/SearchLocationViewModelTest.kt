@@ -8,7 +8,6 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.screen.location.SearchLocationNavArgs
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -18,17 +17,20 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +40,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SearchLocationViewModelTest {
 
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
-    private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
     private val mockCustomListActionUseCase: CustomListActionUseCase = mockk()
     private val mockCustomListsRepository: CustomListsRepository = mockk()
@@ -47,6 +48,8 @@ class SearchLocationViewModelTest {
     private val mockFilteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase = mockk()
     private val mockSelectedLocationUseCase: SelectedLocationUseCase = mockk()
     private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
+    private val mockSelectHopUseCase: SelectHopUseCase = mockk()
+    private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocation =
@@ -73,7 +76,6 @@ class SearchLocationViewModelTest {
         viewModel =
             SearchLocationViewModel(
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                relayListRepository = mockRelayListRepository,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 customListsRepository = mockCustomListsRepository,
@@ -82,8 +84,10 @@ class SearchLocationViewModelTest {
                 filteredCustomListRelayItemsUseCase = mockFilteredCustomListRelayItemsUseCase,
                 selectedLocationUseCase = mockSelectedLocationUseCase,
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
+                selectHopUseCase = mockSelectHopUseCase,
+                modifyMultihopUseCase = mockModifyMultihopUseCase,
                 savedStateHandle =
-                    SearchLocationNavArgs(relayListType = RelayListType.ENTRY).toSavedStateHandle(),
+                    SearchLocationNavArgs(relayListType = RelayListType.Single).toSavedStateHandle(),
             )
     }
 
@@ -94,22 +98,19 @@ class SearchLocationViewModelTest {
         filteredRelayList.value = testCountries
 
         // Act, Assert
-        viewModel.uiState.test() {
+        viewModel.uiState.test {
             // Wait for first data
-            assertIs<SearchLocationUiState.NoQuery>(awaitItem())
+            awaitItem()
 
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
 
-            // We get some unnecessary emissions for now
-            awaitItem()
-
             val actualState = awaitItem()
-            assertIs<SearchLocationUiState.Content>(actualState)
+            assertIs<Lce.Content<SearchLocationUiState>>(actualState)
             assertTrue(
-                actualState.relayListItems.filterIsInstance<RelayListItem.GeoLocationItem>().any {
-                    it.item is RelayItem.Location.City && it.item.name == "Gothenburg"
-                }
+                actualState.value.relayListItems
+                    .filterIsInstance<RelayListItem.GeoLocationItem>()
+                    .any { it.item is RelayItem.Location.City && it.item.name == "Gothenburg" }
             )
         }
     }
@@ -123,20 +124,17 @@ class SearchLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SearchLocationUiState.NoQuery>(awaitItem())
+            awaitItem()
 
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
 
-            // We get some unnecessary emissions for now
-            awaitItem()
-
             // Assert
             val actualState = awaitItem()
-            assertIs<SearchLocationUiState.Content>(actualState)
+            assertIs<Lce.Content<SearchLocationUiState>>(actualState)
             assertLists(
                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                actualState.relayListItems,
+                actualState.value.relayListItems,
             )
         }
     }

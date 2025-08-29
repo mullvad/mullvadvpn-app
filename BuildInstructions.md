@@ -9,9 +9,9 @@ on your platform please submit an issue or a pull request.
 ## All platforms
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
-  - Install default targets and components needed for desktop
+  - Install default targets and components needed for your platform:
     ```bash
-    ./scripts/setup-rust desktop
+    ./scripts/setup-rust android|ios|windows|linux|macos
      ```
   - (Optional) Run the following to install a git `post-checkout` hook that will automatically
     run the `setup-rust` script when the Rust version specified in the `rust-toolchain.toml` file changes:
@@ -22,10 +22,14 @@ on your platform please submit an issue or a pull request.
 - You need Node.js and npm. You can find the exact versions in the `volta` section of
   `desktop/package.json`. The toolchain is managed by volta.
 
-  - Linux & macOS
+  - Linux
+
+    Follow instructions on [volta.sh](https://volta.sh/)
+
+  - macOS
 
     ```bash
-    cargo install --git https://github.com/volta-cli/volta && volta setup
+    brew install volta && volta setup
     ````
 
   - Windows

@@ -1,20 +1,20 @@
-use super::{config::TEST_CONFIG, Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
+use super::{Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT, config::TEST_CONFIG};
 use crate::{
     mullvad_daemon::RpcClientProvider,
     network_monitor::{
-        self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+        self, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor, start_packet_monitor,
     },
     tests::{
         account::{clear_devices, new_device_client},
         helpers,
     },
 };
-use anyhow::{anyhow, bail, ensure, Context};
+use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
-use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
+use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
-    query::{OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
     GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
+    query::{OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -35,7 +35,7 @@ use std::{
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
 use test_rpc::{
-    meta::Os, mullvad_daemon::ServiceStatus, package::Package, AmIMullvad, ServiceClient, SpawnOpts,
+    AmIMullvad, ServiceClient, SpawnOpts, meta::Os, mullvad_daemon::ServiceStatus, package::Package,
 };
 use tokio::time::sleep;
 
@@ -75,9 +75,16 @@ pub async fn install_app(
     rpc.install_app(get_package_desc(app_filename)).await?;
 
     // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
+    tokio::time::timeout(Duration::from_secs(5), async {
+        loop {
+            if rpc.mullvad_daemon_get_status().await? == ServiceStatus::Running {
+                return Ok::<_, Error>(());
+            }
+            sleep(Duration::from_millis(100)).await;
+        }
+    })
+    .await
+    .map_err(|_timeout| Error::DaemonNotRunning)??;
 
     // Set the log level to trace
     rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
@@ -481,12 +488,12 @@ pub async fn wait_for_tunnel_state(
     let events = rpc
         .events_listen()
         .await
-        .map_err(|status| Error::Daemon(format!("Failed to get event stream: {}", status)))?;
+        .map_err(|status| Error::Daemon(format!("Failed to get event stream: {status}")))?;
 
     let state = rpc
         .get_tunnel_state()
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to get tunnel state: {:?}", error)))?;
+        .map_err(|error| Error::Daemon(format!("Failed to get tunnel state: {error:?}")))?;
 
     if accept_state_fn(&state) {
         return Ok(state);
@@ -497,7 +504,7 @@ pub async fn wait_for_tunnel_state(
 
 pub async fn find_next_tunnel_state(
     stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
-        + Unpin,
+    + Unpin,
     accept_state_fn: impl Fn(&mullvad_types::states::TunnelState) -> bool,
 ) -> Result<mullvad_types::states::TunnelState, Error> {
     tokio::time::timeout(
@@ -512,8 +519,9 @@ pub async fn find_next_tunnel_state(
 }
 
 pub async fn find_daemon_event<Accept, AcceptedEvent>(
-    mut event_stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
-        + Unpin,
+    mut event_stream: impl futures::Stream<
+        Item = Result<DaemonEvent, mullvad_management_interface::Error>,
+    > + Unpin,
     accept_event: Accept,
 ) -> Result<AcceptedEvent, Error>
 where
@@ -526,10 +534,7 @@ where
                 None => continue,
             },
             Some(Err(status)) => {
-                break Err(Error::Daemon(format!(
-                    "Failed to get next event: {}",
-                    status
-                )));
+                break Err(Error::Daemon(format!("Failed to get next event: {status}")));
             }
             None => break Err(Error::Daemon(String::from("Lost daemon event stream"))),
         }
@@ -568,7 +573,7 @@ pub async fn geoip_lookup_with_retries(rpc: &ServiceClient) -> Result<AmIMullvad
 
     loop {
         let result = rpc
-            .geoip_lookup(TEST_CONFIG.mullvad_host.to_owned())
+            .geoip_lookup(TEST_CONFIG.mullvad_host.clone())
             .await
             .map_err(Error::GeoipLookup);
 
@@ -639,7 +644,7 @@ pub async fn set_custom_endpoint(
     mullvad_client
         .set_relay_settings(RelaySettings::CustomTunnelEndpoint(custom_endpoint))
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {error}")))
 }
 
 pub async fn update_relay_constraints(
@@ -712,7 +717,7 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
 /// This is independent of the running daemon's environment.
 /// It is solely dependant on the current value of [`TEST_CONFIG`].
 pub async fn get_app_env() -> anyhow::Result<HashMap<String, String>> {
-    use mullvad_api::env;
+    use mullvad_api_constants::env;
 
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
     let api_host_with_port = format!("{api_host}:443");
@@ -1315,7 +1320,7 @@ pub async fn set_location(
     let mut settings = mullvad_client
         .get_settings()
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {error}")))?;
 
     settings.bridge_settings.normal.location = Constraint::Only(location_constraint.clone());
     mullvad_client

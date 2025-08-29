@@ -2,7 +2,7 @@
 #![cfg(target_os = "macos")]
 
 use std::ptr::NonNull;
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex, mpsc};
 use std::thread::JoinHandle;
 
 use block2::RcBlock;

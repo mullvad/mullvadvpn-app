@@ -17,7 +17,7 @@
 use anyhow::Context;
 use serde::Serialize;
 
-use super::{key, PartialSignedResponse, Response, ResponseSignature, SignedResponse};
+use super::{PartialSignedResponse, Response, ResponseSignature, SignedResponse, key};
 
 impl SignedResponse {
     pub fn sign(key: key::SecretKey, response: Response) -> anyhow::Result<SignedResponse> {

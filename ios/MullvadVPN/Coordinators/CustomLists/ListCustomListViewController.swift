@@ -87,18 +87,12 @@ class ListCustomListViewController: UIViewController {
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
         tableView.separatorStyle = .singleLine
-        tableView.rowHeight = UIMetrics.SettingsCell.customListsCellHeight
         tableView.registerReusableViews(from: CellReuseIdentifier.self)
         tableView.setAccessibilityIdentifier(.listCustomListsTableView)
     }
 
     private func configureNavigationItem() {
-        navigationItem.title = NSLocalizedString(
-            "LIST_CUSTOM_LIST_NAVIGATION_TITLE",
-            tableName: "CustomList",
-            value: "Edit custom list",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("Edit custom list", comment: "")
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,

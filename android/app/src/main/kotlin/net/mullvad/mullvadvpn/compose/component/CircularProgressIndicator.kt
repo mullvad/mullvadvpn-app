@@ -10,11 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
+import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 
 @Preview
 @Composable
@@ -38,7 +40,10 @@ fun MullvadCircularProgressIndicatorLarge(
     trackColor: Color = color.copy(alpha = Alpha20),
 ) {
     CircularProgressIndicator(
-        modifier.size(Dimens.circularProgressBarLargeSize),
+        modifier
+            .padding(Dimens.tinyPadding)
+            .size(Dimens.circularProgressBarLargeSize)
+            .testTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG),
         color,
         Dimens.circularProgressBarLargeStrokeWidth,
         trackColor,
@@ -53,7 +58,9 @@ fun MullvadCircularProgressIndicatorMedium(
     trackColor: Color = color.copy(alpha = Alpha20),
 ) {
     CircularProgressIndicator(
-        modifier.size(Dimens.circularProgressBarMediumSize),
+        modifier
+            .size(Dimens.circularProgressBarMediumSize)
+            .testTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG),
         color,
         Dimens.circularProgressBarMediumStrokeWidth,
         trackColor,
@@ -68,7 +75,9 @@ fun MullvadCircularProgressIndicatorSmall(
     trackColor: Color = color.copy(alpha = Alpha20),
 ) {
     CircularProgressIndicator(
-        modifier.size(Dimens.circularProgressBarSmallSize),
+        modifier
+            .size(Dimens.circularProgressBarSmallSize)
+            .testTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG),
         color,
         Dimens.circularProgressBarSmallStrokeWidth,
         trackColor,

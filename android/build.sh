@@ -5,19 +5,12 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-echo "Computing build version..."
-echo ""
-PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
-echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
-echo ""
-
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
 BUILD_BUNDLE="no"
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
 RUN_PLAY_PUBLISH_TASKS="no"
 PLAY_PUBLISH_TASKS=()
-LOCAL_PROPERTIES_FILE="local.properties"
 
 while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
@@ -38,12 +31,23 @@ while [ -n "${1:-""}" ]; do
 done
 
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
+    if [[ -n "$(git status --porcelain)" ]]; then
+      echo "Dirty working directory! Will not accept that for an official release."
+      exit 1
+    fi
+
     if [ ! -f "$SCRIPT_DIR/credentials/keystore.properties" ]; then
         echo "ERROR: No keystore.properties file found" >&2
         echo "       Please configure the signing keys as described in the README" >&2
         exit 1
     fi
 fi
+
+echo "Computing build version..."
+echo ""
+PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
+echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
+echo ""
 
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     if [[ "$PRODUCT_VERSION" == *"-dev-"* ]]; then
@@ -52,7 +56,7 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     elif [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
         GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
         BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
-        PLAY_PUBLISH_TASKS=(publishPlayDevmoleReleaseBundle publishPlayStagemoleReleaseBundle)
+        PLAY_PUBLISH_TASKS=(publishPlayDevmoleReleaseBundle publishPlayStagemoleReleaseBundle publishPlayProdReleaseBundle)
     fi
 fi
 
@@ -88,10 +92,6 @@ echo ""
 echo " $PRODUCT_VERSION"
 echo ""
 echo " Build checksums:"
-md5sum ../dist/MullvadVPN-"$PRODUCT_VERSION"* | sed 's/^/ /'
-echo ""
-if [[ -f "$LOCAL_PROPERTIES_FILE" ]] && grep -q "^CARGO_TARGETS=" "$LOCAL_PROPERTIES_FILE"; then
-    echo " CARGO_TARGETS is set in $LOCAL_PROPERTIES_FILE, build may not be reproducible!"
-fi
+sha256sum ../dist/MullvadVPN-"$PRODUCT_VERSION"* | sed 's/^/ /'
 echo ""
 echo "**********************************"

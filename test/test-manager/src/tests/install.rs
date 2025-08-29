@@ -1,20 +1,20 @@
-use anyhow::{bail, ensure, Context};
+use anyhow::{Context, bail, ensure};
 use std::str::FromStr;
 use std::time::Duration;
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
-use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
+use test_rpc::{ServiceClient, mullvad_daemon::ServiceStatus};
 
 use crate::tests::helpers;
 
 use super::{
+    Error, TestContext,
     config::TEST_CONFIG,
     helpers::{
-        connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state, Pinger,
+        Pinger, connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state,
     },
-    Error, TestContext,
 };
 
 /// Upgrade to the "version under test". This test fails if:
@@ -230,11 +230,68 @@ pub async fn test_uninstall_app(
 
     assert!(
         !devices.iter().any(|device| device.id == uninstalled_device),
-        "device id {} still exists after uninstall",
-        uninstalled_device,
+        "device id {uninstalled_device} still exists after uninstall",
     );
 
     Ok(())
+}
+
+/// Test that the Mullvad daemon cleans itself up when deleted by being dragged and dropped into the
+/// bin.
+#[test_function(priority = -160, target_os = "macos")]
+pub async fn test_detect_app_removal(
+    _ctx: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    let uninstalled_device = mullvad_client
+        .get_device()
+        .await
+        .context("failed to get device data")?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
+        .device
+        .id;
+
+    rpc.exec("/bin/rm", ["-rf", "/Applications/Mullvad VPN.app"])
+        .await
+        .context("Failed to delete Mullvad app")?;
+
+    let mut attempt = 0;
+    const MAX_ATTEMPTS: usize = 30;
+
+    loop {
+        let app_traces = rpc.find_mullvad_app_traces().await?;
+
+        if app_traces.is_empty() {
+            assert_eq!(
+                rpc.mullvad_daemon_get_status().await?,
+                ServiceStatus::NotRunning,
+                "daemon should be stopped after cleanup"
+            );
+
+            // verify that device was removed
+            let device_client = super::account::new_device_client()
+                .await
+                .context("Failed to create device client")?;
+            let devices = super::account::list_devices_with_retries(&device_client)
+                .await
+                .expect("failed to list devices");
+            assert!(
+                !devices.iter().any(|device| device.id == uninstalled_device),
+                "device id {uninstalled_device} still exists after uninstall",
+            );
+
+            return Ok(());
+        }
+
+        attempt += 1;
+        if attempt == MAX_ATTEMPTS {
+            bail!("Uninstall script didn't run when app was removed");
+        }
+
+        tokio::time::sleep(Duration::from_secs(1)).await;
+    }
 }
 
 /// Install the multiple times starting from a connected state with auto-connect
@@ -295,7 +352,7 @@ pub async fn test_installation_idempotency(
             tokio::time::sleep(delay).await;
         }
     }
-    // Make sure that no network leak occured during any installation process.
+    // Make sure that no network leak occurred during any installation process.
     let guest_ip = pinger.guest_ip;
     let monitor_result = pinger.stop().await.unwrap();
     assert_eq!(

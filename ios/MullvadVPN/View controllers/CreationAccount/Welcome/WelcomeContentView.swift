@@ -24,33 +24,23 @@ final class WelcomeContentView: UIView, Sendable {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
+        label.font = .mullvadLarge
         label.textColor = .white
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.text = NSLocalizedString(
-            "WELCOME_PAGE_TITLE",
-            tableName: "Welcome",
-            value: "Congrats!",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Congrats!", comment: "")
         return label
     }()
 
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .mullvadSmall
         label.textColor = .white
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.text = NSLocalizedString(
-            "WELCOME_PAGE_SUBTITLE",
-            tableName: "Welcome",
-            value: "Here’s your account number. Save it!",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Here’s your account number. Save it!", comment: "")
         return label
     }()
 
@@ -60,7 +50,7 @@ final class WelcomeContentView: UIView, Sendable {
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.font = .preferredFont(forTextStyle: .title2, weight: .bold)
+        label.font = .mullvadMedium
         label.textColor = .white
         return label
     }()
@@ -68,6 +58,7 @@ final class WelcomeContentView: UIView, Sendable {
     private let copyButton: UIButton = {
         let button = UIButton(type: .system)
         button.setAccessibilityIdentifier(.copyButton)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
@@ -77,19 +68,21 @@ final class WelcomeContentView: UIView, Sendable {
         let label = UILabel()
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .mullvadSmall
         label.textColor = .white
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.numberOfLines = 0
         return label
     }()
 
     private let infoButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
         button.setAccessibilityIdentifier(.infoButton)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        button.setImage(UIImage.Buttons.info, for: .normal)
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return button
@@ -97,16 +90,14 @@ final class WelcomeContentView: UIView, Sendable {
 
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .mullvadSmall
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.numberOfLines = .zero
         label.lineBreakMode = .byWordWrapping
         label.lineBreakStrategy = []
         label.text = NSLocalizedString(
-            "WELCOME_PAGE_DESCRIPTION",
-            tableName: "Welcome",
-            value: """
+            """
             To start using the app, you first need to \
             add time to your account. Either buy credit \
             on our website or redeem a voucher.
@@ -119,12 +110,7 @@ final class WelcomeContentView: UIView, Sendable {
     private let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.setAccessibilityIdentifier(.purchaseButton)
-        let localizedString = NSLocalizedString(
-            "ADD_TIME_BUTTON",
-            tableName: "Welcome",
-            value: "Add time",
-            comment: ""
-        )
+        let localizedString = NSLocalizedString("Add time", comment: "")
         button.setTitle(localizedString, for: .normal)
         return button
     }()
@@ -168,12 +154,10 @@ final class WelcomeContentView: UIView, Sendable {
     var viewModel: WelcomeViewModel? {
         didSet {
             accountNumberLabel.text = viewModel?.accountNumber
-            deviceNameLabel.text = String(format: NSLocalizedString(
-                "DEVICE_NAME_TEXT",
-                tableName: "Welcome",
-                value: "Device name: %@",
-                comment: ""
-            ), viewModel?.deviceName ?? "")
+            deviceNameLabel.text = String(
+                format: NSLocalizedString("Device name: %@", comment: ""),
+                viewModel?.deviceName ?? ""
+            )
         }
     }
 

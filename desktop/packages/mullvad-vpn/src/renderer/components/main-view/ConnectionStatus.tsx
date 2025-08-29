@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { TunnelState } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { Colors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useSelector } from '../../redux/store';
 import { largeText } from '../common-styles';
 
@@ -14,9 +14,8 @@ const StyledConnectionStatus = styled.span<{ $color: string }>(largeText, (props
 
 export default function ConnectionStatus() {
   const tunnelState = useSelector((state) => state.connection.status);
-  const lockdownMode = useSelector((state) => state.settings.blockWhenDisconnected);
 
-  const color = getConnectionSTatusLabelColor(tunnelState, lockdownMode);
+  const color = getConnectionSTatusLabelColor(tunnelState);
   const text = getConnectionStatusLabelText(tunnelState);
 
   return (
@@ -26,17 +25,17 @@ export default function ConnectionStatus() {
   );
 }
 
-function getConnectionSTatusLabelColor(tunnelState: TunnelState, lockdownMode: boolean) {
+function getConnectionSTatusLabelColor(tunnelState: TunnelState) {
   switch (tunnelState.state) {
     case 'connected':
-      return Colors.green;
+      return colors.green;
     case 'connecting':
     case 'disconnecting':
-      return Colors.white;
+      return colors.white;
     case 'disconnected':
-      return lockdownMode ? Colors.white : Colors.red;
+      return tunnelState.lockedDown ? colors.white : colors.red;
     case 'error':
-      return tunnelState.details.blockingError ? Colors.red : Colors.white;
+      return tunnelState.details.blockingError ? colors.red : colors.white;
   }
 }
 

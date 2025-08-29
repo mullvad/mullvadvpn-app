@@ -34,36 +34,29 @@ final class RedeemVoucherContentView: UIView {
 
     private let title: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .title1, weight: .bold).withSize(32)
-        label.text = NSLocalizedString(
-            "REDEEM_VOUCHER_TITLE",
-            tableName: "RedeemVoucher",
-            value: "Redeem voucher",
-            comment: ""
-        )
+        label.font = .mullvadLarge
+        label.text = NSLocalizedString("Redeem voucher", comment: "")
         label.textColor = .white
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
     private let enterVoucherLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body, weight: .semibold).withSize(15)
+        label.font = .mullvadTinySemiBold
 
-        label.text = NSLocalizedString(
-            "REDEEM_VOUCHER_INSTRUCTION",
-            tableName: "RedeemVoucher",
-            value: "Enter voucher code",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Enter voucher code", comment: "")
         label.textColor = .white
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
     private let textField: VoucherTextField = {
         let textField = VoucherTextField()
-        textField.font = UIFont.monospacedSystemFont(ofSize: 15, weight: .regular)
+        textField.font = UIFontMetrics(forTextStyle: .subheadline)
+            .scaledFont(for: .monospacedSystemFont(ofSize: 15, weight: .regular))
         textField.placeholder = Array(repeating: "XXXX", count: 4).joined(separator: "-")
         textField.placeholderTextColor = .lightGray
         textField.backgroundColor = .white
@@ -72,6 +65,7 @@ final class RedeemVoucherContentView: UIView {
         textField.autocapitalizationType = .allCharacters
         textField.returnKeyType = .done
         textField.autocorrectionType = .no
+        textField.adjustsFontForContentSizeCategory = true
         return textField
     }()
 
@@ -85,8 +79,9 @@ final class RedeemVoucherContentView: UIView {
 
     private let statusLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = .mullvadMiniSemiBold
         label.numberOfLines = 2
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .red
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -104,23 +99,13 @@ final class RedeemVoucherContentView: UIView {
 
     private let redeemButton: AppButton = {
         let button = AppButton(style: .success)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_REDEEM_BUTTON",
-            tableName: "RedeemVoucher",
-            value: "Redeem",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Redeem", comment: ""), for: .normal)
         return button
     }()
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .default)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_CANCEL_BUTTON",
-            tableName: "RedeemVoucher",
-            value: "Cancel",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
         return button
     }()
 
@@ -170,19 +155,9 @@ final class RedeemVoucherContentView: UIView {
             }
             return restError.description
         case .verifying:
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_WAITING",
-                tableName: "RedeemVoucher",
-                value: "Verifying voucher...",
-                comment: ""
-            )
+            return NSLocalizedString("Verifying voucher...", comment: "")
         case .logout:
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_WAITING",
-                tableName: "RedeemVoucher",
-                value: "Logging out...",
-                comment: ""
-            )
+            return NSLocalizedString("Logging out...", comment: "")
         default: return ""
         }
     }
@@ -367,19 +342,9 @@ final class RedeemVoucherContentView: UIView {
 private extension REST.Error {
     var description: String {
         if compareErrorCode(.invalidVoucher) {
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_FAILURE",
-                tableName: "RedeemVoucher",
-                value: "Voucher code is invalid.",
-                comment: ""
-            )
+            return NSLocalizedString("Voucher code is invalid.", comment: "")
         } else if compareErrorCode(.usedVoucher) {
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_FAILURE",
-                tableName: "RedeemVoucher",
-                value: "This voucher code has already been used.",
-                comment: ""
-            )
+            return NSLocalizedString("This voucher code has already been used.", comment: "")
         }
         return displayErrorDescription ?? ""
     }

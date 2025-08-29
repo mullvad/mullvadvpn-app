@@ -38,10 +38,12 @@ enum SettingsNavigationRoute: Equatable {
 
     /// DAITA route.
     case daita
+
+    /// Language route.
+    case language
 }
 
 /// Top-level settings coordinator.
-@MainActor
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
     UINavigationControllerDelegate, Sendable {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
@@ -140,6 +142,15 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             }
 
             presentChild(safariCoordinator, animated: animated, completion: completion)
+
+        case .language:
+            logger.debug("Show App's settings for \(route)")
+
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }
 
         default:
             // Ignore navigation if the route is already presented.
@@ -268,7 +279,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             return .vpnSettings
         case is ProblemReportViewController:
             return .problemReport
-        case is ListAccessMethodViewController:
+        case is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>>:
             return .apiAccess
         default:
             return nil

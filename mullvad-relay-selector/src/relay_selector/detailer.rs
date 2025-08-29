@@ -13,22 +13,21 @@ use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadWireguardEndpoint,
-    relay_constraints::TransportPort,
+    relay_constraints::{TransportPort, allowed_ip::resolve_from_constraint},
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
         WireguardEndpointData,
     },
 };
 use talpid_types::net::{
-    all_of_the_internet,
+    Endpoint, IpVersion, TransportProtocol,
     proxy::Shadowsocks,
     wireguard::{PeerConfig, PublicKey},
-    Endpoint, IpVersion, TransportProtocol,
 };
 
 use super::{
-    query::{BridgeQuery, OpenVpnRelayQuery, WireguardRelayQuery},
     WireguardConfig,
+    query::{BridgeQuery, OpenVpnRelayQuery, WireguardRelayQuery},
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -79,7 +78,13 @@ fn wireguard_singlehop_endpoint(
     let peer_config = PeerConfig {
         public_key: get_public_key(exit)?.clone(),
         endpoint,
-        allowed_ips: all_of_the_internet(),
+        // The peer should be able to route incoming VPN traffic to the given user given IP
+        // ranges, if any, else the rest of the internet.
+        allowed_ips: resolve_from_constraint(
+            &query.allowed_ips,
+            Some(data.ipv4_gateway),
+            Some(data.ipv6_gateway),
+        ),
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later
@@ -118,9 +123,13 @@ fn wireguard_multihop_endpoint(
     let exit = PeerConfig {
         public_key: get_public_key(exit)?.clone(),
         endpoint: exit_endpoint,
-        // The exit peer should be able to route incoming VPN traffic to the rest of
-        // the internet.
-        allowed_ips: all_of_the_internet(),
+        // The exit peer should be able to route incoming VPN traffic to the given user given IP
+        // ranges, if any, else the rest of the internet.
+        allowed_ips: resolve_from_constraint(
+            &query.allowed_ips,
+            Some(data.ipv4_gateway),
+            Some(data.ipv6_gateway),
+        ),
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later

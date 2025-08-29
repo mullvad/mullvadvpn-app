@@ -17,12 +17,7 @@ class RelayFilterView: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = NSLocalizedString(
-            "RELAY_FILTER_APPLIED_TITLE",
-            tableName: "RelayFilter",
-            value: "Filtered:",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Filtered:", comment: "")
         label.font = UIFont.preferredFont(forTextStyle: .caption1)
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
@@ -57,21 +52,40 @@ class RelayFilterView: UIView {
     }
 
     func setDaita(_ enabled: Bool) {
-        let text = NSLocalizedString(
-            "RELAY_FILTER_APPLIED_DAITA",
-            tableName: "RelayFilter",
-            value: "Setting: DAITA",
-            comment: ""
+        let chip = ChipConfiguration(
+            group: .settings,
+            title: NSLocalizedString("Setting: DAITA", comment: ""),
+            accessibilityId: .daitaFilterPill,
+            didTapButton: nil
         )
-        chips.removeAll(where: { $0.title.contains(text) })
-        if enabled {
-            chips.insert(ChipConfiguration(group: .settings, title: text, didTapButton: nil), at: 0)
-        }
-        chipsView.setChips(chips)
-        hideIfNeeded()
+
+        setChip(chip, enabled: enabled)
+    }
+
+    func setObfuscation(_ enabled: Bool) {
+        let chip = ChipConfiguration(
+            group: .settings,
+            title: NSLocalizedString("Setting: Obfuscation", comment: ""),
+            accessibilityId: .obfuscationFilterPill,
+            didTapButton: nil
+        )
+
+        setChip(chip, enabled: enabled)
     }
 
     // MARK: - Private
+
+    private func setChip(_ chip: ChipConfiguration, enabled: Bool) {
+        if enabled {
+            if !chips.contains(chip) {
+                chips.insert(chip, at: 0)
+            }
+        } else {
+            chips.removeAll { $0 == chip }
+        }
+
+        chipsView.setChips(chips)
+    }
 
     private func setUpViews() {
         let dummyView = UIView()
@@ -79,10 +93,9 @@ class RelayFilterView: UIView {
 
         let contentContainer = UIStackView(arrangedSubviews: [dummyView, chipsView])
         contentContainer.distribution = .fill
-        contentContainer.alignment = .firstBaseline
 
         collectionViewHeightConstraint = chipsView.collectionView.heightAnchor
-            .constraint(equalToConstant: 8.0)
+            .constraint(greaterThanOrEqualToConstant: 8)
         collectionViewHeightConstraint.isActive = true
 
         dummyView.addConstrainedSubviews([titleLabel]) {
@@ -90,7 +103,7 @@ class RelayFilterView: UIView {
         }
 
         addConstrainedSubviews([contentContainer]) {
-            contentContainer.pinEdgesToSuperview(PinnableEdges([.top(8.0), .bottom(8.0), .leading(4), .trailing(4)]))
+            contentContainer.pinEdgesToSuperview(PinnableEdges([.top(8), .bottom(8), .leading(4), .trailing(4)]))
         }
 
         // Add KVO for observing collectionView's contentSize changes
@@ -122,12 +135,9 @@ class RelayFilterView: UIView {
         case .any:
             return nil
         case .owned, .rented:
-            let title = NSLocalizedString(
-                "RELAY_FILTER_APPLIED_OWNERSHIP",
-                tableName: "RelayFilter",
-                value: ownership == .owned ? "Owned" : "Rented",
-                comment: ""
-            )
+            let title = ownership == .owned
+                ? RelayFilterDataSourceItem.ownedOwnershipItem.name
+                : RelayFilterDataSourceItem.rentedOwnershipItem.name
             return ChipConfiguration(group: .filter, title: title, didTapButton: { [weak self] in
                 guard var filter = self?.filter else { return }
                 filter.ownership = .any
@@ -142,12 +152,7 @@ class RelayFilterView: UIView {
             return nil
         case let .only(providerList):
             let title = String(
-                format: NSLocalizedString(
-                    "RELAY_FILTER_APPLIED_PROVIDERS",
-                    tableName: "RelayFilter",
-                    value: "Providers: %d",
-                    comment: ""
-                ),
+                format: NSLocalizedString("Providers: %d", comment: ""),
                 providerList.count
             )
             return ChipConfiguration(group: .filter, title: title, didTapButton: { [weak self] in

@@ -1,7 +1,6 @@
 import { messages } from '../../shared/gettext';
-import { IconButton } from '../lib/components';
+import { Button, IconButton } from '../lib/components';
 import { useBoolean } from '../lib/utility-hooks';
-import * as AppButton from './AppButton';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
 export default function DeviceInfoButton() {
@@ -19,9 +18,9 @@ export default function DeviceInfoButton() {
         isOpen={deviceHelpVisible}
         type={ModalAlertType.info}
         buttons={[
-          <AppButton.BlueButton key="back" onClick={hideDeviceHelp}>
-            {messages.gettext('Got it!')}
-          </AppButton.BlueButton>,
+          <Button key="back" onClick={hideDeviceHelp}>
+            <Button.Text>{messages.gettext('Got it!')}</Button.Text>
+          </Button>,
         ]}
         close={hideDeviceHelp}>
         <ModalMessage>

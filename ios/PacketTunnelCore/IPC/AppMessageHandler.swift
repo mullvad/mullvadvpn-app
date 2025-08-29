@@ -69,7 +69,10 @@ public struct AppMessageHandler {
 
         case let .reconnectTunnel(nextRelay):
             packetTunnelActor.reconnect(to: nextRelay, reconnectReason: ActorReconnectReason.userInitiated)
-            return nil
+            // Instead of waiting for the UI process to send another `getTunnelStatus` message, reply immediately that the PacketTunnel is reconnecting
+            guard let observedState = await packetTunnelActor.observedState.connectionState else { return nil }
+            let reconnectingState = ObservedState.reconnecting(observedState)
+            return encodeReply(reconnectingState)
         }
     }
 

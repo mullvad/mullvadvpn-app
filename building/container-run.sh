@@ -16,10 +16,6 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 ANDROID_CREDENTIALS_DIR=${ANDROID_CREDENTIALS_DIR:-""}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
-# Temporarily do not use mold for linking by default due to it causing build errors.
-# There's a separate issue (DES-1177) to address this problem.
-# Build servers also opt out of this and instead use GNU ld.
-USE_MOLD=${USE_MOLD:-"false"}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -47,16 +43,11 @@ case ${1-:""} in
         exit 1
 esac
 
-optional_mold=""
-if [[ "$USE_MOLD" == "true" ]]; then
-    optional_mold="mold -run"
-fi
-
 set -x
 exec "$CONTAINER_RUNNER" run --rm -it \
-    -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
+    -v "/$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_android_credentials_volume[@]}" \
-    "$container_image_name" bash -c "$optional_mold $*"
+    "$container_image_name" bash -c "$*"

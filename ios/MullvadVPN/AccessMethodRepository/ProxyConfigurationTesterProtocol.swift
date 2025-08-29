@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MullvadSettings
+import MullvadTypes
 
 /// Type implementing access method proxy configuration testing.
 protocol ProxyConfigurationTesterProtocol {
@@ -15,7 +15,7 @@ protocol ProxyConfigurationTesterProtocol {
     /// - Parameters:
     ///   - configuration: a proxy configuration.
     ///   - completion: a completion handler that receives `nil` upon success, otherwise the underlying error.
-    func start(configuration: PersistentProxyConfiguration, completion: @escaping @Sendable (Error?) -> Void)
+    func start(configuration: PersistentAccessMethod, completion: @escaping @Sendable (Error?) -> Void)
 
     /// Cancel testing proxy configuration.
     func cancel()

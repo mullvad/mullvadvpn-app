@@ -2,16 +2,20 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
 import arrow.core.Either
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.screen.MultihopNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,12 +36,15 @@ class MultihopViewModelTest {
             wireguardConstraints
 
         multihopViewModel =
-            MultihopViewModel(wireguardConstraintsRepository = mockWireguardConstraintsRepository)
+            MultihopViewModel(
+                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                savedStateHandle = MultihopNavArgs().toSavedStateHandle(),
+            )
     }
 
     @Test
     fun `default state should be multihop disabled`() {
-        assertEquals(false, multihopViewModel.uiState.value.enable)
+        assertEquals(false, multihopViewModel.uiState.value.contentOrNull()?.enable == true)
     }
 
     @Test
@@ -52,7 +59,11 @@ class MultihopViewModelTest {
             )
 
         // Act, Assert
-        multihopViewModel.uiState.test { assertEquals(MultihopUiState(true), awaitItem()) }
+        multihopViewModel.uiState.test {
+            val item = awaitItem()
+            assertIs<Lc.Content<MultihopUiState>>(item)
+            assertEquals(MultihopUiState(true), item.value)
+        }
     }
 
     @Test

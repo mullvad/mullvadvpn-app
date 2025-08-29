@@ -2,11 +2,11 @@
 //! updated as well.
 
 use crate::{
+    CustomTunnelEndpoint, Intersection,
     constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
     relay_list::{Relay, RelayEndpointData},
-    CustomTunnelEndpoint, Intersection,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -15,7 +15,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{proxy::CustomProxy, IpVersion, TransportProtocol, TunnelType};
+use talpid_types::net::{IpVersion, TransportProtocol, TunnelType, proxy::CustomProxy};
 
 /// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
 /// relay.
@@ -105,11 +105,11 @@ impl From<GeographicLocationConstraint> for LocationConstraint {
 impl fmt::Display for LocationConstraintFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.constraint {
-            LocationConstraint::Location(location) => write!(f, "{}", location),
+            LocationConstraint::Location(location) => write!(f, "{location}"),
             LocationConstraint::CustomList { list_id } => self
                 .custom_lists
                 .iter()
-                .find(|list| &list.id == list_id)
+                .find(|list| list.id() == *list_id)
                 .map(|custom_list| write!(f, "{}", custom_list.name))
                 .unwrap_or_else(|| write!(f, "invalid custom list")),
         }
@@ -407,8 +407,138 @@ impl fmt::Display for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
+}
+
+pub use allowed_ip::AllowedIps;
+pub mod allowed_ip {
+    use std::net::{Ipv4Addr, Ipv6Addr};
+
+    use crate::constraints::Constraint;
+    use ipnetwork::IpNetwork;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+    pub struct AllowedIps(pub Vec<IpNetwork>);
+
+    impl Default for AllowedIps {
+        fn default() -> Self {
+            AllowedIps::allow_all()
+        }
+    }
+
+    impl std::fmt::Display for AllowedIps {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.write_str(
+                &self
+                    .0
+                    .iter()
+                    .map(|net| net.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            )
+        }
+    }
+
+    #[derive(Debug, thiserror::Error)]
+    pub enum AllowedIpParseError {
+        #[error("Failed to parse IP network: {0}")]
+        Parse(#[from] ipnetwork::IpNetworkError),
+        #[error("IP network {0} has non-zero host bits (should be {1})")]
+        NonZeroHostBits(IpNetwork, std::net::IpAddr),
+    }
+
+    /// Represents a collection of allowed IP networks.
+    ///
+    /// Provides utility methods to construct `AllowedIps` from various sources,
+    /// including allowing all IPs, parsing from string representations, and
+    /// converting into a constraint.
+    impl AllowedIps {
+        /// Creates an `AllowedIps` instance that allows all IP addresses.
+        ///
+        /// # Returns
+        ///
+        /// An `AllowedIps` containing all possible IP networks.
+        pub fn allow_all() -> Self {
+            AllowedIps(vec![
+                "0.0.0.0/0".parse().expect("Failed to parse ipv4 network"),
+                "::0/0".parse().expect("Failed to parse ipv6 network"),
+            ])
+        }
+
+        /// Constructs an `AllowedIps` from an iterator of string representations of IP networks.
+        ///
+        /// Each string should be a valid CIDR notation (e.g., "192.168.1.0/24").
+        /// Ignores empty strings. Returns an error if any string is not a valid network or if it contains non-zero host bits.
+        ///
+        /// # Errors
+        ///
+        /// Returns `AllowedIpParseError::Parse` if parsing fails, or
+        /// `AllowedIpParseError::NonZeroHostBits` if the network contains non-zero host bits.
+        pub fn parse<I, S>(allowed_ips: I) -> Result<AllowedIps, AllowedIpParseError>
+        where
+            I: IntoIterator<Item = S>,
+            S: AsRef<str>,
+        {
+            let mut networks = vec![];
+            for s in allowed_ips {
+                let s = s.as_ref().trim();
+                if !s.is_empty() {
+                    let net: IpNetwork = s.parse().map_err(AllowedIpParseError::Parse)?;
+                    if net.network() != net.ip() {
+                        return Err(AllowedIpParseError::NonZeroHostBits(net, net.network()));
+                    }
+                    networks.push(net);
+                }
+            }
+            Ok(AllowedIps(networks))
+        }
+
+        /// Converts the `AllowedIps` into a `Constraint<AllowedIps>`.
+        /// If the list of ip ranges is empty, it returns `Constraint::Any`, otherwise it returns `Constraint::Only(self)`.
+        pub fn to_constraint(self) -> Constraint<AllowedIps> {
+            if self.0.is_empty() {
+                Constraint::Any
+            } else {
+                Constraint::Only(self)
+            }
+        }
+
+        /// Resolves the allowed IPs to a `Vec<IpNetwork>`, adding the host IPv4 and IPv6 addresses if provided.
+        pub fn resolve(
+            self,
+            host_ipv4: Option<Ipv4Addr>,
+            host_ipv6: Option<Ipv6Addr>,
+        ) -> Vec<IpNetwork> {
+            let mut networks = self.0;
+            if let Some(host_ipv6) = host_ipv6 {
+                networks.push(IpNetwork::V6(host_ipv6.into()));
+            }
+            if let Some(host_ipv4) = host_ipv4 {
+                networks.push(IpNetwork::V4(host_ipv4.into()));
+            }
+            log::trace!("Resolved allowed IPs: {networks:?}");
+            networks
+        }
+    }
+
+    /// Resolves the allowed IPs from a `Constraint<AllowedIps>`, adding the host IPv4 and IPv6 addresses if provided.
+    /// If the constraint is `Constraint::Any` or `Constraint::Only` with an empty list, it allows all IPs.
+    /// Returns a vector of `IpNetwork` containing the resolved allowed IPs.
+    pub fn resolve_from_constraint(
+        allowed_ips: &Constraint<AllowedIps>,
+        host_ipv4: Option<Ipv4Addr>,
+        host_ipv6: Option<Ipv6Addr>,
+    ) -> Vec<IpNetwork> {
+        match allowed_ips {
+            Constraint::Any => AllowedIps::allow_all(),
+            Constraint::Only(ips) if ips.0.is_empty() => AllowedIps::allow_all(),
+            Constraint::Only(ips) => ips.clone(),
+        }
+        .resolve(host_ipv4, host_ipv6)
+    }
 }
 
 impl WireguardConstraints {
@@ -432,10 +562,10 @@ impl fmt::Display for WireguardConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.constraints.port {
             Constraint::Any => write!(f, "any port")?,
-            Constraint::Only(port) => write!(f, "port {}", port)?,
+            Constraint::Only(port) => write!(f, "port {port}")?,
         }
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
-            write!(f, ", {},", ip_version)?;
+            write!(f, ", {ip_version},")?;
         }
         if self.constraints.multihop() {
             let location = self.constraints.entry_location.as_ref().map(|location| {
@@ -444,7 +574,7 @@ impl fmt::Display for WireguardConstraintsFormatter<'_> {
                     custom_lists: self.custom_lists,
                 }
             });
-            write!(f, ", multihop entry {}", location)?;
+            write!(f, ", multihop entry {location}")?;
         }
         Ok(())
     }
@@ -509,6 +639,7 @@ pub enum SelectedObfuscation {
     #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,
     Shadowsocks,
+    Quic,
 }
 
 impl Intersection for SelectedObfuscation {
@@ -533,6 +664,7 @@ impl fmt::Display for SelectedObfuscation {
             SelectedObfuscation::Off => "off".fmt(f),
             SelectedObfuscation::Udp2Tcp => "udp2tcp".fmt(f),
             SelectedObfuscation::Shadowsocks => "shadowsocks".fmt(f),
+            SelectedObfuscation::Quic => "quic".fmt(f),
         }
     }
 }
@@ -608,7 +740,7 @@ impl fmt::Display for BridgeConstraintsFormatter<'_> {
         write!(f, " using ")?;
         match self.constraints.providers {
             Constraint::Any => write!(f, "any provider")?,
-            Constraint::Only(ref constraint) => write!(f, "{}", constraint)?,
+            Constraint::Only(ref constraint) => write!(f, "{constraint}")?,
         }
         match self.constraints.ownership {
             Constraint::Any => Ok(()),

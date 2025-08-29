@@ -18,28 +18,23 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        titleLabel.font = .mullvadLarge
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .white
-        titleLabel.text = NSLocalizedString(
-            "TITLE_LABEL",
-            tableName: "RevokedDevice",
-            value: "Device is inactive",
-            comment: ""
-        )
+        titleLabel.text = NSLocalizedString("Device is inactive", comment: "")
         return titleLabel
     }()
 
     private lazy var bodyLabel: UILabel = {
         let bodyLabel = UILabel()
         bodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        bodyLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        bodyLabel.adjustsFontForContentSizeCategory = true
+        bodyLabel.font = .mullvadSmall
         bodyLabel.numberOfLines = 0
         bodyLabel.textColor = .white
         bodyLabel.text = NSLocalizedString(
-            "DESCRIPTION_LABEL",
-            tableName: "RevokedDevice",
-            value: "You have removed this device. To connect again, you will need to log back in.",
+            "You have removed this device. To connect again, you will need to log back in.",
             comment: ""
         )
         return bodyLabel
@@ -48,15 +43,11 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
     private lazy var footerLabel: UILabel = {
         let bodyLabel = UILabel()
         bodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        bodyLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        bodyLabel.font = .mullvadSmall
+        bodyLabel.adjustsFontForContentSizeCategory = true
         bodyLabel.numberOfLines = 0
         bodyLabel.textColor = .white
-        bodyLabel.text = NSLocalizedString(
-            "UNBLOCK_INTERNET_LABEL",
-            tableName: "RevokedDevice",
-            value: "Going to login will unblock the Internet on this device.",
-            comment: ""
-        )
+        bodyLabel.text = NSLocalizedString("Going to login will unblock the Internet on this device.", comment: "")
         return bodyLabel
     }()
 
@@ -65,12 +56,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         button.setAccessibilityIdentifier(.revokedDeviceLoginButton)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
-            NSLocalizedString(
-                "GOTO_LOGIN_BUTTON_LABEL",
-                tableName: "RevokedDevice",
-                value: "Go to login",
-                comment: ""
-            ),
+            NSLocalizedString("Go to login", comment: ""),
             for: .normal
         )
         return button

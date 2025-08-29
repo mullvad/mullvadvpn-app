@@ -12,59 +12,40 @@ class AccountContentView: UIView {
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.setAccessibilityIdentifier(.purchaseButton)
-        button.setTitle(NSLocalizedString(
-            "ADD_TIME_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Add time",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Add time", comment: ""), for: .normal)
         return button
     }()
 
-    let storeKit2Button: AppButton = {
+    let storeKit2PurchaseButton: AppButton = {
         let button = AppButton(style: .success)
-        button.setTitle(NSLocalizedString(
-            "BUY_SUBSCRIPTION_STOREKIT_2",
-            tableName: "Account",
-            value: "Make a purchase with StoreKit2",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Make a purchase with StoreKit2", comment: ""), for: .normal)
+        return button
+    }()
+
+    let storeKit2RefundButton: AppButton = {
+        let button = AppButton(style: .success)
+        button.setTitle(NSLocalizedString("Refund last purchase with StoreKit2", comment: ""), for: .normal)
         return button
     }()
 
     let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
         button.setAccessibilityIdentifier(.redeemVoucherButton)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Redeem voucher",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Redeem voucher", comment: ""), for: .normal)
         return button
     }()
 
     let logoutButton: AppButton = {
         let button = AppButton(style: .danger)
         button.setAccessibilityIdentifier(.logoutButton)
-        button.setTitle(NSLocalizedString(
-            "LOGOUT_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Log out",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Log out", comment: ""), for: .normal)
         return button
     }()
 
     let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
         button.setAccessibilityIdentifier(.deleteButton)
-        button.setTitle(NSLocalizedString(
-            "DELETE_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Delete account",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Delete account", comment: ""), for: .normal)
         return button
     }()
 
@@ -102,7 +83,8 @@ class AccountContentView: UIView {
         var arrangedSubviews = [UIView]()
         #if DEBUG
         arrangedSubviews.append(redeemVoucherButton)
-        arrangedSubviews.append(storeKit2Button)
+        arrangedSubviews.append(storeKit2PurchaseButton)
+        arrangedSubviews.append(storeKit2RefundButton)
         #endif
         arrangedSubviews.append(contentsOf: [
             purchaseButton,
@@ -118,17 +100,36 @@ class AccountContentView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         setAccessibilityIdentifier(.accountView)
+        addScrollView()
+    }
 
-        addConstrainedSubviews([contentStackView, buttonStackView]) {
+    private func addScrollView() {
+        let scrollView = UIScrollView()
+        let contentView = UIView()
+
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperviewMargins()
+        }
+
+        scrollView.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview()
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            contentView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.heightAnchor)
+        }
+
+        let spacer = UIView()
+
+        contentView.addConstrainedSubviews([contentStackView, spacer, buttonStackView]) {
             contentStackView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-            buttonStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: contentStackView.bottomAnchor,
+            spacer.pinEdgesToSuperviewMargins(.all().excluding(.top).excluding(.bottom))
+            buttonStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
+
+            spacer.bottomAnchor.constraint(equalTo: buttonStackView.topAnchor)
+            spacer.topAnchor.constraint(
+                equalTo: contentStackView.bottomAnchor,
                 constant: UIMetrics.TableView.sectionSpacing
             )
-            buttonStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
         }
     }
 

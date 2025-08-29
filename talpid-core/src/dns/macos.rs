@@ -5,7 +5,7 @@ use std::{
     collections::{BTreeSet, HashMap},
     fmt, mem,
     net::{IpAddr, SocketAddr},
-    sync::{mpsc as sync_mpsc, Arc, RwLock},
+    sync::{Arc, RwLock, mpsc as sync_mpsc},
     thread,
     time::Duration,
 };
@@ -16,7 +16,7 @@ use system_configuration::{
         dictionary::{CFDictionary, CFMutableDictionary},
         number::CFNumber,
         propertylist::CFPropertyList,
-        runloop::{kCFRunLoopCommonModes, CFRunLoop},
+        runloop::{CFRunLoop, kCFRunLoopCommonModes},
         string::CFString,
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
@@ -183,15 +183,6 @@ impl State {
             match settings {
                 // Do nothing if the state is already what we want
                 Some(settings) if settings.server_addresses() == desired_set => (),
-                // Ignore loopback addresses
-                Some(settings)
-                    if settings
-                        .server_addresses()
-                        .iter()
-                        .any(|addr| addr.ip().is_loopback()) =>
-                {
-                    log::trace!("Not updating DNS config: localhost is used");
-                }
                 // Apply desired state to service
                 _ => {
                     let path_cf = CFString::new(path);

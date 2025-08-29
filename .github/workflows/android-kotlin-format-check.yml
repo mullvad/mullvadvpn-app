@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -48,6 +50,8 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Run ktfmt check
         run: android/gradlew -p android ktfmtCheck :buildSrc:ktfmtCheck

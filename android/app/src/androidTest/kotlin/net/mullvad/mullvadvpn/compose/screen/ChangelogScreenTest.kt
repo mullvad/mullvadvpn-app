@@ -24,18 +24,8 @@ class ChangelogScreenTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initScreen(
-        state: ChangelogUiState,
-        onSeeFullChangelog: () -> Unit = {},
-        onBackClick: () -> Unit = {},
-    ) {
-        setContentWithTheme {
-            ChangelogScreen(
-                state = state,
-                onSeeFullChangelog = onSeeFullChangelog,
-                onBackClick = onBackClick,
-            )
-        }
+    private fun ComposeContext.initScreen(state: ChangelogUiState, onBackClick: () -> Unit = {}) {
+        setContentWithTheme { ChangelogScreen(state = state, onBackClick = onBackClick) }
     }
 
     @Test

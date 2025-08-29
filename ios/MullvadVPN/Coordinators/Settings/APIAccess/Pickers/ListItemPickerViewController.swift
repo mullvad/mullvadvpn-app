@@ -87,7 +87,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = dataSource.item(at: indexPath)
-        var configuration = UIListContentConfiguration.mullvadCell(tableStyle: .insetGrouped)
+        var configuration = ListCellContentConfiguration()
         configuration.text = item.text
 
         let cell = tableView.dequeueReusableView(withIdentifier: CellIdentifier.default, for: indexPath)
@@ -109,7 +109,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UIMetrics.SettingsCell.apiAccessCellHeight
+        UITableView.automaticDimension
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.withPrev
@@ -51,6 +52,7 @@ class ConnectViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
+    private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val resources: Resources,
     private val isPlayBuild: Boolean,
     private val isFdroidBuild: Boolean,
@@ -95,22 +97,13 @@ class ConnectViewModel(
                                 }
                             is TunnelState.Error -> lastKnownDisconnectedLocation
                         },
-                    selectedRelayItemTitle = selectedRelayItemTitle,
-                    tunnelState = tunnelState,
-                    showLocation =
-                        when (tunnelState) {
-                            is TunnelState.Disconnected -> tunnelState.location != null
-                            is TunnelState.Disconnecting -> {
-                                when (tunnelState.actionAfterDisconnect) {
-                                    ActionAfterDisconnect.Nothing -> false
-                                    ActionAfterDisconnect.Block -> true
-                                    ActionAfterDisconnect.Reconnect -> false
-                                }
-                            }
-                            is TunnelState.Connecting -> false
-                            is TunnelState.Connected -> false
-                            is TunnelState.Error -> true
+                    selectedRelayItemTitle =
+                        if (tunnelState is TunnelState.Disconnected) {
+                            selectedRelayItemTitle
+                        } else {
+                            null
                         },
+                    tunnelState = tunnelState,
                     inAppNotification = notifications.firstOrNull(),
                     deviceName = deviceName,
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysFromNow(),
@@ -163,7 +156,11 @@ class ConnectViewModel(
             } else {
                 // Either the user denied the permission or another always-on-vpn is active (if
                 // Android 11+ and run from Android Studio)
-                _uiSideEffect.send(UiSideEffect.ConnectError.PermissionDenied)
+                // If we don't have vpn system settings available we assume that there is no other
+                // always-on-vpn active.
+                _uiSideEffect.send(
+                    UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase())
+                )
             }
         }
     }
@@ -185,13 +182,19 @@ class ConnectViewModel(
 
     fun openAppListing() =
         viewModelScope.launch {
-            val uri =
+            val sideEffect =
                 if (isPlayBuild || isFdroidBuild) {
-                    resources.getString(R.string.market_uri, packageName)
+                    UiSideEffect.OpenUri(
+                        uri = resources.getString(R.string.market_uri, packageName).toUri(),
+                        errorMessage = resources.getString(R.string.uri_market_app_not_found),
+                    )
                 } else {
-                    resources.getString(R.string.download_url)
+                    UiSideEffect.OpenUri(
+                        uri = resources.getString(R.string.download_url).toUri(),
+                        errorMessage = resources.getString(R.string.uri_browser_app_not_found),
+                    )
                 }
-            _uiSideEffect.send(UiSideEffect.OpenUri(uri.toUri()))
+            _uiSideEffect.send(sideEffect)
         }
 
     fun dismissNewDeviceNotification() {
@@ -214,7 +217,7 @@ class ConnectViewModel(
 
         data object OutOfTime : UiSideEffect
 
-        data class OpenUri(val uri: Uri) : UiSideEffect
+        data class OpenUri(val uri: Uri, val errorMessage: String) : UiSideEffect
 
         data object RevokedDevice : UiSideEffect
 
@@ -223,7 +226,7 @@ class ConnectViewModel(
         sealed interface ConnectError : UiSideEffect {
             data object Generic : ConnectError
 
-            data object PermissionDenied : ConnectError
+            data class PermissionDenied(val systemVpnSettingsAvailable: Boolean) : ConnectError
         }
     }
 

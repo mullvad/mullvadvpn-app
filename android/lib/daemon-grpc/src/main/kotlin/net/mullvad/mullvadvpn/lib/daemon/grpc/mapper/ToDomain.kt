@@ -9,6 +9,9 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.management_interface.entryLocationOrNull
+import mullvad_daemon.management_interface.locationOrNull
+import mullvad_daemon.management_interface.recentsOrNull
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -39,6 +42,7 @@ import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.model.GenericOptions
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -55,6 +59,8 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Recent
+import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -73,7 +79,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.lib.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
@@ -175,16 +180,15 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
     TunnelEndpoint(
         endpoint =
-            with(address) {
-                val indexOfSeparator = indexOfLast { it == ':' }
-                val ipPart =
-                    address.substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
-                val portPart = address.substring(indexOfSeparator + 1)
-
+            Endpoint(address = address.toInetSocketAddress(), protocol = protocol.toDomain()),
+        entryEndpoint =
+            if (hasEntryEndpoint()) {
                 Endpoint(
-                    address = InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt()),
-                    protocol = protocol.toDomain(),
+                    address = entryEndpoint.address.toInetSocketAddress(),
+                    protocol = entryEndpoint.protocol.toDomain(),
                 )
+            } else {
+                null
             },
         quantumResistant = quantumResistant,
         obfuscation =
@@ -203,11 +207,20 @@ internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndp
         obfuscationType = obfuscationType.toDomain(),
     )
 
+private fun String.toInetSocketAddress(): InetSocketAddress {
+    val indexOfSeparator = indexOfLast { it == ':' }
+    val ipPart = substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
+    val portPart = substring(indexOfSeparator + 1)
+    return InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt())
+}
+
 internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain(): ObfuscationType =
     when (this) {
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UDP2TCP -> ObfuscationType.Udp2Tcp
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
             ObfuscationType.Shadowsocks
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC ->
+            throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
     }
@@ -295,7 +308,11 @@ internal fun ManagementInterface.ErrorState.GenerationError.toDomain(): Paramete
         ManagementInterface.ErrorState.GenerationError.NO_WIREGUARD_KEY ->
             ParameterGenerationError.NoWireguardKey
         ManagementInterface.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
-            ParameterGenerationError.CustomTunnelHostResultionError
+            ParameterGenerationError.CustomTunnelHostResolutionError
+        ManagementInterface.ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE ->
+            ParameterGenerationError.Ipv4_Unavailable
+        ManagementInterface.ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE ->
+            ParameterGenerationError.Ipv6_Unavailable
         ManagementInterface.ErrorState.GenerationError.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized parameter generation error")
     }
@@ -311,6 +328,7 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         showBetaReleases = showBetaReleases,
         splitTunnelSettings = splitTunnel.toDomain(),
         apiAccessMethodSettings = apiAccessMethods.toDomain(),
+        recents = recentsOrNull.toDomain(),
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
@@ -332,7 +350,7 @@ internal fun ManagementInterface.RelaySettings.toDomain(): RelaySettings =
 
 internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraints =
     RelayConstraints(
-        location = location.toDomain(),
+        location = locationOrNull?.toDomain() ?: Constraint.Any,
         providers = providersList.toDomain(),
         ownership = ownership.toDomain(),
         wireguardConstraints = wireguardConstraints.toDomain(),
@@ -345,7 +363,7 @@ internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<Relay
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(location.toDomain())
         ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
-        else -> throw IllegalArgumentException("Location constraint type is null")
+        else -> throw IllegalArgumentException("Invalid location constraint")
     }
 
 @Suppress("ReturnCount")
@@ -374,7 +392,7 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
                 Constraint.Any
             },
         isMultihopEnabled = useMultihop,
-        entryLocation = entryLocation.toDomain(),
+        entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
             if (hasIpVersion()) {
                 Constraint.Only(ipVersion.toDomain())
@@ -408,6 +426,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Udp2Tcp
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
             ObfuscationMode.Shadowsocks
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC ->
+            throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -434,7 +454,11 @@ internal fun ManagementInterface.CustomList.toDomain(): CustomList =
     )
 
 internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
-    TunnelOptions(wireguard = wireguard.toDomain(), dnsOptions = dnsOptions.toDomain())
+    TunnelOptions(
+        wireguard = wireguard.toDomain(),
+        dnsOptions = dnsOptions.toDomain(),
+        genericOptions = generic.toDomain(),
+    )
 
 internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): WireguardTunnelOptions =
     WireguardTunnelOptions(
@@ -498,7 +522,7 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
     AppVersionInfo(
         supported = supported,
-        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade else null,
+        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade.version else null,
     )
 
 internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
@@ -518,9 +542,6 @@ internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndp
         portRangesList.map { it.toDomain() },
         shadowsocksPortRangesList.map { it.toDomain() },
     )
-
-internal fun ManagementInterface.WireguardRelayEndpointData.toDomain(): WireguardRelayEndpointData =
-    WireguardRelayEndpointData(daita)
 
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
@@ -556,7 +577,7 @@ internal fun ManagementInterface.RelayListCity.toDomain(
         id = cityCode,
         relays =
             relaysList
-                .filter { it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD }
+                .filter { it.endpointData.hasWireguard() }
                 .map { it.toDomain(cityCode) }
                 .sortedWith(RelayNameComparator),
     )
@@ -570,12 +591,8 @@ internal fun ManagementInterface.Relay.toDomain(
         active = active,
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
-        daita =
-            if (
-                hasEndpointData() && endpointType == ManagementInterface.Relay.RelayType.WIREGUARD
-            ) {
-                ManagementInterface.WireguardRelayEndpointData.parseFrom(endpointData.value).daita
-            } else false,
+        daita = endpointData.wireguard.daita,
+        quic = endpointData.wireguard.hasQuic(),
     )
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
@@ -594,9 +611,10 @@ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
         else -> throw NullPointerException("Device state is null")
     }
 
-internal fun ManagementInterface.AccountData.toDomain(): AccountData =
+internal fun ManagementInterface.AccountData.toDomain(accountNumber: AccountNumber): AccountData =
     AccountData(
-        AccountId(UUID.fromString(id)),
+        id = AccountId(UUID.fromString(id)),
+        accountNumber = accountNumber,
         expiryDate = Instant.ofEpochSecond(expiry.seconds).atDefaultZone(),
     )
 
@@ -674,6 +692,9 @@ internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
 internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
     activeFeaturesList.map { it.toDomain() }.sorted()
 
+internal fun ManagementInterface.TunnelOptions.GenericOptions.toDomain(): GenericOptions =
+    GenericOptions(enableIpv6 = enableIpv6)
+
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
         ManagementInterface.FeatureIndicator.QUANTUM_RESISTANCE ->
@@ -690,6 +711,8 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
         ManagementInterface.FeatureIndicator.MULTIHOP -> FeatureIndicator.MULTIHOP
+        ManagementInterface.FeatureIndicator.DAITA_MULTIHOP -> FeatureIndicator.DAITA_MULTIHOP
+        ManagementInterface.FeatureIndicator.QUIC,
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,
@@ -702,4 +725,25 @@ internal fun ManagementInterface.IpVersion.toDomain() =
         ManagementInterface.IpVersion.V4 -> IpVersion.IPV4
         ManagementInterface.IpVersion.V6 -> IpVersion.IPV6
         ManagementInterface.IpVersion.UNRECOGNIZED -> error("Not supported ${this.name}")
+    }
+
+internal fun ManagementInterface.Recents?.toDomain(): Recents =
+    if (this != null) {
+        Recents.Enabled(recentsList.map { it.toDomain() })
+    } else {
+        Recents.Disabled
+    }
+
+internal fun ManagementInterface.Recent.toDomain(): Recent =
+    when (typeCase) {
+        ManagementInterface.Recent.TypeCase.MULTIHOP ->
+            Recent.Multihop(
+                entry = (multihop.entry.toDomain() as Constraint.Only).value,
+                exit = (multihop.exit.toDomain() as Constraint.Only).value,
+            )
+
+        ManagementInterface.Recent.TypeCase.SINGLEHOP ->
+            Recent.Singlehop((singlehop.toDomain() as Constraint.Only).value)
+
+        ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }

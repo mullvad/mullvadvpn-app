@@ -8,15 +8,10 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -45,9 +40,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
-import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
+import net.mullvad.mullvadvpn.compose.component.DeviceListItem
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
@@ -56,15 +50,12 @@ import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.common.util.formatDate
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -74,7 +65,17 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewDeviceListScreenContent(
     @PreviewParameter(DeviceListUiStatePreviewParameterProvider::class) state: DeviceListUiState
 ) {
-    AppTheme { DeviceListScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}) }
+    AppTheme {
+        DeviceListScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onBackClick = {},
+            onContinueWithLogin = {},
+            onSettingsClicked = {},
+            onTryAgainClicked = {},
+            navigateToRemoveDeviceConfirmationDialog = {},
+        )
+    }
 }
 
 data class DeviceListNavArgs(val accountNumber: AccountNumber)
@@ -153,11 +154,15 @@ fun DeviceListScreen(
         onAccountClicked = null,
         snackbarHostState = snackbarHostState,
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(it)) {
+        Column(
+            modifier =
+                Modifier.fillMaxSize().padding(it).padding(bottom = Dimens.screenBottomMargin)
+        ) {
             val scrollState = rememberScrollState()
             Column(
                 modifier =
                     Modifier.drawVerticalScrollbar(scrollState, MaterialTheme.colorScheme.onSurface)
+                        .padding(top = Dimens.screenTopMargin)
                         .verticalScroll(scrollState)
                         .weight(1f)
                         .fillMaxWidth()
@@ -185,6 +190,7 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
         Text(
             text = stringResource(id = R.string.failed_to_fetch_devices),
             modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally),
+            style = MaterialTheme.typography.bodyMedium,
         )
         PrimaryButton(
             onClick = tryAgain,
@@ -229,25 +235,17 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                             }
                     ),
                 contentDescription = null, // No meaningful user info or action.
-                modifier =
-                    Modifier.align(Alignment.CenterHorizontally)
-                        .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         is DeviceListUiState.Error ->
             Image(
                 painter = painterResource(id = R.drawable.icon_fail),
                 contentDescription = null, // No meaningful user info or action.
-                modifier =
-                    Modifier.align(Alignment.CenterHorizontally)
-                        .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         DeviceListUiState.Loading ->
             MullvadCircularProgressIndicatorLarge(
-                modifier =
-                    Modifier.align(Alignment.CenterHorizontally)
-                        .padding(top = Dimens.iconFailSuccessTopMargin)
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
     }
 
@@ -267,7 +265,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
             Modifier.padding(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
-                top = Dimens.screenVerticalMargin,
+                top = Dimens.screenTopMargin,
             ),
     )
 
@@ -282,7 +280,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                             R.string.max_devices_resolved_description
                         }
                 ),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier =
                 Modifier.wrapContentHeight()
@@ -298,37 +296,6 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
 }
 
 @Composable
-private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalClicked: () -> Unit) {
-    TwoRowCell(
-        titleStyle = MaterialTheme.typography.listItemText,
-        titleColor = MaterialTheme.colorScheme.onPrimary,
-        subtitleStyle = MaterialTheme.typography.listItemSubText,
-        subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        titleText = device.displayName(),
-        subtitleText = stringResource(id = R.string.created_x, device.creationDate.formatDate()),
-        bodyView = {
-            if (isLoading) {
-                MullvadCircularProgressIndicatorMedium(
-                    modifier = Modifier.padding(Dimens.smallPadding)
-                )
-            } else {
-                IconButton(onClick = onDeviceRemovalClicked) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = stringResource(id = R.string.remove_button),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(size = Dimens.deleteIconSize),
-                    )
-                }
-            }
-        },
-        onCellClicked = null,
-        endPadding = Dimens.smallPadding,
-        minHeight = Dimens.cellHeight,
-    )
-}
-
-@Composable
 private fun DeviceListButtonPanel(
     state: DeviceListUiState,
     onContinueWithLogin: () -> Unit,
@@ -340,7 +307,6 @@ private fun DeviceListButtonPanel(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
                 top = Dimens.spacingAboveButton,
-                bottom = Dimens.screenVerticalMargin,
             )
     ) {
         VariantButton(

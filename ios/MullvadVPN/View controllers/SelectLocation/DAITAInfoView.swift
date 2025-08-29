@@ -19,32 +19,26 @@ class DAITAInfoView: UIView {
 
         label.attributedText = NSAttributedString(
             string: NSLocalizedString(
-                "SELECT_LOCATION_DAITA_INFO",
-                tableName: "SelectLocation",
-                value: """
+                """
                 The entry server for multihop is currently overridden by DAITA. \
                 To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings.
                 """,
                 comment: ""
             ),
             attributes: [
-                .font: UIFont.systemFont(ofSize: 15),
+                .font: UIFont.mullvadSmall,
                 .foregroundColor: UIColor.white,
                 .paragraphStyle: infoTextParagraphStyle,
             ]
         )
+        label.adjustsFontForContentSizeCategory = true
 
         return label
     }()
 
     let settingsButton: UIButton = {
         let settingsButton = AppButton(style: .default)
-        settingsButton.setTitle(NSLocalizedString(
-            "SELECT_LOCATION_DAITA_BUTTON",
-            tableName: "SelectLocation",
-            value: "Open DAITA settings",
-            comment: ""
-        ), for: .normal)
+        settingsButton.setTitle(NSLocalizedString("Open DAITA settings", comment: ""), for: .normal)
 
         return settingsButton
     }()
@@ -60,11 +54,10 @@ class DAITAInfoView: UIView {
         settingsButton.addTarget(self, action: #selector(didPressButton), for: .touchUpInside)
 
         addConstrainedSubviews([infoLabel, settingsButton]) {
-            infoLabel.pinEdgesToSuperviewMargins(.init([.leading(24), .trailing(24)]))
+            infoLabel.pinEdgesToSuperviewMargins(.init([.leading(24), .trailing(24), .top(8)]))
 
             settingsButton.pinEdgesToSuperviewMargins(.init([.leading(0), .trailing(0)]))
             settingsButton.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 32)
-            settingsButton.bottomAnchor.constraint(equalTo: centerYAnchor)
         }
     }
 

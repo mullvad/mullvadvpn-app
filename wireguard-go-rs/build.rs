@@ -8,7 +8,7 @@ use std::{
     str,
 };
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 
 fn main() -> anyhow::Result<()> {
     // Mark "daita" as a conditional configuration flag
@@ -51,6 +51,14 @@ enum AndroidTarget {
     X86,     // "x86_64"
     Armv7,   // "armv7"
     I686,    // "i686"
+}
+
+#[derive(PartialEq, Eq, Clone, Copy)]
+enum Libc {
+    /// glibc
+    Gnu,
+    /// musl libc
+    Musl,
 }
 
 impl AndroidTarget {
@@ -110,6 +118,16 @@ fn target_arch() -> anyhow::Result<Arch> {
         "x86_64" => Ok(Arch::Amd64),
         "aarch64" => Ok(Arch::Arm64),
         _ => bail!("Unsupported architecture: {target_arch}"),
+    }
+}
+
+// https://doc.rust-lang.org/reference/conditional-compilation.html#target_env
+fn target_libc() -> anyhow::Result<Libc> {
+    let target_arch = env::var("CARGO_CFG_TARGET_ENV").context("Missing 'CARGO_CFG_TARGET_ENV")?;
+    match target_arch.as_str() {
+        "gnu" => Ok(Libc::Gnu),
+        "musl" => Ok(Libc::Musl),
+        _ => bail!("Unsupported target ABI/libc: {target_arch}"),
     }
 }
 
@@ -179,9 +197,10 @@ fn build_linux_static_lib(out_dir: &str) -> anyhow::Result<()> {
     };
 
     if is_cross_compiling()? {
-        match target_arch {
-            Arch::Arm64 => go_build.env("CC", "aarch64-linux-gnu-gcc"),
-            Arch::Amd64 => bail!("cross-compiling to linux x86_64 is not implemented"),
+        match (target_arch, target_libc()?) {
+            (Arch::Arm64, Libc::Gnu) => go_build.env("CC", "aarch64-linux-gnu-gcc"),
+            (Arch::Arm64, Libc::Musl) => go_build.env("CC", "aarch64-linux-musl-gcc"),
+            (Arch::Amd64, _) => bail!("cross-compiling to linux x86_64 is not implemented"),
         };
     }
 
@@ -329,11 +348,7 @@ fn find_lib_exe() -> anyhow::Result<PathBuf> {
         Arch::Arm64 => "arm64",
     };
 
-    let lib_exe_pattern = format!(
-        "{host}/{target}/lib.exe",
-        host = lib_exe_host,
-        target = lib_exe_target,
-    );
+    let lib_exe_pattern = format!("{lib_exe_host}/{lib_exe_target}/lib.exe",);
     let path_is_lib_exe = |file: &Path| file.ends_with(&lib_exe_pattern);
 
     find_file(search_path, &path_is_lib_exe)?.context("No lib.exe relative to msbuild.exe")
@@ -347,11 +362,12 @@ fn find_file(
     for path in std::fs::read_dir(dir).context("Failed to read dir")? {
         let entry = path.context("Failed to read dir entry")?;
         let path = entry.path();
-        if path.is_dir() {
-            if let Some(result) = find_file(&path, condition)? {
-                return Ok(Some(result));
-            }
+        if path.is_dir()
+            && let Some(result) = find_file(&path, condition)?
+        {
+            return Ok(Some(result));
         }
+
         if condition(&path) {
             return Ok(Some(path.to_owned()));
         }
@@ -476,8 +492,11 @@ fn build_android_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
         .env("ANDROID_ABI", android_abi(target))
         .env("ANDROID_ARCH_NAME", android_arch_name(target))
         .env("GOPATH", &go_path)
-        // Note: -w -s results in a stripped binary
-        .env("LDFLAGS", format!("-L{out_dir} -w -s"))
+        // Note: -w -s results in a stripped binary.
+        // Note: -Wl -z and max-page-size is added to support 16KB page size.
+        // See the link below for more information.
+        // https://developer.android.com/guide/practices/page-sizes#other-build-systems
+        .env("LDFLAGS", format!("-L{out_dir} -w -s -Wl -z max-page-size=16384"))
         // Note: the build container overrides CARGO_TARGET_DIR, which will cause problems
         // since we will spawn another cargo process as part of building maybenot (which we
         // link into libwg). A work around is to simply override the overridden value, and we

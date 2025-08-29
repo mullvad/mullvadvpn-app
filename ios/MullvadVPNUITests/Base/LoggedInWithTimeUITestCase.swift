@@ -13,13 +13,15 @@ import XCTest
 class LoggedInWithTimeUITestCase: BaseUITestCase {
     var hasTimeAccountNumber: String?
 
-    override func setUp() {
-        super.setUp()
-
-        hasTimeAccountNumber = getAccountWithTime()
+    override func setUp() async throws {
+        try await super.setUp()
 
         agreeToTermsOfServiceIfShown()
+        // Make sure that if a previous test ended up in a state where the app got stuck connecting to a relay
+        // does not affect the next test running
         logoutIfLoggedIn()
+
+        hasTimeAccountNumber = getAccountWithTime()
 
         guard let hasTimeAccountNumber = self.hasTimeAccountNumber else {
             XCTFail("hasTimeAccountNumber unexpectedly not set")
@@ -33,8 +35,8 @@ class LoggedInWithTimeUITestCase: BaseUITestCase {
         app.launch()
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         guard let hasTimeAccountNumber = self.hasTimeAccountNumber else {
             XCTFail("hasTimeAccountNumber unexpectedly not set")

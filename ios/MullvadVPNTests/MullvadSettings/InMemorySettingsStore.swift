@@ -28,4 +28,8 @@ class InMemorySettingsStore<ThrownError: Error>: SettingsStore, @unchecked Senda
     func delete(key: SettingsKey) throws {
         settings.removeValue(forKey: key)
     }
+
+    func reset() {
+        settings.removeAll()
+    }
 }

@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
 import { IconButton, IconButtonProps, MainHeader } from '../../../lib/components';
-import { transitions, useHistory } from '../../../lib/history';
-import { RoutePath } from '../../../lib/routes';
+import { TransitionType, useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 
 export type MainHeaderBarAccountButtonProps = Omit<IconButtonProps, 'icon'>;
@@ -11,7 +11,7 @@ export type MainHeaderBarAccountButtonProps = Omit<IconButtonProps, 'icon'>;
 export const AppMainHeaderBarAccountButton = (props: MainHeaderBarAccountButtonProps) => {
   const history = useHistory();
   const openAccount = useCallback(
-    () => history.push(RoutePath.account, { transition: transitions.show }),
+    () => history.push(RoutePath.account, { transition: TransitionType.show }),
     [history],
   );
 

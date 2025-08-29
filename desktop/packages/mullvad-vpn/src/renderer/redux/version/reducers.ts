@@ -1,10 +1,11 @@
+import { AppVersionInfoSuggestedUpgrade } from '../../../shared/daemon-rpc-types';
 import { ReduxAction } from '../store';
 
 export interface IVersionReduxState {
   current: string;
   supported: boolean;
   isBeta: boolean;
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
   consistent: boolean;
 }

@@ -1,6 +1,6 @@
 use crate::{
-    imp::{CallbackMessage, RouteManagerCommand},
     NetNode, Node, RequiredRoute, Route,
+    imp::{CallbackMessage, RouteManagerCommand},
 };
 use netlink_sys::AsyncSocket;
 use std::{
@@ -11,30 +11,30 @@ use std::{
 use talpid_types::ErrorExt;
 
 use futures::{
+    StreamExt, TryStream, TryStreamExt,
     channel::mpsc::{UnboundedReceiver, UnboundedSender},
     future::FutureExt,
-    StreamExt, TryStream, TryStreamExt,
 };
 use ipnetwork::IpNetwork;
 use libc::{AF_INET, AF_INET6};
 use netlink_packet_route::{
-    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
-    link::{nlas::Nla as LinkNla, LinkMessage},
-    route::{nlas::Nla as RouteNla, Metrics, RouteHeader, RouteMessage},
-    rtnl::{
-        constants::{
-            RTN_UNSPEC, RTPROT_UNSPEC, RT_SCOPE_LINK, RT_SCOPE_UNIVERSE, RT_TABLE_COMPAT,
-            RT_TABLE_MAIN,
-        },
-        RouteFlags,
-    },
-    rule::{nlas::Nla as RuleNla, RuleHeader, RuleMessage},
     NetlinkMessage, NetlinkPayload, RtnlMessage,
+    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
+    link::{LinkMessage, nlas::Nla as LinkNla},
+    route::{Metrics, RouteHeader, RouteMessage, nlas::Nla as RouteNla},
+    rtnl::{
+        RouteFlags,
+        constants::{
+            RT_SCOPE_LINK, RT_SCOPE_UNIVERSE, RT_TABLE_COMPAT, RT_TABLE_MAIN, RTN_UNSPEC,
+            RTPROT_UNSPEC,
+        },
+    },
+    rule::{RuleHeader, RuleMessage, nlas::Nla as RuleNla},
 };
 use rtnetlink::{
+    Handle, IpVersion,
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
-    Handle, IpVersion,
 };
 use std::sync::LazyLock;
 
@@ -273,10 +273,10 @@ impl RouteManagerImpl {
         let mut response = self.handle.request(req).map_err(Error::Netlink)?;
 
         while let Some(message) = response.next().await {
-            if let NetlinkPayload::Error(error) = message.payload {
-                if error.to_io().kind() != io::ErrorKind::NotFound {
-                    return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
-                }
+            if let NetlinkPayload::Error(error) = message.payload
+                && error.to_io().kind() != io::ErrorKind::NotFound
+            {
+                return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
             }
         }
         Ok(())
@@ -565,11 +565,12 @@ impl RouteManagerImpl {
 
     async fn delete_route_if_exists(&self, route: &Route) -> Result<()> {
         if let Err(error) = self.delete_route(route).await {
-            if let Error::Netlink(rtnetlink::Error::NetlinkError(msg)) = &error {
-                if msg.code == -libc::ESRCH {
-                    return Ok(());
-                }
+            if let Error::Netlink(rtnetlink::Error::NetlinkError(msg)) = &error
+                && msg.code == -libc::ESRCH
+            {
+                return Ok(());
             }
+
             Err(error)
         } else {
             Ok(())
@@ -617,10 +618,10 @@ impl RouteManagerImpl {
             route_message.nlas.push(RouteNla::Table(route.table_id));
         }
 
-        if let Some(interface_name) = route.node.get_device() {
-            if let Some(iface_idx) = self.find_iface_idx(interface_name) {
-                route_message.nlas.push(RouteNla::Oif(iface_idx));
-            }
+        if let Some(interface_name) = route.node.get_device()
+            && let Some(iface_idx) = self.find_iface_idx(interface_name)
+        {
+            route_message.nlas.push(RouteNla::Oif(iface_idx));
         }
 
         if let Some(gateway) = route.node.get_address() {
@@ -662,10 +663,10 @@ impl RouteManagerImpl {
                     add_message = add_message.gateway(node_address);
                 }
 
-                if let Some(interface_name) = route.node.get_device() {
-                    if let Some(iface_idx) = self.find_iface_idx(interface_name) {
-                        add_message = add_message.output_interface(iface_idx);
-                    }
+                if let Some(interface_name) = route.node.get_device()
+                    && let Some(iface_idx) = self.find_iface_idx(interface_name)
+                {
+                    add_message = add_message.output_interface(iface_idx);
                 }
 
                 add_message.message_mut().clone()
@@ -687,10 +688,10 @@ impl RouteManagerImpl {
                     add_message = add_message.gateway(node_address);
                 }
 
-                if let Some(interface_name) = route.node.get_device() {
-                    if let Some(iface_idx) = self.find_iface_idx(interface_name) {
-                        add_message = add_message.output_interface(iface_idx);
-                    }
+                if let Some(interface_name) = route.node.get_device()
+                    && let Some(iface_idx) = self.find_iface_idx(interface_name)
+                {
+                    add_message = add_message.output_interface(iface_idx);
                 }
 
                 add_message.message_mut().clone()
@@ -782,7 +783,9 @@ impl RouteManagerImpl {
                         }
                         (None, Some(address)) => attempted_ip = address,
                         (None, None) => {
-                            log::error!("Route contains an invalid node which lacks both a device and an address");
+                            log::error!(
+                                "Route contains an invalid node which lacks both a device and an address"
+                            );
                             return Err(Error::InvalidRouteNode);
                         }
                     }
@@ -804,14 +807,14 @@ impl RouteManagerImpl {
         let mut links = self.handle.link().get().execute();
         let target_device = LinkNla::IfName(device);
         while let Some(msg) = links.try_next().await.map_err(|_| Error::LinkNotFound)? {
-            let found = msg.nlas.iter().any(|e| *e == target_device);
-            if found {
-                if let Some(LinkNla::Mtu(mtu)) =
+            let found = msg.nlas.contains(&target_device);
+            if found
+                && let Some(LinkNla::Mtu(mtu)) =
                     msg.nlas.iter().find(|e| matches!(e, LinkNla::Mtu(_)))
-                {
-                    return Ok(u16::try_from(*mtu)
-                        .expect("MTU returned by device does not fit into a u16"));
-                }
+            {
+                return Ok(
+                    u16::try_from(*mtu).expect("MTU returned by device does not fit into a u16")
+                );
             }
         }
         Err(Error::LinkNotFound)
@@ -855,11 +858,7 @@ fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
 
 fn compat_table_id(id: u32) -> u8 {
     // RT_TABLE_COMPAT must be combined with nla Table(id)
-    if id > 255 {
-        RT_TABLE_COMPAT
-    } else {
-        id as u8
-    }
+    if id > 255 { RT_TABLE_COMPAT } else { id as u8 }
 }
 
 fn get_ip_version(addr: &IpAddr) -> IpVersion {

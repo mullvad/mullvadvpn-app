@@ -17,7 +17,7 @@ languages([
 ])
 
 # The name of the scheme which contains the screenshot UI Tests
-scheme("MullvadVPN")
+scheme("MullvadVPNScreenshotTests")
 
 # The name of the test plan which contains the UI Tests
 testplan("MullvadVPNScreenshots")

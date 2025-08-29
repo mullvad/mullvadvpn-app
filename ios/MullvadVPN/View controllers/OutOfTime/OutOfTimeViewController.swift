@@ -31,7 +31,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         .lightContent
     }
 
-    nonisolated(unsafe) var preferredHeaderBarPresentation: HeaderBarPresentation {
+    nonisolated var preferredHeaderBarPresentation: HeaderBarPresentation {
         let tunnelState = interactor.tunnelStatus.state
 
         return HeaderBarPresentation(
@@ -106,13 +106,12 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     private func applyViewState() {
         let tunnelState = interactor.tunnelStatus.state
         contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
+        contentView.enablePurchaseButton(!tunnelState.isSecured)
 
         if tunnelState.isSecured {
             contentView.setBodyLabelText(
                 NSLocalizedString(
-                    "OUT_OF_TIME_BODY_CONNECTED",
-                    tableName: "OutOfTime",
-                    value: """
+                    """
                     You have no more VPN time left on this account. To add more, you will need to \
                     disconnect and access the Internet with an unsecure connection.
                     """,
@@ -122,9 +121,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         } else {
             contentView.setBodyLabelText(
                 NSLocalizedString(
-                    "OUT_OF_TIME_BODY_DISCONNECTED",
-                    tableName: "OutOfTime",
-                    value: """
+                    """
                     You have no more VPN time left on this account. Either buy credit on our website \
                     or make an in-app purchase via the **Add time** button below.
                     """,

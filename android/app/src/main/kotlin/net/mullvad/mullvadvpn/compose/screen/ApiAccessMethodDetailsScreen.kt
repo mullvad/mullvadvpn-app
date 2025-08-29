@@ -53,11 +53,6 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_DETAILS_EDIT_BUTTON
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_TEST_METHOD_BUTTON
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_USE_METHOD_BUTTON
-import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -67,6 +62,11 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
+import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_USE_METHOD_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -78,7 +78,17 @@ private fun PreviewApiAccessMethodDetailsScreen(
     state: ApiAccessMethodDetailsUiState
 ) {
     AppTheme {
-        ApiAccessMethodDetailsScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {})
+        ApiAccessMethodDetailsScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onEditMethodClicked = {},
+            onEnableClicked = {},
+            onTestMethodClicked = {},
+            onUseMethodClicked = {},
+            onDeleteApiAccessMethodClicked = {},
+            onNavigateToEncryptedDnsInfoDialog = {},
+            onBackClicked = {},
+        )
     }
 }
 
@@ -247,7 +257,7 @@ private fun Content(
         NavigationComposeCell(
             title = stringResource(id = R.string.edit_method),
             onClick = onEditMethodClicked,
-            testTag = API_ACCESS_DETAILS_EDIT_BUTTON,
+            testTag = API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG,
         )
         HorizontalDivider()
     }
@@ -272,7 +282,8 @@ private fun Content(
     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
     TestMethodButton(
         modifier =
-            Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_TEST_METHOD_BUTTON),
+            Modifier.padding(horizontal = Dimens.sideMargin)
+                .testTag(API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG),
         isTesting = state.isTestingAccessMethod,
         onTestMethod = onTestMethodClicked,
     )
@@ -280,7 +291,8 @@ private fun Content(
     PrimaryButton(
         isEnabled = !state.isTestingAccessMethod,
         modifier =
-            Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_USE_METHOD_BUTTON),
+            Modifier.padding(horizontal = Dimens.sideMargin)
+                .testTag(API_ACCESS_USE_METHOD_BUTTON_TEST_TAG),
         onClick = onUseMethodClicked,
         text = stringResource(id = R.string.use_method),
     )

@@ -16,16 +16,16 @@ use std::{
 use talpid_types::win32_err;
 use talpid_windows::net::{guid_from_luid, luid_from_alias};
 use windows_sys::{
-    core::GUID,
-    s, w,
     Win32::{
-        Foundation::{FreeLibrary, ERROR_PROC_NOT_FOUND, WIN32_ERROR},
+        Foundation::{ERROR_PROC_NOT_FOUND, FreeLibrary, WIN32_ERROR},
         NetworkManagement::IpHelper::{
             DNS_INTERFACE_SETTINGS, DNS_INTERFACE_SETTINGS_VERSION1, DNS_SETTING_IPV6,
             DNS_SETTING_NAMESERVER,
         },
-        System::LibraryLoader::{GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32},
+        System::LibraryLoader::{GetProcAddress, LOAD_LIBRARY_SEARCH_SYSTEM32, LoadLibraryExW},
     },
+    core::GUID,
+    s, w,
 };
 
 /// Errors that can happen when configuring DNS on Windows.

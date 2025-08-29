@@ -8,8 +8,8 @@ use std::{
     task::{self, Poll},
 };
 use talpid_types::{
-    net::{proxy, Endpoint, TransportProtocol},
     ErrorExt,
+    net::{Endpoint, TransportProtocol, proxy},
 };
 use tokio::{
     fs,
@@ -129,7 +129,7 @@ impl ApiConnectionMode {
                         "Failed to deserialize \"{CURRENT_CONFIG_FILENAME}\""
                     ))
                 );
-                io::Error::new(io::ErrorKind::Other, "deserialization failed")
+                io::Error::other("deserialization failed")
             }),
             Err(error) => {
                 if error.kind() == io::ErrorKind::NotFound {
@@ -145,7 +145,7 @@ impl ApiConnectionMode {
     pub async fn save(&self, cache_dir: &Path) -> io::Result<()> {
         let mut file = mullvad_fs::AtomicFile::new(cache_dir.join(CURRENT_CONFIG_FILENAME)).await?;
         let json = serde_json::to_string_pretty(self)
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "serialization failed"))?;
+            .map_err(|_| io::Error::other("serialization failed"))?;
         file.write_all(json.as_bytes()).await?;
         file.write_all(b"\n").await?;
         file.finalize().await
@@ -154,13 +154,13 @@ impl ApiConnectionMode {
     /// Attempts to remove `CURRENT_CONFIG_FILENAME`, if it exists.
     pub async fn try_delete_cache(cache_dir: &Path) {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
-        if let Err(err) = fs::remove_file(path).await {
-            if err.kind() != std::io::ErrorKind::NotFound {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to remove old API config")
-                );
-            }
+        if let Err(err) = fs::remove_file(path).await
+            && err.kind() != std::io::ErrorKind::NotFound
+        {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to remove old API config")
+            );
         }
     }
 

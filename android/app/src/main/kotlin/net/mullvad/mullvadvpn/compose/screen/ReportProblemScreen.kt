@@ -75,7 +75,17 @@ private fun PreviewReportProblemScreen(
     @PreviewParameter(ReportProblemUiStatePreviewParameterProvider::class)
     state: ReportProblemUiState
 ) {
-    AppTheme { ReportProblemScreen(state = state, {}, {}, {}, {}, {}, {}) }
+    AppTheme {
+        ReportProblemScreen(
+            state = state,
+            onSendReport = {},
+            onClearSendResult = {},
+            onNavigateToViewLogs = {},
+            onEmailChanged = {},
+            onDescriptionChanged = {},
+            onBackClick = {},
+        )
+    }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -102,7 +112,7 @@ fun ReportProblem(
     }
 
     ReportProblemScreen(
-        state,
+        state = state,
         onSendReport = { vm.sendReport(state.email, state.description) },
         onClearSendResult = vm::clearSendResult,
         onNavigateToViewLogs =
@@ -154,7 +164,7 @@ private fun ReportProblemScreen(
                         .padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            bottom = Dimens.verticalSpace,
+                            bottom = Dimens.screenBottomMargin,
                         )
                         .height(IntrinsicSize.Max),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
@@ -162,6 +172,7 @@ private fun ReportProblemScreen(
                 Text(
                     text = stringResource(id = R.string.problem_report_description),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelLarge,
                 )
 
                 TextField(
@@ -242,10 +253,10 @@ fun ProblemMessageTextField(
 @Composable
 private fun ColumnScope.SendingContent() {
     MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
-    Spacer(modifier = Modifier.height(Dimens.problemReportIconToTitlePadding))
+    Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.sending),
-        style = MaterialTheme.typography.headlineLarge,
+        style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
     )
 }
@@ -256,14 +267,14 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
     Icon(
         painter = painterResource(id = R.drawable.icon_success),
         contentDescription = stringResource(id = R.string.sent),
-        modifier = Modifier.align(Alignment.CenterHorizontally).size(Dimens.dialogIconHeight),
+        modifier = Modifier.align(Alignment.CenterHorizontally),
         tint = Color.Unspecified,
     )
 
-    Spacer(modifier = Modifier.height(Dimens.problemReportIconToTitlePadding))
+    Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.sent),
-        style = MaterialTheme.typography.headlineLarge,
+        style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
     )
     Text(
@@ -277,7 +288,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
                     append(stringResource(id = R.string.we_will_look_into_this))
                 }
             },
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.fillMaxWidth(),
     )
 
@@ -298,7 +309,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
 
         Text(
             text = annotatedEmailString,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -310,18 +321,18 @@ private fun ColumnScope.ErrorContent(retry: () -> Unit, onDismiss: () -> Unit) {
     Icon(
         painter = painterResource(id = R.drawable.icon_fail),
         contentDescription = stringResource(id = R.string.failed_to_send),
-        modifier = Modifier.size(Dimens.dialogIconHeight).align(Alignment.CenterHorizontally),
+        modifier = Modifier.align(Alignment.CenterHorizontally),
         tint = Color.Unspecified,
     )
-    Spacer(modifier = Modifier.height(Dimens.problemReportIconToTitlePadding))
+    Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.failed_to_send),
-        style = MaterialTheme.typography.headlineLarge,
+        style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
     )
     Text(
         text = stringResource(id = R.string.failed_to_send_details),
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.fillMaxWidth(),
     )

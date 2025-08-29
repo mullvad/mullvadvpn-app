@@ -85,21 +85,23 @@ public actor PacketTunnelActor {
      */
     private nonisolated func consumeEvents(channel: EventChannel) {
         Task.detached { [weak self] in
+            guard let self else { return }
             for await event in channel {
-                guard let self else { return }
-
-                self.logger.debug("Received event: \(event.logFormat())")
-
-                let effects = await self.runReducer(event)
-
-                for effect in effects {
-                    await executeEffect(effect)
-                }
+                await self.handleEvent(event)
             }
         }
     }
 
-    // swiftlint:disable:next function_body_length
+    private func handleEvent(_ event: Event) async {
+        self.logger.debug("Received event: \(event.logFormat())")
+
+        let effects = self.runReducer(event)
+
+        for effect in effects {
+            await executeEffect(effect)
+        }
+    }
+
     func executeEffect(_ effect: Effect) async {
         switch effect {
         case .startDefaultPathObserver:
@@ -113,45 +115,64 @@ public actor PacketTunnelActor {
         case let .updateTunnelMonitorPath(networkPath):
             handleDefaultPathChange(networkPath)
         case let .startConnection(nextRelays):
-            do {
-                try await tryStart(nextRelays: nextRelays)
-            } catch {
-                logger.error(error: error, message: "Failed to start the tunnel.")
-                await setErrorStateInternal(with: error)
-            }
+            await handleStartConnection(nextRelays: nextRelays)
         case let .restartConnection(nextRelays, reason):
-            do {
-                try await tryStart(nextRelays: nextRelays, reason: reason)
-            } catch {
-                logger.error(error: error, message: "Failed to reconnect the tunnel.")
-                await setErrorStateInternal(with: error)
-            }
+            await handleRestartConnection(nextRelays: nextRelays, reason: reason)
         case let .reconnect(nextRelay):
             eventChannel.send(.reconnect(nextRelay))
         case .stopTunnelAdapter:
-            do {
-                try await tunnelAdapter.stop()
-            } catch {
-                logger.error(error: error, message: "Failed to stop adapter.")
-            }
-            state = .disconnected
+            await handleStopTunnelAdapter()
         case let .configureForErrorState(reason):
             await setErrorStateInternal(with: reason)
         case let .cacheActiveKey(lastKeyRotation):
             cacheActiveKey(lastKeyRotation: lastKeyRotation)
         case let .reconfigureForEphemeralPeer(configuration, configurationSemaphore):
-            do {
-                try await updateEphemeralPeerNegotiationState(configuration: configuration)
-            } catch {
-                logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
-                await setErrorStateInternal(with: error)
-            }
-            configurationSemaphore.send()
+            await handleReconfigureForEphemeralPeer(configuration: configuration, semaphore: configurationSemaphore)
         case .connectWithEphemeralPeer:
             await connectWithEphemeralPeer()
         case .setDisconnectedState:
             self.state = .disconnected
         }
+    }
+
+    private func handleStartConnection(nextRelays: NextRelays) async {
+        do {
+            try await tryStart(nextRelays: nextRelays)
+        } catch {
+            logger.error(error: error, message: "Failed to start the tunnel.")
+            await setErrorStateInternal(with: error)
+        }
+    }
+
+    private func handleRestartConnection(nextRelays: NextRelays, reason: ActorReconnectReason) async {
+        do {
+            try await tryStart(nextRelays: nextRelays, reason: reason)
+        } catch {
+            logger.error(error: error, message: "Failed to reconnect the tunnel.")
+            await setErrorStateInternal(with: error)
+        }
+    }
+
+    private func handleStopTunnelAdapter() async {
+        do {
+            try await tunnelAdapter.stop()
+        } catch {
+            logger.error(error: error, message: "Failed to stop adapter.")
+        }
+        state = .disconnected
+    }
+
+    private func handleReconfigureForEphemeralPeer(
+        configuration: EphemeralPeerNegotiationState,
+        semaphore: OneshotChannel
+    ) async {
+        do {
+            try await updateEphemeralPeerNegotiationState(configuration: configuration)
+        } catch {
+            logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
+            await setErrorStateInternal(with: error)
+        }
+        semaphore.send()
     }
 }
 
@@ -211,40 +232,6 @@ extension PacketTunnelActor {
 
         case .disconnecting:
             assertionFailure("stop(): out of order execution.")
-        }
-    }
-
-    /**
-     Reconnect tunnel to new relays. Enters error state on failure.
-
-     - Parameters:
-     - nextRelay: next relays to connect to
-     - reason: reason for reconnect
-     */
-    private func reconnect(to nextRelays: NextRelays, reason: ActorReconnectReason) async {
-        do {
-            switch state {
-            // There is no connection monitoring going on when exchanging keys.
-            // The procedure starts from scratch for each reconnection attempts.
-            case .connecting, .connected, .reconnecting, .error, .negotiatingEphemeralPeer:
-                switch reason {
-                case .connectionLoss:
-                    // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
-                    // internal state
-                    break
-                case .userInitiated:
-                    tunnelMonitor.stop()
-                }
-
-                try await tryStart(nextRelays: nextRelays, reason: reason)
-
-            case .disconnected, .disconnecting, .initial:
-                break
-            }
-        } catch {
-            logger.error(error: error, message: "Failed to reconnect the tunnel.")
-
-            await setErrorStateInternal(with: error)
         }
     }
 
@@ -402,7 +389,8 @@ extension PacketTunnelActor {
                 transportLayer: .udp,
                 remotePort: connectedRelay.endpoint.ipv4Relay.port,
                 isPostQuantum: settings.quantumResistance.isEnabled,
-                isDaitaEnabled: settings.daita.daitaState.isEnabled
+                isDaitaEnabled: settings.daita.daitaState.isEnabled,
+                obfuscationMethod: .off
             )
         case .disconnecting, .disconnected:
             return nil
@@ -426,10 +414,12 @@ extension PacketTunnelActor {
         guard let connectionState = try makeConnectionState(nextRelays: nextRelays, settings: settings, reason: reason)
         else { return nil }
 
-        let obfuscatedEndpoint = protocolObfuscator.obfuscate(
+        let obfuscated = protocolObfuscator.obfuscate(
             connectionState.connectedEndpoint,
             settings: settings.tunnelSettings,
-            retryAttempts: connectionState.selectedRelays.retryAttempt
+            retryAttempts: connectionState.selectedRelays.retryAttempt,
+            relayFeatures: connectionState.selectedRelays.entry?.features ?? connectionState.selectedRelays.exit
+                .features
         )
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
 
@@ -441,11 +431,12 @@ extension PacketTunnelActor {
             networkReachability: connectionState.networkReachability,
             connectionAttemptCount: connectionState.connectionAttemptCount,
             lastKeyRotation: connectionState.lastKeyRotation,
-            connectedEndpoint: obfuscatedEndpoint,
+            connectedEndpoint: obfuscated.endpoint,
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
             isPostQuantum: settings.quantumResistance.isEnabled,
-            isDaitaEnabled: settings.daita.daitaState.isEnabled
+            isDaitaEnabled: settings.daita.daitaState.isEnabled,
+            obfuscationMethod: obfuscated.method
         )
     }
 

@@ -1,0 +1,193 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+# shellcheck disable=SC1091
+source ../../scripts/utils/log
+
+print_usage() {
+  log "Usage: lockfile <option>"
+  log "Where option is one of the following flags:"
+  log "    -u, --update"
+  log "              Update the metadata files with new entries, and add new keys that may be used."
+  log "    -v, --verify"
+  log "              Verify all dependencies' signatures with the keys metadata file."
+  log "    -r, --renew-keys"
+  log "              Renew all keys, will remove all trusted keys and clear the keyring, allowing for old"
+  log "              keys to removed and key entries to be updated. This result is not reproducible since"
+  log "              entries may change depending on from which keyserver keys was fetched and how gradle"
+  log "              decides to create verification xml file. Also make sure to do an additional normal run"
+  log "              afterwards."
+  log "    -h, --help"
+  log "              Show this help page."
+}
+
+function main {
+    if [[ $# -eq 0 ]]; then
+        print_usage
+        exit 1
+    fi
+
+    if [[ $# -gt 1 ]]; then
+        log_error "Too many arguments"
+        print_usage
+        exit 1
+    fi
+
+    cd ../gradle/
+    trap cleanup EXIT
+
+    case "$1" in
+    "-u"|"--update")
+        setup_gradle
+        update_checksums
+        update_keys false
+        ;;
+    "-v"|"--verifiy")
+        setup_gradle
+        verify
+        ;;
+    "-r"|"--renew-keys")
+        setup_gradle
+        update_keys true
+        # First run can produce a pgp entry in among the checksums, a second run clears this out.
+        log_info "Running second time to flush out impurities"
+        update_keys false
+        ;;
+    "-h"|"--help")
+        print_usage
+        exit 0
+        ;;
+    *)
+        log_error "Invalid argument: \`$1\`"
+        print_usage
+        exit 1
+        ;;
+    esac
+}
+
+function cleanup {
+    log "Cleaning up temp dirs..."
+    rm -rf -- "$GRADLE_USER_HOME" "$TEMP_GRADLE_PROJECT_CACHE_DIR" verification-keyring.gpg
+}
+
+function setup_gradle {
+    # regardless if stopped.
+    GRADLE_OPTS="-Dorg.gradle.daemon=false"
+    # We must provide a template for mktemp to work properly on macOS.
+    GRADLE_USER_HOME=$(mktemp -d -t gradle-home-XXX)
+    TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
+    # Task list to discover all tasks and their dependencies since
+    # just running the suggested 'help' task isn't sufficient.
+    GRADLE_TASKS=(
+        "lint"
+    )
+
+    export GRADLE_OPTS
+    export GRADLE_USER_HOME
+
+    log_header "Gradle Configuration"
+    log_info "home: $GRADLE_USER_HOME"
+    log_info "cache: $TEMP_GRADLE_PROJECT_CACHE_DIR"
+}
+
+function update_checksums {
+    log_header "Update checksums"
+
+    log "Removing old components..."
+    sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
+
+    log "Generating new components..."
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "${GRADLE_TASKS[@]}"
+
+    log_success "Successfully updated checksums"
+}
+
+function update_keys {
+    local renew_keys=$1
+
+    if [ "$renew_keys" = true ]; then
+      log_header "Renew keys"
+    else
+      log_header "Update keys"
+    fi
+
+    activate_keys_metadata
+
+    log "Temporarily enabling key servers..."
+    sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' verification-metadata.xml
+
+    log "Removing old components..."
+    sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
+
+    if [ "$renew_keys" = true ]; then
+        log_info "Renewing all keys"
+
+        log "Removing old trusted keys..."
+        sed -i '/<trusted-keys>/,/<\/trusted-keys>/d' verification-metadata.xml
+
+        log "Removing old keyring..."
+        rm verification-keyring.keys
+    fi
+
+    log "Generating new trusted keys & updating keyring..."
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys
+
+    log "Sorting keyring and removing duplicates..."
+      # Sort and unique the keyring
+      # https://github.com/gradle/gradle/issues/20140
+      # `sed 's/$/NEWLINE/g'` adds the word NEWLINE at the end of each line
+      # `tr -d '\n'` deletes the actual newlines
+      # `sed` again adds a newline at the end of each key, so each key is one line
+      # `sort` orders the keys deterministically
+      # `uniq` removes identical keys
+      # `sed 's/NEWLINE/\n/g'` puts the newlines back
+    < verification-keyring.keys \
+        sed 's/$/NEWLINE/g' \
+        | tr -d '\n' \
+        | sed 's/\(-----END PGP PUBLIC KEY BLOCK-----\)/\1\n/g' \
+        | grep "END PGP PUBLIC KEY BLOCK" \
+        | sort \
+        | uniq \
+        | sed 's/NEWLINE/\n/g' \
+        > verification-keyring.new.keys
+    mv -f verification-keyring.new.keys verification-keyring.keys
+
+    log "Disabling key servers..."
+    sed -Ezi 's,key-servers,key-servers enabled="false",' verification-metadata.xml
+
+    deactivate_keys_metadata
+
+    log_success "Successfully updated keys"
+}
+
+function activate_keys_metadata {
+    log_info "Activating keys metadata"
+    mv verification-metadata.xml verification-metadata.checksums.xml
+    mv verification-metadata.keys.xml verification-metadata.xml
+}
+
+function deactivate_keys_metadata {
+    log_info "Deactivating keys metadata"
+    mv verification-metadata.xml verification-metadata.keys.xml
+    mv verification-metadata.checksums.xml verification-metadata.xml
+}
+
+function verify {
+    log_header "Verify dependencies' signatures"
+
+    activate_keys_metadata
+
+    log "Verifying signatures..."
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" "${GRADLE_TASKS[@]}"
+
+    deactivate_keys_metadata
+
+    log_success "Verification successful"
+}
+
+# Run script
+main "$@"

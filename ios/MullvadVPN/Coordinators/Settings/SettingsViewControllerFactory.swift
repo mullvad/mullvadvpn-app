@@ -57,6 +57,9 @@ struct SettingsViewControllerFactory {
         case .faq:
             // Handled separately and presented as a modal.
             .failed
+        case .language:
+            // Handled separately and presented settings.
+            .failed
         case .vpnSettings:
             makeVPNSettingsViewCoordinator()
         case .problemReport:
@@ -76,7 +79,8 @@ struct SettingsViewControllerFactory {
         return .childCoordinator(VPNSettingsCoordinator(
             navigationController: navigationController,
             interactorFactory: interactorFactory,
-            ipOverrideRepository: ipOverrideRepository
+            ipOverrideRepository: ipOverrideRepository,
+            route: .settings(.vpnSettings)
         ))
     }
 
@@ -110,12 +114,7 @@ struct SettingsViewControllerFactory {
         let view = SettingsMultihopView(tunnelViewModel: viewModel)
 
         let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString(
-            "NAVIGATION_TITLE_MULTIHOP",
-            tableName: "Settings",
-            value: "Multihop",
-            comment: ""
-        )
+        host.title = NSLocalizedString("Multihop", comment: "")
         host.view.setAccessibilityIdentifier(.multihopView)
 
         return .viewController(host)

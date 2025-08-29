@@ -7,6 +7,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import com.ramcosta.composedestinations.generated.destinations.DnsDestination
+import java.net.Inet6Address
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -34,13 +35,22 @@ sealed interface DnsDialogSideEffect {
 data class DnsDialogViewState(
     val input: String,
     val validationError: ValidationError?,
-    val isLocal: Boolean,
     val isAllowLanEnabled: Boolean,
+    val isIpv6Enabled: Boolean,
     val index: Int?,
 ) {
     val isNewEntry = index == null
+    val isIpv6: Boolean = input.isIpv6()
+    val isLocal: Boolean = input.isLocalAddress()
 
     fun isValid() = validationError == null
+
+    private fun String.isLocalAddress(): Boolean =
+        isValid() && InetAddress.getByName(this).isLocalAddress()
+
+    private fun String.isIpv6(): Boolean = isValid() && InetAddress.getByName(this) is Inet6Address
+
+    private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 }
 
 sealed class ValidationError {
@@ -67,12 +77,25 @@ class DnsDialogViewModel(
                 input,
                 currentIndex,
                 settings ->
-                createViewState(settings.addresses(), currentIndex, settings.allowLan, input)
+                DnsDialogViewState(
+                    input = input,
+                    validationError =
+                        input.validateDnsEntry(currentIndex, settings.addresses()).leftOrNull(),
+                    isAllowLanEnabled = settings.allowLan,
+                    isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
+                    index = currentIndex,
+                )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                createViewState(emptyList(), null, false, _ipAddressInput.value),
+                DnsDialogViewState(
+                    input = _ipAddressInput.value,
+                    validationError = null,
+                    isAllowLanEnabled = false,
+                    isIpv6Enabled = false,
+                    index = null,
+                ),
             )
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
@@ -81,20 +104,6 @@ class DnsDialogViewModel(
     init {
         viewModelScope.launch { settings.emit(repository.settingsUpdates.filterNotNull().first()) }
     }
-
-    private fun createViewState(
-        customDnsList: List<InetAddress>,
-        currentIndex: Int?,
-        isAllowLanEnabled: Boolean,
-        input: String,
-    ): DnsDialogViewState =
-        DnsDialogViewState(
-            input,
-            input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
-            input.isLocalAddress(),
-            isAllowLanEnabled = isAllowLanEnabled,
-            currentIndex,
-        )
 
     private fun String.validateDnsEntry(
         index: Int?,
@@ -145,14 +154,6 @@ class DnsDialogViewModel(
 
     private fun String.isValidIp(): Boolean {
         return inetAddressValidator.isValid(this)
-    }
-
-    private fun String.isLocalAddress(): Boolean {
-        return isValidIp() && InetAddress.getByName(this).isLocalAddress()
-    }
-
-    private fun InetAddress.isLocalAddress(): Boolean {
-        return isLinkLocalAddress || isSiteLocalAddress
     }
 
     private fun InetAddress.isDuplicateDnsEntry(

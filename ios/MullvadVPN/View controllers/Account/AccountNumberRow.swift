@@ -26,33 +26,33 @@ class AccountNumberRow: UIView {
 
     private let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.text = NSLocalizedString(
-            "ACCOUNT_TOKEN_LABEL",
-            tableName: "Account",
-            value: "Account number",
-            comment: ""
-        )
-        textLabel.font = UIFont.systemFont(ofSize: 14)
+        textLabel.text = NSLocalizedString("Account number", comment: "")
+        textLabel.font = .mullvadTiny
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
     }()
 
     private let accountNumberLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.monospacedSystemFont(ofSize: 17, weight: .regular)
+        textLabel.font = .mullvadSmall
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
+        textLabel.numberOfLines = 0
         return textLabel
     }()
 
     private let showHideButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .white
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
     }()
 
     private let copyButton: UIButton = {
         let button = UIButton(type: .system)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
@@ -69,7 +69,7 @@ class AccountNumberRow: UIView {
 
             accountNumberLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: UIMetrics.padding8)
             accountNumberLabel.leadingAnchor.constraint(equalTo: leadingAnchor)
-            accountNumberLabel.trailingAnchor.constraint(equalTo: showHideButton.leadingAnchor)
+            accountNumberLabel.trailingAnchor.constraint(greaterThanOrEqualTo: showHideButton.leadingAnchor)
             accountNumberLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
 
             showHideButton.heightAnchor.constraint(equalTo: accountNumberLabel.heightAnchor)
@@ -99,6 +99,15 @@ class AccountNumberRow: UIView {
 
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
+
+        showHideButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        showHideButton.setContentHuggingPriority(.required, for: .horizontal)
+
+        copyButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        copyButton.setContentHuggingPriority(.required, for: .horizontal)
+
+        accountNumberLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        accountNumberLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
 
         showCheckmark(false)
         updateView()
@@ -141,9 +150,9 @@ class AccountNumberRow: UIView {
 
     private var showHideImage: UIImage? {
         if isObscured {
-            return UIImage(named: "IconUnobscure")
+            return UIImage.Buttons.show
         } else {
-            return UIImage(named: "IconObscure")
+            return UIImage.Buttons.hide
         }
     }
 
@@ -154,12 +163,7 @@ class AccountNumberRow: UIView {
 
         if isObscured {
             return NSAttributedString(
-                string: NSLocalizedString(
-                    "ACCOUNT_ACCESSIBILITY_OBSCURED",
-                    tableName: "Account",
-                    value: "Obscured",
-                    comment: ""
-                )
+                string: NSLocalizedString("Obscured", comment: "")
             )
         } else {
             return NSAttributedString(
@@ -179,12 +183,7 @@ class AccountNumberRow: UIView {
                 selector: #selector(didTapShowHideAccount)
             ),
             UIAccessibilityCustomAction(
-                name: NSLocalizedString(
-                    "ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD",
-                    tableName: "Account",
-                    value: "Copy to pasteboard",
-                    comment: ""
-                ),
+                name: NSLocalizedString("Copy to pasteboard", comment: ""),
                 target: self,
                 selector: #selector(didTapCopyAccountNumber)
             ),
@@ -193,30 +192,20 @@ class AccountNumberRow: UIView {
 
     private var showHideAccessibilityActionName: String {
         if isObscured {
-            return NSLocalizedString(
-                "ACCOUNT_ACCESSIBILITY_SHOW_ACCOUNT_NUMBER",
-                tableName: "Account",
-                value: "Show account number",
-                comment: ""
-            )
+            return NSLocalizedString("Show account number", comment: "")
         } else {
-            return NSLocalizedString(
-                "ACCOUNT_ACCESSIBILITY_HIDE_ACCOUNT_NUMBER",
-                tableName: "Account",
-                value: "Hide account number",
-                comment: ""
-            )
+            return NSLocalizedString("Hide account number", comment: "")
         }
     }
 
     private func showCheckmark(_ showCheckmark: Bool) {
         if showCheckmark {
-            let tickIcon = UIImage(named: "IconTick")
+            let tickIcon = UIImage.tick
 
             copyButton.setImage(tickIcon, for: .normal)
             copyButton.tintColor = .successColor
         } else {
-            let copyIcon = UIImage(named: "IconCopy")
+            let copyIcon = UIImage.Buttons.copy
 
             copyButton.setImage(copyIcon, for: .normal)
             copyButton.tintColor = .white

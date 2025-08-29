@@ -7,22 +7,23 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
@@ -63,8 +64,6 @@ class OutOfTimeViewModelTest {
 
     @BeforeEach
     fun setup() {
-        mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
-
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionStateFlow
 
         every { mockConnectionProxy.tunnelState } returns tunnelState
@@ -151,108 +150,25 @@ class OutOfTimeViewModelTest {
     }
 
     @Test
-    fun `when paymentAvailability emits ProductsUnavailable uiState should include state NoPayment`() =
-        runTest {
-            // Arrange
-            val productsUnavailable = PaymentAvailability.ProductsUnavailable
-            paymentAvailabilityFlow.value = productsUnavailable
-
-            // Act, Assert
-            viewModel.uiState.test {
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.NoPayment>(result)
-            }
-        }
-
-    @Test
-    fun `when paymentAvailability emits ErrorOther uiState should include state ErrorGeneric`() =
-        runTest {
-            // Arrange
-            val paymentAvailabilityError = PaymentAvailability.Error.Other(mockk())
-            paymentAvailabilityFlow.value = paymentAvailabilityError
-
-            // Act, Assert
-            viewModel.uiState.test {
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.Error.Generic>(result)
-            }
-        }
-
-    @Test
-    fun `when paymentAvailability emits ErrorBillingUnavailable uiState should be ErrorBilling`() =
-        runTest {
-            // Arrange
-            val paymentAvailabilityError = PaymentAvailability.Error.BillingUnavailable
-            paymentAvailabilityFlow.value = paymentAvailabilityError
-
-            // Act, Assert
-            viewModel.uiState.test {
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.Error.Billing>(result)
-            }
-        }
-
-    @Test
-    fun `when paymentAvailability emits ProductsAvailable uiState should be Available with products`() =
-        runTest {
-            // Arrange
-            val mockProduct: PaymentProduct = mockk()
-            val expectedProductList = listOf(mockProduct)
-            val productsAvailable = PaymentAvailability.ProductsAvailable(listOf(mockProduct))
-            paymentAvailabilityFlow.value = productsAvailable
-
-            // Act, Assert
-            viewModel.uiState.test {
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.PaymentAvailable>(result)
-                assertLists(expectedProductList, result.products)
-            }
-        }
-
-    @Test
-    fun `onClosePurchaseResultDialog with success should invoke getAccountData on AccountRepository`() {
-        // Act
-        viewModel.onClosePurchaseResultDialog(success = true)
-
-        // Assert
-        coVerify { mockAccountRepository.getAccountData() }
-    }
-
-    @Test
-    fun `onClosePurchaseResultDialog with success should invoke resetPurchaseResult on PaymentUseCase`() {
+    fun `when there is a pending purchase, uiState should reflect it`() = runTest {
         // Arrange
+        paymentAvailabilityFlow.value =
+            PaymentAvailability.ProductsAvailable(
+                products =
+                    listOf(
+                        PaymentProduct(
+                            productId = ProductId("test_product_id"),
+                            price = ProductPrice("9.99"),
+                            status = PaymentStatus.PENDING,
+                        )
+                    )
+            )
 
-        // Act
-        viewModel.onClosePurchaseResultDialog(success = true)
-
-        // Assert
-        coVerify { mockPaymentUseCase.resetPurchaseResult() }
-    }
-
-    @Test
-    fun `onClosePurchaseResultDialog with success false should invoke queryPaymentAvailability on PaymentUseCase`() {
-        // Arrange
-
-        // Act
-        viewModel.onClosePurchaseResultDialog(success = false)
-
-        // Assert
-        coVerify { mockPaymentUseCase.queryPaymentAvailability() }
-    }
-
-    @Test
-    fun `onClosePurchaseResultDialog with success false should invoke resetPurchaseResult on PaymentUseCase`() {
-        // Arrange
-
-        // Act
-        viewModel.onClosePurchaseResultDialog(success = false)
-
-        // Assert
-        coVerify { mockPaymentUseCase.resetPurchaseResult() }
-    }
-
-    companion object {
-        private const val PURCHASE_RESULT_EXTENSIONS_CLASS =
-            "net.mullvad.mullvadvpn.util.PurchaseResultExtensionsKt"
+        // Act, Assert
+        viewModel.uiState.test {
+            val result = awaitItem()
+            assertIs<OutOfTimeUiState>(result)
+            assertEquals(true, result.verificationPending)
+        }
     }
 }

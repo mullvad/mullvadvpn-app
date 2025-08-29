@@ -60,6 +60,7 @@ run the GitHub workflow for desktop end to end tests. Make sure to keep it updat
     { "test_quantum_resistant_tunnel": ["se-got"] },
     { "test_quantum_resistant_multihop_udp2tcp_tunnel": ["se-got"] },
     { "test_quantum_resistant_multihop_shadowsocks_tunnel": ["se-got"] },
+    { "test_quantum_resistant_multihop_quic_tunnel": ["se-sto", "ca-tor"] },
     { "test_ui_tunnel_settings": ["se-got"] },
     { "*": ["se", "no", "fi", "dk"] }
   ]

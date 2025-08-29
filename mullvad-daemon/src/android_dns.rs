@@ -3,8 +3,8 @@
 
 use async_trait::async_trait;
 use hickory_resolver::{
-    config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
     TokioAsyncResolver,
+    config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
 };
 use mullvad_api::DnsResolver;
 use std::{io, net::SocketAddr};
@@ -39,6 +39,7 @@ impl DnsResolver for AndroidDnsResolver {
         let config = ResolverConfig::from_parts(None, vec![], group);
         let mut opts = ResolverOpts::default();
         opts.attempts = 0;
+        opts.use_hosts_file = false;
         let resolver = TokioAsyncResolver::tokio(config, opts);
 
         let lookup = resolver

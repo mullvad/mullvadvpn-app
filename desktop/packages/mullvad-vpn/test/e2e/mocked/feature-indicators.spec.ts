@@ -7,6 +7,7 @@ import {
   ITunnelEndpoint,
   TunnelState,
 } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import { expectConnected } from '../shared/tunnel-state';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
@@ -33,6 +34,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {

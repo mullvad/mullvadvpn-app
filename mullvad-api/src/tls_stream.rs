@@ -10,8 +10,8 @@ use hyper_util::client::legacy::connect::{Connected, Connection};
 use std::sync::LazyLock;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tokio_rustls::{
-    rustls::{self, pki_types::ServerName, ClientConfig},
     TlsConnector,
+    rustls::{self, ClientConfig, pki_types::ServerName},
 };
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../le_root_cert.pem");

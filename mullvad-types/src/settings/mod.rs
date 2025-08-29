@@ -12,7 +12,7 @@ use crate::{
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
-use talpid_types::net::{openvpn, GenericTunnelOptions};
+use talpid_types::net::{GenericTunnelOptions, openvpn};
 
 mod dns;
 
@@ -81,6 +81,8 @@ pub struct Settings {
     pub custom_lists: CustomListsSettings,
     /// API access methods
     pub api_access_methods: access_method::Settings,
+    // If the default location in `relay_settings` should be updated based on the user's geolocation.
+    pub update_default_location: bool,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -101,6 +103,69 @@ pub struct Settings {
     pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
     pub settings_version: SettingsVersion,
+    /// Stores the user's recently connected locations. If None recents have been disabled by the user.
+    pub recents: Option<Vec<Recent>>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub enum Recent {
+    Singlehop(LocationConstraint),
+    Multihop {
+        entry: LocationConstraint,
+        exit: LocationConstraint,
+    },
+}
+
+impl TryFrom<&RelaySettings> for Recent {
+    type Error = &'static str;
+
+    fn try_from(value: &RelaySettings) -> Result<Self, Self::Error> {
+        match value {
+            RelaySettings::CustomTunnelEndpoint(_) => {
+                Err("Cannot convert CustomTunnelEndpoint to Recent")
+            }
+            RelaySettings::Normal(constraints) => {
+                let location = constraints
+                    .location
+                    .as_ref()
+                    .option()
+                    .ok_or("Location must be Constraint::Only")?
+                    .clone();
+
+                let recent = if constraints.wireguard_constraints.use_multihop {
+                    let entry = constraints
+                        .wireguard_constraints
+                        .entry_location
+                        .as_ref()
+                        .option()
+                        .ok_or("Location must be Constraint::Only")?
+                        .clone();
+
+                    if matches!(
+                        entry,
+                        LocationConstraint::Location(GeographicLocationConstraint::Hostname(..))
+                    ) && matches!(
+                        location,
+                        LocationConstraint::Location(GeographicLocationConstraint::Hostname(..))
+                    ) && entry == location
+                    {
+                        return Err(
+                            "Multihop recent cannot have identical (country, city, host) triple.",
+                        );
+                    }
+
+                    Recent::Multihop {
+                        entry,
+                        exit: location,
+                    }
+                } else {
+                    Recent::Singlehop(location)
+                };
+
+                Ok(recent)
+            }
+        }
+    }
 }
 
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -194,6 +259,7 @@ impl Default for Settings {
                 },
                 ..Default::default()
             }),
+            update_default_location: false,
             bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Auto,
@@ -212,16 +278,23 @@ impl Default for Settings {
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
+            recents: Some(vec![]),
         }
     }
 }
 
 impl Settings {
+    /// The max number of recent entries that should be saved. When this number is exceeded the
+    /// oldest recent is deleted.
+    const RECENTS_MAX_COUNT: usize = 50;
+
     pub fn get_relay_settings(&self) -> RelaySettings {
         self.relay_settings.clone()
     }
 
     pub fn set_relay_settings(&mut self, new_settings: RelaySettings) {
+        self.update_recents(&new_settings);
+
         if self.relay_settings != new_settings {
             if !new_settings.supports_bridge() && BridgeState::On == self.bridge_state {
                 self.bridge_state = BridgeState::Auto;
@@ -256,6 +329,22 @@ impl Settings {
                     self.relay_overrides.swap_remove(index);
                 } else {
                     *elem = relay_override;
+                }
+            }
+        }
+    }
+
+    // Add the current RelaySettings to the recents list. If recents are disabled do nothing.
+    fn update_recents(&mut self, relay_settings: &RelaySettings) {
+        if let Some(recents) = self.recents.as_mut() {
+            match Recent::try_from(relay_settings) {
+                Ok(new_recent) => {
+                    recents.retain(|r| *r != new_recent);
+                    recents.insert(0, new_recent);
+                    recents.truncate(Self::RECENTS_MAX_COUNT);
+                }
+                Err(e) => {
+                    log::debug!("Failed to convert {relay_settings:?} to recent: {e}");
                 }
             }
         }

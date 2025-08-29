@@ -1,19 +1,27 @@
 use crate::{Daemon, Error};
 use mullvad_relay_selector::SelectorConfig;
+use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     constraints::Constraint,
     custom_list::{CustomList, Id},
     relay_constraints::{BridgeState, LocationConstraint, RelaySettings, ResolvedBridgeSettings},
 };
+use std::collections::BTreeSet;
 use talpid_types::net::TunnelType;
 
 impl Daemon {
     /// Create a new custom list.
     ///
     /// Returns an error if the name is not unique.
-    pub async fn create_custom_list(&mut self, name: String) -> Result<Id, crate::Error> {
-        let new_list = CustomList::new(name).map_err(crate::Error::CustomListError)?;
-        let id = new_list.id;
+    pub async fn create_custom_list(
+        &mut self,
+        name: String,
+        locations: BTreeSet<GeographicLocationConstraint>,
+    ) -> Result<Id, crate::Error> {
+        let mut new_list = CustomList::new(name).map_err(crate::Error::CustomListError)?;
+        new_list.append(locations);
+
+        let id = new_list.id();
 
         self.settings
             .try_update(|settings| settings.custom_lists.add(new_list))
@@ -57,7 +65,7 @@ impl Daemon {
     /// - there is no existing list with the same ID,
     /// - or the existing list has a different name.
     pub async fn update_custom_list(&mut self, new_list: CustomList) -> Result<(), Error> {
-        let list_id = new_list.id;
+        let list_id = new_list.id();
         let settings_changed = self
             .settings
             .try_update(|settings| settings.custom_lists.update(new_list))
@@ -121,28 +129,24 @@ impl Daemon {
         if let Some(endpoint) = self.tunnel_state.endpoint() {
             match endpoint.tunnel_type {
                 TunnelType::Wireguard => {
-                    if relay_settings.wireguard_constraints.multihop() {
-                        if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                    if relay_settings.wireguard_constraints.multihop()
+                        && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
                             &relay_settings.wireguard_constraints.entry_location
-                        {
-                            need_to_reconnect |=
-                                custom_list_id.map(|id| &id == list_id).unwrap_or(true);
-                        }
+                    {
+                        need_to_reconnect |=
+                            custom_list_id.map(|id| &id == list_id).unwrap_or(true);
                     }
                 }
 
                 TunnelType::OpenVpn => {
-                    if !matches!(self.settings.bridge_state, BridgeState::Off) {
-                        if let Ok(ResolvedBridgeSettings::Normal(bridge_settings)) =
+                    if !matches!(self.settings.bridge_state, BridgeState::Off)
+                        && let Ok(ResolvedBridgeSettings::Normal(bridge_settings)) =
                             self.settings.bridge_settings.resolve()
-                        {
-                            if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
-                                &bridge_settings.location
-                            {
-                                need_to_reconnect |=
-                                    custom_list_id.map(|id| &id == list_id).unwrap_or(true);
-                            }
-                        }
+                        && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                            &bridge_settings.location
+                    {
+                        need_to_reconnect |=
+                            custom_list_id.map(|id| &id == list_id).unwrap_or(true);
                     }
                 }
             }

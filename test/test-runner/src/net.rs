@@ -141,7 +141,7 @@ pub async fn send_ping(
     interface: Option<&str>,
     size: usize,
 ) -> Result<(), test_rpc::Error> {
-    use surge_ping::{Client, Config, PingIdentifier, PingSequence, ICMP};
+    use surge_ping::{Client, Config, ICMP, PingIdentifier, PingSequence};
 
     const IPV4_HEADER_SIZE: usize = 20;
     const ICMP_HEADER_SIZE: usize = 8;

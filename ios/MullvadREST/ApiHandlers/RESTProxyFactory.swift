@@ -58,15 +58,27 @@ extension REST {
         }
 
         public func createAPIProxy() -> APIQuerying {
-            REST.APIProxy(configuration: configuration)
+            MullvadAPIProxy(
+                transportProvider: configuration.apiTransportProvider,
+                dispatchQueue: DispatchQueue(label: "MullvadAPIProxy.dispatchQueue"),
+                responseDecoder: Coding.makeJSONDecoder()
+            )
         }
 
         public func createAccountsProxy() -> RESTAccountHandling {
-            REST.AccountsProxy(configuration: configuration)
+            MullvadAccountProxy(
+                transportProvider: configuration.apiTransportProvider,
+                dispatchQueue: DispatchQueue(label: "MullvadAccountProxy.dispatchQueue"),
+                responseDecoder: Coding.makeJSONDecoder()
+            )
         }
 
         public func createDevicesProxy() -> DeviceHandling {
-            REST.DevicesProxy(configuration: configuration)
+            MullvadDeviceProxy(
+                transportProvider: configuration.apiTransportProvider,
+                dispatchQueue: DispatchQueue(label: "MullvadDeviceProxy.dispatchQueue"),
+                responseDecoder: Coding.makeJSONDecoder()
+            )
         }
     }
 }

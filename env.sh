@@ -14,7 +14,7 @@ case "$ENV_TARGET" in
     export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$ENV_TARGET"
     ;;
   x86_64-*-darwin*)
-    export MACOSX_DEPLOYMENT_TARGET="10.7"
+    export MACOSX_DEPLOYMENT_TARGET="10.12"
 
     if [[ $HOST != "$ENV_TARGET" ]]; then
         # Required for building daemon

@@ -3,6 +3,9 @@
 #![deny(missing_docs)]
 #![cfg(windows)]
 
+/// File system
+pub mod fs;
+
 /// I/O
 pub mod io;
 

@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
@@ -118,5 +119,81 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
         XCTAssertNotNil(selectedRelays.entry)
+    }
+
+    func testValidWireguardPortDoesNotThrow() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        let settings = LatestTunnelSettings(
+            relayConstraints: .init(
+                port:
+                .only(
+                    ServerRelaysResponseStubs.sampleRelays.wireguard.portRanges.first!.first!
+                )
+            )
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
+
+    func testInvalidWireguardPortThrows() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        var settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .automatic)
+        )
+
+        XCTAssertThrowsError(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .off)
+        )
+
+        XCTAssertThrowsError(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
+
+    func testInvalidWireguardPortDoesNotThrowWhenObfuscated() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        var settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .quic)
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .udpOverTcp)
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .shadowsocks)
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
     }
 }

@@ -79,13 +79,19 @@ mod tests {
 
     #[test]
     fn test_parsing() {
-        let tests = vec![
-            (Some("INVALID_ACCOUNT"),
-                "[INVALID_ACCOUNT] This is not a valid Mullvad account"),
-            (Some("EXPIRED_ACCOUNT"),
-             "[EXPIRED_ACCOUNT] This account has no time left"),
-            (Some("TOO_MANY_CONNECTIONS"),
-            "[TOO_MANY_CONNECTIONS] This Mullvad account is already used by the maximum number of simultaneous connections"),
+        let tests = [
+            (
+                Some("INVALID_ACCOUNT"),
+                "[INVALID_ACCOUNT] This is not a valid Mullvad account",
+            ),
+            (
+                Some("EXPIRED_ACCOUNT"),
+                "[EXPIRED_ACCOUNT] This account has no time left",
+            ),
+            (
+                Some("TOO_MANY_CONNECTIONS"),
+                "[TOO_MANY_CONNECTIONS] This Mullvad account is already used by the maximum number of simultaneous connections",
+            ),
             (None, "[Incomplete String"),
             (Some("REASON_REASON"), "[REASON_REASON]"),
             (Some("REASON_REASON"), "[REASON_REASON]A"),

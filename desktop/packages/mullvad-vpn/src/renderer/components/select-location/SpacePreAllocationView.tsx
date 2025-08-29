@@ -5,7 +5,7 @@ interface ISpacePreAllocationView {
 }
 
 export class SpacePreAllocationView extends React.Component<ISpacePreAllocationView> {
-  private ref = React.createRef<HTMLDivElement>();
+  private ref = React.createRef<HTMLDivElement | null>();
 
   public allocate(height: number) {
     if (this.ref.current) {

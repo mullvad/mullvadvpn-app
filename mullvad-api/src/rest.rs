@@ -1,21 +1,21 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
+    DnsResolver,
     access::AccessTokenStore,
     availability::ApiAvailability,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
     proxy::ConnectionModeProvider,
-    DnsResolver,
 };
 use futures::{
     channel::{mpsc, oneshot},
     stream::StreamExt,
 };
-use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
+use http_body_util::{BodyExt, Empty, Full, combinators::BoxBody};
 use hyper::{
-    body::{Body, Bytes, Incoming},
-    header::{self, HeaderValue},
     Method, Uri,
+    body::{Body, Buf, Bytes, Incoming},
+    header::{self, HeaderValue},
 };
 use hyper_util::client::legacy::connect::Connect;
 use mullvad_types::account::AccountNumber;
@@ -73,6 +73,14 @@ pub enum Error {
 
     #[error("Set account number on factory with no access token store")]
     NoAccessTokenStore,
+
+    /// Failed to obtain versions
+    #[error("Failed to obtain versions")]
+    FetchVersions(#[from] Arc<anyhow::Error>),
+
+    /// Body exceeded size limit
+    #[error("Body exceeded size limit")]
+    BodyTooLarge,
 }
 
 impl From<Infallible> for Error {
@@ -93,11 +101,12 @@ impl Error {
     pub fn is_offline(&self) -> bool {
         match self {
             Error::LegacyHyperError(error) if error.is_connect() => {
-                if let Some(cause) = error.source() {
-                    if let Some(err) = cause.downcast_ref::<std::io::Error>() {
-                        return err.raw_os_error() == Some(libc::ENETUNREACH);
-                    }
+                if let Some(cause) = error.source()
+                    && let Some(err) = cause.downcast_ref::<std::io::Error>()
+                {
+                    return err.raw_os_error() == Some(libc::ENETUNREACH);
                 }
+
                 false
             }
             // TODO: Currently, we use the legacy hyper client for all REST requests. If this
@@ -244,14 +253,14 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
             let response = request_future.await.map_err(|error| error.map_aborted());
 
             // Switch API endpoint if the request failed due to a network error
-            if let Err(err) = &response {
-                if err.is_network_error() && !api_availability.is_offline() {
-                    log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
-                    if let Some(tx) = tx {
-                        let _ = tx.unbounded_send(RequestCommand::NextApiConfig(
-                            connection_mode_generation,
-                        ));
-                    }
+            if let Err(err) = &response
+                && err.is_network_error()
+                && !api_availability.is_offline()
+            {
+                log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+                if let Some(tx) = tx {
+                    let _ = tx
+                        .unbounded_send(RequestCommand::NextApiConfig(connection_mode_generation));
                 }
             }
 
@@ -493,7 +502,7 @@ pub struct Response<B> {
     response: hyper::Response<B>,
 }
 
-impl<B: Body> Response<B>
+impl<B: Body + Unpin> Response<B>
 where
     Error: From<<B as Body>::Error>,
 {
@@ -515,6 +524,20 @@ where
 
     pub async fn body(self) -> Result<Vec<u8>> {
         Ok(BodyExt::collect(self.response).await?.to_bytes().to_vec())
+    }
+
+    pub async fn body_with_max_size(self, size_limit: usize) -> Result<Vec<u8>> {
+        let mut data: Vec<u8> = vec![];
+        let mut stream = self.response.into_data_stream();
+
+        while let Some(chunk) = stream.next().await {
+            data.extend(chunk?.chunk());
+            if data.len() > size_limit {
+                return Err(Error::BodyTooLarge);
+            }
+        }
+
+        Ok(data)
     }
 }
 
@@ -584,6 +607,10 @@ impl RequestFactory {
         self.json_request(Method::POST, path, body)
     }
 
+    pub fn post_json_bytes(&self, path: &str, body: Vec<u8>) -> Result<Request<Full<Bytes>>> {
+        self.json_request_with_bytes(Method::POST, path, body)
+    }
+
     pub fn put_json<S: serde::Serialize>(
         &self,
         path: &str,
@@ -596,17 +623,16 @@ impl RequestFactory {
         self.default_timeout = timeout;
         self
     }
-    fn json_request<S: serde::Serialize>(
+    fn json_request_with_bytes(
         &self,
         method: Method,
         path: &str,
-        body: &S,
+        body: Vec<u8>,
     ) -> Result<Request<Full<Bytes>>> {
         let mut request = self.hyper_request(path, method)?;
 
-        let json_body = serde_json::to_vec(&body)?;
-        let body_length = json_body.len();
-        *request.body_mut() = Full::new(Bytes::from(json_body));
+        let body_length = body.len();
+        *request.body_mut() = Full::new(Bytes::from(body));
 
         let headers = request.headers_mut();
         headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
@@ -616,6 +642,16 @@ impl RequestFactory {
         );
 
         Ok(Request::new(request, self.token_store.clone()).timeout(self.default_timeout))
+    }
+
+    fn json_request<S: serde::Serialize>(
+        &self,
+        method: Method,
+        path: &str,
+        body: &S,
+    ) -> Result<Request<Full<Bytes>>> {
+        let json_body = serde_json::to_vec(&body)?;
+        self.json_request_with_bytes(method, path, json_body)
     }
 
     fn hyper_request<B: Default>(&self, path: &str, method: Method) -> Result<http::Request<B>> {

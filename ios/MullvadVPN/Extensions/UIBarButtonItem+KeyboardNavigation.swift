@@ -15,19 +15,9 @@ extension UIBarButtonItem {
         fileprivate var localizedTitle: String {
             switch self {
             case .previous:
-                return NSLocalizedString(
-                    "PREVIOUS_BUTTON_TITLE",
-                    tableName: "KeyboardNavigation",
-                    value: "Previous",
-                    comment: "Previous button"
-                )
+                return NSLocalizedString("Previous", comment: "")
             case .next:
-                return NSLocalizedString(
-                    "NEXT_BUTTON_TITLE",
-                    tableName: "KeyboardNavigation",
-                    value: "Next",
-                    comment: "Next button"
-                )
+                return NSLocalizedString("Next", comment: "")
             }
         }
 

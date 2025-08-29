@@ -1,6 +1,6 @@
 import { Action, Location } from 'history';
 
-import { ITransitionSpecification } from '../renderer/lib/history';
+import { TransitionType } from '../renderer/lib/history';
 
 export interface ICurrentAppVersionInfo {
   gui: string;
@@ -13,12 +13,19 @@ export interface IWindowShapeParameters {
   arrowPosition?: number;
 }
 
+export type SuppressOutdatedVersionOption = {
+  type: 'suppress-outdated-version-warning';
+};
+
+export type LocationStateOptions = SuppressOutdatedVersionOption;
+
 export type IChangelog = Array<string>;
 
 export interface LocationState {
   scrollPosition: [number, number];
   expandedSections: Record<string, boolean>;
-  transition: ITransitionSpecification;
+  transition: TransitionType;
+  options?: LocationStateOptions[];
 }
 
 export interface IHistoryObject {
@@ -28,3 +35,5 @@ export interface IHistoryObject {
 }
 
 export type ScrollPositions = Record<string, [number, number]>;
+
+export type DaemonStatus = 'start-requested' | 'running' | 'stopped';

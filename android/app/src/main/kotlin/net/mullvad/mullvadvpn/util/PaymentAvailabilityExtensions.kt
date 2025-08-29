@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.util
 
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.compose.state.PaymentState.PaymentAvailable
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 
 fun PaymentAvailability.toPaymentState(): PaymentState =
@@ -17,3 +18,12 @@ fun PaymentAvailability.toPaymentState(): PaymentState =
         PaymentAvailability.Error.FeatureNotSupported,
         PaymentAvailability.Error.ItemUnavailable -> PaymentState.NoPayment
     }
+
+fun PaymentAvailability?.hasPendingPayment(): Boolean {
+    return this?.let { paymentAvailability ->
+        when (val paymentState = paymentAvailability.toPaymentState()) {
+            is PaymentAvailable -> paymentState.products.any { it.status != null }
+            else -> false
+        }
+    } == true
+}

@@ -43,10 +43,12 @@ export class CloseToAccountExpiryNotificationProvider
       category: SystemNotificationCategory.expiry,
       severity: SystemNotificationSeverityType.medium,
       action: {
-        type: 'open-url',
-        url: urls.purchase,
-        withAuth: true,
-        text: messages.pgettext('notifications', 'Buy more'),
+        type: 'navigate-external',
+        link: {
+          text: messages.pgettext('notifications', 'Buy more'),
+          to: urls.purchase,
+          withAuth: true,
+        },
       },
     };
   }
@@ -66,7 +68,13 @@ export class CloseToAccountExpiryNotificationProvider
       indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON'),
       subtitle,
-      action: { type: 'open-url', url: urls.purchase, withAuth: true },
+      action: {
+        type: 'navigate-external',
+        link: {
+          to: urls.purchase,
+          withAuth: true,
+        },
+      },
     };
   }
 }

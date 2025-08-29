@@ -29,6 +29,18 @@ mod android {
             htmlize::unescape(value).into()
         }
     }
+
+    impl StringValue {
+        pub fn normalize_keep_parameter_indices(&self) -> String {
+            // Unescape apostrophes
+            let value = APOSTROPHES.replace_all(self, "'");
+            // Unescape double quotes
+            let value = DOUBLE_QUOTES.replace_all(&value, r#"""#);
+
+            // Unescape XML characters
+            htmlize::unescape(value).into()
+        }
+    }
 }
 
 mod gettext {
@@ -37,12 +49,16 @@ mod gettext {
 
     static ESCAPED_SINGLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\'").unwrap());
     static ESCAPED_DOUBLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\""#).unwrap());
-    static PARAMETERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([^)]*\)").unwrap());
+    // Look for both %(...) and %(1-9)$(...) as we now push the latter to the common translation file
+    static NAMED_PARAMETERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([^)]*\)").unwrap());
+    static ORDERED_PARAMETERS: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"%[0-9]*\$").unwrap());
 
     impl Normalize for MsgString {
         fn normalize(&self) -> String {
             // Mark where parameters are positioned, removing the parameter name
-            let string = PARAMETERS.replace_all(self, "%");
+            let string = NAMED_PARAMETERS.replace_all(self, "%");
+            let string = ORDERED_PARAMETERS.replace_all(&string, "%");
             // Remove escaped single-quotes
             let string = ESCAPED_SINGLE_QUOTES.replace_all(&string, r"'");
             // Remove escaped double-quotes
@@ -61,11 +77,14 @@ mod tests {
     fn normalize_android_string_value() {
         use crate::android::StringValue;
 
-        let input = StringValue::from_unescaped(concat!(
-            "'Inside single quotes'",
-            r#""Inside double quotes""#,
-            "With parameters: %1$d, %2$s",
-        ));
+        let input = StringValue::from_unescaped(
+            concat!(
+                "'Inside single quotes'",
+                r#""Inside double quotes""#,
+                "With parameters: %1$d, %2$s",
+            ),
+            None,
+        );
 
         let expected = concat!(
             "'Inside single quotes'",

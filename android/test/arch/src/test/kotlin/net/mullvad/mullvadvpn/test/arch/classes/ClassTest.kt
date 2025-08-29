@@ -27,4 +27,22 @@ class ClassTest {
                 it.packagee?.name?.startsWith("net.mullvad.mullvadvpn") ?: false
             }
             .assertTrue { it.hasNameEndingWith("Test") }
+
+    @Test
+    fun `ensure that all view model test classes are annotated with TestCoroutineRule`() =
+        Konsist.scopeFromTest()
+            .classes(includeNested = false)
+            .filter {
+                // Only include classes that are view model tests
+                // We want to ignore the class "ViewModelTest" which contains konsist tests
+                it.name.contains(".+ViewModelTest".toRegex())
+            }
+            .assertTrue {
+                it.hasAnnotation { annotation ->
+                    annotation.name == "ExtendWith" &&
+                        annotation.arguments.any { argument ->
+                            argument.value == "TestCoroutineRule::class"
+                        }
+                }
+            }
 }

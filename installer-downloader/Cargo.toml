@@ -1,7 +1,8 @@
 [package]
 name = "installer-downloader"
 description = "A secure minimal web installer for the Mullvad app"
-version = "1.0.0"
+version = "1.1.0"
+publish = false
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
@@ -24,16 +25,16 @@ tracing = { workspace = true }
 hex = "0.4"
 log = { workspace = true }
 rand = { version = "0.8.5" }
-reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
+reqwest = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
-vec1 = { workspace = true }
 
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
+mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-native-windows-gui = { version = "1.0.12", features = ["frame", "image-decoder", "progress-bar"], default-features = false }
+native-windows-gui = { version = "1.0.12", features = ["embed-resource", "frame", "image-decoder", "progress-bar"], default-features = false }
 windows-sys = { workspace = true, features = ["Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_Graphics", "Win32_Graphics_Gdi"] }
 
 mullvad-paths = { path = "../mullvad-paths" }

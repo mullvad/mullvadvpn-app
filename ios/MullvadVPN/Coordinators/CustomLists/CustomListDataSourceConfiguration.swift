@@ -79,10 +79,6 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        UIMetrics.SettingsCell.customListsCellHeight
-    }
-
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let snapshot = dataSource.snapshot()
 
@@ -114,6 +110,17 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
             return view
         default:
             return nil
+        }
+    }
+
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        let snapshot = dataSource.snapshot()
+        let sectionIdentifier = snapshot.sectionIdentifiers[section]
+        switch sectionIdentifier {
+        case .name:
+            return UITableView.automaticDimension
+        default:
+            return 24.0
         }
     }
 

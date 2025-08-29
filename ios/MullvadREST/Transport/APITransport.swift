@@ -12,7 +12,7 @@ import MullvadTypes
 public protocol APITransportProtocol {
     var name: String { get }
 
-    func sendRequest(_ request: APIRequest, completion: @escaping @Sendable (ProxyAPIResponse) -> Void)
+    func sendRequest(_ request: APIRequest, completion: @escaping @Sendable (ProxyAPIResponse) -> Void) throws
         -> Cancellable
 }
 
@@ -30,11 +30,11 @@ public final class APITransport: APITransportProtocol {
     public func sendRequest(
         _ request: APIRequest,
         completion: @escaping @Sendable (ProxyAPIResponse) -> Void
-    ) -> Cancellable {
+    ) throws -> Cancellable {
         let apiRequest = requestFactory.makeRequest(request)
 
-        return apiRequest { response in
-            let error: APIError? = if response.statusCode != 200 {
+        return try apiRequest { response in
+            let error: APIError? = if !response.success {
                 APIError(
                     statusCode: Int(response.statusCode),
                     errorDescription: response.errorDescription ?? "",
@@ -44,7 +44,8 @@ public final class APITransport: APITransportProtocol {
 
             completion(ProxyAPIResponse(
                 data: response.body,
-                error: error
+                error: error,
+                etag: response.etag
             ))
         }
     }

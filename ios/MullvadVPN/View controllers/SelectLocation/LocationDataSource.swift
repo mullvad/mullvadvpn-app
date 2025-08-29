@@ -251,34 +251,57 @@ extension LocationDataSource {
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let headerView = tableView
+            .dequeueReusableHeaderFooterView(withIdentifier: LocationSectionHeaderFooterView
+                .reuseIdentifier
+            ) as? LocationSectionHeaderFooterView else { return nil }
+
         switch sections[section] {
         case .allLocations:
-            return LocationSectionHeaderView(
-                configuration: LocationSectionHeaderView.Configuration(name: LocationSection.allLocations.description)
-            )
+            headerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.allLocations.header,
+                style: .header
+            ))
         case .customLists:
-            return LocationSectionHeaderView(configuration: LocationSectionHeaderView.Configuration(
-                name: LocationSection.customLists.description,
-                primaryAction: UIAction(
-                    handler: { [weak self] _ in
-                        self?.didTapEditCustomLists?()
-                    }
-                )
+            headerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.customLists.header,
+                style: .header,
+                primaryAction: UIAction { [weak self] _ in
+                    self?.didTapEditCustomLists?()
+                }
             ))
         }
+
+        return headerView
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        nil
-    }
+        guard let footerView = tableView
+            .dequeueReusableHeaderFooterView(withIdentifier: LocationSectionHeaderFooterView
+                .reuseIdentifier
+            ) as? LocationSectionHeaderFooterView else { return nil }
 
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         switch sections[section] {
         case .allLocations:
-            return .zero
+            guard dataSources[section].nodes.isEmpty else {
+                return nil
+            }
+            footerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.allLocations.footer,
+                style: .footer
+            ))
         case .customLists:
-            return 24
+            guard dataSources[section].nodes.isEmpty else {
+                return nil
+            }
+            footerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.customLists.footer,
+                style: .footer,
+                directionalEdgeInsets: NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 24, trailing: 8)
+            ))
         }
+
+        return footerView
     }
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
@@ -304,21 +327,10 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let item = itemIdentifier(for: indexPath) else { return }
-        selectedLocation = item
-        var customListSelection: UserSelectedRelays.CustomListSelection?
-        if let topmostNode = item.node.root as? CustomListLocationNode {
-            customListSelection = UserSelectedRelays.CustomListSelection(
-                listId: topmostNode.customList.id,
-                isList: topmostNode == item.node
-            )
+        guard let cell = tableView.cellForRow(at: indexPath) as? LocationCell else {
+            return
         }
-
-        let relayLocations = UserSelectedRelays(
-            locations: item.node.locations,
-            customListSelection: customListSelection
-        )
-        didSelectRelayLocations?(relayLocations)
+        toggleSelecting(cell: cell)
     }
 
     private func scrollToTop(animated: Bool) {
@@ -336,6 +348,21 @@ extension LocationDataSource: @preconcurrency LocationCellDelegate {
     }
 
     func toggleSelecting(cell: LocationCell) {
-        // No op.
+        guard let indexPath = tableView.indexPath(for: cell),
+              let item = itemIdentifier(for: indexPath) else { return }
+        selectedLocation = item
+        var customListSelection: UserSelectedRelays.CustomListSelection?
+        if let topmostNode = item.node.root as? CustomListLocationNode {
+            customListSelection = UserSelectedRelays.CustomListSelection(
+                listId: topmostNode.customList.id,
+                isList: topmostNode == item.node
+            )
+        }
+
+        let relayLocations = UserSelectedRelays(
+            locations: item.node.locations,
+            customListSelection: customListSelection
+        )
+        didSelectRelayLocations?(relayLocations)
     }
 }

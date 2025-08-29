@@ -2,12 +2,11 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Flex } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { Button, Flex } from '../lib/components';
+import { colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
-import * as AppButton from './AppButton';
 import { bigText, measurements, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Footer, Layout } from './Layout';
@@ -19,7 +18,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -32,19 +31,17 @@ export const StyledBody = styled.div({
 export const StyledTitle = styled.span(bigText, {
   lineHeight: '38px',
   marginBottom: '8px',
-  color: Colors.white,
+  color: colors.white,
 });
 
 export const StyledMessage = styled.span(smallText, {
   marginBottom: measurements.rowVerticalMargin,
-  color: Colors.white,
+  color: colors.white,
 });
 
 export function DeviceRevokedView() {
   const { leaveRevokedDevice } = useAppContext();
   const tunnelState = useSelector((state) => state.connection.status);
-
-  const Button = tunnelState.state === 'disconnected' ? AppButton.BlueButton : AppButton.RedButton;
 
   return (
     <Layout>
@@ -77,8 +74,15 @@ export function DeviceRevokedView() {
           </StyledBody>
 
           <Footer>
-            <Button onClick={leaveRevokedDevice}>
-              {messages.pgettext('device-management', 'Go to login')}
+            <Button
+              variant={tunnelState.state === 'disconnected' ? 'primary' : 'destructive'}
+              onClick={leaveRevokedDevice}>
+              <Button.Text>
+                {
+                  // TRANSLATORS: Button label for navigating to login.
+                  messages.pgettext('device-management', 'Go to login')
+                }
+              </Button.Text>
             </Button>
           </Footer>
         </StyledContainer>

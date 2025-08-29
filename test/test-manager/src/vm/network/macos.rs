@@ -1,8 +1,18 @@
-use anyhow::{anyhow, Context, Result};
-use futures::future::{self, Either};
-use nix::sys::socket::SockaddrStorage;
-use std::net::{Ipv4Addr, SocketAddrV4};
-use tokio::{io::AsyncWriteExt, process::Command};
+use anyhow::{Context, Result, anyhow, bail};
+use futures::{FutureExt, TryFutureExt, select};
+use nix::{
+    sys::{
+        signal::{Signal, kill},
+        socket::SockaddrStorage,
+    },
+    unistd::Pid,
+};
+use std::{
+    convert::Infallible,
+    net::{Ipv4Addr, SocketAddrV4},
+};
+use talpid_types::drop_guard::on_drop;
+use tokio::{io::AsyncWriteExt, process::Command, time::sleep};
 
 // Private key of the wireguard remote peer on host.
 const CUSTOM_TUN_REMOTE_PRIVKEY: &str = "gLvQuyqazziyf+pUCAFUgTnWIwn6fPE5MOReOqPEGHU=";
@@ -67,7 +77,7 @@ pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> 
             ipnetwork::Ipv4Network::with_netmask(address, netmask)
                 .ok()
                 .filter(|ip_v4_network| ip_v4_network.contains(*guest_ip))
-                .map(|_| (interface_name.to_owned(), address))
+                .map(|_| (interface_name.clone(), address))
         })
         .ok_or_else(|| anyhow!("Failed to identify bridge used by tart -- not running?"))
 }
@@ -86,24 +96,38 @@ async fn enable_forwarding() -> Result<()> {
 async fn create_wireguard_interface() -> Result<()> {
     log::debug!("Creating custom WireGuard tunnel");
 
-    let mut go_proc = tokio::spawn(async move {
+    // Create a future that spawns wireguard-go, and SIGTERMs it when dropped.
+    let wireguard_go = async move {
         let mut cmd = Command::new("/usr/bin/sudo");
-        cmd.kill_on_drop(true);
         cmd.args(["wireguard-go", "-f", CUSTOM_TUN_INTERFACE_NAME]);
-        let output = cmd.output().await.context("Run wireguard-go")?;
-        if output.status.success() {
-            Ok(())
-        } else {
-            Err(anyhow!(
-                "wireguard-go failed with status {:?}",
-                output.status.code()
-            ))
-        }
-    });
 
-    let mut tunnel_check: tokio::task::JoinHandle<Result<()>> = tokio::spawn(async move {
+        // We don't want to SIGKILL sudo, as that would leave wireguard-go orphaned and running
+        cmd.kill_on_drop(false);
+        let child = cmd.spawn().context("Failed to spawn wireguard-go")?;
+
+        let pid = child.id().context("wireguard-go exited prematurely")?;
+        let pid = Pid::from_raw(pid as libc::pid_t);
+
+        let _term_on_drop = on_drop(|| {
+            if let Err(e) = kill(pid, Signal::SIGTERM) {
+                log::warn!("Failed to kill wireguard-go ({pid}): {e}");
+            }
+        });
+
+        let output = child.wait_with_output().await.context("Run wireguard-go")?;
+        if output.status.success() {
+            bail!("wireguard-go exited prematurely")
+        } else {
+            bail!("wireguard-go failed with status {:?}", output.status.code())
+        }
+    };
+
+    // Spawn wireguard-go using a tokio task. The task will hang around until this process exits.
+    let wireguard_go = tokio::spawn(wireguard_go.inspect_err(|e| log::error!("{e}")));
+
+    // Create a future that waits until the tunnel interface appears.
+    let tunnel_check = async move {
         loop {
-            // Check if the tunnel already exists
             let mut cmd = Command::new("/sbin/ifconfig");
             cmd.arg(CUSTOM_TUN_INTERFACE_NAME);
             let output = cmd
@@ -114,24 +138,25 @@ async fn create_wireguard_interface() -> Result<()> {
                 log::debug!("Created custom WireGuard tunnel interface");
                 return Ok(());
             }
-            tokio::time::sleep(Duration::from_secs(1)).await;
+            sleep(Duration::from_secs(1)).await;
         }
-    });
-
-    let result = tokio::time::timeout(
-        INTERFACE_SETUP_TIMEOUT,
-        future::select(&mut go_proc, &mut tunnel_check),
-    )
-    .await
-    .context("WireGuard interface setup timed out")?;
-
-    let result = match result {
-        Either::Left((result, _)) | Either::Right((result, _)) => result,
     };
 
-    tunnel_check.abort();
+    // Wait until...
+    select! {
+        // ...the utun-interface is created
+        result = tunnel_check.fuse() => result,
 
-    result?
+        // ...or wireguard-go exits with an error
+        result = wireguard_go.fuse() => result
+            .context("wireguard-go task panicked")?
+            .map(|never: Infallible| match never {}), // this task never exits with Ok
+
+        // ...or we hit the timeout
+        _timeout = sleep(INTERFACE_SETUP_TIMEOUT).fuse() => {
+            bail!("WireGuard interface setup timed out");
+        }
+    }
 }
 
 pub async fn configure_tunnel() -> Result<()> {

@@ -14,7 +14,7 @@ pub mod debounce;
 mod imp;
 
 #[cfg(target_os = "windows")]
-pub use imp::{get_best_default_route, CallbackHandle, EventType, InterfaceAndGateway};
+pub use imp::{CallbackHandle, EventType, InterfaceAndGateway, get_best_default_route};
 
 #[cfg(not(target_os = "windows"))]
 #[path = "unix/mod.rs"]
@@ -25,13 +25,13 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 
 #[cfg(target_os = "macos")]
 pub use imp::{
-    imp::{DefaultRouteEvent, RouteError},
     PlatformError,
+    imp::{DefaultRouteEvent, RouteError},
 };
 
 pub use imp::{Error, RouteManagerHandle};
 
-/// Link-layer/MAC adress
+/// Link-layer/MAC address
 #[cfg(target_os = "macos")]
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct MacAddress(pub [u8; 6]);

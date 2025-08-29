@@ -1,9 +1,9 @@
 use super::{
-    connecting_state::TunnelCloseEvent, ConnectingState, DisconnectedState, ErrorState,
-    EventConsequence, EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver,
-    TunnelState, TunnelStateTransition,
+    ConnectingState, DisconnectedState, ErrorState, EventConsequence, EventResult,
+    SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
+    TunnelStateTransition, connecting_state::TunnelCloseEvent,
 };
-use futures::{channel::oneshot, future::FusedFuture, StreamExt};
+use futures::{StreamExt, channel::oneshot, future::FusedFuture};
 use talpid_types::tunnel::{ActionAfterDisconnect, ErrorStateCause};
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait

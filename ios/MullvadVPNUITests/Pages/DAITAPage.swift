@@ -22,6 +22,14 @@ class DAITAPage: Page {
         return self
     }
 
+    @discardableResult func tapEnableDirectOnlyDialogButtonIfPresent() -> Self {
+        let buttonElement = app.buttons[AccessibilityIdentifier.daitaConfirmAlertEnableButton]
+        if buttonElement.exists {
+            buttonElement.tap()
+        }
+        return self
+    }
+
     @discardableResult func verifyTwoPages() -> Self {
         XCTAssertEqual(app.pageIndicators.firstMatch.value as? String, "page 1 of 2")
         return self
@@ -36,6 +44,15 @@ class DAITAPage: Page {
         let switchElement = app.switches[AccessibilityIdentifier.daitaSwitch]
 
         if switchElement.value as? String == "1" {
+            tapEnableSwitch()
+        }
+        return self
+    }
+
+    @discardableResult func tapEnableSwitchIfOff() -> Self {
+        let switchElement = app.switches[AccessibilityIdentifier.daitaSwitch]
+
+        if switchElement.value as? String == "0" {
             tapEnableSwitch()
         }
         return self
@@ -60,7 +77,16 @@ class DAITAPage: Page {
         let switchElement = app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch]
 
         if switchElement.value as? String == "1" {
-            tapEnableSwitch()
+            tapDirectOnlySwitch()
+        }
+        return self
+    }
+
+    @discardableResult func tapDirectOnlySwitchIfOff() -> Self {
+        let switchElement = app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch]
+
+        if switchElement.value as? String == "0" {
+            tapDirectOnlySwitch()
         }
         return self
     }

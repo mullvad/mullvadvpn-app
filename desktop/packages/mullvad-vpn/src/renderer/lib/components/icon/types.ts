@@ -30,5 +30,6 @@ export const icons = {
   'search-circle': 'icon-search-circle',
   search: 'icon-search',
   'settings-filled': 'icon-settings-filled',
+  'settings-partial': 'icon-settings-partial',
   show: 'icon-show',
 };

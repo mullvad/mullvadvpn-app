@@ -17,9 +17,12 @@ class SettingsDNSInfoCell: UITableViewCell {
         backgroundColor = .secondaryColor
         contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
 
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textColor = UIColor.Cell.titleTextColor
         titleLabel.numberOfLines = 0
+        titleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        titleLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
 
         contentView.addConstrainedSubviews([titleLabel]) {
             titleLabel.pinEdgesToSuperviewMargins()

@@ -9,6 +9,7 @@
 import Foundation
 import MullvadREST
 import MullvadRustRuntime
+import MullvadSettings
 import MullvadTypes
 @preconcurrency import WireGuardKitTypes
 
@@ -153,6 +154,9 @@ extension State {
 
         /// True if Daita is enabled
         public let isDaitaEnabled: Bool
+
+        /// The obfuscation method in force on the connection
+        public let obfuscationMethod: WireGuardObfuscationState
     }
 
     /// Data associated with error state.
@@ -207,8 +211,11 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
     /// No relays satisfying DAITA constraints.
     case noRelaysSatisfyingDaitaConstraints
 
-    /// No relays satisfying DAITA constraints.
+    /// No relays satisfying obfuscation settings.
     case noRelaysSatisfyingObfuscationSettings
+
+    /// No relays satisfying port constraints.
+    case noRelaysSatisfyingPortConstraints
 
     /// Any other failure when reading settings.
     case readSettings

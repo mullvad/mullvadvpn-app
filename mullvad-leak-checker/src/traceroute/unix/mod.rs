@@ -8,22 +8,23 @@ use std::{
 };
 
 use crate::{
-    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT},
-    util::{get_interface_ip, Ip},
     Interface, LeakStatus,
+    traceroute::{DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT, TracerouteOpt},
+    util::{Ip, get_interface_ip},
 };
 
-use anyhow::{anyhow, bail, ensure, Context};
-use futures::{future::pending, select, stream, FutureExt, StreamExt, TryStreamExt};
+use anyhow::{Context, anyhow, bail, ensure};
+use futures::{FutureExt, StreamExt, TryStreamExt, future::pending, select, stream};
 use pnet_packet::{
+    Packet,
     icmp::{self, IcmpCode, IcmpTypes},
     icmpv6::{self, Icmpv6Code, Icmpv6Types},
-    Packet,
 };
 use socket2::{Domain, Protocol, Socket, Type};
 use tokio::time::{sleep, timeout};
 
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg_attr(target_os = "linux", allow(dead_code))]
+#[cfg(any(target_os = "android", target_os = "linux"))]
 pub mod android;
 
 #[cfg(any(target_os = "linux", target_os = "android"))]

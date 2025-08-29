@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
@@ -11,13 +11,13 @@ import { useSettingsRowContext } from './SettingsRow';
 const StyledInput = styled.input(smallNormalText, {
   flex: 1,
   textAlign: 'right',
-  background: 'transparent',
+  background: colors.transparent,
   border: 'none',
-  color: Colors.white,
+  color: colors.white,
   width: '100px',
 
   '&&::placeholder': {
-    color: Colors.white50,
+    color: colors.whiteOnBlue60,
   },
 });
 
@@ -119,6 +119,11 @@ function Input<T extends ValueTypes>(props: InputProps<T>) {
   // Report submittability to form context on load.
   useEffect(() => {
     updateReportSubmittable();
+    // These lint rules are disabled for now because the react plugin for eslint does
+    // not understand that useEffectEvent should not be added to the dependency array.
+    // Enable these rules again when eslint can lint useEffectEvent properly.
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

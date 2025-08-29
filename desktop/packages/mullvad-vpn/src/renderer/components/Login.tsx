@@ -9,7 +9,7 @@ import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
 import { Box, Button, Flex, Icon, Label, LabelTiny, Spinner, TitleMedium } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge } from '../lib/icon-badge';
 import accountActions from '../redux/account/actions';
@@ -17,7 +17,6 @@ import { LoginState } from '../redux/account/reducers';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import { AppMainHeader } from './app-main-header';
-import * as AppButton from './AppButton';
 import { Container, Layout } from './Layout';
 import {
   StyledAccountDropdownContainer,
@@ -47,8 +46,9 @@ export default function LoginContainer() {
   const { accountNumber, accountHistory, status } = useSelector((state) => state.account);
 
   const tunnelState = useSelector((state) => state.connection.status);
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
-  const showBlockMessage = tunnelState.state === 'error' || blockWhenDisconnected;
+  const showBlockMessage =
+    tunnelState.state === 'error' ||
+    (tunnelState.state === 'disconnected' && tunnelState.lockedDown);
 
   const isPerformingPostUpgrade = useSelector(
     (state) => state.userInterface.isPerformingPostUpgrade,
@@ -371,7 +371,7 @@ class Login extends React.Component<IProps, IState> {
   private createFooter() {
     return (
       <Flex $flexDirection="column" $gap="small">
-        <LabelTiny color={Colors.white60}>
+        <LabelTiny color="whiteAlpha60">
           {messages.pgettext('login-view', 'Don’t have an account number?')}
         </LabelTiny>
         <Button onClick={this.props.createNewAccount} disabled={!this.allowCreateAccount()}>
@@ -412,7 +412,7 @@ interface AccountDropdownItemProps {
 }
 
 const StyledIcon = styled(Icon)({
-  backgroundColor: 'rgba(84, 113, 143, 1)',
+  backgroundColor: colors.whiteOnBlue20,
 });
 
 function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdownItemProps) {
@@ -449,7 +449,7 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
                 accountNumber: label,
               },
             )}>
-            <TitleMedium color={Colors.blue80}>{label}</TitleMedium>
+            <TitleMedium color="blue80">{label}</TitleMedium>
           </StyledAccountDropdownItemButton>
           <Box $height="48px" $width="48px" center>
             <StyledAccountDropdownItemIconButton
@@ -476,7 +476,7 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
 function BlockMessage() {
   const { setBlockWhenDisconnected, disconnectTunnel } = useAppContext();
   const tunnelState = useSelector((state) => state.connection.status);
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
+  const blockWhenDisconnected = tunnelState.state === 'disconnected' && tunnelState.lockedDown;
 
   const unlock = useCallback(() => {
     if (blockWhenDisconnected) {
@@ -515,7 +515,9 @@ function BlockMessage() {
     <StyledBlockMessageContainer>
       <StyledBlockTitle>{messages.gettext('Blocking internet')}</StyledBlockTitle>
       <StyledBlockMessage>{message}</StyledBlockMessage>
-      <AppButton.RedButton onClick={unlock}>{buttonText}</AppButton.RedButton>
+      <Button variant="destructive" onClick={unlock}>
+        <Button.Text>{buttonText}</Button.Text>
+      </Button>
     </StyledBlockMessageContainer>
   );
 }

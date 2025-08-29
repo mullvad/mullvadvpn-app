@@ -1,20 +1,22 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,12 +30,11 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -41,18 +42,24 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
+import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.screen.location.positionalPadding
+import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayLocationCell
+import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -63,7 +70,16 @@ private fun PreviewCustomListLocationScreen(
     @PreviewParameter(CustomListLocationUiStatePreviewParameterProvider::class)
     state: CustomListLocationsUiState
 ) {
-    AppTheme { CustomListLocationsScreen(state = state, {}, {}, { _, _ -> }, { _, _ -> }, {}) }
+    AppTheme {
+        CustomListLocationsScreen(
+            state = state,
+            onSearchTermInput = {},
+            onSaveClick = {},
+            onRelaySelectionClick = { _, _ -> },
+            onExpand = { _, _ -> },
+            onBackClick = {},
+        )
+    }
 }
 
 data class CustomListLocationsNavArgs(val customListId: CustomListId, val newList: Boolean)
@@ -76,20 +92,11 @@ data class CustomListLocationsNavArgs(val customListId: CustomListId, val newLis
 fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListActionResultData>,
-    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Boolean>,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Confirmed>,
 ) {
     val customListsViewModel = koinViewModel<CustomListLocationsViewModel>()
 
-    discardChangesResultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                if (it.value) {
-                    backNavigator.navigateBack()
-                }
-            }
-        }
-    }
+    discardChangesResultRecipient.OnNavResultValue { backNavigator.navigateBack() }
 
     CollectSideEffectWithLifecycle(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
@@ -107,7 +114,7 @@ fun CustomListLocations(
         onExpand = customListsViewModel::onExpand,
         onBackClick =
             dropUnlessResumed {
-                if (state.hasUnsavedChanges) {
+                if (state.content.contentOrNull()?.hasUnsavedChanges == true) {
                     navigator.navigate(DiscardChangesDestination)
                 } else {
                     backNavigator.navigateBack()
@@ -125,6 +132,8 @@ fun CustomListLocationsScreen(
     onExpand: (RelayItem.Location, selected: Boolean) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    BackHandler(onBack = onBackClick)
+
     ScaffoldWithSmallTopBar(
         appBarTitle =
             stringResource(
@@ -135,7 +144,12 @@ fun CustomListLocationsScreen(
                 }
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(isSaveEnabled = state.saveEnabled, onSaveClick = onSaveClick) },
+        actions = {
+            Actions(
+                isSaveEnabled = state.content.contentOrNull()?.saveEnabled == true,
+                onSaveClick = onSaveClick,
+            )
+        },
     ) { modifier ->
         Column(modifier = modifier) {
             SearchTextField(
@@ -150,6 +164,7 @@ fun CustomListLocationsScreen(
             }
             Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
+
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
@@ -157,22 +172,35 @@ fun CustomListLocationsScreen(
                             state = lazyListState,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
-                        .fillMaxWidth(),
+                        .padding(horizontal = Dimens.mediumPadding)
+                        .fillMaxSize(),
                 state = lazyListState,
             ) {
-                when (state) {
-                    is CustomListLocationsUiState.Loading -> {
+                when (state.content) {
+                    is Lce.Loading -> {
                         loading()
                     }
-                    is CustomListLocationsUiState.Content.Empty -> {
-                        empty(searchTerm = state.searchTerm)
+
+                    is Lce.Error -> {
+                        empty()
                     }
-                    is CustomListLocationsUiState.Content.Data -> {
+
+                    is Lce.Content -> {
                         content(
-                            uiState = state,
+                            uiState = state.content.value,
                             onRelaySelectedChanged = onRelaySelectionClick,
                             onExpand = onExpand,
                         )
+                    }
+                }
+            }
+
+            if (state.content is Lce.Content && !state.newList) {
+                val firstChecked = state.content.value.locations.indexOfFirst { it.checked }
+                LaunchedEffect(Unit) {
+                    if (firstChecked != -1) {
+                        lazyListState.scrollToItem(firstChecked)
+                        lazyListState.animateScrollAndCentralizeItem(firstChecked)
                     }
                 }
             }
@@ -190,44 +218,40 @@ private fun Actions(isSaveEnabled: Boolean, onSaveClick: () -> Unit) {
                 .copy(contentColor = MaterialTheme.colorScheme.onPrimary),
         modifier = Modifier.testTag(SAVE_BUTTON_TEST_TAG),
     ) {
-        Text(text = stringResource(R.string.save))
+        Text(text = stringResource(R.string.save), style = MaterialTheme.typography.labelLarge)
     }
 }
 
 private fun LazyListScope.loading() {
     item(key = CommonContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
-        MullvadCircularProgressIndicatorLarge(
-            modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-        )
+        MullvadCircularProgressIndicatorLarge()
     }
 }
 
-private fun LazyListScope.empty(searchTerm: String) {
+private fun LazyListScope.empty() {
     item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY_TEXT) {
-        LocationsEmptyText(searchTerm = searchTerm)
+        EmptyRelayListText()
     }
 }
 
 private fun LazyListScope.content(
-    uiState: CustomListLocationsUiState.Content.Data,
+    uiState: CustomListLocationsData,
     onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
-    itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) { index, listItem
-        ->
-        Column(modifier = Modifier.animateItem()) {
-            if (index != 0) {
-                HorizontalDivider()
-            }
+    if (uiState.locations.isEmpty()) {
+        item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY_TEXT) {
+            LocationsEmptyText(searchTerm = uiState.searchTerm)
+        }
+    } else {
+        items(uiState.locations, key = { listItem -> listItem.item.id }) { listItem ->
             CheckableRelayLocationCell(
-                item = listItem.item,
+                modifier = Modifier.animateItem().positionalPadding(listItem.itemPosition),
+                item = listItem,
                 onRelayCheckedChange = { isChecked ->
                     onRelaySelectedChanged(listItem.item, isChecked)
                 },
-                checked = listItem.checked,
-                depth = listItem.depth,
                 onExpand = { expand -> onExpand(listItem.item, expand) },
-                expanded = listItem.expanded,
             )
         }
     }

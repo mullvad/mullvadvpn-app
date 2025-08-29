@@ -20,11 +20,11 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
-import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomListNameTextField
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.tag.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
@@ -33,7 +33,14 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewCreateCustomListDialog() {
-    AppTheme { CreateCustomListDialog(state = CreateCustomListUiState(), {}, {}, {}) }
+    AppTheme {
+        CreateCustomListDialog(
+            state = CreateCustomListUiState(),
+            createCustomList = {},
+            onInputChanged = {},
+            onDismiss = {},
+        )
+    }
 }
 
 @Preview
@@ -45,9 +52,9 @@ private fun PreviewCreateCustomListDialogError() {
                 CreateCustomListUiState(
                     error = CreateWithLocationsError.Create(CustomListAlreadyExists)
                 ),
-            {},
-            {},
-            {},
+            createCustomList = {},
+            onInputChanged = {},
+            onDismiss = {},
         )
     }
 }
@@ -104,8 +111,10 @@ fun CreateCustomListDialog(
 
     InputDialog(
         title = stringResource(id = R.string.create_new_list),
-        confirmButtonText = stringResource(id = R.string.create),
         confirmButtonEnabled = isValidName,
+        confirmButtonText = stringResource(id = R.string.create),
+        onBack = onDismiss,
+        onConfirm = { createCustomList(name.value) },
         input = {
             CustomListNameTextField(
                 name = name.value,
@@ -119,8 +128,6 @@ fun CreateCustomListDialog(
                 modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
-        onBack = onDismiss,
-        onConfirm = { createCustomList(name.value) },
     )
 }
 

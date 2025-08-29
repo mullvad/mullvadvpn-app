@@ -12,14 +12,15 @@ import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { FlexColumn } from '../lib/components/flex-column';
+import { Colors, colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
+import { useAfterTransition } from '../lib/transition-hooks';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { IReduxState } from '../redux/store';
 import { AppNavigationHeader } from './';
 import Accordion from './Accordion';
-import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
@@ -29,7 +30,6 @@ import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
-  StyledBrowseButton,
   StyledCellButton,
   StyledCellLabel,
   StyledCellWarningIcon,
@@ -41,7 +41,6 @@ import {
   StyledPageCover,
   StyledSearchBar,
   StyledSpinnerRow,
-  WideSmallButton,
 } from './SplitTunnelingSettingsStyles';
 import Switch from './Switch';
 
@@ -114,16 +113,24 @@ function useFilePicker(
 
 function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
   const { getLinuxSplitTunnelingApplications, launchExcludedApplication } = useAppContext();
+  const runAfterTransition = useAfterTransition();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [browseError, setBrowseError] = useState<string>();
 
-  const updateApplications = useEffectEvent(async () => {
-    const applications = await getLinuxSplitTunnelingApplications();
-    setApplications(applications);
+  const updateApplications = useEffectEvent(() => {
+    runAfterTransition(async () => {
+      const applications = await getLinuxSplitTunnelingApplications();
+      setApplications(applications);
+    });
   });
 
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => void updateApplications(), []);
 
   const launchApplication = useCallback(
@@ -182,20 +189,27 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           </StyledNoResult>
         )}
 
-      <Flex $flexDirection="column" $gap="medium">
+      <FlexColumn $gap="medium">
         {filteredApplications !== undefined && filteredApplications.length > 0 && (
           <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
         )}
 
-        <StyledBrowseButton onClick={launchWithFilePicker}>
-          {messages.pgettext('split-tunneling-view', 'Find another app')}
-        </StyledBrowseButton>
-      </Flex>
+        <Flex $margin={{ horizontal: 'medium', bottom: 'large' }}>
+          <Button onClick={launchWithFilePicker}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button label for browsing applications with split tunneling.
+                messages.pgettext('split-tunneling-view', 'Find another app')
+              }
+            </Button.Text>
+          </Button>
+        </Flex>
+      </FlexColumn>
 
       <ModalAlert
         isOpen={browseError !== undefined}
         type={ModalAlertType.warning}
-        iconColor={Colors.red}
+        iconColor={colors.red}
         message={sprintf(
           // TRANSLATORS: Error message showed in a dialog when an application fails to launch.
           messages.pgettext(
@@ -205,9 +219,9 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           { detailedErrorMessage: browseError },
         )}
         buttons={[
-          <AppButton.BlueButton key="close" onClick={hideBrowseFailureDialog}>
-            {messages.gettext('Close')}
-          </AppButton.BlueButton>,
+          <Button key="close" onClick={hideBrowseFailureDialog}>
+            <Button.Text>{messages.gettext('Close')}</Button.Text>
+          </Button>,
         ]}
         close={hideBrowseFailureDialog}
       />
@@ -234,7 +248,7 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
   const hideWarningDialog = useCallback(() => setShowWarning(false), []);
 
   const disabled = props.application.warning === 'launches-elsewhere';
-  const warningColor = disabled ? Colors.red : Colors.yellow;
+  const warningColor: Colors = disabled ? 'red' : 'yellow';
   const warningMessage = disabled
     ? sprintf(
         messages.pgettext(
@@ -256,17 +270,22 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
       );
   const warningDialogButtons = disabled
     ? [
-        <AppButton.BlueButton key="cancel" onClick={hideWarningDialog}>
-          {messages.gettext('Back')}
-        </AppButton.BlueButton>,
+        <Button key="cancel" onClick={hideWarningDialog}>
+          <Button.Text>{messages.gettext('Back')}</Button.Text>
+        </Button>,
       ]
     : [
-        <AppButton.BlueButton key="launch" onClick={launch}>
-          {messages.pgettext('split-tunneling-view', 'Launch')}
-        </AppButton.BlueButton>,
-        <AppButton.BlueButton key="cancel" onClick={hideWarningDialog}>
-          {messages.gettext('Cancel')}
-        </AppButton.BlueButton>,
+        <Button key="launch" onClick={launch}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for launching an application with split tunneling.
+              messages.pgettext('split-tunneling-view', 'Launch')
+            }
+          </Button.Text>
+        </Button>,
+        <Button key="cancel" onClick={hideWarningDialog}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>,
       ];
 
   return (
@@ -312,6 +331,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     needFullDiskPermissions,
     setSplitTunnelingState,
   } = useAppContext();
+  const runAfterTransition = useAfterTransition();
   const splitTunnelingEnabled = useSelector((state: IReduxState) => state.settings.splitTunneling);
   const splitTunnelingApplications = useSelector(
     (state: IReduxState) => state.settings.splitTunnelingApplications,
@@ -340,16 +360,23 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     }
   }, [fetchNeedFullDiskPermissions]);
 
-  const onMount = useEffectEvent(async () => {
-    const { fromCache, applications } = await getSplitTunnelingApplications();
-    setApplications(applications);
-
-    if (fromCache) {
-      const { applications } = await getSplitTunnelingApplications(true);
+  const onMount = useEffectEvent(() => {
+    runAfterTransition(async () => {
+      const { fromCache, applications } = await getSplitTunnelingApplications();
       setApplications(applications);
-    }
+
+      if (fromCache) {
+        const { applications } = await getSplitTunnelingApplications(true);
+        setApplications(applications);
+      }
+    });
   });
 
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => void onMount(), []);
 
   const filteredSplitApplications = useMemo(
@@ -566,19 +593,23 @@ function MacOsSplitTunnelingAvailability({
       </HeaderSubTitle>
       <Flex $flexDirection="column" $gap="small">
         <Flex $flexDirection="column" $gap="big">
-          <WideSmallButton onClick={showFullDiskAccessSettings}>
-            {messages.pgettext('split-tunneling-view', 'Open System Settings')}
-          </WideSmallButton>
-          <FootnoteMini color={Colors.white60}>
+          <Button onClick={showFullDiskAccessSettings}>
+            <Button.Text>
+              {messages.pgettext('split-tunneling-view', 'Open System Settings')}
+            </Button.Text>
+          </Button>
+          <FootnoteMini color="whiteAlpha60">
             {messages.pgettext(
               'split-tunneling-view',
               'Enabled "Full disk access" and still having issues?',
             )}
           </FootnoteMini>
         </Flex>
-        <WideSmallButton onClick={restartDaemon}>
-          {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
-        </WideSmallButton>
+        <Button onClick={restartDaemon}>
+          <Button.Text>
+            {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
+          </Button.Text>
+        </Button>
       </Flex>
     </Flex>
   );
@@ -616,7 +647,7 @@ function applicationGetKey<T extends IApplication>(application: T): string {
 }
 
 const StyledContainer = styled(Cell.Container)({
-  backgroundColor: Colors.blue40,
+  backgroundColor: colors.blue40,
 });
 
 interface IApplicationRowProps {

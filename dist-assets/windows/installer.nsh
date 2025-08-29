@@ -3,6 +3,10 @@
 
 !addplugindir "${BUILD_RESOURCES_DIR}\..\windows\nsis-plugins\bin\Win32-Release"
 
+# Set supported OSes to Windows 10 and 11 in manifest explicitly.
+# The default also includes Windows 7, 8.1, and 8.
+ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
+
 #
 # NOTES
 #
@@ -685,10 +689,19 @@
 
 	Push $0
 
-	${IfNot} ${AtLeastWin10}
-		MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Windows versions below 10 are unsupported. The last version to support Windows 7 and 8/8.1 is 2021.6."
-		Abort
-	${EndIf}
+	# We do not use AtLeastWin10, because it is affected by compatibility mode. Instead, we infer
+	# the version from the kernel image.
+	log::GetWindowsMajorVersion
+	Pop $0
+
+	IntCmp $0 10 customInit_compatibleWinVer +1 customInit_compatibleWinVer
+	# Best effort only. Ignore errors
+	IntCmp $0 -1 customInit_compatibleWinVer customInit_compatibleWinVer +1
+
+	MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Windows versions below 10 are unsupported. The last version to support Windows 7 and 8/8.1 is 2021.6."
+	Abort
+
+	customInit_compatibleWinVer:
 
 	Var /GLOBAL NativeTarget
 	${If} ${IsNativeAMD64}
@@ -890,7 +903,28 @@
 	${ExtractMullvadSetup}
 	${ClearFirewallRules}
 
-	MessageBox MB_OK "Failed to uninstall a previous version. Please try restarting your computer and try again. If you still have this issue, please contact support."
+	# Give the user some helpful instructions about how to proceed
+	Push $0
+
+	${GetParameters} $0
+	${GetOptions} $0 "/inapp" $1
+	${If} ${Errors}
+		Push 0
+	${Else}
+		Push 1
+	${EndIf}
+
+	Pop $0
+
+	# Show appropriate message about failed update depending on whether /inapp is specified
+	${If} $0 == 1
+		MessageBox MB_OK "The update could not be installed and the previous version is missing. Please download the app again from mullvad.net/download and reinstall. If that fails, please try restarting your computer and try again."
+	${Else}
+		MessageBox MB_OK "Failed to uninstall a previous version. Please try restarting your computer and try again. If you still have this issue, please contact support."
+	${EndIf}
+
+	Pop $0
+
 	SetErrorLevel 5
 	Abort
 

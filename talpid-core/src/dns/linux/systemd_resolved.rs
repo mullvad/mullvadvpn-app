@@ -1,4 +1,4 @@
-use crate::linux::{iface_index, IfaceIndexLookupError};
+use crate::linux::{IfaceIndexLookupError, iface_index};
 use std::net::IpAddr;
 use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
 use talpid_routing::RouteManagerHandle;

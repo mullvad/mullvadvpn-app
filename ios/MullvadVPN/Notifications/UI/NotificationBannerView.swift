@@ -13,7 +13,8 @@ final class NotificationBannerView: UIView {
 
     private let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        textLabel.font = .mullvadTinySemiBold
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor.InAppNotificationBanner.titleColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
@@ -23,7 +24,8 @@ final class NotificationBannerView: UIView {
 
     private let bodyLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadTiny
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor.InAppNotificationBanner.bodyColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
@@ -57,6 +59,7 @@ final class NotificationBannerView: UIView {
     private lazy var contentStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [bodyStackView, actionButton])
         stackView.spacing = UIStackView.spacingUseSystem
+        stackView.alignment = .center
         return stackView
     }()
 
@@ -89,7 +92,9 @@ final class NotificationBannerView: UIView {
             let image = action?.image
             let showsAction = image != nil
 
-            actionButton.setImage(image, for: .normal)
+            actionButton.setBackgroundImage(image, for: .normal)
+            actionButton.widthAnchor.constraint(equalToConstant: 24).isActive = true
+            actionButton.heightAnchor.constraint(equalTo: actionButton.widthAnchor).isActive = true
             actionButton.isHidden = !showsAction
         }
     }

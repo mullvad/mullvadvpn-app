@@ -1,3 +1,6 @@
 package net.mullvad.mullvadvpn.lib.payment.model
 
-@JvmInline value class ProductId(val value: String)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@JvmInline @Parcelize value class ProductId(val value: String) : Parcelable

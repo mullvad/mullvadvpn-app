@@ -12,12 +12,14 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,12 +40,11 @@ class SearchLocationScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: SearchLocationUiState,
-        onSelectRelay: (RelayItem) -> Unit = {},
+        state: Lce<Unit, SearchLocationUiState, Unit>,
+        onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { _, _ -> },
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
         onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
-        onEditCustomLists: () -> Unit = {},
         onAddLocationToList:
             (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
             { _, _ ->
@@ -62,11 +63,10 @@ class SearchLocationScreenTest {
         setContentWithTheme {
             SearchLocationScreen(
                 state = state,
-                onSelectRelay = onSelectRelay,
+                onSelectRelayItem = onSelectRelayItem,
                 onToggleExpand = onToggleExpand,
                 onSearchInputChanged = onSearchInputChanged,
                 onCreateCustomList = onCreateCustomList,
-                onEditCustomLists = onEditCustomLists,
                 onAddLocationToList = onAddLocationToList,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onEditCustomListName = onEditCustomListName,
@@ -85,7 +85,16 @@ class SearchLocationScreenTest {
             // Arrange
             val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
             initScreen(
-                state = SearchLocationUiState.NoQuery(searchTerm = "", filterChips = emptyList()),
+                state =
+                    Lce.Content(
+                        SearchLocationUiState(
+                            searchTerm = "",
+                            relayListType = RelayListType.Single,
+                            filterChips = emptyList(),
+                            relayListItems = emptyList(),
+                            customLists = emptyList(),
+                        )
+                    ),
                 onSearchInputChanged = mockedSearchTermInput,
             )
             val mockSearchString = "SEARCH"
@@ -104,11 +113,15 @@ class SearchLocationScreenTest {
             val mockSearchString = "SEARCH"
             initScreen(
                 state =
-                    SearchLocationUiState.Content(
-                        searchTerm = mockSearchString,
-                        filterChips = emptyList(),
-                        relayListItems = listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SearchLocationUiState(
+                            searchTerm = mockSearchString,
+                            relayListType = RelayListType.Single,
+                            filterChips = emptyList(),
+                            relayListItems =
+                                listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
+                            customLists = emptyList(),
+                        )
                     )
             )
 
@@ -124,11 +137,14 @@ class SearchLocationScreenTest {
             val mockSearchString = "SEARCH"
             initScreen(
                 state =
-                    SearchLocationUiState.Content(
-                        searchTerm = mockSearchString,
-                        filterChips = emptyList(),
-                        relayListItems = emptyList(),
-                        customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                    Lce.Content(
+                        SearchLocationUiState(
+                            searchTerm = mockSearchString,
+                            relayListType = RelayListType.Single,
+                            filterChips = emptyList(),
+                            relayListItems = emptyList(),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                        )
                     )
             )
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -49,11 +51,11 @@ import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.test.EDIT_API_ACCESS_NAME_INPUT
 import net.mullvad.mullvadvpn.compose.textfield.ApiAccessMethodTextField
 import net.mullvad.mullvadvpn.compose.textfield.apiAccessTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -69,6 +71,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_API_ACCESS_NAME_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
@@ -82,18 +85,18 @@ private fun PreviewEditApiAccessMethodScreen(
     AppTheme {
         EditApiAccessMethodScreen(
             state = state,
-            SnackbarHostState(),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
+            snackbarHostState = SnackbarHostState(),
+            onNameChanged = {},
+            onTypeSelected = {},
+            onIpChanged = {},
+            onPortChanged = {},
+            onPasswordChanged = {},
+            onCipherChange = {},
+            onToggleAuthenticationEnabled = {},
+            onUsernameChanged = {},
+            onTestMethod = {},
+            onAddMethod = {},
+            onNavigateBack = {},
         )
     }
 }
@@ -110,7 +113,7 @@ fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
     saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
-    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Boolean>,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Confirmed>,
 ) {
     val viewModel = koinViewModel<EditApiAccessMethodViewModel>()
 
@@ -160,11 +163,7 @@ fun EditApiAccessMethod(
         }
     }
 
-    discardChangesResultRecipient.OnNavResultValue { discardChanges ->
-        if (discardChanges) {
-            navigator.navigateUp()
-        }
-    }
+    discardChangesResultRecipient.OnNavResultValue { navigator.navigateUp() }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -241,7 +240,7 @@ fun EditApiAccessMethodScreen(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
                     .verticalScroll(scrollState)
-                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin)
         ) {
             when (state) {
                 is EditApiAccessMethodUiState.Loading -> Loading()
@@ -311,7 +310,7 @@ private fun NameInputField(
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
         capitalization = KeyboardCapitalization.Words,
-        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT),
+        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT_TEST_TAG),
     )
 }
 
@@ -326,12 +325,15 @@ private fun ApiAccessMethodTypeSelection(
         title = formData.apiAccessMethodTypes.text(),
         colors = apiAccessTextFieldColors(),
     ) { close ->
-        ApiAccessMethodTypes.entries.forEach {
+        ApiAccessMethodTypes.entries.forEachIndexed { index, item ->
+            if (index > 0) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
+            }
             MullvadDropdownMenuItem(
-                text = it.text(),
+                text = item.text(),
                 onClick = {
                     close()
-                    onTypeSelected(it)
+                    onTypeSelected(item)
                 },
                 content = {
                     Icon(
@@ -340,7 +342,7 @@ private fun ApiAccessMethodTypeSelection(
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
                                 .alpha(
-                                    if (it == formData.apiAccessMethodTypes) AlphaVisible
+                                    if (item == formData.apiAccessMethodTypes) AlphaVisible
                                     else AlphaInvisible
                                 ),
                     )
@@ -503,12 +505,15 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
         title = cipher.label,
         colors = apiAccessTextFieldColors(),
     ) { close ->
-        Cipher.listAll().forEach {
+        Cipher.listAll().forEachIndexed { index, item ->
+            if (index > 0) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
+            }
             MullvadDropdownMenuItem(
-                text = it.label,
+                text = item.label,
                 onClick = {
                     close()
-                    onCipherChange(it)
+                    onCipherChange(item)
                 },
                 content = {
                     Icon(
@@ -516,7 +521,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
-                                .alpha(if (it == cipher) AlphaVisible else AlphaInvisible),
+                                .alpha(if (item == cipher) AlphaVisible else AlphaInvisible),
                     )
                 },
             )
@@ -559,6 +564,7 @@ private fun EnableAuthentication(
                 )
             },
         )
+        HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
         MullvadDropdownMenuItem(
             text = stringResource(id = R.string.off),
             onClick = {

@@ -15,12 +15,10 @@ import NetworkExtension
 import XCTest
 
 class EphemeralPeerExchangeActorTests: XCTestCase {
-    var tcpConnection: NWTCPConnectionStub!
     var tunnelProvider: TunnelProviderStub!
 
     override func setUpWithError() throws {
-        tcpConnection = NWTCPConnectionStub()
-        tunnelProvider = TunnelProviderStub(tcpConnection: tcpConnection)
+        tunnelProvider = TunnelProviderStub()
     }
 
     func testKeyExchangeFailsWhenNegotiationCannotStart() {
@@ -37,7 +35,6 @@ class EphemeralPeerExchangeActorTests: XCTestCase {
 
         let privateKey = PrivateKey()
         keyExchangeActor.startNegotiation(with: privateKey, enablePostQuantum: true, enableDaita: false)
-        tcpConnection.becomeViable()
 
         wait(for: [negotiationFailure])
     }

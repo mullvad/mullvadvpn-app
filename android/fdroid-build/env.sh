@@ -5,9 +5,12 @@
 # shellcheck source=/dev/null
 source "$HOME/.cargo/env"
 
-# Ensure Go compiler is accessible
+# Ensure Go compiler is accessible (needs to be removed if building locally on macOS)
 export GOROOT="$HOME/go"
 export PATH="$GOROOT/bin:$PATH"
+
+# Set up python3 path for the rust gradle plugin
+export RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 
 # Ensure Rust crates know which tools to use for cross-compilation
 export NDK_TOOLCHAIN_DIR="$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin"

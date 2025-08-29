@@ -24,7 +24,7 @@ class CustomListsViewModelTest {
     @Test
     fun `given custom list from relay list use case should be in state`() = runTest {
         // Arrange
-        val customLists: List<CustomList> = mockk()
+        val customLists: List<CustomList> = listOf(mockk())
         val expectedState = CustomListsUiState.Content(customLists)
         every { mockCustomListsRepository.customLists } returns MutableStateFlow(customLists)
         val viewModel = createViewModel()

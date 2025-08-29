@@ -38,7 +38,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
     init(configuration: ListCellContentConfiguration) {
         actualConfiguration = configuration
 
-        super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 0))
+        super.init(frame: .zero)
 
         configureSubviews()
         addSubviews()
@@ -59,17 +59,21 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.textProperties
 
         textLabel.font = textProperties.font
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = textProperties.color
-
+        textLabel.numberOfLines = 0
         textLabel.text = actualConfiguration.text
+        textLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        textLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
     }
 
     private func configureSecondaryTextLabel() {
         let textProperties = actualConfiguration.secondaryTextProperties
 
         secondaryTextLabel.font = textProperties.font
+        secondaryTextLabel.adjustsFontForContentSizeCategory = true
         secondaryTextLabel.textColor = textProperties.color
-
+        secondaryTextLabel.numberOfLines = 0
         secondaryTextLabel.text = actualConfiguration.secondaryText
     }
 
@@ -77,7 +81,9 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.tertiaryTextProperties
 
         tertiaryTextLabel.font = textProperties.font
+        tertiaryTextLabel.adjustsFontForContentSizeCategory = true
         tertiaryTextLabel.textColor = textProperties.color
+        tertiaryTextLabel.numberOfLines = 0
 
         tertiaryTextLabel.text = actualConfiguration.tertiaryText
     }
@@ -90,9 +96,14 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let leadingTextContainer = UIStackView(arrangedSubviews: [textLabel, tertiaryTextLabel])
         leadingTextContainer.axis = .vertical
 
+        leadingTextContainer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        leadingTextContainer.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+
+        secondaryTextLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        secondaryTextLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
         addConstrainedSubviews([leadingTextContainer, secondaryTextLabel]) {
             leadingTextContainer.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
-            leadingTextContainer.centerYAnchor.constraint(equalTo: centerYAnchor)
             secondaryTextLabel.pinEdgesToSuperviewMargins(.all().excluding(.leading))
             secondaryTextLabel.leadingAnchor.constraint(
                 greaterThanOrEqualToSystemSpacingAfter: leadingTextContainer.trailingAnchor,

@@ -1,18 +1,18 @@
 use super::{Config, Tunnel, TunnelError};
-use futures::future::{abortable, AbortHandle};
-use netlink_packet_core::{constants::*, NetlinkDeserializable};
+use futures::future::{AbortHandle, abortable};
+use netlink_packet_core::{NetlinkDeserializable, constants::*};
 use netlink_packet_route::{
+    NetlinkMessage, NetlinkPayload,
     rtnl::{
+        AddressMessage, LinkMessage, RT_SCOPE_UNIVERSE, RtnlMessage,
         address::nlas::Nla as AddressNla,
         link::nlas::{Info, InfoKind, Nla as LinkNla},
-        AddressMessage, LinkMessage, RtnlMessage, RT_SCOPE_UNIVERSE,
     },
-    NetlinkMessage, NetlinkPayload,
 };
 use netlink_packet_utils::DecodeError;
 use netlink_proto::{
-    sys::{protocols::NETLINK_GENERIC, SocketAddr},
     ConnectionHandle, Error as NetlinkError,
+    sys::{SocketAddr, protocols::NETLINK_GENERIC},
 };
 use std::{ffi::CString, net::IpAddr};
 use tokio_stream::StreamExt;
@@ -48,7 +48,7 @@ pub enum Error {
     WireguardNetlinkInterfaceUnavailable,
 
     #[error("Unknown WireGuard command: {0}")]
-    UnnkownWireguardCommmand(u8),
+    UnknownWireguardCommand(u8),
 
     #[error("Received no response")]
     NoResponse,
@@ -134,15 +134,16 @@ impl Handle {
                 .request(message, SocketAddr::new(0, 0))
                 .map_err(Error::NetlinkRequest)?;
             let response = req.next().await;
-            if let Some(response) = response {
-                if let NetlinkPayload::InnerMessage(msg) = response.payload {
-                    for nla in msg.nlas.into_iter() {
-                        if let ControlNla::FamilyId(id) = nla {
-                            return Ok(id);
-                        }
+            if let Some(response) = response
+                && let NetlinkPayload::InnerMessage(msg) = response.payload
+            {
+                for nla in msg.nlas.into_iter() {
+                    if let ControlNla::FamilyId(id) = nla {
+                        return Ok(id);
                     }
                 }
             }
+
             Err(Error::WireguardNetlinkInterfaceUnavailable)
         }
         .await;

@@ -1,0 +1,10 @@
+---
+source: talpid-core/src/split_tunnel/macos/process.rs
+expression: "(s, result)"
+---
+(
+    "{\"version\":11}",
+    Err(
+        Error("Unsupported ESMessage version: 11", line: 1, column: 14),
+    ),
+)

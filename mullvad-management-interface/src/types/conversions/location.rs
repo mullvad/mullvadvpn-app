@@ -1,4 +1,4 @@
-use crate::types::{conversions::arg_from_str, proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, conversions::arg_from_str, proto};
 
 impl From<mullvad_types::location::GeoIpLocation> for proto::GeoIpLocation {
     fn from(geoip: mullvad_types::location::GeoIpLocation) -> proto::GeoIpLocation {

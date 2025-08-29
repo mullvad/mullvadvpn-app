@@ -13,6 +13,7 @@ import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialogTitleType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -25,7 +26,7 @@ private fun PreviewDaitaDirectOnlyConfirmationDialog() {
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DaitaDirectOnlyConfirmation(navigator: ResultBackNavigator<Boolean>) {
+fun DaitaDirectOnlyConfirmation(navigator: ResultBackNavigator<Confirmed>) {
     InfoConfirmationDialog(
         navigator = navigator,
         titleType = InfoConfirmationDialogTitleType.IconOnly,
@@ -39,8 +40,8 @@ fun DaitaDirectOnlyConfirmation(navigator: ResultBackNavigator<Boolean>) {
                     id = R.string.direct_only_description,
                     stringResource(id = R.string.daita),
                 ),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.fillMaxWidth(),
         )
     }

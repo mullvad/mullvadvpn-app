@@ -15,7 +15,8 @@ class DeviceRowView: UIView {
     let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadSmallSemiBold
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         return textLabel
     }()
@@ -29,13 +30,14 @@ class DeviceRowView: UIView {
     let creationDateLabel: UILabel = {
         let creationDateLabel = UILabel()
         creationDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        creationDateLabel.font = UIFont.systemFont(ofSize: 14)
+        creationDateLabel.font = .mullvadMiniSemiBold
+        creationDateLabel.adjustsFontForContentSizeCategory = true
         creationDateLabel.textColor = .white.withAlphaComponent(0.6)
         return creationDateLabel
     }()
 
     let removeButton: UIButton = {
-        let image = UIImage(named: "IconClose")?
+        let image = UIImage.Buttons.close
             .withTintColor(
                 .white.withAlphaComponent(0.4),
                 renderingMode: .alwaysOriginal
@@ -44,12 +46,7 @@ class DeviceRowView: UIView {
         let button = IncreasedHitButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(image, for: .normal)
-        button.accessibilityLabel = NSLocalizedString(
-            "REMOVE_DEVICE_ACCESSIBILITY_LABEL",
-            tableName: "DeviceManagement",
-            value: "Remove device",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Remove device", comment: "")
         return button
     }()
 
@@ -81,12 +78,7 @@ class DeviceRowView: UIView {
         textLabel.text = viewModel.name
         creationDateLabel.text = .init(
             format:
-            NSLocalizedString(
-                "CREATED_DEVICE_LABEL",
-                tableName: "DeviceManagement",
-                value: "Created: %@",
-                comment: ""
-            ),
+            NSLocalizedString("Created: %@", comment: ""),
             viewModel.creationDate
         )
 

@@ -8,8 +8,8 @@
 //! true. Read more here: https://man.freebsd.org/cgi/man.cgi?bpf
 use futures::ready;
 use libc::{
-    bpf_hdr, ifreq, BIOCGBLEN, BIOCGDLT, BIOCIMMEDIATE, BIOCSBLEN, BIOCSETIF, BIOCSHDRCMPLT,
-    BIOCSSEESENT, BPF_ALIGNMENT, EBUSY, F_GETFL, F_SETFL, O_NONBLOCK,
+    BIOCGBLEN, BIOCGDLT, BIOCIMMEDIATE, BIOCSBLEN, BIOCSETIF, BIOCSHDRCMPLT, BIOCSSEESENT,
+    BPF_ALIGNMENT, EBUSY, F_GETFL, F_SETFL, O_NONBLOCK, bpf_hdr, ifreq,
 };
 use std::{
     ffi::{c_int, c_uint},
@@ -20,7 +20,7 @@ use std::{
     pin::Pin,
     task::{Context, Poll},
 };
-use tokio::io::{unix::AsyncFd, AsyncRead, Interest, ReadBuf};
+use tokio::io::{AsyncRead, Interest, ReadBuf, unix::AsyncFd};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

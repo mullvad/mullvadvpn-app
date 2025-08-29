@@ -32,12 +32,7 @@ class ProblemReportReviewViewController: UIViewController {
         view.backgroundColor = .secondaryColor
         view.setAccessibilityIdentifier(.appLogsView)
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "ProblemReportReview",
-            value: "App logs",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("App logs", comment: "")
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,
@@ -60,11 +55,10 @@ class ProblemReportReviewViewController: UIViewController {
         textView.setAccessibilityIdentifier(.problemReportAppLogsTextView)
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isEditable = false
-        textView.font = UIFont.monospacedSystemFont(
-            ofSize: UIFont.systemFontSize,
-            weight: .regular
-        )
+        textView.font = .mullvadSmall
+        textView.adjustsFontForContentSizeCategory = true
         textView.backgroundColor = .systemBackground
+        textView.textAlignment = .left
 
         view.addConstrainedSubviews([textView]) {
             textView.pinEdgesToSuperview(.all().excluding(.top))

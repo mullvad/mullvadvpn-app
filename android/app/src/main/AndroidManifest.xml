@@ -27,6 +27,8 @@
     <application android:name=".MullvadApplication"
                  android:banner="@mipmap/ic_banner"
                  android:allowBackup="false"
+                 tools:targetApi="31"
+                 android:memtagMode="async"
                  android:fullBackupContent="@xml/full_backup_content"
                  android:dataExtractionRules="@xml/data_extraction_rules"
                  android:icon="@mipmap/ic_launcher"
@@ -34,6 +36,19 @@
                  android:roundIcon="@mipmap/ic_launcher"
                  android:theme="@style/Theme.App.Starting"
                  tools:ignore="CredManMissingDal,CredentialDependency,GoogleAppIndexingWarning">
+
+        <!--
+            This disables the Firebase logging that is added by the billing library.
+        -->
+        <service
+                android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+                tools:node="remove"
+                tools:ignore="MissingClass" />
+
+        <profileable
+                android:enabled="true"
+                android:shell="true" />
+
         <!--
             MainActivity
             Must be exported in order to be launchable.
@@ -111,13 +126,25 @@
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receiver.BootCompletedReceiver"
-                          android:enabled="false"
-                          android:exported="false">
-                    <intent-filter>
-                        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                        <action android:name="android.intent.action.BOOT_COMPLETED" />
-                    </intent-filter>
-                </receiver>
+        <receiver
+                android:name=".receiver.NotificationAlarmReceiver"
+                android:exported="false" />
+        <receiver
+                android:name=".receiver.AutoStartVpnBootCompletedReceiver"
+                android:enabled="false"
+                android:exported="false">
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+                android:name=".receiver.ScheduleNotificationBootCompletedReceiver"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

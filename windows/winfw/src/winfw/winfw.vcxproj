@@ -223,7 +223,8 @@
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h</Command>
+      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -246,7 +247,8 @@
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h</Command>
+      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -269,7 +271,8 @@
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h</Command>
+      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -285,6 +288,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -296,7 +300,8 @@
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h</Command>
+      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -312,6 +317,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -323,7 +329,8 @@
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h</Command>
+      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -339,6 +346,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -350,7 +358,8 @@
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h</Command>
+      <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

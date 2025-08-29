@@ -1,8 +1,9 @@
 {
   "images" : [
     {
-      "filename" : "icon-reload.svg",
-      "idiom" : "universal"
+      "filename" : "icon-reconnect.svg",
+      "idiom" : "universal",
+      "language-direction" : "left-to-right"
     }
   ],
   "info" : {

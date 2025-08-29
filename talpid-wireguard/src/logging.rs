@@ -1,3 +1,4 @@
+#![cfg(any(windows, not(feature = "boringtun")))]
 use parking_lot::Mutex;
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path, sync::LazyLock};
 
@@ -44,12 +45,12 @@ pub fn clean_up_logging(ordinal: u64) {
     state.map.remove(&ordinal);
 }
 
+#[allow(dead_code)]
 pub enum LogLevel {
-    #[cfg_attr(windows, allow(dead_code))]
     Verbose,
-    #[cfg_attr(wireguard_go, allow(dead_code))]
+    #[cfg_attr(not(feature = "boringtun"), allow(dead_code))]
     Info,
-    #[cfg_attr(wireguard_go, allow(dead_code))]
+    #[cfg_attr(not(feature = "boringtun"), allow(dead_code))]
     Warning,
     Error,
 }

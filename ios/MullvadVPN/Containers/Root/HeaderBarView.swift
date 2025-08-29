@@ -24,29 +24,34 @@ class HeaderBarView: UIView {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fill
-        stackView.spacing = 16.0
+        stackView.spacing = 8.0
         return stackView
     }()
 
     private lazy var deviceNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = .mullvadMiniSemiBold
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal) // Resist growing
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         label.setAccessibilityIdentifier(.headerDeviceNameLabel)
         return label
     }()
 
     private lazy var timeLeftLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = .mullvadMiniSemiBold
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal) // Allow growing
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
         return label
     }()
 
     private lazy var buttonContainer: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton])
+        stackView.spacing = 12
         return stackView
     }()
 
@@ -57,28 +62,18 @@ class HeaderBarView: UIView {
     }()
 
     let accountButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.account)
         button.setAccessibilityIdentifier(.accountButton)
-        button.accessibilityLabel = NSLocalizedString(
-            "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "HeaderBar",
-            value: "Account",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Account", comment: "")
         button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.barButtonSize).isActive = true
         button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
     }()
 
     let settingsButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.settings)
         button.setAccessibilityIdentifier(.settingsButton)
-        button.accessibilityLabel = NSLocalizedString(
-            "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "HeaderBar",
-            value: "Settings",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Settings", comment: "")
         button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.barButtonSize).isActive = true
         button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
@@ -86,14 +81,8 @@ class HeaderBarView: UIView {
 
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
         let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
-        let disabledButtonImage = image?.withTintColor(
-            UIColor.HeaderBar.disabledButtonColor,
-            renderingMode: .alwaysOriginal
-        )
-
         let barButton = IncreasedHitButton(type: .system)
-        barButton.setImage(buttonImage, for: .normal)
-        barButton.setImage(disabledButtonImage, for: .disabled)
+        barButton.setBackgroundImage(buttonImage, for: .normal)
         barButton.configureForAutoLayout()
 
         return barButton
@@ -124,12 +113,7 @@ class HeaderBarView: UIView {
     private var timeLeft: Date? {
         didSet {
             if let timeLeft {
-                let formattedTimeLeft = NSLocalizedString(
-                    "TIME_LEFT_HEADER_VIEW",
-                    tableName: "Account",
-                    value: "Time left: %@",
-                    comment: ""
-                )
+                let formattedTimeLeft = NSLocalizedString("Time left: %@", comment: "")
                 timeLeftLabel.text = String(
                     format: formattedTimeLeft,
                     CustomDateComponentsFormatting.localizedString(
@@ -147,12 +131,7 @@ class HeaderBarView: UIView {
     private var deviceName: String? {
         didSet {
             if let deviceName {
-                let formattedDeviceName = NSLocalizedString(
-                    "DEVICE_NAME_HEADER_VIEW",
-                    tableName: "Account",
-                    value: "Device name: %@",
-                    comment: ""
-                )
+                let formattedDeviceName = NSLocalizedString("Device name: %@", comment: "")
                 deviceNameLabel.text = String(format: formattedDeviceName, deviceName)
             } else {
                 deviceNameLabel.text = ""
@@ -164,9 +143,9 @@ class HeaderBarView: UIView {
         super.init(frame: frame)
         directionalLayoutMargins = NSDirectionalEdgeInsets(
             top: 0,
-            leading: UIMetrics.contentLayoutMargins.leading,
+            leading: 16,
             bottom: 0,
-            trailing: UIMetrics.contentLayoutMargins.trailing
+            trailing: 16
         )
 
         accessibilityContainerType = .semanticGroup

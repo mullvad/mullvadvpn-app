@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
 import Network
@@ -33,39 +34,56 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
     func testObfuscateOffDoesNotChangeEndpoint() {
         let settings = settings(.off, obfuscationPort: .automatic)
-        let nonObfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
+        let nonObfuscated = obfuscator.obfuscate(endpoint, settings: settings, relayFeatures: nil)
 
-        XCTAssertEqual(endpoint, nonObfuscatedEndpoint)
+        XCTAssertEqual(endpoint, nonObfuscated.endpoint)
     }
 
     func testObfuscateUdpOverTcp() throws {
         let settings = settings(.udpOverTcp, obfuscationPort: .automatic)
-        let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
+        let obfuscated = obfuscator.obfuscate(endpoint, settings: settings, relayFeatures: nil)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
-        validate(obfuscatedEndpoint, against: obfuscationProtocol)
+        validate(obfuscated.endpoint, against: obfuscationProtocol)
     }
 
     func testObfuscateShadowsocks() throws {
         let settings = settings(.shadowsocks, obfuscationPort: .automatic)
-        let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
+        let obfuscated = obfuscator.obfuscate(endpoint, settings: settings, relayFeatures: nil)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
-        validate(obfuscatedEndpoint, against: obfuscationProtocol)
+        validate(obfuscated.endpoint, against: obfuscationProtocol)
+    }
+
+    func testObfuscateQuic() throws {
+        let settings = settings(.quic, obfuscationPort: .automatic)
+        let obfuscated = obfuscator.obfuscate(
+            endpoint,
+            settings: settings,
+            relayFeatures: .init(daita: nil, quic: .init(addrIn: [], domain: "", token: ""))
+        )
+        let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
+
+        validate(obfuscated.endpoint, against: obfuscationProtocol)
     }
 
     func testObfuscateAutomatic() throws {
         let settings = settings(.automatic, obfuscationPort: .automatic)
 
         try (UInt(0) ... 3).forEach { attempt in
-            let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: attempt)
+            let obfuscated = obfuscator.obfuscate(
+                endpoint,
+                settings: settings,
+                retryAttempts: attempt,
+                relayFeatures: .init(daita: nil, quic: .init(addrIn: [], domain: "", token: ""))
+            )
 
             switch attempt {
-            case 0, 1:
-                XCTAssertEqual(endpoint, obfuscatedEndpoint)
-            case 2, 3:
+            case 0:
+                XCTAssertEqual(endpoint, obfuscated.endpoint)
+            case 1, 2, 3:
                 let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
-                validate(obfuscatedEndpoint, against: obfuscationProtocol)
+                validate(obfuscated.endpoint, against: obfuscationProtocol)
             default:
                 XCTExpectFailure("Should not end up here, test setup is wrong")
             }

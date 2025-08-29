@@ -25,14 +25,14 @@ extension TunnelProtocol {
     /// Request packet tunnel process to reconnect the tunnel with the given relays.
     func reconnectTunnel(
         to nextRelays: NextRelays,
-        completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void
+        completionHandler: @escaping @Sendable (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .reconnectTunnel(nextRelays),
-            decoderHandler: { _ in () },
+            decoderHandler: mapObservedState(data:),
             completionHandler: completionHandler
         )
 
@@ -45,20 +45,12 @@ extension TunnelProtocol {
     func getTunnelStatus(
         completionHandler: @escaping @Sendable (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
-        let decoderHandler: (Data?) throws -> ObservedState = { data in
-            if let data {
-                return try TunnelProviderReply<ObservedState>(messageData: data).value
-            } else {
-                throw EmptyTunnelProviderResponseError()
-            }
-        }
-
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .getTunnelStatus,
-            decoderHandler: decoderHandler,
+            decoderHandler: mapObservedState(data:),
             completionHandler: completionHandler
         )
 
@@ -150,6 +142,14 @@ extension TunnelProtocol {
         operationQueue.addOperation(operation)
 
         return operation
+    }
+
+    func mapObservedState(data: Data?) throws -> ObservedState {
+        if let data {
+            return try TunnelProviderReply<ObservedState>(messageData: data).value
+        } else {
+            throw EmptyTunnelProviderResponseError()
+        }
     }
 
     /// Notify tunnel about private key rotation.

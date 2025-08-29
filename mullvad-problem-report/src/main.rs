@@ -1,6 +1,6 @@
 use clap::Parser;
 use mullvad_api::ApiEndpoint;
-use mullvad_problem_report::{collect_report, Error};
+use mullvad_problem_report::{Error, collect_report};
 use std::{
     env,
     path::{Path, PathBuf},

@@ -17,34 +17,44 @@ class AccountDeviceRow: UIView {
         }
     }
 
-    var infoButtonAction: (() -> Void)?
+    var deviceManagementButtonAction: (() -> Void)?
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = NSLocalizedString(
-            "DEVICE_NAME",
-            tableName: "Account",
-            value: "Device name",
-            comment: ""
-        )
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.text = NSLocalizedString("Device name", comment: "")
+        label.font = .mullvadTiny
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.6)
         return label
     }()
 
     private let deviceLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17)
+        label.font = .mullvadSmall
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
-    private let infoButton: UIButton = {
-        let button = IncreasedHitButton(type: .system)
-        button.isExclusiveTouch = true
-        button.setAccessibilityIdentifier(.infoButton)
-        button.tintColor = .white
-        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+    private let deviceManagementButton: UILabel = {
+        let button = UILabel()
+        button.adjustsFontForContentSizeCategory = true
+        button.isUserInteractionEnabled = true
+        button.numberOfLines = 0
+        button.textAlignment = .center
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.mullvadSmallSemiBold,
+            .foregroundColor: UIColor.primaryTextColor,
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+        ]
+        let title = NSLocalizedString("Manage devices", comment: "")
+        button.attributedText = NSMutableAttributedString(
+            string: title,
+            attributes: attributes
+        )
+        button.setAccessibilityIdentifier(.deviceManagementButton)
         return button
     }()
 
@@ -56,20 +66,28 @@ class AccountDeviceRow: UIView {
         contentContainerView.alignment = .leading
         contentContainerView.spacing = 8
 
-        addConstrainedSubviews([contentContainerView, infoButton]) {
-            contentContainerView.pinEdgesToSuperview()
-            infoButton.leadingAnchor.constraint(equalToSystemSpacingAfter: deviceLabel.trailingAnchor, multiplier: 1)
-            infoButton.centerYAnchor.constraint(equalTo: deviceLabel.centerYAnchor)
+        contentContainerView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        contentContainerView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+
+        deviceManagementButton.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        deviceManagementButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+
+        addConstrainedSubviews(
+            [contentContainerView, deviceManagementButton]
+        ) {
+            contentContainerView.pinEdgesToSuperview(PinnableEdges([.leading(0), .bottom(0), .top(0)]))
+            deviceManagementButton.topAnchor.constraint(equalTo: deviceLabel.topAnchor)
+            deviceManagementButton.pinEdgesToSuperview(PinnableEdges([.trailing(0), .bottom(0)]))
+            deviceManagementButton.leadingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: 16)
         }
 
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
 
-        infoButton.addTarget(
-            self,
-            action: #selector(didTapInfoButton),
-            for: .touchUpInside
-        )
+        deviceManagementButton.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(didTapDeviceManagementButton)
+        ))
     }
 
     required init?(coder: NSCoder) {
@@ -77,10 +95,10 @@ class AccountDeviceRow: UIView {
     }
 
     func setButtons(enabled: Bool) {
-        infoButton.isEnabled = enabled
+        deviceManagementButton.isEnabled = enabled
     }
 
-    @objc private func didTapInfoButton() {
-        infoButtonAction?()
+    @objc private func didTapDeviceManagementButton() {
+        deviceManagementButtonAction?()
     }
 }

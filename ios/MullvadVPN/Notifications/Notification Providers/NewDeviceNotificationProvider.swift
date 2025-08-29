@@ -26,21 +26,19 @@ final class NewDeviceNotificationProvider: NotificationProvider,
 
     private var attributedBody: NSAttributedString {
         let formattedString = NSLocalizedString(
-            "ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY",
-            value: "Welcome, this device is now called **%@**. For more details see the info button in Account.",
+            "Welcome, this device is now called **%@**. For more details see the info button in Account.",
             comment: ""
         )
         let deviceName = storedDeviceData?.capitalizedName ?? ""
         let string = String(format: formattedString, deviceName)
 
-        let stylingOptions = MarkdownStylingOptions(font: .systemFont(ofSize: 14.0))
-
-        return NSAttributedString(markdownString: string, options: stylingOptions) { markdownType, _ in
-            if case .bold = markdownType {
-                return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
-            } else {
-                return [:]
-            }
+        return NSAttributedString(
+            markdownString: string,
+            options: MarkdownStylingOptions(
+                font: .preferredFont(forTextStyle: .subheadline)
+            )
+        ) { _, _ in
+            [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
         }
     }
 
@@ -51,14 +49,10 @@ final class NewDeviceNotificationProvider: NotificationProvider,
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .success,
-            title: NSLocalizedString(
-                "ACCOUNT_CREATION_INAPP_NOTIFICATION_TITLE",
-                value: "NEW DEVICE CREATED",
-                comment: ""
-            ),
+            title: NSLocalizedString("NEW DEVICE CREATED", comment: ""),
             body: attributedBody,
             button: InAppNotificationAction(
-                image: UIImage(named: "IconCloseSml"),
+                image: UIImage.Buttons.closeSmall,
                 handler: { [weak self] in
                     guard let self else { return }
                     isNewDeviceRegistered = false

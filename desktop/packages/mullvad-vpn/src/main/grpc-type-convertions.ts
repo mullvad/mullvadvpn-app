@@ -14,6 +14,8 @@ import {
   Constraint,
   CustomLists,
   CustomProxy,
+  DaemonAppUpgradeError,
+  DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
   DeviceState,
@@ -25,6 +27,7 @@ import {
   FeatureIndicator,
   FirewallPolicyError,
   FirewallPolicyErrorType,
+  IAppVersionInfo,
   IBridgeConstraints,
   ICustomList,
   IDevice,
@@ -44,11 +47,12 @@ import {
   LoggedInDeviceState,
   LoggedOutDeviceState,
   NewAccessMethodSetting,
+  NewCustomList,
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
   ProxyType,
-  RelayEndpointType,
+  Quic,
   RelayLocation,
   RelayLocationGeographical,
   RelayProtocol,
@@ -60,6 +64,7 @@ import {
   TunnelType,
   wrapConstraint,
 } from '../shared/daemon-rpc-types';
+import { parseChangelog } from './changelog';
 
 export class ResponseParseError extends Error {
   constructor(message: string) {
@@ -113,28 +118,36 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
 function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
   const relayObject = relay.toObject();
 
-  let daita = false;
-  if (relayObject.endpointType === grpcTypes.Relay.RelayType.WIREGUARD) {
-    const endpointDataU8 = relay.getEndpointData()?.getValue_asU8();
-    if (endpointDataU8) {
-      daita = grpcTypes.WireguardRelayEndpointData.deserializeBinary(endpointDataU8).getDaita();
-    }
-  }
+  // The relay type is determined by the variant of the extra endpoint data
+  const wireguard = relayObject.endpointData?.wireguard;
+  const openvpn = relayObject.endpointData?.openvpn;
+  const bridge = relayObject.endpointData?.bridge;
+
+  const endpointType = wireguard
+    ? 'wireguard'
+    : openvpn
+      ? 'openvpn'
+      : bridge
+        ? 'bridge'
+        : /*This case should never happen ..*/ 'bridge';
+
+  const daita = wireguard ? wireguard.daita : false;
+  const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
 
   return {
     ...relayObject,
-    endpointType: convertFromRelayType(relayObject.endpointType),
+    endpointType,
     daita,
+    quic,
   };
 }
 
-function convertFromRelayType(relayType: grpcTypes.Relay.RelayType): RelayEndpointType {
-  const protocolMap: Record<grpcTypes.Relay.RelayType, RelayEndpointType> = {
-    [grpcTypes.Relay.RelayType.OPENVPN]: 'openvpn',
-    [grpcTypes.Relay.RelayType.BRIDGE]: 'bridge',
-    [grpcTypes.Relay.RelayType.WIREGUARD]: 'wireguard',
+function quicFromRelayType(quic: grpcTypes.Relay.RelayData.Wireguard.Quic.AsObject): Quic {
+  return {
+    domain: quic.domain,
+    token: quic.token,
+    addrIn: quic.addrInList,
   };
-  return protocolMap[relayType];
 }
 
 function convertFromWireguardKey(publicKey: Uint8Array | string): string {
@@ -163,6 +176,7 @@ export function convertFromTunnelState(
       return {
         state: 'disconnected',
         location: tunnelStateObject.disconnected!.disconnectedLocation,
+        lockedDown: tunnelStateObject.disconnected!.lockedDown,
       };
     case grpcTypes.TunnelState.StateCase.DISCONNECTING: {
       const detailsMap: Record<grpcTypes.AfterDisconnect, AfterDisconnect> = {
@@ -320,6 +334,10 @@ function convertFromParameterError(
       return TunnelParameterError.noWireguardKey;
     case grpcTypes.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR:
       return TunnelParameterError.customTunnelHostResolutionError;
+    case grpcTypes.ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE:
+      return TunnelParameterError.ipv4Unavailable;
+    case grpcTypes.ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE:
+      return TunnelParameterError.ipv6Unavailable;
   }
 }
 
@@ -382,8 +400,12 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
+    case grpcTypes.FeatureIndicator.DAITA_MULTIHOP:
+      return FeatureIndicator.daitaMultihop;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
+    case grpcTypes.FeatureIndicator.QUIC:
+      return FeatureIndicator.quic;
   }
 }
 
@@ -419,6 +441,9 @@ function convertFromObfuscationEndpoint(
       break;
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS:
       obfuscationType = 'shadowsocks';
+      break;
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.QUIC:
+      obfuscationType = 'quic';
       break;
     default:
       throw new Error('unsupported obfuscation protocol');
@@ -687,6 +712,9 @@ function convertFromObfuscationSettings(
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS:
       selectedObfuscationType = ObfuscationType.shadowsocks;
       break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.QUIC:
+      selectedObfuscationType = ObfuscationType.quic;
+      break;
   }
 
   return {
@@ -698,6 +726,82 @@ function convertFromObfuscationSettings(
       ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
       : { port: 'any' },
   };
+}
+
+function convertFromAppUpgradeError(error: grpcTypes.AppUpgradeError.Error): DaemonAppUpgradeError {
+  switch (error) {
+    case grpcTypes.AppUpgradeError.Error.DOWNLOAD_FAILED:
+      return 'DOWNLOAD_FAILED';
+    case grpcTypes.AppUpgradeError.Error.VERIFICATION_FAILED:
+      return 'VERIFICATION_FAILED';
+    default:
+      return 'GENERAL_ERROR';
+  }
+}
+
+export function convertFromAppUpgradeEvent(data: grpcTypes.AppUpgradeEvent): DaemonAppUpgradeEvent {
+  const downloadStartingData = data.getDownloadStarting();
+  if (downloadStartingData !== undefined) {
+    return { type: 'APP_UPGRADE_STATUS_DOWNLOAD_STARTED' };
+  }
+
+  const downloadProgressData = data.getDownloadProgress();
+  if (downloadProgressData !== undefined) {
+    const [server, progress, timeLeftDuration] = [
+      downloadProgressData.getServer(),
+      downloadProgressData.getProgress(),
+      downloadProgressData.getTimeLeft(),
+    ];
+
+    const timeLeft = timeLeftDuration?.getSeconds();
+
+    return { type: 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS', server, progress, timeLeft };
+  }
+
+  if (data.hasUpgradeAborted()) {
+    return { type: 'APP_UPGRADE_STATUS_ABORTED' };
+  }
+
+  if (data.hasVerifyingInstaller()) {
+    return { type: 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER' };
+  }
+
+  if (data.hasVerifiedInstaller()) {
+    return { type: 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER' };
+  }
+
+  const errorData = data.getError();
+  if (errorData !== undefined) {
+    const error = errorData.getError();
+
+    return {
+      type: 'APP_UPGRADE_ERROR',
+      error: convertFromAppUpgradeError(error),
+    };
+  }
+
+  // Handle unknown AppUpgradeEvent messages
+  const keys = Object.entries(data.toObject())
+    .filter(([, value]) => value !== undefined)
+    .map(([key]) => key);
+  throw new Error(`Unknown app upgrade event received containing ${keys}`);
+}
+
+export function convertFromAppVersionInfo(data: grpcTypes.AppVersionInfo): IAppVersionInfo {
+  const { suggestedUpgrade, ...appVersionInfo } = data.toObject();
+  const changelog = suggestedUpgrade?.changelog ? parseChangelog(suggestedUpgrade?.changelog) : [];
+
+  if (suggestedUpgrade) {
+    return {
+      ...appVersionInfo,
+      suggestedUpgrade: {
+        ...suggestedUpgrade,
+        changelog,
+      },
+    };
+  }
+
+  return appVersionInfo;
 }
 
 export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
@@ -728,7 +832,7 @@ export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent
 
   const versionInfo = data.getVersionInfo();
   if (versionInfo !== undefined) {
-    return { appVersionInfo: versionInfo.toObject() };
+    return { appVersionInfo: convertFromAppVersionInfo(versionInfo) };
   }
 
   const newAccessMethod = data.getNewAccessMethod();
@@ -1250,6 +1354,14 @@ function convertFromSocksAuth(auth: grpcTypes.SocksAuth): SocksAuth {
     username: auth.getUsername(),
     password: auth.getPassword(),
   };
+}
+
+export function convertToNewCustomList(customList: NewCustomList): grpcTypes.NewCustomList {
+  const newCustomList = new grpcTypes.NewCustomList();
+  newCustomList.setName(customList.name);
+  const locations = customList.locations.map(convertToGeographicConstraint);
+  newCustomList.setLocationsList(locations);
+  return newCustomList;
 }
 
 export function ensureExists<T>(value: T | undefined, errorMessage: string): T {

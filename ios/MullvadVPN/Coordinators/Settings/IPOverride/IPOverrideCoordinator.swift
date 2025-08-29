@@ -11,21 +11,29 @@ import MullvadTypes
 import Routing
 import UIKit
 
-class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
+class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChildCoordinator {
     private let navigationController: UINavigationController
     private let interactor: IPOverrideInteractor
-
+    private let route: AppRoute?
     var presentationContext: UIViewController {
         navigationController
     }
 
+    var presentedViewController: UIViewController {
+        navigationController
+    }
+
+    var didFinish: ((IPOverrideCoordinator) -> Void)?
+
     init(
         navigationController: UINavigationController,
         repository: IPOverrideRepositoryProtocol,
-        tunnelManager: TunnelManager
+        tunnelManager: TunnelManager,
+        route: AppRoute?
     ) {
         self.navigationController = navigationController
         interactor = IPOverrideInteractor(repository: repository, tunnelManager: tunnelManager)
+        self.route = route
     }
 
     func start(animated: Bool) {
@@ -35,6 +43,17 @@ class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
         )
 
         controller.delegate = self
+
+        if route == .ipOverrides {
+            let doneButton = UIBarButtonItem(
+                systemItem: .done,
+                primaryAction: UIAction(handler: { [weak self] _ in
+                    guard let self else { return }
+                    didFinish?(self)
+                })
+            )
+            controller.navigationItem.rightBarButtonItem = doneButton
+        }
 
         navigationController.pushViewController(controller, animated: animated)
     }
@@ -49,35 +68,24 @@ extension IPOverrideCoordinator: @preconcurrency IPOverrideViewControllerDelegat
     }
 
     func presentAbout() {
-        let header = NSLocalizedString(
-            "IP_OVERRIDE_HEADER",
-            tableName: "IPOverride",
-            value: "Server IP override",
-            comment: ""
-        )
+        let header = NSLocalizedString("Server IP override", comment: "")
         let body = [
             NSLocalizedString(
-                "IP_OVERRIDE_BODY_1",
-                tableName: "IPOverride",
-                value: """
+                """
                 On some networks, where various types of censorship are being used, our server IP addresses are \
                 sometimes blocked.
                 """,
                 comment: ""
             ),
             NSLocalizedString(
-                "IP_OVERRIDE_BODY_2",
-                tableName: "IPOverride",
-                value: """
+                """
                 To circumvent this you can import a file or a text, provided by our support team, \
                 with new IP addresses that override the default addresses of the servers in the Select location view.
                 """,
                 comment: ""
             ),
             NSLocalizedString(
-                "IP_OVERRIDE_BODY_3",
-                tableName: "IPOverride",
-                value: """
+                """
                 If you are having issues connecting to VPN servers, please contact support.
                 """,
                 comment: ""

@@ -3,12 +3,14 @@ use crate::{
     package,
     tests::config::BOOTSTRAP_SCRIPT,
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use ssh2::{File, Session};
 use std::{
     io::{self, Read},
     net::{IpAddr, SocketAddr, TcpStream},
     path::{Path, PathBuf},
+    time::Duration,
+    time::Instant,
 };
 use test_rpc::UNPRIVILEGED_USER;
 
@@ -63,14 +65,24 @@ async fn provision_ssh(
     let local_app_manifest = local_app_manifest.to_owned();
 
     let remote_dir = tokio::task::spawn_blocking(move || {
-        blocking_ssh(
-            user,
-            password,
-            guest_ip,
-            os_type,
-            &local_runner_dir,
-            local_app_manifest,
-        )
+        const SSH_TIMEOUT: Duration = Duration::from_secs(120);
+        let started = Instant::now();
+        loop {
+            let last_result = blocking_ssh(
+                user.clone(),
+                password.clone(),
+                guest_ip,
+                os_type,
+                &local_runner_dir,
+                local_app_manifest.clone(),
+            );
+            if last_result.is_err() && started.elapsed() < SSH_TIMEOUT {
+                log::warn!("Failed to provision over SSH, retrying...");
+                std::thread::sleep(Duration::from_secs(1));
+                continue;
+            }
+            break last_result;
+        }
     })
     .await
     .context("Failed to join SSH task")??;

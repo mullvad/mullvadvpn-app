@@ -22,9 +22,7 @@ class LogoutDialogueView: UIView {
         let label = UILabel()
 
         let message = NSMutableAttributedString(string: NSLocalizedString(
-            "ACCOUNT_NUMBER_AS_VOUCHER_INPUT_ERROR_BODY",
-            tableName: "CreateAccountRedeemingVoucher",
-            value: """
+            """
             It looks like you have entered a Mullvad account number instead of a voucher code. \
             Do you want to log in to an existing account?
             If so, click log out below to log in with the other account number.
@@ -43,12 +41,7 @@ class LogoutDialogueView: UIView {
 
     private let logoutButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.setTitle(NSLocalizedString(
-            "LOGOUT_BUTTON_TITLE",
-            tableName: "CreateAccountRedeemingVoucher",
-            value: "Log out",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Log out", comment: ""), for: .normal)
         return button
     }()
 

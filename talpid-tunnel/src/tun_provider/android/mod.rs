@@ -4,21 +4,24 @@ use self::ipnetwork_sub::IpNetworkSub;
 use super::TunConfig;
 use ipnetwork::IpNetwork;
 use jnix::{
+    FromJava, IntoJava, JnixEnv,
     jni::{
+        JavaVM,
         objects::{GlobalRef, JValue},
         signature::{JavaType, Primitive},
-        JavaVM,
     },
-    FromJava, IntoJava, JnixEnv,
 };
 use std::{
     net::IpAddr,
-    os::unix::io::{AsRawFd, RawFd},
+    os::{
+        fd::{AsFd, BorrowedFd},
+        unix::io::{AsRawFd, RawFd},
+    },
     sync::Arc,
 };
 use talpid_routing::Route;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
-use talpid_types::{android::AndroidContext, ErrorExt};
+use talpid_types::{ErrorExt, android::AndroidContext};
 
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, thiserror::Error)]
@@ -164,7 +167,7 @@ impl AndroidTunProvider {
             JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
             value => Err(Error::InvalidMethodResult(
                 method_name,
-                format!("{:?}", value),
+                format!("{value:?}"),
             )),
         }
     }
@@ -175,10 +178,7 @@ impl AndroidTunProvider {
 
         let error = match result {
             Ok(JValue::Void) => None,
-            Ok(value) => Some(Error::InvalidMethodResult(
-                "closeTun",
-                format!("{:?}", value),
-            )),
+            Ok(value) => Some(Error::InvalidMethodResult("closeTun", format!("{value:?}"))),
             Err(error) => Some(error),
         };
 
@@ -194,29 +194,29 @@ impl AndroidTunProvider {
     }
 
     /// Allow a socket to bypass the tunnel.
-    pub fn bypass(&mut self, socket: RawFd) -> Result<(), Error> {
+    pub fn bypass(&mut self, socket: &impl AsRawFd) -> Result<(), Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
                 .map_err(Error::AttachJvmToThread)?,
         );
-        let create_tun_method = env
+        let bypass_method = env
             .get_method_id(&self.class, "bypass", "(I)Z")
             .map_err(|cause| Error::FindMethod("bypass", cause))?;
 
         let result = env
             .call_method_unchecked(
                 self.object.as_obj(),
-                create_tun_method,
+                bypass_method,
                 JavaType::Primitive(Primitive::Boolean),
-                &[JValue::Int(socket)],
+                &[JValue::Int(socket.as_raw_fd())],
             )
             .map_err(|cause| Error::CallMethod("bypass", cause))?;
 
         match result {
             JValue::Bool(0) => Err(Error::Bypass),
             JValue::Bool(_) => Ok(()),
-            value => Err(Error::InvalidMethodResult("bypass", format!("{:?}", value))),
+            value => Err(Error::InvalidMethodResult("bypass", format!("{value:?}"))),
         }
     }
 
@@ -296,10 +296,16 @@ impl VpnServiceConfig {
     /// Return a list of custom DNS servers. If not specified, gateway addresses are used for DNS.
     /// Note that `Some(vec![])` is different from `None`. `Some(vec![])` disables DNS.
     fn resolve_dns_servers(config: &TunConfig) -> Vec<IpAddr> {
+        // If IPv6 is not available we need to disable all IPv6 DNS servers as setting any ipv6
+        // setting while ipv6 is disabled will cause leaks.
+        let want_ipv6 = |ip: &IpAddr| config.ipv6_gateway.is_some() || !ip.is_ipv6();
         config
             .dns_servers
             .clone()
             .unwrap_or_else(|| config.gateways())
+            .into_iter()
+            .filter(want_ipv6)
+            .collect()
     }
 
     /// Potentially subtract LAN nets from the VPN service routes, excepting gateways.
@@ -395,22 +401,23 @@ impl VpnServiceTun {
     }
 
     /// Allow a socket to bypass the tunnel.
-    pub fn bypass(&mut self, socket: RawFd) -> Result<(), Error> {
+    // TODO: is it ok to not mutably borrow self?
+    pub fn bypass(&self, socket: &impl AsFd) -> Result<(), Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
                 .map_err(Error::AttachJvmToThread)?,
         );
-        let create_tun_method = env
+        let bypass_method = env
             .get_method_id(&self.class, "bypass", "(I)Z")
             .map_err(|cause| Error::FindMethod("bypass", cause))?;
 
         let result = env
             .call_method_unchecked(
                 self.object.as_obj(),
-                create_tun_method,
+                bypass_method,
                 JavaType::Primitive(Primitive::Boolean),
-                &[JValue::Int(socket)],
+                &[JValue::Int(socket.as_fd().as_raw_fd())],
             )
             .map_err(|cause| Error::CallMethod("bypass", cause))?;
 
@@ -424,6 +431,16 @@ impl VpnServiceTun {
 impl AsRawFd for VpnServiceTun {
     fn as_raw_fd(&self) -> RawFd {
         self.tunnel
+    }
+}
+
+impl AsFd for VpnServiceTun {
+    fn as_fd(&self) -> BorrowedFd<'_> {
+        // TODO: ensure we uphold the safety requirements of BorrowedFd
+        #[allow(clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            BorrowedFd::borrow_raw(self.as_raw_fd())
+        }
     }
 }
 

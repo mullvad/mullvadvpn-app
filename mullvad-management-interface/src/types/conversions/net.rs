@@ -1,4 +1,4 @@
-use crate::types::{conversions::arg_from_str, proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, conversions::arg_from_str, proto};
 use std::net::SocketAddr;
 
 impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
@@ -38,6 +38,9 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
                         }
                         net::ObfuscationType::Shadowsocks => {
                             i32::from(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks)
+                        }
+                        net::ObfuscationType::Quic => {
+                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Quic)
                         }
                     },
                 }
@@ -93,7 +96,7 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             Err(_) => {
                                 return Err(FromProtobufTypeError::InvalidArgument(
                                     "unknown proxy type",
-                                ))
+                                ));
                             }
                         },
                     })
@@ -123,10 +126,13 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                                 Ok(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks) => {
                                     talpid_net::ObfuscationType::Shadowsocks
                                 }
+                                Ok(proto::obfuscation_endpoint::ObfuscationType::Quic) => {
+                                    talpid_net::ObfuscationType::Quic
+                                }
                                 Err(_) => {
                                     return Err(FromProtobufTypeError::InvalidArgument(
                                         "unknown obfuscation type",
-                                    ))
+                                    ));
                                 }
                             },
                     })
@@ -209,7 +215,7 @@ pub fn try_transport_protocol_from_i32(
 mod proxy {
     use std::net::Ipv4Addr;
 
-    use crate::types::{proto, FromProtobufTypeError};
+    use crate::types::{FromProtobufTypeError, proto};
     use talpid_types::net::proxy::{
         CustomProxy, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth,
     };

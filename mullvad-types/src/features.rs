@@ -73,13 +73,21 @@ pub enum FeatureIndicator {
     LockdownMode,
     Udp2Tcp,
     Shadowsocks,
+    Quic,
     LanSharing,
     DnsContentBlockers,
     CustomDns,
     ServerIpOverride,
     CustomMtu,
     CustomMssFix,
+
+    /// Whether DAITA (without multihop) is in use.
+    /// Mutually exclusive with [FeatureIndicator::DaitaMultihop].
     Daita,
+
+    /// Whether DAITA (with multihop) is in use.
+    /// Mutually exclusive with [FeatureIndicator::Daita] and [FeatureIndicator::Multihop].
+    DaitaMultihop,
 }
 
 impl FeatureIndicator {
@@ -92,6 +100,7 @@ impl FeatureIndicator {
             FeatureIndicator::LockdownMode => "Lockdown Mode",
             FeatureIndicator::Udp2Tcp => "Udp2Tcp",
             FeatureIndicator::Shadowsocks => "Shadowsocks",
+            FeatureIndicator::Quic => "Quic",
             FeatureIndicator::LanSharing => "LAN Sharing",
             FeatureIndicator::DnsContentBlockers => "Dns Content Blocker",
             FeatureIndicator::CustomDns => "Custom Dns",
@@ -99,6 +108,7 @@ impl FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::CustomMssFix => "Custom MSS",
             FeatureIndicator::Daita => "DAITA",
+            FeatureIndicator::DaitaMultihop => "DAITA: Multihop",
         }
     }
 }
@@ -160,34 +170,51 @@ pub fn compute_feature_indicators(
         }
         TunnelType::Wireguard => {
             let quantum_resistant = endpoint.quantum_resistant;
-            let udp_tcp = endpoint
-                .obfuscation
-                .as_ref()
-                .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Udp2Tcp)
-                .is_some();
-            let shadowsocks = endpoint
-                .obfuscation
-                .as_ref()
-                .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Shadowsocks)
-                .is_some();
+
+            let has_obfuscation = |obfs| {
+                endpoint
+                    .obfuscation
+                    .iter()
+                    .any(|obfuscation| obfuscation.obfuscation_type == obfs)
+            };
+            let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
+            let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
+            let quic = has_obfuscation(ObfuscationType::Quic);
 
             let mtu = settings.tunnel_options.wireguard.mtu.is_some();
 
-            let mut daita = false;
-            let multihop = endpoint.entry_endpoint.is_some();
+            let mut daita_multihop = false;
+            let mut multihop = false;
 
+            if let crate::relay_constraints::RelaySettings::Normal(constraints) =
+                &settings.relay_settings
+            {
+                multihop = endpoint.entry_endpoint.is_some()
+                    && constraints.wireguard_constraints.use_multihop;
+
+                #[cfg(daita)]
+                {
+                    // Detect whether we're using multihop, but it is not explicitly enabled.
+                    daita_multihop = endpoint.daita
+                        && endpoint.entry_endpoint.is_some()
+                        && !constraints.wireguard_constraints.use_multihop
+                }
+            };
+
+            // Daita is mutually exclusive with DaitaMultihop
             #[cfg(daita)]
-            if endpoint.daita {
-                daita = true;
-            }
+            let daita = endpoint.daita && !daita_multihop;
 
             vec![
                 (quantum_resistant, FeatureIndicator::QuantumResistance),
                 (multihop, FeatureIndicator::Multihop),
                 (udp_tcp, FeatureIndicator::Udp2Tcp),
                 (shadowsocks, FeatureIndicator::Shadowsocks),
+                (quic, FeatureIndicator::Quic),
                 (mtu, FeatureIndicator::CustomMtu),
+                #[cfg(daita)]
                 (daita, FeatureIndicator::Daita),
+                (daita_multihop, FeatureIndicator::DaitaMultihop),
             ]
         }
     };
@@ -205,8 +232,8 @@ mod tests {
     use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
     use talpid_types::net::{
-        proxy::{ProxyEndpoint, ProxyType},
         Endpoint, ObfuscationEndpoint, TransportProtocol,
+        proxy::{ProxyEndpoint, ProxyType},
     };
 
     use crate::relay_constraints::RelaySettings;
@@ -319,18 +346,13 @@ mod tests {
             expected_indicators
         );
 
-        if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
-            constraints.wireguard_constraints.use_multihop = true;
-        };
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators,
-            "The multihop feature indicator should be enabled by the endpoint, not the settings"
-        );
         endpoint.entry_endpoint = Some(Endpoint {
             address: SocketAddr::from(([1, 2, 3, 4], 443)),
             protocol: TransportProtocol::Tcp,
         });
+        if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
+            constraints.wireguard_constraints.use_multihop = true;
+        };
         expected_indicators.0.insert(FeatureIndicator::Multihop);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
@@ -366,14 +388,7 @@ mod tests {
 
         #[cfg(daita)]
         {
-            // Multihop and DAITA on
             endpoint.daita = true;
-            settings
-                .tunnel_options
-                .wireguard
-                .daita
-                .use_multihop_if_necessary = true;
-
             expected_indicators.0.insert(FeatureIndicator::Daita);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
@@ -404,6 +419,11 @@ mod tests {
             if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
                 constraints.wireguard_constraints.use_multihop = false;
             };
+            expected_indicators
+                .0
+                .insert(FeatureIndicator::DaitaMultihop);
+            expected_indicators.0.remove(&FeatureIndicator::Daita);
+            expected_indicators.0.remove(&FeatureIndicator::Multihop);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators,
@@ -411,8 +431,12 @@ mod tests {
             );
 
             // If we also remove the entry relay, we should not get a multihop indicator
+            expected_indicators.0.insert(FeatureIndicator::Daita);
             endpoint.entry_endpoint = None;
             expected_indicators.0.remove(&FeatureIndicator::Multihop);
+            expected_indicators
+                .0
+                .remove(&FeatureIndicator::DaitaMultihop);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators,
@@ -430,6 +454,7 @@ mod tests {
             FeatureIndicator::LockdownMode => {}
             FeatureIndicator::Udp2Tcp => {}
             FeatureIndicator::Shadowsocks => {}
+            FeatureIndicator::Quic => {}
             FeatureIndicator::LanSharing => {}
             FeatureIndicator::DnsContentBlockers => {}
             FeatureIndicator::CustomDns => {}
@@ -437,6 +462,7 @@ mod tests {
             FeatureIndicator::CustomMtu => {}
             FeatureIndicator::CustomMssFix => {}
             FeatureIndicator::Daita => {}
+            FeatureIndicator::DaitaMultihop => {}
         }
     }
 }

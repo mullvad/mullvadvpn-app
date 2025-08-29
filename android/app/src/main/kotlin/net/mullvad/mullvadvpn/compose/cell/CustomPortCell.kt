@@ -60,6 +60,7 @@ fun CustomPortCell(
     title: String,
     isSelected: Boolean,
     port: Port?,
+    modifier: Modifier = Modifier,
     mainTestTag: String = "",
     numberTestTag: String = "",
     isEnabled: Boolean = true,
@@ -69,7 +70,7 @@ fun CustomPortCell(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.height(Dimens.cellHeight).fillMaxWidth(),
+        modifier = modifier.height(Dimens.cellHeight).fillMaxWidth(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -82,7 +83,7 @@ fun CustomPortCell(
                         if (isSelected) {
                             MaterialTheme.colorScheme.selected
                         } else {
-                            MaterialTheme.colorScheme.surfaceContainerLow
+                            MaterialTheme.colorScheme.surfaceContainerHighest
                         }
                     )
                     .padding(start = Dimens.cellStartPadding)
@@ -95,7 +96,7 @@ fun CustomPortCell(
             )
             BaseCellTitle(
                 title = title,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Start,
                 textColor =
                     if (isSelected) {
@@ -127,6 +128,7 @@ fun CustomPortCell(
                                 AlphaDisabled
                             }
                     ),
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.align(Alignment.Center),
             )
         }

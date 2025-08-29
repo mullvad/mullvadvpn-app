@@ -15,7 +15,7 @@ import StoreKit
 import UIKit
 
 enum AccountViewControllerAction: Sendable {
-    case deviceInfo
+    case deviceManagement
     case finish
     case logOut
     case navigateToVoucher
@@ -34,12 +34,12 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
     private let contentView: AccountContentView = {
         let contentView = AccountContentView()
-        contentView.translatesAutoresizingMaskIntoConstraints = false
         return contentView
     }()
 
     private var isFetchingProducts = false
     private var paymentState: PaymentState = .none
+    private let storeKit2TestProduct = StoreSubscription.thirtyDays.rawValue
 
     var actionHandler: ActionHandler?
 
@@ -64,12 +64,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         super.viewDidLoad()
         view.backgroundColor = .secondaryColor
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "Account",
-            value: "Account",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("Account", comment: "")
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .done,
@@ -81,8 +76,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             self?.copyAccountToken()
         }
 
-        contentView.accountDeviceRow.infoButtonAction = { [weak self] in
-            self?.actionHandler?(.deviceInfo)
+        contentView.accountDeviceRow.deviceManagementButtonAction = { [weak self] in
+            self?.actionHandler?(.deviceManagement)
         }
 
         contentView.restorePurchasesView.restoreButtonAction = { [weak self] in
@@ -91,6 +86,13 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         contentView.restorePurchasesView.infoButtonAction = { [weak self] in
             self?.actionHandler?(.restorePurchasesInfo)
+        }
+
+        interactor.didReceiveTunnelState = { [weak self] in
+            guard let self else { return }
+            Task { @MainActor in
+                applyViewState(animated: true)
+            }
         }
 
         interactor.didReceiveDeviceState = { [weak self] deviceState in
@@ -108,16 +110,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     // MARK: - Private
 
     private func configUI() {
-        let scrollView = UIScrollView()
-
-        view.addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperview()
-        }
-
-        scrollView.addConstrainedSubviews([contentView]) {
-            contentView.pinEdgesToSuperview(.all().excluding(.bottom))
-            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor)
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        view.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview()
         }
     }
 
@@ -135,10 +129,15 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         )
 
         contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
-
         contentView.deleteButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
-
-        contentView.storeKit2Button.addTarget(self, action: #selector(handleStoreKit2Purchase), for: .touchUpInside)
+        contentView.storeKit2PurchaseButton.addTarget(
+            self, action: #selector(handleStoreKit2Purchase),
+            for: .touchUpInside
+        )
+        contentView.storeKit2RefundButton.addTarget(
+            self, action: #selector(handleStoreKit2Refund),
+            for: .touchUpInside
+        )
     }
 
     @MainActor
@@ -154,7 +153,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         applyViewState(animated: animated)
     }
 
-    private func updateView(from deviceState: DeviceState?) {
+    private func updateView(from deviceState: DeviceState) {
         guard case let .loggedIn(accountData, deviceData) = deviceState else {
             return
         }
@@ -166,16 +165,18 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
     private func applyViewState(animated: Bool) {
         let isInteractionEnabled = paymentState.allowsViewInteraction
-        let purchaseButton = contentView.purchaseButton
 
-        purchaseButton.isEnabled = !isFetchingProducts && isInteractionEnabled
+        contentView.purchaseButton.isEnabled = !isFetchingProducts
+            && isInteractionEnabled
+            && !interactor.tunnelState.isBlockingInternet
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
         contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)
         contentView.logoutButton.isEnabled = isInteractionEnabled
         contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
         contentView.deleteButton.isEnabled = isInteractionEnabled
-        contentView.storeKit2Button.isEnabled = isInteractionEnabled
+        contentView.storeKit2PurchaseButton.isEnabled = isInteractionEnabled
+        contentView.storeKit2RefundButton.isEnabled = isInteractionEnabled
         navigationItem.rightBarButtonItem?.isEnabled = isInteractionEnabled
 
         view.isUserInteractionEnabled = isInteractionEnabled
@@ -218,24 +219,40 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         actionHandler?(.showRestorePurchases)
     }
 
+    // This function is for testing only
     @objc private func handleStoreKit2Purchase() {
         guard let accountData = interactor.deviceState.accountData else {
             return
         }
 
-        let productIdentifiers = StoreSubscription.allCases.map { $0.rawValue }
-
         setPaymentState(.makingStoreKit2Purchase, animated: true)
 
         Task {
             do {
-                let product = try await Product.products(for: productIdentifiers).first!
-                let result = try await product.purchase()
+                let product = try await Product.products(
+                    for: [
+                        storeKit2TestProduct,
+                    ]
+                ).first!
+                let token = switch await interactor
+                    .getPaymentToken(for: accountData.number) {
+                case let .success(token):
+                    UUID(uuidString: token)!
+                case let .failure(error):
+                    throw error
+                }
+
+                let result = try await product.purchase(
+                    options: [.appAccountToken(token)]
+                )
 
                 switch result {
                 case let .success(verification):
                     let transaction = try checkVerified(verification)
-                    await sendReceiptToAPI(accountNumber: accountData.identifier, receipt: verification)
+                    await sendReceiptToAPI(
+                        accountNumber: accountData.number,
+                        receipt: verification
+                    )
                     await transaction.finish()
                 case .userCancelled:
                     print("User cancelled the purchase")
@@ -243,6 +260,41 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     print("Purchase is pending")
                 @unknown default:
                     print("Unknown purchase result")
+                }
+            } catch {
+                print("Error: \(error)")
+                errorPresenter.showAlertForStoreKitError(error, context: .purchase)
+            }
+
+            setPaymentState(.none, animated: true)
+        }
+    }
+
+    @objc private func handleStoreKit2Refund() {
+        setPaymentState(.makingStoreKit2Refund, animated: true)
+
+        Task {
+            guard
+                let latestTransactionResult = await Transaction.latest(for: storeKit2TestProduct),
+                let windowScene = view.window?.windowScene
+            else { return }
+
+            do {
+                switch latestTransactionResult {
+                case let .verified(transaction):
+                    let refundStatus = try await transaction.beginRefundRequest(in: windowScene)
+
+                    switch refundStatus {
+                    case .success:
+                        print("Refund was successful")
+                        errorPresenter.showAlertForRefund()
+                    case .userCancelled:
+                        print("User cancelled the refund")
+                    @unknown default:
+                        print("Unknown refund result")
+                    }
+                case .unverified:
+                    print("Transaction is unverified")
                 }
             } catch {
                 print("Error: \(error)")
@@ -263,10 +315,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     }
 
     private func sendReceiptToAPI(accountNumber: String, receipt: VerificationResult<Transaction>) async {
-        do {
-            try await interactor.sendStoreKitReceipt(receipt, for: accountNumber)
+        switch await interactor.sendStoreKitReceipt(receipt, for: accountNumber) {
+        case .success:
             print("Receipt sent successfully")
-        } catch {
+        case let .failure(error):
             print("Error sending receipt: \(error)")
             errorPresenter.showAlertForStoreKitError(error, context: .purchase)
         }

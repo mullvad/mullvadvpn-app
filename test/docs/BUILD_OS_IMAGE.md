@@ -66,6 +66,14 @@ Make sure that `sshd.service` is enabled on boot.
 systemctl enable sshd.service
 ```
 
+### Ubuntu
+
+Stop `unattended-upgrades` by uninstalling it
+
+```
+sudo apt remove unattended-upgrades
+```
+
 ## Finishing setup
 
 Now you are done! If the VM was configured correctly, `test-manager` will be able to install the required dependencies and run the test suite using the new OS image.

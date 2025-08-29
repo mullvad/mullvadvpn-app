@@ -35,7 +35,7 @@ pub fn append_to_template(
         writeln!(writer, r#"msgid "{}""#, entry.id)?;
 
         match entry.value {
-            MsgValue::Invariant(value) => writeln!(writer, r#"msgstr "{value}""#)?,
+            MsgValue::Invariant(value, _) => writeln!(writer, r#"msgstr "{value}""#)?,
             MsgValue::Plural { plural_id, values } => {
                 writeln!(writer, r#"msgid_plural "{plural_id}""#)?;
 

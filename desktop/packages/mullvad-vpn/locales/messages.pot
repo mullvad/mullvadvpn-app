@@ -165,6 +165,7 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr ""
 
@@ -324,6 +325,29 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr ""
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr ""
+
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr ""
+
+#. Accessibility label for link to blog post about OpenVPN support ending.
+msgctxt "accessibility"
+msgid "Go to blog post to read more, opens externally"
+msgstr ""
+
+#. Accessibility label for link to VPN settings where
+#. the user can change tunnel protocol.
+msgctxt "accessibility"
+msgid "Go to VPN settings to change tunnel protocol"
+msgstr ""
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
@@ -350,10 +374,20 @@ msgctxt "accessibility"
 msgid "More information"
 msgstr ""
 
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr ""
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr ""
@@ -401,6 +435,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr ""
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr ""
@@ -590,20 +625,205 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr ""
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr ""
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr ""
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
+msgid "Beta program"
 msgstr ""
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr ""
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr ""
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr ""
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr ""
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr ""
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr ""
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr ""
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr ""
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr ""
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr ""
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr ""
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr ""
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr ""
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr ""
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr ""
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr ""
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr ""
+
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr ""
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr ""
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr ""
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr ""
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr ""
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr ""
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr ""
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr ""
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr ""
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr ""
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr ""
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr ""
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr ""
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
 msgstr ""
 
 msgctxt "auth-failure"
@@ -622,10 +842,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr ""
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr ""
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr ""
@@ -637,6 +860,14 @@ msgstr ""
 #. %(hostname)s - a hostname
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
+msgstr ""
+
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
 msgstr ""
 
 msgctxt "connect-view"
@@ -651,6 +882,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr ""
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr ""
@@ -671,6 +903,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr ""
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr ""
@@ -679,6 +912,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr ""
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr ""
@@ -687,6 +921,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr ""
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr ""
@@ -799,6 +1034,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr ""
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr ""
@@ -835,7 +1071,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr ""
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr ""
@@ -900,6 +1136,43 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr ""
 
+#. First part of notification subtitle when there are no openVPN servers available.
+#. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support has ended. Please update the app or"
+msgstr ""
+
+#. Notification title indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s SUPPORT IS ENDING"
+msgstr ""
+
+#. First part of notification subtitle when there are no openVPN servers
+#. matching current settings. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support is ending. Switch location or"
+msgstr ""
+
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr ""
+
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr ""
@@ -916,13 +1189,79 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr ""
 
+#. Link following the first part of the notification subtitle.
+#. Will navigate the user to the VPN settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "change tunnel protocol to %(wireGuard)s."
+msgstr ""
+
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr ""
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr ""
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
+msgstr ""
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr ""
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr ""
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr ""
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr ""
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr ""
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr ""
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
 msgstr ""
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
+msgstr ""
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -937,12 +1276,77 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr ""
 
+#. Notification title when there are no openVPN servers
+#. matching current settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVER AVAILABLE"
+msgstr ""
+
+#. Notification title when there are no openVPN servers available.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVERS AVAILABLE"
+msgstr ""
+
+#. Notification subtitle indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "Please change tunnel protocol to %(wireGuard)s."
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr ""
 
+#. Link in notication to a blog post about OpenVPN support ending.
+msgctxt "in-app-notifications"
+msgid "Read more"
+msgstr ""
+
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr ""
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr ""
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr ""
+
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
+msgstr ""
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr ""
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr ""
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr ""
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr ""
 
 #. The in-app banner displayed to the user when the app beta update is
@@ -961,44 +1365,103 @@ msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr ""
 
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr ""
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr ""
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr ""
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr ""
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr ""
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
+msgid "Details"
 msgstr ""
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr ""
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr ""
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr ""
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr ""
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
+msgid "Reinstalling the app"
 msgstr ""
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
+msgid "Restarting the Mullvad background process"
 msgstr ""
 
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr ""
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr ""
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr ""
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgid "Starting up...."
 msgstr ""
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr ""
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr ""
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
 msgstr ""
 
 #. This is a warning message shown when the app is blocking the users
@@ -1106,11 +1569,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr ""
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr ""
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1180,12 +1638,28 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr ""
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr ""
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr ""
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr ""
 
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
+msgstr ""
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
 msgstr ""
 
 msgctxt "notifications"
@@ -1258,7 +1732,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr ""
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr ""
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr ""
@@ -1343,14 +1822,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr ""
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr ""
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr ""
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr ""
@@ -1359,6 +1841,11 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr ""
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr ""
+
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr ""
@@ -1461,6 +1948,13 @@ msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr ""
 
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr ""
+
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
 msgstr ""
@@ -1561,6 +2055,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr ""
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr ""
@@ -1569,8 +2064,19 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr ""
 
+#. Title label in navigation bar
+msgctxt "settings-view"
+msgid "Settings"
+msgstr ""
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
+msgstr ""
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
 msgstr ""
 
 #. Navigation button to the 'User interface settings' view
@@ -1581,10 +2087,6 @@ msgstr ""
 #. Navigation button to the 'VPN settings' view
 msgctxt "settings-view"
 msgid "VPN settings"
-msgstr ""
-
-msgctxt "settings-view"
-msgid "What’s new"
 msgstr ""
 
 msgctxt "split-tunneling-view"
@@ -1615,6 +2117,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr ""
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr ""
@@ -1623,6 +2126,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr ""
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr ""
@@ -1657,20 +2161,14 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr ""
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr ""
-
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr ""
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
-msgstr ""
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
 msgstr ""
 
 msgctxt "support-view"
@@ -1699,10 +2197,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr ""
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr ""
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr ""
@@ -1725,10 +2225,6 @@ msgid "Thanks!"
 msgstr ""
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr ""
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr ""
 
@@ -1736,14 +2232,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr ""
 
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
+msgid "Update app"
 msgstr ""
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr ""
@@ -1924,6 +2423,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr ""
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr ""
@@ -1944,6 +2444,13 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr ""
+
+#. Footer text for tunnel protocol selector when OpenVPN is selected.
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with OpenVPN
+msgctxt "vpn-settings-view"
+msgid "Attention: We are removing support for %(openVpn)s."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2018,6 +2525,12 @@ msgstr ""
 #. Label for settings that enables malware blocking.
 msgctxt "vpn-settings-view"
 msgid "Malware"
+msgstr ""
+
+#. Link in tunnel protocol selector footer to blog post
+#. about OpenVPN support ending.
+msgctxt "vpn-settings-view"
+msgid "Read more"
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2203,6 +2716,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr ""
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr ""
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2256,6 +2773,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
+msgid "%1$s more..."
+msgstr ""
+
+msgid "%1$s was added to \"%2$s\""
+msgstr ""
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr ""
+
 msgid "%s (Entry)"
 msgstr ""
 
@@ -2271,16 +2797,16 @@ msgstr ""
 msgid "%s custom port"
 msgstr ""
 
-msgid "%s more..."
+msgid "%s is already selected as entry relay"
 msgstr ""
 
-msgid "%s was added to \"%s\""
+msgid "%s is already selected as exit relay"
+msgstr ""
+
+msgid "%s is unavailable"
 msgstr ""
 
 msgid "%s was added to your account."
-msgstr ""
-
-msgid "%s was removed from \"%s\""
 msgstr ""
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
@@ -2293,6 +2819,9 @@ msgid "3. To enable Lockdown mode, click on the toggle next to \"Block connectio
 msgstr ""
 
 msgid "30 days was added to your account."
+msgstr ""
+
+msgid "90 days was added to your account."
 msgstr ""
 
 msgid "API reachable, adding method..."
@@ -2313,16 +2842,19 @@ msgstr ""
 msgid "Add %s to list"
 msgstr ""
 
-msgid "Add 30 days time"
+msgid "Add 30 days time (%s)"
 msgstr ""
 
-msgid "Add 30 days time (%s)"
+msgid "Add 90 days time (%s)"
 msgstr ""
 
 msgid "Add DNS server"
 msgstr ""
 
 msgid "Add locations"
+msgstr ""
+
+msgid "Add time"
 msgstr ""
 
 msgid "Adding method..."
@@ -2367,7 +2899,7 @@ msgstr ""
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr ""
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
+msgid "Automatically connect on device start-up."
 msgstr ""
 
 msgid "Blocking internet (device offline)"
@@ -2412,10 +2944,13 @@ msgstr ""
 msgid "Critical error (your attention is required)"
 msgstr ""
 
+msgid "Current device"
+msgstr ""
+
 msgid "Current: %s"
 msgstr ""
 
-msgid "Custom DNS server addresses %s are invalid"
+msgid "Custom DNS server addresses %1$s are invalid"
 msgstr ""
 
 msgid "DNS settings might not go into effect immediately"
@@ -2437,6 +2972,9 @@ msgid "Disable \"%s\" below to activate these settings."
 msgstr ""
 
 msgid "Disable all \"%s\" above to activate this setting."
+msgstr ""
+
+msgid "Disable recents"
 msgstr ""
 
 msgid "Discard"
@@ -2472,13 +3010,19 @@ msgstr ""
 msgid "Edit name"
 msgstr ""
 
-msgid "Enable %s"
+msgid "Enable %1$s"
 msgstr ""
 
 msgid "Enable method"
 msgstr ""
 
+msgid "Enable recents"
+msgstr ""
+
 msgid "Enter MTU"
+msgstr ""
+
+msgid "Entry relay is the same as exit relay"
 msgstr ""
 
 msgid "Excluded applications"
@@ -2493,6 +3037,9 @@ msgstr ""
 msgid "Failed to apply patch"
 msgstr ""
 
+msgid "Failed to load products, please try again"
+msgstr ""
+
 msgid "Failed to set to current - API not reachable"
 msgstr ""
 
@@ -2505,6 +3052,9 @@ msgstr ""
 msgid "Filters:"
 msgstr ""
 
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr ""
+
 msgid "Go to VPN settings"
 msgstr ""
 
@@ -2514,7 +3064,16 @@ msgstr ""
 msgid "Google Play payment pending"
 msgstr ""
 
+msgid "Google Play payment pending, this might take some time"
+msgstr ""
+
 msgid "Google Play unavailable"
+msgstr ""
+
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr ""
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr ""
 
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
@@ -2529,16 +3088,25 @@ msgstr ""
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr ""
 
-msgid "Invalid or missing value \"%s\""
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr ""
 
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgid "In-tunnel IPv6"
+msgstr ""
+
+msgid "Invalid or missing value \"%1$s\""
+msgstr ""
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr ""
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr ""
 
 msgid "List name"
+msgstr ""
+
+msgid "Loading products"
 msgstr ""
 
 msgid "Locations"
@@ -2550,7 +3118,10 @@ msgstr ""
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
-msgid "Manage account"
+msgid "Manage devices"
+msgstr ""
+
+msgid "More actions"
 msgstr ""
 
 msgid "Mullvad services unavailable"
@@ -2560,6 +3131,12 @@ msgid "Name was changed to %s"
 msgstr ""
 
 msgid "New list"
+msgstr ""
+
+msgid "No Android app store installed, could not open link"
+msgstr ""
+
+msgid "No browser app installed, could not open link"
 msgstr ""
 
 msgid "No changelog was added for this version"
@@ -2574,13 +3151,16 @@ msgstr ""
 msgid "No locations found"
 msgstr ""
 
+msgid "No recent selection history"
+msgstr ""
+
 msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
 msgstr ""
 
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgid "Open app details"
 msgstr ""
 
 msgid "Overrides active"
@@ -2616,13 +3196,22 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
+msgid "Recents"
+msgstr ""
+
+msgid "Recents disabled and history cleared"
+msgstr ""
+
 msgid "Recursion limit"
 msgstr ""
 
 msgid "Remove"
 msgstr ""
 
-msgid "Remove %s from %s"
+msgid "Remove %1$s from %2$s"
+msgstr ""
+
+msgid "Remove %s?"
 msgstr ""
 
 msgid "Remove custom port"
@@ -2643,13 +3232,10 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-msgid "See full changelog"
-msgstr ""
-
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr ""
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr ""
 
 msgid "Set port"
@@ -2667,9 +3253,6 @@ msgstr ""
 msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
-msgid "Split tunneling"
-msgstr ""
-
 msgid "Submit"
 msgstr ""
 
@@ -2685,16 +3268,31 @@ msgstr ""
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr ""
 
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr ""
+
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
 msgstr ""
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr ""
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr ""
+
+msgid "The device will be removed from the list and logged out."
+msgstr ""
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr ""
 
+msgid "The selected %s port is not supported, please change it under"
+msgstr ""
+
 msgid "This address has already been entered."
+msgstr ""
+
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
 msgstr ""
 
 msgid "This field is required"
@@ -2703,19 +3301,19 @@ msgstr ""
 msgid "This is already set as current"
 msgstr ""
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgid "Time added"
 msgstr ""
 
-msgid "To create a custom list press the \"︙\""
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr ""
+
+msgid "To create a custom list press the \"+\""
 msgstr ""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr ""
 
 msgid "Toggle VPN"
-msgstr ""
-
-msgid "Type at least 2 characters to start searching."
 msgstr ""
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
@@ -2733,7 +3331,7 @@ msgstr ""
 msgid "Undo"
 msgstr ""
 
-msgid "Unknown or prohibited key \"%s\""
+msgid "Unknown or prohibited key \"%1$s\""
 msgstr ""
 
 msgid "Update DNS server"
@@ -2745,7 +3343,13 @@ msgstr ""
 msgid "Use method"
 msgstr ""
 
+msgid "VPN Settings not available on device"
+msgstr ""
+
 msgid "VPN permission error"
+msgstr ""
+
+msgid "VPN permission was denied"
 msgstr ""
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
@@ -2772,16 +3376,19 @@ msgstr ""
 msgid "Verifying voucher…"
 msgstr ""
 
-msgid "Version"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr ""
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr ""
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr ""
 
 msgid "We were unable to start the payment process, please try again later."
+msgstr ""
+
+msgid "Welcome, this device is now called <b>%s</b>."
 msgstr ""
 
 msgid "WireGuard MTU"

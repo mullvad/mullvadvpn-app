@@ -1,8 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 
 data class SplitTunnelingViewModelState(
     val enabled: Boolean = false,
@@ -10,7 +11,7 @@ data class SplitTunnelingViewModelState(
     val allApps: List<AppData>? = null,
     val showSystemApps: Boolean = false,
 ) {
-    fun toUiState(): SplitTunnelingUiState {
+    fun toUiState(isModal: Boolean): Lc<Loading, SplitTunnelingUiState> {
         return allApps
             ?.partition { appData ->
                 if (enabled) {
@@ -20,20 +21,24 @@ data class SplitTunnelingViewModelState(
                 }
             }
             ?.let { (excluded, included) ->
-                SplitTunnelingUiState.ShowAppList(
-                    enabled = enabled,
-                    excludedApps = excluded.sort(),
-                    includedApps =
-                        if (showSystemApps) {
-                                included
-                            } else {
-                                included.filter { appData -> !appData.isSystemApp }
-                            }
-                            .sort(),
-                    showSystemApps = showSystemApps,
-                )
-            } ?: SplitTunnelingUiState.Loading(enabled = enabled)
+                SplitTunnelingUiState(
+                        enabled = enabled,
+                        excludedApps = excluded.sortedWith(descendingByNameComparator),
+                        includedApps =
+                            if (showSystemApps) {
+                                    included
+                                } else {
+                                    included.filter { appData -> !appData.isSystemApp }
+                                }
+                                .sortedWith(descendingByNameComparator),
+                        showSystemApps = showSystemApps,
+                        isModal = isModal,
+                    )
+                    .toLc()
+            } ?: Lc.Loading(Loading(enabled = enabled, isModal))
+    }
+
+    companion object {
+        private val descendingByNameComparator = compareBy<AppData> { it.name.lowercase() }
     }
 }
-
-private fun List<AppData>.sort() = sortedBy { it.name.lowercase() }

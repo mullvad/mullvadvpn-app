@@ -6,17 +6,17 @@ use std::{
     sync::LazyLock,
 };
 use talpid_types::net::{
-    obfuscation::ObfuscatorConfig,
-    wireguard::PublicKey,
     Endpoint, IpVersion,
     TransportProtocol::{Tcp, Udp},
     TunnelType,
+    obfuscation::ObfuscatorConfig,
+    wireguard::PublicKey,
 };
 
 use mullvad_relay_selector::{
-    query::{builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery},
-    Error, GetRelay, RelaySelector, RuntimeParameters, SelectedObfuscator, SelectorConfig,
-    WireguardConfig, OPENVPN_RETRY_ORDER, WIREGUARD_RETRY_ORDER,
+    Error, GetRelay, OPENVPN_RETRY_ORDER, RelaySelector, SelectedObfuscator, SelectorConfig,
+    WIREGUARD_RETRY_ORDER, WireguardConfig,
+    query::{BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery, builder::RelayQueryBuilder},
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -27,11 +27,12 @@ use mullvad_types::{
         RelayConstraints, RelayOverride, RelaySettings, TransportPort,
     },
     relay_list::{
-        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
+        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Quic, Relay, RelayEndpointData,
         RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
         WireguardRelayEndpointData,
     },
 };
+use vec1::vec1;
 
 static DUMMY_LOCATION: LazyLock<Location> = LazyLock::new(|| Location {
     country: "Sweden".to_string(),
@@ -40,6 +41,10 @@ static DUMMY_LOCATION: LazyLock<Location> = LazyLock::new(|| Location {
     city_code: "got".to_string(),
     latitude: 57.71,
     longitude: 11.97,
+});
+
+static WIREGUARD_PUBKEY: LazyLock<PublicKey> = LazyLock::new(|| {
+    PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap()
 });
 
 static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
@@ -64,14 +69,18 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     owned: true,
                     provider: "provider0".to_string(),
                     weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                        public_key: PublicKey::from_base64(
-                            "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                        )
-                        .unwrap(),
-                        daita: true,
-                        shadowsocks_extra_addr_in: vec![],
-                    }),
+                    endpoint_data: RelayEndpointData::Wireguard(
+                        WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone())
+                            .set_daita(true)
+                            .set_quic(Quic::new(
+                                vec1![
+                                    "185.213.154.68".parse().unwrap(),
+                                    "2a03:1b20:5:f011::a09f".parse().unwrap(),
+                                ],
+                                "Bearer test".to_owned(),
+                                "se9-wireguard.blockerad.eu".to_owned(),
+                            )),
+                    ),
                     location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
@@ -85,14 +94,10 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     owned: false,
                     provider: "provider1".to_string(),
                     weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                        public_key: PublicKey::from_base64(
-                            "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                        )
-                        .unwrap(),
-                        daita: false,
-                        shadowsocks_extra_addr_in: vec![],
-                    }),
+                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData::new(
+                        PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
+                            .unwrap(),
+                    )),
                     location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
@@ -106,14 +111,13 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     owned: false,
                     provider: "provider2".to_string(),
                     weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                        public_key: PublicKey::from_base64(
-                            "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                    endpoint_data: RelayEndpointData::Wireguard(
+                        WireguardRelayEndpointData::new(
+                            PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
+                                .unwrap(),
                         )
-                        .unwrap(),
-                        daita: true,
-                        shadowsocks_extra_addr_in: vec![],
-                    }),
+                        .set_daita(true),
+                    ),
                     location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
@@ -235,11 +239,12 @@ static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
     owned: true,
     provider: "provider0".to_string(),
     weight: 1,
-    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-        public_key: PublicKey::from_base64("eaNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
-        daita: false,
-        shadowsocks_extra_addr_in: SHADOWSOCKS_RELAY_EXTRA_ADDRS.to_vec(),
-    }),
+    endpoint_data: RelayEndpointData::Wireguard(
+        WireguardRelayEndpointData::new(
+            PublicKey::from_base64("eaNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+        )
+        .add_shadowsocks_extra_in_addrs(SHADOWSOCKS_RELAY_EXTRA_ADDRS.iter().copied()),
+    ),
     location: DUMMY_LOCATION.clone(),
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
@@ -319,13 +324,14 @@ fn assert_wireguard_retry_order() {
         // 1 (wireguard)
         RelayQueryBuilder::wireguard().build(),
         // 2
-        RelayQueryBuilder::wireguard().port(443).build(),
-        // 3
         RelayQueryBuilder::wireguard()
             .ip_version(IpVersion::V6)
             .build(),
-        // 4
+        // 3
         RelayQueryBuilder::wireguard().shadowsocks().build(),
+        // 4
+        #[cfg(not(target_os = "android"))]
+        RelayQueryBuilder::wireguard().quic().build(),
         // 5
         RelayQueryBuilder::wireguard().udp2tcp().build(),
         // 6
@@ -379,7 +385,8 @@ fn assert_openvpn_retry_order() {
     );
 }
 
-/// Test whether the relay selector seems to respect the order as defined by [`WIREGUARD_RETRY_ORDER`].
+/// Test whether the relay selector seems to respect the order as defined by
+/// [`WIREGUARD_RETRY_ORDER`].
 #[test]
 fn test_wireguard_retry_order() {
     // In order to for the relay queries defined by `RETRY_ORDER` to always take precedence,
@@ -390,7 +397,10 @@ fn test_wireguard_retry_order() {
     let relay_selector = default_relay_selector();
     for (retry_attempt, query) in WIREGUARD_RETRY_ORDER.iter().enumerate() {
         let relay = relay_selector
-            .get_relay(retry_attempt, RuntimeParameters { ipv6: true })
+            .get_relay(
+                retry_attempt,
+                talpid_types::net::IpAvailability::Ipv4AndIpv6,
+            )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
         // For each relay, cross-check that the it has the expected tunnel protocol
         let tunnel_type = tunnel_type(&unwrap_relay(relay.clone()));
@@ -406,22 +416,24 @@ fn test_wireguard_retry_order() {
                 obfuscator,
                 ..
             } => {
-                assert!(query
-                    .wireguard_constraints()
-                    .ip_version
-                    .matches_eq(&match endpoint.peer.endpoint.ip() {
+                assert!(query.wireguard_constraints().ip_version.matches_eq(
+                    &match endpoint.peer.endpoint.ip() {
                         std::net::IpAddr::V4(_) => talpid_types::net::IpVersion::V4,
                         std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
-                    }));
-                assert!(query
-                    .wireguard_constraints()
-                    .port
-                    .matches_eq(&endpoint.peer.endpoint.port()));
+                    }
+                ));
+                assert!(
+                    query
+                        .wireguard_constraints()
+                        .port
+                        .matches_eq(&endpoint.peer.endpoint.port())
+                );
                 assert!(match &query.wireguard_constraints().obfuscation {
                     ObfuscationQuery::Auto => true,
                     ObfuscationQuery::Off => obfuscator.is_none(),
-                    ObfuscationQuery::Udp2tcp(_) | ObfuscationQuery::Shadowsocks(_) =>
-                        obfuscator.is_some(),
+                    ObfuscationQuery::Quic
+                    | ObfuscationQuery::Udp2tcp(_)
+                    | ObfuscationQuery::Shadowsocks(_) => obfuscator.is_some(),
                 });
             }
             _ => unreachable!(),
@@ -429,7 +441,8 @@ fn test_wireguard_retry_order() {
     }
 }
 
-/// Test whether the relay selector seems to respect the order as defined by [`OPENVPN_RETRY_ORDER`].
+/// Test whether the relay selector seems to respect the order as defined by
+/// [`OPENVPN_RETRY_ORDER`].
 #[test]
 fn test_openvpn_retry_order() {
     // In order to for the relay queries defined by `RETRY_ORDER` to always take precedence,
@@ -448,7 +461,10 @@ fn test_openvpn_retry_order() {
 
     for (retry_attempt, query) in OPENVPN_RETRY_ORDER.iter().enumerate() {
         let relay = relay_selector
-            .get_relay(retry_attempt, RuntimeParameters { ipv6: true })
+            .get_relay(
+                retry_attempt,
+                talpid_types::net::IpAvailability::Ipv4AndIpv6,
+            )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
         // For each relay, cross-check that the it has the expected tunnel protocol
         let tunnel_type = tunnel_type(&unwrap_relay(relay.clone()));
@@ -463,7 +479,10 @@ fn test_openvpn_retry_order() {
                 endpoint, bridge, ..
             } => {
                 if BridgeQuery::should_use_bridge(&query.openvpn_constraints().bridge_settings) {
-                    assert!(bridge.is_some(), "Relay selector should have selected a bridge for query {query:?}, but bridge was `None`");
+                    assert!(
+                        bridge.is_some(),
+                        "Relay selector should have selected a bridge for query {query:?}, but bridge was `None`"
+                    );
                 };
                 assert!(query
                     .openvpn_constraints()
@@ -556,14 +575,9 @@ fn test_wireguard_entry() {
                         owned: true,
                         provider: "provider0".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            daita: false,
-                            shadowsocks_extra_addr_in: vec![],
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
                     },
                     Relay {
@@ -577,14 +591,9 @@ fn test_wireguard_entry() {
                         owned: false,
                         provider: "provider1".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            daita: false,
-                            shadowsocks_extra_addr_in: vec![],
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
                     },
                 ],
@@ -636,8 +645,8 @@ fn test_wireguard_entry() {
                 assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
             }
             wrong_relay => panic!(
-            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
-        ),
+                "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+            ),
         }
     }
 
@@ -663,8 +672,8 @@ fn test_wireguard_entry() {
                 assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
             }
             wrong_relay => panic!(
-            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
-        ),
+                "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+            ),
         }
     }
 }
@@ -690,9 +699,11 @@ fn test_wireguard_entry_hostname_collision() {
         .build();
 
     // Assert that the same host cannot be used for entry and exit
-    assert!(relay_selector
-        .get_relay_by_query(invalid_multihop_query)
-        .is_err());
+    assert!(
+        relay_selector
+            .get_relay_by_query(invalid_multihop_query)
+            .is_err()
+    );
 
     let valid_multihop_query = RelayQueryBuilder::wireguard()
         .location(host1)
@@ -702,9 +713,11 @@ fn test_wireguard_entry_hostname_collision() {
         .build();
 
     // Assert that the new query succeeds when the entry and exit hosts differ
-    assert!(relay_selector
-        .get_relay_by_query(valid_multihop_query)
-        .is_ok())
+    assert!(
+        relay_selector
+            .get_relay_by_query(valid_multihop_query)
+            .is_ok()
+    )
 }
 
 /// Test that the relay selector:
@@ -779,10 +792,12 @@ fn test_openvpn_constraints() {
                 relay.expect_err("Unexpected relay");
             } else {
                 match relay.expect("Expected to find a relay") {
-                    GetRelay::OpenVpn { endpoint, .. } =>  {
+                    GetRelay::OpenVpn { endpoint, .. } => {
                         matches_constraints(endpoint, query.openvpn_constraints());
-                    },
-                    wrong_relay => panic!("Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}")
+                    }
+                    wrong_relay => panic!(
+                        "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
+                    ),
                 };
             }
         }
@@ -849,18 +864,64 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
     let relay = relay_selector.get_relay_by_query(query).unwrap();
     match relay {
         GetRelay::Wireguard {
-            obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
+            obfuscator:
+                Some(SelectedObfuscator {
+                    config: ObfuscatorConfig::Shadowsocks { endpoint },
+                    ..
+                }),
             inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
             assert!(!exit.overridden_ipv4);
             assert!(!exit.overridden_ipv6);
-            assert!(SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()), "{} is not an additional IP", endpoint);
+            assert!(
+                SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()),
+                "{endpoint} is not an additional IP"
+            );
         }
         wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
         ),
     }
+}
+
+/// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
+#[test]
+fn test_selecting_wireguard_over_quic() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let query = RelayQueryBuilder::wireguard().quic().build();
+    assert!(!query.wireguard_constraints().multihop());
+
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator,
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert!(obfuscator.is_some_and(|obfuscator| matches!(
+                obfuscator.config,
+                ObfuscatorConfig::Quic { .. },
+            )))
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Quic, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
+/// Selecting QUIC should not affect OpenVPN
+#[test]
+fn test_selecting_openvpn_and_quic() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let mut query = RelayQueryBuilder::wireguard().quic().build();
+    query.set_tunnel_protocol(TunnelType::OpenVpn).unwrap();
+
+    let _relay = relay_selector
+        .get_relay_by_query(query)
+        .expect("OpenVPN should not be affected by QUIC");
 }
 
 /// Ignore extra IPv4 addresses when overrides are set
@@ -892,7 +953,11 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
     let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
     match relay {
         GetRelay::Wireguard {
-            obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
+            obfuscator:
+                Some(SelectedObfuscator {
+                    config: ObfuscatorConfig::Shadowsocks { endpoint },
+                    ..
+                }),
             inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
@@ -935,7 +1000,11 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
     let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
     match relay {
         GetRelay::Wireguard {
-            obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
+            obfuscator:
+                Some(SelectedObfuscator {
+                    config: ObfuscatorConfig::Shadowsocks { endpoint },
+                    ..
+                }),
             inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
@@ -998,8 +1067,8 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
                 assert!(obfuscator.is_none());
             }
             wrong_relay => panic!(
-            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
-        ),
+                "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+            ),
         }
     }
 }
@@ -1008,7 +1077,7 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
 /// all configurations contain a valid port.
 #[test]
 fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
-    const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
+    const TCP2UDP_PORTS: [u16; 2] = [80, 5001];
     let relay_selector = default_relay_selector();
     // Note that we do *not* specify any port here!
     let query = RelayQueryBuilder::wireguard().udp2tcp().build();
@@ -1030,8 +1099,8 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
                 ))
             }
             wrong_relay => panic!(
-            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
-        ),
+                "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+            ),
         };
     }
 }
@@ -1075,8 +1144,7 @@ fn test_load_balancing() {
         RelayQueryBuilder::openvpn().location(location).build(),
     ] {
         // Collect the range of unique relay ports and IP addresses over a large number of queries.
-        let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat(query.clone())
-            .take(ATTEMPTS)
+        let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat_n(query.clone(), ATTEMPTS)
             // Execute the query
             .map(|query| relay_selector.get_relay_by_query(query).unwrap())
             // Perform some plumbing ..
@@ -1123,8 +1191,8 @@ fn test_providers() {
                 )
             }
             wrong_relay => panic!(
-            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
-        ),
+                "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+            ),
         };
     }
 }
@@ -1154,7 +1222,11 @@ fn test_openvpn_auto_bridge() {
         .take(100 * retry_order.len())
     {
         let relay = relay_selector
-            .get_relay_with_custom_params(retry_attempt, &retry_order, RuntimeParameters::default())
+            .get_relay_with_custom_params(
+                retry_attempt,
+                &retry_order,
+                talpid_types::net::IpAvailability::Ipv4,
+            )
             .unwrap();
         match relay {
             GetRelay::OpenVpn { bridge, .. } => {
@@ -1198,14 +1270,9 @@ fn test_include_in_country() {
                         owned: true,
                         provider: "31173".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            shadowsocks_extra_addr_in: vec![],
-                            daita: false,
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
                     },
                     Relay {
@@ -1219,14 +1286,9 @@ fn test_include_in_country() {
                         owned: false,
                         provider: "31173".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            shadowsocks_extra_addr_in: vec![],
-                            daita: false,
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
                     },
                 ],
@@ -1262,9 +1324,11 @@ fn test_include_in_country() {
 
     // If include_in_country is false for all relays, a relay must be selected anyway.
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list.clone());
-    assert!(relay_selector
-        .get_relay(0, RuntimeParameters::default())
-        .is_ok());
+    assert!(
+        relay_selector
+            .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
+            .is_ok()
+    );
 
     // If include_in_country is true for some relay, it must always be selected.
     relay_list.countries[0].cities[0].relays[0].include_in_country = true;
@@ -1272,7 +1336,7 @@ fn test_include_in_country() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
     let relay = unwrap_relay(
         relay_selector
-            .get_relay(0, RuntimeParameters::default())
+            .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
             .expect("expected match"),
     );
 
@@ -1427,16 +1491,16 @@ fn test_daita_smart_routing_overrides_multihop() {
             .get_relay_by_query(query.clone())
             .expect("Expected to find a relay with daita_use_multihop_if_necessary");
         match relay {
-                GetRelay::Wireguard {
-                    inner: WireguardConfig::Multihop { entry, exit: _ },
-                    ..
-                } => {
-                    assert!(supports_daita(&entry), "entry relay must support DAITA");
-                }
-                wrong_relay => panic!(
+            GetRelay::Wireguard {
+                inner: WireguardConfig::Multihop { entry, exit: _ },
+                ..
+            } => {
+                assert!(supports_daita(&entry), "entry relay must support DAITA");
+            }
+            wrong_relay => panic!(
                 "Relay selector should have picked two Wireguard relays, instead chose {wrong_relay:?}"
             ),
-            }
+        }
     }
 
     // Assert that disabling smart routing for this query will fail to generate a valid multihop
@@ -1609,9 +1673,165 @@ fn valid_user_setting_should_yield_relay() {
     let user_result = relay_selector.get_relay_by_query(user_query.clone());
     for retry_attempt in 0..WIREGUARD_RETRY_ORDER.len() {
         let post_unification_result =
-            relay_selector.get_relay(retry_attempt, RuntimeParameters::default());
+            relay_selector.get_relay(retry_attempt, talpid_types::net::IpAvailability::Ipv4);
         if user_result.is_ok() {
-            assert!(post_unification_result.is_ok(), "Expected Post-unification query to be valid because original query {:#?} yielded a connection configuration", user_query)
+            assert!(
+                post_unification_result.is_ok(),
+                "Expected Post-unification query to be valid because original query {user_query:#?} yielded a connection configuration"
+            )
         }
     }
+}
+
+/// Check that if IPv4 is not available and shadowsocks obfuscation is requested
+/// it should return a relay with IPv6 address.
+#[test]
+fn test_shadowsocks_runtime_ipv4_unavailable() {
+    // Make a valid user relay constraint
+    let (relay_constraints, _, _, obfs_settings) = RelayQueryBuilder::wireguard()
+        .shadowsocks()
+        .build()
+        .into_settings();
+
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        obfuscation_settings: obfs_settings,
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
+    let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    assert!(
+        matches!(user_result, GetRelay::Wireguard {
+        obfuscator: Some(SelectedObfuscator {
+            config: ObfuscatorConfig::Shadowsocks {
+                endpoint,
+                ..
+            },
+            ..
+        }),
+        ..
+    } if endpoint.is_ipv6()),
+        "expected IPv6 endpoint for Shadowsocks, got {user_result:?}"
+    );
+}
+
+/// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
+#[test]
+fn test_runtime_ipv4_unavailable() {
+    // Make a valid user relay constraint
+    let (relay_constraints, ..) = RelayQueryBuilder::wireguard().build().into_settings();
+
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
+    let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    match relay {
+        GetRelay::Wireguard { endpoint, .. } => {
+            assert!(
+                endpoint.peer.endpoint.is_ipv6(),
+                "expected IPv6 endpoint, got {endpoint:?}",
+            );
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
+/// Check that the relay selector is able to disregard `include_in_country` flag if necessary.
+///
+/// This test case prevents regressions to the `include_in_country` filtering logic.
+#[test]
+fn include_in_country_with_few_relays() -> Result<(), Error> {
+    let query = RelayQueryBuilder::wireguard()
+        .multihop()
+        .location(GeographicLocationConstraint::country("se"))
+        .entry(GeographicLocationConstraint::country("se"))
+        .build();
+
+    // The relay selector ought to resolve the query to any of the following configurations
+    // {entry: se-sto-wg-009, exit: se-sto-wg-204}
+    // {entry: se-sto-wg-204, exit: se-sto-wg-009}
+    let relays = {
+        let stockholm = Location {
+            country: "Sweden".to_string(),
+            country_code: "se".to_string(),
+            city: "Stockholm".to_string(),
+            city_code: "sto".to_string(),
+            latitude: 59.3289,
+            longitude: 18.0649,
+        };
+        let wireguard = WireguardEndpointData {
+            port_ranges: vec![443..=443],
+            ..Default::default()
+        };
+        RelayList {
+            countries: vec![RelayListCountry {
+                name: "Sweden".to_string(),
+                code: "se".to_string(),
+                cities: vec![RelayListCity {
+                    name: "Stockholm".to_string(),
+                    code: "sto".to_string(),
+                    latitude: 59.3289,
+                    longitude: 18.0649,
+                    relays: vec![
+                        Relay {
+                            hostname: "se-sto-wg-009".to_string(),
+                            ipv4_addr_in: "185.195.233.69".parse().unwrap(),
+                            ipv6_addr_in: "2a03:1b20:4:f011::a09f".parse().ok(),
+                            overridden_ipv4: false,
+                            overridden_ipv6: false,
+                            // This is the important part
+                            include_in_country: false,
+                            active: true,
+                            owned: true,
+                            provider: "31173".to_string(),
+                            weight: 1,
+                            location: stockholm.clone(),
+                            endpoint_data: RelayEndpointData::Wireguard(
+                                WireguardRelayEndpointData::new(
+                                    PublicKey::from_base64(
+                                        "t1XlQD7rER0JUPrmh3R5IpxjUP9YOqodJAwfRorNxl4=",
+                                    )
+                                    .unwrap(),
+                                ),
+                            ),
+                        },
+                        Relay {
+                            hostname: "se-sto-wg-204".to_string(),
+                            ipv4_addr_in: "89.37.63.190".parse().unwrap(),
+                            ipv6_addr_in: "2a02:6ea0:1508:4::f001".parse().ok(),
+                            overridden_ipv4: false,
+                            overridden_ipv6: false,
+                            // This is the important part
+                            include_in_country: true,
+                            active: true,
+                            owned: false,
+                            provider: "DataPacket".to_string(),
+                            weight: 200,
+                            location: stockholm,
+                            endpoint_data: RelayEndpointData::Wireguard(
+                                WireguardRelayEndpointData::new(
+                                    PublicKey::from_base64(
+                                        "cPhM7ShRWQmKiJtD9Wd1vDh0GwIlaMvFb/WPrP58FH8=",
+                                    )
+                                    .unwrap(),
+                                ),
+                            ),
+                        },
+                    ],
+                }],
+            }],
+            wireguard,
+            ..Default::default()
+        }
+    };
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relays);
+
+    relay_selector.get_relay_by_query(query)?;
+    Ok(())
 }

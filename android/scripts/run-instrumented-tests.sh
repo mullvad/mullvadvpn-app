@@ -8,7 +8,7 @@ cd "$SCRIPT_DIR"
 AUTO_FETCH_TEST_HELPER_APKS=${AUTO_FETCH_TEST_HELPER_APKS:-"false"}
 
 APK_BASE_DIR=${APK_BASE_DIR:-"$SCRIPT_DIR/.."}
-LOG_SUCCESS_REGEX="OK \([1-9][0-9]* tests\)"
+LOG_SUCCESS_REGEX="OK \([1-9][0-9]* (test|tests)\)"
 
 ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator/1.5.1/orchestrator-1.5.1.apk
 TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.5.0/test-services-1.5.0.apk
@@ -16,8 +16,12 @@ TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/te
 PARTNER_AUTH="${PARTNER_AUTH:-}"
 VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
 INVALID_TEST_ACCOUNT_NUMBER="${INVALID_TEST_ACCOUNT_NUMBER:-}"
+ENABLE_BILLING_TESTS="${ENABLE_BILLING_TESTS:-false}"
 ENABLE_HIGHLY_RATE_LIMITED_TESTS="${ENABLE_HIGHLY_RATE_LIMITED_TESTS:-false}"
-ENABLE_ACCESS_TO_LOCAL_API_TESTS="${ENABLE_ACCESS_TO_LOCAL_API_TESTS:-false}"
+ENABLE_RAAS_TESTS="${ENABLE_RAAS_TESTS:-false}"
+RAAS_HOST="${RAAS_HOST:-}"
+RAAS_TRAFFIC_GENERATOR_TARGET_HOST="${RAAS_TRAFFIC_GENERATOR_TARGET_HOST:-}"
+RAAS_TRAFFIC_GENERATOR_TARGET_PORT="${RAAS_TRAFFIC_GENERATOR_TARGET_PORT:-}"
 REPORT_DIR="${REPORT_DIR:-}"
 
 while [[ "$#" -gt 0 ]]; do
@@ -114,26 +118,41 @@ case "$TEST_TYPE" in
         echo "Error: The 'e2e' test type with billing flavor 'oss' require infra flavor 'prod'."
         exit 1
     fi
+
     OPTIONAL_TEST_ARGUMENTS=""
     if [[ -n ${INVALID_TEST_ACCOUNT_NUMBER-} ]]; then
-        OPTIONAL_TEST_ARGUMENTS+=" -e invalid_test_account_number $INVALID_TEST_ACCOUNT_NUMBER"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.$INFRA_FLAVOR.accountNumber.invalid $INVALID_TEST_ACCOUNT_NUMBER"
     else
         echo "Error: The variable INVALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
     if [[ -n ${PARTNER_AUTH} ]]; then
         echo "Test account used for e2e test (provided/partner): partner"
-        OPTIONAL_TEST_ARGUMENTS+=" -e partner_auth $PARTNER_AUTH"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.$INFRA_FLAVOR.partnerAuth $PARTNER_AUTH"
     elif [[ -n ${VALID_TEST_ACCOUNT_NUMBER} ]]; then
         echo "Test account used for e2e test (provided/partner): provided"
-        OPTIONAL_TEST_ARGUMENTS+=" -e valid_test_account_number $VALID_TEST_ACCOUNT_NUMBER"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.$INFRA_FLAVOR.accountNumber.valid $VALID_TEST_ACCOUNT_NUMBER"
     else
         echo ""
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
-    OPTIONAL_TEST_ARGUMENTS+=" -e enable_access_to_local_api_tests $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
-    OPTIONAL_TEST_ARGUMENTS+=" -e enable_highly_rate_limited_tests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
+
+    if [[ ${ENABLE_BILLING_TESTS} == "true" ]]; then
+        echo "Tests dependent on billing account enabled"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.billing.enable $ENABLE_BILLING_TESTS"
+    fi
+
+    OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.enable $ENABLE_RAAS_TESTS"
+
+    if [[ ${ENABLE_RAAS_TESTS} == "true" ]]; then
+        echo "Tests dependent on local API enabled"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.host $RAAS_HOST"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.trafficGenerator.target.host $RAAS_TRAFFIC_GENERATOR_TARGET_HOST"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.trafficGenerator.target.port $RAAS_TRAFFIC_GENERATOR_TARGET_PORT"
+    fi
+
+    OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.runHighlyRateLimitedTests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
     USE_ORCHESTRATOR="true"
     PACKAGE_NAME="net.mullvad.mullvadvpn"
     if [[ "$INFRA_FLAVOR" =~ ^(devmole|stagemole)$ ]]; then
@@ -150,8 +169,6 @@ if [[ -z $REPORT_DIR || ! -d $REPORT_DIR ]]; then
     exit 1
 fi
 
-GRADLE_ENVIRONMENT_VARIABLES="TEST_E2E_ENABLEACCESSTOLOCALAPITESTS=$ENABLE_ACCESS_TO_LOCAL_API_TESTS"
-
 INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
 LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
 LOCAL_SCREENSHOT_PATH="$REPORT_DIR/screenshots"
@@ -162,7 +179,6 @@ DEVICE_TEST_ATTACHMENTS_PATH="/sdcard/Download/test-attachments"
 echo ""
 echo "### Ensure clean report structure ###"
 rm -rf "${REPORT_DIR:?}/*"
-adb logcat --clear
 adb shell rm -rf "$DEVICE_SCREENSHOT_PATH"
 adb shell rm -rf "$DEVICE_TEST_ATTACHMENTS_PATH"
 echo ""
@@ -209,6 +225,11 @@ if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
 fi
 echo ""
 
+echo "### Start logging ###"
+adb logcat --clear
+adb logcat > "$LOGCAT_FILE_PATH" &
+running_pid=$!
+
 echo "### Run instrumented test command ###"
 if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
     INSTRUMENTATION_COMMAND="\
@@ -225,8 +246,11 @@ else
     -e runnerBuilder de.mannodermaus.junit5.AndroidJUnit5Builder \
     $TEST_PACKAGE_NAME/androidx.test.runner.AndroidJUnitRunner"
 fi
-adb shell "$GRADLE_ENVIRONMENT_VARIABLES $INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
+adb shell "$INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
 echo ""
+
+echo "### Stop logging ###"
+kill $running_pid
 
 echo "### Ensure that packages are uninstalled ###"
 adb uninstall "$PACKAGE_NAME" || echo "App package not installed"
@@ -243,7 +267,6 @@ else
     echo "Collecting report..."
     adb pull "$DEVICE_SCREENSHOT_PATH" "$LOCAL_SCREENSHOT_PATH" || echo "No screenshots"
     adb pull "$DEVICE_TEST_ATTACHMENTS_PATH" "$LOCAL_TEST_ATTACHMENTS_PATH" || echo "No test attachments"
-    adb logcat -d > "$LOGCAT_FILE_PATH"
     exit 1
 fi
 

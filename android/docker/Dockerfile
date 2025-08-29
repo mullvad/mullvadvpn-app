@@ -19,7 +19,7 @@
 # patch for a given go version can be identified by checking the wireguard-android
 # repo: https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go.
 # It's also important to keep the go path in sync.
-FROM ghcr.io/mullvad/mullvadvpn-app-build:85fa990a4
+FROM ghcr.io/mullvad/mullvadvpn-app-build:c099f08f8
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
@@ -28,18 +28,18 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 
 # === Define toolchain versions and paths ===
 
-ARG SDK_VERSION=platforms;android-35 \
-    BUILD_TOOLS_VERSION=build-tools;35.0.0
+ARG SDK_VERSION=platforms;android-36 \
+    BUILD_TOOLS_VERSION=build-tools;36.0.0
 
 # Command line tools and checksum from: https://developer.android.com/studio#command-line-tools-only
-ARG COMMAND_LINE_TOOLS_VERSION=11076708 \
-    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258
+ARG COMMAND_LINE_TOOLS_VERSION=13114758 \
+    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=7ec965280a073311c339e571cd5de778b9975026cfcbe79f2b1cdcb1e15317ee
 
 # NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
-ARG NDK_VERSION_NAME=r27c \
-    NDK_SHA1_CHECKSUM=090e8083a715fdb1a3e402d0763c388abb03fb4e \
+ARG NDK_VERSION_NAME=r27d \
+    NDK_SHA1_CHECKSUM=22105e410cf29afcf163760cc95522b9fb981121 \
     MIN_SDK_VERSION=26 \
-    NDK_VERSION=27.2.12479018
+    NDK_VERSION=27.3.13750724
 
 ENV ANDROID_SDK_ROOT=/opt/android
 # ANDROID_HOME is kept for backwards compatibility

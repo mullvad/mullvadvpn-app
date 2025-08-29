@@ -27,8 +27,7 @@ struct SwitchRowView: View {
             infoButtonAction: didTapInfoButton
         ))
         .disabled(disabled)
-        .font(.headline)
-        .frame(height: UIMetrics.SettingsRowView.height)
+        .font(.mullvadSmall)
         .padding(UIMetrics.SettingsRowView.layoutMargins)
         .background(Color(.primaryColor))
         .foregroundColor(Color(.primaryTextColor))

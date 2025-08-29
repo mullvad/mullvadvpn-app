@@ -46,6 +46,7 @@ const viteConfig = defineConfig({
       },
     },
   },
+  mode: process.env.NODE_ENV,
   build: {
     outDir: OUT_DIR,
   },
@@ -64,9 +65,14 @@ const viteConfig = defineConfig({
           // had not been enabled again. However, after the default --no-sandbox
           // was omitted we can open the devtools regardless of whether the
           // sandbox is enabled or not.
-          await startup(['.']);
+          await startup(['.', ...process.argv.slice(3)]);
         },
         vite: {
+          // We define process.env.NODE_ENV here in order for vite to statically
+          // replace the references in the production build with the string value.
+          define: {
+            'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+          },
           build: {
             outDir: OUT_DIR,
             commonjsOptions: {
@@ -74,7 +80,7 @@ const viteConfig = defineConfig({
                 // Packages in workspace which exports common js
                 /management-interface/,
                 /nseventforwarder/,
-                /win-shortcuts/,
+                /windows-utils/,
                 // External dependencies which exports common js
                 /node_modules/,
               ],
@@ -87,7 +93,7 @@ const viteConfig = defineConfig({
               },
               external: [
                 // Packages in workspace which can not be bundled
-                'win-shortcuts',
+                'windows-utils',
                 // External dependencies
                 '@grpc/grpc-js',
                 'google-protobuf',

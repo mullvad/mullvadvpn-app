@@ -44,15 +44,14 @@ import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.EditCustomListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
+import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -62,7 +61,15 @@ private fun PreviewEditCustomListScreen(
     @PreviewParameter(EditCustomListUiStatePreviewParameterProvider::class)
     state: EditCustomListUiState
 ) {
-    AppTheme { EditCustomListScreen(state = state, { _, _ -> }, { _, _ -> }, {}, {}) }
+    AppTheme {
+        EditCustomListScreen(
+            state = state,
+            onDeleteList = { _, _ -> },
+            onNameClicked = { _, _ -> },
+            onLocationsClicked = {},
+            onBackClick = {},
+        )
+    }
 }
 
 data class EditCustomListNavArgs(val customListId: CustomListId)
@@ -136,19 +143,21 @@ fun EditCustomListScreen(
             )
         },
     ) { modifier: Modifier ->
-        SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
+        SpacedColumn(
+            modifier = modifier,
+            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             when (state) {
                 EditCustomListUiState.Loading -> {
-                    MullvadCircularProgressIndicatorLarge(
-                        modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-                    )
+                    MullvadCircularProgressIndicatorLarge()
                 }
                 EditCustomListUiState.NotFound -> {
                     Text(
                         text = stringResource(id = R.string.not_found),
-                        modifier = Modifier.padding(Dimens.screenVerticalMargin),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(Dimens.sideMargin),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 is EditCustomListUiState.Content -> {
@@ -156,6 +165,9 @@ fun EditCustomListScreen(
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),
                         subtitleText = state.name.value,
+                        titleStyle = MaterialTheme.typography.bodyLarge,
+                        subtitleStyle = MaterialTheme.typography.bodyMedium,
+                        subtitleColor = MaterialTheme.colorScheme.onPrimary,
                         onCellClicked = { onNameClicked(state.id, state.name) },
                     )
                     // Locations cell
@@ -167,6 +179,9 @@ fun EditCustomListScreen(
                                 state.locations.size,
                                 state.locations.size,
                             ),
+                        titleStyle = MaterialTheme.typography.bodyLarge,
+                        subtitleStyle = MaterialTheme.typography.bodyMedium,
+                        subtitleColor = MaterialTheme.colorScheme.onPrimary,
                         onCellClicked = { onLocationsClicked(state.id) },
                     )
                 }
@@ -190,7 +205,12 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
                 modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 DropdownMenuItem(
-                    text = { Text(text = stringResource(id = R.string.delete_list)) },
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.delete_list),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Delete,

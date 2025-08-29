@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -63,8 +62,8 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewPrivacyDisclaimerScreen() {
     AppTheme {
         PrivacyDisclaimerScreen(
-            PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = false),
-            {},
+            state = PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = false),
+            onAcceptClicked = {},
         )
     }
 }
@@ -102,7 +101,10 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
                 }
         }
     }
-    PrivacyDisclaimerScreen(state, viewModel::setPrivacyDisclosureAccepted)
+    PrivacyDisclaimerScreen(
+        state = state,
+        onAcceptClicked = viewModel::setPrivacyDisclosureAccepted,
+    )
 }
 
 @Composable
@@ -115,7 +117,12 @@ fun PrivacyDisclaimerScreen(state: PrivacyDisclaimerViewState, onAcceptClicked: 
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.surface)
                 .verticalScroll(scrollState)
-                .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    top = Dimens.screenTopMargin,
+                    bottom = Dimens.screenBottomMargin,
+                )
                 .drawVerticalScrollbar(
                     state = scrollState,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
@@ -143,7 +150,7 @@ private fun Content(isPlayBuild: Boolean) {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_first_paragraph),
             color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
@@ -151,7 +158,7 @@ private fun Content(isPlayBuild: Boolean) {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_second_paragraph),
             color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
@@ -160,7 +167,7 @@ private fun Content(isPlayBuild: Boolean) {
             Text(
                 text = buildPrivacyPolicyAnnotatedString(isPlayBuild),
                 modifier = Modifier.padding(end = Dimens.miniPadding),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
             )
 
             Icon(

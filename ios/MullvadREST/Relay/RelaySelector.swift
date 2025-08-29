@@ -9,8 +9,6 @@
 import MullvadSettings
 import MullvadTypes
 
-private let defaultPort: UInt16 = 443
-
 public enum RelaySelector {
     // MARK: - public
 
@@ -83,17 +81,11 @@ public enum RelaySelector {
         rawPortRanges: [[UInt16]],
         numberOfFailedAttempts: UInt
     ) -> UInt16? {
-        switch portConstraint {
+        return switch portConstraint {
         case let .only(port):
-            return port
-
+            port
         case .any:
-            // 1. First attempt should pick a random port.
-            // 2. The second should pick port 443.
-            // 3. Repeat steps 1 and 2.
-            let useDefaultPort = numberOfFailedAttempts.isOrdered(nth: 2, forEverySetOf: 2)
-
-            return useDefaultPort ? defaultPort : pickRandomPort(rawPortRanges: rawPortRanges)
+            pickRandomPort(rawPortRanges: rawPortRanges)
         }
     }
 

@@ -5,7 +5,6 @@ splash --> login
 splash --> connect
 splash --> revoked
 
-
 revoked --> login
 privacy_policy --> login
 
@@ -23,9 +22,17 @@ connect --> settings
 connect --> account
 connect --> switch_location
 
+switch_location --> search
+switch_location --> filter
+switch_location --> edit_custom_lists
+
 settings --> vpn_settings
+settings --> api_access
 settings --> split_tunneling
 settings --> report_problem
+settings --> daita
+settings --> multihop
+settings --> app_info
 
 report_problem --> view_logs
 

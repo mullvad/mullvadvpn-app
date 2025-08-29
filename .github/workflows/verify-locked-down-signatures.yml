@@ -1,9 +1,10 @@
 ---
-name: Verify lockfile signatures
+name: Verify git signatures on important files
 on:
   pull_request:
     paths:
       - .github/workflows/verify-locked-down-signatures.yml
+      - .github/workflows/android-audit.yml
       - .github/workflows/unicop.yml
       - .github/CODEOWNERS
       - Cargo.toml
@@ -21,18 +22,24 @@ on:
       - android/gradlew
       - android/gradlew.bat
       - android/gradle/verification-metadata.xml
+      - android/gradle/verification-metadata.keys.xml
+      - android/gradle/verification-keyring.keys
       - android/gradle/wrapper/gradle-wrapper.jar
       - android/gradle/wrapper/gradle-wrapper.properties
+      - android/scripts/lockfile
+      - android/flake.lock
       - building/build-and-publish-container-image.sh
       - building/mullvad-app-container-signing.asc
       - building/linux-container-image.txt
       - building/android-container-image.txt
       - building/sigstore/**
+      - mullvad-update/trusted-metadata-signing-pubkeys
 
 permissions: {}
 
 jobs:
   verify-signatures:
+    name: Verify git signatures
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

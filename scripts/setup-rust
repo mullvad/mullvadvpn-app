@@ -13,11 +13,17 @@ source scripts/utils/log
 ANDROID_TARGETS="x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi"
 ANDROID_COMPONENTS="rust-analyzer"
 
-DESKTOP_TARGETS="x86_64-pc-windows-msvc x86_64-pc-windows-gnu i686-pc-windows-msvc"
-DESKTOP_COMPONENTS="rust-analyzer"
-
 IOS_TARGETS="aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios"
 IOS_COMPONENTS="rust-analyzer"
+
+WINDOWS_TARGETS="x86_64-pc-windows-msvc x86_64-pc-windows-gnu i686-pc-windows-msvc"
+WINDOWS_COMPONENTS="rust-analyzer"
+
+LINUX_TARGETS="aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu"
+LINUX_COMPONENTS="rust-analyzer"
+
+MACOS_TARGETS="aarch64-apple-darwin x86_64-apple-darwin"
+MACOS_COMPONENTS="rust-analyzer"
 
 function main {
     if [[ $# -eq 0 ]]; then
@@ -26,14 +32,23 @@ function main {
     fi
 
     case "$1" in
+    # A previous version of this script didn't have individual options for the desktop platforms but
+    # had only a single `desktop` option which we keep here for backwards compatibility.
+    # Should be removed at a later point.
+    "windows" | "desktop")
+        setup "Windows" "$WINDOWS_TARGETS" "$WINDOWS_COMPONENTS"
+        ;;
+    "linux")
+        setup "Linux" "$LINUX_TARGETS" "$LINUX_COMPONENTS"
+        ;;
+    "macos")
+        setup "macOS" "$MACOS_TARGETS" "$MACOS_COMPONENTS"
+        ;;
     "android")
         setup "Android" "$ANDROID_TARGETS" "$ANDROID_COMPONENTS"
         ;;
-    "desktop")
-        setup "Desktop" "$DESKTOP_TARGETS" "$DESKTOP_COMPONENTS"
-        ;;
     "ios")
-        setup "Android" "$IOS_TARGETS" "$IOS_COMPONENTS"
+        setup "iOS" "$IOS_TARGETS" "$IOS_COMPONENTS"
         ;;
     "install-hook")
         install_hook
@@ -53,10 +68,12 @@ function main {
 function print_usage {
     log "Setup default Rust targets and components for different platforms"
     log ""
-    log "Usage: setup-rust android|desktop|ios|install-hook"
+    log "Usage: setup-rust android|ios|windows|linux|macos|install-hook"
     log "  android                    Run Android-specific setup"
-    log "  desktop                    Run Desktop-specific setup"
     log "  ios                        Run iOS-specific setup"
+    log "  windows                    Run Windows-specific setup"
+    log "  linux                      Run Linux-specific setup"
+    log "  macos                      Run macOS-specific setup"
     log "  install-hook               Copies the setup-rust-post-checkout file to .git/hooks/post-checkout"
 }
 
@@ -83,8 +100,8 @@ function install_hook {
     else
         cp "$SCRIPT_DIR/setup-rust-post-checkout" "$hook"
         chmod +x "$hook"
-        log "Hook installed. You must now set the environment variable MULLVAD_SETUP_PLATFORM to "
-        log "\`android\`, \`desktop\` or \`ios\` in your shell environment."
+        log "Hook installed. You must now set the environment variable MULLVAD_SETUP_PLATFORM to one of the following:"
+        log "\`android\`, \`ios\`, \`windows\`, \`linux\`, \`macos\`"
     fi
 }
 

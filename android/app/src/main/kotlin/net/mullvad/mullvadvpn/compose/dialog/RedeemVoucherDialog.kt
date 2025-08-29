@@ -37,7 +37,6 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
-import net.mullvad.mullvadvpn.compose.test.VOUCHER_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
@@ -46,6 +45,7 @@ import net.mullvad.mullvadvpn.lib.model.DAYS_PER_VOUCHER_MONTH
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.VOUCHER_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -224,7 +224,7 @@ private fun RedeemSuccessBody(message: String) {
             Modifier.padding(start = Dimens.smallPadding, top = Dimens.cellTopPadding)
                 .fillMaxWidth(),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
     )
 }
 
@@ -236,20 +236,20 @@ private fun EnterVoucherBody(
 ) {
     CustomTextField(
         value = state.voucherInput,
+        keyboardType = KeyboardType.Password,
+        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
+        onValueChanged = { input -> onVoucherInputChange(input) },
         onSubmit = { input ->
             if (state.voucherInput.length == VOUCHER_LENGTH) {
                 onRedeem(input)
             }
         },
-        onValueChanged = { input -> onVoucherInputChange(input) },
+        placeholderText = stringResource(id = R.string.voucher_hint),
         isValidValue =
             state.voucherInput.isEmpty() || state.voucherInput.length == MAX_VOUCHER_LENGTH,
-        keyboardType = KeyboardType.Password,
-        placeholderText = stringResource(id = R.string.voucher_hint),
+        isDigitsOnlyAllowed = false,
         visualTransformation = vouchersVisualTransformation(),
         textStyle = MaterialTheme.typography.titleMedium,
-        isDigitsOnlyAllowed = false,
-        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(

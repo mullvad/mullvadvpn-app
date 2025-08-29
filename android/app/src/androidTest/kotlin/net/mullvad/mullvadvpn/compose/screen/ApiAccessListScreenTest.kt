@@ -11,8 +11,8 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DIRECT_ACCESS_METHOD
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
+import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_LIST_INFO_TEST_TAG
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

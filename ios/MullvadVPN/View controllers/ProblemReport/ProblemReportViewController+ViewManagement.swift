@@ -28,9 +28,11 @@ extension ProblemReportViewController {
     func makeSubheaderLabel() -> UILabel {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.font = .mullvadTinySemiBold
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.numberOfLines = 0
         textLabel.textColor = .white
-        textLabel.text = Self.persistentViewModel.subheadLabelText
+        textLabel.text = ProblemReportViewModel.subheadLabelText
         return textLabel
     }
 
@@ -47,8 +49,9 @@ extension ProblemReportViewController {
         textField.borderStyle = .none
         textField.backgroundColor = .white
         textField.inputAccessoryView = emailAccessoryToolbar
-        textField.font = UIFont.systemFont(ofSize: 17)
-        textField.placeholder = Self.persistentViewModel.emailPlaceholderText
+        textField.font = .mullvadSmall
+        textField.adjustsFontForContentSizeCategory = true
+        textField.placeholder = ProblemReportViewModel.emailPlaceholderText
         return textField
     }
 
@@ -57,8 +60,9 @@ extension ProblemReportViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.backgroundColor = .white
         textView.inputAccessoryView = messageAccessoryToolbar
-        textView.font = UIFont.systemFont(ofSize: 17)
-        textView.placeholder = Self.persistentViewModel.messageTextViewPlaceholder
+        textView.font = .mullvadSmall
+        textView.adjustsFontForContentSizeCategory = true
+        textView.placeholder = ProblemReportViewModel.messageTextViewPlaceholder
         textView.contentInsetAdjustmentBehavior = .never
 
         return textView
@@ -90,7 +94,7 @@ extension ProblemReportViewController {
         let button = AppButton(style: .default)
         button.setAccessibilityIdentifier(.problemReportAppLogsButton)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(Self.persistentViewModel.viewLogsButtonTitle, for: .normal)
+        button.setTitle(ProblemReportViewModel.viewLogsButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(handleViewLogsButtonTap), for: .touchUpInside)
         return button
     }
@@ -99,7 +103,7 @@ extension ProblemReportViewController {
         let button = AppButton(style: .success)
         button.setAccessibilityIdentifier(.problemReportSendButton)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(Self.persistentViewModel.sendLogsButtonTitle, for: .normal)
+        button.setTitle(ProblemReportViewModel.sendLogsButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(handleSendButtonTap), for: .touchUpInside)
         return button
     }
@@ -107,6 +111,14 @@ extension ProblemReportViewController {
     func makeSubmissionOverlayView() -> ProblemReportSubmissionOverlayView {
         let overlay = ProblemReportSubmissionOverlayView()
         overlay.translatesAutoresizingMaskIntoConstraints = false
+
+        overlay.viewLogsButtonAction = { [weak self] in
+            self?.handleViewLogsButtonTap()
+        }
+
+        overlay.cancelButtonAction = { [weak self] in
+            self?.interactor.cancelSendingReport()
+        }
 
         overlay.editButtonAction = { [weak self] in
             self?.hideSubmissionOverlay()

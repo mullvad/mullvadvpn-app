@@ -18,20 +18,10 @@ public enum CustomRelayListError: LocalizedError, Hashable {
     public var errorDescription: String? {
         switch self {
         case .duplicateName:
-            NSLocalizedString(
-                "DUPLICATE_CUSTOM_LISTS_ERROR",
-                tableName: "CustomLists",
-                value: "A custom list with this name exists, please choose a unique name.",
-                comment: ""
-            )
+            NSLocalizedString("A custom list with this name exists, please choose a unique name.", comment: "")
         case .nameTooLong:
             String(
-                format: NSLocalizedString(
-                    "CUSTOM_LIST_NAME_TOO_LONG_ERROR",
-                    tableName: "CustomLists",
-                    value: "Name should be no longer than %i characters.",
-                    comment: ""
-                ),
+                format: NSLocalizedString("Name should be no longer than %i characters.", comment: ""),
                 NameInputFormatter.maxLength
             )
         }

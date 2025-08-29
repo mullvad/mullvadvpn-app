@@ -34,8 +34,8 @@
 use std::{
     path::Path,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
 };
 use tokio::{
@@ -240,12 +240,11 @@ mod windows {
     use talpid_types::ErrorExt;
     use tokio::fs;
     use windows_sys::Win32::{
-        Foundation::{LocalFree, ERROR_SUCCESS, PSID},
+        Foundation::{ERROR_SUCCESS, LocalFree, PSID},
         Security::{
             Authorization::{GetNamedSecurityInfoW, SE_FILE_OBJECT, SE_OBJECT_TYPE},
-            IsWellKnownSid, WinBuiltinAdministratorsSid, WinLocalSystemSid,
-            OWNER_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR, SECURITY_DESCRIPTOR, SID,
-            WELL_KNOWN_SID_TYPE,
+            IsWellKnownSid, OWNER_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR, SECURITY_DESCRIPTOR,
+            SID, WELL_KNOWN_SID_TYPE, WinBuiltinAdministratorsSid, WinLocalSystemSid,
         },
     };
 
@@ -442,7 +441,7 @@ mod windows {
 
 #[cfg(test)]
 mod test {
-    use mullvad_types::settings::{Settings, CURRENT_SETTINGS_VERSION};
+    use mullvad_types::settings::{CURRENT_SETTINGS_VERSION, Settings};
 
     use crate::migrations::migrate_settings;
 

@@ -6,16 +6,20 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadSettings
 import MullvadTypes
 
 /// Protocol describing a type that can select a relay.
 public protocol RelaySelectorProtocol {
+    var relayCache: RelayCacheProtocol { get }
     func selectRelays(
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays
+
+    func findCandidates(
+        tunnelSettings: LatestTunnelSettings
+    ) throws -> RelayCandidates
 }
 
 /// Struct describing the selected relay.
@@ -29,11 +33,15 @@ public struct SelectedRelay: Equatable, Codable, Sendable {
     /// Relay geo location.
     public let location: Location
 
+    /// Relay features, such as `DAITA` or `QUIC`.
+    public let features: REST.ServerRelay.Features?
+
     /// Designated initializer.
-    public init(endpoint: MullvadEndpoint, hostname: String, location: Location) {
+    public init(endpoint: MullvadEndpoint, hostname: String, location: Location, features: REST.ServerRelay.Features?) {
         self.endpoint = endpoint
         self.hostname = hostname
         self.location = location
+        self.features = features
     }
 }
 
@@ -47,6 +55,10 @@ public struct SelectedRelays: Equatable, Codable, Sendable {
     public let entry: SelectedRelay?
     public let exit: SelectedRelay
     public let retryAttempt: UInt
+
+    public var ingress: SelectedRelay {
+        entry ?? exit
+    }
 
     public init(entry: SelectedRelay?, exit: SelectedRelay, retryAttempt: UInt) {
         self.entry = entry

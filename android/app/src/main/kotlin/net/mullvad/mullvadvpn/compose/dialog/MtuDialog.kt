@@ -54,7 +54,7 @@ fun Mtu(navigator: ResultBackNavigator<Boolean>) {
         }
     }
     MtuDialog(
-        uiState,
+        state = uiState,
         onInputChanged = viewModel::onInputChanged,
         onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,
@@ -73,6 +73,15 @@ fun MtuDialog(
     InputDialog(
         title = stringResource(id = R.string.wireguard_mtu),
         message = stringResource(id = R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE),
+        confirmButtonEnabled = state.isValidInput,
+        onBack = onDismiss,
+        onConfirm = { onSaveMtu(state.mtuInput) },
+        onReset =
+            if (state.showResetToDefault) {
+                onResetMtu
+            } else {
+                null
+            },
         input = {
             MtuTextField(
                 value = state.mtuInput,
@@ -85,14 +94,5 @@ fun MtuDialog(
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        confirmButtonEnabled = state.isValidInput,
-        onReset =
-            if (state.showResetToDefault) {
-                onResetMtu
-            } else {
-                null
-            },
-        onBack = onDismiss,
-        onConfirm = { onSaveMtu(state.mtuInput) },
     )
 }

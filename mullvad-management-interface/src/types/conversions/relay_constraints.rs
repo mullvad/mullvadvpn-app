@@ -1,6 +1,11 @@
-use crate::types::{conversions::net::try_tunnel_type_from_i32, proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, conversions::net::try_tunnel_type_from_i32, proto};
 use mullvad_types::{
-    constraints::Constraint, custom_list::Id, relay_constraints::GeographicLocationConstraint,
+    constraints::Constraint,
+    custom_list::Id,
+    relay_constraints::{
+        GeographicLocationConstraint,
+        allowed_ip::{self, AllowedIps},
+    },
 };
 use std::str::FromStr;
 use talpid_types::net::proxy::CustomProxy;
@@ -24,10 +29,17 @@ impl TryFrom<&proto::WireguardConstraints>
             )),
             None => None,
         };
+        let allowed_ips = AllowedIps::parse(&constraints.allowed_ips)
+            .map_err(|e| {
+                log::error!("Failed to parse allowed IPs: {}", e);
+                FromProtobufTypeError::InvalidArgument("invalid allowed IPs")
+            })?
+            .to_constraint();
 
         Ok(mullvad_constraints::WireguardConstraints {
             port: Constraint::from(constraints.port.map(|port| port as u16)),
             ip_version: Constraint::from(ip_version),
+            allowed_ips,
             use_multihop: constraints.use_multihop,
             entry_location: constraints
                 .entry_location
@@ -66,7 +78,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
     fn try_from(
         settings: proto::RelaySettings,
     ) -> Result<mullvad_types::relay_constraints::RelaySettings, Self::Error> {
-        use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
+        use mullvad_types::{CustomTunnelEndpoint, relay_constraints as mullvad_constraints};
 
         let update_value = settings
             .endpoint
@@ -151,6 +163,7 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
             SelectedObfuscation::Shadowsocks => {
                 proto::obfuscation_settings::SelectedObfuscation::Shadowsocks
             }
+            SelectedObfuscation::Quic => proto::obfuscation_settings::SelectedObfuscation::Quic,
         });
         Self {
             selected_obfuscation,
@@ -251,6 +264,14 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .ip_version
                             .option()
                             .map(|ipv| i32::from(proto::IpVersion::from(ipv))),
+                        allowed_ips: allowed_ip::resolve_from_constraint(
+                            &constraints.wireguard_constraints.allowed_ips,
+                            None,
+                            None,
+                        )
+                        .into_iter()
+                        .map(|ip| ip.to_string())
+                        .collect(),
                         use_multihop: constraints.wireguard_constraints.multihop(),
                         entry_location: constraints
                             .wireguard_constraints
@@ -437,6 +458,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 Ok(IpcSelectedObfuscation::Off) => SelectedObfuscation::Off,
                 Ok(IpcSelectedObfuscation::Udp2tcp) => SelectedObfuscation::Udp2Tcp,
                 Ok(IpcSelectedObfuscation::Shadowsocks) => SelectedObfuscation::Shadowsocks,
+                Ok(IpcSelectedObfuscation::Quic) => SelectedObfuscation::Quic,
                 Err(_) => {
                     return Err(FromProtobufTypeError::InvalidArgument(
                         "invalid obfuscation settings",

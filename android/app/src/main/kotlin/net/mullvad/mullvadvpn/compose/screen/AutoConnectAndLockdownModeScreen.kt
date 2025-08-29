@@ -7,16 +7,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
@@ -52,22 +58,24 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithLargeTopBarAndButton
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.screen.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 
 @Preview
 @Composable
 private fun PreviewAutoConnectAndLockdownModeScreen() {
-    AppTheme { AutoConnectAndLockdownModeScreen({}) }
+    AppTheme { AutoConnectAndLockdownModeScreen {} }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -79,11 +87,30 @@ fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
 @Composable
 fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
-    ScaffoldWithLargeTopBarAndButton(
+    ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.auto_connect_and_lockdown_mode),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        buttonTitle = stringResource(id = R.string.go_to_vpn_settings),
-        onButtonClick = { context.openVpnSettings() },
+        bottomBar = {
+            PrimaryButton(
+                text = stringResource(id = R.string.go_to_vpn_settings),
+                onClick = { context.openVpnSettings() },
+                modifier =
+                    Modifier.windowInsetsPadding(
+                            WindowInsets.systemBars.only(WindowInsetsSides.Bottom)
+                        )
+                        .padding(
+                            horizontal = Dimens.sideMargin,
+                            vertical = Dimens.screenBottomMargin,
+                        ),
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        contentDescription = null,
+                    )
+                },
+            )
+        },
         content = { modifier ->
             Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
                 val pagerState = rememberPagerState(pageCount = { PAGES.entries.size })
@@ -170,19 +197,20 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style =
-                    MaterialTheme.typography.titleMedium.copy(
+                    MaterialTheme.typography.labelLarge.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                 text = annotatedTopText,
             )
             Image(
-                modifier = Modifier.padding(top = Dimens.topPadding, bottom = Dimens.bottomPadding),
+                modifier =
+                    Modifier.padding(top = Dimens.smallPadding, bottom = Dimens.bottomPadding),
                 painter = painterResource(id = page.image),
                 contentDescription = null,
             )
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 text =
                     HtmlCompat.fromHtml(
@@ -224,7 +252,7 @@ private fun ConstraintLayoutScope.PageIndicator(
     pager: ConstrainedLayoutReference,
 ) {
     Row(
-        Modifier.wrapContentHeight().fillMaxWidth().padding(top = Dimens.topPadding).constrainAs(
+        Modifier.wrapContentHeight().fillMaxWidth().padding(top = Dimens.mediumSpacer).constrainAs(
             pageIndicatorRef
         ) {
             top.linkTo(pager.bottom)
@@ -281,26 +309,28 @@ private fun buildLockdownTopText() = buildAnnotatedString {
     }
 }
 
-private enum class PAGES(
-    val annotatedTopText: @Composable () -> AnnotatedString,
-    val image: Int,
-    val bottomText: Int,
-) {
+private enum class PAGES(val image: Int, val bottomText: Int) {
     FIRST(
-        annotatedTopText =
-            @Composable { buildTopText(id = R.string.auto_connect_carousel_first_slide_top_text) },
         R.drawable.carousel_slide_1_cogwheel,
         R.string.auto_connect_carousel_first_slide_bottom_text,
     ),
     SECOND(
-        annotatedTopText =
-            @Composable { buildTopText(id = R.string.auto_connect_carousel_second_slide_top_text) },
         R.drawable.carousel_slide_2_always_on,
         R.string.auto_connect_carousel_second_slide_bottom_text,
     ),
     THIRD(
-        annotatedTopText = @Composable { buildLockdownTopText() },
         R.drawable.carousel_slide_3_block_connections,
         R.string.auto_connect_carousel_third_slide_bottom_text,
-    ),
+    );
+
+    companion object {
+
+        @Composable
+        fun PAGES.annotatedTopText(): AnnotatedString =
+            when (this) {
+                FIRST -> buildTopText(id = R.string.auto_connect_carousel_first_slide_top_text)
+                SECOND -> buildTopText(id = R.string.auto_connect_carousel_second_slide_top_text)
+                THIRD -> buildLockdownTopText()
+            }
+    }
 }

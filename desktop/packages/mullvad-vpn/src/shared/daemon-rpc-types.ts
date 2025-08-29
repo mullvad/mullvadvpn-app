@@ -1,3 +1,5 @@
+import { IChangelog } from './ipc-types';
+
 export interface IAccountData {
   expiry: string;
 }
@@ -63,6 +65,8 @@ export enum TunnelParameterError {
   noMatchingBridgeRelay,
   noWireguardKey,
   customTunnelHostResolutionError,
+  ipv4Unavailable,
+  ipv6Unavailable,
 }
 
 export type ErrorStateDetails =
@@ -110,7 +114,7 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 }
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks';
+export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic';
 
 export type Constraint<T> = 'any' | { only: T };
 export type LiftedConstraint<T> = 'any' | T;
@@ -173,6 +177,45 @@ export type DaemonEvent =
   | { deviceRemoval: Array<IDevice> }
   | { accessMethodSetting: AccessMethodSetting };
 
+export type DaemonAppUpgradeEventStatusDownloadStarted = {
+  type: 'APP_UPGRADE_STATUS_DOWNLOAD_STARTED';
+};
+
+export type DaemonAppUpgradeEventStatusDownloadProgress = {
+  type: 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS';
+  progress: number;
+  server: string;
+  timeLeft?: number;
+};
+
+export type DaemonAppUpgradeEventStatusAborted = {
+  type: 'APP_UPGRADE_STATUS_ABORTED';
+};
+
+export type DaemonAppUpgradeEventStatusVerifyingInstaller = {
+  type: 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER';
+};
+
+export type DaemonAppUpgradeEventStatusVerifiedInstaller = {
+  type: 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER';
+};
+
+export type DaemonAppUpgradeError = 'DOWNLOAD_FAILED' | 'GENERAL_ERROR' | 'VERIFICATION_FAILED';
+
+export type DaemonAppUpgradeEventError = {
+  type: 'APP_UPGRADE_ERROR';
+  error: DaemonAppUpgradeError;
+};
+
+export type DaemonAppUpgradeEventStatus =
+  | DaemonAppUpgradeEventStatusDownloadStarted
+  | DaemonAppUpgradeEventStatusDownloadProgress
+  | DaemonAppUpgradeEventStatusAborted
+  | DaemonAppUpgradeEventStatusVerifyingInstaller
+  | DaemonAppUpgradeEventStatusVerifiedInstaller;
+
+export type DaemonAppUpgradeEvent = DaemonAppUpgradeEventStatus | DaemonAppUpgradeEventError;
+
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
   location?: ILocation;
@@ -181,6 +224,7 @@ export interface ITunnelStateRelayInfo {
 // The order of the variants match the priority order and can be sorted on.
 export enum FeatureIndicator {
   daita,
+  daitaMultihop,
   quantumResistance,
   multihop,
   bridgeMode,
@@ -188,6 +232,7 @@ export enum FeatureIndicator {
   lockdownMode,
   udp2tcp,
   shadowsocks,
+  quic,
   lanSharing,
   dnsContentBlockers,
   customDns,
@@ -196,7 +241,11 @@ export enum FeatureIndicator {
   customMssFix,
 }
 
-export type DisconnectedState = { state: 'disconnected'; location?: Partial<ILocation> };
+export type DisconnectedState = {
+  state: 'disconnected';
+  location?: Partial<ILocation>;
+  lockedDown: boolean;
+};
 export type ConnectingState = {
   state: 'connecting';
   details?: ITunnelStateRelayInfo;
@@ -291,6 +340,7 @@ export type ConnectionConfig =
           addresses: string[];
           endpoint: string;
         };
+
         ipv4Gateway: string;
         ipv6Gateway?: string;
       };
@@ -347,7 +397,15 @@ export interface IRelayListHostname {
   owned: boolean;
   endpointType: RelayEndpointType;
   daita: boolean;
+  // The absence of this value signals that the relay does not deploy QUIC.
+  quic?: Quic;
 }
+
+export type Quic = {
+  domain: string;
+  token: string;
+  addrIn: string[];
+};
 
 export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 
@@ -381,9 +439,15 @@ export interface IDnsOptions {
   };
 }
 
+export type AppVersionInfoSuggestedUpgrade = {
+  changelog: IChangelog;
+  verifiedInstallerPath?: string;
+  version: string;
+};
+
 export interface IAppVersionInfo {
   supported: boolean;
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
 }
 
@@ -419,6 +483,8 @@ export interface ICustomList {
   name: string;
   locations: Array<RelayLocationGeographical>;
 }
+
+export type NewCustomList = Pick<ICustomList, 'name' | 'locations'>;
 
 export type CustomListError = { type: 'name already exists' };
 
@@ -458,6 +524,7 @@ export enum ObfuscationType {
   off,
   udp2tcp,
   shadowsocks,
+  quic,
 }
 
 export type ObfuscationSettings = {

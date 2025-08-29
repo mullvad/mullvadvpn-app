@@ -1,5 +1,5 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol};
-use base64::{engine::general_purpose::STANDARD, Engine};
+use base64::{Engine, engine::general_purpose::STANDARD};
 use ipnetwork::IpNetwork;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{

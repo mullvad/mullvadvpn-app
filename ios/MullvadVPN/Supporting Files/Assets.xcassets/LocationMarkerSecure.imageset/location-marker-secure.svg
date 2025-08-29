@@ -1,0 +1,19 @@
+<svg width="60px" height="60px" viewBox="0 0 60 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>location-marker-secure</title>
+    <desc>Mullvad VPN app</desc>
+    <defs>
+        <circle id="shadow-path" cx="30" cy="30" r="10"></circle>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="shadow">
+            <feMorphology radius="1" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="4" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+            <circle id="outer-circle" fill-opacity="0.4" fill="#44AD4D" cx="30" cy="30" r="30"></circle>
+            <g id="inner-circle">
+                <use fill="black" fill-opacity="1" filter="url(#shadow)" xlink:href="#shadow-path"></use>
+                <use stroke="#FFFFFF" stroke-width="2" fill="#44AD4D" fill-rule="evenodd" xlink:href="#shadow-path"></use>
+            </g>
+</svg>

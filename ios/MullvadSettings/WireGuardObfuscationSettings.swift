@@ -18,6 +18,7 @@ public enum WireGuardObfuscationState: Codable, Sendable {
     case automatic
     case udpOverTcp
     case shadowsocks
+    case quic
     case off
 
     public init(from decoder: Decoder) throws {
@@ -42,14 +43,22 @@ public enum WireGuardObfuscationState: Codable, Sendable {
             self = .udpOverTcp
         case .shadowsocks:
             self = .shadowsocks
+        case .quic:
+            self = .quic
         case .off:
             self = .off
         }
     }
 
+    #if DEBUG
+    public var isEnabled: Bool {
+        [.udpOverTcp, .shadowsocks, .quic].contains(self)
+    }
+    #else
     public var isEnabled: Bool {
         [.udpOverTcp, .shadowsocks].contains(self)
     }
+    #endif
 }
 
 public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomStringConvertible, Sendable {
@@ -71,12 +80,7 @@ public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomString
     public var description: String {
         switch self {
         case .automatic:
-            NSLocalizedString(
-                "WIREGUARD_OBFUSCATION_UDP_TCP_PORT_AUTOMATIC",
-                tableName: "VPNSettings",
-                value: "Automatic",
-                comment: ""
-            )
+            NSLocalizedString("Automatic", comment: "")
         case .port80:
             "80"
         case .port5001:
@@ -101,12 +105,7 @@ public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStrin
     public var description: String {
         switch self {
         case .automatic:
-            NSLocalizedString(
-                "WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT_AUTOMATIC",
-                tableName: "VPNSettings",
-                value: "Automatic",
-                comment: ""
-            )
+            NSLocalizedString("Automatic", comment: "")
         case let .custom(port):
             String(port)
         }

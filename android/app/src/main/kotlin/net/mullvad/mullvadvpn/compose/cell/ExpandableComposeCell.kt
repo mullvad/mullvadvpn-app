@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,11 +19,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ExpandChevronIconButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronIconButton
 
 @Preview
 @Composable
@@ -104,23 +103,19 @@ private fun ExpandableComposeCellBody(
             }
         }
 
-        ExpandChevronIconButton(
-            isExpanded = isExpanded,
-            onExpand = onExpand,
-            color = MaterialTheme.colorScheme.onPrimary,
-        )
+        ExpandChevronIconButton(isExpanded = isExpanded, onExpand = onExpand)
     }
 }
 
 @Composable
 fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
-    Text(
+    BaseSubtitleCell(
         text =
             stringResource(
                 id = R.string.dns_content_blockers_subtitle,
                 stringResource(id = R.string.enable_custom_dns),
             ),
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier,
     )

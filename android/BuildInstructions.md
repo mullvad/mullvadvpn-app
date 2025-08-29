@@ -160,8 +160,12 @@ environment variables:
   .scripts/setup-rust install-hook
   ```
 
-#### 6. Download wireguard-go-rs submodule
-Run the following command to download wireguard-go-rs submodule: `git submodule update --init wireguard-go-rs/libwg/wireguard-go`
+#### 6. Download the wireguard-go-rs and rust-android-gradle-plugin submodules
+Run the following command to download the required submodules:
+
+```bash
+git submodule update --init wireguard-go-rs/libwg/wireguard-go android/rust-android-gradle-plugin
+```
 
 ### Debug build
 Run the following command to build a debug build:
@@ -175,6 +179,28 @@ Run the following command to build a debug build:
 3. Run the following command to build:
    ```bash
    ../android/build.sh --app-bundle
+   ```
+
+## Build using nix devshell
+This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
+
+1. Install the nix package manager by following the [official instructions](https://nixos.org/download/).
+2. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
+3. Launch a devshell (in `<repository>/android`) by running:
+   ```bash
+   nix develop
+   ```
+4. Build the app as usual by running for example:
+   ```bash
+   build
+   ```
+   or
+   ```bash
+   ./build.sh --dev-build
+   ```
+   or
+   ```bash
+   ./gradlew assembleOssProdDebug
    ```
 
 ## Configure signing key
@@ -198,6 +224,19 @@ replace `key-password` and `keystore-password` with the values from step 2:
    storePassword = keystore-password
    ```
 
+## Creating an alpha release
+
+Run the [prepare-release.sh](scripts/prepare-release.sh) script with the desired version you wish
+to release as an argument. The prepare script will download the latest relay list and update the
+version files, and add as commits.
+
+```bash
+# Replace `202X.X-alphaX` with the alpha version you intend to create.
+./scripts/prepare-release.sh 202X.X-alphaX
+```
+
+Continue by following the instructions provided by the script.
+
 ## Gradle dependency metadata verification lockfile
 This lockfile helps ensuring the integrity of the gradle dependencies in the project.
 
@@ -207,7 +246,7 @@ in the following way:
 
 1. Run update script:
    ```bash
-   ./scripts/update-lockfile.sh
+   ./scripts/lockfile -u
    ```
 
    If you're on macOS make sure GNU sed is installed. Install with `brew install gnu-sed` and add it to your `PATH` so that it is used instead of the `sed` macOS ships with `PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"`
@@ -221,25 +260,30 @@ rm ./gradle/verification-metadata.xml
 ```
 
 ## Gradle properties
-Some gradle properties can be set to simplify development. These are listed below.
+Some gradle properties can be set to simplify development, for the full list see `android/gradle.properties`.
+In order to override them, add the properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
+[gradle documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
+for more info of the prioritization of properties.
 
 ### Override version code and version name
-To avoid or override the rust based version generation, the `OVERRIDE_VERSION_CODE` and
-`OVERRIDE_VERSION_NAME` properties can be set in `local.properties`. For example:
+To avoid or override the rust based version generation, the `mullvad.app.config.override.versionCode` and
+`mullvad.app.config.override.versionName` properties can be set:
 ```
-OVERRIDE_VERSION_CODE=123
-OVERRIDE_VERSION_NAME=1.2.3
+mullvad.app.config.override.versionCode=123
+mullvad.app.config.override.versionName=1.2.3
 ```
 
 ### Disable version in-app notifications
 To disable in-app notifications related to the app version during development or testing,
-the `ENABLE_IN_APP_VERSION_NOTIFICATIONS` property can be set in `local.properties`:
+the `mullvad.app.config.inAppVersionNotifications.enable` property can be set:
 ```
-ENABLE_IN_APP_VERSION_NOTIFICATIONS=false
+mullvad.app.config.inAppVersionNotifications.enable=false
 ```
 
 ### Run tests highly affected by rate limiting
-To avoid being rate limited we avoid running tests sending requests that are highly rate limited too often. If you want to run these tests you can set `enable_highly_rate_limited_tests=true` in `local.properties`. The default value is `false`.
+To avoid being rate limited we avoid running tests sending requests that are highly rate limited
+too often. If you want to run these tests you can override the
+`mullvad.test.e2e.config.runHighlyRateLimitedTests` gradle properties. The default value is `false`.
 
 ## Reproducible builds
 
@@ -249,7 +293,7 @@ The Mullvad Android app is by default reproducible when built using our build co
 
 When building without the container on Linux systems, reproducibility depends on having the exact same versions of system tools (compilers, build tools, etc) installed. Small differences in tool versions or configurations can lead to different build outputs even when using the same source code.
 
-> **Make sure that the `local.properties` file has not changed keys that affect the reproducibility of the build such as `CARGO_TARGETS` and `ENABLE_IN_APP_VERSION_NOTIFICATIONS`.**
+> **Make sure that any `gradle.properties` has not changed or been overridden it will affect the reproducibility of the build such as changing `mullvad.app.build.cargo.targets` and `mullvad.app.config.inAppVersionNotifications.enable`.**
 
 To maximize reproducibility when building without the container:
 
@@ -261,15 +305,24 @@ To maximize reproducibility when building without the container:
 A simple way to check that a build is reproducible across environments is to build the `fdroid` version of the app with and without the container and comparing the checksums of the produced APKs.
 
 1. Build the app with the container: `../building/containerized-build.sh android --fdroid`
-2. Copy the resulting APK to a different folder as it will be overwritten in the following step: `app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk fdroid-container.apk`
-3. Build the app locally without the container: `./build.sh --fdroid`
-4. Compare the checksums of the two APKs: `md5sum fdroid-container.apk app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk`
+1. Copy the resulting APK to a different folder as it will be overwritten in the following step: `app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk fdroid-container.apk`
+1. Build the app locally without the container: `./build.sh --fdroid`
+1. Compare the checksums of the two APKs: `sha256sum fdroid-container.apk app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk`
+
+## Verifying that an official release is reproducible
+
+1. Obtain the release APK (`2025.2-beta1` or newer) from [GitHub releases](https://github.com/mullvad/mullvadvpn-app/releases)
+1. Checkout the release tag: `git checkout android/<version>`
+1. Build a release build using our [build instructions](#release-build)
+1. Delete the signatures from the two APKs by running `zip -d app-oss-prod-release.apk "META-INF/*"` and `zip -d MullvadVPN-<version>.apk "META-INF/*"`
+1. Compare the checksums of the two APKs: `sha256sum app-oss-prod-release.apk MullvadVPN-<version>.apk`. If the checksums are equal the build is reproducible.
 
 ### Troubleshooting reproducibility
 
 If two APKs built from the same commit have different checksums the build is not reproducible. This could be because of either:
 
 1. A build dependency on the local system has the wrong version.
-2. There is a bug that breaks the build reproducibility.
+1. There is a bug that breaks the build reproducibility.
+1. The APK built is a version prior to `2025.2-beta1`, which is the first version that supports reproducible builds.
 
 If you suspect that a bug is causing the build to not be reproducible, please open a Github issue.

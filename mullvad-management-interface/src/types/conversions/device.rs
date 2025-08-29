@@ -1,4 +1,4 @@
-use crate::types::{conversions::bytes_to_pubkey, proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, conversions::bytes_to_pubkey, proto};
 use chrono::DateTime;
 use prost_types::Timestamp;
 

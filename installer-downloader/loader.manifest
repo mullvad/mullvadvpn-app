@@ -12,10 +12,10 @@
 <assemblyIdentity
     version="1.0.0.0"
     processorArchitecture="*"
-    name="Mullvad.MullvadVPN.Installer"
+    name="Mullvad.MullvadVPN.Loader"
     type="win32"
 />
-<description>Web installer</description>
+<description>Mullvad VPN app downloader</description>
 <dependency>
     <dependentAssembly>
         <assemblyIdentity

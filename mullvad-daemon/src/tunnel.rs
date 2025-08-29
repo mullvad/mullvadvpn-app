@@ -1,43 +1,24 @@
-use std::{
-    future::Future,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    pin::Pin,
-    str::FromStr,
-    sync::Arc,
-};
+use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 
 use tokio::sync::Mutex;
 
-use mullvad_relay_selector::{GetRelay, RelaySelector, RuntimeParameters, WireguardConfig};
+use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
     settings::TunnelOptions,
 };
-use std::sync::LazyLock;
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::{
-    obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy, wireguard, Endpoint,
-    TunnelParameters,
+    Endpoint, TunnelParameters, obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy,
+    wireguard,
 };
 #[cfg(target_os = "android")]
-use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParameters};
+use talpid_types::net::{TunnelParameters, obfuscation::ObfuscatorConfig, wireguard};
 
-use talpid_types::{tunnel::ParameterGenerationError, ErrorExt};
+use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
-
-/// The IP-addresses that the client uses when it connects to a server that supports the
-/// "Same IP" functionality. This means all clients have the same in-tunnel IP on these
-/// servers. This improves anonymity since the in-tunnel IP will not be unique to a specific
-/// peer.
-static SAME_IP_V4: LazyLock<IpAddr> =
-    LazyLock::new(|| Ipv4Addr::from_str("10.127.255.254").unwrap().into());
-static SAME_IP_V6: LazyLock<IpAddr> = LazyLock::new(|| {
-    Ipv6Addr::from_str("fc00:bbbb:bbbb:bb01:ffff:ffff:ffff:ffff")
-        .unwrap()
-        .into()
-});
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -160,12 +141,12 @@ impl InnerParametersGenerator {
     async fn generate(
         &mut self,
         retry_attempt: u32,
-        ipv6: bool,
+        ip_availability: IpAvailability,
     ) -> Result<TunnelParameters, Error> {
         let data = self.device().await?;
         let selected_relay = self
             .relay_selector
-            .get_relay(retry_attempt as usize, RuntimeParameters { ipv6 })?;
+            .get_relay(retry_attempt as usize, ip_availability)?;
 
         match selected_relay {
             #[cfg(not(target_os = "android"))]
@@ -220,12 +201,12 @@ impl InnerParametersGenerator {
             GetRelay::Custom(custom_relay) => {
                 self.last_generated_relays = None;
                 custom_relay
-                     // TODO: generate proxy settings for custom tunnels
-                     .to_tunnel_parameters(self.tunnel_options.clone(), None)
-                     .map_err(|e| {
-                         log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
-                         Error::ResolveCustomHostname
-                     })
+                    // TODO: generate proxy settings for custom tunnels
+                    .to_tunnel_parameters(self.tunnel_options.clone(), None)
+                    .map_err(|e| {
+                        log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
+                        Error::ResolveCustomHostname
+                    })
             }
         }
     }
@@ -260,13 +241,6 @@ impl InnerParametersGenerator {
             private_key: data.device.wg_data.private_key,
             addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
         };
-        // FIXME: Used for debugging purposes during the migration to same IP. Remove when
-        // the migration is over.
-        if tunnel_ipv4 == *SAME_IP_V4 || tunnel_ipv6 == *SAME_IP_V6 {
-            log::debug!("Same IP is being used");
-        } else {
-            log::debug!("Same IP is NOT being used");
-        }
 
         wireguard::TunnelParameters {
             connection: wireguard::ConnectionConfig {
@@ -299,13 +273,13 @@ impl TunnelParametersGenerator for ParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
-        ipv6: bool,
+        ip_availability: IpAvailability,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {
             let mut inner = generator.lock().await;
             inner
-                .generate(retry_attempt, ipv6)
+                .generate(retry_attempt, ip_availability)
                 .await
                 .inspect_err(|error| {
                     log::error!(
@@ -325,7 +299,10 @@ impl From<Error> for ParameterGenerationError {
                 ParameterGenerationError::NoMatchingBridgeRelay
             }
             Error::ResolveCustomHostname => {
-                ParameterGenerationError::CustomTunnelHostResultionError
+                ParameterGenerationError::CustomTunnelHostResolutionError
+            }
+            Error::SelectRelay(mullvad_relay_selector::Error::IpVersionUnavailable { family }) => {
+                ParameterGenerationError::IpVersionUnavailable { family }
             }
             Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
                 ParameterGenerationError::NoMatchingRelay

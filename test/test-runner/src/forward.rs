@@ -2,8 +2,8 @@ use std::{
     collections::HashMap,
     net::SocketAddr,
     sync::{
-        atomic::{AtomicUsize, Ordering},
         Arc, LazyLock, Mutex,
+        atomic::{AtomicUsize, Ordering},
     },
 };
 use test_rpc::net::SockHandleId;

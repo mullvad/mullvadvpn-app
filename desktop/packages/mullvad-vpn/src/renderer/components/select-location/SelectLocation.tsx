@@ -2,15 +2,20 @@ import { useCallback, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../shared/constants';
-import { Ownership } from '../../../shared/daemon-rpc-types';
+import { ObfuscationType, Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
+import { RoutePath } from '../../../shared/routes';
+import { Button, FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
+import { FlexColumn } from '../../lib/components/flex-column';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
-import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
+import {
+  daitaFilterActive,
+  filterSpecialLocations,
+  quicFilterActive,
+} from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { useNormalRelaySettings, useTunnelProtocol } from '../../lib/relay-settings-hooks';
-import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
@@ -33,7 +38,6 @@ import { LocationType, SpecialBridgeLocationType, SpecialLocation } from './sele
 import { useSelectLocationContext } from './SelectLocationContainer';
 import {
   StyledContent,
-  StyledDaitaSettingsButton,
   StyledNavigationBarAttachment,
   StyledScopeBar,
   StyledSearchBar,
@@ -59,15 +63,20 @@ export default function SelectLocation() {
   const tunnelProtocol = useTunnelProtocol();
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
+  const multihop = relaySettings?.wireguard.useMultihop ?? false;
   const filteredProviders = useFilteredProviders(providers, ownership);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
+  const quic = useSelector(
+    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
+  );
+  const showQuicFilter = quicFilterActive(quic, locationType, tunnelProtocol, multihop);
   const showDaitaFilter = daitaFilterActive(
     daita,
     directOnly,
     locationType,
     tunnelProtocol,
-    relaySettings?.wireguard.useMultihop ?? false,
+    multihop,
   );
 
   const [searchValue, setSearchValue] = useState('');
@@ -119,7 +128,8 @@ export default function SelectLocation() {
 
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
-  const showFilters = showOwnershipFilter || showProvidersFilter || showDaitaFilter;
+  const showFilters =
+    showOwnershipFilter || showProvidersFilter || showDaitaFilter || showQuicFilter;
   return (
     <BackAction action={onClose}>
       <Layout>
@@ -195,6 +205,23 @@ export default function SelectLocation() {
                             {sprintf(
                               messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
                               { settingName: 'DAITA' },
+                            )}
+                          </FilterChip.Text>
+                        </FilterChip>
+                      )}
+
+                      {showQuicFilter && (
+                        <FilterChip as="div">
+                          <FilterChip.Text>
+                            {sprintf(
+                              // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
+                              // TRANSLATORS: Available placeholders:
+                              // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
+                              messages.pgettext(
+                                'select-location-view',
+                                'Obfuscation: %(obfuscation)s',
+                              ),
+                              { obfuscation: 'QUIC' },
                             )}
                           </FilterChip.Text>
                         </FilterChip>
@@ -409,7 +436,7 @@ function DisabledEntrySelection() {
   }, [push]);
 
   return (
-    <StyledSelectionUnavailable>
+    <FlexColumn $gap="large" $margin={{ horizontal: 'large', bottom: 'tiny' }}>
       <StyledSelectionUnavailableText>
         {sprintf(
           messages.pgettext(
@@ -419,11 +446,13 @@ function DisabledEntrySelection() {
           { daita: strings.daita, multihop, directOnly },
         )}
       </StyledSelectionUnavailableText>
-      <StyledDaitaSettingsButton onClick={navigateToDaitaSettings}>
-        {sprintf(messages.pgettext('select-location-view', 'Open %(daita)s settings'), {
-          daita: strings.daita,
-        })}
-      </StyledDaitaSettingsButton>
-    </StyledSelectionUnavailable>
+      <Button onClick={navigateToDaitaSettings}>
+        <Button.Text>
+          {sprintf(messages.pgettext('select-location-view', 'Open %(daita)s settings'), {
+            daita: strings.daita,
+          })}
+        </Button.Text>
+      </Button>
+    </FlexColumn>
   );
 }

@@ -28,6 +28,9 @@ private fun PreviewInputDialog() {
         InputDialog(
             title = "Input here",
             message = "Lorem ipsum",
+            onBack = {},
+            onConfirm = {},
+            onReset = {},
             input = {
                 CustomTextField(
                     value = "input",
@@ -39,18 +42,15 @@ private fun PreviewInputDialog() {
                     isDigitsOnlyAllowed = false,
                 )
             },
-            onReset = {},
-            onBack = {},
-            onConfirm = {},
         )
     }
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun InputDialog(
     title: String,
     message: String? = null,
-    input: @Composable ColumnScope.() -> Unit,
     confirmButtonEnabled: Boolean = true,
     confirmButtonText: String = stringResource(R.string.submit_button),
     onResetButtonText: String = stringResource(R.string.reset_to_default_button),
@@ -58,6 +58,7 @@ fun InputDialog(
     onBack: () -> Unit,
     onConfirm: () -> Unit,
     onReset: (() -> Unit)? = null,
+    input: @Composable ColumnScope.() -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onBack,

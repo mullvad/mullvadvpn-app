@@ -10,11 +10,11 @@ pub mod network_interface;
 
 pub mod tun_provider;
 use futures::{
+    SinkExt,
     channel::{
         mpsc::UnboundedSender,
         oneshot::{self, Sender},
     },
-    SinkExt,
 };
 use talpid_routing::RouteManagerHandle;
 use talpid_types::net::AllowedTunnelTraffic;

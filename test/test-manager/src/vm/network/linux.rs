@@ -204,7 +204,7 @@ async fn start_dnsmasq() -> Result<DhcpProcHandle> {
         "-i",
         BRIDGE_NAME,
         "-F",
-        &format!("{},{}", TEST_SUBNET_DHCP_FIRST, TEST_SUBNET_DHCP_LAST),
+        &format!("{TEST_SUBNET_DHCP_FIRST},{TEST_SUBNET_DHCP_LAST}"),
         "--no-hosts",
         "--keep-in-foreground",
         "--log-facility=-",

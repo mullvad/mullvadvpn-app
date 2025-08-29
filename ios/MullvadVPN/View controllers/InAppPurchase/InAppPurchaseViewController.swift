@@ -68,7 +68,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                         self.errorPresenter.showAlertForError(failure, context: .purchase) {
                             self.didFinish?()
                         }
-                    case let .failure(failure):
+                    case .failure:
                         self.didFinish?()
                     }
                 }
@@ -87,7 +87,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                         self.errorPresenter.showAlertForError(failure, context: .restoration) {
                             self.didFinish?()
                         }
-                    case let .failure(failure):
+                    case .failure:
                         self.didFinish?()
                     }
                 }
@@ -101,12 +101,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     func showPurchaseOptions(for products: [SKProduct]) {
-        let localizedString = NSLocalizedString(
-            "ADD_TIME_BUTTON",
-            tableName: "Welcome",
-            value: "Add Time",
-            comment: ""
-        )
+        let localizedString = NSLocalizedString("Add Time", comment: "")
         let sheetController = UIAlertController(
             title: localizedString,
             message: nil,
@@ -127,12 +122,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
             sheetController.addAction(action)
         }
 
-        let cancelAction = UIAlertAction(title: NSLocalizedString(
-            "SHEET_CANCEL_BUTTON",
-            tableName: "ActionSheet",
-            value: "Cancel",
-            comment: ""
-        ), style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
             self.didFinish?()
         }
         cancelAction.accessibilityIdentifier = "actoin-sheet-cancel-button"

@@ -12,7 +12,8 @@ workspace = true
 
 [features]
 # Allow the API server to use to be configured
-api-override = ["mullvad-api/api-override"]
+api-override = ["mullvad-api/api-override", "mullvad-daemon/api-override"]
+boringtun = ["mullvad-daemon/boringtun"]
 
 [lib]
 crate-type = ["cdylib"]
@@ -26,7 +27,6 @@ ipnetwork = { workspace = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 log-panics = "2"
-nix = "0.23"
 rand = "0.8.5"
 
 mullvad-api = { path = "../mullvad-api" }
@@ -35,3 +35,4 @@ mullvad-problem-report = { path = "../mullvad-problem-report" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-types = { path = "../talpid-types" }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }

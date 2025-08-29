@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -10,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -25,9 +27,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,14 +41,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,16 +62,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
+import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
+import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination
+import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
+import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
+import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -69,8 +83,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
-import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicatorsPanel
@@ -78,22 +92,21 @@ import net.mullvad.mullvadvpn.compose.component.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
+import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
+import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
@@ -113,8 +126,12 @@ import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
-import net.mullvad.mullvadvpn.lib.theme.typeface.hostname
+import net.mullvad.mullvadvpn.lib.tv.NavigationDrawerTv
+import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -133,18 +150,20 @@ private fun PreviewAccountScreen(
         ConnectScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
+            onDisconnectClick = {},
+            onReconnectClick = {},
+            onConnectClick = {},
+            onCancelClick = {},
+            onSwitchLocationClick = {},
+            onOpenAppListing = {},
+            onManageAccountClick = {},
+            onChangelogClick = {},
+            onDismissChangelogClick = {},
+            onSettingsClick = {},
+            onAccountClick = {},
+            onDismissNewDeviceClick = {},
+            onNavigateToFeature = {},
+            onClickShowWireguardPortSettings = {},
         )
     }
 }
@@ -154,6 +173,7 @@ private fun PreviewAccountScreen(
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>,
 ) {
     val connectViewModel: ConnectViewModel = koinViewModel()
@@ -209,18 +229,47 @@ fun Connect(
                     is PrepareError.NotPrepared ->
                         createVpnProfile.launch(sideEffect.prepareError.prepareIntent)
                 }
-            is ConnectViewModel.UiSideEffect.ConnectError ->
+
+            ConnectViewModel.UiSideEffect.ConnectError.Generic ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = context.getString(R.string.error_occurred)
+                )
+
+            is ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = sideEffect.toMessage(context)
+                        message =
+                            context.getString(
+                                if (sideEffect.systemVpnSettingsAvailable) {
+                                    R.string.vpn_permission_denied_error
+                                } else {
+                                    R.string.vpn_permission_denied_error_no_vpn_settings
+                                }
+                            ),
+                        actionLabel =
+                            if (sideEffect.systemVpnSettingsAvailable) {
+                                context.getString(R.string.go_to_vpn_settings)
+                            } else {
+                                null
+                            },
+                        withDismissAction = sideEffect.systemVpnSettingsAvailable,
+                        onAction = {
+                            context.openVpnSettings().onLeft {
+                                launch {
+                                    snackbarHostState.showSnackbarImmediately(
+                                        message =
+                                            context.getString(R.string.vpn_settings_not_available)
+                                    )
+                                }
+                            }
+                        },
                     )
                 }
+            }
 
             is ConnectViewModel.UiSideEffect.OpenUri ->
-                try {
-                    uriHandler.openUri(sideEffect.uri.toString())
-                } catch (e: IllegalArgumentException) {
-                    Logger.w("Failed to open uri", e)
+                uriHandler.safeOpenUri(sideEffect.uri.toString()).onLeft {
+                    snackbarHostState.showSnackbarImmediately(message = sideEffect.errorMessage)
                 }
         }
     }
@@ -231,26 +280,39 @@ fun Connect(
         }
     }
 
-    ConnectScreen(
-        state = state,
-        snackbarHostState = snackbarHostState,
-        onDisconnectClick = connectViewModel::onDisconnectClick,
-        onReconnectClick = connectViewModel::onReconnectClick,
-        onConnectClick = connectViewModel::onConnectClick,
-        onCancelClick = connectViewModel::onCancelClick,
-        onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
-        onOpenAppListing = connectViewModel::openAppListing,
-        onManageAccountClick = connectViewModel::onManageAccountClick,
-        onChangelogClick =
-            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs(true))) },
-        onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
-        onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
-    )
+    CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
+        ConnectScreen(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            onDisconnectClick = connectViewModel::onDisconnectClick,
+            onReconnectClick = connectViewModel::onReconnectClick,
+            onConnectClick = connectViewModel::onConnectClick,
+            onCancelClick = connectViewModel::onCancelClick,
+            onSwitchLocationClick =
+                dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
+            onOpenAppListing = connectViewModel::openAppListing,
+            onManageAccountClick = connectViewModel::onManageAccountClick,
+            onChangelogClick =
+                dropUnlessResumed {
+                    navigator.navigate(ChangelogDestination(ChangelogNavArgs(true)))
+                },
+            onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
+            onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+            onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
+            onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
+            onNavigateToFeature =
+                dropUnlessResumed { feature: FeatureIndicator ->
+                    navigator.navigate(feature.destination())
+                },
+            onClickShowWireguardPortSettings =
+                dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
+        )
+    }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
+@Suppress("LongParameterList")
 fun ConnectScreen(
     state: ConnectUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -266,72 +328,147 @@ fun ConnectScreen(
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
+    val contentFocusRequester = remember { FocusRequester() }
 
-    ScaffoldWithTopBarAndDeviceName(
-        topBarColor = state.tunnelState.topBarColor(),
-        iconTintColor = state.tunnelState.iconTintColor(),
-        onSettingsClicked = onSettingsClick,
-        onAccountClicked = onAccountClick,
-        deviceName = state.deviceName,
-        timeLeft = state.daysLeftUntilExpiry,
-        snackbarHostState = snackbarHostState,
-    ) {
-        val configuration = LocalConfiguration.current
-        val screenHeight = configuration.screenHeightDp.dp
-        val indicatorPercentOffset =
-            if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
-            else TALL_SCREEN_INDICATOR_BIAS
-
-        Box(
-            Modifier.padding(
-                    top = it.calculateTopPadding(),
-                    start = it.calculateStartPadding(LocalLayoutDirection.current),
-                    end = it.calculateEndPadding(LocalLayoutDirection.current),
-                )
-                .fillMaxSize()
-        ) {
-            MullvadMap(state, indicatorPercentOffset)
-
-            MullvadCircularProgressIndicatorLarge(
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
-                            layout(placeable.width, placeable.height) {
-                                placeable.placeRelative(
-                                    x = (constraints.maxWidth * 0.5f - placeable.width / 2).toInt(),
-                                    y =
-                                        (constraints.maxHeight * indicatorPercentOffset -
-                                                placeable.height / 2)
-                                            .toInt(),
-                                )
-                            }
-                        }
-                        .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
-                        .testTag(CIRCULAR_PROGRESS_INDICATOR),
+    val content =
+        @Composable { padding: PaddingValues ->
+            Content(
+                contentFocusRequester,
+                padding,
+                state,
+                onDisconnectClick,
+                onReconnectClick,
+                onConnectClick,
+                onCancelClick,
+                onSwitchLocationClick,
+                onOpenAppListing,
+                onManageAccountClick,
+                onChangelogClick,
+                onDismissChangelogClick,
+                onDismissNewDeviceClick,
+                onNavigateToFeature,
+                onClickShowWireguardPortSettings,
             )
+        }
 
-            Box(modifier = Modifier.fillMaxSize().padding(bottom = it.calculateBottomPadding())) {
-                NotificationBanner(
-                    notification = state.inAppNotification,
-                    isPlayBuild = state.isPlayBuild,
-                    openAppListing = onOpenAppListing,
-                    onClickShowAccount = onManageAccountClick,
-                    onClickShowChangelog = onChangelogClick,
-                    onClickDismissChangelog = onDismissChangelogClick,
-                    onClickDismissNewDevice = onDismissNewDeviceClick,
-                )
-                ConnectionCard(
-                    state = state,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    onSwitchLocationClick = onSwitchLocationClick,
-                    onDisconnectClick = onDisconnectClick,
-                    onReconnectClick = onReconnectClick,
-                    onCancelClick = onCancelClick,
-                    onConnectClick = onConnectClick,
+    if (isTv()) {
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    snackbarHostState,
+                    snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
                 )
             }
+        ) {
+            NavigationDrawerTv(
+                daysLeftUntilExpiry = state.daysLeftUntilExpiry,
+                deviceName = state.deviceName,
+                onSettingsClick = onSettingsClick,
+                onAccountClick = onAccountClick,
+            ) {
+                content(it)
+            }
+        }
+        LaunchedEffect(Unit) { contentFocusRequester.requestFocus() }
+    } else {
+        ScaffoldWithTopBarAndDeviceName(
+            topBarColor = state.tunnelState.topBarColor(),
+            iconTintColor = state.tunnelState.iconTintColor(),
+            onSettingsClicked = onSettingsClick,
+            onAccountClicked = onAccountClick,
+            deviceName = state.deviceName,
+            timeLeft = state.daysLeftUntilExpiry,
+            snackbarHostState = snackbarHostState,
+        ) {
+            content(it)
+        }
+    }
+}
+
+@Composable
+@Suppress("LongParameterList")
+private fun Content(
+    focusRequester: FocusRequester,
+    paddingValues: PaddingValues,
+    state: ConnectUiState,
+    onDisconnectClick: () -> Unit,
+    onReconnectClick: () -> Unit,
+    onConnectClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onSwitchLocationClick: () -> Unit,
+    onOpenAppListing: () -> Unit,
+    onManageAccountClick: () -> Unit,
+    onChangelogClick: () -> Unit,
+    onDismissChangelogClick: () -> Unit,
+    onDismissNewDeviceClick: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
+) {
+    val screenHeight =
+        with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+
+    val indicatorPercentOffset =
+        if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
+        else TALL_SCREEN_INDICATOR_BIAS
+
+    Box(
+        Modifier.padding(
+                top = paddingValues.calculateTopPadding(),
+                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
+            )
+            .fillMaxSize()
+    ) {
+        MullvadMap(state, indicatorPercentOffset)
+
+        MullvadCircularProgressIndicatorLarge(
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier =
+                Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(
+                                x = (constraints.maxWidth * 0.5f - placeable.width / 2).toInt(),
+                                y =
+                                    (constraints.maxHeight * indicatorPercentOffset -
+                                            placeable.height / 2)
+                                        .toInt(),
+                            )
+                        }
+                    }
+                    .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible),
+        )
+
+        Box(
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = paddingValues.calculateBottomPadding())
+        ) {
+            NotificationBanner(
+                modifier = Modifier.align(Alignment.TopCenter),
+                notification = state.inAppNotification,
+                isPlayBuild = state.isPlayBuild,
+                contentFocusRequester = focusRequester,
+                openAppListing = onOpenAppListing,
+                onClickShowAccount = onManageAccountClick,
+                onClickShowChangelog = onChangelogClick,
+                onClickDismissChangelog = onDismissChangelogClick,
+                onClickDismissNewDevice = onDismissNewDeviceClick,
+                onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
+            )
+            ConnectionCard(
+                state = state,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                focusRequester = focusRequester,
+                onSwitchLocationClick = onSwitchLocationClick,
+                onDisconnectClick = onDisconnectClick,
+                onReconnectClick = onReconnectClick,
+                onCancelClick = onCancelClick,
+                onConnectClick = onConnectClick,
+                onNavigateToFeature = onNavigateToFeature,
+            )
         }
     }
 }
@@ -368,11 +505,13 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 private fun ConnectionCard(
     state: ConnectUiState,
     modifier: Modifier = Modifier,
+    focusRequester: FocusRequester,
     onSwitchLocationClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onReconnectClick: () -> Unit,
     onCancelClick: () -> Unit,
     onConnectClick: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     var expanded by rememberSaveable(state.tunnelState::class) { mutableStateOf(false) }
     val containerColor =
@@ -402,6 +541,7 @@ private fun ConnectionCard(
                         (state.tunnelState as? TunnelState.Connected)?.toConnectionsDetails(),
                         exp,
                         onToggleExpand = { expanded = !exp },
+                        onNavigateToFeature = onNavigateToFeature,
                     )
                 } else {
                     Spacer(Modifier.height(Dimens.smallSpacer))
@@ -412,6 +552,7 @@ private fun ConnectionCard(
 
             ButtonPanel(
                 state,
+                focusRequester,
                 onSwitchLocationClick,
                 onDisconnectClick,
                 onReconnectClick,
@@ -441,14 +582,14 @@ private fun ConnectionCardHeader(
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ConnectionStatusText(state = state.tunnelState)
             if (state.tunnelState is TunnelState.Connected) {
-                ExpandChevron(isExpanded = !expanded, color = MaterialTheme.colorScheme.onSurface)
+                ExpandChevron(isExpanded = !expanded)
             }
         }
 
         Text(
             modifier = Modifier.fillMaxWidth().padding(top = Dimens.tinyPadding),
             text = location.asString(),
-            style = MaterialTheme.typography.connectionStatus,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -459,7 +600,7 @@ private fun ConnectionCardHeader(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = it,
-                    style = MaterialTheme.typography.hostname,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -499,6 +640,7 @@ private fun ConnectionInfo(
     connectionDetails: ConnectionDetails?,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Column {
@@ -517,10 +659,10 @@ private fun ConnectionInfo(
                     )
                     .verticalScroll(scrollState)
         ) {
-            FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand)
+            FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
 
             if (expanded && connectionDetails != null) {
-                ConnectionDetailPanel(connectionDetails)
+                ConnectionDetailPanel(connectionDetails, enableSelectableText = !isTv())
             }
         }
     }
@@ -543,6 +685,7 @@ fun TunnelState.Connected.toConnectionsDetails(): ConnectionDetails =
 @Composable
 private fun ButtonPanel(
     state: ConnectUiState,
+    selectButtonFocusRequester: FocusRequester,
     onSwitchLocationClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onReconnectClick: () -> Unit,
@@ -558,23 +701,25 @@ private fun ButtonPanel(
             action.invoke()
         }
     }
-    Column(modifier = Modifier.padding(vertical = Dimens.tinyPadding)) {
+    Column(modifier = Modifier.padding(top = Dimens.tinyPadding)) {
         SwitchLocationButton(
-            text =
-                if (state.showLocation && state.selectedRelayItemTitle != null) {
-                    state.selectedRelayItemTitle
-                } else {
-                    stringResource(id = R.string.switch_location)
-                },
+            text = state.selectedRelayItemTitle ?: stringResource(id = R.string.switch_location),
             onSwitchLocation = onSwitchLocationClick,
-            reconnectClick = { handleThrottledAction(onReconnectClick) },
+            reconnectClick = {
+                handleThrottledAction {
+                    onReconnectClick()
+                    selectButtonFocusRequester.requestFocus()
+                }
+            },
             isReconnectButtonEnabled =
                 state.tunnelState is TunnelState.Connected ||
                     state.tunnelState is TunnelState.Connecting,
-            modifier = Modifier.testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
+            modifier =
+                Modifier.testTag(SELECT_LOCATION_BUTTON_TEST_TAG)
+                    .focusRequester(selectButtonFocusRequester),
             reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
         )
-        Spacer(Modifier.height(Dimens.buttonVerticalPadding))
+        Spacer(Modifier.height(Dimens.buttonSpacing))
 
         ConnectionButton(
             modifier = Modifier.fillMaxWidth().testTag(CONNECT_BUTTON_TEST_TAG),
@@ -623,15 +768,6 @@ fun TunnelState.iconTintColor(): Color =
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
 
-private fun ConnectViewModel.UiSideEffect.ConnectError.toMessage(context: Context): String =
-    when (this) {
-        ConnectViewModel.UiSideEffect.ConnectError.Generic ->
-            context.getString(R.string.error_occurred)
-
-        ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied ->
-            context.getString(R.string.vpn_permission_denied_error)
-    }
-
 private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(context: Context) =
     context
         .getString(R.string.always_on_vpn_error_notification_content, "Legacy app")
@@ -639,3 +775,22 @@ private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(context: Context) =
 
 private fun PrepareError.OtherAlwaysOnApp.toMessage(context: Context) =
     context.getString(R.string.always_on_vpn_error_notification_content, appName).removeHtmlTags()
+
+private fun FeatureIndicator.destination() =
+    when (this) {
+        FeatureIndicator.DAITA,
+        FeatureIndicator.DAITA_MULTIHOP -> DaitaDestination(isModal = true)
+        FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
+        FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination(isModal = true)
+
+        FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination(isModal = true)
+
+        FeatureIndicator.QUANTUM_RESISTANCE,
+        FeatureIndicator.UDP_2_TCP,
+        FeatureIndicator.SHADOWSOCKS,
+        FeatureIndicator.LAN_SHARING,
+        FeatureIndicator.DNS_CONTENT_BLOCKERS,
+        FeatureIndicator.CUSTOM_DNS,
+        FeatureIndicator.CUSTOM_MTU ->
+            VpnSettingsDestination(scrollToFeature = this, isModal = true)
+    }

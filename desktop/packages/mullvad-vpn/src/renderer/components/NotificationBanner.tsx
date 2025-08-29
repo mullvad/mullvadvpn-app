@@ -3,20 +3,20 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
-import { Icon, IconButton } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { IconButton } from '../lib/components';
+import { colors } from '../lib/foundations';
+import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
-import * as AppButton from './AppButton';
 import { tinyText } from './common-styles';
 
 const NOTIFICATION_AREA_ID = 'notification-area';
 
 export const NotificationTitle = styled.span(tinyText, {
-  color: Colors.white,
+  color: colors.white,
 });
 
 export const NotificationSubtitleText = styled.span(tinyText, {
-  color: Colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 interface INotificationSubtitleProps {
@@ -27,45 +27,34 @@ export function NotificationSubtitle(props: INotificationSubtitleProps) {
   return React.Children.count(props.children) > 0 ? <NotificationSubtitleText {...props} /> : null;
 }
 
-export const NotificationActionButton = styled(AppButton.SimpleButton)({
-  flex: 1,
-  justifyContent: 'center',
-  cursor: 'default',
-  padding: '4px',
-  background: 'transparent',
-  border: 'none',
-});
-
-export const NotificationActionButtonInner = styled(Icon)({
-  [NotificationActionButton + ':hover &&']: {
-    backgroundColor: Colors.white80,
-  },
-});
-
 interface NotificationActionProps {
   onClick: () => Promise<void>;
 }
 
 export function NotificationOpenLinkAction(props: NotificationActionProps) {
+  const [onClick] = useExclusiveTask(props.onClick);
   return (
-    <AppButton.BlockingButton onClick={props.onClick}>
-      <NotificationActionButton
-        aria-describedby={NOTIFICATION_AREA_ID}
-        aria-label={messages.gettext('Open URL')}>
-        <NotificationActionButtonInner size="small" icon="external" color={Colors.white60} />
-      </NotificationActionButton>
-    </AppButton.BlockingButton>
+    <IconButton
+      size="small"
+      variant="secondary"
+      onClick={onClick}
+      aria-describedby={NOTIFICATION_AREA_ID}
+      aria-label={messages.gettext('Open URL')}>
+      <IconButton.Icon icon="external" />
+    </IconButton>
   );
 }
 
 export function NotificationTroubleshootDialogAction(props: NotificationActionProps) {
   return (
-    <NotificationActionButton
+    <IconButton
+      size="small"
+      variant="secondary"
       aria-describedby={NOTIFICATION_AREA_ID}
       aria-label={messages.gettext('Troubleshoot')}
       onClick={props.onClick}>
-      <NotificationActionButtonInner size="small" icon="info-circle" />
-    </NotificationActionButton>
+      <IconButton.Icon icon="info-circle" />
+    </IconButton>
   );
 }
 
@@ -101,9 +90,9 @@ interface INotificationIndicatorProps {
 }
 
 const notificationIndicatorTypeColorMap = {
-  success: Colors.green,
-  warning: Colors.yellow,
-  error: Colors.red,
+  success: colors.green,
+  warning: colors.yellow,
+  error: colors.red,
 };
 
 export const NotificationIndicator = styled.div<INotificationIndicatorProps>((props) => ({
@@ -112,7 +101,9 @@ export const NotificationIndicator = styled.div<INotificationIndicatorProps>((pr
   borderRadius: '5px',
   marginTop: '4px',
   marginRight: '8px',
-  backgroundColor: props.$type ? notificationIndicatorTypeColorMap[props.$type] : 'transparent',
+  backgroundColor: props.$type
+    ? notificationIndicatorTypeColorMap[props.$type]
+    : colors.transparent,
 }));
 
 interface ICollapsibleProps {
@@ -125,7 +116,7 @@ const Collapsible = styled.div<ICollapsibleProps>((props) => {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: props.$alignBottom ? 'flex-end' : 'flex-start',
-    backgroundColor: Colors.darkerBlue,
+    backgroundColor: colors.darkerBlue50,
     overflow: 'hidden',
     // Using auto as the initial value prevents transition if a notification is visible on mount.
     height: props.$height === undefined ? 'auto' : `${props.$height}px`,

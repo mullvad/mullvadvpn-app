@@ -1,28 +1,26 @@
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
+    ConnectionConfig, CustomTunnelEndpoint,
     constraints::{Constraint, Match},
     location::CountryCode,
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
         OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
-        RelaySettings, TransportPort, WireguardConstraints,
+        RelaySettings, TransportPort, WireguardConstraints, allowed_ip::AllowedIps,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
-    ConnectionConfig, CustomTunnelEndpoint,
 };
 use std::{
     collections::HashMap,
     io::BufRead,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use talpid_types::net::{
-    all_of_the_internet, openvpn, wireguard, Endpoint, IpVersion, TransportProtocol, TunnelType,
-};
+use talpid_types::net::{Endpoint, IpVersion, TransportProtocol, TunnelType, openvpn, wireguard};
 
-use super::{relay_constraints::LocationArgs, BooleanOption};
+use super::{BooleanOption, relay_constraints::LocationArgs};
 use crate::{cmds::receive_confirmation, print_option};
 
 #[derive(Subcommand, Debug)]
@@ -538,7 +536,7 @@ impl Relay {
                 },
                 peer: wireguard::PeerConfig {
                     public_key: peer_pubkey,
-                    allowed_ips: all_of_the_internet(),
+                    allowed_ips: AllowedIps::allow_all().resolve(Some(ipv4_gateway), ipv6_gateway),
                     endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
                     psk: None,
                     constant_packet_size: false,
@@ -589,7 +587,7 @@ impl Relay {
         let mut rpc = MullvadProxyClient::new().await?;
         let list_id = super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
             .await?
-            .id;
+            .id();
         Self::update_constraints(|constraints| {
             constraints.location = Constraint::Only(LocationConstraint::CustomList { list_id });
         })
@@ -687,7 +685,7 @@ impl Relay {
             Some(EntryArgs::CustomList { custom_list_name }) => {
                 let list_id = super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
                     .await?
-                    .id;
+                    .id();
                 wireguard_constraints.entry_location =
                     Constraint::Only(LocationConstraint::CustomList { list_id });
             }

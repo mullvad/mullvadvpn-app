@@ -40,13 +40,13 @@ enum CustomListItemIdentifier: Hashable, CaseIterable {
     var text: String? {
         switch self {
         case .name:
-            NSLocalizedString("NAME", tableName: "CustomLists", value: "Name", comment: "")
+            NSLocalizedString("Name", comment: "")
         case .addLocations:
-            NSLocalizedString("ADD", tableName: "CustomLists", value: "Add locations", comment: "")
+            NSLocalizedString("Add locations", comment: "")
         case .editLocations:
-            NSLocalizedString("EDIT", tableName: "CustomLists", value: "Edit locations", comment: "")
+            NSLocalizedString("Edit locations", comment: "")
         case .deleteList:
-            NSLocalizedString("Delete", tableName: "CustomLists", value: "Delete list", comment: "")
+            NSLocalizedString("Delete list", comment: "")
         }
     }
 

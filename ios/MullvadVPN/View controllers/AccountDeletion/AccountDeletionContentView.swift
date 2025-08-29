@@ -34,24 +34,21 @@ class AccountDeletionContentView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .title2, weight: .bold)
+        label.font = .mullvadLarge
         label.numberOfLines = .zero
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .white
-        label.text = NSLocalizedString(
-            "ACCOUNT_DELETION_PAGE_TITLE",
-            tableName: "Account",
-            value: "Account deletion",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Account deletion", comment: "")
         return label
     }()
 
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .body, weight: .bold)
+        label.font = .mullvadSmallSemiBold
         label.numberOfLines = .zero
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .white
         return label
@@ -60,14 +57,13 @@ class AccountDeletionContentView: UIView {
     private let tipLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .footnote, weight: .bold)
+        label.font = .mullvadMiniSemiBold
         label.numberOfLines = .zero
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .white
         label.text = NSLocalizedString(
-            "TIP_TEXT",
-            tableName: "Account",
-            value: """
+            """
             This logs out all devices using this account and all \
             VPN access will be denied even if there is time left on the account. \
             Enter the last 4 digits of the account number and hit "Delete account" \
@@ -82,7 +78,7 @@ class AccountDeletionContentView: UIView {
         let groupingStyle = AccountTextField.GroupingStyle.lastPart
         let textField = AccountTextField(groupingStyle: groupingStyle)
         textField.setAccessibilityIdentifier(.deleteAccountTextField)
-        textField.font = .preferredFont(forTextStyle: .body, weight: .bold)
+        textField.font = .mullvadSmallSemiBold
         textField.placeholder = Array(repeating: "X", count: 4).joined()
         textField.placeholderTextColor = .lightGray
         textField.textContentType = .username
@@ -94,6 +90,7 @@ class AccountDeletionContentView: UIView {
         textField.keyboardType = .numberPad
         textField.returnKeyType = .done
         textField.enablesReturnKeyAutomatically = false
+        textField.adjustsFontForContentSizeCategory = true
         textField.backgroundColor = .white
         textField.borderStyle = .line
         return textField
@@ -102,24 +99,14 @@ class AccountDeletionContentView: UIView {
     private let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
         button.setAccessibilityIdentifier(.deleteButton)
-        button.setTitle(NSLocalizedString(
-            "DELETE_ACCOUNT_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Delete Account",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Delete Account", comment: ""), for: .normal)
         return button
     }()
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .default)
         button.setAccessibilityIdentifier(.cancelButton)
-        button.setTitle(NSLocalizedString(
-            "CANCEL_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Cancel",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
         return button
     }()
 
@@ -161,6 +148,7 @@ class AccountDeletionContentView: UIView {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .body)
         label.numberOfLines = 2
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .red
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -214,12 +202,7 @@ class AccountDeletionContentView: UIView {
         case let .failure(error):
             return error.localizedDescription
         case .loading:
-            return NSLocalizedString(
-                "DELETE_ACCOUNT_STATUS_WAITING",
-                tableName: "Account",
-                value: "Deleting account...",
-                comment: ""
-            )
+            return NSLocalizedString("Deleting account...", comment: "")
         default: return ""
         }
     }
@@ -319,18 +302,14 @@ class AccountDeletionContentView: UIView {
     private func updateData() {
         viewModel.flatMap { viewModel in
             let text = NSLocalizedString(
-                "BODY_LABEL_TEXT",
-                tableName: "Account",
-                value: """
+                """
                 Are you sure you want to delete account **\(viewModel.accountNumber)**?
                 """,
                 comment: ""
             )
             messageLabel.attributedText = NSAttributedString(
                 markdownString: text,
-                options: MarkdownStylingOptions(
-                    font: .preferredFont(forTextStyle: .body)
-                )
+                options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
             )
         }
     }

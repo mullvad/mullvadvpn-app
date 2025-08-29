@@ -1,0 +1,60 @@
+name: 'Setup project toolchain'
+description: 'Setup Xcode project and install toolchain'
+inputs:
+  ios_rust_target:
+    description: 'iOS target device'
+    type: choice
+    default: aarch64-apple-ios-sim
+    options:
+      - aarch64-apple-ios-sim
+      - aarch64-apple-ios
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout submodules
+      run: |
+        git config --global --add safe.directory '*'
+        git submodule update --init --recursive ios/wireguard-apple
+      shell: bash
+
+    - name: Configure cache
+      uses: actions/cache@v3
+      with:
+        path: ios/${{ env.SOURCE_PACKAGES_PATH }}
+        key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+
+    - name: Setup go-lang
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.21.13
+
+    - name: Configure Rust
+      run: rustup target add ${{ inputs.ios_rust_target }}
+      shell: bash
+
+    - name: Install xcbeautify
+      run: |
+        brew update
+        brew install xcbeautify
+      shell: bash
+
+    - name: Install protobuf
+      run: |
+        brew update
+        brew install protobuf
+      shell: bash
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+
+    - name: Configure Xcode project
+      run: |
+          for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
+      working-directory: ios/Configurations
+      shell: bash

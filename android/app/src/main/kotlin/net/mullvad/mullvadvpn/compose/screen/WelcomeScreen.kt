@@ -20,11 +20,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,91 +46,58 @@ import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
-import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
 import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
-import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
-import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
+import net.mullvad.mullvadvpn.compose.button.VariantButton
+import net.mullvad.mullvadvpn.compose.component.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
-import net.mullvad.mullvadvpn.compose.component.PlayPayment
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.WelcomeScreenUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
-import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Loading|Content|TunnelConnected")
 @Composable
 private fun PreviewWelcomeScreen(
-    @PreviewParameter(WelcomeScreenUiStatePreviewParameterProvider::class) state: WelcomeUiState
+    @PreviewParameter(WelcomeScreenUiStatePreviewParameterProvider::class)
+    state: Lc<Unit, WelcomeUiState>
 ) {
     AppTheme {
         WelcomeScreen(
             state = state,
-            onSitePaymentClick = {},
-            onRedeemVoucherClick = {},
             onSettingsClick = {},
             onAccountClick = {},
-            onPurchaseBillingProductClick = { _ -> },
             navigateToDeviceInfoDialog = {},
-            navigateToVerificationPendingDialog = {},
             onDisconnectClick = {},
+            onRedeemVoucherClick = {},
+            onPlayPaymentInfoClick = {},
         )
     }
 }
 
 @Destination<RootGraph>(style = HomeTransition::class)
 @Composable
-fun Welcome(
-    navigator: DestinationsNavigator,
-    voucherRedeemResultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
-    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>,
-) {
+fun Welcome(navigator: DestinationsNavigator) {
     val vm = koinViewModel<WelcomeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
-
-    voucherRedeemResultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {
-                /* Do nothing */
-            }
-            is NavResult.Value ->
-                // If we successfully redeemed a voucher, navigate to Connect screen
-                if (it.value) {
-                    navigator.navigate(ConnectDestination) {
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
-                }
-        }
-    }
-
-    playPaymentResultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {
-                /* Do nothing */
-            }
-            is NavResult.Value -> vm.onClosePurchaseResultDialog(it.value)
-        }
-    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -151,7 +122,7 @@ fun Welcome(
                 val credentialsManager = CredentialManager.create(context)
                 try {
                     credentialsManager.createCredential(context, createPasswordRequest)
-                } catch (e: CreateCredentialException) {
+                } catch (_: CreateCredentialException) {
                     Logger.w("Unable to create Credentials")
                 }
             }
@@ -161,32 +132,27 @@ fun Welcome(
     WelcomeScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSitePaymentClick = dropUnlessResumed { vm.onSitePaymentClick() },
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         navigateToDeviceInfoDialog =
             dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
-        onPurchaseBillingProductClick =
-            dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         onDisconnectClick = vm::onDisconnectClick,
-        navigateToVerificationPendingDialog =
+        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onPlayPaymentInfoClick =
             dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
     )
 }
 
 @Composable
 fun WelcomeScreen(
-    state: WelcomeUiState,
+    state: Lc<Unit, WelcomeUiState>,
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onSitePaymentClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     onDisconnectClick: () -> Unit,
+    onRedeemVoucherClick: () -> Unit,
+    onPlayPaymentInfoClick: () -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
-    navigateToVerificationPendingDialog: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -197,6 +163,16 @@ fun WelcomeScreen(
         onAccountClicked = onAccountClick,
         snackbarHostState = snackbarHostState,
     ) {
+        var addTimeBottomSheetState by remember { mutableStateOf(false) }
+        if (!LocalInspectionMode.current) {
+            AddTimeBottomSheet(
+                visible = addTimeBottomSheetState,
+                onHideBottomSheet = { addTimeBottomSheetState = false },
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
+            )
+        }
+
         Column(
             modifier =
                 Modifier.fillMaxSize()
@@ -214,16 +190,15 @@ fun WelcomeScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             // Button area
-            ButtonPanel(
-                showDisconnectButton = state.tunnelState.isSecured(),
-                showSitePayment = state.showSitePayment,
-                billingPaymentState = state.billingPaymentState,
-                onSitePaymentClick = onSitePaymentClick,
-                onRedeemVoucherClick = onRedeemVoucherClick,
-                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-                onPaymentInfoClick = navigateToVerificationPendingDialog,
-                onDisconnectClick = onDisconnectClick,
-            )
+            if (state is Lc.Content) {
+                ButtonPanel(
+                    showDisconnectButton = state.value.tunnelState.isSecured(),
+                    verificationPending = state.value.verificationPending,
+                    onAddMoreTimeClick = { addTimeBottomSheetState = true },
+                    onDisconnectClick = onDisconnectClick,
+                    onInfoClick = onPlayPaymentInfoClick,
+                )
+            }
         }
     }
 }
@@ -231,7 +206,7 @@ fun WelcomeScreen(
 @Composable
 private fun WelcomeInfo(
     snackbarHostState: SnackbarHostState,
-    state: WelcomeUiState,
+    state: Lc<Unit, WelcomeUiState>,
     navigateToDeviceInfoDialog: () -> Unit,
 ) {
     Column {
@@ -240,7 +215,7 @@ private fun WelcomeInfo(
             modifier =
                 Modifier.fillMaxWidth()
                     .padding(
-                        top = Dimens.screenVerticalMargin,
+                        top = Dimens.screenTopMargin,
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
                     ),
@@ -254,31 +229,44 @@ private fun WelcomeInfo(
             modifier =
                 Modifier.fillMaxWidth()
                     .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
 
-        AccountNumberRow(snackbarHostState, state)
+        when (state) {
+            is Lc.Loading ->
+                MullvadCircularProgressIndicatorMedium(
+                    modifier =
+                        Modifier.padding(
+                            horizontal = Dimens.sideMargin,
+                            vertical = Dimens.smallPadding,
+                        )
+                )
+            is Lc.Content -> {
+                // Account number
+                AccountNumberRow(snackbarHostState, state.value)
 
-        DeviceNameRow(deviceName = state.deviceName, navigateToDeviceInfoDialog)
+                DeviceNameRow(deviceName = state.value.deviceName, navigateToDeviceInfoDialog)
+            }
+        }
 
         Text(
             text =
                 buildString {
                     append(stringResource(id = R.string.pay_to_start_using))
-                    if (state.showSitePayment) {
+                    if (state.contentOrNull()?.showSitePayment == true) {
                         append(" ")
                         append(stringResource(id = R.string.add_time_to_account))
                     }
                 },
             modifier =
                 Modifier.padding(
-                    top = Dimens.smallPadding,
+                    top = Dimens.cellVerticalSpacing,
                     bottom = Dimens.verticalSpace,
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
                 ),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
@@ -287,7 +275,8 @@ private fun WelcomeInfo(
 @Composable
 private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: WelcomeUiState) {
     val copiedAccountNumberMessage = stringResource(id = R.string.copied_mullvad_account_number)
-    val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val copyToClipboard =
+        createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = true)
     val onCopyToClipboard = {
         copyToClipboard(state.accountNumber?.value ?: "", copiedAccountNumberMessage)
     }
@@ -298,11 +287,16 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
         modifier =
             Modifier.fillMaxWidth()
                 .clickable(onClick = onCopyToClipboard)
-                .padding(horizontal = Dimens.sideMargin),
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    top = Dimens.cellVerticalSpacing,
+                    bottom = Dimens.mediumPadding,
+                ),
     ) {
         Text(
             text = state.accountNumber?.value?.groupWithSpaces() ?: "",
-            modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
+            modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -325,7 +319,7 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
                     append(": ")
                     append(deviceName)
                 },
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurface,
@@ -347,65 +341,51 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
 @Composable
 private fun ButtonPanel(
     showDisconnectButton: Boolean,
-    showSitePayment: Boolean,
-    billingPaymentState: PaymentState?,
-    onSitePaymentClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit,
-    onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
-    onPaymentInfoClick: () -> Unit,
+    verificationPending: Boolean,
+    onAddMoreTimeClick: () -> Unit,
     onDisconnectClick: () -> Unit,
+    onInfoClick: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(top = Dimens.mediumPadding)) {
-        Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(
+                    top = Dimens.mediumPadding,
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                )
+    ) {
+        Spacer(modifier = Modifier.padding(top = Dimens.screenTopMargin))
         if (showDisconnectButton) {
             NegativeButton(
                 onClick = onDisconnectClick,
                 text = stringResource(id = R.string.disconnect),
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing,
-                    ),
+                modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
             )
         }
-        billingPaymentState?.let {
-            PlayPayment(
-                billingPaymentState = billingPaymentState,
-                onPurchaseBillingProductClick = { productId ->
-                    onPurchaseBillingProductClick(productId)
-                },
-                onInfoClick = onPaymentInfoClick,
-                modifier =
-                    Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSpacing,
-                        )
-                        .align(Alignment.CenterHorizontally),
-            )
+        if (verificationPending) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = onInfoClick,
+                    modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Text(
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = stringResource(R.string.payment_status_pending_short),
+                )
+            }
         }
-        if (showSitePayment) {
-            SitePaymentButton(
-                onClick = onSitePaymentClick,
-                isEnabled = true,
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing,
-                    ),
-            )
-        }
-        RedeemVoucherButton(
-            onClick = onRedeemVoucherClick,
-            isEnabled = true,
-            modifier =
-                Modifier.padding(
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin,
-                ),
+        VariantButton(
+            onClick = onAddMoreTimeClick,
+            text = stringResource(id = R.string.add_time),
+            modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
         )
     }
 }

@@ -9,13 +9,13 @@ import {
   IAccountData,
   IAppVersionInfo,
   ILocation,
-  IRelayList,
   IWireguardEndpointData,
 } from '../../../src/shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../src/shared/gettext';
 import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../../../src/shared/ipc-schema';
 import { ICurrentAppVersionInfo } from '../../../src/shared/ipc-types';
+import { mockData } from '../mock-data';
 
 const DEBUG = false;
 
@@ -29,6 +29,7 @@ class ApplicationMain {
     unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
     browsedForSplitTunnelingApplications: [],
     changelogDisplayedForVersion: '',
+    updateDismissedForVersion: '',
     animateMap: true,
   };
 
@@ -71,36 +72,6 @@ class ApplicationMain {
     latitude: 58,
     longitude: 12,
     mullvadExitIp: false,
-  };
-
-  private relayList: IRelayList = {
-    countries: [
-      {
-        name: 'Sweden',
-        code: 'se',
-        cities: [
-          {
-            name: 'Gothenburg',
-            code: 'got',
-            latitude: 58,
-            longitude: 12,
-            relays: [
-              {
-                hostname: 'se-got-wg-101',
-                provider: 'mullvad',
-                ipv4AddrIn: '127.0.0.1',
-                includeInCountry: true,
-                active: true,
-                weight: 0,
-                owned: true,
-                endpointType: 'wireguard',
-                daita: false,
-              },
-            ],
-          },
-        ],
-      },
-    ],
   };
 
   private wireguardEndpointData: IWireguardEndpointData = {
@@ -154,13 +125,12 @@ class ApplicationMain {
       autoStart: false,
       accountData: this.accountData,
       accountHistory: undefined,
-      tunnelState: { state: 'disconnected', location: this.location },
+      tunnelState: { state: 'disconnected', location: this.location, lockedDown: false },
       settings: this.settings,
       isPerformingPostUpgrade: false,
       deviceState: this.deviceState,
-      relayListPair: {
-        relays: this.relayList,
-        bridges: this.relayList,
+      relayList: {
+        relayList: mockData.relayList,
         wireguardEndpointData: this.wireguardEndpointData,
       },
       currentVersion: this.currentVersion,

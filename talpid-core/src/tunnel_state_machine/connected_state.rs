@@ -1,13 +1,11 @@
+use futures::StreamExt;
 use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
-use futures::StreamExt;
 
 use talpid_types::net::{AllowedClients, AllowedEndpoint, TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
-#[cfg(target_os = "macos")]
-use crate::dns::DnsConfig;
 use crate::dns::ResolvedDnsConfig;
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
@@ -126,6 +124,15 @@ impl ConnectedState {
             AllowedClients::Root
         };
 
+        #[cfg(target_os = "windows")]
+        let exit_endpoint_ip = self
+            .tunnel_parameters
+            .get_exit_hop_endpoint()
+            .map(|ep| ep.address.ip());
+
+        #[cfg(target_os = "windows")]
+        debug_assert_ne!(exit_endpoint_ip, Some(endpoint.address.ip()));
+
         let peer_endpoint = AllowedEndpoint { endpoint, clients };
 
         #[cfg(target_os = "macos")]
@@ -135,14 +142,14 @@ impl ConnectedState {
 
         FirewallPolicy::Connected {
             peer_endpoint,
+            #[cfg(target_os = "windows")]
+            exit_endpoint_ip,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
             #[cfg(not(target_os = "android"))]
             dns_config: Self::resolve_dns(&self.metadata, shared_values),
             #[cfg(target_os = "macos")]
             redirect_interface,
-            #[cfg(target_os = "macos")]
-            dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         }
     }
 
@@ -166,11 +173,10 @@ impl ConnectedState {
             .set(&self.metadata.interface, dns_config)
             .map_err(BoxedError::new)?;
 
-        // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
         // We do not want to forward DNS queries to *our* local resolver if we do not run a local
-        // DNS resolver *or* if the DNS config points to a loopback address.
-        if dns_config.is_loopback() || !*LOCAL_DNS_RESOLVER {
+        // DNS resolver.
+        if !*LOCAL_DNS_RESOLVER {
             log::debug!("Not enabling local DNS resolver");
             shared_values
                 .dns_monitor
@@ -185,15 +191,6 @@ impl ConnectedState {
                     .filtering_resolver
                     .enable_forward(dns_config.addresses().collect()),
             );
-            // Set system DNS to our local DNS resolver
-            let system_dns = DnsConfig::default().resolve(
-                &[std::net::Ipv4Addr::LOCALHOST.into()],
-                shared_values.filtering_resolver.listening_port(),
-            );
-            shared_values
-                .dns_monitor
-                .set("lo", system_dns)
-                .map_err(BoxedError::new)?;
         }
 
         Ok(())
@@ -207,9 +204,15 @@ impl ConnectedState {
 
         // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
-        shared_values
-            .runtime
-            .block_on(shared_values.filtering_resolver.disable_forward());
+        if !*LOCAL_DNS_RESOLVER {
+            if let Err(error) = shared_values.dns_monitor.reset_before_interface_removal() {
+                log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
+            }
+        } else {
+            shared_values
+                .runtime
+                .block_on(shared_values.filtering_resolver.disable_forward());
+        }
     }
 
     fn reset_routes(

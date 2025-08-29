@@ -2,31 +2,33 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../shared/constants';
+import { strings, urls } from '../../shared/constants';
 import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
+import { Button } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { Colors, spacings } from '../lib/foundations';
+import { colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
-import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import * as AppButton from './AppButton';
 import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
 import CustomDnsSettings from './CustomDnsSettings';
+import { ExternalLink } from './ExternalLink';
 import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
+import { NavigationListItem } from './NavigationListItem';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
@@ -39,7 +41,7 @@ const StyledTitleLabel = styled(Cell.SectionTitle)({
 });
 
 const StyledSectionItem = styled(Cell.Container)({
-  backgroundColor: Colors.blue40,
+  backgroundColor: colors.blue40,
 });
 
 const LanIpRanges = styled.ul({
@@ -547,9 +549,9 @@ function KillSwitchInfo() {
         isOpen={killSwitchInfoVisible}
         type={ModalAlertType.info}
         buttons={[
-          <AppButton.BlueButton key="back" onClick={hideKillSwitchInfo}>
-            {messages.gettext('Got it!')}
-          </AppButton.BlueButton>,
+          <Button key="back" onClick={hideKillSwitchInfo}>
+            <Button.Text>{messages.gettext('Got it!')}</Button.Text>
+          </Button>,
         ]}
         close={hideKillSwitchInfo}>
         <ModalMessage>
@@ -638,12 +640,12 @@ function LockdownMode() {
         isOpen={confirmationDialogVisible}
         type={ModalAlertType.caution}
         buttons={[
-          <AppButton.RedButton key="confirm" onClick={confirmLockdownMode}>
-            {messages.gettext('Enable anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
+          <Button variant="destructive" key="confirm" onClick={confirmLockdownMode}>
+            <Button.Text>{messages.gettext('Enable anyway')}</Button.Text>
+          </Button>,
+          <Button key="back" onClick={hideConfirmationDialog}>
+            <Button.Text>{messages.gettext('Back')}</Button.Text>
+          </Button>,
         ]}
         close={hideConfirmationDialog}>
         <ModalMessage>
@@ -725,7 +727,7 @@ function TunnelProtocolSetting() {
         value={tunnelProtocol}
         onSelect={setTunnelProtocol}
       />
-      {openVpnDisabled ? (
+      {openVpnDisabled && (
         <Cell.CellFooter>
           <AriaDescription>
             <Cell.CellFooterText>
@@ -739,7 +741,35 @@ function TunnelProtocolSetting() {
             </Cell.CellFooterText>
           </AriaDescription>
         </Cell.CellFooter>
-      ) : null}
+      )}
+      {tunnelProtocol === 'openvpn' && (
+        <Cell.CellFooter>
+          <AriaDescription>
+            <Cell.CellFooterText>
+              {sprintf(
+                // TRANSLATORS: Footer text for tunnel protocol selector when OpenVPN is selected.
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(openvpn)s - Will be replaced with OpenVPN
+                messages.pgettext(
+                  'vpn-settings-view',
+                  'Attention: We are removing support for %(openVpn)s.',
+                ),
+                { openVpn: strings.openvpn },
+              )}{' '}
+            </Cell.CellFooterText>
+          </AriaDescription>
+          <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
+            <ExternalLink.Text>
+              {sprintf(
+                // TRANSLATORS: Link in tunnel protocol selector footer to blog post
+                // TRANSLATORS: about OpenVPN support ending.
+                messages.pgettext('vpn-settings-view', 'Read more'),
+              )}
+            </ExternalLink.Text>
+            <ExternalLink.Icon icon="external" size="small" />
+          </ExternalLink>
+        </Cell.CellFooter>
+      )}
     </AriaInputGroup>
   );
 }
@@ -758,52 +788,48 @@ function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
 }
 
 function WireguardSettingsButton() {
-  const history = useHistory();
   const tunnelProtocol = useSelector((state) =>
     mapRelaySettingsToProtocol(state.settings.relaySettings),
   );
 
-  const navigate = useCallback(() => history.push(RoutePath.wireguardSettings), [history]);
-
   return (
-    <Cell.CellNavigationButton onClick={navigate} disabled={tunnelProtocol === 'openvpn'}>
-      <Cell.Label>
+    <NavigationListItem to={RoutePath.wireguardSettings} disabled={tunnelProtocol === 'openvpn'}>
+      <NavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(wireguard)s will be replaced with the string "WireGuard"
           messages.pgettext('vpn-settings-view', '%(wireguard)s settings'),
           { wireguard: strings.wireguard },
         )}
-      </Cell.Label>
-    </Cell.CellNavigationButton>
+      </NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }
 
 function OpenVpnSettingsButton() {
-  const history = useHistory();
   const tunnelProtocol = useTunnelProtocol();
 
-  const navigate = useCallback(() => history.push(RoutePath.openVpnSettings), [history]);
-
   return (
-    <Cell.CellNavigationButton onClick={navigate} disabled={tunnelProtocol === 'wireguard'}>
-      <Cell.Label>
+    <NavigationListItem to={RoutePath.openVpnSettings} disabled={tunnelProtocol === 'wireguard'}>
+      <NavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(openvpn)s will be replaced with the string "OpenVPN"
           messages.pgettext('vpn-settings-view', '%(openvpn)s settings'),
           { openvpn: strings.openvpn },
         )}
-      </Cell.Label>
-    </Cell.CellNavigationButton>
+      </NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }
 
 function IpOverrideButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.settingsImport), [history]);
-
   return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{messages.pgettext('vpn-settings-view', 'Server IP override')}</Cell.Label>
-    </Cell.CellNavigationButton>
+    <NavigationListItem to={RoutePath.settingsImport}>
+      <NavigationListItem.Label>
+        {messages.pgettext('vpn-settings-view', 'Server IP override')}
+      </NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }

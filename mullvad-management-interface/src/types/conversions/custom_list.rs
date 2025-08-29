@@ -1,6 +1,6 @@
 use std::{collections::BTreeSet, str::FromStr};
 
-use crate::types::{proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::{
     custom_list::{CustomList, Id},
     relay_constraints::GeographicLocationConstraint,
@@ -30,13 +30,14 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
 
 impl From<mullvad_types::custom_list::CustomList> for proto::CustomList {
     fn from(custom_list: mullvad_types::custom_list::CustomList) -> Self {
+        let id = custom_list.id().to_string();
         let locations = custom_list
             .locations
             .into_iter()
             .map(proto::GeographicLocationConstraint::from)
             .collect();
         Self {
-            id: custom_list.id.to_string(),
+            id,
             name: custom_list.name,
             locations,
         }
@@ -52,11 +53,14 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
             .into_iter()
             .map(GeographicLocationConstraint::try_from)
             .collect::<Result<BTreeSet<_>, Self::Error>>()?;
-        Ok(Self {
-            id: Id::from_str(&custom_list.id)
-                .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid list ID"))?,
-            name: custom_list.name,
-            locations,
-        })
+
+        let id = Id::from_str(&custom_list.id)
+            .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid list ID"))?;
+
+        let mut inner = Self::with_id(id);
+        inner.name = custom_list.name;
+        inner.append(locations);
+
+        Ok(inner)
     }
 }

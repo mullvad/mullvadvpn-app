@@ -68,7 +68,9 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.textProperties
 
         textLabel.font = textProperties.font
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = textProperties.color
+        textLabel.numberOfLines = 0
 
         textLabel.text = actualConfiguration.text
     }
@@ -77,13 +79,14 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
         switchContainer.control.isOn = actualConfiguration.isOn
         switchContainer.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
         switchContainer.setAccessibilityIdentifier(actualConfiguration.accessibilityIdentifier)
+        switchContainer.isEnabled = actualConfiguration.isEnabled
     }
 
     private func addSubviews() {
         addConstrainedSubviews([textLabel, switchContainer]) {
             textLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
             switchContainer.centerYAnchor.constraint(equalTo: centerYAnchor)
-            switchContainer.pinEdgeToSuperview(.trailing(UIMetrics.SettingsCell.apiAccessSwitchCellTrailingMargin))
+            switchContainer.pinEdgeToSuperviewMargin(.trailing(-4))
             switchContainer.leadingAnchor.constraint(
                 greaterThanOrEqualToSystemSpacingAfter: textLabel.trailingAnchor,
                 multiplier: 1

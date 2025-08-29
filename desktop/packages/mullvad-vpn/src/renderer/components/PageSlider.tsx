@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { NonEmptyArray } from '../../shared/utils';
 import { IconButton } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useStyledRef } from '../lib/utility-hooks';
 
 const PAGE_GAP = 16;
@@ -144,7 +144,7 @@ const StyledPageIndicators = styled(StyledControlElement)({
 
 const StyledTransparentButton = styled.button({
   border: 'none',
-  background: 'transparent',
+  background: colors.transparent,
   padding: '4px',
   margin: 0,
 });
@@ -153,10 +153,10 @@ const StyledPageIndicator = styled.div<{ $current: boolean }>((props) => ({
   width: '8px',
   height: '8px',
   borderRadius: '50%',
-  backgroundColor: props.$current ? Colors.white80 : Colors.white40,
+  backgroundColor: props.$current ? colors.whiteAlpha80 : colors.whiteAlpha40,
 
   [`${StyledTransparentButton}:hover &&`]: {
-    backgroundColor: Colors.white80,
+    backgroundColor: colors.whiteAlpha80,
   },
 }));
 

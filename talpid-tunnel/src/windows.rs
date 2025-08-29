@@ -1,5 +1,5 @@
 use std::io;
-use talpid_windows::net::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
+use talpid_windows::net::{AddressFamily, get_ip_interface_entry, set_ip_interface_entry};
 use windows_sys::Win32::{
     Foundation::ERROR_NOT_FOUND, NetworkManagement::Ndis::NET_LUID_LH,
     Networking::WinSock::RouterDiscoveryDisabled,
@@ -7,8 +7,15 @@ use windows_sys::Win32::{
 
 /// Sets MTU, metric, and disables unnecessary features for the IP interfaces
 /// on the specified network interface (identified by `luid`).
-pub fn initialize_interfaces(luid: NET_LUID_LH, mtu: Option<u32>) -> io::Result<()> {
-    for family in &[AddressFamily::Ipv4, AddressFamily::Ipv6] {
+pub fn initialize_interfaces(
+    luid: NET_LUID_LH,
+    ipv4_mtu: Option<u32>,
+    ipv6_mtu: Option<u32>,
+) -> io::Result<()> {
+    for (family, mtu) in &[
+        (AddressFamily::Ipv4, ipv4_mtu),
+        (AddressFamily::Ipv6, ipv6_mtu),
+    ] {
         let mut row = match get_ip_interface_entry(*family, &luid) {
             Ok(row) => row,
             Err(error) if error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => continue,
@@ -16,7 +23,7 @@ pub fn initialize_interfaces(luid: NET_LUID_LH, mtu: Option<u32>) -> io::Result<
         };
 
         if let Some(mtu) = mtu {
-            row.NlMtu = mtu;
+            row.NlMtu = *mtu;
         }
 
         // Disable DAD, DHCP, and router discovery

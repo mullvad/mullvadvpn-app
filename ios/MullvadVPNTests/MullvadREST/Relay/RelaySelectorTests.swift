@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 import MullvadTypes
@@ -14,7 +15,6 @@ import Network
 import XCTest
 
 private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
-private let defaultPort: UInt16 = 443
 
 class RelaySelectorTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
@@ -113,25 +113,13 @@ class RelaySelectorTests: XCTestCase {
         XCTAssertEqual(result.endpoint.ipv4Relay.port, 1)
     }
 
-    func testRandomPortSelectionWithFailedAttempts() throws {
+    func testRandomPortSelection() throws {
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")]))
         )
         let allPorts = portRanges.flatMap { $0 }
 
-        var result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
-        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 1)
-        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 2)
-        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 3)
-        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 4)
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
 
@@ -214,14 +202,12 @@ class RelaySelectorTests: XCTestCase {
         let filter = RelayFilter(ownership: .rented, providers: .any)
 
         let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")])),
             filter: .only(filter)
         )
 
-        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)) { error in
-            let error = error as? NoRelaysSatisfyingConstraintsError
-            XCTAssertEqual(error?.reason, .filterConstraintNotMatching)
-        }
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
+        XCTAssertNotEqual(result.relay.owned, true)
     }
 
     func testRelayFilterConstraintWithCorrectProvider() throws {
@@ -238,7 +224,7 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testRelayFilterConstraintWithIncorrectProvider() throws {
-        let provider = "DataPacket"
+        let provider = ""
         let filter = RelayFilter(ownership: .any, providers: .only([provider]))
 
         let constraints = RelayConstraints(
@@ -338,7 +324,8 @@ extension RelaySelectorTests {
                         publicKey: PrivateKey().publicKey.rawValue,
                         includeInCountry: true,
                         daita: true,
-                        shadowsocksExtraAddrIn: nil
+                        shadowsocksExtraAddrIn: nil,
+                        features: nil
                     ),
                 ],
                 shadowsocksPortRanges: []

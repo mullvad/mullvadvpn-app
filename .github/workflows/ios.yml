@@ -46,6 +46,30 @@ jobs:
           swiftlint --reporter github-actions-logging
         working-directory: ios
 
+  ui-test-build:
+    name: Build for ui tests (staging)
+    runs-on: macos-15
+    env:
+      SOURCE_PACKAGES_PATH: .spm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/ios/setup-project-toolchain
+
+      - name: Build for ui tests
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPNUITests \
+          -testPlan MullvadVPNUITestsAll \
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+          -disableAutomaticPackageResolution \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
+          clean build-for-testing 2>&1 | xcbeautify
+        working-directory: ios/
+
   test:
     name: Unit tests
     runs-on: macos-15-xlarge
@@ -55,59 +79,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --recursive ios/wireguard-apple
-
-
-      - name: Configure cache
-        uses: actions/cache@v3
-        with:
-          path: ios/${{ env.SOURCE_PACKAGES_PATH }}
-          key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
-      - name: Setup go-lang
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.21.13
-
-      - name: Install xcbeautify
-        run: |
-          brew update
-          brew install xcbeautify
-
-      - name: Install protobuf
-        run: |
-          brew update
-          brew install protobuf
-
-      - name: Configure Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.1'
-      - name: Configure Rust
-        # Since the https://github.com/actions/runner-images/releases/tag/macos-13-arm64%2F20240721.1 release
-        # Brew does not install tools at the correct location anymore
-        # This update broke the rust build script which was assuming the cargo binary was located in ~/.cargo/bin/cargo
-        # The workaround is to fix brew paths by running brew bundle dump, and then brew bundle
-        # WARNING: This has to be the last brew "upgrade" commands that is ran,
-        # otherwise the brew path will be broken again.
-        run: |
-          brew bundle dump
-          brew bundle
-          rustup target add aarch64-apple-ios-sim
-
-      - name: Configure Xcode project
-        run: |
-          cp Base.xcconfig.template Base.xcconfig
-          cp App.xcconfig.template App.xcconfig
-          cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
-          cp Screenshots.xcconfig.template Screenshots.xcconfig
-          cp Api.xcconfig.template Api.xcconfig
-        working-directory: ios/Configurations
+      - name: Setup project
+        uses: ./.github/actions/ios/setup-project-toolchain
 
       - name: Run unit tests
         run: |

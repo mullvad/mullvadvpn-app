@@ -29,6 +29,7 @@ final class LocationViewController: UIViewController {
     private var filter = RelayFilter()
     private var selectedRelays: RelaySelection
     private var shouldFilterDaita: Bool
+    private var shouldFilterObfuscation: Bool
     weak var delegate: LocationViewControllerDelegate?
     var customListRepository: CustomListRepositoryProtocol
 
@@ -39,11 +40,13 @@ final class LocationViewController: UIViewController {
     init(
         customListRepository: CustomListRepositoryProtocol,
         selectedRelays: RelaySelection,
-        shouldFilterDaita: Bool
+        shouldFilterDaita: Bool,
+        shouldFilterObfuscation: Bool
     ) {
         self.customListRepository = customListRepository
         self.selectedRelays = selectedRelays
         self.shouldFilterDaita = shouldFilterDaita
+        self.shouldFilterObfuscation = shouldFilterObfuscation
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -86,9 +89,14 @@ final class LocationViewController: UIViewController {
         dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
     }
 
-    func setShouldFilterDaita(_ shouldFilterDaita: Bool) {
-        self.shouldFilterDaita = shouldFilterDaita
-        filterView.setDaita(shouldFilterDaita)
+    func setDaitaChip(_ isEnabled: Bool) {
+        self.shouldFilterDaita = isEnabled
+        filterView.setDaita(isEnabled)
+    }
+
+    func setObfuscationChip(_ isEnabled: Bool) {
+        self.shouldFilterObfuscation = isEnabled
+        filterView.setObfuscation(isEnabled)
     }
 
     func refreshCustomLists() {
@@ -100,7 +108,16 @@ final class LocationViewController: UIViewController {
         dataSource?.setSelectedRelays(selectedRelays)
     }
 
-    func enableDaitaAutomaticRouting() {
+    func toggleDaitaAutomaticRouting(isEnabled: Bool) {
+        guard isEnabled else {
+            daitaInfoView?.removeFromSuperview()
+            daitaInfoView = nil
+
+            searchBar.searchTextField.isEnabled = true
+            UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
+            return
+        }
+
         guard daitaInfoView == nil else { return }
 
         let daitaInfoView = DAITAInfoView()
@@ -116,14 +133,6 @@ final class LocationViewController: UIViewController {
         }
 
         searchBar.searchTextField.isEnabled = false
-    }
-
-    func disableDaitaAutomaticRouting() {
-        daitaInfoView?.removeFromSuperview()
-        daitaInfoView = nil
-
-        searchBar.searchTextField.isEnabled = true
-        UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
     }
 
     // MARK: - Private
@@ -162,11 +171,20 @@ final class LocationViewController: UIViewController {
         tableView.backgroundColor = view.backgroundColor
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
-        tableView.rowHeight = 56
-        tableView.sectionHeaderHeight = 56
+        tableView.estimatedRowHeight = UIMetrics.TableView.rowHeight
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedSectionHeaderHeight = UIMetrics.TableView.rowHeight
+        tableView.sectionHeaderHeight = UITableView.automaticDimension
+        tableView.estimatedSectionFooterHeight = UIMetrics.TableView.rowHeight
+        tableView.sectionFooterHeight = UITableView.automaticDimension
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
         tableView.setAccessibilityIdentifier(.selectLocationTableView)
+
+        tableView.register(
+            LocationSectionHeaderFooterView.self,
+            forHeaderFooterViewReuseIdentifier: LocationSectionHeaderFooterView.reuseIdentifier
+        )
     }
 
     private func setUpTopContent() {
@@ -174,6 +192,7 @@ final class LocationViewController: UIViewController {
         topContentView.addArrangedSubview(filterView)
         topContentView.addArrangedSubview(searchBar)
         filterView.setDaita(shouldFilterDaita)
+        filterView.setObfuscation(shouldFilterObfuscation)
 
         filterView.didUpdateFilter = { [weak self] in
             self?.delegate?.didUpdateFilter(filter: $0)
@@ -187,12 +206,7 @@ final class LocationViewController: UIViewController {
         searchBar.searchBarStyle = .minimal
         searchBar.layer.cornerRadius = 8
         searchBar.clipsToBounds = true
-        searchBar.placeholder = NSLocalizedString(
-            "SEARCHBAR_PLACEHOLDER",
-            tableName: "SelectLocation",
-            value: "Search for...",
-            comment: ""
-        )
+        searchBar.placeholder = NSLocalizedString("Search for...", comment: "")
         searchBar.searchTextField.setAccessibilityIdentifier(.selectLocationSearchTextField)
 
         UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)

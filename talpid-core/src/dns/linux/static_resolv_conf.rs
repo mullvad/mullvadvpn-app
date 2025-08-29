@@ -4,7 +4,7 @@ use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
 use std::{fs, io, net::IpAddr, sync::Arc};
 use talpid_types::ErrorExt;
-use triggered::{trigger, Listener, Trigger};
+use triggered::{Listener, Trigger, trigger};
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";

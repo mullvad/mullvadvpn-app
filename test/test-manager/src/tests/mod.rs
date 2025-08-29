@@ -6,6 +6,7 @@ mod daita;
 mod dns;
 mod helpers;
 mod install;
+mod macos;
 mod relay_ip_overrides;
 mod settings;
 mod software;
@@ -14,6 +15,7 @@ mod test_metadata;
 mod tunnel;
 mod tunnel_state;
 mod ui;
+mod windows;
 
 use itertools::Itertools;
 use mullvad_types::relay_constraints::{GeographicLocationConstraint, LocationConstraint};
@@ -21,14 +23,14 @@ pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
 use futures::future::BoxFuture;
-use std::time::Duration;
+use std::{ops::Not, time::Duration};
 
 use crate::{mullvad_daemon::RpcClientProvider, package::get_version_from_path};
 use config::TEST_CONFIG;
 use helpers::{find_custom_list, get_app_env, install_app, set_location};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
-use test_rpc::{meta::Os, ServiceClient};
+use test_rpc::{ServiceClient, meta::Os};
 
 const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
 
@@ -60,7 +62,7 @@ pub enum Error {
     #[error("The daemon returned an error: {0}")]
     Daemon(String),
 
-    #[error("The daemon ended up in the the wrong tunnel-state: {0:?}")]
+    #[error("The daemon ended up in the wrong tunnel-state: {0:?}")]
     UnexpectedTunnelState(Box<mullvad_types::states::TunnelState>),
 
     #[error("The daemon ended up in the error state: {0:?}")]
@@ -110,7 +112,10 @@ pub fn get_test_descriptions() -> Vec<TestDescription> {
 
 /// Return all tests with names matching the input argument. Filters out tests that are skipped for
 /// the target platform and `test_upgrade_app`, which is run separately.
-pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata>, anyhow::Error> {
+pub fn get_filtered_tests(
+    specified_tests: &[String],
+    skipped_tests: &[String],
+) -> Result<Vec<TestMetadata>, anyhow::Error> {
     let mut tests: Vec<_> = inventory::iter::<TestMetadata>().cloned().collect();
     tests.sort_by_key(|test| test.priority.unwrap_or(0));
 
@@ -129,7 +134,16 @@ pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata
             })
             .collect::<Result<_, anyhow::Error>>()?
     };
+
+    tests.retain(|test| {
+        skipped_tests
+            .iter()
+            .any(|skip| skip.eq_ignore_ascii_case(test.name))
+            .not()
+    });
+
     tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os));
+
     Ok(tests)
 }
 
@@ -190,7 +204,7 @@ pub async fn set_test_location(
 
     let mut custom_list = find_custom_list(mullvad_client, &custom_list_name).await?;
 
-    assert_eq!(list_id, custom_list.id);
+    assert_eq!(list_id, custom_list.id());
     for location in locations {
         custom_list.locations.insert(location);
     }
@@ -212,19 +226,35 @@ async fn ensure_daemon_version(
 ) -> anyhow::Result<MullvadProxyClient> {
     let app_package_filename = &TEST_CONFIG.app_package_filename;
 
-    let mullvad_client = if correct_daemon_version_is_running(rpc_provider.new_client().await).await
-    {
-        ensure_daemon_environment(rpc)
-            .await
-            .context("Failed to reset daemon environment")?;
-        rpc_provider.new_client().await
-    } else {
+    let must_reinstall_app =
+        match correct_daemon_version_is_running(rpc_provider.new_client().await).await {
+            Ok(correct_version) => !correct_version,
+            // Failing to reach the daemon is a sign that it is not installed
+            Err(mullvad_management_interface::Error::Rpc(..)) => {
+                log::debug!("Daemon is not running, attempting to start it");
+
+                let failed_starting_daemon = rpc.enable_mullvad_daemon().await.is_err()
+                    || rpc.start_mullvad_daemon().await.is_err();
+                if failed_starting_daemon {
+                    log::warn!("Failed to start the daemon service");
+                }
+                failed_starting_daemon
+            }
+            Err(e) => panic!("Failed to get app version: {e}"),
+        };
+
+    if must_reinstall_app {
         // NOTE: Reinstalling the app resets the daemon environment
         install_app(rpc, app_package_filename, rpc_provider)
             .await
-            .with_context(|| format!("Failed to install app '{app_package_filename}'"))?
-    };
-    Ok(mullvad_client)
+            .with_context(|| format!("Failed to install app '{app_package_filename}'"))
+    } else {
+        ensure_daemon_environment(rpc)
+            .await
+            .context("Failed to reset daemon environment")?;
+
+        Ok(rpc_provider.new_client().await)
+    }
 }
 
 /// Conditionally restart the running daemon
@@ -252,23 +282,12 @@ pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow
 }
 
 /// Checks if daemon is installed with the version specified by `TEST_CONFIG.app_package_filename`
-async fn correct_daemon_version_is_running(mut mullvad_client: MullvadProxyClient) -> bool {
+async fn correct_daemon_version_is_running(
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<bool, mullvad_management_interface::Error> {
     let app_package_filename = &TEST_CONFIG.app_package_filename;
     let expected_version = get_version_from_path(std::path::Path::new(app_package_filename))
         .unwrap_or_else(|_| panic!("Invalid app version: {app_package_filename}"));
-
-    use mullvad_management_interface::Error::*;
-    match mullvad_client.get_current_version().await {
-        // Failing to reach the daemon is a sign that it is not installed
-        Err(Rpc(..)) => {
-            log::debug!("Could not reach active daemon before test, it is not running");
-            false
-        }
-        Err(e) => panic!("Failed to get app version: {e}"),
-        Ok(version) if version == expected_version => true,
-        _ => {
-            log::debug!("Daemon version mismatch");
-            false
-        }
-    }
+    let version = mullvad_client.get_current_version().await?;
+    Ok(version == expected_version)
 }

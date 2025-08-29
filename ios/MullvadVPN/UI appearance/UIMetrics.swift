@@ -12,6 +12,8 @@ import UIKit
 
 enum UIMetrics {
     enum TableView {
+        /// Height of a cell.
+        static let rowHeight: CGFloat = 56
         /// Height for separators between cells and/or sections.
         static let separatorHeight: CGFloat = 0.33
         /// Spacing used between distinct sections of views
@@ -68,7 +70,8 @@ enum UIMetrics {
     }
 
     enum Button {
-        static let barButtonSize: CGFloat = 44
+        static let barButtonSize: CGFloat = 32
+        static let accountInfoSize: CGFloat = 18
         static let minimumTappableAreaSize = CGSize(width: 44, height: 44)
     }
 
@@ -78,22 +81,17 @@ enum UIMetrics {
         static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 12)
         static let inputCellTextFieldLayoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         static let selectableSettingsCellLeftViewSpacing: CGFloat = 12
-        static let checkableSettingsCellLeftViewSpacing: CGFloat = 20
+        static let checkableSettingsCellLeftViewSpacing: CGFloat = 12
 
-        /// Cell layout margins used in table views that use inset style.
-        static let insetLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+        /// Cell layout margins used in table views.
+        static let defaultLayoutMargins = NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 16)
 
-        static let apiAccessLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 24, bottom: 24, trailing: 24)
-        static let apiAccessInsetLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         static let settingsValidationErrorLayoutMargins = NSDirectionalEdgeInsets(
             top: 8,
             leading: 16,
             bottom: 8,
             trailing: 16
         )
-        static let apiAccessCellHeight: CGFloat = 44
-        static let customListsCellHeight: CGFloat = 44
-        static let apiAccessSwitchCellTrailingMargin: CGFloat = apiAccessInsetLayoutMargins.trailing - 4
         static let apiAccessPickerListContentInsetTop: CGFloat = 16
         static let verticalDividerHeight: CGFloat = 22
         static let detailsButtonSize: CGFloat = 60
@@ -105,7 +103,6 @@ enum UIMetrics {
     }
 
     enum SettingsRowView {
-        static let height: CGFloat = 44
         static let cornerRadius: CGFloat = 10
         static let layoutMargins = EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
         static let footerLayoutMargins = EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16)

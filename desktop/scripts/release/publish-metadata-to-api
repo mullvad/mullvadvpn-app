@@ -44,7 +44,7 @@ function buildserver_rsync {
 }
 
 function remove_buildserver_tmp_dir {
-  run_on_build_server rm -rf $BUILDSERVER_METADATA_DIR
+  run_on_build_server rm -rf $BUILDSERVER_TMP_DIR
 }
 
 # Clean up previous metadata dir on build server in case this failed the last time this script ran

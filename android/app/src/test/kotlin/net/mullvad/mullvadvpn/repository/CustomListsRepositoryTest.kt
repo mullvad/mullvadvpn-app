@@ -51,7 +51,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = mockk(relaxed = true),
-                    locations = mockk(relaxed = true),
+                    locations = listOf(mockk(relaxed = true)),
                 )
             val mockSettings: Settings = mockk()
             every { mockSettings.customLists } returns listOf(mockCustomList)
@@ -73,7 +73,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = mockk(relaxed = true),
-                    locations = mockk(relaxed = true),
+                    locations = listOf(mockk(relaxed = true)),
                 )
             val mockSettings: Settings = mockk()
             val otherCustomListId = CustomListId("2")
@@ -128,7 +128,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = mockk(relaxed = true),
-                    locations = mockk(relaxed = true),
+                    locations = listOf(mockk(relaxed = true)),
                 )
             every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings

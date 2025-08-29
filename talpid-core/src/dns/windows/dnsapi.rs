@@ -1,7 +1,8 @@
 use std::{
     sync::{
+        Arc, OnceLock,
         atomic::{AtomicUsize, Ordering},
-        mpsc, Arc, OnceLock,
+        mpsc,
     },
     time::{Duration, Instant},
 };

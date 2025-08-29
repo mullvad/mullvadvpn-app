@@ -1,4 +1,4 @@
-use futures::{pin_mut, select, select_biased, FutureExt, SinkExt, StreamExt};
+use futures::{FutureExt, SinkExt, StreamExt, pin_mut, select, select_biased};
 use logging::LOGGER;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -12,17 +12,17 @@ use util::OnDrop;
 
 use tarpc::{context, server::Channel};
 use test_rpc::{
+    AppTrace, Service, SpawnOpts, UNPRIVILEGED_USER,
     meta::OsVersion,
-    mullvad_daemon::{ServiceStatus, SOCKET_PATH},
+    mullvad_daemon::{SOCKET_PATH, ServiceStatus},
     net::SockHandleId,
     package::Package,
     transport::GrpcForwarder,
-    AppTrace, Service, SpawnOpts, UNPRIVILEGED_USER,
 };
 use tokio::{
     io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader},
     process::{ChildStdin, ChildStdout, Command},
-    sync::{broadcast::error::TryRecvError, oneshot, Mutex},
+    sync::{Mutex, broadcast::error::TryRecvError, oneshot},
     task,
     time::sleep,
 };
@@ -318,6 +318,31 @@ impl Service for TestServer {
         sys::start_app().await
     }
 
+    /// Disable the Mullvad VPN system service.
+    async fn disable_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "windows"))]
+        {
+            log::warn!("disable_mullvad_daemon is only implemented on Windows");
+            return Err(test_rpc::Error::Syscall);
+        }
+        #[cfg(target_os = "windows")]
+        {
+            sys::disable_system_service_startup().await
+        }
+    }
+
+    async fn enable_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "windows"))]
+        {
+            log::warn!("enable_mullvad_daemon is only implemented on Windows");
+            return Err(test_rpc::Error::Syscall);
+        }
+        #[cfg(target_os = "windows")]
+        {
+            sys::enable_system_service_startup().await
+        }
+    }
+
     async fn set_daemon_log_level(
         self,
         _: context::Context,
@@ -575,6 +600,40 @@ impl Service for TestServer {
 
     async fn get_os_version(self, _: context::Context) -> Result<OsVersion, test_rpc::Error> {
         sys::get_os_version()
+    }
+
+    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    async fn ifconfig_alias_add(
+        self,
+        _: context::Context,
+        interface: String,
+        alias: IpAddr,
+    ) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "macos"))]
+        return Err(test_rpc::Error::TargetNotImplemented);
+
+        #[cfg(target_os = "macos")]
+        talpid_macos::net::add_alias(&interface, alias)
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .map_err(test_rpc::Error::Other)
+    }
+
+    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    async fn ifconfig_alias_remove(
+        self,
+        _: context::Context,
+        interface: String,
+        alias: IpAddr,
+    ) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "macos"))]
+        return Err(test_rpc::Error::TargetNotImplemented);
+
+        #[cfg(target_os = "macos")]
+        talpid_macos::net::remove_alias(&interface, alias)
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .map_err(test_rpc::Error::Other)
     }
 }
 

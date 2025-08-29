@@ -4,6 +4,7 @@
 #include "objectpurger.h"
 #include "mullvadobjects.h"
 #include "rules/persistent/blockall.h"
+#include "rules/baseline/blockall.h"
 #include "libwfp/ipnetwork.h"
 #include <windows.h>
 #include <libcommon/error.h>
@@ -167,11 +168,15 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	delete g_fwContext;
 	g_fwContext = nullptr;
 
+	if (nullptr != g_logSink)
+	{
+		g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Deinitializing WinFw", g_logSinkContext);
+	}
+
 	//
-	// Continue blocking if this is what the caller requested
+	// Continue blocking with persistent rules if this is what the caller requested
 	// and if the current policy is "(net) blocked".
 	//
-
 	if (WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
@@ -181,6 +186,11 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 			auto sessionController = std::make_unique<SessionController>(std::move(engine));
 
 			rules::persistent::BlockAll blockAll;
+
+			if (nullptr != g_logSink)
+			{
+				g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Adding persistent block rules", g_logSinkContext);
+			}
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
@@ -205,6 +215,22 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 		}
 	}
 
+	//
+	// Continue blocking with non-persistent rules if this is what the caller requested
+	// and if the current policy is "(net) blocked".
+	//
+	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
+		&& FwContext::Policy::Blocked == activePolicy)
+	{
+		if (nullptr != g_logSink)
+		{
+			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Keeping ephemeral block rules", g_logSinkContext);
+		}
+
+		// All we have to is *not* call WinFw_Reset, since blocking filters have been applied.
+		return true;
+	}
+
 	return WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();
 }
 
@@ -214,6 +240,7 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClients,
 	size_t relayClientsLen,
 	const wchar_t *tunnelInterfaceAlias,
@@ -243,6 +270,14 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: allowedTunnelTraffic");
 		}
 
+		const auto exitIpAddr = (exitEndpointIp != nullptr) ? std::make_optional(wfp::IpAddress(exitEndpointIp)) : std::nullopt;
+		const auto entryIpAddr = wfp::IpAddress(relay->ip);
+
+		if (entryIpAddr == exitIpAddr)
+		{
+			THROW_ERROR("Invalid argument: relay IP must not equal exitEndpointIp");
+		}
+
 		std::vector<std::wstring> relayClientWstrings;
 		relayClientWstrings.reserve(relayClientsLen);
 		for(int i = 0; i < relayClientsLen; i++) {
@@ -252,6 +287,7 @@ WinFw_ApplyPolicyConnecting(
 		return g_fwContext->applyPolicyConnecting(
 			*settings,
 			*relay,
+			exitIpAddr,
 			relayClientWstrings,
 			tunnelInterfaceAlias != nullptr ? std::make_optional(tunnelInterfaceAlias) : std::nullopt,
 			MakeOptional(allowedEndpoint),
@@ -283,6 +319,7 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClients,
 	size_t relayClientsLen,
 	const wchar_t *tunnelInterfaceAlias,
@@ -322,6 +359,14 @@ WinFw_ApplyPolicyConnected(
 		if (nullptr == nonTunnelDnsServers)
 		{
 			THROW_ERROR("Invalid argument: nonTunnelDnsServers");
+		}
+
+		const auto exitIpAddr = (exitEndpointIp != nullptr) ? std::make_optional(wfp::IpAddress(exitEndpointIp)) : std::nullopt;
+		const auto entryIpAddr = wfp::IpAddress(relay->ip);
+
+		if (entryIpAddr == exitIpAddr)
+		{
+			THROW_ERROR("Invalid argument: relay IP must not equal exitEndpointIp");
 		}
 
 		std::vector<wfp::IpAddress> convertedTunnelDnsServers;
@@ -372,6 +417,7 @@ WinFw_ApplyPolicyConnected(
 		return g_fwContext->applyPolicyConnected(
 			*settings,
 			*relay,
+			exitIpAddr,
 			relayClientWstrings,
 			tunnelInterfaceAlias,
 			convertedTunnelDnsServers,

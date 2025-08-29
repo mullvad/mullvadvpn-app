@@ -1,17 +1,18 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
-
-    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.mockapi"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
-        minSdk = Versions.minSdkVersion
+        minSdk = libs.versions.min.sdk.get().toInt()
         testApplicationId = "net.mullvad.mullvadvpn.test.mockapi"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["runnerBuilder"] =
@@ -38,9 +39,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-        allWarningsAsErrors = true
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
+            allWarningsAsErrors = true
+        }
     }
 
     lint {
@@ -64,6 +67,7 @@ android {
 dependencies {
     implementation(projects.lib.endpoint)
     implementation(projects.test.common)
+    implementation(projects.lib.ui.tag)
 
     implementation(libs.androidx.test.core)
     // Fixes: https://github.com/android/android-test/issues/1589
@@ -72,16 +76,16 @@ dependencies {
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.test.uiautomator)
     implementation(libs.kermit)
-    implementation(Dependencies.junitJupiterApi)
-    implementation(Dependencies.junit5AndroidTestExtensions)
-    implementation(Dependencies.junit5AndroidTestRunner)
+    implementation(libs.junit.jupiter.api)
+    implementation(libs.junit5.android.test.extensions)
+    implementation(libs.junit5.android.test.runner)
     implementation(libs.kotlin.stdlib)
     implementation(libs.mockkWebserver)
 
     androidTestUtil(libs.androidx.test.orchestrator)
 
     // Needed or else the app crashes when launched
-    implementation(Dependencies.junit5AndroidTestCompose)
+    implementation(libs.junit5.android.test.compose)
     implementation(libs.compose.material3)
 
     // Need these for forcing later versions of dependencies

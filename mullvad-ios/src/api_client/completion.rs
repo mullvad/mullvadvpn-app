@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use super::response::SwiftMullvadApiResponse;
 
-extern "C" {
+unsafe extern "C" {
     /// Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
     /// network calls through Mullvad API on Rust side.
     ///
@@ -20,8 +20,18 @@ extern "C" {
 }
 
 #[repr(C)]
-pub struct CompletionCookie(pub *mut std::ffi::c_void);
+pub struct CompletionCookie {
+    inner: *mut std::ffi::c_void,
+}
+/// SAFETY: Access to `CompletionCookie` should always be done through a `SwiftCompletionHandler`
+/// It is safe to be used and sent from any threads.
 unsafe impl Send for CompletionCookie {}
+impl CompletionCookie {
+    /// `inner` must be pointing to a valid instance of Swift object `MullvadApiCompletion`.
+    pub unsafe fn new(inner: *mut std::ffi::c_void) -> Self {
+        Self { inner }
+    }
+}
 
 #[derive(Clone)]
 pub struct SwiftCompletionHandler {
@@ -46,6 +56,7 @@ impl SwiftCompletionHandler {
             return;
         };
 
+        // SAFETY: See safety notes for `mullvad_api_completion_finish`
         unsafe { mullvad_api_completion_finish(response, cookie) };
     }
 }

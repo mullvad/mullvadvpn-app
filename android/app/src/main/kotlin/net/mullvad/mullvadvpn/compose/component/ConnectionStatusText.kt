@@ -14,7 +14,6 @@ import net.mullvad.mullvadvpn.compose.preview.TunnelStatePreviewParameterProvide
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 
 @Preview
 @Composable
@@ -33,7 +32,7 @@ fun ConnectionStatusText(state: TunnelState) {
     Text(
         text = state.text(),
         color = state.textColor(),
-        style = MaterialTheme.typography.connectionStatus,
+        style = MaterialTheme.typography.titleLarge,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )

@@ -20,3 +20,7 @@ export CARGO_REGISTRY_VOLUME_NAME="cargo-registry"
 # Where buildserver-build.sh should move artifacts (on Linux) and where
 # buildserver-upload.sh should pick artifacts to upload
 export UPLOAD_DIR="PLEASE CONFIGURE ME"
+
+# Used by buildserver-upload.sh to invalidate the CDN cache
+export BUNNYCDN_PULL_ZONE_ID="PLEASE CONFIGURE ME"
+export BUNNYCDN_API_KEY="PLEASE CONFIGURE ME"

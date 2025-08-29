@@ -10,12 +10,7 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
-public protocol ShadowsocksLoaderProtocol: Sendable {
-    func load() throws -> ShadowsocksConfiguration
-    func clear() throws
-}
-
-public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, Sendable {
+public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsocksBridgeProviding, Sendable {
     let cache: ShadowsocksConfigurationCacheProtocol
     let relaySelector: ShadowsocksRelaySelectorProtocol
     let settingsUpdater: SettingsUpdater
@@ -87,5 +82,9 @@ public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, Sendable {
             password: bridgeConfiguration.password,
             cipher: bridgeConfiguration.cipher
         )
+    }
+
+    public func bridge() -> ShadowsocksConfiguration? {
+        try? load()
     }
 }

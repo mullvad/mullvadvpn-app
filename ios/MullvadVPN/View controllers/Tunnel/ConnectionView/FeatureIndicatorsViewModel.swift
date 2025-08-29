@@ -7,17 +7,24 @@
 //
 
 import MullvadSettings
+import PacketTunnelCore
 import SwiftUI
 
 class FeatureIndicatorsViewModel: ChipViewModelProtocol {
     @Published var tunnelSettings: LatestTunnelSettings
     @Published var ipOverrides: [IPOverride]
     @Published var tunnelState: TunnelState
-
-    init(tunnelSettings: LatestTunnelSettings, ipOverrides: [IPOverride], tunnelState: TunnelState) {
+    @Published var observedState: ObservedState
+    var onFeaturePressed: ((FeatureType) -> Void)?
+    init(
+        tunnelSettings: LatestTunnelSettings,
+        ipOverrides: [IPOverride],
+        tunnelStatus: TunnelStatus
+    ) {
         self.tunnelSettings = tunnelSettings
         self.ipOverrides = ipOverrides
-        self.tunnelState = tunnelState
+        self.tunnelState = tunnelStatus.state
+        self.observedState = tunnelStatus.observedState
     }
 
     var chips: [ChipModel] {
@@ -26,20 +33,24 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
         switch tunnelState {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer,
              .connected, .pendingReconnect:
-            let features: [ChipFeature] = [
-                DaitaFeature(settings: tunnelSettings),
-                QuantumResistanceFeature(settings: tunnelSettings),
-                MultihopFeature(settings: tunnelSettings),
-                ObfuscationFeature(settings: tunnelSettings),
+            let features: [any ChipFeature] = [
+                DaitaFeature(state: tunnelState, settings: tunnelSettings),
+                QuantumResistanceFeature(state: tunnelState),
+                MultihopFeature(state: tunnelState, settings: tunnelSettings),
+                ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
-                IPOverrideFeature(overrides: ipOverrides),
+                IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
             ]
 
             return features
                 .filter { $0.isEnabled }
-                .map { ChipModel(name: $0.name) }
+                .map { ChipModel(id: $0.id, name: $0.name) }
         default:
             return []
         }
+    }
+
+    func onPressed(item: ChipModel) {
+        onFeaturePressed?(item.id)
     }
 }

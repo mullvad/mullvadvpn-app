@@ -73,13 +73,11 @@ impl AccountHistory {
 
         let file = io::BufWriter::new(reader.into_inner());
         let mut history = AccountHistory { file, number };
-        if should_save {
-            if let Err(error) = history.save_to_disk().await {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to save account history after opening it")
-                );
-            }
+        if should_save && let Err(error) = history.save_to_disk().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to save account history after opening it")
+            );
         }
         Ok(history)
     }

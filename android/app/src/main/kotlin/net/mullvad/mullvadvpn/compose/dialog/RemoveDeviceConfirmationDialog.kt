@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -15,11 +16,11 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 
 @Preview
 @Composable
@@ -36,10 +37,17 @@ fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: D
         textResource(id = R.string.max_devices_confirm_removal_description, device.displayName())
     val message =
         HtmlCompat.fromHtml(htmlFormattedString, HtmlCompat.FROM_HTML_MODE_COMPACT)
-            .toAnnotatedString(boldFontWeight = FontWeight.Bold)
+            .toAnnotatedString(
+                boldSpanStyle =
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                    )
+            )
     NegativeConfirmationDialog(
         message = message,
-        messageStyle = MaterialTheme.typography.labelLarge,
+        messageStyle = MaterialTheme.typography.bodyMedium,
+        messageColor = MaterialTheme.colorScheme.onSurfaceVariant,
         confirmationText = stringResource(id = R.string.confirm_removal),
         cancelText = stringResource(id = R.string.back),
         onBack = dropUnlessResumed { navigator.navigateBack() },

@@ -61,6 +61,7 @@ fun ServerIpOverridesCell(
                         if (active) stringResource(id = R.string.server_ip_overrides_active)
                         else stringResource(id = R.string.server_ip_overrides_inactive),
                     color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.bodyLarge,
                     modifier =
                         Modifier.weight(1f)
                             .alpha(

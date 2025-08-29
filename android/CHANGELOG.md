@@ -23,18 +23,126 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Set default server based on the current location when the app is started for the first time.
+
+
+## [android/2025.7-beta1] - 2025-08-27
+### Added
+- Add list of recent server selections in the select location view.
+- Add support for devices with 16KB page size.
+
+
+## [android/2025.6] - 2025-08-12
+### Fixed
+- Remove redundant square for relays in custom list location list.
+
+
+## [android/2025.6-beta3] - 2025-08-04
+### Fixed
+- Fix several crashes related to notifications.
+- Fix a crash in Split Tunneling that happened when another app had a missing icon.
+
+
+## [android/2025.6-beta2] - 2025-07-18
+### Fixed
+- Fix a crash related to the selected relay location.
+
+
+## [android/2025.6-beta1] - 2025-07-17
+### Added
+- Add Memory Tagging (MTE) opt-in flag to enable it by default on supported Android versions and
+  devices.
+
+### Changed
+- Improve the expiry notification scheduling by switching to use AlarmManager.
+- Update the design of the select location screen.
+
+
+## [android/2025.5] - 2025-07-02
+### Fixed
+- Fix bottom margins in Filter Screen and Lockdown Mode Screen.
+- Fix expiry date not always updating after a successful in app purchase.
+
+
+## [android/2025.5-beta1] - 2025-06-17
+### Added
+- Add the ability to purchase 90 days (3 months).
+
+### Changed
+- Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
+  mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
+  uses a lot less CPU to compute the keypair, and the public key sent to the server
+  is drastically smaller.
+- Update the UI and flow for adding time.
+- Change so that search no longer requires at least 2 letters.
+
+### Removed
+- Remove logging from the Google in-app purchase component in an experimental and non-supported way.
+  Only affects our Google Play builds.
+
+### Fixed
+- Fix offline detection on Android 9 and below.
+
+
+## [android/2025.4] - 2025-05-28
+Identical to `android/2025.4-beta2` except for updated translations.
+
+
+## [android/2025.4-beta2] - 2025-05-20
+### Changed
+- Improve error message when the app cannot connect due to an invalid port.
+
+### Fixed
+- Fix password prompt appearing every time when returning to the welcome screen.
+
+
+## [android/2025.4-beta1] - 2025-05-06
+### Added
+- Make feature indicators clickable, allowing for easy access to active features.
+- Add device management which enables the revoking of wireguard keys from the app.
+
+### Fixed
+- Remove unintended permissions added by an unused transitive Google dependency.
+- Fix crash on TV devices when trying to access system vpn settings.
+
+
+## [android/2025.3] - 2025-04-30
+### Fixed
+- Fix in-app language bug that could cause unexpected language changes
+  in the app or its notifications.
+
+
+## [android/2025.2] - 2025-04-28
+Identical to `android/2025.2-beta2`
+
+
+## [android/2025.2-beta2] - 2025-04-15
+### Fixed
+- Fix focus on TV devices when returning to connect screen from select location.
+
+
+## [android/2025.2-beta1] - 2025-04-04
+### Added
 - Prompt password manager to store new account number on account creation.
 - Add the ability to force the ip version used to connect to a relay.
+- Add the ability to disable IPv6 in the tunnel.
 
 ### Changed
 - Disable Wireguard port setting when a obfuscation is selected since it is not used when an
   obfuscation is applied.
+- Adapt UI on Connect Screen for Android TV, including a navigation rail and redesigned in-app
+  notification bar.
 
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
 
 ### Fixed
-- Will no longer try to connect over IPv6 if IPv6 is not available.
+- Will no longer try to connect using an IP version if that IP version is not available.
+- Fix connection details showing in IP from exit server instead of entry when using multihop.
+
+
+## [android/2025.1] - 2025-03-20
+Identical to `android/2025.1-beta1`
 
 
 ## [android/2025.1-beta1] - 2025-03-05

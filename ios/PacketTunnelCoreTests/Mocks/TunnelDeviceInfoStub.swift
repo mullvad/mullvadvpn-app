@@ -10,7 +10,7 @@ import Foundation
 import PacketTunnelCore
 
 /// Tunnel device stub that returns fixed interface name and feeds network stats from the type implementing `NetworkStatsProviding`
-struct TunnelDeviceInfoStub: TunnelDeviceInfoProtocol {
+struct TunnelDeviceInfoStub: TunnelDeviceInfoProtocol, @unchecked Sendable {
     let networkStatsProviding: NetworkStatsProviding
 
     var interfaceName: String? {

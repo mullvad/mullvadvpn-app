@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +38,7 @@ private fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedButton(
     text: String,
     onClick: () -> Unit,
     shape: Shape,
+    selectedProgress: Float = 1f,
 ) {
     SegmentedButton(
         onClick = onClick,
@@ -44,8 +46,14 @@ private fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedButton(
         colors =
             SegmentedButtonDefaults.colors()
                 .copy(
-                    activeContainerColor = MaterialTheme.colorScheme.selected,
-                    activeContentColor = MaterialTheme.colorScheme.onSelected,
+                    activeContainerColor =
+                        MaterialTheme.colorScheme.selected
+                            .copy(alpha = selectedProgress)
+                            .compositeOver(MaterialTheme.colorScheme.primary),
+                    activeContentColor =
+                        MaterialTheme.colorScheme.onSelected
+                            .copy(alpha = selectedProgress)
+                            .compositeOver(MaterialTheme.colorScheme.onPrimary),
                     inactiveContainerColor = MaterialTheme.colorScheme.primary,
                     inactiveContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
@@ -67,11 +75,13 @@ private fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedButton(
 @Composable
 fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedStartButton(
     selected: Boolean,
+    selectedProgress: Float = 1f,
     text: String,
     onClick: () -> Unit,
 ) {
     MullvadSegmentedButton(
         selected = selected,
+        selectedProgress = selectedProgress,
         text = text,
         onClick = onClick,
         shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
@@ -81,11 +91,13 @@ fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedStartButton(
 @Composable
 fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedMiddleButton(
     selected: Boolean,
+    selectedProgress: Float = 1f,
     text: String,
     onClick: () -> Unit,
 ) {
     MullvadSegmentedButton(
         selected = selected,
+        selectedProgress = selectedProgress,
         text = text,
         onClick = onClick,
         shape = RoundedCornerShape(0.dp), // Square
@@ -95,11 +107,13 @@ fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedMiddleButton(
 @Composable
 fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedEndButton(
     selected: Boolean,
+    selectedProgress: Float = 1f,
     text: String,
     onClick: () -> Unit,
 ) {
     MullvadSegmentedButton(
         selected = selected,
+        selectedProgress = selectedProgress,
         text = text,
         onClick = onClick,
         shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),

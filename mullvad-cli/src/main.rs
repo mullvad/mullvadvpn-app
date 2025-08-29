@@ -75,7 +75,7 @@ enum Cli {
     Relay(relay::Relay),
     /// Manage Mullvad API access methods.
     ///
-    /// Access methods are used to connect to the the Mullvad API via one of
+    /// Access methods are used to connect to the Mullvad API via one of
     /// Mullvad's bridge servers or a custom proxy (SOCKS5 & Shadowsocks) when
     /// and where establishing a direct connection does not work.
     ///
@@ -206,7 +206,7 @@ async fn main() -> Result<()> {
 /// By default, Rust replaces it with an empty handler because reasons: https://github.com/rust-lang/rust/issues/119980
 #[cfg(unix)]
 fn handle_sigpipe() -> Result<(), nix::errno::Errno> {
-    use nix::sys::signal::{signal, SigHandler, Signal};
+    use nix::sys::signal::{SigHandler, Signal, signal};
     // SAFETY: We do not use the previous signal handler, which could cause UB if done carelessly:
     // https://pubs.opengroup.org/onlinepubs/9699919799/functions/signal.html
     unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl) }?;

@@ -39,6 +39,7 @@ private fun PreviewInformationComposeCell() {
 @Composable
 fun InformationComposeCell(
     title: String,
+    modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (() -> Unit)? = null,
@@ -49,7 +50,7 @@ fun InformationComposeCell(
     val bodyViewModifier = Modifier
 
     BaseCell(
-        modifier = Modifier.focusProperties { canFocus = false },
+        modifier = modifier.focusProperties { canFocus = false },
         headlineContent = {
             BaseCellTitle(
                 title = title,

@@ -35,7 +35,12 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             numberOfFailedAttempts: 0
         )
 
-        exitRelay = SelectedRelay(endpoint: match.endpoint, hostname: match.relay.hostname, location: match.location)
+        exitRelay = SelectedRelay(
+            endpoint: match.endpoint,
+            hostname: match.relay.hostname,
+            location: match.location,
+            features: nil
+        )
     }
 
     func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() async {
@@ -68,8 +73,8 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
 
         await singleHopPostQuantumKeyExchanging.start()
 
-        wait(
-            for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -110,8 +115,8 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             })
         await singleHopPostQuantumKeyExchanging.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -147,8 +152,8 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }

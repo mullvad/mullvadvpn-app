@@ -1,9 +1,7 @@
 import { Text, TextProps } from './Text';
 
-export type FoonoteMiniProps = Omit<TextProps, 'variant'>;
+export type FootnoteMiniProps<E extends React.ElementType = 'span'> = TextProps<E>;
 
-export const FootnoteMini = ({ children, ...props }: FoonoteMiniProps) => (
-  <Text variant="footnoteMini" {...props}>
-    {children}
-  </Text>
+export const FootnoteMini = <T extends React.ElementType = 'span'>(props: FootnoteMiniProps<T>) => (
+  <Text variant="footnoteMini" {...props} />
 );

@@ -13,7 +13,7 @@ fun CustomList.toRelayItemCustomList(
     )
 
 fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
-    if (searchTerm.length >= MIN_SEARCH_LENGTH) {
+    if (searchTerm.isNotEmpty()) {
         this.filter { it.name.contains(searchTerm, ignoreCase = true) }
     } else {
         this
@@ -26,3 +26,6 @@ fun RelayItem.CustomList.canAddLocation(location: RelayItem) =
 fun List<RelayItem.CustomList>.getById(id: CustomListId) = this.find { it.id == id }
 
 fun List<CustomList>.getById(id: CustomListId) = this.find { it.id == id }
+
+fun RelayItem.CustomList.onlyContains(relayItem: RelayItem.Location) =
+    this.locations.size == 1 && this.locations.first() == relayItem

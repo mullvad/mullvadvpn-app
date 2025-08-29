@@ -11,13 +11,13 @@ use std::{
     task::{Context, Poll},
 };
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
-use tonic::transport::{server::Connected, Server};
 #[cfg(not(target_os = "android"))]
 use tonic::transport::{Endpoint, Uri};
+use tonic::transport::{Server, server::Connected};
 #[cfg(not(target_os = "android"))]
 use tower::service_fn;
 
-pub use tonic::{async_trait, transport::Channel, Code, Request, Response, Status};
+pub use tonic::{Code, Request, Response, Status, async_trait, transport::Channel};
 
 pub type ManagementServiceClient =
     types::management_service_client::ManagementServiceClient<Channel>;
@@ -59,8 +59,10 @@ pub enum Error {
     #[error("Failed to set group ID")]
     SetGidError(#[source] nix::Error),
 
+    // TODO: Remove box when upgrading tonic to a version with
+    // https://github.com/hyperium/tonic/pull/2282
     #[error("gRPC call returned error")]
-    Rpc(#[source] tonic::Status),
+    Rpc(#[source] Box<tonic::Status>),
 
     #[error("Failed to parse gRPC response")]
     InvalidResponse(#[source] types::FromProtobufTypeError),
@@ -112,6 +114,12 @@ pub enum Error {
 
     #[error("An access method with that id does not exist")]
     ApiAccessMethodNotFound,
+}
+
+impl From<tonic::Status> for Error {
+    fn from(value: tonic::Status) -> Self {
+        Error::Rpc(Box::new(value))
+    }
 }
 
 #[cfg(not(target_os = "android"))]

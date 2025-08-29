@@ -186,6 +186,10 @@ msgstr ""
 msgid "Finland"
 msgstr ""
 
+#. BR FOR
+msgid "Fortaleza"
+msgstr ""
+
 #. FR
 msgid "France"
 msgstr ""
@@ -272,6 +276,10 @@ msgstr ""
 
 #. ZA JNB
 msgid "Johannesburg"
+msgstr ""
+
+#. US MKC
+msgid "Kansas City, MO"
 msgstr ""
 
 #. UA IEV

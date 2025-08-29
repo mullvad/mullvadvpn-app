@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use futures::TryFutureExt;
 use reqwest::{Client, ClientBuilder};
 use serde::Deserialize;
@@ -77,8 +77,8 @@ fn bind_client_to_interface(
     builder: ClientBuilder,
     interface: &str,
 ) -> anyhow::Result<ClientBuilder> {
-    use crate::util::{get_interface_ip, Ip};
     use crate::Interface;
+    use crate::util::{Ip, get_interface_ip};
 
     let interface = Interface::Name(interface.to_string());
     let ip = get_interface_ip(&interface, Ip::v6())

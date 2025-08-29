@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
@@ -112,14 +113,22 @@ class MultihopDecisionFlowTests: XCTestCase {
         let entryCandidates = [seSto2]
         let exitCandidates = [seSto2, seSto6]
 
-        let selectedRelays = try oneToMany.pick(
+        let selectedRelaysWithoutSmartRouting = try oneToMany.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
             daitaAutomaticRouting: false
         )
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "se2-wireguard")
-        XCTAssertEqual(selectedRelays.exit.hostname, "se6-wireguard")
+        XCTAssertEqual(selectedRelaysWithoutSmartRouting.entry?.hostname, "se2-wireguard")
+        XCTAssertEqual(selectedRelaysWithoutSmartRouting.exit.hostname, "se6-wireguard")
+
+        let selectedRelaysWithSmartRouting = try XCTUnwrap(oneToMany.pick(
+            entryCandidates: [seSto2],
+            exitCandidates: [seSto2, seSto6],
+            daitaAutomaticRouting: true
+        ))
+        XCTAssertEqual(selectedRelaysWithSmartRouting.entry?.hostname, "se2-wireguard")
+        XCTAssertEqual(selectedRelaysWithSmartRouting.exit.hostname, "se6-wireguard")
     }
 
     func testManyToOnePick() throws {

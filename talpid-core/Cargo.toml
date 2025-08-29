@@ -10,6 +10,9 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+boringtun = ["talpid-wireguard/boringtun"]
+
 [dependencies]
 chrono = { workspace = true, features = ["clock"] }
 thiserror = { workspace = true }
@@ -20,13 +23,14 @@ log = { workspace = true }
 tracing = { workspace = true }
 once_cell = { workspace = true }
 parking_lot = "0.12.0"
-rand = "0.8.5"
+rand = "0.9.0"
 talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 talpid-wireguard = { path = "../talpid-wireguard" }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
+either = { version = "1.15.0", features = ["serde"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-openvpn = { path = "../talpid-openvpn" }
@@ -36,7 +40,7 @@ triggered = "0.1.1"
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = "0.23"
+nix = { workspace = true, features = ["mount"] }
 inotify = "0.10"
 resolv-conf = "0.7"
 nftnl = { version = "0.7.0", features = ["nftnl-1-1-0"] }
@@ -56,9 +60,10 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 pcap = { version = "2.1", features = ["capture-stream"] }
 pnet_packet = { workspace = true }
 tun = { workspace = true, features = ["async"] }
-nix = { version = "0.28", features = ["socket", "signal"] }
+nix = { workspace = true, features = ["socket", "signal", "user"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+socket2 = { workspace = true }
 talpid-macos = { path = "../talpid-macos" }
 talpid-net = { path = "../talpid-net" }
 
@@ -101,9 +106,13 @@ features = [
     "Win32_System_SystemInformation",
 ]
 
+[target.'cfg(target_os = "macos")'.dev-dependencies]
+typed-builder = "0.20.0"
+
 [build-dependencies]
 tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
-
 [dev-dependencies]
-tokio = { workspace = true, features = [ "io-util", "test-util", "time" ] }
+test-log = "0.2.17"
+tokio = { workspace = true, features = ["io-util", "test-util", "time"] }
+insta = "1.42"

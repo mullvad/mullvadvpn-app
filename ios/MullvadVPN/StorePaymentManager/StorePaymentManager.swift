@@ -133,20 +133,33 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
     /// Validates the user account with backend before adding the payment to the queue.
     ///
     /// - Parameters:
-    ///   - payment: an intance of `SKPayment`.
+    ///   - payment: an instance of `SKPayment`.
     ///   - accountNumber: the account number to credit.
     func addPayment(_ payment: SKPayment, for accountNumber: String) {
         logger.debug("Validating account before the purchase.")
 
+        let productIdentifier = payment.productIdentifier
+        let quantity = payment.quantity
+        let requestData = payment.requestData
+        let applicationUsername = payment.applicationUsername
+        let simulatesAskToBuyInSandbox = payment.simulatesAskToBuyInSandbox
+
         // Validate account token before adding new payment to the queue.
         validateAccount(accountNumber: accountNumber) { error in
+            // Reconstruct a new SKMutablePayment with the same fields
+            let cloned = SKMutablePayment()
+            cloned.productIdentifier = productIdentifier
+            cloned.quantity = quantity
+            cloned.requestData = requestData
+            cloned.applicationUsername = applicationUsername
+            cloned.simulatesAskToBuyInSandbox = simulatesAskToBuyInSandbox
+
             if let error {
                 self.logger.error("Failed to validate the account. Payment is ignored.")
-
                 let event = StorePaymentEvent.failure(
                     StorePaymentFailure(
                         transaction: nil,
-                        payment: payment,
+                        payment: cloned,
                         accountNumber: accountNumber,
                         error: error
                     )
@@ -158,8 +171,8 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
             } else {
                 self.logger.debug("Add payment to the queue.")
 
-                self.associateAccountNumber(accountNumber, and: payment)
-                self.paymentQueue.add(payment)
+                self.associateAccountNumber(accountNumber, and: cloned)
+                self.paymentQueue.add(cloned)
             }
         }
     }
@@ -225,10 +238,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         completionHandler: @escaping @Sendable (StorePaymentManagerError?) -> Void
     ) {
         let accountOperation = ResultBlockOperation<Account>(dispatchQueue: .main) { finish in
-            self.accountsProxy.getAccountData(accountNumber: accountNumber).execute(
-                retryStrategy: .default,
-                completionHandler: finish
-            )
+            self.accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .default, completion: finish)
         }
 
         accountOperation.addObserver(BackgroundObserver(

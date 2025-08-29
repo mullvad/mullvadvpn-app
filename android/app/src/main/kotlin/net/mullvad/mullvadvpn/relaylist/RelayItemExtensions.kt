@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -94,20 +95,60 @@ private fun RelayItem.Location.City.filter(
     }
 }
 
-private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(filterDaita: Boolean): Boolean {
-    return if (filterDaita) daita else true
-}
+private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(filterDaita: Boolean): Boolean =
+    if (filterDaita) daita else true
 
 private fun RelayItem.Location.Relay.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
     daita: Boolean,
-): RelayItem.Location.Relay? {
-    return if (
-        hasMatchingDaitaSetting(daita) && hasOwnership(ownership) && hasProvider(providers)
-    ) {
-        this
-    } else {
-        null
+): RelayItem.Location.Relay? =
+    if (hasMatchingDaitaSetting(daita) && hasOwnership(ownership) && hasProvider(providers)) this
+    else null
+
+fun List<RelayItem.Location.Country>.findByGeoLocationId(
+    geoLocationId: GeoLocationId
+): RelayItem.Location? =
+    when (geoLocationId) {
+        is GeoLocationId.Country -> find { country -> country.id == geoLocationId }
+        is GeoLocationId.City -> findCity(geoLocationId)
+        is GeoLocationId.Hostname -> findRelay(geoLocationId)
+    }
+
+fun List<RelayItem.Location.Country>.findCity(
+    geoLocationId: GeoLocationId.City
+): RelayItem.Location.City? =
+    find { country -> country.id == geoLocationId.country }
+        ?.cities
+        ?.find { city -> city.id == geoLocationId }
+
+fun List<RelayItem.Location.Country>.findRelay(
+    geoLocationId: GeoLocationId.Hostname
+): RelayItem.Location.Relay? =
+    find { country -> country.id == geoLocationId.country }
+        ?.cities
+        ?.find { city -> city.id == geoLocationId.city }
+        ?.relays
+        ?.find { relay -> relay.id == geoLocationId }
+
+/**
+ * Checks if two RelayItems are the same for the purpose of blocking selection. Only relays are
+ * considered the same, cities and countries are not. For the purpose of blocking selection, custom
+ * lists are considered to be a relay if and only if they contain a single relay.
+ */
+fun RelayItem.isTheSameAs(other: RelayItem): Boolean {
+    return when (this) {
+        is RelayItem.Location.Relay -> {
+            (other is RelayItem.Location.Relay && this.id == other.id) ||
+                (other is RelayItem.CustomList && other.onlyContains(this))
+        }
+        is RelayItem.CustomList -> {
+            (other is RelayItem.Location.Relay && this.onlyContains(other)) ||
+                (other is RelayItem.CustomList &&
+                    this.locations.size == 1 &&
+                    this.locations.first() is RelayItem.Location.Relay &&
+                    other.onlyContains(this.locations.first()))
+        }
+        else -> false
     }
 }

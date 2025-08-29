@@ -1,8 +1,8 @@
 use clap::Args;
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{
-    proxy::{Shadowsocks, Socks5Local, Socks5Remote, SocksAuth, SHADOWSOCKS_CIPHERS},
     Endpoint, TransportProtocol,
+    proxy::{SHADOWSOCKS_CIPHERS, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -151,7 +151,9 @@ impl ProxyEditParams {
                 }
                 (None, None) => Socks5Remote::new((ip, port)),
                 _ => {
-                    println!("Remote SOCKS5 proxy does not have a username and password set already, so you must provide both or neither when you edit.");
+                    println!(
+                        "Remote SOCKS5 proxy does not have a username and password set already, so you must provide both or neither when you edit."
+                    );
                     Socks5Remote::new((ip, port))
                 }
             },
@@ -168,8 +170,8 @@ impl ProxyEditParams {
     pub fn merge_shadowsocks(self, shadowsocks: &Shadowsocks) -> Shadowsocks {
         let ip = self.ip.unwrap_or(shadowsocks.endpoint.ip());
         let port = self.port.unwrap_or(shadowsocks.endpoint.port());
-        let password = self.password.unwrap_or(shadowsocks.password.to_owned());
-        let cipher = self.cipher.unwrap_or(shadowsocks.cipher.to_owned());
+        let password = self.password.unwrap_or(shadowsocks.password.clone());
+        let cipher = self.cipher.unwrap_or(shadowsocks.cipher.clone());
         Shadowsocks::new((ip, port), cipher, password)
     }
 }

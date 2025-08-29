@@ -15,15 +15,20 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.performLongClick
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -43,7 +48,7 @@ class SelectLocationScreenTest {
     fun setup() {
         MockKAnnotations.init(this)
         loadKoinModules(module { viewModel { listViewModel } })
-        every { listViewModel.uiState } returns MutableStateFlow(SelectLocationListUiState.Loading)
+        every { listViewModel.uiState } returns MutableStateFlow(Lce.Loading(Unit))
     }
 
     @AfterEach
@@ -52,8 +57,9 @@ class SelectLocationScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: SelectLocationUiState = SelectLocationUiState.Loading,
-        onSelectRelay: (item: RelayItem) -> Unit = {},
+        state: Lc<Unit, SelectLocationUiState> = Lc.Loading(Unit),
+        onSelectHop: (hop: Hop) -> Unit = {},
+        onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
         onFilterClick: () -> Unit = {},
@@ -72,14 +78,16 @@ class SelectLocationScreenTest {
         onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
         onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
         onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
-        onSelectRelayList: (RelayListType) -> Unit = {},
+        onSelectRelayList: (MultihopRelayListType) -> Unit = {},
         openDaitaSettings: () -> Unit = {},
+        onRecentsToggleEnableClick: () -> Unit = {},
     ) {
 
         setContentWithTheme {
             SelectLocationScreen(
                 state = state,
-                onSelectRelay = onSelectRelay,
+                onSelectHop = onSelectHop,
+                onModifyMultihop = onModifyMultihop,
                 onSearchClick = onSearchClick,
                 onBackClick = onBackClick,
                 onFilterClick = onFilterClick,
@@ -94,6 +102,7 @@ class SelectLocationScreenTest {
                 onDeleteCustomList = onDeleteCustomList,
                 onSelectRelayList = onSelectRelayList,
                 openDaitaSettings = openDaitaSettings,
+                onRecentsToggleEnableClick = onRecentsToggleEnableClick,
             )
         }
     }
@@ -104,19 +113,31 @@ class SelectLocationScreenTest {
             // Arrange
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems =
-                            DUMMY_RELAY_COUNTRIES.map { RelayListItem.GeoLocationItem(item = it) },
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListType = RelayListType.Single,
+                            relayListItems =
+                                DUMMY_RELAY_COUNTRIES.map {
+                                    RelayListItem.GeoLocationItem(
+                                        hop = Hop.Single(it),
+                                        itemPosition = ItemPosition.Single,
+                                    )
+                                },
+                            customLists = emptyList(),
+                        )
                     )
                 )
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        // searchTerm = "",
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = true,
+                        )
                     )
             )
 
@@ -135,17 +156,25 @@ class SelectLocationScreenTest {
             // Arrange
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.CustomListFooter(false)),
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.CustomListFooter(false)),
+                            customLists = emptyList(),
+                            relayListType = RelayListType.Single,
+                        )
                     )
                 )
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = true,
+                        )
                     )
             )
 
@@ -154,61 +183,114 @@ class SelectLocationScreenTest {
         }
 
     @Test
-    fun whenCustomListIsClickedShouldCallOnSelectRelay() =
+    fun whenCustomListIsClickedShouldCallOnSelectHop() =
         composeExtension.use {
             // Arrange
-            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
+            val customList = Hop.Single(DUMMY_RELAY_ITEM_CUSTOM_LISTS[0])
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.CustomListItem(customList)),
-                        customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.CustomListItem(customList)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
+                        )
                     )
                 )
-            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = true,
+                        )
                     ),
-                onSelectRelay = mockedOnSelectRelay,
+                onSelectHop = mockedOnSelectHop,
             )
 
             // Act
-            onNodeWithText(customList.name).performClick()
+            onNodeWithText(customList.relay.name).performClick()
 
             // Assert
-            verify { mockedOnSelectRelay(customList) }
+            verify { mockedOnSelectHop(customList) }
+        }
+
+    @Test
+    fun whenRecentIsClickedShouldCallOnSelectHop() =
+        composeExtension.use {
+            // Arrange
+            val recent = Hop.Single(DUMMY_RELAY_COUNTRIES[0])
+            every { listViewModel.uiState } returns
+                MutableStateFlow(
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.RecentListItem(recent)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
+                        )
+                    )
+                )
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            initScreen(
+                state =
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = true,
+                        )
+                    ),
+                onSelectHop = mockedOnSelectHop,
+            )
+
+            // Act
+            onNodeWithText(recent.relay.name).performClick()
+
+            // Assert
+            verify { mockedOnSelectHop(recent) }
         }
 
     @Test
     fun whenCustomListIsLongClickedShouldShowBottomSheet() =
         composeExtension.use {
             // Arrange
-            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
+            val customList = Hop.Single(DUMMY_RELAY_ITEM_CUSTOM_LISTS[0])
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.CustomListItem(item = customList)),
-                        customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.CustomListItem(hop = customList)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
+                        )
                     )
                 )
-            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        // searchTerm = "",
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = true,
+                        )
                     ),
-                onSelectRelay = mockedOnSelectRelay,
+                onSelectHop = mockedOnSelectHop,
             )
 
             // Act
-            onNodeWithText(customList.name).performLongClick()
+            onNodeWithText(customList.relay.name).performLongClick()
 
             // Assert
             onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
@@ -218,33 +300,47 @@ class SelectLocationScreenTest {
     fun whenLocationIsLongClickedShouldShowBottomSheet() =
         composeExtension.use {
             // Arrange
-            val relayItem = DUMMY_RELAY_COUNTRIES[0]
+            val relayItem = Hop.Single(DUMMY_RELAY_COUNTRIES[0] as RelayItem.Location)
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.GeoLocationItem(relayItem)),
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems =
+                                listOf(
+                                    RelayListItem.GeoLocationItem(
+                                        relayItem,
+                                        itemPosition = ItemPosition.Single,
+                                    )
+                                ),
+                            customLists = emptyList(),
+                            relayListType = RelayListType.Single,
+                        )
                     )
                 )
-            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = true,
+                        )
                     ),
-                onSelectRelay = mockedOnSelectRelay,
+                onSelectHop = mockedOnSelectHop,
             )
 
             // Act
-            onNodeWithText(relayItem.name).performLongClick()
+            onNodeWithText(relayItem.relay.name).performLongClick()
 
             // Assert
             onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
         }
 
     companion object {
-        private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"︙\""
+        private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"+\""
     }
 }

@@ -1,5 +1,5 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
-use talpid_types::net::{wireguard, Endpoint, TransportProtocol};
+use talpid_types::net::{Endpoint, TransportProtocol, wireguard};
 
 /// Contains server data needed to connect to a single mullvad endpoint
 #[derive(Debug, Clone)]

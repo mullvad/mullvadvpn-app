@@ -18,6 +18,8 @@ import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.io.File
 import java.net.InetAddress
+import java.util.logging.Level
+import java.util.logging.Logger as JavaLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,6 +43,7 @@ import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
+import net.mullvad.mullvadvpn.lib.daemon.grpc.util.AndroidLoggingHandler
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -62,6 +65,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -71,6 +75,8 @@ import net.mullvad.mullvadvpn.lib.model.DeviceUpdateError
 import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
+import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
@@ -124,7 +130,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
-import net.mullvad.mullvadvpn.lib.model.enabled
+import net.mullvad.mullvadvpn.lib.model.defaultOptions
 import net.mullvad.mullvadvpn.lib.model.entryLocation
 import net.mullvad.mullvadvpn.lib.model.ipVersion
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
@@ -139,7 +145,7 @@ import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class ManagementService(
     rpcSocketFile: File,
     private val extensiveLogging: Boolean,
@@ -201,6 +207,13 @@ class ManagementService(
     private val _mutableCurrentAccessMethod = MutableStateFlow<ApiAccessMethodSetting?>(null)
     val currentAccessMethod: Flow<ApiAccessMethodSetting> =
         _mutableCurrentAccessMethod.filterNotNull()
+
+    init {
+        if (extensiveLogging && ENABLE_TRACE_LOGGING) {
+            AndroidLoggingHandler.reset(AndroidLoggingHandler())
+            JavaLogger.getLogger("io.grpc").level = Level.FINEST
+        }
+    }
 
     fun start() {
         // Just to ensure that connection is set up since the connection won't be setup without a
@@ -377,7 +390,9 @@ class ManagementService(
     suspend fun getAccountData(
         accountNumber: AccountNumber
     ): Either<GetAccountDataError, AccountData> =
-        Either.catch { grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain() }
+        Either.catch {
+                grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain(accountNumber)
+            }
             .onLeft { Logger.e("Get account data error") }
             .mapLeft(GetAccountDataError::Unknown)
 
@@ -388,6 +403,19 @@ class ManagementService(
             }
             .onLeft { Logger.e("Create account error") }
             .mapLeft(CreateAccountError::Unknown)
+
+    suspend fun updateDnsContentBlockers(
+        update: (DefaultDnsOptions) -> DefaultDnsOptions
+    ): Either<SetDnsOptionsError, Unit> =
+        Either.catch {
+                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val newDefaultDnsOptions = update(currentDnsOptions.defaultOptions)
+                val updated = DnsOptions.defaultOptions.set(currentDnsOptions, newDefaultDnsOptions)
+                grpc.setDnsOptions(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set dns state error") }
+            .mapLeft(SetDnsOptionsError::Unknown)
+            .mapEmpty()
 
     suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
         Either.catch { grpc.setDnsOptions(dnsOptions.fromDomain()) }
@@ -423,7 +451,14 @@ class ManagementService(
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val updatedDnsOptions =
-                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it + address }
+                    currentDnsOptions.copy {
+                        DnsOptions.customOptions.addresses set
+                            currentDnsOptions.customOptions.addresses + address
+                        // If it is the first address, then turn on Custom Dns
+                        DnsOptions.state set
+                            if (currentDnsOptions.customOptions.addresses.isEmpty()) DnsState.Custom
+                            else currentDnsOptions.state
+                    }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
                 updatedDnsOptions.customOptions.addresses.lastIndex
             }
@@ -433,11 +468,16 @@ class ManagementService(
     suspend fun deleteCustomDns(index: Int): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val mutableAddresses = currentDnsOptions.customOptions.addresses.toMutableList()
+                mutableAddresses.removeAt(index)
+
                 val updatedDnsOptions =
-                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) {
-                        val mutableAddresses = it.toMutableList()
-                        mutableAddresses.removeAt(index)
-                        mutableAddresses.toList()
+                    currentDnsOptions.copy {
+                        DnsOptions.customOptions.addresses set mutableAddresses.toList()
+                        // If it is the last address, then turn off Custom Dns
+                        DnsOptions.state set
+                            if (mutableAddresses.isEmpty()) DnsState.Default
+                            else currentDnsOptions.state
                     }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
@@ -536,10 +576,40 @@ class ManagementService(
             .mapLeft(SetRelayLocationError::Unknown)
             .mapEmpty()
 
+    suspend fun setRelayLocationMultihop(
+        entry: RelayItemId,
+        exit: RelayItemId,
+    ): Either<SetRelayLocationError, Unit> =
+        Either.catch {
+                val currentRelaySettings = getSettings().relaySettings
+
+                val updatedRelaySettings =
+                    currentRelaySettings.copy {
+                        inside(RelaySettings.relayConstraints) {
+                            RelayConstraints.location set Constraint.Only(exit)
+                            RelayConstraints.wireguardConstraints.entryLocation set
+                                Constraint.Only(entry)
+                            RelayConstraints.wireguardConstraints.isMultihopEnabled set true
+                        }
+                    }
+                grpc.setRelaySettings(updatedRelaySettings.fromDomain())
+            }
+            .onLeft { Logger.e("Set relay multihop error") }
+            .mapLeft(SetRelayLocationError::Unknown)
+            .mapEmpty()
+
     suspend fun createCustomList(
-        name: CustomListName
+        name: CustomListName,
+        locations: List<GeoLocationId> = emptyList(),
     ): Either<CreateCustomListError, CustomListId> =
-        Either.catch { grpc.createCustomList(StringValue.of(name.value)) }
+        Either.catch {
+                grpc.createCustomList(
+                    ManagementInterface.NewCustomList.newBuilder()
+                        .setName(name.value)
+                        .addAllLocations(locations.map(GeoLocationId::fromDomain))
+                        .build()
+                )
+            }
             .map { CustomListId(it.value) }
             .mapLeftStatus {
                 when (it.status.code) {
@@ -802,6 +872,16 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
+    suspend fun setIpv6Enabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
+        Either.catch { grpc.setEnableIpv6(BoolValue.of(enabled)) }
+            .mapLeft(SetDaitaSettingsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setRecentsEnabled(enabled: Boolean): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch { grpc.setEnableRecents(BoolValue.of(enabled)) }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
     private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
@@ -812,6 +892,10 @@ class ManagementService(
         } else {
             throw it
         }
+    }
+
+    companion object {
+        const val ENABLE_TRACE_LOGGING = false
     }
 }
 

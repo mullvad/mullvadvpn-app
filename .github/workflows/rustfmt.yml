@@ -20,6 +20,10 @@ jobs:
       - name: Checkout wireguard-go submodule
         run: git submodule update --init --depth=1 wireguard-go-rs
 
+      - name: Install Rust components
+        shell: bash
+        run: rustup component add rustfmt
+
       - name: Check formatting
         run: |-
           rustfmt --version

@@ -14,7 +14,7 @@ use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Ok, Result};
-use clap::{builder::PossibleValuesParser, Parser};
+use clap::{Parser, builder::PossibleValuesParser};
 use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
@@ -113,6 +113,10 @@ enum Commands {
         /// `assets/openvpn.ca.crt`.
         #[arg(long)]
         openvpn_certificate: Option<PathBuf>,
+
+        /// Names of tests to not run. Any tests given here will be skipped.
+        #[arg(long)]
+        skip: Vec<String>,
 
         /// Names of tests to run. The order given will be respected. If not set, all tests will be
         /// run.
@@ -285,6 +289,7 @@ async fn main() -> Result<()> {
             gui_package,
             package_dir,
             openvpn_certificate,
+            skip,
             test_filters,
             verbose,
             test_report,
@@ -369,7 +374,7 @@ async fn main() -> Result<()> {
                 openvpn_certificate,
             ));
 
-            let mut tests = get_filtered_tests(&test_filters)?;
+            let mut tests = get_filtered_tests(&test_filters, &skip)?;
             for test in tests.iter_mut() {
                 test.location = config.test_locations.lookup(test.name).cloned();
             }

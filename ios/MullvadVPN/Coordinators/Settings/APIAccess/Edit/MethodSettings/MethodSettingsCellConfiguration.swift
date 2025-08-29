@@ -145,9 +145,11 @@ class MethodSettingsCellConfiguration {
     }
 
     private func configureProtocol(_ cell: UITableViewCell, itemIdentifier: MethodSettingsItemIdentifier) {
-        var contentConfiguration = UIListContentConfiguration.mullvadValueCell(
-            tableStyle: tableView.style,
-            isEnabled: !isTesting
+        var contentConfiguration = ListCellContentConfiguration(textProperties: ListCellContentConfiguration
+            .TextProperties(color: .Cell.titleTextColor.withAlphaComponent(!isTesting
+                    ? 1
+                    : 0.8
+            ))
         )
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.secondaryText = subject.value.method.localizedDescription
@@ -178,12 +180,7 @@ class MethodSettingsCellConfiguration {
         var contentConfiguration = MethodTestingStatusCellContentConfiguration()
         contentConfiguration.status = viewStatus
         contentConfiguration.detailText = viewStatus == .reachable
-            ? NSLocalizedString(
-                "METHOD_SETTINGS_SAVING_CHANGES",
-                tableName: "APIAccess",
-                value: "Saving changes...",
-                comment: ""
-            )
+            ? NSLocalizedString("Saving changes...", comment: "")
             : nil
 
         cell.contentConfiguration = contentConfiguration

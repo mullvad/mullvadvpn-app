@@ -26,17 +26,22 @@ class RestorePurchasesView: UIView {
         let label = UILabel()
         label.setAccessibilityIdentifier(.restorePurchasesButton)
         label.attributedText = makeAttributedString()
+        label.adjustsFontForContentSizeCategory = true
         label.isUserInteractionEnabled = true
+        label.numberOfLines = 0
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapRestoreButton)))
         return label
     }()
 
     private lazy var infoButton: UIButton = {
-        let button = IncreasedHitButton(type: .custom)
+        let button = UIButton(type: .system)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
+        button.tintColor = .white
         button.isExclusiveTouch = true
-        button.setImage(UIImage(resource: .iconInfo), for: .normal)
+        button.setImage(UIImage.Buttons.info, for: .normal)
         button.tintColor = .white
         button.addTarget(self, action: #selector(didTapInfoButton), for: .touchUpInside)
+        button.largeContentImageInsets = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
         return button
     }()
 
@@ -59,15 +64,10 @@ class RestorePurchasesView: UIView {
     }
 
     private func makeAttributedString() -> NSAttributedString {
-        let text = NSLocalizedString(
-            "RESTORE_PURCHASES_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Restore purchases",
-            comment: ""
-        )
+        let text = NSLocalizedString("Restore purchases", comment: "")
 
         return NSAttributedString(string: text, attributes: [
-            .font: UIFont.systemFont(ofSize: 13, weight: .semibold),
+            .font: UIFont.mullvadMini,
             .foregroundColor: UIColor.white,
             .underlineStyle: NSUnderlineStyle.single.rawValue,
         ])

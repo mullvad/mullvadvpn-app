@@ -49,10 +49,12 @@ case "$environment" in
     "production")
         repository_server_upload_domain="$PRODUCTION_REPOSITORY_SERVER"
         repository_server_public_url="$PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL"
+        bunnycdn_pull_zone_id="$PRODUCTION_BUNNYCDN_PULL_ZONE_ID"
         ;;
     "staging")
         repository_server_upload_domain="$STAGING_REPOSITORY_SERVER"
         repository_server_public_url="$STAGING_LINUX_REPOSITORY_PUBLIC_URL"
+        bunnycdn_pull_zone_id="$STAGING_BUNNYCDN_PULL_ZONE_ID"
         ;;
     "dev")
         repository_server_upload_domain="$DEV_REPOSITORY_SERVER"
@@ -144,9 +146,21 @@ function rsync_repo {
         build@"$repository_server_upload_domain":"$remote_repo_dir"
 }
 
+function invalidate_bunny_cdn_cache {
+    local pull_zone_id=$1
+    curl --request POST \
+        --url "https://api.bunny.net/pullzone/${pull_zone_id}/purgeCache" \
+        --header "AccessKey: ${BUNNYCDN_API_KEY}" \
+        --header 'content-type: application/json' \
+        --fail-with-body
+}
+
+repositories_were_updated="false"
 for repository in "${REPOSITORIES[@]}"; do
     deb_remote_repo_dir="deb/$repository"
     rpm_remote_repo_dir="rpm/$repository"
+    # Stable or beta
+    release_channel="$repository"
 
     repository_inbox_dir="$inbox_dir/$repository"
     if ! process_inbox "$repository_inbox_dir"; then
@@ -167,7 +181,7 @@ for repository in "${REPOSITORIES[@]}"; do
 
     deb_repo_dir="$repository_inbox_dir/repos/deb"
     rm -rf "$deb_repo_dir" && mkdir -p "$deb_repo_dir" || exit 1
-    "$SCRIPT_DIR/prepare-apt-repository.sh" "$deb_repo_dir" "${artifact_dirs[@]}"
+    "$SCRIPT_DIR/prepare-apt-repository.sh" "$release_channel" "$deb_repo_dir" "${artifact_dirs[@]}"
 
     # Generate rpm repository from all the .latest artifacts
 
@@ -183,4 +197,13 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "[#] Syncing rpm repository to $rpm_remote_repo_dir"
     rsync_repo "$rpm_repo_dir" "$rpm_remote_repo_dir"
 
+    echo "[#] ==== Done updating $repository in $environment ===="
+    repositories_were_updated="true"
 done
+
+if [[ "$repositories_were_updated" == "true" ]]; then
+    if [[ "$environment" == "production" || "$environment" == "staging" ]]; then
+        echo "[#] Invalidating Bunny CDN cache for pull zone $bunnycdn_pull_zone_id"
+        invalidate_bunny_cdn_cache "$bunnycdn_pull_zone_id"
+    fi
+fi

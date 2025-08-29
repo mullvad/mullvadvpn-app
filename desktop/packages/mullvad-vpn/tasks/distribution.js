@@ -56,8 +56,9 @@ function newConfig() {
       'node_modules/',
       '!node_modules/grpc-tools',
       '!node_modules/@types',
+      '!node_modules/@rollup',
       '!node_modules/nseventforwarder/debug',
-      '!node_modules/win-shortcuts/debug',
+      '!node_modules/windows-utils/debug',
     ],
 
     // Make sure that all files declared in "extraResources" exists and abort if they don't.
@@ -84,7 +85,8 @@ function newConfig() {
         target: 'pkg',
         arch: getMacArch(),
       },
-      singleArchFiles: 'node_modules/nseventforwarder/dist/**',
+      x64ArchFiles:
+        'Contents/Resources/app.asar.unpacked/node_modules/nseventforwarder/dist/*/index.node',
       artifactName: 'MullvadVPN-${version}.${ext}',
       category: 'public.app-category.tools',
       icon: distAssets('icon-macos.icns'),
@@ -129,7 +131,6 @@ function newConfig() {
     win: {
       target: [],
       artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
-      publisherName: 'Mullvad VPN AB',
       extraResources: [
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad.exe')), to: '.' },
         {
@@ -137,6 +138,10 @@ function newConfig() {
           to: '.',
         },
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-daemon.exe')), to: '.' },
+        {
+          from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-setup.exe')),
+          to: '.',
+        },
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'talpid_openvpn_plugin.dll')), to: '.' },
         {
           from: root(
@@ -184,6 +189,7 @@ function newConfig() {
           arch: getLinuxTargetArch(),
         },
       ],
+      executableName: 'mullvad-vpn',
       artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
       category: 'Network',
       icon: distAssets('icon.icns'),
@@ -279,7 +285,7 @@ async function packWin() {
           },
         ],
       },
-      asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico'],
+      asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico', '**/*.node'],
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
         process.env.CPP_BUILD_TARGET = options.arch;
@@ -291,7 +297,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
             process.env.DIST_SUBDIR = '';
 
-            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-x86'], { shell: true });
+            execFileSync('npm', ['-w', 'windows-utils', 'run', 'build-x86'], { shell: true });
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
@@ -299,7 +305,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
             process.env.DIST_SUBDIR = 'aarch64-pc-windows-msvc';
 
-            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-arm'], { shell: true });
+            execFileSync('npm', ['-w', 'windows-utils', 'run', 'build-arm'], { shell: true });
             break;
           default:
             throw new Error('Invalid or unknown target (only one may be specified)');
@@ -373,7 +379,11 @@ function packMac() {
         return true;
       },
       beforePack: async (context) => {
-        await removeNseventforwarderNativeModules();
+        if (!universal) {
+          // Ensure we don't pack native modules for other architectures.
+          // These will exist if the app has been built for other architectures before.
+          await removeNseventforwarderNativeModules();
+        }
         config.beforePack?.(context);
       },
       afterPack: (context) => {
@@ -442,7 +452,7 @@ function packLinux() {
         const targetExecutable = path.join(context.appOutDir, 'mullvad-gui');
         const launcherScript = path.join(context.appOutDir, 'mullvad-gui-launcher.sh');
 
-        // rename mullvad-vpn to mullvad-gui
+        // rename "Mullvad VPN" to mullvad-gui
         await fs.promises.rename(sourceExecutable, targetExecutable);
         // rename launcher script to mullvad-vpn
         await fs.promises.rename(launcherScript, sourceExecutable);
@@ -518,13 +528,6 @@ function productVersion(extraArgs) {
   return execFileSync('cargo', args, { encoding: 'utf-8' }).trim();
 }
 
-// `@electron/universal` tries to lipo together libraries built for the same architecture
-// if they're present for both targets. So make sure we remove libraries for other archs.
-// Remove the workaround once the issue has been fixed:
-// https://github.com/electron/universal/issues/41#issuecomment-1496288834
-//
-// dist/darwin-x64/index.node
-// dist/darwin-arm64/index.node
 async function removeNseventforwarderNativeModules() {
   try {
     await fs.promises.rm('../../node_modules/nseventforwarder/dist/', { recursive: true });
@@ -532,10 +535,6 @@ async function removeNseventforwarderNativeModules() {
     // noop
   }
 }
-
-packWin.displayName = 'builder-win';
-packMac.displayName = 'builder-mac';
-packLinux.displayName = 'builder-linux';
 
 exports.packWin = packWin;
 exports.packMac = packMac;

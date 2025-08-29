@@ -12,10 +12,11 @@ use mullvad_types::{
     relay_list::Relay,
 };
 use rand::{
+    Rng,
     seq::{IteratorRandom, SliceRandom},
-    thread_rng, Rng,
+    thread_rng,
 };
-use talpid_types::net::obfuscation::ObfuscatorConfig;
+use talpid_types::net::{IpVersion, obfuscation::ObfuscatorConfig};
 
 use crate::SelectedObfuscator;
 
@@ -123,7 +124,7 @@ pub fn get_shadowsocks_obfuscator(
     let port = settings.port;
     let extra_addrs = match &relay.endpoint_data {
         mullvad_types::relay_list::RelayEndpointData::Wireguard(wg) => {
-            &wg.shadowsocks_extra_addr_in
+            wg.shadowsocks_extra_in_addrs()
         }
         _ => panic!("expected wireguard relay"),
     };
@@ -131,7 +132,7 @@ pub fn get_shadowsocks_obfuscator(
     let endpoint = get_shadowsocks_obfuscator_inner(
         endpoint.peer.endpoint.ip(),
         non_extra_port_ranges,
-        extra_addrs,
+        extra_addrs.copied(),
         port,
     )?;
 
@@ -141,20 +142,39 @@ pub fn get_shadowsocks_obfuscator(
     })
 }
 
+pub fn get_quic_obfuscator(relay: Relay, ip_version: IpVersion) -> Option<SelectedObfuscator> {
+    let quic = relay.wireguard()?.quic()?;
+    let config = {
+        let hostname = quic.hostname().to_string();
+        let endpoint = match ip_version {
+            IpVersion::V4 => SocketAddr::from((quic.in_ipv4()?, quic.port())),
+            IpVersion::V6 => SocketAddr::from((quic.in_ipv6()?, quic.port())),
+        };
+        let auth_token = quic.auth_token().to_string();
+        ObfuscatorConfig::Quic {
+            hostname,
+            endpoint,
+            auth_token,
+        }
+    };
+
+    let obfuscator = SelectedObfuscator { config, relay };
+    Some(obfuscator)
+}
+
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`
 /// (unless empty). `wg_in_addr_port_ranges` contains all valid ports for `wg_in_addr`, and
 /// `SHADOWSOCKS_EXTRA_PORT_RANGES` contains valid ports for `extra_in_addrs`.
 fn get_shadowsocks_obfuscator_inner<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
     wg_in_addr: IpAddr,
     wg_in_addr_port_ranges: &[R],
-    extra_in_addrs: &[IpAddr],
+    extra_in_addrs: impl IntoIterator<Item = IpAddr>,
     desired_port: Constraint<u16>,
 ) -> Result<SocketAddr, Error> {
     // Filter out addresses for the wrong address family
     let extra_in_addrs: Vec<_> = extra_in_addrs
-        .iter()
+        .into_iter()
         .filter(|addr| addr.is_ipv4() == wg_in_addr.is_ipv4())
-        .copied()
         .collect();
 
     let in_ip = extra_in_addrs
@@ -220,10 +240,10 @@ pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
 #[cfg(test)]
 mod tests {
     use super::{
-        get_shadowsocks_obfuscator_inner, port_if_in_range, SHADOWSOCKS_EXTRA_PORT_RANGES,
+        SHADOWSOCKS_EXTRA_PORT_RANGES, get_shadowsocks_obfuscator_inner, port_if_in_range,
     };
     use mullvad_types::constraints::Constraint;
-    use std::{net::IpAddr, ops::RangeInclusive};
+    use std::{iter, net::IpAddr, ops::RangeInclusive};
 
     /// Test whether select ports are available when relay has no extra IPs
     #[test]
@@ -234,7 +254,7 @@ mod tests {
         let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
 
         let selected_addr =
-            get_shadowsocks_obfuscator_inner(wg_in_ip, PORT_RANGES, &[], Constraint::Any)
+            get_shadowsocks_obfuscator_inner(wg_in_ip, PORT_RANGES, iter::empty(), Constraint::Any)
                 .expect("should find valid port without constraint");
 
         assert_eq!(selected_addr.ip(), wg_in_ip);
@@ -246,7 +266,7 @@ mod tests {
         let selected_addr = get_shadowsocks_obfuscator_inner(
             wg_in_ip,
             PORT_RANGES,
-            &[],
+            iter::empty(),
             Constraint::Only(WITHIN_RANGE_PORT),
         )
         .expect("should find within-range port");
@@ -260,7 +280,7 @@ mod tests {
         let selected_addr = get_shadowsocks_obfuscator_inner(
             wg_in_ip,
             PORT_RANGES,
-            &[],
+            iter::empty(),
             Constraint::Only(OUT_OF_RANGE_PORT),
         );
         assert!(
@@ -276,13 +296,13 @@ mod tests {
         const OUT_OF_RANGE_PORT: u16 = 1;
         let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
 
-        let extra_in_addrs: &[IpAddr] =
-            &["1.3.3.7".parse().unwrap(), "192.0.2.123".parse().unwrap()];
+        let extra_in_addrs: Vec<IpAddr> =
+            vec!["1.3.3.7".parse().unwrap(), "192.0.2.123".parse().unwrap()];
 
         let selected_addr = get_shadowsocks_obfuscator_inner(
             wg_in_ip,
             PORT_RANGES,
-            extra_in_addrs,
+            extra_in_addrs.clone(),
             Constraint::Any,
         )
         .expect("should find valid port without constraint");
@@ -296,7 +316,7 @@ mod tests {
         let selected_addr = get_shadowsocks_obfuscator_inner(
             wg_in_ip,
             PORT_RANGES,
-            extra_in_addrs,
+            extra_in_addrs.clone(),
             Constraint::Only(OUT_OF_RANGE_PORT),
         )
         .expect("expected selected address to be returned");
@@ -319,12 +339,12 @@ mod tests {
         const OUT_OF_RANGE_PORT: u16 = 1;
         let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
 
-        let extra_in_addrs: &[IpAddr] = &["::2".parse().unwrap()];
+        let extra_in_addrs: Vec<IpAddr> = vec!["::2".parse().unwrap()];
 
         let selected_addr = get_shadowsocks_obfuscator_inner(
             wg_in_ip,
             PORT_RANGES,
-            extra_in_addrs,
+            extra_in_addrs.clone(),
             Constraint::Any,
         )
         .expect("should find valid port without constraint");
@@ -338,7 +358,7 @@ mod tests {
         let selected_addr = get_shadowsocks_obfuscator_inner(
             wg_in_ip,
             PORT_RANGES,
-            extra_in_addrs,
+            extra_in_addrs.clone(),
             Constraint::Only(OUT_OF_RANGE_PORT),
         );
         assert!(

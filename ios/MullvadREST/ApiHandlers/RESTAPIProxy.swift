@@ -12,42 +12,6 @@ import MullvadTypes
 import Operations
 import WireGuardKitTypes
 
-public protocol APIQuerying: Sendable {
-    func mullvadApiGetAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable
-
-    func getAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable
-
-    func getRelays(
-        etag: String?,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
-    ) -> Cancellable
-
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data
-    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
-
-    func sendProblemReport(
-        _ body: REST.ProblemReportRequest,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
-    ) -> Cancellable
-
-    func submitVoucher(
-        voucherCode: String,
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.SubmitVoucherResponse>
-    ) -> Cancellable
-}
-
 extension REST {
     public final class APIProxy: Proxy<AuthProxyConfiguration>, APIQuerying, @unchecked Sendable {
         public init(configuration: AuthProxyConfiguration) {
@@ -60,30 +24,6 @@ extension REST {
                 ),
                 responseDecoder: Coding.makeJSONDecoder()
             )
-        }
-
-        public func mullvadApiGetAddressList(
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-        ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: [AnyIPEndpoint].self,
-                with: responseDecoder
-            )
-
-            let networkOperation = MullvadApiNetworkOperation(
-                name: "get-api-addrs",
-                dispatchQueue: dispatchQueue,
-                request: .getAddressList(retryStrategy),
-                transportProvider: configuration.apiTransportProvider,
-                responseDecoder: responseDecoder,
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
-
-            operationQueue.addOperation(networkOperation)
-
-            return networkOperation
         }
 
         public func getAddressList(
@@ -310,66 +250,54 @@ extension REST {
 
             return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
         }
+
+        /// Not implemented. Use `MullvadAPIProxy` instead.
+        public func legacyStorekitPayment(
+            accountNumber: String,
+            request: LegacyStorekitRequest,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+        ) -> any Cancellable {
+            AnyCancellable()
+        }
+
+        /// Not implemented. Use `MullvadAPIProxy` instead.
+        public func initStorekitPayment(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<String>
+        ) -> any Cancellable {
+            AnyCancellable()
+        }
+
+        /// Not implemented. Use `MullvadAPIProxy` instead.
+        public func checkStorekitPayment(
+            accountNumber: String,
+            transaction: StorekitTransaction,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<Void>
+        ) -> any Cancellable {
+            AnyCancellable()
+        }
+
+        public func checkApiAvailability(
+            retryStrategy: REST.RetryStrategy,
+            accessMethod: PersistentAccessMethod,
+            completion: @escaping ProxyCompletionHandler<Bool>
+        ) -> any Cancellable {
+            AnyCancellable()
+        }
     }
 
     // MARK: - Response types
-
-    public enum ServerRelaysCacheResponse: Sendable {
-        case notModified
-        case newContent(_ etag: String?, _ rawData: Data)
-    }
 
     private struct CreateApplePaymentRequest: Encodable, Sendable {
         let receiptString: Data
     }
 
-    public enum CreateApplePaymentResponse: Sendable {
-        case noTimeAdded(_ expiry: Date)
-        case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
-
-        public var newExpiry: Date {
-            switch self {
-            case let .noTimeAdded(expiry), let .timeAdded(_, expiry):
-                return expiry
-            }
-        }
-
-        public var timeAdded: TimeInterval {
-            switch self {
-            case .noTimeAdded:
-                return 0
-            case let .timeAdded(timeAdded, _):
-                return TimeInterval(timeAdded)
-            }
-        }
-
-        /// Returns a formatted string for the `timeAdded` interval, i.e "30 days"
-        public var formattedTimeAdded: String? {
-            let formatter = DateComponentsFormatter()
-            formatter.allowedUnits = [.day, .hour]
-            formatter.unitsStyle = .full
-
-            return formatter.string(from: self.timeAdded)
-        }
-    }
-
     private struct CreateApplePaymentRawResponse: Decodable, Sendable {
         let timeAdded: Int
         let newExpiry: Date
-    }
-
-    public struct ProblemReportRequest: Encodable, Sendable {
-        public let address: String
-        public let message: String
-        public let log: String
-        public let metadata: [String: String]
-
-        public init(address: String, message: String, log: String, metadata: [String: String]) {
-            self.address = address
-            self.message = message
-            self.log = log
-            self.metadata = metadata
-        }
     }
 
     private struct SubmitVoucherRequest: Encodable, Sendable {

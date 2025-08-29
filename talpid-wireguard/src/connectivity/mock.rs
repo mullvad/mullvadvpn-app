@@ -2,9 +2,9 @@ use std::future::Future;
 use std::pin::Pin;
 use tokio::time::Instant;
 
+use super::Check;
 use super::check::{CancelToken, ConnState, PingState};
 use super::pinger;
-use super::Check;
 
 use crate::{Config, Tunnel, TunnelError};
 use pinger::Pinger;

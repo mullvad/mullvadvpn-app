@@ -3,7 +3,7 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput};
+use syn::{DeriveInput, parse_macro_input};
 
 /// Derive macro for the [`Intersection`] trait on structs.
 #[proc_macro_derive(Intersection)]
@@ -15,8 +15,8 @@ pub fn intersection_derive(item: TokenStream) -> TokenStream {
 
 mod inner {
     use proc_macro2::TokenStream;
-    use quote::{quote, TokenStreamExt};
-    use syn::{spanned::Spanned, DeriveInput, Error};
+    use quote::{TokenStreamExt, quote};
+    use syn::{DeriveInput, Error, spanned::Spanned};
 
     pub(crate) fn derive(input: DeriveInput) -> TokenStream {
         if let syn::Data::Struct(data) = &input.data {

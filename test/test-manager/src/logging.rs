@@ -219,7 +219,7 @@ impl TestOutput {
                     format!(
                         "TEST {} RETURNED ERROR: {}",
                         self.test_name,
-                        format!("{:?}", e).bold()
+                        format!("{e:?}").bold()
                     )
                     .red()
                 );

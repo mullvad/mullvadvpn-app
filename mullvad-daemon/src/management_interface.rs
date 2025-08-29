@@ -1,17 +1,20 @@
-use crate::{account_history, device, version_check, DaemonCommand, DaemonCommandSender};
+use crate::{account_history, device, DaemonCommand, DaemonCommandSender};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
+use mullvad_management_interface::types::FromProtobufTypeError;
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, ServerJoinHandle, Status,
 };
+use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     account::AccountNumber,
     relay_constraints::{
-        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        allowed_ip::AllowedIps, BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride,
+        RelaySettings,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -19,6 +22,7 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
+use std::collections::BTreeSet;
 use std::{
     path::Path,
     str::FromStr,
@@ -38,15 +42,21 @@ pub enum Error {
     SetupError(#[source] mullvad_management_interface::Error),
 }
 
+pub type AppUpgradeBroadcast = tokio::sync::broadcast::Sender<version::AppUpgradeEvent>;
+
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     log_reload_handle: crate::logging::LogHandle,
+    pub app_upgrade_broadcast: AppUpgradeBroadcast,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
 type EventsListenerReceiver = UnboundedReceiverStream<Result<types::DaemonEvent, Status>>;
 type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
+
+type AppUpgradeEventListenerReceiver =
+    Box<dyn futures::Stream<Item = Result<types::AppUpgradeEvent, Status>> + Send + Unpin>;
 
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
 const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
@@ -56,6 +66,7 @@ impl ManagementService for ManagementServiceImpl {
     type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
     type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
+    type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
 
     // Control and get the tunnel state
     //
@@ -141,7 +152,7 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("get_current_version");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))?;
-        let version = self.wait_for_result(rx).await?;
+        let version = self.wait_for_result(rx).await?.to_string();
         Ok(Response::new(version))
     }
 
@@ -634,16 +645,45 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
+    async fn set_wireguard_allowed_ips(
+        &self,
+        request: Request<types::AllowedIpsList>,
+    ) -> ServiceResult<()> {
+        let allowed_ips_str = request.into_inner().values;
+        log::debug!("set_wireguard_allowed_ips({:?})", allowed_ips_str);
+
+        let (tx, rx) = oneshot::channel();
+        let allowed_ips = AllowedIps::parse(&allowed_ips_str)
+            .map_err(|e| {
+                log::error!("{e}");
+                Status::invalid_argument(format!("Invalid allowed IPs: {e}"))
+            })?
+            .to_constraint();
+
+        self.send_command_to_daemon(DaemonCommand::SetWireguardAllowedIps(tx, allowed_ips))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
+
     // Custom lists
     //
 
-    async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<String> {
+    async fn create_custom_list(
+        &self,
+        request: Request<types::NewCustomList>,
+    ) -> ServiceResult<String> {
         log::debug!("create_custom_list");
+        let request = request.into_inner();
+        let locations = request
+            .locations
+            .into_iter()
+            .map(GeographicLocationConstraint::try_from)
+            .collect::<Result<BTreeSet<_>, FromProtobufTypeError>>()?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::CreateCustomList(tx, request.into_inner()))?;
+        self.send_command_to_daemon(DaemonCommand::CreateCustomList(tx, request.name, locations))?;
         self.wait_for_result(rx)
             .await?
-            .map(|response| Response::new(response.to_string()))
+            .map(|id| Response::new(id.to_string()))
             .map_err(map_daemon_error)
     }
 
@@ -806,6 +846,21 @@ impl ManagementService for ManagementServiceImpl {
 
     // Split tunneling
     //
+
+    async fn split_tunnel_is_enabled(&self, _: Request<()>) -> ServiceResult<bool> {
+        #[cfg(target_os = "linux")]
+        {
+            log::debug!("split_tunnel_is_enabled");
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::SplitTunnelIsEnabled(tx))?;
+            Ok(self.wait_for_result(rx).await.map(Response::new)?)
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            log::error!("split_tunnel_is_enabled is only available on Linux");
+            Ok(Response::new(false))
+        }
+    }
 
     async fn get_split_tunnel_processes(
         &self,
@@ -1127,8 +1182,101 @@ impl ManagementService for ManagementServiceImpl {
 
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
+    // Debug features
+
+    async fn disable_relay(&self, relay: Request<String>) -> ServiceResult<()> {
+        log::debug!("disable_relay");
+        let (tx, rx) = oneshot::channel();
+        let relay = relay.into_inner();
+        self.send_command_to_daemon(DaemonCommand::DisableRelay { relay, tx })?;
+        self.wait_for_result(rx).await?;
+        Ok(Response::new(()))
+    }
+
+    async fn enable_relay(&self, relay: Request<String>) -> ServiceResult<()> {
+        log::debug!("enable_relay");
+        let (tx, rx) = oneshot::channel();
+        let relay = relay.into_inner();
+        self.send_command_to_daemon(DaemonCommand::EnableRelay { relay, tx })?;
+        self.wait_for_result(rx).await?;
+        Ok(Response::new(()))
+    }
+
+    // App upgrade
+
+    async fn app_upgrade(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("app_upgrade");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AppUpgrade(tx))?;
+
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
+
+        Ok(Response::new(()))
+    }
+
+    async fn app_upgrade_abort(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("app_upgrade_abort");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AppUpgradeAbort(tx))?;
+
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
+
+        Ok(Response::new(()))
+    }
+
+    async fn app_upgrade_events_listen(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::AppUpgradeEventsListenStream> {
+        log::debug!("app_upgrade_events_listen");
+        let rx = self.app_upgrade_broadcast.subscribe();
+        let upgrade_event_stream =
+            tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
+                Ok(event) => Ok(event.into()),
+                Err(error) => Err(Status::internal(format!(
+                    "Failed to receive app upgrade event: {error}"
+                ))),
+            });
+
+        Ok(Response::new(
+            Box::new(upgrade_event_stream) as Self::AppUpgradeEventsListenStream
+        ))
+    }
+
+    async fn get_app_upgrade_cache_dir(&self, _: Request<()>) -> ServiceResult<String> {
+        log::debug!("get_app_upgrade_cache_dir");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetAppUpgradeCacheDir(tx))?;
+
+        let path = self
+            .wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
+
+        path.into_os_string()
+            .into_string()
+            .map_err(|_| Status::internal("Failed to convert OsString to String"))
+            .map(Response::new)
+    }
+
+    async fn set_enable_recents(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enable_recents = request.into_inner();
+        log::debug!("set_enable_recents({})", enable_recents);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetEnableRecents(tx, enable_recents))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
 }
 
+#[allow(clippy::result_large_err)]
 impl ManagementServiceImpl {
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: DaemonCommand) -> Result<(), Status> {
@@ -1160,16 +1308,20 @@ impl ManagementInterfaceServer {
         daemon_tx: DaemonCommandSender,
         rpc_socket_path: impl AsRef<Path>,
         log_reload_handle: crate::logging::LogHandle,
+        app_upgrade_broadcast: tokio::sync::broadcast::Sender<version::AppUpgradeEvent>,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
+
         // NOTE: It is important that the channel buffer size is kept at 0. When sending a signal
         // to abort the gRPC server, the sender can be awaited to know when the gRPC server has
         // received and started processing the shutdown signal.
         let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
+
         let server = ManagementServiceImpl {
             daemon_tx,
             subscriptions: subscriptions.clone(),
             log_reload_handle,
+            app_upgrade_broadcast,
         };
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             server,
@@ -1271,7 +1423,7 @@ impl ManagementInterfaceEventBroadcaster {
     /// Notify that info about the latest available app version changed.
     /// Or some flag about the currently running version is changed.
     pub(crate) fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
-        log::debug!("Broadcasting new app version info");
+        log::debug!("Broadcasting app version info:\n{app_version_info}");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::VersionInfo(
                 types::AppVersionInfo::from(app_version_info),
@@ -1350,7 +1502,7 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
     match &error {
         Error::RegisterIps(io_error) | Error::SetConfiguration(io_error) => {
             if io_error.kind() == std::io::ErrorKind::NotFound {
-                Status::not_found(format!("{}: {}", error, io_error))
+                Status::not_found(format!("{error}: {io_error}"))
             } else {
                 Status::unknown(error.to_string())
             }
@@ -1407,11 +1559,11 @@ fn map_account_history_error(error: account_history::Error) -> Status {
     }
 }
 
-fn map_version_check_error(error: version_check::Error) -> Status {
+fn map_version_check_error(error: crate::version::Error) -> Status {
     match error {
-        version_check::Error::Download(..)
-        | version_check::Error::ReadVersionCache(..)
-        | version_check::Error::ApiCheck(..) => Status::unavailable(error.to_string()),
+        crate::version::Error::Download(..)
+        | crate::version::Error::ReadVersionCache(..)
+        | crate::version::Error::ApiCheck(..) => Status::unavailable(error.to_string()),
         _ => Status::unknown(error.to_string()),
     }
 }

@@ -57,9 +57,10 @@ the current state of the latest code in git, not necessarily any existing releas
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | [DAITA]                       |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |  ✓  |
+| WireGuard multihop            |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | WireGuard over Shadowsocks    |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| WireGuard over QUIC           |    ✓    |   ✓   |   ✓   |         |  ✓  |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling               |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
@@ -165,6 +166,8 @@ See [this](Release.md) for instructions on how to make a new release.
     * `netsh`: use the `netsh` program
     * `tcpip`: set TCP/IP parameters in the registry
 
+- `TALPID_DISABLE_LOCAL_DNS_RESOLVER` - Set this variable to `1` to disable the local DNS resolver (macOS only).
+
 * `TALPID_FORCE_USERSPACE_WIREGUARD` - Forces the daemon to use the userspace implementation of
    WireGuard on Linux.
 
@@ -180,8 +183,8 @@ See [this](Release.md) for instructions on how to make a new release.
 * `MULLVAD_BACKTRACE_ON_FAULT` - When enabled, if the daemon encounters a fault (e.g. `SIGSEGV`),
   it will log a backtrace to stdout, and to `daemon.log`. By default, this is disabled in
   release-builds and enabled in debug-builds. Set variable to `1` or `0` to explicitly enable or
-  disable this feature. Logging the backtrace cause heap allocation. Allocation is not signal safe,
-  but here it runs in the signal handler. This in technically undefined behavior and therefore
+  disable this feature. Logging the backtrace causes heap allocation. Allocation is not signal safe,
+  but here it runs in the signal handler. This is technically undefined behavior and therefore
   disabled by default. This usually works, but enable at your own risk.
 
 ### Development builds only
@@ -193,6 +196,8 @@ See [this](Release.md) for instructions on how to make a new release.
 * `MULLVAD_API_DISABLE_TLS` - Use plain HTTP for API requests.
 
 * `MULLVAD_CONNCHECK_HOST` - Set the hostname to use in connection check requests. E.g. `am.i.mullvad.net`.
+
+* `MULLVAD_ENABLE_DEV_UPDATES` - Enable version checks in development builds.
 
 ### Setting environment variables
 
@@ -260,7 +265,7 @@ launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist
 
 ## Tray icon on Linux
 
-The requirements for displaying a tray icon varies between different desktop environments. If the
+The requirements for displaying a tray icon vary between different desktop environments. If the
 tray icon doesn't appear, try installing one of these packages:
 - `libappindicator3-1`
 - `libappindicator1`

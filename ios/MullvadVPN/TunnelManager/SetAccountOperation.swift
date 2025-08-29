@@ -267,7 +267,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         logger.debug("Request account data...")
 
-        let task = accountsProxy.getAccountData(accountNumber: accountNumber).execute(
+        let task = accountsProxy.getAccountData(
+            accountNumber: accountNumber,
             retryStrategy: .default
         ) { [self] result in
             dispatchQueue.async { [self] in
@@ -391,7 +392,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         completion: @escaping @Sendable (Result<NewDevice, Error>) -> Void
     ) {
         let privateKey = PrivateKey()
-        let request = REST.CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
+        let request = CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
 
         logger.debug("Create device...")
 

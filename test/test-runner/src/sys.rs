@@ -24,7 +24,7 @@ const MULLVAD_WIN_REGISTRY: &str = r"SYSTEM\CurrentControlSet\Services\Mullvad V
 pub fn reboot() -> Result<(), test_rpc::Error> {
     use windows_sys::Win32::{
         System::Shutdown::{
-            ExitWindowsEx, EWX_REBOOT, SHTDN_REASON_FLAG_PLANNED, SHTDN_REASON_MAJOR_APPLICATION,
+            EWX_REBOOT, ExitWindowsEx, SHTDN_REASON_FLAG_PLANNED, SHTDN_REASON_MAJOR_APPLICATION,
             SHTDN_REASON_MINOR_OTHER,
         },
         UI::WindowsAndMessaging::EWX_FORCEIFHUNG,
@@ -65,7 +65,7 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
     use windows_sys::Win32::{
         Foundation::{CloseHandle, HANDLE, LUID},
         Security::{
-            AdjustTokenPrivileges, LookupPrivilegeValueW, LUID_AND_ATTRIBUTES,
+            AdjustTokenPrivileges, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
             SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_PRIVILEGES,
         },
         System::{
@@ -284,6 +284,51 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
     Ok(())
 }
 
+/// Disable the Mullvad VPN system service startup. This will not trigger the service to stop
+/// immediately, but it will prevent it from starting on the next system boot.
+#[cfg(target_os = "windows")]
+pub async fn disable_system_service_startup() -> Result<(), test_rpc::Error> {
+    let status = tokio::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-Command",
+            "Set-Service -Name MullvadVPN -StartupType Disabled",
+        ])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
+
+    if !status.success() {
+        return Err(test_rpc::Error::ServiceChange(
+            "Failed to disable MullvadVPN service".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
+/// Enable the Mullvad VPN system service startup. This will configure the service to start automatically on system boot.
+#[cfg(target_os = "windows")]
+pub async fn enable_system_service_startup() -> Result<(), test_rpc::Error> {
+    let status = tokio::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-Command",
+            "Set-Service -Name MullvadVPN -StartupType Automatic",
+        ])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
+
+    if !status.success() {
+        return Err(test_rpc::Error::ServiceChange(
+            "Failed to enable MullvadVPN service".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
 /// Restart the Mullvad VPN application.
 ///
 /// This function waits for the app to successfully start again.
@@ -410,7 +455,7 @@ impl EnvVar {
         let pre = input.next().ok_or(error)?;
         match pre {
             "Environment" => {
-                // Proccess the input just a bit more - remove the leading and trailing quote (").
+                // Process the input just a bit more - remove the leading and trailing quote (").
                 let var = input
                     .next()
                     .ok_or(error)?
@@ -501,15 +546,15 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
             .map_err(|e| test_rpc::Error::Registry(e.to_string()))?;
     }
     // Persist the changed environment variables, such that we can retrieve them at will.
-    use winreg::{enums::*, RegKey};
+    use winreg::{RegKey, enums::*};
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let path = Path::new(MULLVAD_WIN_REGISTRY).join("Environment");
     let (registry, _) = hklm.create_subkey(&path).map_err(|error| {
-        test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {}", error))
+        test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {error}"))
     })?;
     for (k, v) in env {
         registry.set_value(k, &v).map_err(|error| {
-            test_rpc::Error::Registry(format!("Failed to set Environment var: {}", error))
+            test_rpc::Error::Registry(format!("Failed to set Environment var: {error}"))
         })?;
     }
 
@@ -528,12 +573,12 @@ pub fn get_system_path_var() -> Result<String, test_rpc::Error> {
     let key = hklm
         .open_subkey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
         .map_err(|error| {
-            test_rpc::Error::Registry(format!("Failed to open Environment subkey: {}", error))
+            test_rpc::Error::Registry(format!("Failed to open Environment subkey: {error}"))
         })?;
 
     let path: String = key
         .get_value("Path")
-        .map_err(|error| test_rpc::Error::Registry(format!("Failed to get PATH: {}", error)))?;
+        .map_err(|error| test_rpc::Error::Registry(format!("Failed to get PATH: {error}")))?;
 
     Ok(path)
 }
@@ -636,13 +681,13 @@ fn parse_systemd_env_file(input: &str) -> impl Iterator<Item = EnvVar> + '_ {
 
 #[cfg(target_os = "windows")]
 pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rpc::Error> {
-    use winreg::{enums::*, RegKey};
+    use winreg::{RegKey, enums::*};
 
     let env =
         tokio::task::spawn_blocking(|| -> Result<HashMap<String, String>, test_rpc::Error> {
             let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
             let key = hklm.open_subkey(MULLVAD_WIN_REGISTRY).map_err(|error| {
-                test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {}", error))
+                test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {error}"))
             })?;
 
             // The Strings will be quoted (surrounded by ") when read from the registry - we should
@@ -651,10 +696,9 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
             let env = key
                 .open_subkey("Environment")
                 .map_err(|error| {
-                    test_rpc::Error::Registry(format!(
-                        "Failed to open Environment subkey: {}",
-                        error
-                    ))
+                    test_rpc::Error::Registry(
+                        format!("Failed to open Environment subkey: {error}",),
+                    )
                 })?
                 .enum_values()
                 .filter_map(|x| x.inspect_err(|err| log::trace!("{err}")).ok())

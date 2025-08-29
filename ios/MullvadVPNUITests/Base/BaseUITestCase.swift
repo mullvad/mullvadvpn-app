@@ -9,6 +9,7 @@
 import Foundation
 import XCTest
 
+@MainActor
 class BaseUITestCase: XCTestCase {
     let app = XCUIApplication()
     static let defaultTimeout = 5.0
@@ -20,9 +21,12 @@ class BaseUITestCase: XCTestCase {
     /// The apps default country - the preselected country location after fresh install
     static let appDefaultCountry = "Sweden"
 
-    /// Default country to use in tests.
+    /// Default country to use in tests
     static let testsDefaultCountryName = "Sweden"
     static let testsDefaultCountryIdentifier = "se"
+
+    /// Default DAITA supported country to use in tests
+    static let testsDefaultDAITACountryName = "Relay Software Country"
 
     /// Default city to use in tests
     static let testsDefaultCityName = "Gothenburg"
@@ -30,6 +34,11 @@ class BaseUITestCase: XCTestCase {
 
     /// Default relay to use in tests
     static let testsDefaultRelayName = "se-got-wg-001"
+
+    /// Default QUIC supported relay to use in tests
+    static let testsDefaultQuicCountryName = "Ireland"
+    static let testsDefaultQuicCityName = "Dublin"
+    static let testsDefaultQuicRelayName = "ie-dub-wg-001"
 
     /// True when the current test case is capturing packets
     private var currentTestCaseShouldCapturePackets = false
@@ -97,7 +106,7 @@ class BaseUITestCase: XCTestCase {
 
     /// Create temporary account without time. Will be created using partner API if token is configured, else falling back to app API
     func createTemporaryAccountWithoutTime() -> String {
-        if partnerApiToken != nil {
+        if let partnerApiToken, !partnerApiToken.isEmpty {
             let partnerAPIClient = PartnerAPIClient()
             return partnerAPIClient.createAccount()
         } else {
@@ -199,20 +208,23 @@ class BaseUITestCase: XCTestCase {
 
     /// Suite level teardown ran after all tests in suite have been executed
     override class func tearDown() {
-        if shouldUninstallAppInTeardown() && uninstallAppInTestSuiteTearDown() {
-            uninstallApp()
+        // This function is not marked `@MainActor` therefore cannot legally enter its context without help
+        Task { @MainActor in
+            if shouldUninstallAppInTeardown() && uninstallAppInTestSuiteTearDown() {
+                uninstallApp()
+            }
         }
     }
 
     /// Test level setup
-    override func setUp() {
+    override func setUp() async throws {
         currentTestCaseShouldCapturePackets = false // Reset for each test case run
         continueAfterFailure = false
         app.launch()
     }
 
     /// Test level teardown
-    override func tearDown() {
+    override func tearDown() async throws {
         if currentTestCaseShouldCapturePackets {
             guard let packetCaptureSession = packetCaptureSession else {
                 XCTFail("Packet capture session unexpectedly not set up")
@@ -312,6 +324,13 @@ class BaseUITestCase: XCTestCase {
                 .getSuccessIconShown()
 
             if successIconShown == false {
+                // If the login happened too fast, the UI harness will miss the success icon being shown
+                // Check if the app is already on main page, and continue if it is.
+                if app.otherElements[.headerBarView].exists {
+                    successIconShown = true
+                    break
+                }
+
                 // Give it some time to show up. App might be waiting for a network connection to timeout.
                 LoginPage(app).waitForAccountNumberSubmitButton()
             }

@@ -12,79 +12,71 @@ import UIKit
 struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
 
-    func makeCell(for item: RelayFilterDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
+    func makeCell(for item: RelayFilterDataSourceItem, indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: RelayFilterDataSource.CellReuseIdentifiers.allCases[indexPath.section].rawValue,
+            for: indexPath
+        )
         configureCell(cell, item: item, indexPath: indexPath)
 
         return cell
     }
 
-    func configureCell(_ cell: UITableViewCell, item: RelayFilterDataSource.Item, indexPath: IndexPath) {
-        switch item {
+    func configureCell(
+        _ cell: UITableViewCell,
+        item: RelayFilterDataSourceItem,
+        indexPath: IndexPath
+    ) {
+        switch item.type {
         case .ownershipAny, .ownershipOwned, .ownershipRented:
-            configureOwnershipCell(cell, item: item)
+            configureOwnershipCell(cell as? SelectableSettingsCell, item: item)
         case .allProviders, .provider:
-            configureProviderCell(cell, item: item)
+            configureProviderCell(cell as? CheckableSettingsCell, item: item)
         }
     }
 
-    private func configureOwnershipCell(_ cell: UITableViewCell, item: RelayFilterDataSource.Item) {
-        guard let cell = cell as? SelectableSettingsCell else { return }
+    private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: RelayFilterDataSourceItem) {
+        guard let cell = cell else { return }
 
-        var title = ""
-        switch item {
+        cell.titleLabel.text = item.name
+
+        let accessibilityIdentifier: AccessibilityIdentifier
+        switch item.type {
         case .ownershipAny:
-            title = "Any"
-            cell.setAccessibilityIdentifier(.ownershipAnyCell)
+            accessibilityIdentifier = .ownershipAnyCell
         case .ownershipOwned:
-            title = "Mullvad owned only"
-            cell.setAccessibilityIdentifier(.ownershipMullvadOwnedCell)
+            accessibilityIdentifier = .ownershipMullvadOwnedCell
         case .ownershipRented:
-            title = "Rented only"
-            cell.setAccessibilityIdentifier(.ownershipRentedCell)
+            accessibilityIdentifier = .ownershipRentedCell
         default:
-            assertionFailure("Item mismatch. Got: \(item)")
+            assertionFailure("Unexpected ownership item: \(item)")
+            return
         }
 
-        cell.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_CELL_LABEL",
-            tableName: "Relay filter ownership cell",
-            value: title,
-            comment: ""
-        )
-
+        cell.setAccessibilityIdentifier(accessibilityIdentifier)
         cell.applySubCellStyling()
     }
 
-    private func configureProviderCell(_ cell: UITableViewCell, item: RelayFilterDataSource.Item) {
-        guard let cell = cell as? CheckableSettingsCell else { return }
+    private func configureProviderCell(_ cell: CheckableSettingsCell?, item: RelayFilterDataSourceItem) {
+        guard let cell = cell else { return }
+        let alpha = item.isEnabled ? 1.0 : 0.2
 
-        let title: String
+        cell.titleLabel.text = item.name
+        cell.detailTitleLabel.text = item.description
 
-        switch item {
-        case .allProviders:
-            title = "All providers"
+        if item.type == .allProviders {
             setFontWeight(.semibold, to: cell.titleLabel)
-        case let .provider(name):
-            title = name
+        } else {
             setFontWeight(.regular, to: cell.titleLabel)
-        default:
-            title = ""
-            assertionFailure("Item mismatch. Got: \(item)")
         }
-
-        cell.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_CELL_LABEL",
-            tableName: "Relay filter provider cell",
-            value: title,
-            comment: ""
-        )
 
         cell.applySubCellStyling()
         cell.setAccessibilityIdentifier(.relayFilterProviderCell)
+        cell.titleLabel.alpha = alpha
+        cell.detailTitleLabel.alpha = alpha
     }
 
     private func setFontWeight(_ weight: UIFont.Weight, to label: UILabel) {
-        label.font = UIFont.systemFont(ofSize: label.font.pointSize, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: label.font.pointSize, weight: weight)
     }
 }

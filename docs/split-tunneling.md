@@ -71,3 +71,21 @@ possible to exclude public custom DNS in that case.
 Otherwise DNS won't work.
 
 In other words: Excluded apps behave as if there was no VPN tunnel running at all.
+
+## Other limitations
+
+Several limitations exist that relate to interprocess communication. An app is excluded if its path
+is excluded or if its parent process is excluded. This can be problematic at times. For example,
+opening a browser often typically tells the existing browser instance to open a new window, which
+means the "excluded" status is not inherited.
+
+On Linux, especially, where split tunneling isn't path-based at all, this means that the new browser
+window will be forked off from a process that isn't excluded.
+
+This model also implies other potentially unexpected behavior. For example, clicking a link in an
+excluded app may (if there's no existing browser instance) open a browser window that _is_
+unexpectedly excluded, simply because the parent is excluded.
+
+The limitations due to IPC are perhaps especially noticeable on macOS, since WebKit relies on other
+processes to render web pages. This means that many browsers, including Safari, cannot be excluded
+from the VPN.

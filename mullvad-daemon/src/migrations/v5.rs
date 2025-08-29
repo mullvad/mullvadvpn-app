@@ -77,17 +77,17 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
     log::info!("Migrating settings format to V6");
 
     if let Some(wireguard_constraints) = get_wireguard_constraints(settings) {
-        if let Some(location) = wireguard_constraints.get("entry_location") {
-            if wireguard_constraints.get("use_multihop").is_none() {
-                if location.is_null() {
-                    // "Null" is no longer valid. It is not an option.
-                    wireguard_constraints
-                        .as_object_mut()
-                        .ok_or(Error::InvalidSettingsContent)?
-                        .remove("entry_location");
-                } else {
-                    wireguard_constraints["use_multihop"] = serde_json::json!(true);
-                }
+        if let Some(location) = wireguard_constraints.get("entry_location")
+            && wireguard_constraints.get("use_multihop").is_none()
+        {
+            if location.is_null() {
+                // "Null" is no longer valid. It is not an option.
+                wireguard_constraints
+                    .as_object_mut()
+                    .ok_or(Error::InvalidSettingsContent)?
+                    .remove("entry_location");
+            } else {
+                wireguard_constraints["use_multihop"] = serde_json::json!(true);
             }
         }
         // The field `pub port: Constraint<TransportPort>` is now `pub port: Constraint<u16>`.
@@ -152,10 +152,10 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
 }
 
 fn get_wireguard_constraints(settings: &mut serde_json::Value) -> Option<&mut serde_json::Value> {
-    if let Some(relay_settings) = settings.get_mut("relay_settings") {
-        if let Some(normal) = relay_settings.get_mut("normal") {
-            return normal.get_mut("wireguard_constraints");
-        }
+    if let Some(relay_settings) = settings.get_mut("relay_settings")
+        && let Some(normal) = relay_settings.get_mut("normal")
+    {
+        return normal.get_mut("wireguard_constraints");
     }
     None
 }

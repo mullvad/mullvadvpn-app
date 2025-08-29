@@ -12,13 +12,6 @@ import MullvadTypes
 import WireGuardKitTypes
 
 struct APIProxyStub: APIQuerying {
-    func mullvadApiGetAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable {
-        AnyCancellable()
-    }
-
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
@@ -44,7 +37,7 @@ struct APIProxyStub: APIQuerying {
     }
 
     func sendProblemReport(
-        _ body: REST.ProblemReportRequest,
+        _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable {
@@ -57,6 +50,40 @@ struct APIProxyStub: APIQuerying {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
     ) -> Cancellable {
+        AnyCancellable()
+    }
+
+    func legacyStorekitPayment(
+        accountNumber: String,
+        request: LegacyStorekitRequest,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+    ) -> any Cancellable {
+        AnyCancellable()
+    }
+
+    func initStorekitPayment(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<String>
+    ) -> any MullvadTypes.Cancellable {
+        AnyCancellable()
+    }
+
+    func checkStorekitPayment(
+        accountNumber: String,
+        transaction: StorekitTransaction,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<Void>
+    ) -> any MullvadTypes.Cancellable {
+        AnyCancellable()
+    }
+
+    func checkApiAvailability(
+        retryStrategy: REST.RetryStrategy,
+        accessMethod: PersistentAccessMethod,
+        completion: @escaping ProxyCompletionHandler<Bool>
+    ) -> any MullvadTypes.Cancellable {
         AnyCancellable()
     }
 }

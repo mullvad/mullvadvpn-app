@@ -4,7 +4,7 @@ use futures::channel::oneshot;
 use http_body_util::{BodyExt, Full};
 use hyper::Uri;
 use hyper_util::client::legacy::Client;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::{
     net::SocketAddr,
     sync::{Arc, LazyLock},

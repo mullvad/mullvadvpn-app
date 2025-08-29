@@ -1,11 +1,16 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { compareRelayLocation, RelayLocation } from '../../../shared/daemon-rpc-types';
+import {
+  compareRelayLocation,
+  ObfuscationType,
+  RelayLocation,
+} from '../../../shared/daemon-rpc-types';
 import {
   EndpointType,
   filterLocations,
   filterLocationsByDaita,
   filterLocationsByEndPointType,
+  filterLocationsByQuic,
   getLocationsExpandedBySearch,
   searchForLocations,
 } from '../../lib/filter-locations';
@@ -68,10 +73,15 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
+  const quic = useSelector(
+    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
+  );
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
   const tunnelProtocol = useTunnelProtocol();
+  const multihop = relaySettings?.wireguard.useMultihop ?? false;
+  const ipVersion = relaySettings?.wireguard.ipVersion ?? 'any';
 
   // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
   // "openvpn" or "bridge"
@@ -88,22 +98,27 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       directOnly,
       locationType,
       tunnelProtocol,
-      relaySettings?.wireguard.useMultihop ?? false,
+      multihop,
     );
-  }, [
-    daita,
-    directOnly,
-    locationType,
-    relayListForEndpointType,
-    tunnelProtocol,
-    relaySettings?.wireguard.useMultihop,
-  ]);
+  }, [daita, directOnly, locationType, relayListForEndpointType, tunnelProtocol, multihop]);
+
+  // Only show relays that have QUIC endpoints when QUIC obfuscation is enabled.
+  const relayListForQuic = useMemo(() => {
+    return filterLocationsByQuic(
+      relayListForDaita,
+      quic,
+      tunnelProtocol,
+      locationType,
+      multihop,
+      ipVersion,
+    );
+  }, [quic, relayListForDaita, locationType, tunnelProtocol, multihop, ipVersion]);
 
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers
   const relayListForFilters = useMemo(() => {
-    return filterLocations(relayListForDaita, relaySettings?.ownership, relaySettings?.providers);
-  }, [relaySettings?.ownership, relaySettings?.providers, relayListForDaita]);
+    return filterLocations(relayListForQuic, relaySettings?.ownership, relaySettings?.providers);
+  }, [relaySettings?.ownership, relaySettings?.providers, relayListForQuic]);
 
   // Filters the relays based on the provided search term
   const relayListForSearch = useMemo(() => {
@@ -313,6 +328,11 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
   );
 
   // Expand locations when filters are changed
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => expandLocationsForSearch(filteredLocations), [filteredLocations]);
 
   return {

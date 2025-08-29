@@ -16,3 +16,4 @@ htmlize = { version = "1.0.2", features = ["unescape"] }
 regex = "1"
 serde = { workspace = true, features = ["derive"] }
 quick-xml = { version = "0.27.1", features = ["serialize"] }
+itertools = "0.14.0"

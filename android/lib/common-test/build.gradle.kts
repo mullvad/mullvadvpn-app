@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -5,19 +7,21 @@ plugins {
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.common.test"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
-    defaultConfig { minSdk = Versions.minSdkVersion }
+    defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-        allWarningsAsErrors = true
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
+            allWarningsAsErrors = true
+        }
     }
 
     lint {
@@ -41,5 +45,5 @@ android {
 dependencies {
     implementation(libs.kotlin.test)
     implementation(libs.kotlinx.coroutines.test)
-    implementation(Dependencies.junitJupiterApi)
+    implementation(libs.junit.jupiter.api)
 }

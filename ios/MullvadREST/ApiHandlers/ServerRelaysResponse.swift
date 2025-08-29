@@ -50,7 +50,23 @@ extension REST {
         }
     }
 
+    // swiftlint:disable nesting
     public struct ServerRelay: Codable, Equatable, Sendable {
+        public struct Features: Codable, Equatable, Sendable {
+            public struct DAITA: Codable, Equatable, Sendable {
+                // this structure intentionally left blank
+            }
+
+            public struct QUIC: Codable, Equatable, Sendable {
+                public let addrIn: [String]
+                public let domain: String
+                public let token: String
+            }
+
+            public let daita: DAITA?
+            public let quic: QUIC?
+        }
+
         public let hostname: String
         public let active: Bool
         public let owned: Bool
@@ -63,6 +79,7 @@ extension REST {
         public let includeInCountry: Bool
         public let daita: Bool?
         public let shadowsocksExtraAddrIn: [String]?
+        public let features: Features?
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
             ServerRelay(
@@ -77,11 +94,21 @@ extension REST {
                 publicKey: publicKey,
                 includeInCountry: includeInCountry,
                 daita: daita,
-                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn
+                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn?.filter { address in
+                    return switch address {
+                    case let ip where IPv4Address(ip) != nil:
+                        ipv4AddrIn == nil
+                    case let ip where IPv6Address(ip) != nil:
+                        ipv6AddrIn == nil
+                    default:
+                        true
+                    }
+                },
+                features: features
             )
         }
 
-        public func override(daita: Bool) -> Self {
+        public func override(features: ServerRelay.Features?) -> Self {
             ServerRelay(
                 hostname: hostname,
                 active: active,
@@ -94,10 +121,17 @@ extension REST {
                 publicKey: publicKey,
                 includeInCountry: includeInCountry,
                 daita: daita,
-                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn
+                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
+                features: features
             )
         }
+
+        public var hasDaita: Bool {
+            (features?.daita != nil) || daita == true
+        }
     }
+
+    // swiftlint:enable nesting
 
     public struct ServerWireguardTunnels: Codable, Equatable, Sendable {
         public let ipv4Gateway: IPv4Address
@@ -138,7 +172,11 @@ extension REST {
         public let wireguard: ServerWireguardTunnels
         public let bridge: ServerBridges
 
-        public init(locations: [String: ServerLocation], wireguard: ServerWireguardTunnels, bridge: ServerBridges) {
+        public init(
+            locations: [String: ServerLocation],
+            wireguard: ServerWireguardTunnels,
+            bridge: ServerBridges
+        ) {
             self.locations = locations
             self.wireguard = wireguard
             self.bridge = bridge

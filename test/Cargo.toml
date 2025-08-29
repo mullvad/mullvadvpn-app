@@ -2,8 +2,8 @@
 authors = ["Mullvad VPN"]
 repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0"
-edition = "2021"
-rust-version = "1.83.0"
+edition = "2024"
+rust-version = "1.88.0"
 
 [workspace]
 resolver = "2"
@@ -34,10 +34,11 @@ single_use_lifetimes = "warn"
 
 [workspace.lints.clippy]
 unused_async = "deny"
+implicit_clone = "warn"
 
 [workspace.dependencies]
 futures = "0.3"
-tokio = { version = "1.42", features = [
+tokio = { version = "1.44", features = [
   "macros",
   "rt",
   "process",
@@ -83,4 +84,4 @@ bytes = "1.3.0"
 async-trait = "0.1.58"
 socket2 = "0.5.7"
 surge-ping = "0.8"
-nix = { version = "0.29", features = ["ioctl", "socket", "net"] }
+nix = { version = "0.30.1", features = ["ioctl", "socket", "net", "signal"] }

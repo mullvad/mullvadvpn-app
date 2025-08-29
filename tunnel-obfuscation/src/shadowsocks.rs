@@ -5,22 +5,24 @@
 
 use super::Obfuscator;
 use async_trait::async_trait;
-#[cfg(target_os = "linux")]
-use nix::sys::socket::{setsockopt, sockopt};
 use shadowsocks::{
+    ProxySocket,
     config::{ServerConfig, ServerType},
     context::Context,
     crypto::CipherKind,
     relay::{
-        udprelay::proxy_socket::{ProxySocketError, UdpSocketType},
         Address,
+        udprelay::proxy_socket::{ProxySocketError, UdpSocketType},
     },
-    ProxySocket,
 };
-#[cfg(any(target_os = "android", target_os = "linux"))]
-use std::os::fd::AsRawFd;
 use std::{io, net::SocketAddr, sync::Arc};
 use tokio::{net::UdpSocket, sync::oneshot};
+
+#[cfg(target_os = "linux")]
+use nix::sys::socket::{setsockopt, sockopt};
+
+#[cfg(target_os = "android")]
+use std::os::fd::AsRawFd;
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
 const SHADOWSOCKS_PASSWORD: &str = "mullvad";
@@ -181,7 +183,7 @@ async fn create_shadowsocks_socket(
         .map_err(Error::BindRemoteUdp)?;
     #[cfg(target_os = "linux")]
     if let Some(fwmark) = fwmark {
-        setsockopt(socket.as_raw_fd(), sockopt::Mark, &fwmark).map_err(Error::SetFwmark)?;
+        setsockopt(&socket, sockopt::Mark, &fwmark).map_err(Error::SetFwmark)?;
     }
 
     Ok(socket)

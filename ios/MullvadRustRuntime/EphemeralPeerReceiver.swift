@@ -25,12 +25,12 @@ import WireGuardKitTypes
 ///   - rawPresharedKey: A raw pointer to the quantum-secure pre shared key
 ///   - rawEphemeralKey: A raw pointer to the ephemeral private key of the device
 ///   - rawDaitaParameters: A raw pointer to negotiated DAITA parameters
-@_silgen_name("swift_ephemeral_peer_ready")
+@_cdecl("swift_ephemeral_peer_ready")
 func receivePostQuantumKey(
     rawEphemeralPeerReceiver: UnsafeMutableRawPointer?,
     rawPresharedKey: UnsafeMutableRawPointer?,
     rawEphemeralKey: UnsafeMutableRawPointer?,
-    rawDaitaParameters: UnsafePointer<DaitaV2Parameters>?
+    rawDaitaParameters: UnsafeRawPointer?
 ) {
     guard let rawEphemeralPeerReceiver else { return }
     let ephemeralPeerReceiver = Unmanaged<EphemeralPeerReceiver>.fromOpaque(rawEphemeralPeerReceiver)

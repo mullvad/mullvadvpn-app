@@ -42,15 +42,14 @@ class CustomDNSViewController: UITableViewController {
         dataSource = CustomDNSDataSource(tableView: tableView)
         dataSource?.delegate = self
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "VPNSettings",
-            value: "DNS settings",
-            comment: ""
-        )
-
-        navigationItem.rightBarButtonItem = editButtonItem
-        navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.dnsSettingsEditButton)
+        navigationItem.title = NSLocalizedString("DNS settings", comment: "")
+        if navigationItem.rightBarButtonItem != nil {
+            navigationItem.leftBarButtonItem = editButtonItem
+            navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.dnsSettingsEditButton)
+        } else {
+            navigationItem.rightBarButtonItem = editButtonItem
+            navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.dnsSettingsEditButton)
+        }
 
         interactor.tunnelSettingsDidChange = { [weak self] newSettings in
             self?.dataSource?.update(from: newSettings)
@@ -69,6 +68,13 @@ class CustomDNSViewController: UITableViewController {
         dataSource?.setEditing(editing, animated: animated)
 
         navigationItem.setHidesBackButton(editing, animated: animated)
+        if navigationItem.rightBarButtonItem != editButtonItem {
+            if #available(iOS 16.0, *) {
+                navigationItem.rightBarButtonItem?.isHidden = editing
+            } else {
+                navigationItem.rightBarButtonItem?.isEnabled = !editing
+            }
+        }
 
         // Disable swipe to dismiss when editing
         isModalInPresentation = editing
@@ -81,12 +87,7 @@ class CustomDNSViewController: UITableViewController {
             attributedMessage: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "VPN_SETTINGS_DNS_SETTINGS_OK_ACTION",
-                        tableName: "ContentBlockers",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]

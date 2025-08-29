@@ -1,4 +1,4 @@
-use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint};
+use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -35,8 +35,8 @@ const MAX_SEND_ATTEMPTS: usize = 3;
 /// Custom macro to write a line to an output formatter that uses platform-specific newline
 /// character sequences.
 macro_rules! write_line {
-    ($fmt:expr $(,)*) => { write!($fmt, "{}", LINE_SEPARATOR) };
-    ($fmt:expr, $pattern:expr $(, $arg:expr)* $(,)*) => {
+    ($fmt:expr_2021 $(,)*) => { write!($fmt, "{}", LINE_SEPARATOR) };
+    ($fmt:expr_2021, $pattern:expr_2021 $(, $arg:expr_2021)* $(,)*) => {
         write!($fmt, $pattern, $( $arg ),*)
             .and_then(|_| write!($fmt, "{}", LINE_SEPARATOR))
     };
@@ -653,7 +653,7 @@ mod tests {
     #[cfg(windows)]
     fn redacts_home_dir() {
         let assert_redacts_home_dir = |home_dir, test_str| {
-            let input = format!(r"pre {}\remaining\path post", test_str);
+            let input = format!(r"pre {test_str}\remaining\path post");
             let actual = redact_home_dir_inner(&input, Some(PathBuf::from(home_dir)));
             assert_eq!(r"pre ~\remaining\path post", actual);
         };

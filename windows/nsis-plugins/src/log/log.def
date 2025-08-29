@@ -6,6 +6,7 @@ SetLogTarget
 Log
 LogWithDetails
 LogWindowsVersion
+GetWindowsMajorVersion
 
 PluginLog
 PluginLogWithDetails

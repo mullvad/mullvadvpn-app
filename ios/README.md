@@ -56,7 +56,7 @@ configuration.
    vim ios/Configurations/Screenshots.xcconfig
    ```
 
-### Prerequisitives
+### Prerequisites
 
 1. Make sure you have [rvm](https://rvm.io) installed.
 1. Install Ruby 2.5.1 or later using `rvm install <VERSION>`.
@@ -86,17 +86,6 @@ There was a script in the past to help with translations, but it was removed.
 Whenever we want to start adding translations for real, this script can be
 resurrected from the git history if we deem it to be the best path forward.
 Look for `ios/requirements.txt`.
-
-## Icons and assets
-
-For a general overview of icons and graphics read [the graphics readme](../graphics/README.md).
-
-To copy graphical assets from the desktop GUI and generate iOS assets, run:
-```bash
-ios/convert-assets.rb --app-icon
-ios/convert-assets.rb --import-desktop-assets
-ios/convert-assets.rb --additional-assets
-```
 
 ## Cached relays
 

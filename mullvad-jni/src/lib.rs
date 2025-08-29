@@ -5,17 +5,18 @@ mod classes;
 mod problem_report;
 
 use jnix::{
-    jni::{
-        objects::{JClass, JObject},
-        JNIEnv,
-    },
     FromJava, JnixEnv,
+    jni::{
+        JNIEnv,
+        objects::{JClass, JObject},
+    },
 };
 use mullvad_api::ApiEndpoint;
 use mullvad_daemon::{
-    cleanup_old_rpc_socket, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
-    DaemonCommandChannel, DaemonCommandSender, DaemonConfig,
+    Daemon, DaemonCommandChannel, DaemonCommandSender, DaemonConfig, cleanup_old_rpc_socket,
+    exception_logging, logging, runtime::new_multi_thread, version,
 };
+use std::collections::HashMap;
 use std::{
     ffi::CString,
     io,
@@ -23,7 +24,7 @@ use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex, Once, OnceLock},
 };
-use talpid_types::{android::AndroidContext, ErrorExt};
+use talpid_types::{ErrorExt, android::AndroidContext};
 
 const LOG_FILENAME: &str = "daemon.log";
 
@@ -53,7 +54,7 @@ pub enum Error {
 
 /// Throw a Java exception and return if `result` is an error
 macro_rules! ok_or_throw {
-    ($env:expr, $result:expr) => {{
+    ($env:expr_2021, $result:expr_2021) => {{
         match $result {
             Ok(val) => val,
             Err(err) => {
@@ -84,6 +85,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     files_directory: JObject<'_>,
     cache_directory: JObject<'_>,
     api_endpoint: JObject<'_>,
+    extra_metadata: JObject<'_>,
 ) {
     let mut ctx = DAEMON_CONTEXT.lock().unwrap();
     assert!(ctx.is_none(), "multiple calls to MullvadDaemon.initialize");
@@ -98,6 +100,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     log::info!("Pre-loading classes!");
     LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
     log::info!("Done loading classes");
+
+    talpid_platform_metadata::set_extra_metadata(HashMap::from_java(&env, extra_metadata));
 
     let rpc_socket = pathbuf_from_java(&env, rpc_socket_path);
     let cache_dir = pathbuf_from_java(&env, cache_directory);

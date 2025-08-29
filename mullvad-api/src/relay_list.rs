@@ -2,12 +2,13 @@
 
 use crate::rest;
 
-use hyper::{header, StatusCode};
+use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
+use vec1::Vec1;
 
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashSet},
     future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::RangeInclusive,
@@ -32,7 +33,27 @@ impl RelayListProxy {
     pub fn relay_list(
         &self,
         etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
+        let request = self.relay_list_response(etag.clone());
+
+        async move {
+            let response = request.await?;
+
+            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
+                return Ok(None);
+            }
+
+            let etag = Self::extract_etag(&response);
+
+            let relay_list: ServerRelayList = response.deserialize().await?;
+            Ok(Some(relay_list.into_relay_list(etag)))
+        }
+    }
+
+    pub fn relay_list_response(
+        &self,
+        etag: Option<String>,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
 
@@ -46,24 +67,22 @@ impl RelayListProxy {
             }
 
             let response = service.request(request).await?;
-            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
-                return Ok(None);
-            }
 
-            let etag = response
-                .headers()
-                .get(header::ETAG)
-                .and_then(|tag| match tag.to_str() {
-                    Ok(tag) => Some(tag.to_string()),
-                    Err(_) => {
-                        log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
-                        None
-                    }
-                });
-
-            let relay_list: ServerRelayList = response.deserialize().await?;
-            Ok(Some(relay_list.into_relay_list(etag)))
+            Ok(response)
         }
+    }
+
+    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<String> {
+        response
+            .headers()
+            .get(header::ETAG)
+            .and_then(|tag| match tag.to_str() {
+                Ok(tag) => Some(tag.to_string()),
+                Err(_) => {
+                    log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
+                    None
+                }
+            })
     }
 }
 
@@ -189,26 +208,24 @@ impl OpenVpn {
     ) -> relay_list::OpenVpnEndpointData {
         for mut openvpn_relay in self.relays.into_iter() {
             openvpn_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location) {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-                        let relay = openvpn_relay.into_openvpn_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
+            if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location)
+                && let Some(country) = countries.get_mut(country_code)
+                && let Some(city) = country
+                    .cities
+                    .iter_mut()
+                    .find(|city| city.code == city_code)
+            {
+                let location = location::Location {
+                    country: country.name.clone(),
+                    country_code: country.code.clone(),
+                    city: city.name.clone(),
+                    city_code: city.code.clone(),
+                    latitude: city.latitude,
+                    longitude: city.longitude,
                 };
-            }
+                let relay = openvpn_relay.into_openvpn_mullvad_relay(location);
+                city.relays.push(relay);
+            };
         }
         self.ports
     }
@@ -291,27 +308,24 @@ impl Wireguard {
             wireguard_relay.relay.convert_to_lowercase();
             if let Some((country_code, city_code)) =
                 split_location_code(&wireguard_relay.relay.location)
+                && let Some(country) = countries.get_mut(country_code)
+                && let Some(city) = country
+                    .cities
+                    .iter_mut()
+                    .find(|city| city.code == city_code)
             {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-
-                        let relay = wireguard_relay.into_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
+                let location = location::Location {
+                    country: country.name.clone(),
+                    country_code: country.code.clone(),
+                    city: city.name.clone(),
+                    city_code: city.code.clone(),
+                    latitude: city.latitude,
+                    longitude: city.longitude,
                 };
-            }
+
+                let relay = wireguard_relay.into_mullvad_relay(location);
+                city.relays.push(relay);
+            };
         }
 
         endpoint_data
@@ -327,19 +341,67 @@ struct WireGuardRelay {
     daita: bool,
     #[serde(default)]
     shadowsocks_extra_addr_in: Vec<IpAddr>,
+    #[serde(default)]
+    features: Features,
 }
 
 impl WireGuardRelay {
     fn into_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(
-            self.relay,
-            location,
+        // Sanity check that new 'features' key is in sync with the old, superceded keys.
+        // TODO: Remove `self.daita` (and this check 👇) when `features` key has been completely
+        // rolled out to production.
+        if self.features.daita.is_some() {
+            debug_assert!(self.daita)
+        }
+
+        let relay = self.relay;
+        let endpoint_data =
             relay_list::RelayEndpointData::Wireguard(relay_list::WireguardRelayEndpointData {
                 public_key: self.public_key,
-                daita: self.daita,
-                shadowsocks_extra_addr_in: self.shadowsocks_extra_addr_in,
-            }),
-        )
+                // FIXME: This hack is forward-compatible with 'features' being rolled out.
+                //        Should unwrap to 'false' once 'daita' field is removed.
+                daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
+                shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
+                quic: self.features.quic.map(relay_list::Quic::from),
+            });
+
+        into_mullvad_relay(relay, location, endpoint_data)
+    }
+}
+
+/// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
+#[derive(Debug, Default, Clone, serde::Deserialize)]
+struct Features {
+    daita: Option<Daita>,
+    quic: Option<Quic>,
+}
+
+/// DAITA doesn't have any configuration options (exposed by the API).
+///
+/// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
+#[derive(Debug, Clone, serde::Deserialize)]
+struct Daita {}
+
+/// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
+#[derive(Debug, Clone, serde::Deserialize)]
+struct Quic {
+    /// In-addresses for the QUIC obfuscator.
+    ///
+    /// # Note
+    ///
+    /// This set must be non-empty.
+    ///
+    /// The primary IPs of the relay will be included if and only if they are listed here.
+    addr_in: Vec1<IpAddr>,
+    /// Authorization token
+    token: String,
+    /// Hostname where masque proxy is hosted
+    domain: String,
+}
+
+impl From<Quic> for relay_list::Quic {
+    fn from(value: Quic) -> Self {
+        Self::new(value.addr_in, value.token, value.domain)
     }
 }
 
@@ -357,27 +419,25 @@ impl Bridges {
     ) -> relay_list::BridgeEndpointData {
         for mut bridge_relay in self.relays {
             bridge_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location) {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-
-                        let relay = bridge_relay.into_bridge_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
+            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location)
+                && let Some(country) = countries.get_mut(country_code)
+                && let Some(city) = country
+                    .cities
+                    .iter_mut()
+                    .find(|city| city.code == city_code)
+            {
+                let location = location::Location {
+                    country: country.name.clone(),
+                    country_code: country.code.clone(),
+                    city: city.name.clone(),
+                    city_code: city.code.clone(),
+                    latitude: city.latitude,
+                    longitude: city.longitude,
                 };
-            }
+
+                let relay = bridge_relay.into_bridge_mullvad_relay(location);
+                city.relays.push(relay);
+            };
         }
 
         relay_list::BridgeEndpointData {

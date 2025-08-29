@@ -150,7 +150,7 @@ export class ArrayValue<T extends ArrayWrapper = ArrayWrapper> extends Value<T> 
     const datatype = this.datatype.array[0];
     const itemSize = Value.sizeOf(datatype);
     const offset = index * itemSize;
-    const buffer = this.buffer.slice(offset, offset + itemSize);
+    const buffer = this.buffer.subarray(offset, offset + itemSize);
 
     return this.createNew(buffer, datatype, offset) as U;
   }
@@ -172,7 +172,7 @@ export class StructValue<T extends StructWrapper = StructWrapper> extends Value<
     const slicedType = { struct: this.datatype.struct.slice(0, index) };
     const offset = Value.sizeOf(slicedType);
     const size = Value.sizeOf(datatype);
-    const buffer = this.buffer.slice(offset, offset + size);
+    const buffer = this.buffer.subarray(offset, offset + size);
 
     return this.createNew(buffer, datatype, offset) as U;
   }

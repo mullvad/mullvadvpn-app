@@ -12,10 +12,12 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -45,7 +47,7 @@ private fun PreviewDeleteConfirmationDialogError() {
     AppTheme {
         NegativeConfirmationDialog(
             message = "Do you want to delete Cookie?",
-            errorMessage = "An error occured",
+            errorMessage = "An error occurred",
             onConfirm = {},
             onBack = {},
         )
@@ -56,6 +58,7 @@ private fun PreviewDeleteConfirmationDialogError() {
 fun NegativeConfirmationDialog(
     message: String,
     messageStyle: TextStyle? = null,
+    messageColor: Color? = null,
     errorMessage: String? = null,
     confirmationText: String = stringResource(id = R.string.delete),
     cancelText: String = stringResource(id = R.string.cancel),
@@ -65,6 +68,7 @@ fun NegativeConfirmationDialog(
     NegativeConfirmationDialog(
         message = AnnotatedString(message),
         messageStyle = messageStyle,
+        messageColor = messageColor,
         errorMessage = errorMessage,
         confirmationText = confirmationText,
         cancelText = cancelText,
@@ -77,6 +81,7 @@ fun NegativeConfirmationDialog(
 fun NegativeConfirmationDialog(
     message: AnnotatedString,
     messageStyle: TextStyle? = null,
+    messageColor: Color? = null,
     errorMessage: String? = null,
     confirmationText: String = stringResource(id = R.string.delete),
     cancelText: String = stringResource(id = R.string.cancel),
@@ -95,7 +100,11 @@ fun NegativeConfirmationDialog(
         },
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = message, style = messageStyle ?: LocalTextStyle.current)
+                Text(
+                    text = message,
+                    style = messageStyle ?: LocalTextStyle.current,
+                    color = messageColor ?: LocalTextStyle.current.color,
+                )
                 if (errorMessage != null) {
                     Text(
                         text = errorMessage,
@@ -107,8 +116,9 @@ fun NegativeConfirmationDialog(
             }
         },
         dismissButton = {
+            val focusRequester = remember { FocusRequester() }
             PrimaryButton(
-                modifier = Modifier.focusRequester(FocusRequester()),
+                modifier = Modifier.focusRequester(focusRequester),
                 onClick = onBack,
                 text = cancelText,
             )

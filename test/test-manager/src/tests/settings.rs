@@ -1,7 +1,6 @@
 use super::{
-    helpers,
+    Error, TestContext, helpers,
     helpers::{connect_and_wait, send_guest_probes},
-    Error, TestContext,
 };
 
 use mullvad_management_interface::MullvadProxyClient;

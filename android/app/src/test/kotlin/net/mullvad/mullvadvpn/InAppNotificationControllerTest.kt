@@ -15,7 +15,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.ErrorState
-import net.mullvad.mullvadvpn.repository.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewChangelogNotificationUseCase
@@ -84,6 +84,7 @@ class InAppNotificationControllerTest {
         newVersionChangelogNotifications.value = listOf(newVersionChangelog)
 
         val errorState: ErrorState = mockk()
+        every { errorState.cause } returns mockk()
         val tunnelStateBlocked = InAppNotification.TunnelStateBlocked
         val tunnelStateError = InAppNotification.TunnelStateError(errorState)
         tunnelStateNotifications.value = listOf(tunnelStateBlocked, tunnelStateError)

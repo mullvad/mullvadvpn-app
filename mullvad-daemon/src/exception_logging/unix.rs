@@ -1,17 +1,17 @@
 //! Install signal handlers to catch critical program faults and log them. See [`enable`].
 
 use libc::siginfo_t;
-use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
+use nix::sys::signal::{SaFlags, SigAction, SigHandler, SigSet, Signal, sigaction};
 
 use core::fmt;
 use std::{
     backtrace::Backtrace,
     env,
-    ffi::{c_int, c_void, CString},
+    ffi::{CString, c_int, c_void},
     os::fd::{FromRawFd, RawFd},
     sync::{
-        atomic::{AtomicBool, Ordering},
         Once, OnceLock,
+        atomic::{AtomicBool, Ordering},
     },
 };
 

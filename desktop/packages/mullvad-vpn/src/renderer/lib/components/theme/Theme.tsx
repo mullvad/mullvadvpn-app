@@ -2,7 +2,7 @@ import React from 'react';
 import { createGlobalStyle } from 'styled-components';
 
 import {
-  colors,
+  colorPrimitives,
   fontFamilies,
   fontSizes,
   fontWeights,
@@ -16,8 +16,8 @@ type VariablesProps = React.PropsWithChildren<object>;
 const VariablesGlobalStyle = createGlobalStyle`
   :root {
     ${Object.entries({
-      ...colors,
       ...spacingPrimitives,
+      ...colorPrimitives,
       ...radius,
       ...fontFamilies,
       ...fontSizes,

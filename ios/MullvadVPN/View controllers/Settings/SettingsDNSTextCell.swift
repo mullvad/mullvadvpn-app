@@ -24,16 +24,12 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        textField.font = UIFont.systemFont(ofSize: 17)
+        textField.font = .mullvadSmall
+        textField.adjustsFontForContentSizeCategory = true
         textField.backgroundColor = .clear
         textField.textColor = UIColor.TextField.textColor
         textField.textMargins = UIMetrics.SettingsCell.textFieldContentInsets
-        textField.placeholder = NSLocalizedString(
-            "DNS_TEXT_CELL_PLACEHOLDER",
-            tableName: "Settings",
-            value: "Enter IP",
-            comment: ""
-        )
+        textField.placeholder = NSLocalizedString("Enter IP", comment: "")
         textField.setAccessibilityIdentifier(.dnsSettingsEnterIPAddressTextField)
         textField.cornerRadius = 0
         textField.keyboardType = .numbersAndPunctuation
@@ -114,7 +110,7 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
             textField.textMargins.left = UIMetrics.SettingsCell.textFieldNonEditingContentInsetLeft
 
             textField.textColor = .white
-            backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelOne
+            backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelZero
         }
     }
 

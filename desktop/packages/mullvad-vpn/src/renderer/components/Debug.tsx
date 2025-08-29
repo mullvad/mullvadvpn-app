@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
+import { Button } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
 import { spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import { AppNavigationHeader } from './';
-import * as AppButton from './AppButton';
 import { measurements } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -41,11 +42,11 @@ export default function Debug() {
 
               <StyledContent>
                 <StyledButtonGroup>
-                  <AppButton.ButtonGroup>
+                  <FlexColumn $gap="medium">
                     <ThrowErrorButton />
                     <UnhandledRejectionButton />
                     <ErrorDuringRender />
-                  </AppButton.ButtonGroup>
+                  </FlexColumn>
                 </StyledButtonGroup>
               </StyledContent>
             </NavigationScrollbars>
@@ -61,7 +62,11 @@ function ThrowErrorButton() {
     throw new Error('This is a test error');
   }, []);
 
-  return <AppButton.RedButton onClick={handleClick}>Throw error</AppButton.RedButton>;
+  return (
+    <Button variant="destructive" onClick={handleClick}>
+      <Button.Text>Throw error</Button.Text>
+    </Button>
+  );
 }
 
 function UnhandledRejectionButton() {
@@ -69,7 +74,11 @@ function UnhandledRejectionButton() {
     return new Promise((_resolve, reject) => setTimeout(reject, 100));
   }, []);
 
-  return <AppButton.RedButton onClick={handleClick}>Unhandled rejection</AppButton.RedButton>;
+  return (
+    <Button variant="destructive" onClick={handleClick}>
+      <Button.Text>Unhandled rejection</Button.Text>
+    </Button>
+  );
 }
 
 function ErrorDuringRender() {
@@ -79,5 +88,9 @@ function ErrorDuringRender() {
     throw new Error('This is a test error during render');
   }
 
-  return <AppButton.RedButton onClick={setError}>Error next render</AppButton.RedButton>;
+  return (
+    <Button variant="destructive" onClick={setError}>
+      <Button.Text>Error next render</Button.Text>
+    </Button>
+  );
 }

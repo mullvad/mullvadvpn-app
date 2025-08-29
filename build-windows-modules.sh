@@ -2,6 +2,12 @@
 
 set -eu
 
+function usage {
+    echo "usage: $0 [clean] [--max-concurrent-processes <n>]"
+    echo "  --max-concurrent-processes <n>  Limit concurrent processes that msbuild can spawn to <n>. Defaults to number of processor cores."
+    exit 1
+}
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
@@ -22,6 +28,11 @@ ACTION=build
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         clean) ACTION="clean";;
+        --max-concurrent-processes)
+            MAX_CPUS="$2"
+            shift
+            ;;
+        help | --help) usage;;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -49,8 +60,14 @@ function build_solution_config {
     local config="$2"
     local platform="$3"
 
+    if [ -z ${MAX_CPUS+x} ]; then
+        MAX_CPU_COUNT_ARG="/m"
+    else
+        MAX_CPU_COUNT_ARG="/m:${MAX_CPUS}"
+    fi
+
     set -x
-    cmd.exe "/c msbuild.exe /m $(to_win_path "$sln") /p:Configuration=$config /p:Platform=$platform"
+    cmd.exe "/c msbuild.exe $MAX_CPU_COUNT_ARG $(to_win_path "$sln") /p:Configuration=$config /p:Platform=$platform"
     set +x
 }
 

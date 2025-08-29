@@ -16,15 +16,28 @@ use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
 
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
+///
+/// This function filter relays on the `include_in_country` flag, as opposed to [filter_matching_relay_by_query].
 pub fn filter_matching_relay_list(
     query: &RelayQuery,
     relay_list: &RelayList,
     custom_lists: &CustomListsSettings,
 ) -> Vec<Relay> {
-    let relays = relay_list.relays();
-
+    let relays = filter_matching_relay_list_include_all(query, relay_list, custom_lists);
     let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
-    let shortlist = relays
+    filter_on_include_in_country(locations, relays)
+}
+
+/// Filter a list of relays and their endpoints based on constraints.
+/// Only relays with (and including) matching endpoints are returned.
+pub fn filter_matching_relay_list_include_all(
+    query: &RelayQuery,
+    relay_list: &RelayList,
+    custom_lists: &CustomListsSettings,
+) -> Vec<Relay> {
+    let relays = relay_list.relays();
+    let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
+    relays
             // Filter on tunnel type
             .filter(|relay| filter_tunnel_type(&query.tunnel_protocol(), relay))
             // Filter on active relays
@@ -38,32 +51,7 @@ pub fn filter_matching_relay_list(
             // Filter by DAITA support
             .filter(|relay| filter_on_daita(&query.wireguard_constraints().daita, relay))
             // Filter by obfuscation support
-            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay));
-
-    // The last filtering to be done is on the `include_in_country` attribute found on each
-    // relay. When the location constraint is based on country, a relay which has
-    // `include_in_country` set to true should always be prioritized over relays which has this
-    // flag set to false. We should only consider relays with `include_in_country` set to false
-    // if there are no other candidates left.
-    match &locations {
-        Constraint::Any => shortlist.cloned().collect(),
-        Constraint::Only(locations) => {
-            let mut included = HashSet::new();
-            let mut excluded = HashSet::new();
-            for location in locations {
-                let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = shortlist
-                    .clone()
-                    .partition(|relay| location.is_country() && relay.include_in_country);
-                included.extend(included_in_country);
-                excluded.extend(not_included_in_country);
-            }
-            if included.is_empty() {
-                excluded.into_iter().cloned().collect()
-            } else {
-                included.into_iter().cloned().collect()
-            }
-        }
-    }
+            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay)).cloned().collect()
 }
 
 pub fn filter_matching_bridges<'a, R: Iterator<Item = &'a Relay> + Clone>(
@@ -133,6 +121,10 @@ fn filter_on_obfuscation(
     relay_list: &RelayList,
     relay: &Relay,
 ) -> bool {
+    let Some(endpoint_data) = relay.wireguard() else {
+        return true;
+    };
+
     match &query.obfuscation {
         // Shadowsocks has relay-specific constraints
         ObfuscationQuery::Shadowsocks(settings) => {
@@ -141,12 +133,20 @@ fn filter_on_obfuscation(
                 &wg_data.shadowsocks_port_ranges,
                 &query.ip_version,
                 settings,
-                relay,
+                endpoint_data,
             )
         }
-
-        // If Shadowsocks is not a requirement, then there are no relay-specific constraints
-        _ => true,
+        // QUIC is only enabled on some relays
+        ObfuscationQuery::Quic => match endpoint_data.quic() {
+            Some(quic) => match query.ip_version {
+                Constraint::Any => true,
+                Constraint::Only(IpVersion::V4) => quic.in_ipv4().is_some(),
+                Constraint::Only(IpVersion::V6) => quic.in_ipv6().is_some(),
+            },
+            None => false,
+        },
+        // Other relays are compatible with this query
+        ObfuscationQuery::Off | ObfuscationQuery::Auto | ObfuscationQuery::Udp2tcp(_) => true,
     }
 }
 
@@ -155,21 +155,18 @@ fn filter_on_shadowsocks(
     port_ranges: &[RangeInclusive<u16>],
     ip_version: &Constraint<IpVersion>,
     settings: &ShadowsocksSettings,
-    relay: &Relay,
+    endpoint_data: &WireguardRelayEndpointData,
 ) -> bool {
     let ip_version = super::detailer::resolve_ip_version(*ip_version);
 
-    match (settings, &relay.endpoint_data) {
+    match settings {
         // If Shadowsocks is specifically asked for, we must check if the specific relay supports
         // our port. If there are extra addresses, then all ports are available, so we do
         // not need to do this.
-        (
-            ShadowsocksSettings {
-                port: Constraint::Only(desired_port),
-            },
-            RelayEndpointData::Wireguard(wg_data),
-        ) => {
-            let filtered_extra_addrs = wg_data
+        ShadowsocksSettings {
+            port: Constraint::Only(desired_port),
+        } => {
+            let filtered_extra_addrs = endpoint_data
                 .shadowsocks_extra_addr_in
                 .iter()
                 .find(|&&addr| IpVersion::from(addr) == ip_version);
@@ -180,6 +177,35 @@ fn filter_on_shadowsocks(
 
         // Otherwise, any relay works.
         _ => true,
+    }
+}
+
+/// When the location constraint is based on country, a relay which has
+/// `include_in_country` set to true should always be prioritized over relays which has this
+/// flag set to false. We should only consider relays with `include_in_country` set to false
+/// if there are no other candidates left.
+fn filter_on_include_in_country(
+    locations: Constraint<ResolvedLocationConstraint<'_>>,
+    relays: Vec<Relay>,
+) -> Vec<Relay> {
+    match locations {
+        Constraint::Any => relays,
+        Constraint::Only(locations) => {
+            let mut included = HashSet::new();
+            let mut excluded = HashSet::new();
+            for location in &locations {
+                let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = relays
+                    .iter()
+                    .partition(|relay| location.is_country() && relay.include_in_country);
+                included.extend(included_in_country);
+                excluded.extend(not_included_in_country);
+            }
+            if included.is_empty() {
+                excluded.into_iter().cloned().collect()
+            } else {
+                included.into_iter().cloned().collect()
+            }
+        }
     }
 }
 
@@ -235,7 +261,7 @@ impl<'a> ResolvedLocationConstraint<'a> {
                 }
                 LocationConstraint::CustomList { list_id } => custom_lists
                     .iter()
-                    .find(|list| list.id == *list_id)
+                    .find(|list| list.id() == *list_id)
                     .map(|custom_list| {
                         ResolvedLocationConstraint(custom_list.locations.iter().collect())
                     })

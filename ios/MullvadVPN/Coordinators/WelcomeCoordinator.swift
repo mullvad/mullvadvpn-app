@@ -83,9 +83,6 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
 extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
         let message = NSLocalizedString(
-            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
-            tableName: "Welcome",
-            value:
             """
             Failed to connect to App store, please try again later.
             """,
@@ -98,12 +95,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             message: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]
@@ -115,9 +107,6 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
 
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = NSLocalizedString(
-            "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
-            tableName: "Welcome",
-            value:
             """
             This is the name assigned to the device. Each device logged in on a \
             Mullvad account gets a unique name that helps \
@@ -135,12 +124,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             message: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "WELCOME_DEVICE_NAME_DIALOG_OK_ACTION",
-                        tableName: "Welcome",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]

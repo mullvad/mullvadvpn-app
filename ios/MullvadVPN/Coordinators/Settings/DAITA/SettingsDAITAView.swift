@@ -15,39 +15,37 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
     var body: some View {
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
+                if isAutomaticRoutingActive {
+                    DAITAMultihopNotice()
+                        .padding(EdgeInsets(
+                            top: -UIMetrics.contentInsets.top,
+                            leading: UIMetrics.contentInsets.toEdgeInsets.leading,
+                            bottom: 8,
+                            trailing: UIMetrics.contentInsets.toEdgeInsets.trailing
+                        ))
+                }
+
                 SettingsInfoView(viewModel: dataViewModel)
 
                 VStack {
                     GroupedRowView {
                         SwitchRowView(
                             isOn: daitaIsEnabled,
-                            text: NSLocalizedString(
-                                "SETTINGS_SWITCH_DAITA_ENABLE",
-                                tableName: "Settings",
-                                value: "Enable",
-                                comment: ""
-                            ),
+                            text: NSLocalizedString("Enable", comment: ""),
                             accessibilityId: .daitaSwitch
                         )
                         RowSeparator()
                         SwitchRowView(
                             isOn: directOnlyIsEnabled,
                             disabled: !daitaIsEnabled.wrappedValue,
-                            text: NSLocalizedString(
-                                "SETTINGS_SWITCH_DAITA_DIRECT_ONLY",
-                                tableName: "Settings",
-                                value: "Direct only",
-                                comment: ""
-                            ),
+                            text: NSLocalizedString("Direct only", comment: ""),
                             accessibilityId: .daitaDirectOnlySwitch
                         )
                     }
 
                     SettingsRowViewFooter(
                         text: NSLocalizedString(
-                            "SETTINGS_SWITCH_DAITA_ENABLE",
-                            tableName: "Settings",
-                            value: """
+                            """
                             By enabling "Direct only" you will have to manually select a server that \
                             is DAITA-enabled. Multihop won't automatically be used to enable DAITA with \
                             any server.
@@ -93,6 +91,11 @@ extension SettingsDAITAView {
             }
         )
     }
+
+    var isAutomaticRoutingActive: Bool {
+        let viewModel = tunnelViewModel as? DAITATunnelSettingsViewModel
+        return viewModel?.isAutomaticRoutingActive ?? false
+    }
 }
 
 extension SettingsDAITAView {
@@ -101,9 +104,7 @@ extension SettingsDAITAView {
             pages: [
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
-                        "SETTINGS_INFO_DAITA_PAGE_1",
-                        tableName: "Settings",
-                        value: """
+                        """
                         **Attention: This increases network traffic and will also negatively affect speed, latency, \
                         and battery usage. Use with caution on limited plans.**
 
@@ -119,9 +120,7 @@ extension SettingsDAITAView {
                 ),
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
-                        "SETTINGS_INFO_DAITA_PAGE_2",
-                        tableName: "Settings",
-                        value: """
+                        """
                         If an observer monitors these data packets, DAITA makes it significantly \
                         harder for them to identify which websites you are visiting or with whom \
                         you are communicating.

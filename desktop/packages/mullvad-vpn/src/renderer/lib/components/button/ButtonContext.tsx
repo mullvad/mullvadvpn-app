@@ -19,6 +19,6 @@ interface ButtonProviderProps {
   children: React.ReactNode;
 }
 
-export const ButtonProvider = ({ disabled, children }: ButtonProviderProps) => {
+export function ButtonProvider({ disabled, children }: ButtonProviderProps) {
   return <ButtonContext.Provider value={{ disabled }}>{children}</ButtonContext.Provider>;
-};
+}

@@ -10,10 +10,15 @@ import UIKit
 
 class SelectableSettingsCell: SettingsCell {
     let tickImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "IconTick"))
+        let imageView = UIImageView(image: UIImage.tick)
         imageView.contentMode = .center
         imageView.tintColor = .white
         imageView.alpha = 0
+        imageView
+            .setContentCompressionResistancePriority(
+                .required,
+                for: .horizontal
+            )
         return imageView
     }()
 

@@ -3,7 +3,7 @@ use std::{
     future::Future,
     io::{self},
     pin::Pin,
-    task::{ready, Poll},
+    task::{Poll, ready},
     time::Duration,
 };
 use tokio::io::{AsyncRead, AsyncWrite};
@@ -18,13 +18,17 @@ fn connection_closed_err() -> io::Error {
 #[repr(C)]
 pub struct WgTcpConnectionFunctions {
     pub open_fn:
-        unsafe extern "C" fn(tunnelHandle: i32, address: *const libc::c_char, timeout: u64) -> i32,
-    pub close_fn: unsafe extern "C" fn(tunnelHandle: i32, socketHandle: i32) -> i32,
-    pub recv_fn:
-        unsafe extern "C" fn(tunnelHandle: i32, socketHandle: i32, data: *mut u8, len: i32) -> i32,
+        unsafe extern "C" fn(tunnel_handle: i32, address: *const libc::c_char, timeout: u64) -> i32,
+    pub close_fn: unsafe extern "C" fn(tunnel_handle: i32, socket_handle: i32) -> i32,
+    pub recv_fn: unsafe extern "C" fn(
+        tunnel_handle: i32,
+        socket_handle: i32,
+        data: *mut u8,
+        len: i32,
+    ) -> i32,
     pub send_fn: unsafe extern "C" fn(
-        tunnelHandle: i32,
-        socketHandle: i32,
+        tunnel_handle: i32,
+        socket_handle: i32,
         data: *const u8,
         len: i32,
     ) -> i32,
@@ -35,6 +39,7 @@ impl WgTcpConnectionFunctions {
     /// This function is safe to call so long as the function pointer is valid for its declared
     /// signature.
     pub unsafe fn open(&self, tunnel_handle: i32, address: *const u8, timeout: u64) -> i32 {
+        // SAFETY: See above
         unsafe { (self.open_fn)(tunnel_handle, address.cast(), timeout) }
     }
 
@@ -42,6 +47,7 @@ impl WgTcpConnectionFunctions {
     /// This function is safe to call so long as the function pointer is valid for its declared
     /// signature.
     pub unsafe fn close(&self, tunnel_handle: i32, socket_handle: i32) -> i32 {
+        // SAFETY: See above
         unsafe { (self.close_fn)(tunnel_handle, socket_handle) }
     }
 
@@ -54,6 +60,7 @@ impl WgTcpConnectionFunctions {
             .len()
             .try_into()
             .expect("Cannot receive a buffer larger than 2GiB");
+        // SAFETY: See notes for this function
         unsafe { (self.recv_fn)(tunnel_handle, socket_handle, ptr.cast(), len) }
     }
 
@@ -66,6 +73,7 @@ impl WgTcpConnectionFunctions {
             .len()
             .try_into()
             .expect("Cannot send a buffer larger than 2GiB");
+        // SAFETY: See notes for this function
         unsafe { (self.send_fn)(tunnel_handle, socket_handle, ptr.cast(), len) }
     }
 }
@@ -108,9 +116,9 @@ impl IosTcpProvider {
         let tunnel_handle = self.tunnel_handle;
         let timeout = self.timeout.as_secs();
         let funcs = self.funcs;
+        // SAFETY:
+        // The `open_fn` function pointer in `funcs` must be valid.
         let result = tokio::task::spawn_blocking(move || unsafe {
-            // SAFETY
-            // The `open_fn` function pointer in `funcs` must be valid.
             funcs.open(tunnel_handle, address.as_ptr() as *const _, timeout)
         })
         .await
@@ -132,7 +140,7 @@ impl IosTcpProvider {
 
 impl Drop for IosTcpConnection {
     fn drop(&mut self) {
-        // Safety
+        // Safety:
         // `funcs.close_fn` must be a valid function pointer.
         unsafe { self.funcs.close(self.tunnel_handle, self.socket_handle) };
     }
@@ -149,7 +157,7 @@ impl AsyncWrite for IosTcpConnection {
             let result = match ready!(handle.as_mut().poll(cx)) {
                 Ok(Ok(written)) => Ok(written.len()),
                 Ok(Err(e)) => Err(e),
-                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Write task panicked")),
+                Err(_) => Err(io::Error::other("Write task panicked")),
             };
             // important to clear the in flight write here.
             self.in_flight_write = None;
@@ -163,14 +171,11 @@ impl AsyncWrite for IosTcpConnection {
             let data = buf.to_vec();
             let funcs = self.funcs;
             let task = tokio::task::spawn_blocking(move || {
-                // Safety
+                // Safety:
                 // `funcs.send_fn` must be a valid function pointer.
                 let result = unsafe { funcs.send(tunnel_handle, socket_handle, data.as_slice()) };
                 if result < 0 {
-                    Err(io::Error::new(
-                        io::ErrorKind::Other,
-                        format!("Write error: {}", result),
-                    ))
+                    Err(io::Error::other(format!("Write error: {result}")))
                 } else {
                     Ok(data[..result as usize].to_vec())
                 }
@@ -215,7 +220,7 @@ impl AsyncRead for IosTcpConnection {
                     Ok(())
                 }
                 Ok(Err(e)) => Err(e),
-                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Read task panicked")),
+                Err(_) => Err(io::Error::other("Read task panicked")),
             };
             // Clear the in-flight read, since the read task finished
             self.in_flight_read = None;
@@ -227,7 +232,7 @@ impl AsyncRead for IosTcpConnection {
             let funcs = self.funcs;
             let mut buffer = vec![0u8; buf.remaining()];
             let task = tokio::task::spawn_blocking(move || {
-                // Safety
+                // Safety:
                 // `funcs.receive_fn` must be a valid function pointer.
                 let result =
                     unsafe { funcs.receive(tunnel_handle, socket_handle, buffer.as_mut_slice()) };
@@ -237,10 +242,7 @@ impl AsyncRead for IosTcpConnection {
                         Ok(buffer)
                     }
 
-                    errval @ ..0 => Err(io::Error::new(
-                        io::ErrorKind::Other,
-                        format!("Read error: {}", errval),
-                    )),
+                    errval @ ..0 => Err(io::Error::other(format!("Read error: {errval}"))),
 
                     0 => Err(connection_closed_err()),
                 }

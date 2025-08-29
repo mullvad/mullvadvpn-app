@@ -2,7 +2,7 @@
 
 use std::{fmt, str::FromStr};
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use ed25519_dalek::ed25519::signature::Signer;
 use serde::{Deserialize, Serialize};
 use zeroize::Zeroize;
@@ -16,8 +16,7 @@ impl SecretKey {
     /// Generate a new secret ed25519 key
     #[cfg(feature = "sign")]
     pub fn generate() -> Self {
-        // Using OsRng is suggested by the docs
-        let key = ed25519_dalek::SigningKey::generate(&mut rand::rngs::OsRng);
+        let key = ed25519_dalek::SigningKey::generate(&mut rand::thread_rng());
         SecretKey(key)
     }
 
@@ -76,9 +75,14 @@ impl Serialize for SecretKey {
 }
 
 /// ed25519 verifying key
-#[derive(Debug, PartialEq, Eq)]
-#[cfg_attr(test, derive(Clone))]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct VerifyingKey(pub ed25519_dalek::VerifyingKey);
+
+impl fmt::Display for VerifyingKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", hex::encode(self.0.as_bytes()))
+    }
+}
 
 impl VerifyingKey {
     pub fn from_hex(s: &str) -> anyhow::Result<Self> {

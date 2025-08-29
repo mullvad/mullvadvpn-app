@@ -1,7 +1,7 @@
 //! Glue between tunnel-obfuscation and WireGuard configurations
 
 use super::{Error, Result};
-use crate::{config::Config, CloseMsg};
+use crate::{CloseMsg, config::Config};
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
 use std::{
@@ -10,16 +10,21 @@ use std::{
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
+use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
 
 use tunnel_obfuscation::{
-    create_obfuscator, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
 /// to point to an endpoint on localhost
+///
+/// # Arguments
+///
+/// * obfuscation_mtu - "MTU" including obfuscation overhead
 pub async fn apply_obfuscation_config(
     config: &mut Config,
+    obfuscation_mtu: u16,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Option<ObfuscatorHandle>> {
@@ -29,6 +34,7 @@ pub async fn apply_obfuscation_config(
 
     let settings = settings_from_config(
         obfuscator_config,
+        obfuscation_mtu,
         #[cfg(target_os = "linux")]
         config.fwmark,
     );
@@ -76,6 +82,7 @@ fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
 
 fn settings_from_config(
     config: &ObfuscatorConfig,
+    mtu: u16,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> ObfuscationSettings {
     match config {
@@ -96,6 +103,25 @@ fn settings_from_config(
                 fwmark,
             })
         }
+        ObfuscatorConfig::Quic {
+            hostname,
+            endpoint,
+            auth_token,
+        } => {
+            let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
+            let settings = quic::Settings::new(
+                *endpoint,
+                hostname.to_owned(),
+                auth_token.parse().unwrap(),
+                wireguard_endpoint,
+            )
+            .mtu(mtu);
+            #[cfg(target_os = "linux")]
+            if let Some(fwmark) = fwmark {
+                return ObfuscationSettings::Quic(settings.fwmark(fwmark));
+            }
+            ObfuscationSettings::Quic(settings)
+        }
     }
 }
 
@@ -108,7 +134,7 @@ async fn bypass_vpn(
     // Exclude remote obfuscation socket or bridge
     log::debug!("Excluding remote socket fd from the tunnel");
     let _ = tokio::task::spawn_blocking(move || {
-        if let Err(error) = tun_provider.lock().unwrap().bypass(remote_socket_fd) {
+        if let Err(error) = tun_provider.lock().unwrap().bypass(&remote_socket_fd) {
             log::error!("Failed to exclude remote socket fd: {error}");
         }
     })

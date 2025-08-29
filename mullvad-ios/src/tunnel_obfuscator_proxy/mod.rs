@@ -1,11 +1,10 @@
-use ffi::TunnelObfuscatorProtocol;
 use std::{
     io,
     net::{Ipv4Addr, SocketAddr},
 };
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
-    create_obfuscator, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
 };
 
 mod ffi;
@@ -17,19 +16,24 @@ pub struct TunnelObfuscatorRuntime {
 }
 
 impl TunnelObfuscatorRuntime {
-    pub fn new(peer: SocketAddr, obfuscation_protocol: TunnelObfuscatorProtocol) -> Self {
-        let settings: ObfuscationSettings = match obfuscation_protocol {
-            TunnelObfuscatorProtocol::UdpOverTcp => {
-                ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer })
-            }
-            TunnelObfuscatorProtocol::Shadowsocks => {
-                ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
-                    shadowsocks_endpoint: peer,
-                    wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-                })
-            }
-        };
+    pub fn new_udp2tcp(peer: SocketAddr) -> Self {
+        let settings = ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer });
+        Self { settings }
+    }
 
+    pub fn new_shadowsocks(peer: SocketAddr) -> Self {
+        let settings = ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
+            shadowsocks_endpoint: peer,
+            wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+        });
+        Self { settings }
+    }
+
+    pub fn new_quic(peer: SocketAddr, hostname: String, token: String) -> Self {
+        let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
+        let token: quic::AuthToken = token.parse().unwrap();
+        let quic = quic::Settings::new(peer, hostname, token, wireguard_endpoint);
+        let settings = ObfuscationSettings::Quic(quic);
         Self { settings }
     }
 

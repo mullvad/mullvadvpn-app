@@ -1,5 +1,8 @@
 use super::string_value::StringValue;
 use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::BufReader;
+use std::path::Path;
 use std::{
     fmt::{self, Display, Formatter},
     ops::{Deref, DerefMut},
@@ -46,6 +49,18 @@ impl StringResources {
     }
 }
 
+impl TryFrom<&Path> for StringResources {
+    type Error = String;
+
+    fn try_from(value: &Path) -> Result<Self, Self::Error> {
+        let strings_file =
+            File::open(value).map_err(|e| format!("Failed to open string resources file: {e}"))?;
+
+        quick_xml::de::from_reader(BufReader::new(strings_file))
+            .map_err(|e| format!("Failed to parse string resources file: {e}"))
+    }
+}
+
 impl Deref for StringResources {
     type Target = Vec<StringResource>;
 
@@ -73,11 +88,11 @@ impl StringResource {
     /// Create a new Android string resource entry.
     ///
     /// The name is the resource ID, and the value will be properly escaped.
-    pub fn new(name: String, value: &str) -> Self {
+    pub fn new(name: String, value: &str, arg_ordering: Option<&Vec<u8>>) -> Self {
         StringResource {
             name,
             translatable: true,
-            value: StringValue::from_unescaped(value),
+            value: StringValue::from_unescaped(value, arg_ordering),
         }
     }
 }
@@ -135,12 +150,12 @@ mod tests {
             StringResource {
                 name: "first".to_owned(),
                 translatable: true,
-                value: StringValue::from_unescaped("First string"),
+                value: StringValue::from_unescaped("First string", None),
             },
             StringResource {
                 name: "second".to_owned(),
                 translatable: false,
-                value: StringValue::from_unescaped("Second string"),
+                value: StringValue::from_unescaped("Second string", None),
             },
         ]);
 
@@ -171,15 +186,18 @@ mod tests {
             StringResource {
                 name: "first".to_owned(),
                 translatable: true,
-                value: StringValue::from_unescaped("First string is split in two lines"),
+                value: StringValue::from_unescaped("First string is split in two lines", None),
             },
             StringResource {
                 name: "second".to_owned(),
                 translatable: false,
-                value: StringValue::from_unescaped(concat!(
+                value: StringValue::from_unescaped(
+                    concat!(
                     "Second string is also split but it also has some weird whitespace inside the ",
                     "tags and some indentation",
-                )),
+                ),
+                    None,
+                ),
             },
         ]);
 

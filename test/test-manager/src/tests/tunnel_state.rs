@@ -1,9 +1,9 @@
 use super::{
+    Error, TestContext,
     helpers::{
         self, connect_and_wait, send_guest_probes, unreachable_wireguard_tunnel,
         wait_for_tunnel_state,
     },
-    ui, Error, TestContext,
 };
 use crate::{
     assert_tunnel_state,
@@ -13,10 +13,10 @@ use crate::{
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
+    CustomTunnelEndpoint,
     constraints::Constraint,
     relay_constraints::{GeographicLocationConstraint, LocationConstraint},
     states::TunnelState,
-    CustomTunnelEndpoint,
 };
 use std::{net::SocketAddr, time::Duration};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
@@ -145,13 +145,6 @@ pub async fn test_disconnected_state(
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
     );
 
-    // Test UI view
-    //
-
-    log::info!("UI: Test disconnected state");
-    let ui_result = ui::run_test(&rpc, &["disconnected.spec"]).await.unwrap();
-    assert!(ui_result.success());
-
     Ok(())
 }
 
@@ -210,8 +203,7 @@ pub async fn test_connecting_state(
 
     assert!(
         matches!(new_state, TunnelState::Connecting { .. }),
-        "failed to enter connecting state: {:?}",
-        new_state
+        "failed to enter connecting state: {new_state:?}"
     );
 
     // Leak test
@@ -373,7 +365,7 @@ pub async fn test_connected_state(
         } => {
             assert_eq!(*addr.ip(), relay.ipv4_addr_in);
         }
-        actual => panic!("unexpected tunnel state: {:?}", actual),
+        actual => panic!("unexpected tunnel state: {actual:?}"),
     }
 
     // Ping outside of tunnel while connected

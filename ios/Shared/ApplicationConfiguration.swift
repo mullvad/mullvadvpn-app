@@ -64,7 +64,7 @@ enum ApplicationConfiguration {
     static let logMaximumFileSize: UInt64 = 131_072 // 128 kB.
 
     /// Privacy policy URL.
-    static let privacyPolicyURL = URL(string: "https://\(Self.hostName)/help/privacy-policy/")!
+    static let privacyPolicyLink = "https://\(Self.hostName)/help/privacy-policy/"
 
     /// Make a start regarding  policy URL.
     static let privacyGuidesURL = URL(string: "https://\(Self.hostName)/help/first-steps-towards-online-privacy/")!

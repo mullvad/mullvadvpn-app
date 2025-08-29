@@ -18,7 +18,8 @@ class LocationCell: UITableViewCell {
 
     private let locationLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = .mullvadSmall
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 1
@@ -33,7 +34,8 @@ class LocationCell: UITableViewCell {
     }()
 
     private let tickImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(resource: .iconTick))
+        let imageView = UIImageView(image: UIImage.tick)
+        imageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
         imageView.tintColor = .white
         return imageView
     }()
@@ -44,7 +46,8 @@ class LocationCell: UITableViewCell {
 
         checkboxView.isUserInteractionEnabled = false
         button.addConstrainedSubviews([checkboxView]) {
-            checkboxView.pinEdgesToSuperviewMargins(PinnableEdges([.top(8), .bottom(8), .leading(16), .trailing(16)]))
+            checkboxView.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+            checkboxView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(16), .trailing(16)]))
         }
 
         return button
@@ -53,6 +56,7 @@ class LocationCell: UITableViewCell {
     private let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
         button.isAccessibilityElement = false
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         return button
     }()
@@ -67,8 +71,8 @@ class LocationCell: UITableViewCell {
     }
 
     private var behavior: LocationCellBehavior = .select
-    private let chevronDown = UIImage(resource: .iconChevronDown)
-    private let chevronUp = UIImage(resource: .iconChevronUp)
+    private let chevronDown = UIImage.CellDecoration.chevronDown
+    private let chevronUp = UIImage.CellDecoration.chevronUp
 
     var isDisabled = false {
         didSet {
@@ -81,14 +85,6 @@ class LocationCell: UITableViewCell {
     var isExpanded = false {
         didSet {
             updateCollapseImage()
-            updateAccessibilityCustomActions()
-        }
-    }
-
-    var showsCollapseControl = false {
-        didSet {
-            collapseButton.isHidden = !showsCollapseControl
-            updateAccessibilityCustomActions()
         }
     }
 
@@ -129,6 +125,11 @@ class LocationCell: UITableViewCell {
 
         updateLeadingImage()
         updateStatusIndicatorColor()
+
+        // Set the accessibility value to indicate selection status
+        accessibilityValue = selected
+            ? NSLocalizedString("Selected", comment: "")
+            : nil
     }
 
     private func setupCell() {
@@ -149,11 +150,9 @@ class LocationCell: UITableViewCell {
         }
 
         updateCollapseImage()
-        updateAccessibilityCustomActions()
         updateDisabled(isDisabled)
         updateBackgroundColor()
         setLayoutMargins()
-
         contentView.addConstrainedSubviews([
             tickImageView,
             statusIndicator,
@@ -169,11 +168,8 @@ class LocationCell: UITableViewCell {
             statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor)
             statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor)
 
-            checkboxButton.pinEdgesToSuperview(PinnableEdges([.top(0), .bottom(0)]))
+            checkboxButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
             checkboxButton.trailingAnchor.constraint(equalTo: locationLabel.leadingAnchor, constant: 14)
-            checkboxButton.widthAnchor.constraint(
-                equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics.contentLayoutMargins.trailing + 24
-            )
 
             locationLabel.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .bottom(0)]))
             locationLabel.leadingAnchor.constraint(
@@ -188,6 +184,31 @@ class LocationCell: UITableViewCell {
             )
             collapseButton.pinEdgesToSuperview(.all().excluding(.leading))
         }
+    }
+
+    private func setupAccessibility(_ locationCellViewModel: LocationCellViewModel) {
+        isAccessibilityElement = true
+        accessibilityTraits = .button
+
+        // Set the accessibility label to the location name
+        accessibilityLabel = locationCellViewModel.node.code
+
+        // Provide a hint about the action
+        if !locationCellViewModel.node.children.isEmpty {
+            accessibilityHint = locationCellViewModel.node.showsChildren
+                ? NSLocalizedString("Collapses this location.", comment: "")
+                : NSLocalizedString("Expands this location.", comment: "")
+        } else {
+            accessibilityHint = nil
+        }
+
+        let selectAction = UIAccessibilityCustomAction(
+            name: "SelectLocation",
+            target: self,
+            selector: #selector(handleSelectAction)
+        )
+
+        accessibilityCustomActions = [selectAction]
     }
 
     private func updateLeadingImage() {
@@ -231,7 +252,7 @@ class LocationCell: UITableViewCell {
         case 3:
             return UIColor.Cell.Background.indentationLevelThree
         default:
-            return UIColor.Cell.Background.normal
+            return UIColor.Cell.Background.indentationLevelZero
         }
     }
 
@@ -262,6 +283,11 @@ class LocationCell: UITableViewCell {
         return true
     }
 
+    @objc private func handleSelectAction() -> Bool {
+        delegate?.toggleSelecting(cell: self)
+        return true
+    }
+
     private func updateCollapseImage() {
         let image = isExpanded ? chevronUp : chevronDown
 
@@ -269,36 +295,12 @@ class LocationCell: UITableViewCell {
         collapseButton.setImage(image, for: .normal)
     }
 
-    private func updateAccessibilityCustomActions() {
-        if showsCollapseControl {
-            let actionName = isExpanded
-                ? NSLocalizedString(
-                    "SELECT_LOCATION_COLLAPSE_ACCESSIBILITY_ACTION",
-                    tableName: "SelectLocation",
-                    value: "Collapse location",
-                    comment: ""
-                )
-                : NSLocalizedString(
-                    "SELECT_LOCATION_EXPAND_ACCESSIBILITY_ACTION",
-                    tableName: "SelectLocation",
-                    value: "Expand location",
-                    comment: ""
-                )
-
-            accessibilityCustomActions = [
-                UIAccessibilityCustomAction(
-                    name: actionName,
-                    target: self,
-                    selector: #selector(toggleCollapseAccessibilityAction)
-                ),
-            ]
-        } else {
-            accessibilityCustomActions = nil
-        }
-    }
-
     @objc private func toggleCheckboxButton(_ sender: UIControl) {
         delegate?.toggleSelecting(cell: self)
+    }
+
+    override func accessibilityActivate() -> Bool {
+        toggleCollapseAccessibilityAction()
     }
 }
 
@@ -311,11 +313,10 @@ extension LocationCell {
     func configure(item: LocationCellViewModel, behavior: LocationCellBehavior) {
         isDisabled = !item.node.isActive
         locationLabel.text = item.node.name
-        showsCollapseControl = !item.node.children.isEmpty
         isExpanded = item.node.showsChildren
-        accessibilityValue = item.node.code
+        collapseButton.isHidden = item.node.children.isEmpty
         checkboxButton.setAccessibilityIdentifier(.customListLocationCheckmarkButton)
-
+        setupAccessibility(item)
         for view in checkboxButton.subviews where view is CheckboxView {
             let checkboxView = view as? CheckboxView
             checkboxView?.isChecked = item.isSelected

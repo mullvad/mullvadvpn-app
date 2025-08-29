@@ -1,4 +1,4 @@
-use super::{config::TEST_CONFIG, helpers, Error, TestContext};
+use super::{Error, TestContext, config::TEST_CONFIG, helpers};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::relay_constraints::RelaySettings;
@@ -8,7 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use test_macro::test_function;
-use test_rpc::{meta::Os, ExecResult, ServiceClient};
+use test_rpc::{ExecResult, ServiceClient, meta::Os};
 
 pub async fn run_test<T: AsRef<str> + Debug>(
     rpc: &ServiceClient,
@@ -165,7 +165,7 @@ async fn test_custom_access_methods_gui(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    use mullvad_api::env;
+    use mullvad_api_constants::env;
     use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 
     // For this test to work, we need to supply the following env-variables:
@@ -315,7 +315,31 @@ pub async fn test_settings_ui(
     rpc: ServiceClient,
     _: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let ui_result = run_test(&rpc, &["settings.spec"]).await?;
+    let ui_result = run_test(&rpc, &["vpn-settings.spec"]).await?;
+    assert!(ui_result.success());
+    Ok(())
+}
+
+/// Test DAITA UI
+#[test_function]
+pub async fn test_daita_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
+    let ui_result = run_test(&rpc, &["daita-settings.spec"]).await?;
+    assert!(ui_result.success());
+    Ok(())
+}
+
+/// Test multihop UI
+#[test_function]
+pub async fn test_multihop_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
+    let ui_result = run_test(&rpc, &["multihop-settings.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
 }

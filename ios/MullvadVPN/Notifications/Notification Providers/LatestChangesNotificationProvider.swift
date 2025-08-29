@@ -42,11 +42,7 @@ class LatestChangesNotificationProvider: NotificationProvider, InAppNotification
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .success,
-            title: NSLocalizedString(
-                "LATEST_CHANGES_IN_APP_NOTIFICATION_TITLE",
-                value: "NEW VERSION INSTALLED",
-                comment: ""
-            ),
+            title: NSLocalizedString("NEW VERSION INSTALLED", comment: ""),
             body: createNotificationBody(),
             button: createCloseButtonAction(),
             tapAction: createTapAction()
@@ -55,22 +51,18 @@ class LatestChangesNotificationProvider: NotificationProvider, InAppNotification
 
     private func createNotificationBody() -> NSAttributedString {
         NSAttributedString(
-            markdownString: NSLocalizedString(
-                "LATEST_CHANGES_IN_APP_NOTIFICATION_BODY",
-                value: "**Tap here** to see what’s new.",
-                comment: ""
-            ),
-            options: MarkdownStylingOptions(font: UIFont.preferredFont(forTextStyle: .body)),
-            applyEffect: { markdownType, _ in
-                guard case .bold = markdownType else { return [:] }
-                return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
-            }
-        )
+            markdownString: NSLocalizedString("**Tap here** to see what’s new.", comment: ""),
+            options: MarkdownStylingOptions(
+                font: .preferredFont(forTextStyle: .body)
+            )
+        ) { _, _ in
+            [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
+        }
     }
 
     private func createCloseButtonAction() -> InAppNotificationAction {
         InAppNotificationAction(
-            image: UIImage(named: "IconCloseSml"),
+            image: UIImage.Buttons.closeSmall,
             handler: { [weak self] in
                 self?.invalidate()
             }

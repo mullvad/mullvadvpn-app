@@ -50,14 +50,22 @@ class EditAccessMethodViewController: UIViewController {
         tableView.setAccessibilityIdentifier(.editAccessMethodView)
         tableView.backgroundColor = .secondaryColor
         tableView.delegate = self
-
+        tableView.sectionFooterHeight = UITableView.automaticDimension
+        tableView.estimatedSectionFooterHeight = 44
         isModalInPresentation = true
 
-        let headerView = createHeaderView()
-        view.addConstrainedSubviews([headerView, tableView]) {
-            headerView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(8), .top(0)]))
+        let title = createTitle()
+        view.addConstrainedSubviews([title, tableView]) {
+            title.pinEdgesToSuperviewMargins(PinnableEdges([.top(0)]))
+            title.pinEdgesToSuperview(PinnableEdges([
+                .leading(UIMetrics.SettingsCell.defaultLayoutMargins.leading),
+                .trailing(UIMetrics.SettingsCell.defaultLayoutMargins.trailing),
+            ]))
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20)
+            tableView.topAnchor.constraint(
+                equalTo: title.bottomAnchor,
+                constant: 0
+            )
         }
 
         configureDataSource()
@@ -69,19 +77,16 @@ class EditAccessMethodViewController: UIViewController {
         interactor.cancelProxyConfigurationTest()
     }
 
-    private func createHeaderView() -> UIView {
-        var headerView: InfoHeaderView?
-
-        if let headerConfig = subject.value.infoHeaderConfig {
-            headerView = InfoHeaderView(config: headerConfig)
-
-            headerView?.onAbout = { [weak self] in
-                guard let self, let infoModalConfig = subject.value.infoModalConfig else { return }
-                delegate?.controllerShouldShowMethodInfo(self, config: infoModalConfig)
-            }
-        }
-
-        return headerView ?? UIView()
+    private func createTitle() -> UIView {
+        let label = UILabel()
+        label.font = .mullvadBig
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.lineBreakStrategy = []
+        label.text = subject.value.navigationItemTitle
+        label.textColor = UIColor.NavigationBar.titleColor
+        return label
     }
 }
 
@@ -102,39 +107,65 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UIMetrics.SettingsCell.apiAccessCellHeight
-    }
-
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return nil
+        guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
+        switch sectionIdentifier {
+        case .enableMethod:
+            var headerView: InfoHeaderView?
+
+            if let headerConfig = subject.value.infoHeaderConfig {
+                headerView = InfoHeaderView(config: headerConfig)
+
+                headerView?.onAbout = { [weak self] in
+                    guard let self, let infoModalConfig = subject.value.infoModalConfig else { return }
+                    delegate?.controllerShouldShowMethodInfo(self, config: infoModalConfig)
+                }
+            }
+            headerView?.directionalLayoutMargins = NSDirectionalEdgeInsets(
+                top: 4,
+                leading: 0,
+                bottom: 16,
+                trailing: 0
+            )
+
+            return headerView ?? UIView()
+        default:
+            return nil
+        }
     }
 
     // Header height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
 
-        switch sectionIdentifier {
-        case .methodSettings, .deleteMethod, .testMethod:
-            return UITableView.automaticDimension
+        return switch sectionIdentifier {
         case .testingStatus:
-            return subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
-        case .enableMethod, .cancelTest:
-            return 0
+            subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
+        case .enableMethod:
+            UITableView.automaticDimension
+        default:
+            0
         }
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
+        if sectionIdentifier == .enableMethod && subject.value.canBeToggled {
+            return nil
+        }
         guard let sectionFooterText = sectionIdentifier.sectionFooter else { return nil }
 
         guard let headerView = tableView
             .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
         else { return nil }
 
-        var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: tableView.style)
+        var contentConfiguration = ListCellContentConfiguration(textProperties: ListCellContentConfiguration
+            .TextProperties(
+                font: .mullvadMini,
+                color: .TableSection.footerTextColor
+            )
+        )
         contentConfiguration.text = sectionFooterText
-
         headerView.contentConfiguration = contentConfiguration
 
         return headerView
@@ -143,20 +174,20 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     // Footer height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
-        let marginToDeleteMethodItem: CGFloat = 24
+        let defaultMargin: CGFloat = 24
 
-        switch sectionIdentifier {
-        case .enableMethod, .methodSettings, .deleteMethod, .testMethod:
-            return UITableView.automaticDimension
+        return switch sectionIdentifier {
         case .testingStatus:
             switch subject.value.testingStatus {
             case .initial, .inProgress:
-                return 0
+                0
             case .succeeded, .failed:
-                return marginToDeleteMethodItem
+                defaultMargin
             }
         case .cancelTest:
-            return subject.value.testingStatus == .inProgress ? marginToDeleteMethodItem : 0
+            subject.value.testingStatus == .inProgress ? defaultMargin : 0
+        default:
+            (sectionIdentifier.sectionFooter != nil) ? UITableView.automaticDimension : defaultMargin
         }
     }
 
@@ -236,11 +267,13 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                 self?.onSave()
             }
         }
+
+        contentConfiguration.isEnabled = subject.value.canBeToggled
         cell.contentConfiguration = contentConfiguration
     }
 
     private func configureMethodSettings(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
-        var contentConfiguration = UIListContentConfiguration.mullvadCell(tableStyle: tableView.style)
+        var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration
 
@@ -253,6 +286,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         var contentConfiguration = ButtonCellContentConfiguration()
         contentConfiguration.style = .tableInsetGroupedDanger
         contentConfiguration.text = itemIdentifier.text
+        contentConfiguration.accessibilityIdentifier = .deleteButton
         contentConfiguration.primaryAction = UIAction { [weak self] _ in
             self?.onDelete()
         }
@@ -343,7 +377,8 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     // MARK: - Misc
 
     private func configureNavigationItem() {
-        navigationItem.title = subject.value.navigationItemTitle
+        navigationItem.largeTitleDisplayMode = .never
+        navigationItem.title = ""
     }
 
     private func onSave() {
@@ -352,32 +387,18 @@ extension EditAccessMethodViewController: UITableViewDelegate {
 
     private func onDelete() {
         let methodName = subject.value.name.isEmpty
-            ? NSLocalizedString(
-                "METHOD_SETTINGS_SAVE_PROMPT",
-                tableName: "APIAccess",
-                value: "method?",
-                comment: ""
-            )
+            ? NSLocalizedString("method", comment: "")
             : subject.value.name
 
         let presentation = AlertPresentation(
             id: "api-access-methods-delete-method-alert",
             icon: .alert,
-            message: NSLocalizedString(
-                "METHOD_SETTINGS_DELETE_PROMPT",
-                tableName: "APIAccess",
-                value: "Delete \(methodName)?",
-                comment: ""
-            ),
+            message: NSLocalizedString("Delete \(methodName)?", comment: ""),
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "METHOD_SETTINGS_DELETE_BUTTON",
-                        tableName: "APIAccess",
-                        value: "Delete",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Delete", comment: ""),
                     style: .destructive,
+                    accessibilityId: .accessMethodConfirmDeleteButton,
                     handler: { [weak self] in
                         guard let self else { return }
                         interactor.deleteAccessMethod()
@@ -385,12 +406,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "METHOD_SETTINGS_CANCEL_BUTTON",
-                        tableName: "APIAccess",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Cancel", comment: ""),
                     style: .default
                 ),
             ]

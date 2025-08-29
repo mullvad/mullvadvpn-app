@@ -3,8 +3,8 @@ use crate::{
     rest::{RequestFactory, RequestServiceHandle},
 };
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
 use hyper::StatusCode;
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
@@ -155,12 +155,12 @@ impl AccessTokenStore {
 
     /// Remove an access token if the API response calls for it.
     pub fn check_response<T>(&self, account: &AccountNumber, response: &Result<T, rest::Error>) {
-        if let Err(rest::Error::ApiError(_status, code)) = response {
-            if code == crate::INVALID_ACCESS_TOKEN {
-                let _ = self
-                    .tx
-                    .unbounded_send(StoreAction::InvalidateToken(account.to_owned()));
-            }
+        if let Err(rest::Error::ApiError(_status, code)) = response
+            && code == crate::INVALID_ACCESS_TOKEN
+        {
+            let _ = self
+                .tx
+                .unbounded_send(StoreAction::InvalidateToken(account.to_owned()));
         }
     }
 }

@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -29,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -38,9 +40,12 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -54,13 +59,17 @@ class SelectLocationViewModelTest {
     private val mockCustomListsRepository: CustomListsRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
-    private val mocksSettingsRepository: SettingsRepository = mockk()
+    private val mockSettingsRepository: SettingsRepository = mockk()
+    private val mockSelectHopUseCase: SelectHopUseCase = mockk()
+    private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
     private val selectedRelayItemFlow = MutableStateFlow<Constraint<RelayItemId>>(Constraint.Any)
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
+    private val relayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
+    private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
 
     @BeforeEach
     fun setup() {
@@ -69,7 +78,8 @@ class SelectLocationViewModelTest {
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
         every { mockFilterChipUseCase(any()) } returns filterChips
-        every { mocksSettingsRepository.settingsUpdates } returns MutableStateFlow(null)
+        every { mockRelayListRepository.relayList } returns relayList
+        every { mockSettingsRepository.settingsUpdates } returns settings
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -82,7 +92,9 @@ class SelectLocationViewModelTest {
                 customListsRepository = mockCustomListsRepository,
                 filterChipUseCase = mockFilterChipUseCase,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                settingsRepository = mocksSettingsRepository,
+                settingsRepository = mockSettingsRepository,
+                modifyMultihopUseCase = mockModifyMultihopUseCase,
+                selectHopUseCase = mockSelectHopUseCase,
             )
     }
 
@@ -94,25 +106,26 @@ class SelectLocationViewModelTest {
 
     @Test
     fun `initial state should be correct`() = runTest {
-        Assertions.assertEquals(SelectLocationUiState.Loading, viewModel.uiState.value)
+        assertIs<Lc.Loading<Unit>>(viewModel.uiState.value)
     }
 
     @Test
-    fun `on selectRelay when relay list type is exit call uiSideEffect should emit CloseScreen and connect`() =
+    fun `on modifyMultihop when relay list type is exit call uiSideEffect should emit CloseScreen and connect`() =
         runTest {
             // Arrange
             val mockRelayItem: RelayItem.Location.Country = mockk()
             val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
+            val multihopChange: MultihopChange = MultihopChange.Exit(mockRelayItem)
             every { mockRelayItem.id } returns relayItemId
-            coEvery { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) } returns
-                Unit.right()
+            every { mockRelayItem.active } returns true
+            coEvery { mockModifyMultihopUseCase.invoke(multihopChange) } returns Unit.right()
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                viewModel.selectRelay(mockRelayItem)
+                viewModel.modifyMultihop(mockRelayItem, MultihopRelayListType.EXIT)
                 // Await an empty item
                 assertEquals(SelectLocationSideEffect.CloseScreen, awaitItem())
-                coVerify { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) }
+                coVerify { mockModifyMultihopUseCase.invoke(multihopChange) }
             }
         }
 
@@ -122,25 +135,32 @@ class SelectLocationViewModelTest {
             // Arrange
             val mockRelayItem: RelayItem.Location.Country = mockk()
             val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
+            val multihopChange = MultihopChange.Entry(mockRelayItem)
+            every { mockRelayItem.active } returns true
             every { mockRelayItem.id } returns relayItemId
-            coEvery { mockWireguardConstraintsRepository.setEntryLocation(relayItemId) } returns
-                Unit.right()
+            coEvery { mockModifyMultihopUseCase.invoke(multihopChange) } returns Unit.right()
 
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Default value
-                viewModel.selectRelayList(RelayListType.ENTRY)
+                viewModel.selectRelayList(MultihopRelayListType.ENTRY)
                 // Assert relay list type is entry
                 val firstState = awaitItem()
-                assertIs<SelectLocationUiState.Data>(firstState)
-                assertEquals(RelayListType.ENTRY, firstState.relayListType)
+                assertIs<Lc.Content<SelectLocationUiState>>(firstState)
+                assertEquals(
+                    RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    firstState.value.relayListType,
+                )
                 // Select entry
-                viewModel.selectRelay(mockRelayItem)
+                viewModel.modifyMultihop(mockRelayItem, MultihopRelayListType.ENTRY)
                 // Assert relay list type is exit
                 val secondState = awaitItem()
-                assertIs<SelectLocationUiState.Data>(secondState)
-                assertEquals(RelayListType.EXIT, secondState.relayListType)
-                coVerify { mockWireguardConstraintsRepository.setEntryLocation(relayItemId) }
+                assertIs<Lc.Content<SelectLocationUiState>>(secondState)
+                assertEquals(
+                    RelayListType.Multihop(MultihopRelayListType.EXIT),
+                    secondState.value.relayListType,
+                )
+                coVerify { mockModifyMultihopUseCase.invoke(multihopChange) }
             }
         }
 

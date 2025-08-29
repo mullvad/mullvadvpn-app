@@ -8,6 +8,7 @@
 
 import Combine
 @testable import MullvadSettings
+@testable import MullvadTypes
 import XCTest
 
 final class APIAccessMethodsTests: XCTestCase {
@@ -18,7 +19,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     override static func tearDown() {
-        SettingsManager.unitTestStore = nil
+        store.reset()
     }
 
     override func tearDownWithError() throws {

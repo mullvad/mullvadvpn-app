@@ -577,12 +577,7 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     }
 
     private func configureContentBlockersHeader(_ header: SettingsHeaderView) {
-        let title = NSLocalizedString(
-            "CONTENT_BLOCKERS_HEADER_LABEL",
-            tableName: "VPNSettings",
-            value: "DNS content blockers",
-            comment: ""
-        )
+        let title = NSLocalizedString("DNS content blockers", comment: "")
 
         let enabledBlockersCount = viewModel.enabledBlockersCount
         let attributedTitle = NSMutableAttributedString(string: title)

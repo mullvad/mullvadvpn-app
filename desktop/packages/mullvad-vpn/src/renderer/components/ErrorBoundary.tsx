@@ -40,7 +40,7 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
         messages
           .pgettext('error-boundary-view', 'Something went wrong. Please contact us at %(email)s')
           .split('%(email)s', 2);
-      reachBackMessage.splice(1, 0, <Email>{strings.supportEmail}</Email>);
+      void reachBackMessage.splice(1, 0, <Email>{strings.supportEmail}</Email>);
 
       return <ErrorView settingsUnavailable>{reachBackMessage}</ErrorView>;
     } else {

@@ -39,6 +39,9 @@ pub enum Error {
 
     #[error("Failed to apply settings update")]
     UpdateFailed(Box<dyn std::error::Error + Send + Sync>),
+
+    #[error("Failed to parse IP network from string: {0}")]
+    ParseIp(String),
 }
 
 /// Converts an [Error] to a management interface status
@@ -57,9 +60,10 @@ impl From<Error> for mullvad_management_interface::Status {
                 let custom_list_err = *err.downcast::<CustomListError>().unwrap();
                 handle_custom_list_error(custom_list_err)
             }
-            Error::SerializeError(..) | Error::ParseError(..) | Error::UpdateFailed(..) => {
-                Status::new(Code::Internal, error.to_string())
-            }
+            Error::SerializeError(..)
+            | Error::ParseError(..)
+            | Error::UpdateFailed(..)
+            | Error::ParseIp(..) => Status::new(Code::Internal, error.to_string()),
         }
     }
 }
@@ -99,26 +103,14 @@ pub struct SettingsPersister {
 pub type MadeChanges = bool;
 
 impl SettingsPersister {
-    /// Loads user settings from file. If it fails, it returns the defaults.
+    /// Loads user settings from file. If it fails, it returns the defaults, and overwrites the old
+    /// settings.
     pub async fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
         let LoadSettingsResult {
-            mut settings,
-            mut should_save,
+            settings,
+            should_save,
         } = Self::load_inner(|| Self::load_from_file(&path)).await;
-
-        // Force IPv6 to be enabled on Android
-        if cfg!(target_os = "android") {
-            should_save |= !settings.tunnel_options.generic.enable_ipv6;
-            settings.tunnel_options.generic.enable_ipv6 = true;
-
-            // Auto-connect is managed by Android itself.
-            settings.auto_connect = false;
-        }
-        if crate::version::is_beta_version() {
-            should_save |= !settings.show_beta_releases;
-            settings.show_beta_releases = true;
-        }
 
         let mut persister = SettingsPersister {
             settings,
@@ -126,16 +118,23 @@ impl SettingsPersister {
             on_change_listeners: vec![],
         };
 
-        if should_save {
-            if let Err(error) = persister.save().await {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to save updated settings")
-                );
-            }
+        if should_save && let Err(error) = persister.save().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to save updated settings")
+            );
         }
 
         persister
+    }
+
+    /// Loads user settings from file. The only difference between this and [Self::load] is that
+    /// it is read-only.
+    pub async fn read_only(settings_dir: &Path) -> Settings {
+        let path = settings_dir.join(SETTINGS_FILE);
+        let LoadSettingsResult { settings, .. } =
+            Self::load_inner(|| Self::load_from_file(&path)).await;
+        settings
     }
 
     /// Loads user settings, returning default settings if it should fail.
@@ -151,7 +150,7 @@ impl SettingsPersister {
         F: FnOnce() -> R,
         R: std::future::Future<Output = Result<Settings, Error>>,
     {
-        match load_settings().await {
+        let mut result = match load_settings().await {
             Ok(settings) => LoadSettingsResult {
                 settings,
                 should_save: false,
@@ -184,7 +183,18 @@ impl SettingsPersister {
                     should_save: true,
                 }
             }
+        };
+
+        if cfg!(target_os = "android") {
+            // Auto-connect is managed by Android itself.
+            result.settings.auto_connect = false;
         }
+        if crate::version::is_beta_version() {
+            result.should_save |= !result.settings.show_beta_releases;
+            result.settings.show_beta_releases = true;
+        }
+
+        result
     }
 
     async fn load_from_file<P>(path: P) -> Result<Settings, Error>
@@ -264,6 +274,13 @@ impl SettingsPersister {
         if crate::version::is_beta_version() {
             settings.show_beta_releases = true;
         }
+        // We only want to set this flag to true if the settings file hasn't been
+        // created yet so that we don't affect existing users' relay settings.
+        #[cfg(target_os = "android")]
+        {
+            settings.update_default_location = true;
+        }
+
         settings
     }
 
@@ -398,11 +415,7 @@ pub struct SettingsSummary<'a> {
 impl Display for SettingsSummary<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bool_to_label = |state| {
-            if state {
-                "on"
-            } else {
-                "off"
-            }
+            if state { "on" } else { "off" }
         };
 
         let relay_settings = self.settings.get_relay_settings();
@@ -599,8 +612,35 @@ mod test {
               "show_beta_releases": false,
               "custom_lists": {
                 "custom_lists": []
-              }
-        }"#;
+              },
+              "recents": [
+                {
+                  "Multihop": {
+                    "entry": {
+                      "location": {
+                        "country": "se"
+                      }
+                    },
+                    "exit": {
+                      "custom_list": {
+                        "list_id": "df612270-79a4-47e9-92e7-3405c92f7678"
+                      }
+                    }
+                  }
+                },
+                {
+                  "Singlehop": {
+                    "location": {
+                      "hostname": [
+                        "be",
+                        "bru",
+                        "be-bru-wg-103"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }"#;
 
         let _ = SettingsPersister::load_from_bytes(settings).unwrap();
     }
@@ -664,5 +704,15 @@ mod test {
             settings.block_when_disconnected,
             "The daemon should block the internet if settings are corrupt"
         );
+    }
+
+    #[tokio::test]
+    async fn test_deserialize_recents() {
+        let default: Settings = serde_json::from_str("{}").expect("Failed to deserialize");
+        assert_eq!(default.recents, Some(vec![]));
+
+        let disabled: Settings =
+            serde_json::from_str(r#"{"recents": null}"#).expect("Failed to deserialize");
+        assert_eq!(disabled.recents, None);
     }
 }

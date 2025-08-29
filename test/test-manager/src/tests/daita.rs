@@ -1,6 +1,6 @@
-use anyhow::{anyhow, bail, ensure, Context};
+use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
-use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
+use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
     constraints::Constraint, relay_constraints::GeographicLocationConstraint,
@@ -10,7 +10,7 @@ use talpid_types::{net::TunnelEndpoint, tunnel::ErrorStateCause};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-use super::{helpers, Error, TestContext};
+use super::{Error, TestContext, helpers};
 
 /// Test that daita and daita_direct_only works by connecting
 /// - to a non-DAITA relay with singlehop (should block)
@@ -181,8 +181,9 @@ pub async fn test_daita(
 }
 
 async fn wait_for_daemon_reconnect(
-    mut event_stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
-        + Unpin,
+    mut event_stream: impl futures::Stream<
+        Item = Result<DaemonEvent, mullvad_management_interface::Error>,
+    > + Unpin,
 ) -> Result<TunnelState, Error> {
     // wait until the daemon informs us that it's trying to connect
     helpers::find_daemon_event(&mut event_stream, |event| match event {

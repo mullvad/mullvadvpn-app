@@ -57,9 +57,9 @@ pub async fn get_default_interface(
             if v4_default.interface != v6_default.interface {
                 return Err(Error::DefaultInterfaceMismatch);
             }
-            v4_default.interface.to_owned()
+            v4_default.interface.clone()
         }
-        (Some(default), None) | (None, Some(default)) => default.interface.to_owned(),
+        (Some(default), None) | (None, Some(default)) => default.interface.clone(),
         (None, None) => return Err(Error::NoDefaultInterface),
     };
 

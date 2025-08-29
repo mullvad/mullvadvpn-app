@@ -3,8 +3,8 @@ use std::{path::PathBuf, thread, time::Duration};
 #[cfg(not(windows))]
 use mullvad_daemon::cleanup_old_rpc_socket;
 use mullvad_daemon::{
-    exception_logging, logging, rpc_uniqueness_check, runtime, version, Daemon,
-    DaemonCommandChannel, DaemonConfig,
+    Daemon, DaemonCommandChannel, DaemonConfig, exception_logging, logging, rpc_uniqueness_check,
+    runtime, version,
 };
 use talpid_types::ErrorExt;
 
@@ -127,10 +127,10 @@ fn init_daemon_logging(
 fn init_early_boot_logging(config: &cli::Config) {
     // If it's possible to log to the filesystem - attempt to do so, but failing that mustn't stop
     // the daemon from starting here.
-    if let Ok(Some(log_dir)) = get_log_dir(config) {
-        if init_logger(config, Some(log_dir.join(EARLY_BOOT_LOG_FILENAME))).is_ok() {
-            return;
-        }
+    if let Ok(Some(log_dir)) = get_log_dir(config)
+        && init_logger(config, Some(log_dir.join(EARLY_BOOT_LOG_FILENAME))).is_ok()
+    {
+        return;
     }
 
     let _ = init_logger(config, None);

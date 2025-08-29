@@ -2,16 +2,17 @@
 authors = ["Mullvad VPN"]
 repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0"
-edition = "2021"
+edition = "2024"
 # Must be less than or equal to `channel` in `rust-toolchain.toml`
-rust-version = "1.83.0"
+rust-version = "1.88.0"
 
 [workspace]
 resolver = "2"
+exclude = [ "ci/ios/test-router/raas" ]
 members = [
   "android/translations-converter",
   "desktop/packages/nseventforwarder",
-  "desktop/packages/win-shortcuts",
+  "desktop/packages/windows-utils",
   "mullvad-api",
   "mullvad-cli",
   "mullvad-daemon",
@@ -22,6 +23,7 @@ members = [
   "mullvad-jni",
   "mullvad-leak-checker",
   "mullvad-management-interface",
+  "mullvad-masque-proxy",
   "mullvad-nsis",
   "mullvad-paths",
   "mullvad-problem-report",
@@ -30,7 +32,7 @@ members = [
   "mullvad-types",
   "mullvad-types/intersection-derive",
   "mullvad-update",
-  "mullvad-update/meta",
+  "mullvad-update/mullvad-release",
   "mullvad-version",
   "talpid-core",
   "talpid-dbus",
@@ -78,14 +80,34 @@ single_use_lifetimes = "warn"
 [workspace.lints.clippy]
 unused_async = "deny"
 undocumented_unsafe_blocks = "warn"
+implicit_clone = "warn"
 
 [workspace.dependencies]
+tokio = { version = "1.44" }
+tokio-util = "0.7"
+parity-tokio-ipc = "0.9"
+futures = "0.3.15"
+vec1 = "1.12"
+sha2 = "0.10"
+chrono = { version = "0.4.26", default-features = false }
+clap = { version = "4.4.18", features = ["cargo", "derive"] }
+once_cell = "1.16"
+serde = "1.0.204"
+serde_json = "1.0.122"
+windows-sys = "0.52.0"
+nix = "0.30.1"
+
+# Networking
+pnet_packet = "0.35.0"
+ipnetwork = "0.20"
+tun = { version = "0.5.5", features = ["async"] }
+socket2 = "0.5.7"
+reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
+
+# Hickory & DNS
 hickory-proto = "0.24.3"
 hickory-resolver = "0.24.3"
 hickory-server = { version = "0.24.3", features = ["resolver"] }
-tokio = { version = "1.42" }
-parity-tokio-ipc = "0.9"
-futures = "0.3.15"
 
 # Tonic and related crates
 tonic = "0.12.3"
@@ -100,6 +122,7 @@ hyper-util = { version = "0.1.8", features = [
   "http1",
 ] }
 
+# Errors and logging
 env_logger = "0.11.7"
 thiserror = "2.0"
 anyhow = "1.0"
@@ -107,23 +130,11 @@ log = "0.4"
 tracing = "0.1.40"
 tracing-futures = "0.2.5"
 
+# Shadowsocks
 shadowsocks = "1.20.3"
 shadowsocks-service = "1.20.3"
 
-windows-sys = "0.52.0"
-
-chrono = { version = "0.4.26", default-features = false }
-clap = { version = "4.4.18", features = ["cargo", "derive"] }
-once_cell = "1.16"
-serde = "1.0.204"
-serde_json = "1.0.122"
-
-pnet_packet = "0.35.0"
-ipnetwork = "0.20"
-tun = { version = "0.5.5", features = ["async"] }
-socket2 = "0.5.7"
-
-vec1 = "1.12"
+itertools = "0.14"
 
 # Test dependencies
 proptest = "1.4"
@@ -134,8 +145,17 @@ opt-level = "s"
 lto = true
 strip = true
 
-# Key generation may take over one minute without optimizations enabled.
-[profile.dev.package."classic-mceliece-rust"]
-opt-level = 3
-[profile.release.package."classic-mceliece-rust"]
-opt-level = 3
+# Selectively optimize packages where we know it makes a difference
+[profile.release.package]
+boringtun.opt-level = 3
+pqcrypto-hqc.opt-level = 3
+quinn-proto.opt-level = 3
+quinn-udp.opt-level = 3
+quinn.opt-level = 3
+mullvad-masque-proxy.opt-level = 3
+ring.opt-level = 3
+
+[profile.release-debuginfo]
+inherits = "release"
+debug = true
+strip = false

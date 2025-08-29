@@ -35,6 +35,7 @@ private fun PreviewFilterCell() {
 @Composable
 fun FilterRow(
     filters: List<FilterChip>,
+    modifier: Modifier = Modifier,
     showTitle: Boolean = true,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
@@ -43,7 +44,8 @@ fun FilterRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
-            Modifier.padding(horizontal = Dimens.searchFieldHorizontalPadding)
+            modifier
+                .padding(horizontal = Dimens.searchFieldHorizontalPadding)
                 .fillMaxWidth()
                 .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace),
@@ -52,7 +54,7 @@ fun FilterRow(
             Text(
                 text = stringResource(id = R.string.filters),
                 color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelLarge,
             )
         }
         filters.forEach {

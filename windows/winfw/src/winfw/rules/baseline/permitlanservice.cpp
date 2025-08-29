@@ -6,6 +6,7 @@
 #include <libwfp/ipaddress.h>
 #include <libwfp/ipnetwork.h>
 #include <libwfp/conditions/conditionip.h>
+#include <winfw/lannetworks.h>
 
 using namespace wfp::conditions;
 
@@ -37,10 +38,9 @@ bool PermitLanService::applyIpv4(IObjectInstaller &objectInstaller) const
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 10, 0, 0, 0 }), 8)));
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 172, 16, 0, 0 }), 12)));
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), 16)));
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 169, 254, 0, 0 }), 16)));
+	for (const auto &network : g_ipv4LanNets) {
+		conditionBuilder.add_condition(ConditionIp::Remote(network));
+	}
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
@@ -65,11 +65,9 @@ bool PermitLanService::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
-	const wfp::IpNetwork linkLocal(wfp::IpAddress::Literal6{ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }, 10);
-	const wfp::IpNetwork uniqueLocal(wfp::IpAddress::Literal6({ 0xFC00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 7);
-
-	conditionBuilder.add_condition(ConditionIp::Remote(linkLocal));
-	conditionBuilder.add_condition(ConditionIp::Remote(uniqueLocal));
+	for (const auto &network : g_ipv6LanNets) {
+		conditionBuilder.add_condition(ConditionIp::Remote(network));
+	}
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }

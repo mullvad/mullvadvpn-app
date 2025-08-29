@@ -9,9 +9,9 @@ use futures::{FutureExt, StreamExt};
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_types::ErrorExt;
 use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
-use talpid_types::ErrorExt;
 
 use super::connected_state::TunnelEventsReceiver;
 use super::{
@@ -57,8 +57,8 @@ impl ConnectingState {
         if *LOCAL_DNS_RESOLVER {
             // Set system DNS to our local DNS resolver
             let system_dns = DnsConfig::default().resolve(
-                &[std::net::Ipv4Addr::LOCALHOST.into()],
-                shared_values.filtering_resolver.listening_port(),
+                &[shared_values.filtering_resolver.listening_addr().ip()],
+                shared_values.filtering_resolver.listening_addr().port(),
             );
             let _ = shared_values
                 .dns_monitor
@@ -73,19 +73,24 @@ impl ConnectingState {
                 });
         }
 
-        if shared_values.connectivity.is_offline() {
-            // FIXME: Temporary: Nudge route manager to update the default interface
-            #[cfg(target_os = "macos")]
-            {
-                log::debug!("Poking route manager to update default routes");
-                let _ = shared_values.route_manager.refresh_routes();
+        let ip_availability = match shared_values.connectivity.availability() {
+            Some(ip_availability) => ip_availability,
+            // If we're offline, enter the offline state
+            None => {
+                // FIXME: Temporary: Nudge route manager to update the default interface
+                #[cfg(target_os = "macos")]
+                {
+                    log::debug!("Poking route manager to update default routes");
+                    let _ = shared_values.route_manager.refresh_routes();
+                }
+                return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
             }
-            return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
-        }
+        };
+
         match shared_values.runtime.block_on(
             shared_values
                 .tunnel_parameters_generator
-                .generate(retry_attempt, shared_values.connectivity.has_ipv6()),
+                .generate(retry_attempt, ip_availability),
         ) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
@@ -178,6 +183,12 @@ impl ConnectingState {
             AllowedClients::Root
         };
 
+        #[cfg(target_os = "windows")]
+        let exit_endpoint_ip = params.get_exit_hop_endpoint().map(|ep| ep.address.ip());
+
+        #[cfg(target_os = "windows")]
+        debug_assert_ne!(exit_endpoint_ip, Some(endpoint.address.ip()));
+
         let peer_endpoint = AllowedEndpoint { endpoint, clients };
 
         #[cfg(target_os = "macos")]
@@ -187,14 +198,14 @@ impl ConnectingState {
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
+            #[cfg(target_os = "windows")]
+            exit_endpoint_ip,
             tunnel: tunnel_metadata.clone(),
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             allowed_tunnel_traffic,
             #[cfg(target_os = "macos")]
             redirect_interface,
-            #[cfg(target_os = "macos")]
-            dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         };
         shared_values
             .firewall
@@ -269,10 +280,10 @@ impl ConnectingState {
                 }
             };
 
-            if block_reason.is_none() {
-                if let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
-                    thread::sleep(remaining_time);
-                }
+            if block_reason.is_none()
+                && let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed())
+            {
+                thread::sleep(remaining_time);
             }
 
             if tunnel_close_event_tx.send(block_reason).is_err() {

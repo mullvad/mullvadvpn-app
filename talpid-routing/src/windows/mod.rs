@@ -1,13 +1,13 @@
 use crate::RequiredRoute;
 pub use default_route_monitor::EventType;
 use futures::{
+    StreamExt,
     channel::{
         mpsc::{self, UnboundedReceiver, UnboundedSender},
         oneshot,
     },
-    StreamExt,
 };
-pub use get_best_default_route::{get_best_default_route, InterfaceAndGateway};
+pub use get_best_default_route::{InterfaceAndGateway, get_best_default_route};
 use net::AddressFamily;
 pub use route_manager::{Callback, CallbackHandle, Route, RouteManagerInternal};
 use std::{collections::HashSet, io, net::IpAddr};

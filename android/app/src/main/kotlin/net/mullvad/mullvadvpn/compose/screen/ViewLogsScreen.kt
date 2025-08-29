@@ -63,7 +63,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewViewLogsScreen(
     @PreviewParameter(ViewLogsUiStatePreviewParameterProvider::class) state: ViewLogsUiState
 ) {
-    AppTheme { ViewLogsScreen(state = state, {}) }
+    AppTheme { ViewLogsScreen(state = state, onBackClick = {}) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -77,7 +77,8 @@ fun ViewLogs(navigator: DestinationsNavigator) {
 @Composable
 fun ViewLogsScreen(state: ViewLogsUiState, onBackClick: () -> Unit) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val clipboardHandle = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val clipboardHandle =
+        createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = false)
     Scaffold(
         snackbarHost = {
             SnackbarHost(
@@ -141,7 +142,7 @@ private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
                 .padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin,
+                    bottom = Dimens.screenBottomMargin,
                 ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
     ) {

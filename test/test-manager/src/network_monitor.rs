@@ -4,12 +4,12 @@ use std::{
     time::Duration,
 };
 
-use futures::{channel::oneshot, pin_mut, StreamExt};
+use futures::{StreamExt, channel::oneshot, pin_mut};
 pub use pcap::Direction;
 use pcap::PacketCodec;
 use pnet_packet::{
-    ethernet::EtherTypes, ip::IpNextHeaderProtocol, ipv4::Ipv4Packet, ipv6::Ipv6Packet,
-    tcp::TcpPacket, udp::UdpPacket, Packet,
+    Packet, ethernet::EtherTypes, ip::IpNextHeaderProtocol, ipv4::Ipv4Packet, ipv6::Ipv6Packet,
+    tcp::TcpPacket, udp::UdpPacket,
 };
 
 pub use pnet_packet::ip::IpNextHeaderProtocols as IpHeaderProtocols;

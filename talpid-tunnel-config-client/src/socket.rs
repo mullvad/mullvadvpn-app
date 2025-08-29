@@ -15,7 +15,7 @@ use tokio::net::TcpStream;
 mod sys {
     use super::*;
 
-    pub use libc::{setsockopt, socklen_t, IPPROTO_TCP, TCP_MAXSEG};
+    pub use libc::{IPPROTO_TCP, TCP_MAXSEG, setsockopt, socklen_t};
     use std::ffi::c_int;
     pub use std::os::fd::AsRawFd;
 

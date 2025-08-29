@@ -25,9 +25,9 @@ struct KeyExchangingResultStub: EphemeralPeerReceiving {
 
     public func receiveEphemeralPeerPrivateKey(
         _ ephemeralPeerPrivateKey: PrivateKey,
-        daitaParameters daitaParamters: MullvadTypes.DaitaV2Parameters?
+        daitaParameters daitaParameters: MullvadTypes.DaitaV2Parameters?
     ) async {
-        await onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey, daitaParamters)
+        await onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey, daitaParameters)
     }
 
     func ephemeralPeerExchangeFailed() {

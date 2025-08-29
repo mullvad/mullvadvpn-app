@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadSettings
+import MullvadTypes
 
 /// A concrete implementation of an API access list interactor.
 struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
@@ -27,7 +28,7 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
     }
 
     var itemInUsePublisher: AnyPublisher<ListAccessMethodItem?, Never> {
-        repository.lastReachableAccessMethodPublisher
+        repository.currentAccessMethodPublisher
             .receive(on: RunLoop.main)
             .map { $0.toListItem() }
             .eraseToAnyPublisher()
@@ -50,14 +51,7 @@ extension PersistentAccessMethod {
         return ListAccessMethodItem(
             id: id,
             name: itemName,
-            detail: isEnabled
-                ? kind.localizedDescription
-                : NSLocalizedString(
-                    "LIST_ACCESS_METHODS_DISABLED",
-                    tableName: "APIAccess",
-                    value: "Disabled",
-                    comment: ""
-                ),
+            detail: kind.localizedDescription,
             isEnabled: isEnabled
         )
     }

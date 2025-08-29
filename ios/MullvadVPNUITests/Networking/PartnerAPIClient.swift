@@ -65,7 +65,7 @@ class PartnerAPIClient {
         request.httpMethod = method
         request.setValue("Basic \(accessToken)", forHTTPHeaderField: "Authorization")
 
-        var jsonResponse: [String: Any] = [:]
+        nonisolated(unsafe) var jsonResponse: [String: Any] = [:]
 
         do {
             if let jsonObject = jsonObject {
@@ -81,7 +81,7 @@ class PartnerAPIClient {
             description: "Completion handler for the request is invoked"
         )
 
-        var requestError: Error?
+        nonisolated(unsafe) var requestError: Error?
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             requestError = error

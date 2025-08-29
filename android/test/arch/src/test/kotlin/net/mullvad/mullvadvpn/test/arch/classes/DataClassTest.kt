@@ -12,6 +12,15 @@ class DataClassTest {
         Konsist.scopeFromProject()
             .classes(includeNested = true)
             .withDataModifier()
-            .properties(includeNested = true)
+            // If includeNested is set to true the test would fail on properties of nested classes
+            // of data classes, even if those classes are not used as a property of the data class.
+            // For example:
+            // data class Immutable(val a: String) {
+            //     class Mutable {
+            //         var b: String = ""
+            //     }
+            // }
+            // would fail because the nested class Mutable has a var property.
+            .properties(includeNested = false)
             .assertFalse { it.isVar }
 }

@@ -11,7 +11,7 @@ import MullvadSettings
 import Routing
 import UIKit
 
-protocol SettingsViewControllerDelegate: AnyObject, Sendable {
+protocol SettingsViewControllerDelegate: AnyObject {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
     func settingsViewController(
         _ controller: SettingsViewController,
@@ -43,12 +43,7 @@ class SettingsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "Settings",
-            value: "Settings",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("Settings", comment: "")
 
         let doneButton = UIBarButtonItem(
             systemItem: .done,
@@ -70,9 +65,14 @@ class SettingsViewController: UITableViewController {
         dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
         dataSource?.delegate = self
 
-        interactor.didUpdateTunnelSettings = { [weak self] newSettings in
-            self?.dataSource?.reload(from: newSettings)
+        interactor.didUpdateSettings = { [weak self] in
+            self?.dataSource?.reload()
         }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        dataSource?.reload()
     }
 }
 
@@ -89,12 +89,7 @@ extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
             message: item.description,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "SETTINGS_INFO_ALERT_OK_ACTION",
-                        tableName: "Settings",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]
@@ -108,19 +103,21 @@ extension SettingsDataSource.Item {
     var navigationRoute: SettingsNavigationRoute? {
         switch self {
         case .vpnSettings:
-            return .vpnSettings
+            .vpnSettings
         case .changelog:
-            return .changelog
+            .changelog
         case .problemReport:
-            return .problemReport
+            .problemReport
         case .faq:
-            return .faq
+            .faq
         case .apiAccess:
-            return .apiAccess
+            .apiAccess
         case .daita:
-            return .daita
+            .daita
         case .multihop:
-            return .multihop
+            .multihop
+        case .language:
+            .language
         }
     }
 }

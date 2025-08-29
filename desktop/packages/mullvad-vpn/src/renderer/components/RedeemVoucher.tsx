@@ -5,13 +5,14 @@ import { formatDate } from '../../shared/account-expiry';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
+import { isAccountNumber } from '../../shared/utils';
 import { useAppContext } from '../context';
-import { Flex, Spinner } from '../lib/components';
+import { Button, ButtonProps, Flex, Spinner } from '../lib/components';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { ModalAlert } from './Modal';
 import {
+  StyledAccountNumberInfo,
   StyledEmptyResponse,
   StyledErrorResponse,
   StyledInput,
@@ -27,6 +28,7 @@ interface IRedeemVoucherContextValue {
   value: string;
   setValue: (value: string) => void;
   valueValid: boolean;
+  submittedValue: string;
   submitting: boolean;
   response?: VoucherResponse;
 }
@@ -44,6 +46,9 @@ const RedeemVoucherContext = React.createContext<IRedeemVoucherContextValue>({
     throw contextProviderMissingError;
   },
   get valueValid(): boolean {
+    throw contextProviderMissingError;
+  },
+  get submittedValue(): string {
     throw contextProviderMissingError;
   },
   get submitting(): boolean {
@@ -67,6 +72,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
   const { submitVoucher } = useAppContext();
 
   const [value, setValue] = useState('');
+  const [submittedValue, setSubmittedValue] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [response, setResponse] = useState<VoucherResponse>();
 
@@ -79,6 +85,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
 
     const submitTimestamp = Date.now();
     setSubmitting(true);
+    setSubmittedValue(value);
     onSubmit?.();
     const response = await submitVoucher(value);
 
@@ -99,7 +106,15 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
 
   return (
     <RedeemVoucherContext.Provider
-      value={{ onSubmit: onSubmitWrapper, value, setValue, valueValid, submitting, response }}>
+      value={{
+        onSubmit: onSubmitWrapper,
+        value,
+        setValue,
+        valueValid,
+        submittedValue,
+        submitting,
+        response,
+      }}>
       {props.children}
     </RedeemVoucherContext.Provider>
   );
@@ -148,7 +163,7 @@ export function RedeemVoucherInput(props: IRedeemVoucherInputProps) {
 }
 
 export function RedeemVoucherResponse() {
-  const { response, submitting } = useContext(RedeemVoucherContext);
+  const { response, submitting, submittedValue } = useContext(RedeemVoucherContext);
 
   if (submitting) {
     return (
@@ -167,9 +182,19 @@ export function RedeemVoucherResponse() {
         return <StyledEmptyResponse />;
       case 'invalid':
         return (
-          <StyledErrorResponse>
-            {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
-          </StyledErrorResponse>
+          <>
+            <StyledErrorResponse>
+              {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
+            </StyledErrorResponse>
+            {isAccountNumber(submittedValue) ? (
+              <StyledAccountNumberInfo>
+                {messages.pgettext(
+                  'redeem-voucher-view',
+                  'It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.',
+                )}
+              </StyledAccountNumberInfo>
+            ) : null}
+          </>
         );
       case 'already_used':
         return (
@@ -194,9 +219,14 @@ export function RedeemVoucherSubmitButton() {
   const disabled = submitting || response?.type === 'success';
 
   return (
-    <AppButton.GreenButton disabled={!valueValid || disabled} onClick={onSubmit}>
-      {messages.pgettext('redeem-voucher-view', 'Redeem')}
-    </AppButton.GreenButton>
+    <Button variant="success" disabled={!valueValid || disabled} onClick={onSubmit}>
+      <Button.Text>
+        {
+          // TRANSLATORS: Button label for voucher redemption.
+          messages.pgettext('redeem-voucher-view', 'Redeem')
+        }
+      </Button.Text>
+    </Button>
   );
 }
 
@@ -220,9 +250,9 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
       <ModalAlert
         isOpen={props.show}
         buttons={[
-          <AppButton.BlueButton key="gotit" onClick={props.onClose}>
-            {messages.gettext('Got it!')}
-          </AppButton.BlueButton>,
+          <Button key="gotit" onClick={props.onClose}>
+            <Button.Text>{messages.gettext('Got it!')}</Button.Text>
+          </Button>,
         ]}
         close={props.onClose}>
         <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
@@ -245,12 +275,22 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
         isOpen={props.show}
         buttons={[
           <RedeemVoucherSubmitButton key="submit" />,
-          <AppButton.BlueButton key="cancel" disabled={submitting} onClick={props.onClose}>
-            {messages.pgettext('redeem-voucher-alert', 'Cancel')}
-          </AppButton.BlueButton>,
+          <Button key="cancel" disabled={submitting} onClick={props.onClose}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Cancel button label for voucher redemption.
+                messages.pgettext('redeem-voucher-alert', 'Cancel')
+              }
+            </Button.Text>
+          </Button>,
         ]}
         close={props.onClose}>
-        <StyledLabel>{messages.pgettext('redeem-voucher-alert', 'Enter voucher code')}</StyledLabel>
+        <StyledLabel>
+          {
+            // TRANSLATORS: Input field label for voucher code.
+            messages.pgettext('redeem-voucher-alert', 'Enter voucher code')
+          }
+        </StyledLabel>
         <RedeemVoucherInput />
         <RedeemVoucherResponse />
       </ModalAlert>
@@ -258,11 +298,9 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
   }
 }
 
-interface IRedeemVoucherButtonProps {
-  className?: string;
-}
+type RedeemVoucherButtonProps = ButtonProps;
 
-export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
+export function RedeemVoucherButton(props: RedeemVoucherButtonProps) {
   const [showAlert, setShowAlert] = useState(false);
 
   const onClick = useCallback(() => setShowAlert(true), []);
@@ -270,9 +308,14 @@ export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
 
   return (
     <>
-      <AppButton.GreenButton onClick={onClick} className={props.className}>
-        {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
-      </AppButton.GreenButton>
+      <Button variant="success" onClick={onClick} {...props}>
+        <Button.Text>
+          {
+            // TRANSLATORS: Button label for redeeming a voucher.
+            messages.pgettext('redeem-voucher-alert', 'Redeem voucher')
+          }
+        </Button.Text>
+      </Button>
       <RedeemVoucherContainer>
         <RedeemVoucherAlert show={showAlert} onClose={onClose} />
       </RedeemVoucherContainer>

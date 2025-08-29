@@ -1,9 +1,9 @@
 //! Definition of relay selector errors
 #![allow(dead_code)]
 
-use mullvad_types::{relay_constraints::MissingCustomBridgeSettings, relay_list::Relay};
-
 use crate::{detailer, relay_selector::relays::WireguardConfig};
+use mullvad_types::{relay_constraints::MissingCustomBridgeSettings, relay_list::Relay};
+use talpid_types::net::IpVersion;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -36,6 +36,9 @@ pub enum Error {
 
     #[error("Invalid bridge settings")]
     InvalidBridgeSettings(#[from] MissingCustomBridgeSettings),
+
+    #[error("The requested IP version ({family}) does not match ip availability")]
+    IpVersionUnavailable { family: IpVersion },
 }
 
 /// Special type which only shows up in [`Error`]. This error variant signals that no valid

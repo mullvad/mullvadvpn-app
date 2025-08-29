@@ -24,10 +24,10 @@ import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 
 @Preview
 @Composable
@@ -43,7 +43,19 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 }
 
 @Composable
-fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () -> Unit) {
+fun InfoDialog(
+    message: String,
+    additionalInfo: String? = null,
+    onDismiss: () -> Unit,
+    confirmButton: @Composable () -> Unit = {
+        PrimaryButton(
+            modifier = Modifier.wrapContentHeight().fillMaxWidth(),
+            text = stringResource(R.string.got_it),
+            onClick = onDismiss,
+        )
+    },
+    dismissButton: @Composable (() -> Unit)? = null,
+) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         icon = {
@@ -66,8 +78,8 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
             ) {
                 Text(
                     text = message,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (additionalInfo != null) {
@@ -79,20 +91,15 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     val trimmed = annotated.substring(0, annotated.trimEnd().length)
                     Text(
                         text = trimmed,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
         },
-        confirmButton = {
-            PrimaryButton(
-                modifier = Modifier.wrapContentHeight().fillMaxWidth(),
-                text = stringResource(R.string.got_it),
-                onClick = onDismiss,
-            )
-        },
+        confirmButton = confirmButton,
+        dismissButton = dismissButton,
         properties = DialogProperties(dismissOnClickOutside = true, dismissOnBackPress = true),
         containerColor = MaterialTheme.colorScheme.surface,
     )

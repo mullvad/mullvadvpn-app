@@ -13,3 +13,6 @@
 [submodule "ios/wireguard-apple"]
 	path = ios/wireguard-apple
 	url = https://github.com/mullvad/wireguard-apple.git
+[submodule "android/rust-android-gradle-plugin"]
+	path = android/rust-android-gradle-plugin
+	url = https://github.com/mullvad/rust-android-gradle.git

@@ -3,14 +3,31 @@
 use anyhow::Context;
 use vec1::Vec1;
 
-use super::key::*;
 use super::Response;
+use super::key::*;
 use super::{PartialSignedResponse, ResponseSignature, SignedResponse};
 
 impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
+    ///
+    /// This uses the keys in `trusted-metadata-signing-pubkeys`
     pub fn deserialize_and_verify(
+        bytes: &[u8],
+        min_metadata_version: usize,
+    ) -> Result<Self, anyhow::Error> {
+        Self::deserialize_and_verify_with_keys(
+            &crate::defaults::TRUSTED_METADATA_SIGNING_PUBKEYS,
+            bytes,
+            min_metadata_version,
+        )
+    }
+
+    /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
+    /// If successful, the deserialized data is returned.
+    ///
+    /// This is typically only used for testing. Prefer [deserialize_and_verify].
+    pub(crate) fn deserialize_and_verify_with_keys(
         keys: &Vec1<VerifyingKey>,
         bytes: &[u8],
         min_metadata_version: usize,
@@ -20,7 +37,7 @@ impl SignedResponse {
 
     /// This method is used mostly for testing, and skips all verification.
     /// Own method to prevent accidental misuse.
-    pub fn deserialize_and_verify_insecure(bytes: &[u8]) -> Result<Self, anyhow::Error> {
+    pub fn deserialize_insecure(bytes: &[u8]) -> Result<Self, anyhow::Error> {
         let partial_data: PartialSignedResponse =
             serde_json::from_slice(bytes).context("Invalid version JSON")?;
         let signed = serde_json::from_value(partial_data.signed)
@@ -33,7 +50,9 @@ impl SignedResponse {
 
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
-    fn deserialize_and_verify_at_time(
+    ///
+    /// This is typically only used for testing. Prefer [deserialize_and_verify].
+    pub(crate) fn deserialize_and_verify_at_time(
         keys: &Vec1<VerifyingKey>,
         bytes: &[u8],
         current_time: chrono::DateTime<chrono::Utc>,
@@ -106,7 +125,9 @@ pub(super) fn deserialize_and_verify(
 
     Ok(PartialSignedResponse {
         signatures: partial_data.signatures,
-        signed: partial_data.signed,
+        // Deserialize again from canonicalized JSON in case something was lost
+        signed: serde_json::from_slice(&canon_data)
+            .context("Failed to deserialize canonical JSON")?,
     })
 }
 
@@ -184,8 +205,8 @@ mod test {
 
         let bytes = serde_json::to_vec(&value).expect("serialize should succeed");
 
-        let response = SignedResponse::deserialize_and_verify_insecure(&bytes)
-            .expect("deserialization failed");
+        let response =
+            SignedResponse::deserialize_insecure(&bytes).expect("deserialization failed");
 
         let expected_key = VerifyingKey::from_hex(pubkey).unwrap();
         let expected_sig = Signature::from_hex(fakesig).unwrap();

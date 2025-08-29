@@ -1,6 +1,6 @@
 use std::env::args;
 
-use mullvad_encrypted_dns_proxy::{config_resolver, Forwarder};
+use mullvad_encrypted_dns_proxy::{Forwarder, config_resolver};
 use tokio::net::TcpListener;
 
 /// This can be tested out by using curl:
@@ -21,7 +21,7 @@ async fn main() {
         .into_iter()
         .find(|c| c.obfuscation.is_some())
         .expect("No XOR config");
-    println!("Proxy config in use: {:?}", proxy_config);
+    println!("Proxy config in use: {proxy_config:?}");
 
     let listener = TcpListener::bind(bind_addr)
         .await

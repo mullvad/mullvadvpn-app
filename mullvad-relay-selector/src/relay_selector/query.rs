@@ -30,17 +30,17 @@
 
 use crate::Error;
 use mullvad_types::{
+    Intersection,
     constraints::Constraint,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, BridgeType, LocationConstraint,
         ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
         RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
-        Udp2TcpObfuscationSettings, WireguardConstraints,
+        Udp2TcpObfuscationSettings, WireguardConstraints, allowed_ip::AllowedIps,
     },
     wireguard::QuantumResistantState,
-    Intersection,
 };
-use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
+use talpid_types::net::{IpVersion, TunnelType, proxy::CustomProxy};
 
 /// Represents a query for a relay based on various constraints.
 ///
@@ -108,7 +108,12 @@ impl RelayQuery {
     fn validate(&mut self) -> Result<(), Error> {
         if self.core_privacy_feature_enabled() {
             if self.tunnel_protocol == TunnelType::OpenVpn {
-                log::error!("Cannot use OpenVPN with a core privacy feature enabled (DAITA = {}, PQ = {}, or multihop = {})", self.wireguard_constraints.daita, self.wireguard_constraints.quantum_resistant, self.wireguard_constraints.multihop());
+                log::error!(
+                    "Cannot use OpenVPN with a core privacy feature enabled (DAITA = {}, PQ = {}, or multihop = {})",
+                    self.wireguard_constraints.daita,
+                    self.wireguard_constraints.quantum_resistant,
+                    self.wireguard_constraints.multihop()
+                );
                 return Err(Error::InvalidConstraints);
             }
             self.tunnel_protocol = TunnelType::Wireguard;
@@ -268,6 +273,7 @@ impl From<RelayQuery> for RelaySettings {
 pub struct WireguardRelayQuery {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: Constraint<bool>,
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: ObfuscationQuery,
@@ -283,6 +289,7 @@ pub enum ObfuscationQuery {
     Auto,
     Udp2tcp(Udp2TcpObfuscationSettings),
     Shadowsocks(ShadowsocksSettings),
+    Quic,
 }
 
 impl ObfuscationQuery {
@@ -306,6 +313,10 @@ impl ObfuscationQuery {
                 shadowsocks: settings,
                 ..Default::default()
             },
+            ObfuscationQuery::Quic => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Quic,
+                ..Default::default()
+            },
         }
     }
 }
@@ -323,6 +334,7 @@ impl From<ObfuscationSettings> for ObfuscationQuery {
             SelectedObfuscation::Shadowsocks => {
                 ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks)
             }
+            SelectedObfuscation::Quic => ObfuscationQuery::Quic,
         }
     }
 }
@@ -354,6 +366,7 @@ impl WireguardRelayQuery {
         WireguardRelayQuery {
             port: Constraint::Any,
             ip_version: Constraint::Any,
+            allowed_ips: Constraint::Any,
             use_multihop: Constraint::Any,
             entry_location: Constraint::Any,
             obfuscation: ObfuscationQuery::Auto,
@@ -368,6 +381,7 @@ impl WireguardRelayQuery {
         WireguardConstraints {
             port: self.port,
             ip_version: self.ip_version,
+            allowed_ips: self.allowed_ips,
             entry_location: self.entry_location,
             use_multihop: self.use_multihop.unwrap_or(false),
         }
@@ -386,6 +400,7 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
         WireguardConstraints {
             port: value.port,
             ip_version: value.ip_version,
+            allowed_ips: value.allowed_ips,
             entry_location: value.entry_location,
             use_multihop: value.use_multihop.unwrap_or(false),
         }
@@ -625,6 +640,12 @@ pub mod builder {
         quantum_resistant: QuantumResistant,
     }
 
+    /// Quic obfuscation.
+    ///
+    /// Quic does not have any user-configurable parameters, so there is no type defined
+    /// in the mullvad-types crate.
+    pub struct Quic;
+
     // This impl-block is quantified over all configurations
     impl<Multihop, Obfuscation, Daita, QuantumResistant>
         RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, QuantumResistant>>
@@ -780,6 +801,22 @@ pub mod builder {
             RelayQueryBuilder {
                 query: self.query,
                 protocol,
+            }
+        }
+
+        /// Enable QUIC obfuscation.
+        pub fn quic(
+            mut self,
+        ) -> RelayQueryBuilder<Wireguard<Multihop, Quic, Daita, QuantumResistant>> {
+            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Quic;
+            RelayQueryBuilder {
+                query: self.query,
+                protocol: Wireguard {
+                    multihop: self.protocol.multihop,
+                    obfuscation: Quic,
+                    daita: self.protocol.daita,
+                    quantum_resistant: self.protocol.quantum_resistant,
+                },
             }
         }
     }
@@ -947,7 +984,7 @@ mod test {
     use proptest::prelude::*;
     use talpid_types::net::TunnelType;
 
-    use super::{builder::RelayQueryBuilder, Intersection, ObfuscationQuery, RelayQuery};
+    use super::{Intersection, ObfuscationQuery, RelayQuery, builder::RelayQueryBuilder};
 
     // Define proptest combinators for the `Constraint` type.
 

@@ -25,11 +25,13 @@
 /dist-assets/x86_64-apple-darwin/
 /dist-assets/aarch64-pc-windows-msvc/
 /windows/version.h
+/windows/winfw/src/winfw/lannetworks.h
 /windows/**/bin/
 /windows/**/*.user
 /android/keystore.properties
 /android/local.properties
 /android/play-api-key.json
+/android/credentials/
 /wireguard/libwg/libwg.exp
 /wireguard/libwg/exports.def
 **/.vs/

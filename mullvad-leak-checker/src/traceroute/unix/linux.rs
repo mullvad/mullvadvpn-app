@@ -6,28 +6,27 @@ use std::{
     time::Duration,
 };
 
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use nix::{
     cmsg_space,
     errno::Errno,
     libc,
     sys::socket::{
-        recvmsg, setsockopt,
+        ControlMessageOwned, MsgFlags, SockaddrIn, SockaddrIn6, SockaddrLike, recvmsg, setsockopt,
         sockopt::{Ipv4RecvErr, Ipv4Ttl, Ipv6RecvErr, Ipv6Ttl},
-        ControlMessageOwned, MsgFlags, SockaddrIn, SockaddrIn6, SockaddrLike,
     },
 };
 use pnet_packet::{
-    icmp::{time_exceeded::IcmpCodes, IcmpCode, IcmpType, IcmpTypes},
+    icmp::{IcmpCode, IcmpType, IcmpTypes, time_exceeded::IcmpCodes},
     icmpv6::{Icmpv6Code, Icmpv6Type, Icmpv6Types},
 };
 use socket2::Socket;
-use tokio::time::{sleep, Instant};
+use tokio::time::{Instant, sleep};
 
 use crate::{
-    traceroute::{unix::parse_icmp_probe, TracerouteOpt, RECV_GRACE_TIME},
-    util::Ip,
     Interface, LeakInfo, LeakStatus,
+    traceroute::{RECV_GRACE_TIME, TracerouteOpt, unix::parse_icmp_probe},
+    util::Ip,
 };
 
 use super::{AsyncIcmpSocket, Traceroute};
@@ -142,10 +141,10 @@ async fn recv_ttl_responses(
 
         // Call recvmsg in a loop
         let recv_packet = loop {
-            if let Some(timeout_at) = timeout_at {
-                if Instant::now() >= timeout_at {
-                    break 'outer;
-                }
+            if let Some(timeout_at) = timeout_at
+                && Instant::now() >= timeout_at
+            {
+                break 'outer;
             }
 
             let recv_packet = match destination {
@@ -313,7 +312,7 @@ impl<'a, S> RecvPacket<'a, S> {
 fn recvmsg_with_control_message<'a, S: SockaddrLike + Copy>(
     socket: RawFd,
     io_vec: &'a mut [IoSliceMut<'_>; 1],
-    control_buf: &mut Vec<u8>,
+    control_buf: &mut [u8],
 ) -> anyhow::Result<Option<RecvPacket<'a, S>>> {
     // MSG_ERRQUEUE asks linux to tell us if we get any ICMP error replies to
     // our Echo packets.

@@ -28,7 +28,7 @@ netlink-packet-route = { version = "0.13", features = ["rich_nlas"] }
 netlink-sys = "0.8.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-nix = { version = "0.28", features = ["socket", "fs", "net"] }
+nix = { workspace = true, features = ["socket", "fs", "net"] }
 libc = "0.2"
 bitflags = "2"
 system-configuration = "0.5.1"

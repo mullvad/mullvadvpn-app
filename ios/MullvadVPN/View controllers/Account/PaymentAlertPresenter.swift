@@ -13,6 +13,26 @@ import Routing
 struct PaymentAlertPresenter {
     let alertContext: any Presenting
 
+    func showAlertForRefund(completion: (@MainActor @Sendable () -> Void)? = nil) {
+        let presentation = AlertPresentation(
+            id: "payment-refund-alert",
+            title: NSLocalizedString("Refund successful", comment: ""),
+            message: NSLocalizedString("Your purchase was successfully refunded.", comment: ""),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Got it!", comment: ""),
+                    style: .default,
+                    handler: {
+                        completion?()
+                    }
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: alertContext)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
     func showAlertForError(
         _ error: StorePaymentManagerError,
         context: REST.CreateApplePaymentResponse.Context,
@@ -24,7 +44,7 @@ struct PaymentAlertPresenter {
             message: error.displayErrorDescription,
             buttons: [
                 AlertAction(
-                    title: okButtonTextForKey("PAYMENT_ERROR_ALERT_OK_ACTION"),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completion?()
@@ -48,7 +68,7 @@ struct PaymentAlertPresenter {
             message: "\(error)",
             buttons: [
                 AlertAction(
-                    title: okButtonTextForKey("PAYMENT_ERROR_ALERT_OK_ACTION"),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completion?()
@@ -77,7 +97,7 @@ struct PaymentAlertPresenter {
             message: response.alertMessage(context: context),
             buttons: [
                 AlertAction(
-                    title: okButtonTextForKey("PAYMENT_RESPONSE_ALERT_OK_ACTION"),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completion?()
@@ -88,14 +108,5 @@ struct PaymentAlertPresenter {
 
         let presenter = AlertPresenter(context: alertContext)
         presenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    private func okButtonTextForKey(_ key: String) -> String {
-        NSLocalizedString(
-            key,
-            tableName: "Payment",
-            value: "Got it!",
-            comment: ""
-        )
     }
 }

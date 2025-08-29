@@ -11,10 +11,14 @@
 //! # macOS
 //!
 //! The downloader does not run as a privileged user, so we store downloads in a temporary
-//! directory.
+//! directory that only the current user may access.
 //!
-//! This is vulnerable to TOCTOU, ie replacing the file after its hash has been verified, but only
-//! by the current user. Using a random directory name mitigates this issue.
+//! This is potentially vulnerable to TOCTOU, i.e. replacing the file after its hash has been
+//! verified but before it has been launched, leading to the installer downloader launching
+//! a malicious binary. However, this is considered outside the threat model of the installer
+//! downloader, since the attack can only be carried out by code running as the same user
+//! that runs the installer downloader. If such code is running, the attacker can just as well
+//! replace the installer downloader instead.
 
 use anyhow::Context;
 use async_trait::async_trait;
@@ -72,7 +76,7 @@ async fn admin_temp_dir() -> anyhow::Result<PathBuf> {
 /// See [module-level](self) docs for more information.
 #[cfg(target_os = "macos")]
 async fn temp_dir() -> anyhow::Result<PathBuf> {
-    use rand::{distributions::Alphanumeric, Rng};
+    use rand::{Rng, distributions::Alphanumeric};
     use std::{fs::Permissions, os::unix::fs::PermissionsExt};
     use tokio::fs;
 

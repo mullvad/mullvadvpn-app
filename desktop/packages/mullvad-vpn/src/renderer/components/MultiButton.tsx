@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ButtonProps } from '../lib/components';
+import { Button, ButtonProps } from '../lib/components';
 
 const ButtonRow = styled.div({
   display: 'flex',
   gap: '1px',
 });
 
-const MainButton = styled.button({
+const MainButton = styled(Button)({
   borderTopRightRadius: 0,
   borderBottomRightRadius: 0,
   paddingLeft: '44px',
@@ -17,7 +17,7 @@ const MainButton = styled.button({
   },
 });
 
-const SideButton = styled.button({
+const SideButton = styled(Button)({
   borderTopLeftRadius: 0,
   borderBottomLeftRadius: 0,
   '&:focus-visible': {

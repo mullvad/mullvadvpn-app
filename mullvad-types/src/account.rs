@@ -1,4 +1,4 @@
-use chrono::{offset::Utc, DateTime};
+use chrono::{DateTime, offset::Utc};
 use serde::{Deserialize, Serialize};
 
 /// Account identifier used for authentication.

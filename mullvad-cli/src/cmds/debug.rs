@@ -9,6 +9,19 @@ use mullvad_types::{
 pub enum DebugCommands {
     /// Block all internet connection by setting an invalid relay constraint.
     BlockConnection,
+    /// Relay
+    #[clap(subcommand)]
+    Relay(RelayDebugCommands),
+}
+
+#[derive(clap::Subcommand, Debug)]
+pub enum RelayDebugCommands {
+    /// Inactivate this _category of relays_ - a category can be one of the following: a relay, a
+    /// city, a country or a tunnel protocol (`openvpn` or `wireguard`).
+    Disable { relay: String },
+    /// (Re)Activate this _category of relays_ - a category can be one of the following: a relay, a
+    /// city, a country or a tunnel protocol (`openvpn` or `wireguard`).
+    Enable { relay: String },
 }
 
 impl DebugCommands {
@@ -39,6 +52,18 @@ impl DebugCommands {
                 rpc.connect_tunnel().await?;
 
                 eprintln!("WARNING: ENTERED BLOCKED MODE");
+                Ok(())
+            }
+            DebugCommands::Relay(RelayDebugCommands::Disable { relay }) => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                rpc.disable_relay(relay.clone()).await?;
+                println!("{relay} is now marked as inactive");
+                Ok(())
+            }
+            DebugCommands::Relay(RelayDebugCommands::Enable { relay }) => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                rpc.enable_relay(relay.clone()).await?;
+                println!("{relay} is now marked as active");
                 Ok(())
             }
         }

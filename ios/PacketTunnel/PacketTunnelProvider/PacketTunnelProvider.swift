@@ -37,6 +37,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
     }()
 
+    var apiContext: MullvadApiContext!
+    var accessMethodReceiver: MullvadAccessMethodReceiver!
+
     // swiftlint:disable:next function_body_length
     override init() {
         Self.configureLogging()
@@ -65,7 +68,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         let apiTransportProvider = APITransportProvider(
-            requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+            requestFactory: MullvadApiRequestFactory(
+                apiContext: apiContext,
+                encoder: REST.Coding.makeJSONEncoder()
+            )
         )
 
         adapter = WgAdapter(packetTunnelProvider: self)
@@ -174,7 +180,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
-        providerLogger.debug("stopTunnel: \(reason)")
+        providerLogger.debug("stopTunnel: \(ProviderStopReasonWrapper(reason: reason))")
 
         stopObservingActorState()
 
@@ -241,13 +247,33 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             relayCache: ipOverrideWrapper
         )
 
+        let shadowsocksLoader = ShadowsocksLoader(
+            cache: shadowsocksCache,
+            relaySelector: shadowsocksRelaySelector,
+            settingsUpdater: tunnelSettingsUpdater
+        )
+
+        let accessMethodRepository = AccessMethodRepository()
+
         let transportStrategy = TransportStrategy(
-            datasource: AccessMethodRepository(),
-            shadowsocksLoader: ShadowsocksLoader(
-                cache: shadowsocksCache,
-                relaySelector: shadowsocksRelaySelector,
-                settingsUpdater: tunnelSettingsUpdater
-            )
+            datasource: accessMethodRepository,
+            shadowsocksLoader: shadowsocksLoader
+        )
+
+        // swiftlint:disable:next force_try
+        apiContext = try! MullvadApiContext(
+            host: REST.defaultAPIHostname,
+            address: REST.defaultAPIEndpoint.description,
+            domain: REST.encryptedDNSHostname,
+            shadowsocksProvider: shadowsocksLoader,
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
+            addressCacheProvider: addressCache
+        )
+
+        accessMethodReceiver = MullvadAccessMethodReceiver(
+            apiContext: apiContext,
+            accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
+            requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
 
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)
@@ -420,4 +446,4 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
         // and it will not try to reconnect
         actor.reconnect(to: .random, reconnectReason: .connectionLoss)
     }
-}
+} // swiftlint:disable:this file_length

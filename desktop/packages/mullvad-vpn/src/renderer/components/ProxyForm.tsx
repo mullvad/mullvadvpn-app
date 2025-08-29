@@ -1,6 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import React from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   CustomProxy,
@@ -11,6 +9,8 @@ import {
   Socks5RemoteCustomProxy,
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { Button, Flex } from '../lib/components';
+import { FlexRow } from '../lib/components/flex-row';
 import { IpAddress } from '../lib/ip';
 import { useEffectEvent } from '../lib/utility-hooks';
 import * as Cell from './cell';
@@ -20,12 +20,6 @@ import { SettingsRadioGroup } from './cell/SettingsRadioGroup';
 import { SettingsRow } from './cell/SettingsRow';
 import { SettingsSelect, SettingsSelectItem } from './cell/SettingsSelect';
 import { SettingsNumberInput, SettingsTextInput } from './cell/SettingsTextInput';
-import {
-  SmallButton,
-  SmallButtonColor,
-  SmallButtonGroup,
-  SmallButtonGroupStart,
-} from './SmallButton';
 
 interface ProxyFormContext {
   proxy?: CustomProxy;
@@ -157,34 +151,31 @@ interface ProxyFormButtonsProps {
   new: boolean;
 }
 
-// TODO: Temporary fix, should be replaced with a flex or shared component
-const ActionGroup = styled.div({
-  display: 'flex',
-  gap: '12px',
-});
-
 export function ProxyFormButtons(props: ProxyFormButtonsProps) {
   const { onSave, onCancel, onDelete } = useContext(proxyFormContext);
 
   // Contains form submittability to know whether or not to enable the Add/Save button.
   const formSubmittable = useSettingsFormSubmittable();
-
   return (
-    <SmallButtonGroup>
-      {onDelete !== undefined && (
-        <SmallButtonGroupStart>
-          <SmallButton color={SmallButtonColor.red} onClick={onDelete}>
-            {messages.gettext('Delete')}
-          </SmallButton>
-        </SmallButtonGroupStart>
+    <Flex $margin={{ horizontal: 'medium', vertical: 'large' }} $justifyContent="space-between">
+      {onDelete !== undefined ? (
+        <Button width="fit" variant="destructive" onClick={onDelete}>
+          <Button.Text>{messages.gettext('Delete')}</Button.Text>
+        </Button>
+      ) : (
+        <div />
       )}
-      <ActionGroup>
-        <SmallButton onClick={onCancel}>{messages.gettext('Cancel')}</SmallButton>
-        <SmallButton onClick={onSave} disabled={!formSubmittable}>
-          {props.new ? messages.gettext('Add') : messages.gettext('Save')}
-        </SmallButton>
-      </ActionGroup>
-    </SmallButtonGroup>
+      <FlexRow $gap="small">
+        <Button width="fit" onClick={onCancel}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>
+        <Button onClick={onSave} disabled={!formSubmittable}>
+          <Button.Text>
+            {props.new ? messages.gettext('Add') : messages.gettext('Save')}
+          </Button.Text>
+        </Button>
+      </FlexRow>
+    </Flex>
   );
 }
 
@@ -301,6 +292,11 @@ function EditShadowsocks(props: EditProxyProps<ShadowsocksCustomProxy>) {
   );
 
   // Report back to form component with the proxy values when all required values are set.
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onUpdate(ip, port, password, cipher), [ip, port, password, cipher]);
 
   return (
@@ -380,6 +376,11 @@ function EditSocks5Remote(props: EditProxyProps<Socks5RemoteCustomProxy>) {
   );
 
   // Report back to form component with the proxy values when all required values are set.
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onUpdate(ip, port, username, password), [ip, port, username, password]);
 
   return (
@@ -476,6 +477,11 @@ function EditSocks5Local(props: EditProxyProps<Socks5LocalCustomProxy>) {
 
   useEffect(
     () => onUpdate(remoteIp, remotePort, localPort, remoteTransportProtocol),
+    // These lint rules are disabled for now because the react plugin for eslint does
+    // not understand that useEffectEvent should not be added to the dependency array.
+    // Enable these rules again when eslint can lint useEffectEvent properly.
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [remoteIp, remotePort, localPort, remoteTransportProtocol],
   );
 

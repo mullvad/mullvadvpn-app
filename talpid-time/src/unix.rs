@@ -1,6 +1,6 @@
 use nix::{
     sys::time::TimeSpec,
-    time::{clock_gettime, ClockId},
+    time::{ClockId, clock_gettime},
 };
 use std::{ffi::c_long, time::Duration};
 

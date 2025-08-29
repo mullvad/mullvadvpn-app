@@ -7,19 +7,18 @@ import { formatDate } from '../../shared/account-expiry';
 import { urls } from '../../shared/constants';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Flex, Icon } from '../lib/components';
-import { Colors } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
+import { Button, Flex } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
+import { colors } from '../lib/foundations';
+import { TransitionType, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { generateRoutePath } from '../lib/routeHelpers';
-import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
-import * as AppButton from './AppButton';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Footer, Layout } from './Layout';
@@ -37,7 +36,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -55,7 +54,7 @@ export const StyledTitle = styled.span(hugeText, {
 
 export const StyledLabel = styled.span(tinyText, {
   lineHeight: '20px',
-  color: Colors.white,
+  color: colors.white,
   marginBottom: '9px',
 });
 
@@ -99,12 +98,12 @@ export function VoucherInput() {
             </StyledBody>
 
             <Footer>
-              <AppButton.ButtonGroup>
+              <FlexColumn $gap="medium">
                 <RedeemVoucherSubmitButton />
-                <AppButton.BlueButton onClick={navigateBack}>
-                  {messages.gettext('Cancel')}
-                </AppButton.BlueButton>
-              </AppButton.ButtonGroup>
+                <Button onClick={navigateBack}>
+                  <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+                </Button>
+              </FlexColumn>
             </Footer>
           </RedeemVoucherContainer>
         </StyledContainer>
@@ -188,9 +187,9 @@ export function TimeAdded(props: ITimeAddedProps) {
           </StyledBody>
 
           <Footer>
-            <AppButton.BlueButton onClick={navigateToSetupFinished}>
-              {messages.gettext('Next')}
-            </AppButton.BlueButton>
+            <Button onClick={navigateToSetupFinished}>
+              <Button.Text>{messages.gettext('Next')}</Button.Text>
+            </Button>
           </Footer>
         </StyledContainer>
       </StyledCustomScrollbars>
@@ -226,26 +225,27 @@ export function SetupFinished() {
           </StyledBody>
 
           <Footer>
-            <AppButton.ButtonGroup>
-              <AriaDescriptionGroup>
-                <AriaDescribed>
-                  <AppButton.BlueButton onClick={openPrivacyLink}>
-                    <AppButton.Label>
-                      {messages.pgettext('connect-view', 'Learn about privacy')}
-                    </AppButton.Label>
-                    <AriaDescription>
-                      <Icon
-                        icon="external"
-                        aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                      />
-                    </AriaDescription>
-                  </AppButton.BlueButton>
-                </AriaDescribed>
-              </AriaDescriptionGroup>
-              <AppButton.GreenButton onClick={finish}>
-                {messages.pgettext('connect-view', 'Start using the app')}
-              </AppButton.GreenButton>
-            </AppButton.ButtonGroup>
+            <FlexColumn $gap="medium">
+              <Button
+                onClick={openPrivacyLink}
+                aria-description={messages.pgettext('accessibility', 'Opens externally')}>
+                <Button.Text>
+                  {
+                    // TRANSLATORS: Button label for opening privacy information link.
+                    messages.pgettext('connect-view', 'Learn about privacy')
+                  }
+                </Button.Text>
+                <Button.Icon icon="external" />
+              </Button>
+              <Button variant="success" onClick={finish}>
+                <Button.Text>
+                  {
+                    // TRANSLATORS: Button label for starting the app.
+                    messages.pgettext('connect-view', 'Start using the app')
+                  }
+                </Button.Text>
+              </Button>
+            </FlexColumn>
           </Footer>
         </StyledContainer>
       </StyledCustomScrollbars>
@@ -282,7 +282,7 @@ function useFinishedCallback() {
       accountSetupFinished();
     }
 
-    history.reset(RoutePath.main, { transition: transitions.push });
+    history.reset(RoutePath.main, { transition: TransitionType.push });
   }, [isNewAccount, accountSetupFinished, history]);
 
   return callback;

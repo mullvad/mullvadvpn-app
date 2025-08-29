@@ -1,12 +1,25 @@
-import { LinkProps } from '../../renderer/lib/components';
+import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
+import { InternalLinkProps } from '../../renderer/components/InternalLink';
+import { ButtonProps } from '../../renderer/lib/components';
+import { RoutePath } from '../../shared/routes';
 import { Url } from '../constants';
 
-export type NotificationAction = {
-  type: 'open-url';
-  url: Url;
-  text?: string;
-  withAuth?: boolean;
-};
+export type SystemNotificationAction =
+  | {
+      type: 'navigate-internal';
+      link: {
+        to: RoutePath;
+        text?: string;
+      };
+    }
+  | {
+      type: 'navigate-external';
+      link: {
+        to: Url;
+        text?: string;
+        withAuth?: boolean;
+      };
+    };
 
 export interface InAppNotificationTroubleshootInfo {
   details: string;
@@ -21,7 +34,6 @@ export interface InAppNotificationTroubleshootButton {
 }
 
 export type InAppNotificationAction =
-  | NotificationAction
   | {
       type: 'troubleshoot-dialog';
       troubleshoot: InAppNotificationTroubleshootInfo;
@@ -31,8 +43,16 @@ export type InAppNotificationAction =
       close: () => void;
     }
   | {
-      type: 'navigate';
-      link: Pick<LinkProps, 'to' | 'onClick' | 'aria-label'>;
+      type: 'navigate-internal';
+      link: Pick<InternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
+    }
+  | {
+      type: 'navigate-external';
+      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label' | 'withAuth'>;
+    }
+  | {
+      type: 'run-function';
+      button: Pick<ButtonProps, 'onClick' | 'aria-label'>;
     };
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
@@ -62,15 +82,19 @@ export interface SystemNotification {
   throttle?: boolean;
   presentOnce?: { value: boolean; name: string };
   suppressInDevelopment?: boolean;
-  action?: NotificationAction;
+  action?: SystemNotificationAction;
 }
 
 export interface InAppNotification {
   indicator?: InAppNotificationIndicatorType;
   action?: InAppNotificationAction;
   title: string;
-  subtitle?: string;
-  subtitleAction?: InAppNotificationAction;
+  subtitle?: string | InAppNotificationSubtitle[];
+}
+
+export interface InAppNotificationSubtitle {
+  content: string;
+  action?: InAppNotificationAction;
 }
 
 export interface SystemNotificationProvider extends NotificationProvider {

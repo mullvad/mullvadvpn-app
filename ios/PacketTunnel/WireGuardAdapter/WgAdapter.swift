@@ -37,12 +37,6 @@ class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
         } catch WireGuardAdapterError.invalidState {
             try await adapter.start(tunnelConfiguration: wgConfig, daita: daita)
         }
-
-        let tunAddresses = wgConfig.interface.addresses.map { $0.address }
-        // TUN addresses can be empty when adapter is configured for blocked state.
-        if !tunAddresses.isEmpty {
-            logIfDeviceHasSameIP(than: tunAddresses)
-        }
     }
 
     func startMultihop(
@@ -73,32 +67,10 @@ class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
                 daita: daita
             )
         }
-
-        let exitTunAddresses = exitConfiguration.interface.addresses.map { $0.address }
-        let entryTunAddresses = entryConfiguration?.interface.addresses.map { $0.address } ?? []
-        let tunAddresses = exitTunAddresses + entryTunAddresses
-
-        // TUN addresses can be empty when adapter is configured for blocked state.
-        if !tunAddresses.isEmpty {
-            logIfDeviceHasSameIP(than: tunAddresses)
-        }
     }
 
     func stop() async throws {
         try await adapter.stop()
-    }
-
-    private func logIfDeviceHasSameIP(than addresses: [IPAddress]) {
-        let sameIPv4 = IPv4Address("10.127.255.254")
-        let sameIPv6 = IPv6Address("fc00:bbbb:bbbb:bb01:ffff:ffff:ffff:ffff")
-
-        let hasIPv4SameAddress = addresses.compactMap { $0 as? IPv4Address }
-            .contains { $0 == sameIPv4 }
-        let hasIPv6SameAddress = addresses.compactMap { $0 as? IPv6Address }
-            .contains { $0 == sameIPv6 }
-
-        let isUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) ? "" : "NOT "
-        logger.debug("Same IP is \(isUsingSameIP)being used")
     }
 
     public var icmpPingProvider: ICMPPingProvider {

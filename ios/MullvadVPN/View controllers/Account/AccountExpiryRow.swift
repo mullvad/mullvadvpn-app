@@ -15,12 +15,7 @@ class AccountExpiryRow: UIView {
             let expiry = value
 
             if let expiry, expiry <= Date() {
-                let localizedString = NSLocalizedString(
-                    "ACCOUNT_OUT_OF_TIME_LABEL",
-                    tableName: "Account",
-                    value: "OUT OF TIME",
-                    comment: ""
-                )
+                let localizedString = NSLocalizedString("OUT OF TIME", comment: "")
 
                 valueLabel.text = localizedString
                 accessibilityValue = localizedString
@@ -46,13 +41,10 @@ class AccountExpiryRow: UIView {
     private let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.text = NSLocalizedString(
-            "ACCOUNT_EXPIRY_LABEL",
-            tableName: "Account",
-            value: "Paid until",
-            comment: ""
-        )
-        textLabel.font = UIFont.systemFont(ofSize: 14)
+        textLabel.text = NSLocalizedString("Paid until", comment: "")
+        textLabel.font = .mullvadTiny
+        textLabel.numberOfLines = 0
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
     }()
@@ -60,8 +52,10 @@ class AccountExpiryRow: UIView {
     private let valueLabel: UILabel = {
         let valueLabel = UILabel()
         valueLabel.translatesAutoresizingMaskIntoConstraints = false
-        valueLabel.font = UIFont.systemFont(ofSize: 17)
+        valueLabel.font = .mullvadSmall
+        valueLabel.adjustsFontForContentSizeCategory = true
         valueLabel.textColor = .white
+        valueLabel.numberOfLines = 0
         valueLabel.setAccessibilityIdentifier(.accountPagePaidUntilLabel)
         return valueLabel
     }()

@@ -26,7 +26,7 @@ struct Socks5Handshake {
         // Append socks version
         data.append(Socks5Constants.socksVersion)
 
-        // Append number of suppported authentication methods supported.
+        // Append number of supported authentication methods supported.
         data.append(UInt8(methods.count))
 
         // Append authentication methods

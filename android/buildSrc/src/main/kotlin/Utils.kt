@@ -1,4 +1,3 @@
-import java.util.*
 import org.gradle.api.Project
 
 // This is a hack and will not work correctly under all scenarios.
@@ -8,24 +7,31 @@ fun Project.isReleaseBuild() =
         it.contains("release", ignoreCase = true) || it.contains("fdroid", ignoreCase = true)
     }
 
-fun Project.isAlphaBuild(localProperties: Properties): Boolean {
-    val versionName = generateVersionName(localProperties)
+fun Project.isAlphaBuild(): Boolean {
+    val versionName = generateVersionName()
     return versionName.contains("alpha")
 }
 
-fun Project.isDevBuild(localProperties: Properties): Boolean {
-    val versionName = generateVersionName(localProperties)
+fun Project.isDevBuild(): Boolean {
+    val versionName = generateVersionName()
     return versionName.contains("-dev-")
 }
 
-fun Project.generateVersionCode(localProperties: Properties): Int {
-    return localProperties.getProperty("OVERRIDE_VERSION_CODE")?.toIntOrNull()
-        ?: execVersionCodeCargoCommand()
+fun Project.generateVersionCode(): Int {
+    val versionCode =
+        getIntPropertyOrNull("mullvad.app.config.override.versionCode")
+            ?: execVersionCodeCargoCommand()
+    // This is a safety net to avoid generating too big version codes, since that could potentially
+    // be hard and inconvenient to recover from.
+    require(versionCode <= MAX_ALLOWED_VERSION_CODE) {
+        "versionCode ($versionCode) must be <= $MAX_ALLOWED_VERSION_CODE"
+    }
+    return versionCode
 }
 
-fun Project.generateVersionName(localProperties: Properties): String {
-    return localProperties.getProperty("OVERRIDE_VERSION_NAME") ?: execVersionNameCargoCommand()
-}
+fun Project.generateVersionName(): String =
+    getStringPropertyOrNull("mullvad.app.config.override.versionName")
+        ?: execVersionNameCargoCommand()
 
 fun Project.generateRemapArguments(): String {
     val script = "${projectDir.parent}/../building/rustc-remap-path-prefix.sh"
@@ -48,3 +54,23 @@ private fun Project.execVersionNameCargoCommand() =
         .asText
         .get()
         .trim()
+
+fun Project.getStringPropertyOrNull(name: String): String? = findProperty(name)?.toString()
+
+fun Project.getIntPropertyOrNull(name: String): Int? = findProperty(name)?.toString()?.toInt()
+
+fun Project.getBooleanPropertyOrNull(name: String): Boolean? =
+    findProperty(name)?.toString()?.toBooleanStrict()
+
+fun Project.getStringProperty(name: String): String = properties[name].toString()
+
+fun Project.getIntProperty(name: String): Int = properties[name].toString().toInt()
+
+fun Project.getBooleanProperty(name: String): Boolean =
+    properties[name].toString().toBooleanStrict()
+
+// Fetch a string and that is split by `,` into a list of strings
+const val STRING_LIST_SEPARATOR = ','
+
+fun Project.getStringListProperty(name: String): List<String> =
+    properties[name].toString().split(STRING_LIST_SEPARATOR)

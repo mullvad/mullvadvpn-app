@@ -36,12 +36,12 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -51,7 +51,15 @@ private fun PreviewApiAccessList(
     @PreviewParameter(ApiAccessListUiStatePreviewParameterProvider::class)
     state: ApiAccessListUiState
 ) {
-    AppTheme { ApiAccessListScreen(state = state, {}, { _ -> }, {}, {}) }
+    AppTheme {
+        ApiAccessListScreen(
+            state = state,
+            onAddMethodClick = {},
+            onApiAccessMethodClick = { _ -> },
+            onApiAccessInfoClick = {},
+            onBackClick = {},
+        )
+    }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -106,10 +114,10 @@ private fun LazyListScope.description() {
     item {
         Text(
             text = stringResource(id = R.string.api_access_description),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier =
-                Modifier.padding(start = Dimens.cellStartPadding, end = Dimens.cellEndPadding)
+                Modifier.padding(start = Dimens.mediumPadding, end = Dimens.mediumPadding)
                     .fillMaxWidth(),
         )
     }
@@ -123,8 +131,8 @@ private fun LazyListScope.currentAccessMethod(
         Row(
             modifier =
                 Modifier.padding(
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
+                    start = Dimens.mediumPadding,
+                    end = Dimens.mediumPadding,
                     bottom = Dimens.mediumPadding,
                 ),
             verticalAlignment = Alignment.CenterVertically,

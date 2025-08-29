@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use futures::{channel::mpsc, StreamExt};
+use futures::{StreamExt, channel::mpsc};
 
 use super::{ProxyMonitor, ProxyMonitorCloseHandle, Result};
 

@@ -11,7 +11,7 @@ decided to not address for some reason. Some example reasons why issues might en
   provide a mitigation for
 * The only known fixes for the issue comes with other drawbacks, that we consider as bad, or worse
   than the original issue
-* We are not able to reliably reproduce the issue. Enough anecdotal evidence exist to indicate
+* We are not able to reliably reproduce the issue. Enough anecdotal evidence exists to indicate
   the issue is real, but Mullvad is unable to reproduce it. As a result, it is really hard to fix.
 
 This document should only contain issues related to security and privacy. This document is a
@@ -93,34 +93,44 @@ This affects all versions of the iOS app on all versions of iOS.
 [blog about TunnelVision]: https://mullvad.net/blog/evaluating-the-impact-of-tunnelvision
 
 
-### DNS requests for excluded applications can go inside the tunnel
+### Excluded application traffic can sometimes go inside the tunnel
 
 Ideally DNS requests from excluded apps would always go outside the tunnel. However, this
-is not really possible, or hard to implement on some operating systems. See the
-[split tunneling documentation] for details.
+is not really possible, or hard to implement on some operating systems. There are also other
+limitations that are mostly related to IPC. See the [split tunneling documentation] for
+details.
 
-[split tunneling documentation]: ./split-tunneling.md#dns
+[split tunneling documentation]: ./split-tunneling.md
 
 
-### Temporary DNS leaks while tunnel is being reconfigured on Android
+### Temporary leaks while tunnel is being reconfigured on Android
 
-DNS lookups performed directly with the C function `getaddrinfo` can leak for a short period
-of time while an android VPN app is being re-configured (reconnecting, force-stopped etc).
-These leaks happens even when the system setting "Block connections without VPN" is
-enabled.
+Android may leak for a short period of time while a VPN tunnel is being reconfigured
+(reconnecting, force-stopped etc), sending traffic outside the tunnel that is supposed to be inside
+the tunnel. Packets sent may have the source IP of the internal tunnel interface. Some of these
+leaks can happen even when the system setting "Block connections without VPN" is enabled.
 
-We have not found any leaks from apps that only use Android API:s such as [DnsResolver]. The Chrome browser is an example of an app that can use getaddrinfo [directly](https://source.chromium.org/chromium/chromium/src/+/main:android_webview/browser/aw_pac_processor.cc;l=197;drc=133b2d903fa57cfda1317bc589b349cf4c284b7c).
+The known leaks include, but may not be limited to, the following type of traffic:
+- Any traffic sent by the current VPN app (e.g API requests).
+- DNS lookups performed directly with the C function `getaddrinfo`.
+- Private DNS traffic (e.g DNS-over-TLS).
+- [OS connectivity checks](https://issuetracker.google.com/issues/250529027).
 
-Mullvad is not aware of any mitigation to this leak. It has been reported upstream to Google,
-and we wait for their response.
+Multiple reports with variants of this behaviour have surfaced over the years, however the problems
+still persist. Mullvad is not aware of any mitigation to these leaks.
+
+- [A few packets leak to the public network at VPN reconnection](https://issuetracker.google.com/issues/37343051)
+- [Android's VPN does not provide a seamless routing transition across VPN reconfigurations.](https://issuetracker.google.com/issues/117288570)
+- [Android 10 Private DNS breaks VPN](https://issuetracker.google.com/issues/141674015)
+- [Packets leak to the public network when VPN reconnection using seamless handover](https://issuetracker.google.com/issues/172141171)
+- [VPN leaks DNS traffic outside the tunnel](https://issuetracker.google.com/issues/337961996)
 
 #### Timeline
 
-* April 22, 2024 - Mullvad became aware of the leaks, via a [reddit post](https://www.reddit.com/r/mullvadvpn/comments/1c9p96y/dns_leak_with_block_connections_without_vpn_on/)
+* April 22, 2024 - Mullvad became aware that Android could leak DNS when `getaddrinfo` was being used.
 * April 30, 2024 - Mullvad [report the issue](https://issuetracker.google.com/issues/337961996) upstream to Google.
 * May 3, 2024 - Mullvad [blog](https://mullvad.net/blog/dns-traffic-can-leak-outside-the-vpn-tunnel-on-android) about the findings. This post contains more details.
-
-[DnsResolver]: https://developer.android.com/reference/android/net/DnsResolver
+* Mar 12, 2025 - Mullvad realize the leaks are about much more than just DNS. This document is updated accordingly.
 
 
 ### Broadcast traffic to the LAN bypass the VPN on Android
@@ -181,14 +191,16 @@ exempted since the routing table will ensure that traffic is tunneled in that ca
 (see details below).
 
 There are certain limitations to this mitigation. First, the Hyper-V firewall is only available on
-*Windows 11 version 22H2 and above*, so it has no effect on earlier versions of Windows.
+_Windows 11 version 22H2 and above_, so it has no effect on earlier versions of Windows. The
+Hyper-V firewall profile must not be disabled, which can be inspected using the
+`Get-NetFirewallHyperVProfile` PowerShell command.
+
 Additionally, LAN traffic will never be blocked while connected, regardless of whether "Local
 network sharing" is enabled. Moreover, DNS leaks are more likely to occur.
 
-Your [WSL config] needs to enable the `firewall` setting for the Hyper-V firewall to be enabled.
-It is enabled by default.
-
 #### Linux under WSL2
+
+For the Hyper-V firewall to function, your [WSL config] must not disable the `firewall` setting.
 
 Network traffic from a Linux guest running under WSL2 always goes out the default route of
 the host machine without being inspected by the normal layers of WFP (the firewall on the

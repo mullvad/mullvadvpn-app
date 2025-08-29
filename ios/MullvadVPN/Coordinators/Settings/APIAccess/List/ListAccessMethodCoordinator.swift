@@ -8,6 +8,7 @@
 
 import MullvadSettings
 import Routing
+import SwiftUI
 import UIKit
 
 class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
@@ -30,11 +31,16 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     }
 
     func start(animated: Bool) {
-        let listController = ListAccessMethodViewController(
-            interactor: ListAccessMethodInteractor(repository: accessMethodRepository)
+        let view = ListAccessMethodView(
+            viewModel: ListAccessViewModelBridge(interactor: ListAccessMethodInteractor(
+                repository: accessMethodRepository
+            ), delegate: self)
         )
-        listController.delegate = self
-        navigationController.pushViewController(listController, animated: animated)
+        let host = UIHostingController(rootView: view)
+        host.title = NSLocalizedString("API access", comment: "")
+        host.view.setAccessibilityIdentifier(.apiAccessView)
+
+        navigationController.pushViewController(host, animated: animated)
     }
 
     private func addNew() {
@@ -68,47 +74,36 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 
     private func popToList() {
         guard let listController = navigationController.viewControllers
-            .first(where: { $0 is ListAccessMethodViewController }) else { return }
+            .first(where: { $0 is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>> }) else {
+            return
+        }
 
         navigationController.popToViewController(listController, animated: true)
     }
 
     private func about() {
-        let header = NSLocalizedString(
-            "ABOUT_API_ACCESS_HEADER",
-            tableName: "APIAccess",
-            value: "API access",
-            comment: ""
-        )
+        let header = NSLocalizedString("API access", comment: "")
         let preamble = NSLocalizedString(
-            "ABOUT_API_ACCESS_PREAMBLE",
-            tableName: "APIAccess",
-            value: "Manage default and setup custom methods to access the Mullvad API.",
+            "Manage default and setup custom methods to access the Mullvad API.",
             comment: ""
         )
         let body = [
             NSLocalizedString(
-                "ABOUT_API_ACCESS_BODY_1",
-                tableName: "APIAccess",
-                value: """
+                """
                 The app needs to communicate with a Mullvad API server to log you in, fetch server lists, \
                 and other critical operations.
                 """,
                 comment: ""
             ),
             NSLocalizedString(
-                "ABOUT_API_ACCESS_BODY_2",
-                tableName: "APIAccess",
-                value: """
+                """
                 On some networks, where various types of censorship are being used, the API servers might \
                 not be directly reachable.
                 """,
                 comment: ""
             ),
             NSLocalizedString(
-                "ABOUT_API_ACCESS_BODY_3",
-                tableName: "APIAccess",
-                value: """
+                """
                 This feature allows you to circumvent that censorship by adding custom ways to access the \
                 API via proxies and similar methods.
                 """,
@@ -131,15 +126,15 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 }
 
 extension ListAccessMethodCoordinator: @preconcurrency ListAccessMethodViewControllerDelegate {
-    func controllerShouldShowAbout(_ controller: ListAccessMethodViewController) {
+    func controllerShouldShowAbout() {
         about()
     }
 
-    func controllerShouldAddNew(_ controller: ListAccessMethodViewController) {
+    func controllerShouldAddNew() {
         addNew()
     }
 
-    func controller(_ controller: ListAccessMethodViewController, shouldEditItem item: ListAccessMethodItem) {
+    func controller(shouldEditItem item: ListAccessMethodItem) {
         edit(item: item)
     }
 }

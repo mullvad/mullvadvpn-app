@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
@@ -13,6 +14,7 @@ import XCTest
 
 final class ObfuscatorPortSelectorTests: XCTestCase {
     let defaultWireguardPort: RelayConstraint<UInt16> = .only(56)
+    let defaultQuicPort: RelayConstraint<UInt16> = .only(443)
 
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
     var tunnelSettings = LatestTunnelSettings()
@@ -173,5 +175,22 @@ final class ObfuscatorPortSelectorTests: XCTestCase {
         )
 
         XCTAssertEqual(obfuscationResult.wireguard.relays.count, sampleRelays.wireguard.relays.count)
+    }
+
+    // MARK: QUIC
+
+    func testObfuscateQuicOverPort443() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .quic
+        )
+
+        let obfuscationResult = try ObfuscatorPortSelector(
+            relays: sampleRelays
+        ).obfuscate(
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0
+        )
+
+        XCTAssertEqual(obfuscationResult.port, defaultQuicPort)
     }
 }

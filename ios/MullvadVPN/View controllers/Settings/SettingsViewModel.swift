@@ -12,6 +12,11 @@ struct SettingsViewModel {
     private(set) var daitaSettings: DAITASettings
     private(set) var multihopState: MultihopState
 
+    var currentLanguage: String {
+        let currentLanguage = ApplicationLanguage.currentLanguage
+        return "\(currentLanguage.flagEmoji) \(currentLanguage.displayName)"
+    }
+
     init(from tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
         daitaSettings = tunnelSettings.daita
         multihopState = tunnelSettings.tunnelMultihopState

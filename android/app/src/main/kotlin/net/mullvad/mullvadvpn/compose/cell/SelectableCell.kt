@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -34,6 +36,7 @@ private fun PreviewSelectableCell() {
     }
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun SelectableCell(
     title: String,
@@ -41,6 +44,14 @@ fun SelectableCell(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     iconContentDescription: String? = null,
+    titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    startPadding: Dp = Dimens.cellStartPadding,
+    selectedColor: Color = MaterialTheme.colorScheme.selected,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    onSelectedColor: Color = MaterialTheme.colorScheme.onSelected,
+    onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
+    onCellClicked: () -> Unit = {},
+    testTag: String = "",
     selectedIcon: @Composable RowScope.() -> Unit = {
         SelectableIcon(
             iconContentDescription = iconContentDescription,
@@ -48,17 +59,9 @@ fun SelectableCell(
             isEnabled = isEnabled,
         )
     },
-    titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
-    startPadding: Dp = Dimens.cellStartPadding,
-    selectedColor: Color = MaterialTheme.colorScheme.selected,
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
-    onSelectedColor: Color = MaterialTheme.colorScheme.onSelected,
-    onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
-    onCellClicked: () -> Unit = {},
-    testTag: String = "",
 ) {
     BaseCell(
-        modifier = modifier,
+        modifier = modifier.semantics { selected = isSelected },
         onCellClicked = onCellClicked,
         isRowEnabled = isEnabled,
         headlineContent = {

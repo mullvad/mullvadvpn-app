@@ -26,6 +26,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay10 =
             RelayItem.Location.Relay(
@@ -34,6 +35,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         relay9 assertOrderBothDirection relay10
@@ -48,6 +50,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay9b =
             RelayItem.Location.Relay(
@@ -56,6 +59,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
@@ -71,6 +75,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay1 =
             RelayItem.Location.Relay(
@@ -79,6 +84,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay3 =
             RelayItem.Location.Relay(
@@ -87,6 +93,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay100 =
             RelayItem.Location.Relay(
@@ -95,6 +102,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         relay001 assertOrderBothDirection relay1
@@ -112,6 +120,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay9b =
             RelayItem.Location.Relay(
@@ -120,6 +129,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
@@ -135,6 +145,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay005 =
             RelayItem.Location.Relay(
@@ -143,6 +154,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         relay001 assertOrderBothDirection relay005
@@ -157,6 +169,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relayAr8 =
             RelayItem.Location.Relay(
@@ -165,6 +178,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relaySe5 =
             RelayItem.Location.Relay(
@@ -173,6 +187,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relaySe10 =
             RelayItem.Location.Relay(
@@ -181,6 +196,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         relayAr2 assertOrderBothDirection relayAr8
@@ -197,6 +213,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay2w =
             RelayItem.Location.Relay(
@@ -205,6 +222,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         relay2c assertOrderBothDirection relay2w
@@ -219,6 +237,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
         val relay22b =
             RelayItem.Location.Relay(
@@ -227,6 +246,7 @@ class RelayNameComparatorTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
 
         relay22a assertOrderBothDirection relay22b

@@ -23,10 +23,17 @@ class APIAccessPage: Page {
     }
 
     func getAccessMethodCells() -> [XCUIElement] {
-        app.otherElements[AccessibilityIdentifier.apiAccessView].cells.allElementsBoundByIndex
+        var elements = app.collectionViews[AccessibilityIdentifier.apiAccessListView].buttons.allElementsBoundByIndex
+        elements.removeFirst()
+        elements.removeLast()
+        return elements
     }
 
     func getAccessMethodCell(accessibilityId: AccessibilityIdentifier) -> XCUIElement {
-        app.otherElements[AccessibilityIdentifier.apiAccessView].cells[accessibilityId]
+        app.buttons[accessibilityId]
+    }
+
+    func editAccessMethod(_ named: String) {
+        app.buttons[named].tap()
     }
 }

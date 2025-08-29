@@ -22,7 +22,7 @@ struct SettingsInfoView: View {
 
     // Extra spacing to allow for some room around the page indicators.
     var pageIndicatorSpacing: CGFloat {
-        viewModel.pages.count > 1 ? 72 : 24
+        viewModel.pages.count > 1 ? 36 : 24
     }
 
     var body: some View {
@@ -134,9 +134,7 @@ struct SettingsInfoView: View {
             pages: [
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
-                        "SETTINGS_INFO_DAITA_PAGE_1",
-                        tableName: "Settings",
-                        value: """
+                        """
                         **Attention: This increases network traffic and will also  negatively affect speed, latency, \
                         and battery usage. Use with caution on limited plans.**
 
@@ -152,9 +150,7 @@ struct SettingsInfoView: View {
                 ),
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
-                        "SETTINGS_INFO_DAITA_PAGE_2",
-                        tableName: "Settings",
-                        value: """
+                        """
                         If an observer monitors these data packets, DAITA makes it significantly \
                         harder for them to identify which websites you are visiting or with whom \
                         you are communicating.

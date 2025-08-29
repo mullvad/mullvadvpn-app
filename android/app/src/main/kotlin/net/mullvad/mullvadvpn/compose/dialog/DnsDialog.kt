@@ -27,19 +27,50 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewDnsDialogNew() {
-    AppTheme { DnsDialog(DnsDialogViewState("1.1.1.1", null, false, false, null), {}, {}, {}, {}) }
+    AppTheme {
+        DnsDialog(
+            state = DnsDialogViewState("1.1.1.1", null, false, false, null),
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onDismiss = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun PreviewDnsDialogEdit() {
-    AppTheme { DnsDialog(DnsDialogViewState("1.1.1.1", null, false, false, 0), {}, {}, {}, {}) }
+    AppTheme {
+        DnsDialog(
+            state =
+                DnsDialogViewState(
+                    input = "1.1.1.1",
+                    validationError = null,
+                    isAllowLanEnabled = false,
+                    isIpv6Enabled = false,
+                    index = 0,
+                ),
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onDismiss = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun PreviewDnsDialogEditAllowLanDisabled() {
-    AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
+    AppTheme {
+        DnsDialog(
+            state = DnsDialogViewState("192.168.1.1", null, false, false, 0),
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onDismiss = {},
+        )
+    }
 }
 
 data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = null)
@@ -60,12 +91,11 @@ fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     DnsDialog(
-        state,
-        viewModel::onDnsInputChange,
+        state = state,
+        onDnsInputChange = viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
-        onDismiss =
-            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) },
+        onDismiss = dropUnlessResumed { resultNavigator.navigateBack() },
     )
 }
 
@@ -84,6 +114,12 @@ fun DnsDialog(
             } else {
                 stringResource(R.string.update_dns_server_dialog_title)
             },
+        confirmButtonEnabled = state.isValid(),
+        onResetButtonText = stringResource(id = R.string.remove_button),
+        messageTextColor = MaterialTheme.colorScheme.error,
+        onBack = onDismiss,
+        onConfirm = onSaveDnsClick,
+        onReset = state.index?.let { { onRemoveDnsClick(state.index) } },
         input = {
             DnsTextField(
                 value = state.input,
@@ -94,24 +130,18 @@ fun DnsDialog(
                 placeholderText = stringResource(R.string.custom_dns_hint),
                 errorText =
                     when {
-                        state.validationError is ValidationError.DuplicateAddress -> {
+                        state.validationError is ValidationError.DuplicateAddress ->
                             stringResource(R.string.duplicate_address_warning)
-                        }
-                        state.isLocal && !state.isAllowLanEnabled -> {
+                        // Ordering is important, as we consider the lan error to have higher
+                        // priority than the ipv6 error
+                        state.isLocal && !state.isAllowLanEnabled ->
                             stringResource(id = R.string.confirm_local_dns)
-                        }
-                        else -> {
-                            null
-                        }
+                        state.isIpv6 && !state.isIpv6Enabled ->
+                            stringResource(id = R.string.confirm_ipv6_dns)
+                        else -> null
                     },
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        onResetButtonText = stringResource(id = R.string.remove_button),
-        confirmButtonEnabled = state.isValid(),
-        messageTextColor = MaterialTheme.colorScheme.error,
-        onReset = state.index?.let { { onRemoveDnsClick(state.index) } },
-        onBack = onDismiss,
-        onConfirm = onSaveDnsClick,
     )
 }

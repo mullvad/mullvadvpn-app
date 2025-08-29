@@ -59,4 +59,18 @@ class EditAccessMethodPage: Page {
         backButton.tap()
         return self
     }
+
+    @discardableResult func verifySwitchDisabled() -> Self {
+        XCTAssertFalse(app.switches[AccessibilityIdentifier.accessMethodEnableSwitch].isEnabled)
+        return self
+    }
+
+    @discardableResult func tapDeleteButton() -> Self {
+        app.buttons[AccessibilityIdentifier.deleteButton].tap()
+        return self
+    }
+
+    func confirmAccessMethodDeletion() {
+        app.buttons[.accessMethodConfirmDeleteButton].tap()
+    }
 }

@@ -130,10 +130,15 @@ forwarded. All other forward traffic is rejected.
 #### Mullvad API
 
 The firewall allows traffic to the API regardless of tunnel state, so the daemon is able to update
-keys, fetch account data, etc. In the [Connected] state, API traffic is only allowed inside the tunnel.
+keys, fetch account data and more. In the [Connected] state, API traffic is only allowed inside the tunnel.
 For the other states, API traffic will bypass the firewall. On Windows, only the Mullvad service and
 problem report tool are able to communicate with the API in any of the blocking states. On macOS and
 Linux all applications running as root are able to reach the API in blocking states.
+
+All API connections use TLS 1.3 with certificate pinning. The app comes bundled with the
+[Let's encrypt root certificate](../mullvad-api/le_root_cert.pem) and only accepts connections
+with servers having a valid certificate issued to `api.mullvad.net` and signed with this
+bundled certificate.
 
 ### Disconnected
 
@@ -337,6 +342,9 @@ The GUI only communicates with the system service (`mullvad-daemon`), it makes n
 network connections. Except when the user sends a problem report, then it spawn the
 `mullvad-problem-report` tool, which in turn communicate over TLS with our API.
 
+## Mullvad VPN loader
+
+See the threat model [document](../mullvad-update/threat-model.md) for the Mullvad VPN loader.
 
 [disconnected]: #disconnected
 [connecting]: #connecting

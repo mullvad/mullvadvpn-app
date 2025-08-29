@@ -1,4 +1,6 @@
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
+import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
 import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
@@ -12,7 +14,7 @@ import {
 interface UnsupportedVersionNotificationContext {
   supported: boolean;
   consistent: boolean;
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
 }
 
@@ -30,11 +32,20 @@ export class UnsupportedVersionNotificationProvider
       message: this.getMessage(),
       category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.high,
-      action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-        text: messages.pgettext('notifications', 'Upgrade'),
-      },
+      action: this.context.suggestedUpgrade
+        ? {
+            type: 'navigate-internal',
+            link: {
+              to: RoutePath.appUpgrade,
+            },
+          }
+        : {
+            type: 'navigate-external',
+            link: {
+              text: messages.pgettext('notifications', 'Upgrade'),
+              to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+            },
+          },
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
     };
@@ -44,16 +55,40 @@ export class UnsupportedVersionNotificationProvider
     return {
       indicator: 'error',
       title: messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION'),
-      subtitle: this.getMessage(),
-      action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-      },
+      subtitle: [
+        {
+          content:
+            // TRANSLATORS: The in-app banner which is displayed to the user when the running app becomes unsupported.
+            messages.pgettext(
+              'notifications',
+              'Your privacy might be at risk with this unsupported app version.',
+            ),
+        },
+        {
+          content:
+            // TRANSLATORS: A link in the in-app banner to encourage the user to update the app.
+            // TRANSLATORS: The in-app banner is is displayed to the user when the running app becomes unsupported.
+            messages.pgettext('notifications', 'Please click here to update now'),
+          action: this.context.suggestedUpgrade
+            ? {
+                type: 'navigate-internal',
+                link: {
+                  to: RoutePath.appUpgrade,
+                },
+              }
+            : {
+                type: 'navigate-external',
+                link: {
+                  to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+                },
+              },
+        },
+      ],
     };
   }
 
   private getMessage(): string {
-    // TRANSLATORS: The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+    // TRANSLATORS: The system notification which is displayed to the user when the running app becomes unsupported.
     return messages.pgettext(
       'notifications',
       'Your privacy might be at risk with this unsupported app version. Please update now.',

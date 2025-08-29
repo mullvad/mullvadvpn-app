@@ -103,6 +103,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Rust target
+        run: rustup target add x86_64-pc-windows-gnu
+
       - name: Build test runner
         working-directory: test
         run: cargo build --release --locked -p test-runner --target x86_64-pc-windows-gnu

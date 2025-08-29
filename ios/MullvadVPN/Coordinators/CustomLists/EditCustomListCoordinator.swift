@@ -58,12 +58,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         )
         controller.delegate = self
 
-        controller.navigationItem.title = NSLocalizedString(
-            "CUSTOM_LIST_NAVIGATION_TITLE",
-            tableName: "CustomLists",
-            value: subject.value.name,
-            comment: ""
-        )
+        controller.navigationItem.title = subject.value.name
 
         navigationController.interactivePopGestureRecognizer?.delegate = self
         navigationController.pushViewController(controller, animated: true)
@@ -97,12 +92,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
 
     private func presentUnsavedChangesDialog() {
         let message = NSMutableAttributedString(
-            markdownString: NSLocalizedString(
-                "CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT",
-                tableName: "CustomLists",
-                value: "You have unsaved changes.",
-                comment: ""
-            ),
+            markdownString: NSLocalizedString("You have unsaved changes.", comment: ""),
             options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
         )
 
@@ -112,24 +102,14 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
             attributedMessage: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "CUSTOM_LISTS_DISCARD_CHANGES_BUTTON",
-                        tableName: "CustomLists",
-                        value: "Discard changes",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Discard changes", comment: ""),
                     style: .destructive,
                     handler: {
                         self.didCancel?(self)
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "CUSTOM_LISTS_BACK_TO_EDITING_BUTTON",
-                        tableName: "CustomLists",
-                        value: "Back to editing",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Back to editing", comment: ""),
                     style: .default
                 ),
             ]

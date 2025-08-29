@@ -1,9 +1,51 @@
 package net.mullvad.mullvadvpn.test.e2e.constant
 
-const val LOG_TAG = "mullvad-e2e"
-const val PARTNER_AUTH = "partner_auth"
-const val VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY = "valid_test_account_number"
-const val INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY = "invalid_test_account_number"
+import android.os.Bundle
+import androidx.test.platform.app.InstrumentationRegistry
+import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
 
-const val ENABLE_ACCESS_TO_LOCAL_API_TESTS = "enable_access_to_local_api_tests"
-const val ENABLE_HIGHLY_RATE_LIMITED_TESTS = "enable_highly_rate_limited_tests"
+const val LOG_TAG = "mullvad-e2e"
+
+fun Bundle.getPartnerAuth() =
+    InstrumentationRegistry.getArguments()
+        .getString("mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.partnerAuth")
+
+fun Bundle.getValidAccountNumber() =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument(
+            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid"
+        )
+
+fun Bundle.getInvalidAccountNumber() =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument(
+            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid"
+        )
+
+fun Bundle.isBillingEnabled(): Boolean =
+    InstrumentationRegistry.getArguments()
+        .getString("mullvad.test.e2e.config.billing.enable", "false")
+        .toBoolean()
+
+fun Bundle.isRaasEnabled(): Boolean =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("mullvad.test.e2e.config.raas.enable")
+        .toBoolean()
+
+fun Bundle.isHighlyRateLimitedTestsEnabled(): Boolean =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("mullvad.test.e2e.config.runHighlyRateLimitedTests")
+        .toBoolean()
+
+fun Bundle.getRaasHost() =
+    InstrumentationRegistry.getArguments().getRequiredArgument("mullvad.test.e2e.config.raas.host")
+
+fun Bundle.getTrafficGeneratorHost(): String =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("mullvad.test.e2e.config.raas.trafficGenerator.target.host")
+
+fun Bundle.getTrafficGeneratorPort(): Int =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("mullvad.test.e2e.config.raas.trafficGenerator.target.port")
+        .toInt()

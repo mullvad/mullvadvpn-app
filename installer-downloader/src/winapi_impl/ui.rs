@@ -8,7 +8,7 @@ use native_windows_gui::{self as nwg, ControlHandle, ImageDecoder, WindowFlags};
 
 use windows_sys::Win32::Foundation::COLORREF;
 use windows_sys::Win32::Graphics::Gdi::{
-    CreateFontIndirectW, SetBkColor, SetBkMode, SetTextColor, COLOR_WINDOW, LOGFONTW, TRANSPARENT,
+    COLOR_WINDOW, CreateFontIndirectW, LOGFONTW, SetBkColor, SetBkMode, SetTextColor, TRANSPARENT,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::WM_CTLCOLORSTATIC;
 
@@ -48,6 +48,9 @@ pub const BETA_LINK_HANDLER_ID: usize = 0x10002;
 pub struct AppWindow {
     pub window: nwg::Window,
 
+    pub window_icon_res: nwg::EmbedResource,
+    pub window_icon: Option<nwg::Icon>,
+
     pub banner: nwg::ImageFrame,
 
     pub banner_text: nwg::Label,
@@ -66,8 +69,6 @@ pub struct AppWindow {
 
     pub beta_prefix: nwg::Label,
     pub beta_link: nwg::Label,
-
-    pub arrow_font: nwg::Font,
 
     pub stable_message_frame: nwg::ImageFrame,
     pub stable_prefix: nwg::Label,
@@ -142,10 +143,17 @@ impl AppWindow {
     /// Set up UI elements, position them, and register window message handlers
     /// Note that some additional setup happens in [Self::on_init]
     pub fn layout(mut self) -> Result<Rc<RefCell<AppWindow>>, nwg::NwgError> {
+        nwg::EmbedResource::builder().build(&mut self.window_icon_res)?;
+
+        // Load icon embedded using the build script. This has a default id of 1.
+        // See `winres::WindowsResource::set_icon`.
+        self.window_icon = self.window_icon_res.icon(1, None);
+
         nwg::Window::builder()
             .size((WINDOW_WIDTH as i32, WINDOW_HEIGHT as i32))
             .center(true)
             .title(WINDOW_TITLE)
+            .icon(self.window_icon.as_ref())
             .flags(WindowFlags::WINDOW)
             .build(&mut self.window)?;
 
@@ -216,15 +224,10 @@ impl AppWindow {
             .size((240, 24))
             .build(&mut self.stable_message_frame)?;
 
-        nwg::Font::builder()
-            .family("Segoe Fluent Icons")
-            .size(10)
-            .build(&mut self.arrow_font)?;
         nwg::Label::builder()
             .parent(&self.stable_message_frame)
             .size((16, 24))
-            .text("")
-            .font(Some(&self.arrow_font))
+            .text("←")
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.stable_prefix)?;
         nwg::Label::builder()
@@ -278,7 +281,7 @@ impl AppWindow {
             self.window.size().1 as i32 - 24 - self.stable_message_frame.size().1 as i32,
         );
         self.stable_link.set_position(16, 0);
-        self.stable_prefix.set_position(4, 12 - 4);
+        self.stable_prefix.set_position(0, 0);
         handle_link_messages(
             &self.stable_message_frame.handle,
             &self.stable_prefix,

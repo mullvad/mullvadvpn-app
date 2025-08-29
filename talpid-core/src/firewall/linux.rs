@@ -2,8 +2,9 @@ use super::{FirewallArguments, FirewallPolicy};
 use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
 use nftnl::{
+    Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
     expr::{self, IcmpCode, Payload, RejectionType, Verdict},
-    nft_expr, table, Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
+    nft_expr, table,
 };
 use std::{
     env,
@@ -12,9 +13,12 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     sync::LazyLock,
 };
-use talpid_types::net::{
-    AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
-    ALLOWED_LAN_NETS,
+use talpid_types::{
+    cgroup::find_net_cls_mount,
+    net::{
+        ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
+        Endpoint, TransportProtocol,
+    },
 };
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
@@ -52,6 +56,10 @@ pub enum Error {
     /// Unable to translate network interface name into index.
     #[error("Unable to translate network interface name \"{0}\" into index")]
     LookupIfaceIndexError(String, #[source] crate::linux::IfaceIndexLookupError),
+
+    /// Failed to check if the net_cls mount exists.
+    #[error("An error occurred when checking for net_cls")]
+    FindNetClsMount(#[source] io::Error),
 }
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
@@ -140,10 +148,10 @@ impl Firewall {
     fn apply_kernel_config(policy: &FirewallPolicy) {
         if *DONT_SET_SRC_VALID_MARK {
             log::debug!("Not setting src_valid_mark");
-        } else if let FirewallPolicy::Connecting { .. } = policy {
-            if let Err(err) = set_src_valid_mark_sysctl() {
-                log::error!("Failed to apply src_valid_mark: {}", err);
-            }
+        } else if let FirewallPolicy::Connecting { .. } = policy
+            && let Err(err) = set_src_valid_mark_sysctl()
+        {
+            log::error!("Failed to apply src_valid_mark: {}", err);
         }
 
         // When we have a tunnel with an IP configured, we configure the system
@@ -158,10 +166,9 @@ impl Firewall {
         if *DONT_SET_ARP_IGNORE {
             log::debug!("Not setting arp_ignore");
         } else if let FirewallPolicy::Connecting { .. } | FirewallPolicy::Connected { .. } = policy
+            && let Err(err) = lock_down_arp_ignore_sysctl()
         {
-            if let Err(err) = lock_down_arp_ignore_sysctl() {
-                log::error!("Failed to apply arp_ignore: {}", err);
-            }
+            log::error!("Failed to apply arp_ignore: {}", err);
         }
     }
 
@@ -303,7 +310,19 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-        self.add_split_tunneling_rules(policy, fwmark)?;
+
+        // if cgroups v1 doesn't exist, split tunneling won't work.
+        // checking if the `net_cls` mount exists is a cheeky way of checking this.
+        if find_net_cls_mount()
+            .map_err(Error::FindNetClsMount)?
+            .is_some()
+        {
+            self.add_split_tunneling_rules(policy, fwmark)?;
+        } else {
+            // skipping add_split_tunneling_rules as it won't cause traffic to leak
+            log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
+        }
+
         self.add_dhcp_client_rules();
         self.add_ndp_rules();
         self.add_policy_specific_rules(policy, fwmark)?;
@@ -311,6 +330,10 @@ impl<'a> PolicyBatch<'a> {
         Ok(self.batch.finalize())
     }
 
+    /// Allow split-tunneled traffic outside the tunnel.
+    ///
+    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup
+    /// defined by [split_tunnel::NET_CLS_CLASSID].
     fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {

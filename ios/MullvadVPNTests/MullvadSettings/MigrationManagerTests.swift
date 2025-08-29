@@ -12,7 +12,7 @@
 @testable import MullvadTypes
 import XCTest
 
-final class MigrationManagerTests: XCTestCase {
+final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
     static let store = InMemorySettingsStore<SettingNotFound>()
 
     var manager: MigrationManager!
@@ -22,7 +22,7 @@ final class MigrationManagerTests: XCTestCase {
     }
 
     override static func tearDown() {
-        SettingsManager.unitTestStore = nil
+        store.reset()
     }
 
     override func setUpWithError() throws {

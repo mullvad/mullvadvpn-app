@@ -32,6 +32,7 @@ class VPNSettingsPage: Page {
         let expandButton = matchingCells.buttons[.expandButton]
         let lastCell = tableView.cells.allElementsBoundByIndex.last!
         tableView.scrollDownToElement(element: lastCell)
+        _ = expandButton.waitForExistence(timeout: BaseUITestCase.defaultTimeout)
         return expandButton
     }
 
@@ -125,6 +126,11 @@ class VPNSettingsPage: Page {
     @discardableResult func tapWireGuardObfuscationShadowsocksCell() -> Self {
         app.cells[AccessibilityIdentifier.wireGuardObfuscationShadowsocks].tap()
 
+        return self
+    }
+
+    @discardableResult func tapWireGuardObufscationQuicCell() -> Self {
+        app.cells[AccessibilityIdentifier.wireGuardObfuscationQuic].tap()
         return self
     }
 

@@ -11,28 +11,41 @@ const GIT_HASH_DEV_SUFFIX_LEN: usize = 6;
 const ANDROID_VERSION_FILE_PATH: &str = "../dist-assets/android-version-name.txt";
 const DESKTOP_VERSION_FILE_PATH: &str = "../dist-assets/desktop-product-version.txt";
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum Target {
     Android,
     Desktop,
 }
 
 impl Target {
-    pub fn current_target() -> Self {
+    fn current_target() -> Result<Self, String> {
         println!("cargo:rerun-if-env-changed=CARGO_CFG_TARGET_OS");
         match env::var("CARGO_CFG_TARGET_OS")
             .expect("CARGO_CFG_TARGET_OS should be set")
             .as_str()
         {
-            "android" => Self::Android,
-            "linux" | "windows" | "macos" => Self::Desktop,
-            target_os => panic!("Unsupported target OS: {target_os}"),
+            "android" => Ok(Self::Android),
+            "linux" | "windows" | "macos" => Ok(Self::Desktop),
+            other => Err(other.to_owned()),
         }
     }
 }
 
 fn main() {
-    let product_version = get_product_version(Target::current_target());
+    // Mark "has_version" as a conditional configuration flag
+    println!("cargo::rustc-check-cfg=cfg(has_version)");
+
+    let target = match Target::current_target() {
+        Ok(target) => target,
+        Err(other) => {
+            eprintln!("No version available for target {other}");
+            return;
+        }
+    };
+
+    println!(r#"cargo::rustc-cfg=has_version"#);
+
+    let product_version = get_product_version(target);
     let android_product_version = get_product_version(Target::Android);
 
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
@@ -62,7 +75,7 @@ fn get_product_version(target: Target) -> String {
     // Compute the expected tag name for the release named `product_version`
     let release_tag = match target {
         Target::Android => format!("android/{release_version}"),
-        Target::Desktop => release_version.to_owned(),
+        Target::Desktop => release_version.clone(),
     };
 
     format!("{release_version}{}", get_suffix(&release_tag))

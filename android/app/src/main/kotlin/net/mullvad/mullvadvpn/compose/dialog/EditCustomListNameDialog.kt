@@ -15,7 +15,6 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
-import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -24,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
@@ -32,7 +32,14 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewEditCustomListNameDialog() {
-    AppTheme { EditCustomListNameDialog(EditCustomListNameUiState(), {}, {}, {}) }
+    AppTheme {
+        EditCustomListNameDialog(
+            state = EditCustomListNameUiState(),
+            updateName = {},
+            onInputChanged = {},
+            onDismiss = {},
+        )
+    }
 }
 
 data class EditCustomListNameNavArgs(
@@ -75,8 +82,10 @@ fun EditCustomListNameDialog(
 ) {
     InputDialog(
         title = stringResource(id = R.string.update_list_name),
-        confirmButtonText = stringResource(id = R.string.save),
         confirmButtonEnabled = state.isValidName,
+        confirmButtonText = stringResource(id = R.string.save),
+        onBack = onDismiss,
+        onConfirm = { updateName(state.name) },
         input = {
             CustomListNameTextField(
                 name = state.name,
@@ -87,8 +96,6 @@ fun EditCustomListNameDialog(
                 modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
-        onBack = onDismiss,
-        onConfirm = { updateName(state.name) },
     )
 }
 

@@ -50,12 +50,14 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         entryRelay = SelectedRelay(
             endpoint: entryMatch.endpoint,
             hostname: entryMatch.relay.hostname,
-            location: entryMatch.location
+            location: entryMatch.location,
+            features: nil
         )
         exitRelay = SelectedRelay(
             endpoint: exitMatch.endpoint,
             hostname: exitMatch.relay.hostname,
-            location: exitMatch.location
+            location: exitMatch.location,
+            features: nil
         )
     }
 
@@ -90,8 +92,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
 
         await multiHopExchanger.start()
 
-        wait(
-            for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -133,8 +135,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -160,7 +162,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             keyExchanger: peerExchangeActor,
             enablePostQuantum: false,
             enableDaita: true
-        ) { params in
+        ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
@@ -171,8 +173,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -213,8 +215,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }

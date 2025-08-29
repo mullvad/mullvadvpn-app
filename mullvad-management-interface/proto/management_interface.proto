@@ -6,7 +6,6 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/any.proto";
 
 service ManagementService {
   // Control and get tunnel state
@@ -25,6 +24,8 @@ service ManagementService {
   rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  // Get information about the latest available version of the app.
+  // Note that calling this during an in-app upgrade will cancel the upgrade.
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
@@ -46,6 +47,7 @@ service ManagementService {
   rpc SetAutoConnect(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
   rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+  rpc SetWireguardAllowedIps(AllowedIpsList) returns (google.protobuf.Empty) {}
   rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
   rpc SetEnableDaita(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
@@ -54,6 +56,7 @@ service ManagementService {
   rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
   rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
   rpc ClearAllRelayOverrides(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetEnableRecents(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -78,7 +81,7 @@ service ManagementService {
   rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 
   // Custom lists
-  rpc CreateCustomList(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+  rpc CreateCustomList(NewCustomList) returns (google.protobuf.StringValue) {}
   rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc UpdateCustomList(CustomList) returns (google.protobuf.Empty) {}
   rpc ClearCustomLists(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -94,6 +97,7 @@ service ManagementService {
   rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
 
   // Split tunneling (Linux)
+  rpc SplitTunnelIsEnabled(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
@@ -130,6 +134,44 @@ service ManagementService {
 
   rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
   rpc LogListen(google.protobuf.Empty) returns (stream LogMessage) {}
+  // Debug features
+  rpc DisableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc EnableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+  // App upgrade
+  rpc AppUpgrade(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AppUpgradeAbort(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AppUpgradeEventsListen(google.protobuf.Empty) returns (stream AppUpgradeEvent) {}
+  rpc GetAppUpgradeCacheDir(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+}
+
+message AppUpgradeEvent {
+  oneof event {
+    AppUpgradeDownloadStarting download_starting = 1;
+    AppUpgradeDownloadProgress download_progress = 2;
+    AppUpgradeAborted upgrade_aborted = 3;
+    AppUpgradeVerifyingInstaller verifying_installer = 4;
+    AppUpgradeVerifiedInstaller verified_installer = 5;
+    AppUpgradeError error = 6;
+  }
+}
+
+message AppUpgradeDownloadStarting {}
+message AppUpgradeDownloadProgress {
+  string server = 1;
+  uint32 progress = 2;
+  optional google.protobuf.Duration time_left = 3;
+}
+message AppUpgradeAborted {}
+message AppUpgradeVerifyingInstaller {}
+message AppUpgradeVerifiedInstaller {}
+message AppUpgradeError {
+  enum Error {
+    GENERAL_ERROR = 0;
+    DOWNLOAD_FAILED = 1;
+    VERIFICATION_FAILED = 2;
+  }
+  Error error = 1;
 }
 
 message UUID { string value = 1; }
@@ -186,6 +228,8 @@ message ErrorState {
     NO_MATCHING_BRIDGE_RELAY = 1;
     NO_WIREGUARD_KEY = 2;
     CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR = 3;
+    NETWORK_IPV4_UNAVAILABLE = 4;
+    NETWORK_IPV6_UNAVAILABLE = 5;
   }
 
   message FirewallPolicyError {
@@ -279,19 +323,22 @@ enum FeatureIndicator {
   LOCKDOWN_MODE = 4;
   UDP_2_TCP = 5;
   SHADOWSOCKS = 6;
-  LAN_SHARING = 7;
-  DNS_CONTENT_BLOCKERS = 8;
-  CUSTOM_DNS = 9;
-  SERVER_IP_OVERRIDE = 10;
-  CUSTOM_MTU = 11;
-  CUSTOM_MSS_FIX = 12;
-  DAITA = 13;
+  QUIC = 7;
+  LAN_SHARING = 8;
+  DNS_CONTENT_BLOCKERS = 9;
+  CUSTOM_DNS = 10;
+  SERVER_IP_OVERRIDE = 11;
+  CUSTOM_MTU = 12;
+  CUSTOM_MSS_FIX = 13;
+  DAITA = 14;
+  DAITA_MULTIHOP = 15;
 }
 
 message ObfuscationEndpoint {
   enum ObfuscationType {
     UDP2TCP = 0;
     SHADOWSOCKS = 1;
+    QUIC = 2;
   }
 
   string address = 1;
@@ -386,6 +433,7 @@ message ObfuscationSettings {
     OFF = 1;
     UDP2TCP = 2;
     SHADOWSOCKS = 3;
+    QUIC = 4;
   }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscationSettings udp2tcp = 2;
@@ -396,6 +444,11 @@ message CustomList {
   string id = 1;
   string name = 2;
   repeated GeographicLocationConstraint locations = 3;
+}
+
+message NewCustomList {
+  string name = 1;
+  repeated GeographicLocationConstraint locations = 2;
 }
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
@@ -476,12 +529,28 @@ message Settings {
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
+  optional Recents recents = 14;
+  bool update_default_location = 15;
 }
 
 message RelayOverride {
   string hostname = 1;
   optional string ipv4_addr_in = 2;
   optional string ipv6_addr_in = 3;
+}
+
+message Recents { repeated Recent recents = 1; }
+
+message MultihopRecent {
+  LocationConstraint entry = 1;
+  LocationConstraint exit = 2;
+}
+
+message Recent {
+  oneof type {
+    LocationConstraint singlehop = 1;
+    MultihopRecent multihop = 2;
+  }
 }
 
 message SplitTunnelSettings {
@@ -520,8 +589,9 @@ enum IpVersion {
 message WireguardConstraints {
   optional uint32 port = 1;
   optional IpVersion ip_version = 2;
-  bool use_multihop = 3;
-  LocationConstraint entry_location = 4;
+  repeated string allowed_ips = 3;
+  bool use_multihop = 4;
+  LocationConstraint entry_location = 5;
 }
 
 message CustomRelaySettings {
@@ -623,11 +693,15 @@ message ExcludedProcess {
 
 message ExcludedProcessList { repeated ExcludedProcess processes = 1; }
 
+message SuggestedUpgrade {
+  string version = 1;
+  string changelog = 2;
+  optional string verified_installer_path = 3;
+}
+
 message AppVersionInfo {
   bool supported = 1;
-  string latest_stable = 2;
-  string latest_beta = 3;
-  optional string suggested_upgrade = 4;
+  SuggestedUpgrade suggested_upgrade = 2;
 }
 
 message RelayListCountry {
@@ -645,10 +719,27 @@ message RelayListCity {
 }
 
 message Relay {
-  enum RelayType {
-    OPENVPN = 0;
-    BRIDGE = 1;
-    WIREGUARD = 2;
+  message RelayData {
+    message OpenVPN {}
+    message Bridge {}
+    message Wireguard {
+      message Quic {
+        string domain = 1;
+        string token = 2;
+        repeated string addr_in = 3;
+      }
+
+      bytes public_key = 1;
+      bool daita = 2;
+      Quic quic = 3;
+      repeated string shadowsocks_extra_addr_in = 4;
+    }
+
+    oneof data {
+      Wireguard wireguard = 1;
+      OpenVPN openvpn = 2;
+      Bridge bridge = 3;
+    }
   }
 
   string hostname = 1;
@@ -659,15 +750,8 @@ message Relay {
   bool owned = 6;
   string provider = 7;
   fixed64 weight = 8;
-  RelayType endpoint_type = 9;
-  google.protobuf.Any endpoint_data = 10;
-  Location location = 11;
-}
-
-message WireguardRelayEndpointData {
-  bytes public_key = 1;
-  bool daita = 2;
-  repeated string shadowsocks_extra_addr_in = 3;
+  RelayData endpoint_data = 9;
+  Location location = 10;
 }
 
 message Location {
@@ -785,6 +869,8 @@ message PlayPurchase {
 }
 
 message PlayPurchasePaymentToken { string token = 1; }
+
+message AllowedIpsList { repeated string values = 1; }
 
 message LogFilter {
   string log_filter = 1;

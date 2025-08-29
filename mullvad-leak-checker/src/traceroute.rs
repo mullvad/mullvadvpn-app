@@ -74,7 +74,7 @@ pub async fn run_leak_test(opt: &TracerouteOpt) -> LeakStatus {
 /// reach `destination`, this testing method is resistant to being fingerprinted or censored.
 ///
 /// This test needs a raw socket to be able to listen for the ICMP responses, therefore it requires
-/// root/admin priviliges.
+/// root/admin privileges.
 pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
     #[cfg(unix)]
     return {

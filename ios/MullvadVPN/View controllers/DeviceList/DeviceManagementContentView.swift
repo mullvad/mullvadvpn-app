@@ -30,7 +30,8 @@ class DeviceManagementContentView: UIView {
 
     let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 32)
+        textLabel.font = .mullvadLarge
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         return textLabel
@@ -38,7 +39,8 @@ class DeviceManagementContentView: UIView {
 
     let messageLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadSmall
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.numberOfLines = 0
@@ -60,12 +62,7 @@ class DeviceManagementContentView: UIView {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
-            NSLocalizedString(
-                "CONTINUE_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Continue with login",
-                comment: ""
-            ),
+            NSLocalizedString("Continue with login", comment: ""),
             for: .normal
         )
         button.isEnabled = false
@@ -73,23 +70,18 @@ class DeviceManagementContentView: UIView {
         return button
     }()
 
-    let backButton: AppButton = {
+    let cancelButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
-            NSLocalizedString(
-                "BACK_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Back",
-                comment: ""
-            ),
+            NSLocalizedString("Cancel", comment: ""),
             for: .normal
         )
         return button
     }()
 
     private lazy var buttonStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [continueButton, backButton])
+        let stackView = UIStackView(arrangedSubviews: [continueButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
@@ -128,7 +120,7 @@ class DeviceManagementContentView: UIView {
 
     private func constraintViews() {
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.topAnchor.constraint(equalTo: topAnchor, constant: 16),
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
@@ -156,7 +148,7 @@ class DeviceManagementContentView: UIView {
             scrollContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
             statusImageView.topAnchor
-                .constraint(equalTo: scrollContentView.layoutMarginsGuide.topAnchor),
+                .constraint(equalTo: scrollContentView.topAnchor),
             statusImageView.centerXAnchor.constraint(equalTo: scrollContentView.centerXAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 22),
@@ -280,40 +272,20 @@ class DeviceManagementContentView: UIView {
 
     private var titleText: String {
         if canContinue {
-            return NSLocalizedString(
-                "CONTINUE_LOGIN_TITLE",
-                tableName: "DeviceManagement",
-                value: "Super!",
-                comment: ""
-            )
+            return NSLocalizedString("Super!", comment: "")
         } else {
-            return NSLocalizedString(
-                "LOGOUT_DEVICES_TITLE",
-                tableName: "DeviceManagement",
-                value: "Too many devices",
-                comment: ""
-            )
+            return NSLocalizedString("Too many devices", comment: "")
         }
     }
 
     private var messageText: String {
         if canContinue {
-            return NSLocalizedString(
-                "CONTINUE_LOGIN_MESSAGE",
-                tableName: "DeviceManagement",
-                value: "You can now continue logging in on this device.",
-                comment: ""
-            )
+            return NSLocalizedString("You can now continue logging in on this device.", comment: "")
         } else {
-            return NSLocalizedString(
-                "LOGOUT_DEVICES_MESSAGE",
-                tableName: "DeviceManagement",
-                value: """
-                Please log out of at least one by removing it from the list below. You can find \
-                the corresponding device name under the device’s Account settings.
-                """,
-                comment: ""
-            )
+            return NSLocalizedString("""
+            Please log out of at least one by removing it from the list below. You can find \
+            the corresponding device name under the device’s Account settings.
+            """, comment: "")
         }
     }
 }

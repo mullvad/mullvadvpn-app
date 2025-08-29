@@ -7,6 +7,7 @@ import {
   ITunnelEndpoint,
   TunnelState,
 } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import {
   expectConnected,
   expectConnecting,
@@ -29,6 +30,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -45,7 +47,7 @@ test('App should show disconnected tunnel state', async () => {
   });
   await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
-    response: { state: 'disconnected' },
+    response: { state: 'disconnected', lockedDown: false },
   });
   await expectDisconnected(page);
 });

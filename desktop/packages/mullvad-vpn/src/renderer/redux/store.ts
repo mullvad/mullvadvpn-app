@@ -1,10 +1,10 @@
-import { useRef } from 'react';
 import { useSelector as useReduxSelector } from 'react-redux';
 import { combineReducers, compose, createStore, Dispatch, StoreEnhancer } from 'redux';
 
-import { useWillExit } from '../lib/will-exit';
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
+import { AppUpgradeAction, appUpgradeActions } from './app-upgrade/actions';
+import { appUpgradeReducer, AppUpgradeReduxState } from './app-upgrade/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
 import connectionReducer, { IConnectionReduxState } from './connection/reducers';
 import settingsActions, { SettingsAction } from './settings/actions';
@@ -20,6 +20,7 @@ import versionReducer, { IVersionReduxState } from './version/reducers';
 
 export interface IReduxState {
   account: IAccountReduxState;
+  appUpgrade: AppUpgradeReduxState;
   connection: IConnectionReduxState;
   settings: ISettingsReduxState;
   support: ISupportReduxState;
@@ -29,6 +30,7 @@ export interface IReduxState {
 }
 
 export type ReduxAction =
+  | AppUpgradeAction
   | AccountAction
   | ConnectionAction
   | SettingsAction
@@ -42,6 +44,7 @@ export type ReduxDispatch = Dispatch<ReduxAction>;
 export default function configureStore() {
   const reducers = {
     account: accountReducer,
+    appUpgrade: appUpgradeReducer,
     connection: connectionReducer,
     settings: settingsReducer,
     support: supportReducer,
@@ -58,6 +61,7 @@ export default function configureStore() {
 function composeEnhancers(): StoreEnhancer {
   const actionCreators = {
     ...accountActions,
+    ...appUpgradeActions,
     ...connectionActions,
     ...settingsActions,
     ...supportActions,
@@ -76,18 +80,7 @@ function composeEnhancers(): StoreEnhancer {
   return compose();
 }
 
-// This hook adds type to state to make use simpler. It also prevents the state from update if the
-// WillExit context value is true.
+// This hook adds type to state to make use simpler.
 export function useSelector<R>(fn: (state: IReduxState) => R): R {
-  const value = useReduxSelector(fn);
-  const valueBeforeExit = useRef(value);
-  const willExit = useWillExit();
-
-  if (!willExit) {
-    // eslint-disable-next-line react-compiler/react-compiler
-    valueBeforeExit.current = value;
-  }
-
-  // eslint-disable-next-line react-compiler/react-compiler
-  return valueBeforeExit.current;
+  return useReduxSelector(fn);
 }

@@ -1,12 +1,12 @@
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use futures::{channel::mpsc, FutureExt, SinkExt, StreamExt};
-use serde::{de::DeserializeOwned, Serialize};
+use futures::{FutureExt, SinkExt, StreamExt, channel::mpsc};
+use serde::{Serialize, de::DeserializeOwned};
 use std::{
     fmt::Write,
     io,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     time::Duration,
 };
@@ -486,7 +486,7 @@ fn display_chain(error: impl std::error::Error) -> String {
     let mut s = error.to_string();
     let mut error = &error as &dyn std::error::Error;
     while let Some(source) = error.source() {
-        write!(&mut s, "\nCaused by: {}", source).unwrap();
+        write!(&mut s, "\nCaused by: {source}").unwrap();
         error = source;
     }
     s

@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 env:
   # Pinning nightly just to avoid random breakage. It's fine to bump this at any time
-  RUST_NIGHTLY_TOOLCHAIN: nightly-2024-10-02
+  RUST_NIGHTLY_TOOLCHAIN: nightly-2025-05-14
 
 permissions: {}
 
@@ -116,7 +116,7 @@ jobs:
 
       - name: Install latest zig
         if: matrix.os == 'windows-latest'
-        uses: mlugg/setup-zig@v1
+        uses: mlugg/setup-zig@v2
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3

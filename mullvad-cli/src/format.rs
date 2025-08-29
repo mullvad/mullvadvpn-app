@@ -12,15 +12,9 @@ use talpid_types::{
 
 #[macro_export]
 macro_rules! print_option {
-    ($value:expr_2021 $(,)?) => {{
-        println!("{:<4}{:<24}{}", "", "", $value,)
-    }};
-    ($option:literal, $value:expr_2021 $(,)?) => {{
-        println!("{:<4}{:<24}{}", "", concat!($option, ":"), $value,)
-    }};
-    ($option:expr_2021, $value:expr_2021 $(,)?) => {{
-        println!("{:<4}{:<24}{}", "", format!("{}:", $option), $value,)
-    }};
+    ($value:expr_2021 $(,)?) => {{ println!("{:<4}{:<24}{}", "", "", $value,) }};
+    ($option:literal, $value:expr_2021 $(,)?) => {{ println!("{:<4}{:<24}{}", "", concat!($option, ":"), $value,) }};
+    ($option:expr_2021, $value:expr_2021 $(,)?) => {{ println!("{:<4}{:<24}{}", "", format!("{}:", $option), $value,) }};
 }
 
 pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, verbose: bool) {
@@ -213,13 +207,13 @@ fn print_connection_info(
 pub fn format_location(location: &GeoIpLocation) -> String {
     let mut formatted_location = location.country.to_string();
     if let Some(city) = &location.city {
-        formatted_location.push_str(&format!(", {}", city));
+        formatted_location.push_str(&format!(", {city}"));
     }
     if let Some(ipv4) = location.ipv4 {
-        formatted_location.push_str(&format!(". IPv4: {}", ipv4));
+        formatted_location.push_str(&format!(". IPv4: {ipv4}"));
     }
     if let Some(ipv6) = location.ipv6 {
-        formatted_location.push_str(&format!(", IPv6: {}", ipv6));
+        formatted_location.push_str(&format!(", IPv6: {ipv6}"));
     }
     formatted_location
 }

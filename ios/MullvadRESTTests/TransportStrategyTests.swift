@@ -177,10 +177,12 @@ class TransportStrategyTests: XCTestCase {
     func testNoLoopOnFailureAtLoadingConfigurationWhenBridgeIsOnlyEnabled() {
         shadowsocksLoader.error = IOError.fileNotFound
         directAccess.isEnabled = false
+        encryptedDNS.isEnabled = false
         let transportStrategy = TransportStrategy(
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
+                encryptedDNS,
             ]),
             shadowsocksLoader: shadowsocksLoader
         )
@@ -190,7 +192,7 @@ class TransportStrategyTests: XCTestCase {
         }
     }
 
-    func testUsesSocks5WithAuthenticationWhenItReaches() throws {
+    func testUsesSocks5WithAuthentication() throws {
         let username = "user"
         let password = "pass"
         let authentication = PersistentProxyConfiguration.SocksAuthentication
@@ -203,10 +205,12 @@ class TransportStrategyTests: XCTestCase {
             port: 1080,
             authentication: authentication
         )
+        encryptedDNS.isEnabled = false
         let transportStrategy = TransportStrategy(
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
+                encryptedDNS,
                 PersistentAccessMethod(
                     id: UUID(),
                     name: "",

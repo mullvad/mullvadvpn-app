@@ -1,7 +1,6 @@
-use crate::types::{proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::settings::CURRENT_SETTINGS_VERSION;
 use talpid_types::ErrorExt;
-
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
         #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -57,6 +56,8 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .cloned()
                 .map(proto::RelayOverride::from)
                 .collect(),
+            recents: settings.recents.clone().map(proto::Recents::from),
+            update_default_location: settings.update_default_location,
         }
     }
 }
@@ -202,6 +203,8 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             api_access_methods: mullvad_types::access_method::Settings::try_from(
                 api_access_methods_settings,
             )?,
+            recents: Some(vec![]),
+            update_default_location: settings.update_default_location,
         })
     }
 }
@@ -319,7 +322,7 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
             Err(_) => {
                 return Err(FromProtobufTypeError::InvalidArgument(
                     "invalid DNS options state",
-                ))
+                ));
             }
         };
 
@@ -358,5 +361,29 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
                     .collect::<Result<Vec<_>, _>>()?,
             },
         })
+    }
+}
+
+impl From<Vec<mullvad_types::settings::Recent>> for proto::Recents {
+    fn from(recents: Vec<mullvad_types::settings::Recent>) -> Self {
+        proto::Recents {
+            recents: recents.into_iter().map(proto::Recent::from).collect(),
+        }
+    }
+}
+
+impl From<mullvad_types::settings::Recent> for proto::Recent {
+    fn from(recent: mullvad_types::settings::Recent) -> Self {
+        match recent {
+            mullvad_types::settings::Recent::Singlehop(location) => Self {
+                r#type: Some(proto::recent::Type::Singlehop(location.into())),
+            },
+            mullvad_types::settings::Recent::Multihop { entry, exit } => Self {
+                r#type: Some(proto::recent::Type::Multihop(proto::MultihopRecent {
+                    entry: Some(entry.into()),
+                    exit: Some(exit.into()),
+                })),
+            },
+        }
     }
 }

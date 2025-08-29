@@ -20,19 +20,14 @@ class IPOverrideViewController: UIViewController {
     private lazy var containerView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
-        view.spacing = 20
+        view.spacing = 16
         return view
     }()
 
     private lazy var clearButton: AppButton = {
         let button = AppButton(style: .danger)
         button.addTarget(self, action: #selector(didTapClearButton), for: .touchUpInside)
-        button.setTitle(NSLocalizedString(
-            "IP_OVERRIDE_CLEAR_BUTTON",
-            tableName: "IPOverride",
-            value: "Clear all overrides",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Clear all overrides", comment: ""), for: .normal)
         return button
     }()
 
@@ -51,19 +46,12 @@ class IPOverrideViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         view.backgroundColor = .secondaryColor
-        view.directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
-
         configureNavigation()
         addHeaderView()
         addImportButtons()
         addStatusLabel()
-
-        view.addConstrainedSubviews([containerView, clearButton]) {
-            containerView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-            clearButton.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .trailing(0), .bottom(16)]))
-        }
+        addScrollView()
 
         interactor.statusPublisher.sink { [weak self] status in
             self?.statusView.setStatus(status)
@@ -72,27 +60,52 @@ class IPOverrideViewController: UIViewController {
     }
 
     private func configureNavigation() {
-        title = NSLocalizedString(
-            "IP_OVERRIDE_HEADER",
-            tableName: "IPOverride",
-            value: "Server IP override",
-            comment: ""
-        )
+        title = NSLocalizedString("Server IP override", comment: "")
+    }
+
+    private func addScrollView() {
+        let scrollView = UIScrollView()
+        let contentView = UIView()
+        contentView.directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
+
+        view.addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperview()
+        }
+
+        scrollView.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview()
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            contentView.heightAnchor.constraint(greaterThanOrEqualTo: view.layoutMarginsGuide.heightAnchor)
+        }
+
+        let spacer = UIView()
+
+        let contentStackView = UIStackView(arrangedSubviews: [containerView, spacer, clearButton])
+        contentStackView.axis = .vertical
+        contentStackView.distribution = .fill
+        contentStackView.spacing = 8
+
+        contentView.addConstrainedSubviews([contentStackView]) {
+            contentStackView.pinEdgesToSuperviewMargins()
+        }
+
+        // Hugging & resistance priorities
+        spacer.setContentHuggingPriority(.defaultLow, for: .vertical)
+        spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        containerView.setContentHuggingPriority(.required, for: .vertical)
+        containerView.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        clearButton.setContentHuggingPriority(.required, for: .vertical)
+        clearButton.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 
     private func addHeaderView() {
         let body = NSLocalizedString(
-            "IP_OVERRIDE_HEADER_BODY",
-            tableName: "IPOverride",
-            value: "Import files or text with the new IP addresses for the servers in the Select location view.",
+            "Import files or text with the new IP addresses for the servers in the Select location view.",
             comment: ""
         )
-        let link = NSLocalizedString(
-            "IP_OVERRIDE_HEADER_LINK",
-            tableName: "IPOverride",
-            value: "About Server IP override...",
-            comment: ""
-        )
+        let link = NSLocalizedString("About Server IP override...", comment: "")
 
         let headerView = InfoHeaderView(config: InfoHeaderConfig(body: body, link: link))
 
@@ -106,22 +119,13 @@ class IPOverrideViewController: UIViewController {
     private func addImportButtons() {
         let importTextButton = AppButton(style: .default)
         importTextButton.addTarget(self, action: #selector(didTapImportTextButton), for: .touchUpInside)
-        importTextButton.setTitle(NSLocalizedString(
-            "IP_OVERRIDE_IMPORT_TEXT_BUTTON",
-            tableName: "IPOverride",
-            value: "Import via text",
-            comment: ""
-        ), for: .normal)
+        importTextButton.setTitle(NSLocalizedString("Import via text", comment: ""), for: .normal)
+        importTextButton.titleLabel?.textAlignment = .center
 
         let importFileButton = AppButton(style: .default)
         importFileButton.addTarget(self, action: #selector(didTapImportFileButton), for: .touchUpInside)
-        importFileButton.setTitle(NSLocalizedString(
-            "IP_OVERRIDE_IMPORT_FILE_BUTTON",
-            tableName: "IPOverride",
-            value: "Import file",
-            comment: ""
-        ), for: .normal)
-
+        importFileButton.setTitle(NSLocalizedString("Import file", comment: ""), for: .normal)
+        importFileButton.titleLabel?.textAlignment = .center
         let stackView = UIStackView(arrangedSubviews: [importTextButton, importFileButton])
         stackView.distribution = .fillEqually
         stackView.spacing = 12
@@ -137,16 +141,9 @@ class IPOverrideViewController: UIViewController {
         let presentation = AlertPresentation(
             id: "ip-override-clear-alert",
             icon: .alert,
-            title: NSLocalizedString(
-                "IP_OVERRIDE_CLEAR_DIALOG_TITLE",
-                tableName: "IPOverride",
-                value: "Clear all overrides?",
-                comment: ""
-            ),
+            title: NSLocalizedString("Clear all overrides?", comment: ""),
             message: NSLocalizedString(
-                "IP_OVERRIDE_CLEAR_DIALOG_MESSAGE",
-                tableName: "IPOverride",
-                value: """
+                """
                 Clearing the imported overrides changes the server IPs, in the Select location view, \
                 back to default.
                 """,
@@ -154,24 +151,14 @@ class IPOverrideViewController: UIViewController {
             ),
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "IP_OVERRIDE_CLEAR_DIALOG_CLEAR_BUTTON",
-                        tableName: "IPOverride",
-                        value: "Clear",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Clear", comment: ""),
                     style: .destructive,
                     handler: { [weak self] in
                         self?.interactor.deleteAllOverrides()
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "IP_OVERRIDE_CLEAR_DIALOG_CANCEL_BUTTON",
-                        tableName: "IPOverride",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Cancel", comment: ""),
                     style: .default
                 ),
             ]

@@ -20,7 +20,7 @@ import WireGuardKitTypes
  tunnel process.
 
  Packet tunnel runs this operation immediately as it starts, with `rotateImmediatelyOnKeyMismatch` flag set to
- `true` which forces key rotation to happpen immediately given that the key stored on server does not match the key
+ `true` which forces key rotation to happen immediately given that the key stored on server does not match the key
  stored on device. Unless the last rotation attempt took place less than 15 seconds ago in which case the key rotation
  is not performed.
 
@@ -66,7 +66,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
      Begins the flow by fetching device state and then fetching account and device data. Calls `didReceiveData()` with
      the received data when done.
      */
-    private func startFlow(completion: @escaping (Result<DeviceCheck, Error>) -> Void) {
+    private func startFlow(completion: @escaping @Sendable (Result<DeviceCheck, Error>) -> Void) {
         do {
             guard case let .loggedIn(accountData, deviceData) = try deviceStateAccessor.read() else {
                 throw DeviceCheckError.invalidDeviceState
@@ -90,7 +90,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
     private func didReceiveData(
         accountResult: Result<Account, Error>,
         deviceResult: Result<Device, Error>,
-        completion: @escaping (Result<DeviceCheck, Error>) -> Void
+        completion: @escaping @Sendable (Result<DeviceCheck, Error>) -> Void
     ) {
         do {
             let accountVerdict = try accountVerdict(from: accountResult)
@@ -158,7 +158,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
      then it rotate device key by marking the beginning of key rotation, updating device state and persisting before
      proceeding to rotate the key.
      */
-    private func rotateKeyIfNeeded(completion: @escaping (Result<KeyRotationStatus, Error>) -> Void) {
+    private func rotateKeyIfNeeded(completion: @escaping @Sendable (Result<KeyRotationStatus, Error>) -> Void) {
         let deviceState: DeviceState
         do {
             deviceState = try deviceStateAccessor.read()

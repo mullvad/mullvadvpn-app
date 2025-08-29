@@ -1,14 +1,14 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare
 
 use std::{
-    ffi::{c_char, CStr},
+    ffi::{CStr, c_char},
     io, mem,
 };
 use windows_sys::Win32::{
     Foundation::{CloseHandle, ERROR_NO_MORE_FILES, HANDLE, INVALID_HANDLE_VALUE},
     System::Diagnostics::ToolHelp::{
-        CreateToolhelp32Snapshot, Module32First, Module32Next, Process32FirstW, Process32NextW,
-        MODULEENTRY32, PROCESSENTRY32W,
+        CreateToolhelp32Snapshot, MODULEENTRY32, Module32First, Module32Next, PROCESSENTRY32W,
+        Process32FirstW, Process32NextW,
     },
 };
 

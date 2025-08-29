@@ -52,17 +52,12 @@ class CustomListActionUseCase(
     ): Either<CreateWithLocationsError, Created> = either {
         val customListId =
             customListsRepository
-                .createCustomList(action.name)
+                .createCustomList(action.name, action.locations)
                 .mapLeft(CreateWithLocationsError::Create)
                 .bind()
 
         val locationNames =
             if (action.locations.isNotEmpty()) {
-                customListsRepository
-                    .updateCustomListLocations(customListId, action.locations)
-                    .mapLeft(CreateWithLocationsError::UpdateLocations)
-                    .bind()
-
                 relayListRepository.relayList
                     .firstOrNull()
                     ?.getRelayItemsByCodes(action.locations)
@@ -120,9 +115,6 @@ sealed interface CustomListActionError
 sealed interface CreateWithLocationsError : CustomListActionError {
 
     data class Create(val error: CreateCustomListError) : CreateWithLocationsError
-
-    data class UpdateLocations(val error: UpdateCustomListLocationsError) :
-        CreateWithLocationsError
 
     data object UnableToFetchRelayList : CreateWithLocationsError
 }

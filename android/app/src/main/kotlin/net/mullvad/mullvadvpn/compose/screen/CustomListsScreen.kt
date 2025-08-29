@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -45,13 +44,12 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.CustomListsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.test.NEW_LIST_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.NEW_LIST_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -60,7 +58,15 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAccountScreen(
     @PreviewParameter(CustomListsUiStatePreviewParameterProvider::class) state: CustomListsUiState
 ) {
-    AppTheme { CustomListsScreen(state = state, SnackbarHostState(), {}, { _ -> }, {}) }
+    AppTheme {
+        CustomListsScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            addCustomList = {},
+            openCustomList = { _ -> },
+            onBackClick = {},
+        )
+    }
 }
 
 @Composable
@@ -156,11 +162,7 @@ fun CustomListsScreen(
 }
 
 private fun LazyListScope.loading() {
-    item(contentType = ContentType.PROGRESS) {
-        MullvadCircularProgressIndicatorLarge(
-            modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-        )
-    }
+    item(contentType = ContentType.PROGRESS) { MullvadCircularProgressIndicatorLarge() }
 }
 
 private fun LazyListScope.content(
@@ -174,6 +176,7 @@ private fun LazyListScope.content(
     ) { customList ->
         NavigationComposeCell(
             title = customList.name.value,
+            textStyle = MaterialTheme.typography.bodyLarge,
             onClick = { openCustomList(customList) },
         )
     }
@@ -183,8 +186,8 @@ private fun LazyListScope.empty() {
     item(contentType = ContentType.EMPTY_TEXT) {
         Text(
             text = stringResource(R.string.no_custom_lists_available),
-            modifier = Modifier.padding(Dimens.screenVerticalMargin),
-            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(Dimens.mediumPadding),
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }

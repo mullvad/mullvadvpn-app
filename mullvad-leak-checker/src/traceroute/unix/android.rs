@@ -1,8 +1,8 @@
 use socket2::Socket;
 
-use crate::{util::Ip, Interface};
+use crate::{Interface, util::Ip};
 
-use super::{common::bind_socket_to_interface, linux, Traceroute};
+use super::{Traceroute, common::bind_socket_to_interface, linux};
 
 pub struct TracerouteAndroid;
 

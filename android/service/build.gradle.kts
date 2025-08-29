@@ -1,20 +1,20 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.service"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
-        minSdk = Versions.minSdkVersion
-        val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
-        val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild(localProperties)
+        minSdk = libs.versions.min.sdk.get().toInt()
+        val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild()
         buildConfigField(
             "Boolean",
             "REQUIRE_BUNDLED_RELAY_FILE",
@@ -27,9 +27,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-        allWarningsAsErrors = true
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
+            allWarningsAsErrors = true
+        }
     }
 
     lint {
@@ -49,14 +51,17 @@ android {
             isDefault = true
             // Not used for production builds.
             buildConfigField("String", "API_ENDPOINT", "\"\"")
+            buildConfigField("String", "API_IP", "\"\"")
         }
         create(Flavors.DEVMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.devmole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.4\"")
         }
         create(Flavors.STAGEMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.stagemole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.132\"")
         }
     }
 
@@ -79,4 +84,13 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.turbine)
+    testImplementation(projects.lib.commonTest)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }

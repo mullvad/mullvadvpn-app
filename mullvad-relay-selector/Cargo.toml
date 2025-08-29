@@ -14,12 +14,13 @@ workspace = true
 chrono = { workspace = true }
 thiserror = { workspace = true }
 ipnetwork = { workspace = true }
-itertools = "0.12"
+itertools = { workspace = true }
 log = { workspace = true }
 rand = "0.8.5"
 serde_json = { workspace = true }
 
 talpid-types = { path = "../talpid-types" }
+vec1 = { workspace = true }
 mullvad-types = { path = "../mullvad-types" }
 intersection-derive = { path = "../mullvad-types/intersection-derive"}
 

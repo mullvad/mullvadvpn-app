@@ -16,6 +16,7 @@ final class ProblemReportInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let consolidatedLog: ConsolidatedApplicationLog
     private var reportedString = ""
+    private var requestCancellable: Cancellable?
 
     init(apiProxy: APIQuerying, tunnelManager: TunnelManager) {
         self.apiProxy = apiProxy
@@ -63,6 +64,10 @@ final class ProblemReportInteractor: @unchecked Sendable {
         }
     }
 
+    func cancelSendingReport() {
+        requestCancellable?.cancel()
+    }
+
     private func sendProblemReport(
         email: String,
         message: String,
@@ -73,17 +78,14 @@ final class ProblemReportInteractor: @unchecked Sendable {
             output[entry.key.rawValue] = entry.value
         }
 
-        let request = REST.ProblemReportRequest(
+        let request = ProblemReportRequest(
             address: email,
             message: message,
             log: logString,
             metadata: metadataDict
         )
 
-        _ = self.apiProxy.sendProblemReport(
-            request,
-            retryStrategy: .default
-        ) { result in
+        requestCancellable = apiProxy.sendProblemReport(request, retryStrategy: .default) { result in
             DispatchQueue.main.async {
                 completion(result)
             }

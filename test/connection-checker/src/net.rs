@@ -1,4 +1,4 @@
-use eyre::{eyre, Context};
+use eyre::{Context, eyre};
 use std::{
     io::Write,
     net::{IpAddr, Ipv4Addr, SocketAddr},

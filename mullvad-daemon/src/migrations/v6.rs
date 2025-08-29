@@ -87,18 +87,15 @@ fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
     if let Some(tunnel_options) = settings
         .get_mut("tunnel_options")
         .and_then(|opt| opt.get_mut("wireguard"))
-    {
-        if let Some(psk_setting) = tunnel_options
+        && let Some(psk_setting) = tunnel_options
             .as_object_mut()
             .ok_or(Error::InvalidSettingsContent)?
             .remove("use_pq_safe_psk")
-        {
-            if let Some(true) = psk_setting.as_bool() {
-                tunnel_options["quantum_resistant"] = serde_json::json!(QuantumResistantState::On);
-            } else {
-                tunnel_options["quantum_resistant"] =
-                    serde_json::json!(QuantumResistantState::Auto);
-            }
+    {
+        if let Some(true) = psk_setting.as_bool() {
+            tunnel_options["quantum_resistant"] = serde_json::json!(QuantumResistantState::On);
+        } else {
+            tunnel_options["quantum_resistant"] = serde_json::json!(QuantumResistantState::Auto);
         }
     }
     Ok(())

@@ -9,17 +9,17 @@
 import MullvadTypes
 
 public class MullvadApiCancellable: Cancellable {
-    private let handle: SwiftCancelHandle
+    private var handle: SwiftCancelHandle
 
     public init(handle: consuming SwiftCancelHandle) {
         self.handle = handle
     }
 
     deinit {
-        mullvad_api_cancel_task_drop(handle)
+        mullvad_api_cancel_task_drop(&handle)
     }
 
     public func cancel() {
-        mullvad_api_cancel_task(handle)
+        mullvad_api_cancel_task(&handle)
     }
 }

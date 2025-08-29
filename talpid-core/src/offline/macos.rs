@@ -9,9 +9,10 @@
 //! to macOS's connectivity check. In the offline state, a DNS server on localhost prevents the
 //! connectivity check from being blocked.
 use futures::{
+    StreamExt,
     channel::mpsc::UnboundedSender,
     future::{Fuse, FutureExt},
-    select, StreamExt,
+    select,
 };
 use std::{
     sync::{Arc, Mutex},
@@ -52,10 +53,7 @@ struct ConnectivityInner {
 
 impl ConnectivityInner {
     fn into_connectivity(self) -> Connectivity {
-        Connectivity::Status {
-            ipv4: self.ipv4,
-            ipv6: self.ipv6,
-        }
+        Connectivity::new(self.ipv4, self.ipv6)
     }
 
     fn is_online(&self) -> bool {

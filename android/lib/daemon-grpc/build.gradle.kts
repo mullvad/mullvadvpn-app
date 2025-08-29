@@ -1,29 +1,31 @@
 import com.google.protobuf.gradle.proto
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.protobuf.core)
-
-    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.daemon.grpc"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
-    defaultConfig { minSdk = Versions.minSdkVersion }
+    defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-        allWarningsAsErrors = true
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
+            allWarningsAsErrors = true
+        }
     }
 
     lint {
@@ -42,8 +44,21 @@ android {
 protobuf {
     protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
     plugins {
-        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
-        create("grpc") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+        val grpcPluginPath = System.getenv("PROTOC_GEN_GRPC_JAVA_PLUGIN")
+        create("java") {
+            if (grpcPluginPath != null) {
+                path = grpcPluginPath
+            } else {
+                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
+            }
+        }
+        create("grpc") {
+            if (grpcPluginPath != null) {
+                path = grpcPluginPath
+            } else {
+                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
+            }
+        }
         create("grpckt") { artifact = libs.plugins.grpc.protoc.gen.grpc.kotlin.get().toString() }
     }
     generateProtoTasks {
@@ -83,7 +98,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
-    testImplementation(Dependencies.junitJupiterApi)
-    testRuntimeOnly(Dependencies.junitJupiterEngine)
-    testImplementation(Dependencies.junitJupiterParams)
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
 }

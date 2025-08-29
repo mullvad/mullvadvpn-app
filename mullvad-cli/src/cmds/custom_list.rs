@@ -1,5 +1,5 @@
 use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs};
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
@@ -160,7 +160,7 @@ impl CustomList {
     async fn delete_list(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let list = find_list_by_name(&mut rpc, &name).await?;
-        rpc.delete_custom_list(list.id.to_string()).await?;
+        rpc.delete_custom_list(list.id()).await?;
         Ok(())
     }
 

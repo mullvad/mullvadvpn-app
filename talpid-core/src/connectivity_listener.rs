@@ -2,19 +2,17 @@
 
 use futures::channel::mpsc::UnboundedSender;
 use jnix::{
-    jni::{
-        self,
-        objects::{GlobalRef, JObject, JValue},
-        sys::{jboolean, JNI_TRUE},
-        JNIEnv, JavaVM,
-    },
     FromJava, JnixEnv,
+    jni::{
+        self, JNIEnv, JavaVM,
+        objects::{GlobalRef, JObject, JValue},
+    },
 };
 use std::{
     net::IpAddr,
     sync::{Arc, Mutex},
 };
-use talpid_types::{android::AndroidContext, net::Connectivity, ErrorExt};
+use talpid_types::{ErrorExt, android::AndroidContext, net::Connectivity};
 
 /// Error related to Android connectivity monitor
 #[derive(thiserror::Error, Debug)]
@@ -76,8 +74,8 @@ impl ConnectivityListener {
                 return Err(Error::InvalidMethodResult(
                     "MullvadVpnService",
                     "getConnectivityListener",
-                    format!("{:?}", value),
-                ))
+                    format!("{value:?}"),
+                ));
             }
         };
 
@@ -127,8 +125,8 @@ impl ConnectivityListener {
                 return Err(Error::InvalidMethodResult(
                     "ConnectivityListener",
                     "isConnected",
-                    format!("{:?}", value),
-                ))
+                    format!("{value:?}"),
+                ));
             }
         };
 
@@ -155,7 +153,7 @@ impl ConnectivityListener {
             value => Err(Error::InvalidMethodResult(
                 "ConnectivityListener",
                 "getCurrentDnsServers",
-                format!("{:?}", value),
+                format!("{value:?}"),
             )),
         }
     }
@@ -165,10 +163,9 @@ impl ConnectivityListener {
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnectivityChange(
-    _env: JNIEnv<'_>,
+    env: JNIEnv<'_>,
     _obj: JObject<'_>,
-    is_ipv4: jboolean,
-    is_ipv6: jboolean,
+    connectivity: JObject<'_>,
 ) {
     let Some(tx) = &*CONNECTIVITY_TX.lock().unwrap() else {
         // No sender has been registered
@@ -176,16 +173,10 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
         return;
     };
 
-    let is_ipv4 = JNI_TRUE == is_ipv4;
-    let is_ipv6 = JNI_TRUE == is_ipv6;
+    let env = JnixEnv::from(env);
+    let connectivity: Connectivity = FromJava::from_java(&env, connectivity);
 
-    if tx
-        .unbounded_send(Connectivity::Status {
-            ipv4: is_ipv4,
-            ipv6: is_ipv6,
-        })
-        .is_err()
-    {
+    if tx.unbounded_send(connectivity).is_err() {
         log::warn!("Failed to send offline change event");
     }
 }

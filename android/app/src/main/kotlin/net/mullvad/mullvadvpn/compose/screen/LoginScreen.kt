@@ -36,14 +36,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -68,6 +70,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.LoginUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
@@ -75,8 +78,6 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
-import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -86,6 +87,8 @@ import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -95,7 +98,17 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewLoginScreen(
     @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState
 ) {
-    AppTheme { LoginScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}) }
+    AppTheme {
+        LoginScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onLoginClick = {},
+            onCreateAccountClick = {},
+            onDeleteHistoryClick = {},
+            onAccountNumberChange = {},
+            onSettingsClick = {},
+        )
+    }
 }
 
 private const val TOP_SPACER_WEIGHT = 1f
@@ -108,7 +121,7 @@ fun Login(
     accountNumber: String? = null,
     vm: LoginViewModel = koinViewModel(),
     createAccountConfirmationDialogResult:
-        ResultRecipient<CreateAccountConfirmationDestination, Boolean>,
+        ResultRecipient<CreateAccountConfirmationDestination, Confirmed>,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -120,11 +133,7 @@ fun Login(
         }
     }
 
-    createAccountConfirmationDialogResult.OnNavResultValue { createAccount ->
-        if (createAccount) {
-            vm.onCreateAccountConfirmed()
-        }
-    }
+    createAccountConfirmationDialogResult.OnNavResultValue { vm.onCreateAccountConfirmed() }
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -249,7 +258,7 @@ private fun ColumnScope.LoginInput(
     Text(
         modifier = Modifier.padding(bottom = Dimens.smallPadding),
         text = state.loginState.supportingText() ?: "",
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
         color =
             if (state.loginState.isError()) {
                 MaterialTheme.colorScheme.error
@@ -261,7 +270,8 @@ private fun ColumnScope.LoginInput(
     TextField(
         modifier =
             // Fix for DPad navigation
-            Modifier.focusProperties {
+            Modifier.semantics { contentType = ContentType.Password }
+                .focusProperties {
                     left = FocusRequester.Cancel
                     right = FocusRequester.Cancel
                 }
@@ -319,14 +329,13 @@ private fun ColumnScope.LoginInput(
 
 @Composable
 private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
-    Box(contentAlignment = Alignment.Center, modifier = modifier.size(Dimens.bigIconSize)) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
         when (loginState) {
             is Idle ->
                 if (loginState.loginError != null) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_fail),
                         contentDescription = stringResource(id = R.string.login_fail_title),
-                        contentScale = ContentScale.Inside,
                     )
                 } else {
                     // If view is Idle, we display empty box to keep the same size as other states
@@ -405,7 +414,11 @@ private fun AccountDropDownItem(
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
             contentAlignment = Alignment.CenterStart,
         ) {
-            Text(text = accountNumber, overflow = TextOverflow.Clip)
+            Text(
+                text = accountNumber,
+                overflow = TextOverflow.Clip,
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
         IconButton(enabled = enabled, onClick = onDeleteClick) {
             Icon(
@@ -422,10 +435,11 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
     Column(
         Modifier.fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin)
     ) {
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
+            style = MaterialTheme.typography.bodyMedium,
             text = stringResource(id = R.string.dont_have_an_account),
             color = MaterialTheme.colorScheme.onBackground,
         )

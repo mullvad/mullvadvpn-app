@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
@@ -41,7 +40,7 @@ class AccountRepository(
 
     val accountData: StateFlow<AccountData?> =
         merge(
-                managementService.deviceState.filterNotNull().map { deviceState ->
+                managementService.deviceState.map { deviceState ->
                     when (deviceState) {
                         is DeviceState.LoggedIn -> {
                             managementService.getAccountData(deviceState.accountNumber).getOrNull()
@@ -89,5 +88,9 @@ class AccountRepository(
 
     internal suspend fun onVoucherRedeemed(newExpiry: ZonedDateTime) {
         accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountDataCache.emit(it) }
+    }
+
+    fun resetIsNewAccount() {
+        _isNewAccount.value = false
     }
 }

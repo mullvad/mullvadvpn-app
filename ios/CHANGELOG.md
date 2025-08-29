@@ -23,9 +23,40 @@ Line wrap the file at 100 chars.                                              Th
 
 ## Unreleased
 ### Added
-- Make account number copyable on welcome screen.
+- Make feature indicators clickable shortcuts to their corresponding settings.
+- Let users cancel sending a problem report.
+- Add possibility to manage devices from account view.
+- Add support for Dynamic Type to allow fonts to scale according to user's system settings.
+- Add notification that shows when the user is connected to WireGuard with a port that is not 
+  supported.
 
-## 2025.2 - 2025-02-08
+### Changed
+- Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
+  mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
+  uses a lot less CPU to compute the keypair, and the public key sent to the server
+  is drastically smaller.
+
+## [2025.5 - 2025-06-17]
+### Changed
+- Make the app feel more responsive when reconnecting.
+
+### Fixed
+- Fix app thinking the device is offline when another VPN is already active.
+
+## [2025.4 - 2025-05-20]
+### Added
+- Make account number copyable on welcome screen.
+- Add animations for connection view.
+
+### Changed
+- Improve the filter view to display the number of available servers based on selected criteria.
+- Improve location view to filter out servers not compatible with custom obfuscation port.
+
+## [2025.3 - 2025-03-06]
+### Fixed
+- Fix DAITA for multihop.
+
+## [2025.2 - 2025-02-08]
 ### Added
 - Add different themes for app icons
 
@@ -37,10 +68,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
-
-## [2025.3 - 2025-03-06]
-### Fixed
-- Fix DAITA for multihop.
 
 ## [2025.1 - 2025-01-14]
 ### Added

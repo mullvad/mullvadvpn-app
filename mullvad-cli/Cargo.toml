@@ -20,7 +20,7 @@ chrono = { workspace = true }
 clap = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
-itertools = "0.10"
+itertools = { workspace = true }
 natord = "1.0.9"
 
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
@@ -34,7 +34,7 @@ serde_json = { workspace = true }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 clap_complete = { version = "4.4.8" }
-nix = { version = "0.29.0", features = ["signal"] }
+nix = { workspace = true, features = ["signal"] }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

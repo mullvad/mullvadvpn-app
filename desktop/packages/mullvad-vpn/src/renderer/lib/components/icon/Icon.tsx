@@ -1,7 +1,6 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { Colors } from '../../foundations';
-import { TransientProps } from '../../types';
+import { Colors, colors } from '../../foundations';
 import { icons } from './types';
 
 export type IconProps = {
@@ -11,14 +10,16 @@ export type IconProps = {
   className?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const StyledIcon = styled.div<
-  TransientProps<Pick<IconProps, 'color'>> & { $size: number; $src: string }
->`
-  width: ${({ $size }) => $size}px;
-  height: ${({ $size }) => $size}px;
-  mask: url(${({ $src }) => $src}) no-repeat center;
-  mask-size: contain;
-  background-color: ${({ $color }) => $color || 'currentColor'};
+const StyledIcon = styled.div<{ $color: string; $size: number; $src: string }>`
+  ${({ $size, $src, $color }) => {
+    return css`
+      width: ${$size}px;
+      height: ${$size}px;
+      mask: url(${$src}) no-repeat center;
+      mask-size: contain;
+      background-color: ${$color};
+    `;
+  }}
 `;
 
 export const iconSizes = {
@@ -34,10 +35,11 @@ const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 export const Icon = ({
   icon: iconProp,
   size = 'medium',
-  color = Colors.white,
+  color: colorProp = 'white',
   ...props
 }: IconProps) => {
   const icon = icons[iconProp];
   const src = iconProp.startsWith('data:') ? iconProp : `${PATH_PREFIX}assets/icons/${icon}.svg`;
+  const color = colors[colorProp];
   return <StyledIcon $src={src} $size={iconSizes[size]} $color={color} role="img" {...props} />;
 };

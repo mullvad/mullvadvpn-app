@@ -6,7 +6,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::LazyLock,
 };
-use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, ALLOWED_LAN_NETS};
+use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -83,6 +83,9 @@ pub enum FirewallPolicy {
     Connecting {
         /// The peer endpoint that should be allowed.
         peer_endpoint: AllowedEndpoint,
+        /// IP of the exit endpoint, iff it differs from `peer_endpoint`
+        #[cfg(target_os = "windows")]
+        exit_endpoint_ip: Option<IpAddr>,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: Option<crate::tunnel::TunnelMetadata>,
         /// Flag setting if communication with LAN networks should be possible.
@@ -94,16 +97,15 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
-        /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
-        /// be redirected to `127.0.0.1:$dns_redirect_port`.
-        #[cfg(target_os = "macos")]
-        dns_redirect_port: u16,
     },
 
     /// Allow traffic only to server and over tunnel interface
     Connected {
         /// The peer endpoint that should be allowed.
         peer_endpoint: AllowedEndpoint,
+        /// IP of the exit endpoint, iff it differs from `peer_endpoint`
+        #[cfg(target_os = "windows")]
+        exit_endpoint_ip: Option<IpAddr>,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
@@ -114,10 +116,6 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
-        /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
-        /// be redirected to `127.0.0.1:$dns_redirect_port`.
-        #[cfg(target_os = "macos")]
-        dns_redirect_port: u16,
     },
 
     /// Block all network traffic in and out from the computer.
@@ -126,10 +124,6 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: Option<AllowedEndpoint>,
-        /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
-        /// be redirected to `127.0.0.1:$dns_redirect_port`.
-        #[cfg(target_os = "macos")]
-        dns_redirect_port: u16,
     },
 }
 
@@ -187,6 +181,20 @@ impl FirewallPolicy {
             FirewallPolicy::Connecting { allow_lan, .. }
             | FirewallPolicy::Connected { allow_lan, .. }
             | FirewallPolicy::Blocked { allow_lan, .. } => *allow_lan,
+        }
+    }
+
+    /// Return the interface to redirect (VPN tunnel) traffic to, if any.
+    #[cfg(target_os = "macos")]
+    pub fn redirect_interface(&self) -> Option<&str> {
+        match self {
+            FirewallPolicy::Connecting {
+                redirect_interface, ..
+            } => redirect_interface.as_deref(),
+            FirewallPolicy::Connected {
+                redirect_interface, ..
+            } => redirect_interface.as_deref(),
+            FirewallPolicy::Blocked { .. } => None,
         }
     }
 }
@@ -323,5 +331,11 @@ impl Firewall {
     pub fn reset_policy(&mut self) -> Result<(), Error> {
         log::info!("Resetting firewall policy");
         self.inner.reset_policy()
+    }
+
+    /// Sets whether the firewall should persist the blocking rules across a reboot.
+    #[cfg(target_os = "windows")]
+    pub fn persist(&mut self, persist: bool) {
+        self.inner.persist(persist);
     }
 }

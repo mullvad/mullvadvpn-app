@@ -6,8 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import Routing
 import StoreKit
+import SwiftUI
 import UIKit
 
 enum AccountDismissReason: Equatable, Sendable {
@@ -54,8 +56,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     private func handleViewControllerAction(_ action: AccountViewControllerAction) {
         switch action {
-        case .deviceInfo:
-            showAccountDeviceInfo()
+        case .deviceManagement:
+            navigateToDeviceManagement()
         case .finish:
             didFinish?(self, .none)
         case .logOut:
@@ -122,6 +124,59 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         )
     }
 
+    private func navigateToDeviceManagement() {
+        guard let accountNumber = interactor.deviceState.accountData?.number,
+              let currentDeviceId = interactor.deviceState.deviceData?.identifier else {
+            return
+        }
+        let controller = UIHostingController(
+            rootView: DeviceManagementView(
+                deviceManaging: DeviceManagementInteractor(
+                    accountNumber: accountNumber,
+                    currentDeviceId: currentDeviceId,
+                    devicesProxy: interactor.deviceProxy
+                ),
+                style: .deviceManagement,
+                onError: { [weak self] title, error in
+                    self?.presentError(
+                        "device-management-error-alert",
+                        title: title,
+                        message: error.localizedDescription
+                    )
+                }
+            )
+        )
+        controller.title = NSLocalizedString("Manage devices", comment: "")
+        let doneButton = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { _ in
+                controller.dismiss(animated: true)
+            })
+        )
+        controller.navigationItem.rightBarButtonItem = doneButton
+        let subNavigationController = CustomNavigationController(rootViewController: controller)
+        subNavigationController.navigationItem.largeTitleDisplayMode = .always
+        subNavigationController.navigationBar.prefersLargeTitles = true
+        navigationController.present(subNavigationController, animated: true)
+    }
+
+    private func presentError(_ id: String, title: String, message: String) {
+        let presentation = AlertPresentation(
+            id: id,
+            title: title,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Got it!", comment: ""),
+                    style: .default
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
     @MainActor
     private func navigateToDeleteAccount() {
         let coordinator = AccountDeletionCoordinator(
@@ -182,44 +237,9 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    private func showAccountDeviceInfo() {
-        let message = NSLocalizedString(
-            "DEVICE_INFO_DIALOG_MESSAGE_PART_1",
-            tableName: "Account",
-            value: """
-            This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name \
-            that helps you identify it when you manage your devices in the app or on the website.
-            You can have up to 5 devices logged in on one Mullvad account.
-            If you log out, the device and the device name is removed. When \
-            you log back in again, the device will get a new name.
-            """,
-            comment: ""
-        )
-
-        let presentation = AlertPresentation(
-            id: "account-device-info-alert",
-            icon: .info,
-            message: message,
-            buttons: [AlertAction(
-                title: NSLocalizedString(
-                    "DEVICE_INFO_DIALOG_OK_ACTION",
-                    tableName: "Account",
-                    value: "Got it!",
-                    comment: ""
-                ),
-                style: .default
-            )]
-        )
-
-        let presenter = AlertPresenter(context: self)
-        presenter.showAlert(presentation: presentation, animated: true)
-    }
-
     private func showRestorePurchasesInfo() {
         let message = NSLocalizedString(
-            "RESTORE_PURCHASES_DIALOG_MESSAGE",
-            tableName: "Account",
-            value: """
+            """
             You can use the "restore purchases" function to check for any in-app payments \
             made via Apple services. If there is a payment that has not been credited, it will \
             add the time to the currently logged in Mullvad account.
@@ -230,20 +250,10 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         let presentation = AlertPresentation(
             id: "account-device-info-alert",
             icon: .info,
-            title: NSLocalizedString(
-                "RESTORE_PURCHASES_DIALOG_TITLE",
-                tableName: "Account",
-                value: "If you haven’t received additional VPN time after purchasing",
-                comment: ""
-            ),
+            title: NSLocalizedString("If you haven’t received additional VPN time after purchasing", comment: ""),
             message: message,
             buttons: [AlertAction(
-                title: NSLocalizedString(
-                    "RESTORE_PURCHASES_DIALOG_OK_ACTION",
-                    tableName: "Account",
-                    value: "Got it!",
-                    comment: ""
-                ),
+                title: NSLocalizedString("Got it!", comment: ""),
                 style: .default
             )]
         )
@@ -254,9 +264,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     func showFailToFetchProducts() {
         let message = NSLocalizedString(
-            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
-            tableName: "Welcome",
-            value:
             """
             Failed to connect to App store, please try again later.
             """,
@@ -269,12 +276,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             message: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]

@@ -2,8 +2,8 @@ use super::WIREGUARD_KEY_LENGTH;
 use maybenot::{MachineId, Timer};
 use once_cell::sync::OnceCell;
 use rand::{
-    rngs::{adapter::ReseedingRng, OsRng},
     SeedableRng,
+    rngs::{OsRng, adapter::ReseedingRng},
 };
 use std::{
     collections::HashMap, fs, io, os::windows::prelude::RawHandle, path::Path, sync::Arc,
@@ -13,7 +13,7 @@ use talpid_types::net::wireguard::PublicKey;
 use tokio::task::JoinHandle;
 use windows_sys::Win32::{
     Foundation::{BOOLEAN, ERROR_NO_MORE_ITEMS},
-    System::Threading::{WaitForMultipleObjects, WaitForSingleObject, INFINITE},
+    System::Threading::{INFINITE, WaitForMultipleObjects, WaitForSingleObject},
 };
 
 type Rng = ReseedingRng<rand_chacha::ChaCha12Core, OsRng>;

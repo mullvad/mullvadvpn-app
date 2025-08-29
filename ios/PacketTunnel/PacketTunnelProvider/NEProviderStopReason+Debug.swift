@@ -9,9 +9,11 @@
 import Foundation
 import NetworkExtension
 
-extension NEProviderStopReason: CustomStringConvertible {
+struct ProviderStopReasonWrapper: CustomStringConvertible {
+    let reason: NEProviderStopReason
+
     public var description: String {
-        switch self {
+        switch reason {
         case .none:
             return "none"
         case .userInitiated:
@@ -46,8 +48,10 @@ extension NEProviderStopReason: CustomStringConvertible {
             return "sleep"
         case .appUpdate:
             return "app update"
+        case .internalError:
+            return "internal error"
         @unknown default:
-            return "unknown value (\(rawValue))"
+            return "unknown value (\(reason.rawValue))"
         }
     }
 }

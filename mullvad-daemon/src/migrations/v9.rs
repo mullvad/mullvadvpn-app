@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 #[cfg(target_os = "android")]
 use serde_json::json;
 #[cfg(target_os = "android")]
@@ -30,20 +29,8 @@ const SPLIT_TUNNELING_APPS: &str = "split-tunnelling.txt";
 #[cfg(target_os = "android")]
 const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 
-/// Tunnel protocol
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename = "tunnel_type")]
-pub enum TunnelType {
-    #[serde(rename = "openvpn")]
-    OpenVpn,
-    #[serde(rename = "wireguard")]
-    Wireguard,
-}
-
 // ======================================================
 
-/// This is an open migration
-///
 /// This migration onboards the Android app's split tunnel settings into the daemon's settings.
 ///
 /// Until now, split tunneling has been completely handled client side by the Android app. This
@@ -56,7 +43,6 @@ pub enum TunnelType {
 /// This `migrate` function needs to get passed a `settings_dir` to work on Android. This is
 /// because the Android client will pass the settings directory when initializing the daemon,
 /// which means that we can not know ahead of time where the settings are stored.
-#[allow(unused_variables)]
 pub fn migrate(
     settings: &mut serde_json::Value,
     #[cfg(target_os = "android")] directories: Option<Directories<'_>>,
@@ -216,7 +202,7 @@ mod test {
         fn test_v9_to_v10_migration() {
             use crate::migrations::v9::{
                 add_split_tunneling_settings,
-                test::android::constants::{V10_ANDROID_SETTINGS, V9_ANDROID_SETTINGS},
+                test::android::constants::{V9_ANDROID_SETTINGS, V10_ANDROID_SETTINGS},
             };
 
             let enabled = true;

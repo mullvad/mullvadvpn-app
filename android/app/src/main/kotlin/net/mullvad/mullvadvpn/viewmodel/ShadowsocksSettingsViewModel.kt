@@ -12,37 +12,34 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsState
+import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsUiState
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 
-class ShadowsocksSettingsViewModel(
-    private val settingsRepository: SettingsRepository,
-    relayListRepository: RelayListRepository,
-) : ViewModel() {
+class ShadowsocksSettingsViewModel(private val settingsRepository: SettingsRepository) :
+    ViewModel() {
 
     private val customPort = MutableStateFlow<Port?>(null)
 
-    val uiState: StateFlow<ShadowsocksSettingsState> =
-        combine(
-                settingsRepository.settingsUpdates.filterNotNull(),
-                customPort,
-                relayListRepository.shadowsocksPortRanges,
-            ) { settings, customPort, portRanges ->
-                ShadowsocksSettingsState(
-                    port = settings.getShadowSocksPort(),
-                    customPort = customPort,
-                    validPortRanges = portRanges,
-                )
+    val uiState: StateFlow<Lc<Unit, ShadowsocksSettingsUiState>> =
+        combine(settingsRepository.settingsUpdates.filterNotNull(), customPort) {
+                settings,
+                customPort ->
+                ShadowsocksSettingsUiState(
+                        port = settings.getShadowSocksPort(),
+                        customPort = customPort,
+                    )
+                    .toLc<Unit, ShadowsocksSettingsUiState>()
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(),
-                initialValue = ShadowsocksSettingsState(),
+                initialValue = Lc.Loading(Unit),
             )
 
     init {
@@ -73,7 +70,7 @@ class ShadowsocksSettingsViewModel(
     }
 
     fun resetCustomPort() {
-        val isCustom = uiState.value.isCustom
+        val isCustom = uiState.value.contentOrNull()?.isCustom == true
         customPort.update { null }
         // If custom port was selected, update selection to be any.
         if (isCustom) {

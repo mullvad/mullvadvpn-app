@@ -3,28 +3,21 @@ use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use hyper::body::Incoming;
+use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
-use mullvad_types::{
-    account::{AccountData, AccountNumber, VoucherSubmission},
-    version::AppVersion,
-};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
-use std::{
-    collections::BTreeMap,
-    future::Future,
-    io,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    path::Path,
-    sync::Arc,
-};
+use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
 
 pub mod availability;
 use availability::ApiAvailability;
 pub mod rest;
+#[cfg(not(target_os = "ios"))]
+pub mod version;
 
 mod abortable_stream;
+pub mod access_mode;
 mod https_client_with_sni;
 pub mod proxy;
 mod tls_stream;
@@ -65,15 +58,14 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
+
+#[cfg(target_os = "ios")]
+const APPLE_PAYMENT_URL_PREFIX: &str = "payments/apple/v2";
+
 #[cfg(target_os = "android")]
 const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
 
-pub mod env {
-    pub const API_HOST_VAR: &str = "MULLVAD_API_HOST";
-    pub const API_ADDR_VAR: &str = "MULLVAD_API_ADDR";
-    pub const API_FORCE_DIRECT_VAR: &str = "MULLVAD_API_FORCE_DIRECT";
-    pub const DISABLE_TLS_VAR: &str = "MULLVAD_API_DISABLE_TLS";
-}
+use mullvad_api_constants::*;
 
 /// A hostname and socketaddr to reach the Mullvad REST API over.
 #[derive(Debug, Clone)]
@@ -116,10 +108,6 @@ pub struct ApiEndpoint {
 }
 
 impl ApiEndpoint {
-    const API_HOST_DEFAULT: &'static str = "api.mullvad.net";
-    const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
-    const API_PORT_DEFAULT: u16 = 443;
-
     /// Returns the endpoint to connect to the API over.
     ///
     /// # Panics
@@ -151,12 +139,11 @@ impl ApiEndpoint {
                     api_addr = env::API_ADDR_VAR,
                     api_host = env::API_HOST_VAR
                 );
-                api.address = format!("{}:{}", host, ApiEndpoint::API_PORT_DEFAULT)
+                api.address = format!("{host}:{API_PORT_DEFAULT}")
                     .to_socket_addrs()
                     .unwrap_or_else(|_| {
                         panic!(
-                            "Unable to resolve API IP address from host {host}:{port}",
-                            port = ApiEndpoint::API_PORT_DEFAULT,
+                            "Unable to resolve API IP address from host {host}:{API_PORT_DEFAULT}"
                         )
                     })
                     .next();
@@ -260,20 +247,16 @@ impl ApiEndpoint {
     }
 
     /// Read the [`Self::host`] value, falling back to
-    /// [`Self::API_HOST_DEFAULT`] as default value if it does not exist.
+    /// [`API_HOST_DEFAULT`] as default value if it does not exist.
     pub fn host(&self) -> &str {
-        self.host
-            .as_deref()
-            .unwrap_or(ApiEndpoint::API_HOST_DEFAULT)
+        self.host.as_deref().unwrap_or(API_HOST_DEFAULT)
     }
 
     /// Read the [`Self::address`] value, falling back to
     /// [`Self::API_IP_DEFAULT`] as default value if it does not exist.
     pub fn address(&self) -> SocketAddr {
-        self.address.unwrap_or(SocketAddr::new(
-            ApiEndpoint::API_IP_DEFAULT,
-            ApiEndpoint::API_PORT_DEFAULT,
-        ))
+        self.address
+            .unwrap_or(SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT))
     }
 
     /// Try to read the value of an environment variable. Returns `None` if the
@@ -479,8 +462,8 @@ impl Runtime {
         )
     }
 
-    pub fn handle(&mut self) -> &mut tokio::runtime::Handle {
-        &mut self.handle
+    pub fn handle(&self) -> &tokio::runtime::Handle {
+        &self.handle
     }
 
     pub fn availability_handle(&self) -> ApiAvailability {
@@ -506,15 +489,24 @@ impl AccountsProxy {
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<AccountData, rest::Error>> + use<> {
+        let request = self.get_data_response(account);
+
+        async move { request.await?.deserialize().await }
+    }
+
+    pub fn get_data_response(
+        &self,
+        account: AccountNumber,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
+
         async move {
             let request = factory
                 .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
-            let response = service.request(request).await?;
-            response.deserialize().await
+            service.request(request).await
         }
     }
 
@@ -526,6 +518,17 @@ impl AccountsProxy {
             number: AccountNumber,
         }
 
+        let request = self.create_account_response();
+
+        async move {
+            let account: AccountCreationResponse = request.await?.deserialize().await?;
+            Ok(account.number)
+        }
+    }
+
+    pub fn create_account_response(
+        &self,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -533,9 +536,7 @@ impl AccountsProxy {
             let request = factory
                 .post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"))?
                 .expected_status(&[StatusCode::CREATED]);
-            let response = service.request(request).await?;
-            let account: AccountCreationResponse = response.deserialize().await?;
-            Ok(account.number)
+            service.request(request).await
         }
     }
 
@@ -581,11 +582,55 @@ impl AccountsProxy {
         }
     }
 
+    #[cfg(target_os = "ios")]
+    pub async fn legacy_storekit_payment(
+        &self,
+        account: AccountNumber,
+        body: Vec<u8>,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let request = self
+            .handle
+            .factory
+            .post_json_bytes(&format!("{APP_URL_PREFIX}/create-apple-payment"), body)?
+            .expected_status(&[StatusCode::OK])
+            .account(account)?;
+        self.handle.service.request(request).await
+    }
+
+    #[cfg(target_os = "ios")]
+    pub async fn init_storekit_payment(
+        &self,
+        account: AccountNumber,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let request = self
+            .handle
+            .factory
+            .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
+            .expected_status(&[StatusCode::OK])
+            .account(account)?;
+        self.handle.service.request(request).await
+    }
+
+    #[cfg(target_os = "ios")]
+    pub async fn check_storekit_payment(
+        &self,
+        account: AccountNumber,
+        body: Vec<u8>,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let request = self
+            .handle
+            .factory
+            .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
+            .expected_status(&[StatusCode::OK])
+            .account(account)?;
+        self.handle.service.request(request).await
+    }
+
     #[cfg(target_os = "android")]
     pub fn init_play_purchase(
         &mut self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
+    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> + use<> {
         #[derive(serde::Deserialize)]
         struct PlayPurchaseInitResponse {
             obfuscated_id: String,
@@ -612,7 +657,7 @@ impl AccountsProxy {
         &mut self,
         account: AccountNumber,
         play_purchase: PlayPurchase,
-    ) -> impl Future<Output = Result<(), rest::Error>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -623,9 +668,16 @@ impl AccountsProxy {
                     &play_purchase,
                 )?
                 .account(account)?
-                .expected_status(&[StatusCode::ACCEPTED]);
-            service.request(request).await?;
-            Ok(())
+                .expected_status(&[StatusCode::NO_CONTENT]);
+
+            let response = service.request(request).await;
+            match response {
+                Err(e) => {
+                    log::error!("verify_play_purchase failed: #{:?}", e);
+                    Err(e)
+                }
+                Ok(_) => Ok(()),
+            }
         }
     }
 
@@ -668,7 +720,7 @@ impl ProblemReportProxy {
         message: &str,
         log: &str,
         metadata: &BTreeMap<String, String>,
-    ) -> impl Future<Output = Result<(), rest::Error>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         #[derive(serde::Serialize)]
         struct ProblemReport {
             address: String,
@@ -693,45 +745,6 @@ impl ProblemReportProxy {
                 .expected_status(&[StatusCode::NO_CONTENT]);
             service.request(request).await?;
             Ok(())
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct AppVersionProxy {
-    handle: rest::MullvadRestHandle,
-}
-
-#[derive(serde::Deserialize, Debug)]
-pub struct AppVersionResponse {
-    pub supported: bool,
-    pub latest: AppVersion,
-    pub latest_stable: Option<AppVersion>,
-    pub latest_beta: AppVersion,
-}
-
-impl AppVersionProxy {
-    pub fn new(handle: rest::MullvadRestHandle) -> Self {
-        Self { handle }
-    }
-
-    pub fn version_check(
-        &self,
-        app_version: AppVersion,
-        platform: &str,
-        platform_version: String,
-    ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-
-        let path = format!("{APP_URL_PREFIX}/releases/{platform}/{app_version}");
-        let request = self.handle.factory.get(&path);
-
-        async move {
-            let request = request?
-                .expected_status(&[StatusCode::OK])
-                .header("M-Platform-Version", &platform_version)?;
-            let response = service.request(request).await?;
-            response.deserialize().await
         }
     }
 }

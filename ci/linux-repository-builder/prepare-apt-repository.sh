@@ -5,7 +5,7 @@ set -eu
 shopt -s nullglob
 
 function usage() {
-    echo "Usage: $0 <repository dir> <artifact dirs...>"
+    echo "Usage: $0 <release channel> <repository dir> <artifact dirs...>"
     echo
     echo "Will create a deb repository in <repository dir> and add all .deb files from all <artifact dirs>"
     echo
@@ -23,11 +23,12 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # shellcheck source=ci/linux-repository-builder/build-linux-repositories-config.sh
 source "$SCRIPT_DIR/build-linux-repositories-config.sh"
 
-repo_dir=${1:?"Specify the output repository directory as the first argument"}
+release_channel=${1:?"Specify the release channel as the first argument"}
+repo_dir=${2:?"Specify the output repository directory as the first argument"}
 
 artifact_dirs=()
-while [ "$#" -gt 1 ]; do
-    artifact_dirs+=("$2")
+while [ "$#" -gt 2 ]; do
+    artifact_dirs+=("$3")
     shift
 done
 
@@ -50,6 +51,10 @@ SignWith: $CODE_SIGNING_KEY_FINGERPRINT"
 
 function generate_deb_distributions_content {
     local distributions=""
+    # Also add a codename matching the release channel. We are transitioning
+    # away from distro code names and instead aim to only have the "stable" and "beta"
+    # code names.
+    distributions+=$(generate_repository_configuration "$release_channel")$'\n'$'\n'
     for codename in "${SUPPORTED_DEB_CODENAMES[@]}"; do
         distributions+=$(generate_repository_configuration "$codename")$'\n'$'\n'
         distributions+=$(generate_repository_configuration "$codename"-testing)$'\n'$'\n'
@@ -73,6 +78,7 @@ echo ""
 
 for artifact_dir in "${artifact_dirs[@]}"; do
     for deb_path in "$artifact_dir"/*.deb; do
+        add_deb_to_repo "$deb_path" "$release_channel"
         for codename in "${SUPPORTED_DEB_CODENAMES[@]}"; do
             add_deb_to_repo "$deb_path" "$codename"
             echo ""

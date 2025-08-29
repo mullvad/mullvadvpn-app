@@ -3,23 +3,17 @@ import styled from 'styled-components';
 
 import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import {
-  AriaDescribed,
-  AriaDescription,
-  AriaDescriptionGroup,
-  AriaInput,
-  AriaInputGroup,
-  AriaLabel,
-} from './AriaGroup';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
+import { NavigationListItem } from './NavigationListItem';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
@@ -55,10 +49,6 @@ export default function Support() {
                   <ProblemReportButton />
                   <FaqButton />
                 </Cell.Group>
-
-                <Cell.Group>
-                  <BetaProgramSetting />
-                </Cell.Group>
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
@@ -69,16 +59,14 @@ export default function Support() {
 }
 
 function ProblemReportButton() {
-  const history = useHistory();
-  const clickHandler = useCallback(() => history.push(RoutePath.problemReport), [history]);
-
   // TRANSLATORS: Navigation button to the 'Report a problem' help view
   const label = messages.pgettext('support-view', 'Report a problem');
 
   return (
-    <Cell.CellNavigationButton onClick={clickHandler}>
-      <Cell.Label>{label}</Cell.Label>
-    </Cell.CellNavigationButton>
+    <NavigationListItem to={RoutePath.problemReport}>
+      <NavigationListItem.Label>{label}</NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }
 
@@ -107,39 +95,5 @@ function FaqButton() {
         </Cell.CellButton>
       </AriaDescribed>
     </AriaDescriptionGroup>
-  );
-}
-
-function BetaProgramSetting() {
-  const isBeta = useSelector((state) => state.version.isBeta);
-  const showBetaReleases = useSelector((state) => state.settings.showBetaReleases);
-  const { setShowBetaReleases } = useAppContext();
-
-  return (
-    <AriaInputGroup>
-      <Cell.Container disabled={isBeta}>
-        <AriaLabel>
-          <Cell.InputLabel>{messages.pgettext('support-view', 'Beta program')}</Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch isOn={showBetaReleases} onChange={setShowBetaReleases} />
-        </AriaInput>
-      </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {isBeta
-              ? messages.pgettext(
-                  'support-view',
-                  'This option is unavailable while using a beta version.',
-                )
-              : messages.pgettext(
-                  'support-view',
-                  'Enable to get notified when new beta versions of the app are released.',
-                )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
-    </AriaInputGroup>
   );
 }

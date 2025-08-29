@@ -2,7 +2,7 @@
 //! either the default interface or a VPN tunnel interface.
 
 use super::{
-    bindings::{pktap_header, PTH_FLAG_DIR_OUT},
+    bindings::{PTH_FLAG_DIR_OUT, pktap_header},
     bpf,
     default::DefaultInterface,
 };
@@ -11,13 +11,13 @@ use libc::{AF_INET, AF_INET6};
 use nix::net::if_::if_nametoindex;
 use pcap::PacketCodec;
 use pnet_packet::{
+    MutablePacket, Packet,
     ethernet::{EtherTypes, MutableEthernetPacket},
     ip::IpNextHeaderProtocols,
     ipv4::MutableIpv4Packet,
     ipv6::MutableIpv6Packet,
     tcp::MutableTcpPacket,
     udp::MutableUdpPacket,
-    MutablePacket, Packet,
 };
 use std::{
     ffi::c_uint,
@@ -818,7 +818,7 @@ fn fix_ipv6_checksums(
 ///   exist, the function will not fail, but the stream will never return anything.
 fn capture_outbound_packets(
     utun_iface: &str,
-) -> Result<impl Stream<Item = Result<PktapPacket, Error>> + Send, Error> {
+) -> Result<impl Stream<Item = Result<PktapPacket, Error>> + Send + use<>, Error> {
     // We want to create a pktap "pseudo-device" and capture data on it using a bpf device.
     // This provides packet data plus a pktap header including process information.
     // libpcap will do the heavy lifting for us if we simply request a "pktap" device.

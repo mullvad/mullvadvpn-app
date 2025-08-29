@@ -4,7 +4,7 @@ use std::{
     fmt, io,
     net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
-use talpid_types::net::{openvpn, proxy::CustomProxy, wireguard, Endpoint, TunnelParameters};
+use talpid_types::net::{Endpoint, TunnelParameters, openvpn, proxy::CustomProxy, wireguard};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

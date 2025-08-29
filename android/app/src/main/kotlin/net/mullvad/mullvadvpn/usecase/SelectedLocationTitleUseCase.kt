@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
+import net.mullvad.mullvadvpn.relaylist.findCity
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
@@ -37,7 +37,7 @@ class SelectedLocationTitleUseCase(
         when (relayItemId) {
             is CustomListId -> customLists.firstOrNull { it.id == relayItemId }?.name?.value
             is GeoLocationId.Hostname -> createRelayTitle(relayCountries, relayItemId)
-            is GeoLocationId.City -> relayCountries.findByGeoLocationId(relayItemId)?.name
+            is GeoLocationId.City -> relayCountries.findCity(relayItemId)?.name
             is GeoLocationId.Country -> relayCountries.firstOrNull { it.id == relayItemId }?.name
         }
 
@@ -45,8 +45,8 @@ class SelectedLocationTitleUseCase(
         relayCountries: List<RelayItem.Location.Country>,
         relayItemId: GeoLocationId.Hostname,
     ): String? = nullable {
-        val city = relayCountries.findByGeoLocationId(relayItemId.city).bind()
-        val relay = city.relays.firstOrNull { it.id == relayItemId }.bind()
+        val city = relayCountries.findCity(relayItemId.city).bind()
+        val relay = city.relays.find { it.id == relayItemId }.bind()
 
         relay.formatTitle(city)
     }

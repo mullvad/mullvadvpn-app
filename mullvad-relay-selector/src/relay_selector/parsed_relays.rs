@@ -150,10 +150,7 @@ impl ParsedRelays {
     fn parse_relay_list(relay_list: &RelayList, overrides: &[RelayOverride]) -> RelayList {
         let mut remaining_overrides = HashMap::new();
         for relay_override in overrides {
-            remaining_overrides.insert(
-                relay_override.hostname.to_owned(),
-                relay_override.to_owned(),
-            );
+            remaining_overrides.insert(relay_override.hostname.clone(), relay_override.to_owned());
         }
 
         let mut parsed_list = relay_list.clone();

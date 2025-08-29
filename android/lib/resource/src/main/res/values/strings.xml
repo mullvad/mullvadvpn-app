@@ -1,5 +1,4 @@
 <resources>
-    <string name="connecting">Connecting...</string>
     <string name="disconnecting">Disconnecting...</string>
     <string name="blocking">Blocking...</string>
     <string name="critical_error">Critical error (your attention is required)</string>
@@ -149,6 +148,10 @@
     <string name="max_devices_confirm_removal_description">
         <![CDATA[Are you sure you want to log <b>%s</b> out?]]>
     </string>
+    <string name="manage_devices">Manage devices</string>
+    <string name="manage_devices_confirm_removal_description_line1">Remove %s?</string>
+    <string name="manage_devices_confirm_removal_description_line2">The device will be removed from the list and logged out.</string>
+    <string name="manage_devices_description">View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.</string>
     <string name="confirm_removal">Yes, log out device</string>
     <string name="continue_login">Continue with login</string>
     <string name="failed_to_fetch_devices">Failed to fetch list of devices</string>
@@ -166,7 +169,7 @@
 
     <string name="new_device_notification_title">NEW DEVICE CREATED</string>
     <string name="new_device_notification_message">
-        <![CDATA[Welcome, this device is now called <b>%s</b>. For more details see the info button in Account.]]>
+        <![CDATA[Welcome, this device is now called <b>%s</b>.]]>
     </string>
     <string name="new_changelog_notification_title">NEW VERSION INSTALLED</string>
     <string name="new_changelog_notification_message">Click here to see what’s new.</string>
@@ -181,7 +184,6 @@
     <string name="add_dns_server_dialog_title">Add DNS server</string>
     <string name="update_dns_server_dialog_title">Update DNS server</string>
     <string name="duplicate_address_warning">This address has already been entered.</string>
-    <string name="dns_content_blockers_title">DNS content blockers</string>
     <string name="dns_content_blockers_info">When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</string>
     <string name="dns_content_blockers_warning">This might cause issues on certain websites, services, and apps.</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention: this setting cannot be used in combination with \"Use custom DNS server\".</string>
@@ -196,9 +198,8 @@
     <string name="custom_dns_disable_mode_subtitle">Disable all \"%s\" above to activate this setting.</string>
     <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="settings_changes_effect_warning_content_blocker">Changes to DNS related settings might not go into effect immediately due to cached results.</string>
-    <string name="manage_account">Manage account</string>
     <string name="obfuscation_title">WireGuard obfuscation</string>
-    <string name="obfuscation_info">Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked.</string>
+    <string name="obfuscation_info">Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</string>
     <string name="automatic">Automatic</string>
     <string name="off">Off</string>
     <string name="udp_over_tcp_port_info">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</string>
@@ -228,19 +229,16 @@
     <string name="top_bar_time_left">Time left: %s</string>
     <string name="top_bar_device_name">Device name: %s</string>
     <string name="add_30_days_time_x">Add 30 days time (%s)</string>
-    <string name="add_30_days_time">Add 30 days time</string>
-    <string name="payment_completed_dialog_title">Time was successfully added</string>
-    <string name="payment_completed_dialog_message">30 days was added to your account.</string>
     <string name="got_it">Got it!</string>
     <string name="payment_billing_error_dialog_title">Google Play unavailable</string>
     <string name="payment_billing_error_dialog_message">We were unable to start the payment process, please make sure you have the latest version of Google Play.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad services unavailable</string>
     <string name="payment_obfuscation_id_error_dialog_message">We were unable to start the payment process, please try again later.</string>
-    <string name="payment_status_pending">Google Play payment pending</string>
-    <string name="payment_status_verification_in_progress">Verifying purchase</string>
-    <string name="payment_pending_dialog_title">Verifying purchase</string>
-    <string name="payment_pending_dialog_message">We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful.</string>
-    <string name="loading_connecting">Connecting...</string>
+    <string name="payment_status_pending_long">Google Play payment pending, this might take some time</string>
+    <string name="payment_status_pending_short">Google Play payment pending</string>
+    <string name="verifying_purchase">Verifying purchase</string>
+    <string name="payment_pending_dialog_message">We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful.</string>
+    <string name="connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>
     <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
     <string name="custom_lists">Custom lists</string>
@@ -261,9 +259,9 @@
     <string name="custom_list_error_list_exists">Name is already taken.</string>
     <string name="update_list_name">Update list name</string>
     <string name="no_custom_lists_available">No custom lists available</string>
-    <string name="to_create_a_custom_list">To create a custom list press the \"︙\"</string>
+    <string name="to_create_a_custom_list">To create a custom list press the \"+\"</string>
     <string name="new_list">New list</string>
-    <string name="to_add_locations_to_a_list">To add locations to a list, press the \"︙\" or long press on a country, city, or server.</string>
+    <string name="to_add_locations_to_a_list">To add locations to a list, press the pen or long press on a country, city, or server.</string>
     <string name="edit_list">Edit list</string>
     <string name="delete">Delete</string>
     <string name="delete_custom_list_message">\"%s\" was deleted</string>
@@ -278,8 +276,7 @@
     <string name="name_was_changed_to">Name was changed to %s</string>
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
     <string name="not_found">Not found</string>
-    <string name="server_ip_overrides_import_button">Import</string>
-    <string name="server_ip_overrides">Server IP override</string>
+    <string name="server_ip_override">Server IP override</string>
     <string name="server_ip_overrides_active">Overrides active</string>
     <string name="server_ip_overrides_inactive">Overrides inactive</string>
     <string name="server_ip_overrides_info_first_paragraph">On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</string>
@@ -309,6 +306,7 @@
     <string name="add">Add</string>
     <string name="api_access_description">Manage and add custom methods to access the Mullvad API.</string>
     <string name="current_method">Current: %s</string>
+    <string name="current_device">Current device</string>
     <string name="api_access_method_info_first_line">The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</string>
     <string name="api_access_method_info_second_line">On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</string>
     <string name="api_access_method_info_third_line">This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</string>
@@ -353,21 +351,16 @@
     <string name="connect_panel_active_features">Active features</string>
     <string name="connect_panel_connection_details">Connection details</string>
     <string name="feature_quantum_resistant">Quantum resistance</string>
-    <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscation</string>
-    <string name="feature_lan_sharing">Local network sharing</string>
     <string name="feature_custom_dns">Custom DNS</string>
-    <string name="feature_server_ip_override">Server IP override</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_multihop">Multihop</string>
-    <string name="feature_dns_content_blockers">DNS content blockers</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
+    <string name="dns_content_blockers">DNS content blockers</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="connection_details_in">In</string>
     <string name="feature_indicators_show_more">%1$s more...</string>
     <string name="connect">Connect</string>
     <string name="connect_on_start">Connect on device start-up</string>
-    <string name="connect_on_start_footer">Automatically connect on device start-up. Only works if the app has been granted the VPN permission.</string>
     <string name="close">Close</string>
     <string name="more_information">More information</string>
     <string name="open_url">Open URL</string>
@@ -392,24 +385,57 @@
     <string name="x_exit">%s (Exit)</string>
     <string name="filters">Filters:</string>
     <string name="removed_provider">%s (removed)</string>
-    <string name="search_query_empty">Type at least 2 characters to start searching.</string>
     <string name="daita_description_slide_1_first_paragraph">Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) hides patterns in your encrypted VPN traffic.</string>
     <string name="daita_description_slide_1_third_paragraph">By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</string>
     <string name="daita_description_slide_2_first_paragraph">If an observer monitors these data packets, %1$s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s does this by carefully adding network noise and making all network packets the same size.</string>
-    <string name="daita_description_slide_2_third_paragraph">Not all our servers are %1$s-enabled. Therefore, we use multihop automatically to enable %2$s with any server.</string>
+    <string name="daita_description_slide_2_third_paragraph">Not all our servers are %1$s-enabled. Therefore, we use multihop automatically to enable %1$s with any server.</string>
     <string name="direct_only">Direct only</string>
     <string name="enable_direct_only">Enable %1$s</string>
     <string name="direct_only_description">Not all our servers are %1$s-enabled. In order to use the internet, you might have to select a new location after enabling.</string>
-    <string name="multihop_entry_disabled_description">The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%4$s\" in the settings.</string>
+    <string name="multihop_entry_disabled_description">The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%2$s\" in the settings.</string>
     <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
-    <string name="see_full_changelog">See full changelog</string>
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
     <string name="device_ip_version_title">Device IP version</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
+    <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>
+    <string name="enable_ipv6">In-tunnel IPv6</string>
+    <string name="uri_market_app_not_found">No Android app store installed, could not open link</string>
+    <string name="uri_browser_app_not_found">No browser app installed, could not open link</string>
+    <string name="ipv6_info">When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.</string>
+    <string name="ip_version_v4_unavailable">IPv4 is not available, please try changing \"Device IP version\" setting.</string>
+    <string name="ip_version_v6_unavailable">IPv6 is not available, please try changing \"Device IP version\" setting.</string>
+    <string name="device_ip_info_first_paragraph">This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.</string>
+    <string name="device_ip_info_second_paragraph">It can be useful when you are aware of problems caused by a certain IP version.</string>
+    <string name="daita_multihop">%s: Multihop</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN permission was denied</string>
+    <string name="vpn_settings_not_available">VPN Settings not available on device</string>
+    <string name="wireguard_port_is_not_supported">The selected %s port is not supported, please change it under</string>
+    <string name="wireguard_settings">%s settings.</string>
+    <string name="add_90_days_time_x">Add 90 days time (%s)</string>
+    <string name="add_time">Add time</string>
+    <string name="loading_products">Loading products</string>
+    <string name="failed_to_load_products">Failed to load products, please try again</string>
+    <string name="retry">Retry</string>
+    <string name="days_were_added_30">30 days was added to your account.</string>
+    <string name="days_were_added_90">90 days was added to your account.</string>
+    <string name="time_added">Time added</string>
+    <string name="app_is_blocking_internet">The app is blocking internet, please disconnect first</string>
+    <string name="in_app_products_unavailable">In-app products unavailable, please make sure you have the latest version of Google Play.</string>
+    <string name="relayitem_is_inactive">%s is unavailable</string>
+    <string name="recents">Recents</string>
+    <string name="enable_recents">Enable recents</string>
+    <string name="disable_recents">Disable recents</string>
+    <string name="no_recent_selection">No recent selection history</string>
+    <string name="recents_disabled">Recents disabled and history cleared</string>
+    <string name="more_actions">More actions</string>
+    <string name="relay_item_already_selected_as_exit">%s is already selected as exit relay</string>
+    <string name="relay_item_already_selected_as_entry">%s is already selected as entry relay</string>
+    <string name="entry_and_exit_are_same">Entry relay is the same as exit relay</string>
+    <string name="connect_on_start_info_first">Automatically connect on device start-up.</string>
+    <string name="connect_on_start_info_second">For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings.</string>
+    <string name="open_app_details">Open app details</string>
 </resources>

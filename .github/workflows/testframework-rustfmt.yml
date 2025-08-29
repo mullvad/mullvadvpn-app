@@ -18,6 +18,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Rust components
+        shell: bash
+        run: rustup component add rustfmt
+
       - name: Check formatting
         working-directory: test
         run: |-

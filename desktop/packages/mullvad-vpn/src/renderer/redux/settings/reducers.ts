@@ -15,6 +15,7 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
+  Quic,
   RelayEndpointType,
   RelayLocation,
   RelayOverride,
@@ -77,6 +78,7 @@ export interface IRelayLocationRelayRedux {
   weight: number;
   endpointType: RelayEndpointType;
   daita: boolean;
+  quic?: Quic;
 }
 
 export interface IRelayLocationCityRedux {
@@ -134,6 +136,7 @@ const initialState: ISettingsReduxState = {
     unpinnedWindow: window.env.platform !== 'win32' && window.env.platform !== 'darwin',
     browsedForSplitTunnelingApplications: [],
     changelogDisplayedForVersion: '',
+    updateDismissedForVersion: '',
     animateMap: true,
   },
   relaySettings: {
