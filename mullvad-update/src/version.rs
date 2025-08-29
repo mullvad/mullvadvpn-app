@@ -10,7 +10,7 @@ use anyhow::Context;
 use itertools::Itertools;
 use mullvad_version::PreStableType;
 
-use crate::format::{self, Installer};
+use crate::format::{self, Installer, Response};
 
 /// Lowest version to accept using 'verify'
 pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
@@ -125,8 +125,22 @@ impl VersionInfo {
     }
 }
 
+/// A version is considered supported if the version exists in the metadata. Versions with a
+/// rollout of 0 is still considered supported.
+pub fn is_version_supported(
+    current_version: mullvad_version::Version,
+    response: &Response,
+) -> bool {
+    response
+        .releases
+        .iter()
+        .any(|release| release.version.eq(&current_version))
+}
+
 #[cfg(test)]
 mod test {
+    use std::str::FromStr;
+
     use insta::assert_yaml_snapshot;
 
     use super::*;
@@ -173,6 +187,30 @@ mod test {
 
         // Expect: The available latest versions for arm64, where the rollout is .01.
         assert_yaml_snapshot!(info);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_is_version_supported() -> anyhow::Result<()> {
+        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
+            "../test-version-response.json"
+        ))?;
+
+        let supported_version = mullvad_version::Version::from_str("2025.3").unwrap();
+        let supported_rollout_zero_version =
+            mullvad_version::Version::from_str("2025.1-beta1").unwrap();
+        let non_supported_version = mullvad_version::Version::from_str("2025.5").unwrap();
+
+        assert!(is_version_supported(supported_version, &response.signed));
+        assert!(is_version_supported(
+            supported_rollout_zero_version,
+            &response.signed
+        ));
+        assert!(!is_version_supported(
+            non_supported_version,
+            &response.signed
+        ));
 
         Ok(())
     }

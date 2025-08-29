@@ -75,7 +75,8 @@
             "size": 111488248,
             "sha256": "82948D3DB5B869EE5F0D246DB557A81B72B68DFDDD2267872B7B8A5B19A05444"
           }
-        ]
+        ],
+        "rollout": 0
       },
       {
         "version": "2025.3-beta1",
