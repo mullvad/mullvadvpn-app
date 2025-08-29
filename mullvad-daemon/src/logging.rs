@@ -4,10 +4,9 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
 };
 use talpid_core::logging::rotate_log;
-use tracing_appender::non_blocking;
 use tracing_subscriber::{
-    self, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt, reload::Handle,
-    util::SubscriberInitExt, EnvFilter, Registry,
+    EnvFilter, Registry, filter, filter::LevelFilter, fmt::format::FmtSpan, prelude::*,
+    reload::Handle, util::SubscriberInitExt,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -72,7 +71,6 @@ pub fn is_enabled() -> bool {
 pub struct LogHandle {
     level_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
-    _file_appender_guard: non_blocking::WorkerGuard,
 }
 
 #[derive(Clone)]
@@ -112,7 +110,7 @@ impl LogHandle {
 pub fn init_logger(
     log_level: log::LevelFilter,
     log_dir: Option<&PathBuf>,
-    output_timestamp: bool,
+    _output_timestamp: bool,
 ) -> Result<LogHandle, Error> {
     let level_filter = match log_level {
         log::LevelFilter::Off => LevelFilter::OFF,
@@ -122,15 +120,14 @@ pub fn init_logger(
         log::LevelFilter::Debug => LevelFilter::DEBUG,
         log::LevelFilter::Trace => LevelFilter::TRACE,
     };
+    if let Some(log_dir) = log_dir {
+        rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
+    }
 
     let env_filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::from_default_env().add_directive(level_filter.into()));
 
     let default_filter = get_default_filter(level_filter);
-
-    // TODO: Switch this to a rolling appender, likely daily or hourly
-    let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
-    let (non_blocking_file_appender, _file_appender_guard) = non_blocking(file_appender);
 
     let (tx, _) = tokio::sync::broadcast::channel(128);
     let log_stream = LogStreamer {
@@ -146,54 +143,18 @@ pub fn init_logger(
     let reload_handle = LogHandle {
         level_filter: reload_handle,
         log_stream: log_stream.clone(),
-        _file_appender_guard,
     };
 
     let reg = tracing_subscriber::registry()
         .with(user_filter)
         .with(default_filter);
 
-    if let Some(log_dir) = log_dir {
-        rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
-    }
-
-    if output_timestamp {
-        let file_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
-        let grpc_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(true)
-            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            .with_writer(std::sync::Mutex::new(log_stream));
-        reg.with(
-            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_string(),
-            )),
-        )
-        .with(
-            grpc_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_string(),
-            )),
-        )
-        .with(
-            file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_string(),
-            )),
-        )
-        .init();
-    } else {
-        let grpc_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(true)
-            .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            .with_writer(std::sync::Mutex::new(log_stream));
-        let file_formatter = tracing_subscriber::fmt::layer()
-            .with_ansi(false)
-            .with_writer(non_blocking_file_appender);
-        reg.with(stdout_formatter.without_time())
-            .with(file_formatter.without_time())
-            .with(grpc_formatter.without_time())
-            .init();
-    }
+    reg.with(
+        stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+            DATE_TIME_FORMAT_STR.to_string(),
+        )),
+    )
+    .init();
 
     #[cfg(all(target_os = "android", debug_assertions))]
     {
