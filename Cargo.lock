@@ -3350,6 +3350,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "strum",
  "tokio",
  "toml 0.8.19",
 ]
