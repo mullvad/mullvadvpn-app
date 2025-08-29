@@ -11,6 +11,9 @@ rust-version.workspace = true
 workspace = true
 
 [features]
+#default = ["wggo"]
+default = ["boringtun"]
+wggo = ["dep:wireguard-go-rs"]
 boringtun = ["dep:boringtun", "dep:tun07", "talpid-tunnel/boringtun"]
 multihop-pcap = ["boringtun/pcap"]
 
@@ -33,7 +36,7 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = { workspace = true }
 surge-ping = "0.8.0"
-wireguard-go-rs = { path = "../wireguard-go-rs" }
+wireguard-go-rs = { path = "../wireguard-go-rs", optional = true }
 tun07 = { package = "tun", version = "0.7.11", features = [
   "async",
 ], optional = true }
