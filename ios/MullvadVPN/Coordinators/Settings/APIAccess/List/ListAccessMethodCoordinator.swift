@@ -89,24 +89,18 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
         )
         let body = [
             NSLocalizedString(
-                """
-                The app needs to communicate with a Mullvad API server to log you in, fetch server lists, \
-                and other critical operations.
-                """,
+                "The app needs to communicate with a Mullvad API server to log you in, " +
+                    "fetch server lists, and other critical operations.",
                 comment: ""
             ),
             NSLocalizedString(
-                """
-                On some networks, where various types of censorship are being used, the API servers might \
-                not be directly reachable.
-                """,
+                "On some networks, where various types of censorship are being used, " +
+                    "the API servers might not be directly reachable.",
                 comment: ""
             ),
             NSLocalizedString(
-                """
-                This feature allows you to circumvent that censorship by adding custom ways to access the \
-                API via proxies and similar methods.
-                """,
+                "This feature allows you to circumvent that censorship by adding custom ways " +
+                    "to access the API via proxies and similar methods.",
                 comment: ""
             ),
         ]

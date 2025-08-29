@@ -60,13 +60,10 @@ struct DeviceManagementView: View {
     }
 
     var bodyText: LocalizedStringKey {
+        // swiftlint:disable line_length
         switch style {
         case .deviceManagement:
-            """
-            View and manage all your logged in devices. \
-            You can have up to 5 devices on one account at a time. \
-            Each device gets a name when logged in to help you tell them apart easily.
-            """
+            "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
         case .tooManyDevices:
             if canLoginNewDevice {
                 """
@@ -74,12 +71,10 @@ struct DeviceManagementView: View {
                 """
 
             } else {
-                """
-                Please log out of at least one by removing it from the list below. \
-                You can find the corresponding device name under the device’s Account settings.
-                """
+                "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
             }
         }
+        // swiftlint:enable line_length
     }
 
     private func fetchDevices() {

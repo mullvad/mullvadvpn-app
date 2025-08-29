@@ -57,7 +57,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
         case .changelog:
             guard let cell = cell as? SettingsCell else { return }
-            cell.titleLabel.text = NSLocalizedString("What's new", comment: "")
+            cell.titleLabel.text = NSLocalizedString("What’s new", comment: "")
             cell.detailTitleLabel.text = Bundle.main.productVersion
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron

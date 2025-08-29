@@ -23,49 +23,11 @@
         }
       }
     },
-    "**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**\n\nDAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.\n\nBy using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Achtung: Dies erhöht den Netzwerkverkehr und wirkt sich auch negativ auf Geschwindigkeit, Latenz und Akkuverbrauch aus. Verwende mit Vorsicht auf begrenzte Tarife. *\n\nDAITA (Verteidigung gegen AI-geführte Verkehrsanalyse) versteckt Muster in deinem verschlüsselten VPN-Verkehr.\n\nDurch die Verwendung einer ausgefeilten KI ist es möglich, den Datenverkehr von Datenpaketen zu analysieren, die auf Ihrem Gerät ein- und auslaufen (selbst wenn der Datenverkehr verschlüsselt ist)."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Attention : Ceci augmente le trafic réseau et affectera également la vitesse, la latence et l'utilisation de la batterie. À utiliser avec prudence sur des plans limités. *\n\nDAITA (Défense contre l'analyse du trafic guidée par AI) masque les patrons dans votre trafic VPN chiffré.\n\nEn utilisant une IA sophistiquée, il est possible d'analyser le trafic des paquets de données entrants et sortants de votre appareil (même si le trafic est chiffré)."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Uppmärksamhet: Detta ökar nätverkstrafiken och kommer också att påverka hastighet, latens och batterianvändning. Använd med försiktighet på begränsade planer. *\n\nDAITA (Försvar mot AI-styrda Trafikanalys) döljer mönster i din krypterade VPN-trafik.\n\nGenom att använda sofistikerad AI är det möjligt att analysera trafiken av datapaket som går in och ut från din enhet (även om trafiken är krypterad)."
-          }
-        }
-      }
+    "**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" : {
+
     },
-    "**Tap here** to see what’s new." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Tippe hier** um zu sehen, was neu ist."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Tapotez ici** pour voir les nouveautés."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Tryck här** för att se vad som är nytt."
-          }
-        }
-      }
+    "**Tap here** to see what’s new" : {
+
     },
     "%@" : {
       "localizations" : {
@@ -110,6 +72,9 @@
           }
         }
       }
+    },
+    "%@ does this by carefully adding network noise and making all network packets the same size." : {
+
     },
     "%@ have been added to your account" : {
       "localizations" : {
@@ -947,6 +912,12 @@
         }
       }
     },
+    "Attention: this setting cannot be used in combination with **Use custom DNS server**." : {
+
+    },
+    "Attention: toggling “Local network sharing” requires restarting the VPN connection." : {
+
+    },
     "Authentication" : {
       "localizations" : {
         "de" : {
@@ -1122,6 +1093,9 @@
           }
         }
       }
+    },
+    "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." : {
+
     },
     "Cancel" : {
       "localizations" : {
@@ -1714,6 +1688,9 @@
         }
       }
     },
+    "DAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic." : {
+
+    },
     "DAITA isn't available at the currently selected location. After enabling, please go to the \"Select location\" view and select a location that supports DAITA." : {
       "localizations" : {
         "de" : {
@@ -1847,26 +1824,7 @@
       }
     },
     "Delete Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto löschen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer le compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort konto"
-          }
-        }
-      }
+
     },
     "Delete list" : {
       "localizations" : {
@@ -2351,6 +2309,12 @@
           }
         }
       }
+    },
+    "Either buy credit on our website or make an in-app purchase via the **Add time** button below." : {
+
+    },
+    "Either buy credit on our website or redeem a voucher." : {
+
     },
     "Enable" : {
       "localizations" : {
@@ -2868,21 +2832,8 @@
         }
       }
     },
-    "Go ahead and start using the app to begin reclaiming your online privacy.\nTo continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gehen Sie voran und verwenden Sie die App, um Ihre Privatsphäre wiederherzustellen.\nUm Ihre Reise als privates Ninja fortzusetzen, besuchen Sie unsere Website, um andere datenschutzfreundliche Gewohnheiten und Werkzeuge zu übernehmen."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gå vidare och börja använda appen för att börja återta din integritet online.\nFör att fortsätta din resa som privatliv ninja, besök vår hemsida för att plocka upp andra integritetsvänliga vanor och verktyg."
-          }
-        }
-      }
+    "Go ahead and start using the app to begin reclaiming your online privacy." : {
+
     },
     "Go to login" : {
       "localizations" : {
@@ -2994,27 +2945,8 @@
         }
       }
     },
-    "If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.\n\nDAITA does this by carefully adding network noise and making all network packets the same size.\n\nNot all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.\n" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn ein Beobachter diese Datenpakete überwacht, DAITA macht es für sie wesentlich schwieriger, herauszufinden, welche Websites Sie besuchen oder mit wem Sie kommunizieren.\n\nDAITA tut dies, indem es Netzwerkrauschen einfügt und alle Netzwerkpakete auf die gleiche Größe bringt.\n\nNicht alle unsere Server sind DAITA-fähig. Daher verwenden wir Multihop automatisch, um DAITA mit jedem Server zu aktivieren.\n"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si un observateur surveille ces paquets de données, DAITA leur rend beaucoup plus difficile d'identifier les sites Web que vous visitez ou avec lesquels vous communiquez.\n\nDAITA le fait en ajoutant soigneusement du bruit du réseau et en faisant de tous les paquets du réseau la même taille.\n\nTous nos serveurs ne sont pas activés par DAITA. Par conséquent, nous utilisons le multilien automatiquement pour activer DAITA avec n'importe quel serveur.\n"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om en observatör övervakar dessa datapaket, DAITA gör det betydligt svårare för dem att identifiera vilka webbplatser du besöker eller med vilka du kommunicerar.\n\nDAITA gör detta genom att noggrant lägga till nätverksljud och göra alla nätverkspaket till samma storlek.\n\nAlla våra servrar är inte DAITA-aktiverade. Därför använder vi multihop automatiskt för att aktivera DAITA med alla servrar.\n"
-          }
-        }
-      }
+    "If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." : {
+
     },
     "If needed we will contact you at %@" : {
       "localizations" : {
@@ -3060,21 +2992,8 @@
         }
       }
     },
-    "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.\nThe DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn du nicht mit unserem VPN verbunden bist, wird der verschlüsselte DNS-Proxy deine eigene nicht-VPN-IP beim Verbinden verwenden.\nDie DoH-Server werden von einem der folgenden Anbieter gehostet: Quad9 oder Cloudflare."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du inte är ansluten till vårt VPN kommer den krypterade DNS-proxyn att använda din egen icke-VPN IP när du ansluter.\nDoH-servrarna är värd för en av följande leverantörer: Quad9 eller Cloudflare."
-          }
-        }
-      }
+    "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." : {
+
     },
     "If you disconnect now, you won’t be able to secure your connection until the device is online." : {
       "localizations" : {
@@ -3141,6 +3060,9 @@
           }
         }
       }
+    },
+    "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." : {
+
     },
     "If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." : {
       "localizations" : {
@@ -3471,6 +3393,9 @@
           }
         }
       }
+    },
+    "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." : {
+
     },
     "It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?\nIf so, click log out below to log in with the other account number." : {
       "localizations" : {
@@ -4001,6 +3926,7 @@
       }
     },
     "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.\nThis results in increased latency but increases anonymity online." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4384,6 +4310,16 @@
         }
       }
     },
+    "Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server."
+          }
+        }
+      }
+    },
     "Obfuscation" : {
       "localizations" : {
         "de" : {
@@ -4407,26 +4343,7 @@
       }
     },
     "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verschleierung versteckt den WireGuard-Verkehr innerhalb eines anderen Protokolls. Es kann verwendet werden, um Zensur und andere Filterarten zu umgehen, wo eine einfache WireGuard-Verbindung blockiert würde."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'obfuscation cache le trafic WireGuard à l'intérieur d'un autre protocole. Il peut être utilisé pour aider à contourner la censure et d'autres types de filtrage, où une simple connexion WireGuard serait bloquée."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obduktion döljer WireGuard trafik inuti ett annat protokoll. Den kan användas för att kringgå censur och andra typer av filtrering, där en vanlig WireGuard-anslutning skulle blockeras."
-          }
-        }
-      }
+
     },
     "Obscured" : {
       "localizations" : {
@@ -5904,6 +5821,9 @@
         }
       }
     },
+    "TCP" : {
+
+    },
     "Test method" : {
       "localizations" : {
         "de" : {
@@ -6102,27 +6022,11 @@
         }
       }
     },
-    "The automatic setting will randomly choose from the valid port ranges shown below.\nThe custom port can be any value inside the valid ranges:\n%@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die automatische Einstellung wird zufällig aus den unten angezeigten Portbereichen auswählen.\nDer benutzerdefinierte Port kann ein beliebiger Wert innerhalb der gültigen Bereiche sein:\n%@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le réglage automatique choisira aléatoirement parmi les plages de ports valides indiquées ci-dessous.\nLe port personnalisé peut ętre n'importe quelle valeur dans les plages valides :\n%@"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den automatiska inställningen kommer slumpmässigt att välja från de giltiga portintervall som visas nedan.\nDen anpassade porten kan vara valfritt värde inom de giltiga intervallen:\n%@"
-          }
-        }
-      }
+    "The automatic setting will randomly choose from the valid port ranges shown below." : {
+
+    },
+    "The custom port can be any value inside the valid ranges: %@" : {
+
     },
     "The entry and exit servers cannot be the same. Try changing one to a new server or location." : {
       "localizations" : {
@@ -6300,27 +6204,8 @@
         }
       }
     },
-    "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.\nAttention: toggling “Local network sharing” requires restarting the VPN connection." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Funktion ermöglicht den Zugriff auf andere Geräte im lokalen Netzwerk, wie zum Beispiel zum Teilen, Drucken, Streamen usw.\nAchtung: Das Umschalten von \"Lokales Netzwerkteilen\" erfordert einen Neustart der VPN-Verbindung."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cette fonctionnalité permet d'accéder à d'autres périphériques du réseau local, tels que le partage, l'impression, le streaming, etc.\nAttention : activer le « Partage de réseau local » nécessite un redémarrage de la connexion VPN."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den här funktionen ger åtkomst till andra enheter på det lokala nätverket, till exempel för att dela, skriva ut, strömma etc.\nObservera: växla mellan “Lokalt nätverk delning” kräver omstart av VPN-anslutningen."
-          }
-        }
-      }
+    "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." : {
+
     },
     "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods." : {
       "localizations" : {
@@ -6344,37 +6229,11 @@
         }
       }
     },
-    "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.\nIt does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.\nThis extra step uses approximately 500 kiB of traffic every time a new tunnel is established." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieses Feature macht den WireGuard-Tunnel gegen potentielle Angriffe von Quantencomputern resistent.\nDies geschieht, indem ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt wird und das Ergebnis in WireGuards regulärer Verschlüsselung gemischt wird.\nDieser zusätzliche Schritt verwendet bei jedem Bau eines neuen Tunnels etwa 500 kiB Verkehr."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Denna funktion gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer.\nDet gör detta genom att utföra ett extra nyckelutbyte med hjälp av en kvantsäker algoritm och blanda resultatet i WireGuards vanliga kryptering.\nDetta extra steg använder cirka 500 kiB trafik varje gång en ny tunnel etableras."
-          }
-        }
-      }
+    "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers." : {
+
     },
-    "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.\nYou can have up to 5 devices logged in on one Mullvad account.\nIf you log out, the device and the device name is removed. When you log back in again, the device will get a new name." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies ist der Name, der dem Gerät zugewiesen ist. Jedes Gerät, das sich auf einem Mullvad-Konto eingeloggt hat, erhält einen einzigartigen Namen, der Ihnen hilft, ihn zu identifizieren, wenn Sie Ihre Geräte in der App oder auf der Website verwalten.\nDu kannst bis zu 5 Geräte auf einem Mullvad Konto eingeloggt haben.\nWenn Sie sich abmelden, wird das Gerät und der Gerätename entfernt. Wenn Sie sich erneut anmelden, erhält das Gerät einen neuen Namen."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Detta är namnet som tilldelats enheten. Varje enhet som är inloggad på ett Mullva-konto får ett unikt namn som hjälper dig att identifiera det när du hanterar dina enheter i appen eller på webbplatsen.\nDu kan ha upp till 5 enheter inloggade på ett Mullva-konto.\nOm du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn."
-          }
-        }
-      }
+    "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." : {
+
     },
     "This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit \"Delete account\" if you really want to delete the account:" : {
       "localizations" : {
@@ -6397,6 +6256,9 @@
           }
         }
       }
+    },
+    "This might cause issues on certain websites, services, and apps." : {
+
     },
     "This voucher code has already been used." : {
       "localizations" : {
@@ -6442,6 +6304,9 @@
         }
       }
     },
+    "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
+
+    },
     "To assist you better, please write in English or Swedish and include which country you are connecting from." : {
       "localizations" : {
         "de" : {
@@ -6485,6 +6350,9 @@
           }
         }
       }
+    },
+    "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." : {
+
     },
     "To create a custom list, tap on \"...\" " : {
       "localizations" : {
@@ -6552,27 +6420,8 @@
         }
       }
     },
-    "To start using the app, you first need to add time to your account. Either buy credit on our website or redeem a voucher." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um die App zu verwenden, müssen Sie zuerst Zeit zu Ihrem Konto hinzufügen. Kaufen Sie ein Guthaben auf unserer Website oder einlösen Sie einen Gutschein."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour commencer à utiliser l'application, vous devez d'abord ajouter du temps à votre compte. Achetez du crédit sur notre site Web ou utilisez un bon d'achat."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "För att börja använda appen måste du först lägga till tid på ditt konto. Antingen köpa kredit på vår webbplats eller lösa in en kupong."
-          }
-        }
-      }
+    "To start using the app, you first need to add time to your account." : {
+
     },
     "Too many devices" : {
       "localizations" : {
@@ -6727,6 +6576,9 @@
           }
         }
       }
+    },
+    "UDP" : {
+
     },
     "UDP-over-TCP" : {
       "localizations" : {
@@ -6948,49 +6800,18 @@
         }
       }
     },
-    "Valid range: 1 - 65535" : {
+    "Valid range: %d - %d" : {
       "localizations" : {
-        "de" : {
+        "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valid range: 1 - 65535"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valid range: 1 - 65535"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valid range: 1 - 65535"
+            "state" : "new",
+            "value" : "Valid range: %1$d - %2$d"
           }
         }
       }
     },
     "Verifying voucher..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gutschein wird überprüft..."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vérification du bon de réduction..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verifierar kupong..."
-          }
-        }
-      }
+
     },
     "View app logs" : {
       "localizations" : {
@@ -7081,26 +6902,7 @@
       }
     },
     "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Warnung: Der Malware-Blocker ist kein Anti-Virus und sollte nicht als solche behandelt werden. Dies ist nur eine zusätzliche Schutzschicht."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Attention : Le bloqueur de logiciels malveillants n'est pas un anti-virus et ne doit pas être traité en tant que tel, il ne s'agit que d'une couche supplémentaire de protection."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Varning: malware blockeraren är inte en anti-virus och bör inte behandlas som sådan, detta är bara ett extra lager av skydd."
-          }
-        }
-      }
+
     },
     "We are having some issues, please try again later" : {
       "localizations" : {
@@ -7168,43 +6970,11 @@
         }
       }
     },
-    "What's new" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Was ist neu"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quoi de neuf"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vad är nytt"
-          }
-        }
-      }
+    "What’s new" : {
+
     },
-    "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. \nThis might cause issues on certain websites, services, and apps.\nAttention: this setting cannot be used in combination with **Use custom DNS server**." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn diese Funktion aktiviert ist, hält es das Gerät davon ab, bestimmte Domains oder Websites zu kontaktieren, die für die Verbreitung von Werbung, Malware, Tracker und mehr bekannt sind. \nDies kann Probleme auf bestimmten Webseiten, Diensten und Apps verursachen.\nAchtung: diese Einstellung kann nicht in Kombination mit **Eigenen DNS-Server verwenden** verwendet werden."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "När den här funktionen är aktiverad stoppar den enheten från att kontakta vissa domäner eller webbplatser som är kända för att distribuera annonser, skadlig kod, trackers och mer. \nDetta kan orsaka problem på vissa webbplatser, tjänster och appar.\nObservera: den här inställningen kan inte användas i kombination med **Använd anpassad DNS-server**."
-          }
-        }
-      }
+    "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." : {
+
     },
     "When using DAITA, one provider with DAITA-enabled servers is required." : {
       "localizations" : {
@@ -7250,115 +7020,20 @@
         }
       }
     },
-    "WireGuard Obfuscation" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard Verschleierung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obfuscation WireGuard"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trådvärnsförfalskning"
-          }
-        }
-      }
+    "WireGuard obfuscation" : {
+
     },
-    "WireGuard ports" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard Ports"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ports WireGuard"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard portar"
-          }
-        }
-      }
+    "WireGuard port" : {
+
     },
-    "With the \"Direct\" method, the app communicates with a Mullvad API server directly without any intermediate proxies." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit der \"Direct\" Methode kommuniziert die App direkt mit einem Mullvad API Server ohne Zwischenproxies."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avec la méthode \"Direct\", l'application communique directement avec un serveur API Mullvad sans proxys intermédiaires."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Med \"Direkt\" metoden kommunicerar appen med en Mullvads API-server direkt utan några mellanliggande proxier."
-          }
-        }
-      }
+    "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies." : {
+
     },
-    "With the \"Encrypted DNS proxy\" method, the app will communicate with our Mullvad API through a proxy address.\nIt does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit der \"Verschlüsselten DNS-Proxy-Methode\" wird die App über eine Proxy-Adresse mit unserer Mullvad-API kommunizieren.\nDies geschieht durch das Abrufen einer Adresse von einem DNS über den HTTPS (DoH) Server und die Verwendung dieser Adresse, um unsere API-Server zu erreichen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avec la méthode \"proxy DNS chiffré\", l'application communiquera avec notre API Mullvad via une adresse proxy.\nIl fait cela en récupérant une adresse depuis un DNS via un serveur HTTPS (DoH) puis en utilisant cela pour atteindre nos serveurs API."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Med metoden \"Krypterad DNS-proxy\" kommer appen att kommunicera med vårt Mullvad API genom en proxyadress.\nDet gör detta genom att hämta en adress från en DNS över HTTPS (DoH) server och sedan använda det för att nå våra API-servrar."
-          }
-        }
-      }
+    "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." : {
+
     },
-    "With the \"Mullvad bridges\" method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit der \"Mullvad Bridges\"-Methode kommuniziert die App mit einem Mullvad API-Server über einen Mullvad Bridge-Server. Sie tut dies, indem sie den Verkehr verschleiert von Shadowsocks."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avec la méthode \"pont Mullvad\", l'application communique avec un serveur API Mullvad via un serveur pont Mullvad. Il fait cela en envoyant le trafic obscurci par Shadowsocks."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Med \"Mullvad bridges\"-metoden kommunicerar appen med en Mullvads API-server via en Mullvads bryggserver. Det gör detta genom att skicka trafiken fördunklad av Shadowsocks."
-          }
-        }
-      }
+    "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." : {
+
     },
     "Yes, continue" : {
       "localizations" : {
@@ -7451,6 +7126,9 @@
         }
       }
     },
+    "You can have up to 5 devices logged in on one Mullvad account." : {
+
+    },
     "You can use the \"restore purchases\" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." : {
       "localizations" : {
         "de" : {
@@ -7495,49 +7173,8 @@
         }
       }
     },
-    "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du hast keine VPN-Zeit mehr auf diesem Konto. Kaufen Sie entweder Guthaben auf unserer Website oder tätigen Sie einen In-App-Kauf über die Schaltfläche **Zeit hinzufügen** unten."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il ne vous reste plus de temps VPN sur ce compte. Achetez du crédit sur notre site Web ou effectuez un achat dans l'application via le bouton **Ajouter du temps** ci-dessous."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har ingen mer VPN-tid kvar på detta konto. Antingen köpa kredit på vår webbplats eller göra ett in-app köp via **Lägg till tid** knappen nedan."
-          }
-        }
-      }
-    },
-    "You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du hast keine VPN-Zeit mehr auf diesem Konto. Um mehr hinzuzufügen, müssen Sie die Verbindung trennen und mit einer unsicheren Verbindung auf das Internet zugreifen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il ne vous reste plus de temps VPN sur ce compte. Pour en ajouter plus, vous devrez vous déconnecter et accéder à Internet avec une connexion non sécurisée."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har ingen mer VPN-tid kvar på detta konto. För att lägga till mer, måste du koppla bort och komma åt Internet med en osäker anslutning."
-          }
-        }
-      }
+    "You have no more VPN time left on this account. " : {
+
     },
     "You have one day left on this account. Please add more time to continue using the VPN." : {
       "localizations" : {

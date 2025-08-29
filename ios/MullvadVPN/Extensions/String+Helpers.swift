@@ -24,3 +24,9 @@ extension String {
         return self.size(withAttributes: fontAttributes).width
     }
 }
+
+extension Array where Element == String {
+    func joinedParagraphs() -> String {
+        self.joined(separator: "\n")
+    }
+}

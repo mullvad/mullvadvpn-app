@@ -96,14 +96,12 @@ final class WelcomeContentView: UIView, Sendable {
         label.numberOfLines = .zero
         label.lineBreakMode = .byWordWrapping
         label.lineBreakStrategy = []
-        label.text = NSLocalizedString(
-            """
-            To start using the app, you first need to \
-            add time to your account. Either buy credit \
-            on our website or redeem a voucher.
-            """,
+        label.text = [NSLocalizedString(
+            "To start using the app, you first need to add time to your account.",
             comment: ""
-        )
+        ), NSLocalizedString(
+            "Either buy credit on our website or redeem a voucher.", comment: ""
+        )].joined(separator: " ")
         return label
     }()
 

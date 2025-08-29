@@ -100,40 +100,52 @@ extension SettingsDAITAView {
 
 extension SettingsDAITAView {
     private var dataViewModel: SettingsInfoViewModel {
-        SettingsInfoViewModel(
+        let daitaTitle = "DAITA"
+        return SettingsInfoViewModel(
             pages: [
                 SettingsInfoViewModelPage(
-                    body: NSLocalizedString(
-                        """
-                        **Attention: This increases network traffic and will also negatively affect speed, latency, \
-                        and battery usage. Use with caution on limited plans.**
-
+                    body: [
+                        NSLocalizedString(
+                            "**Attention: This increases network traffic and will also negatively affect " +
+                                "speed, latency, and battery usage. Use with caution on limited plans.**",
+                            comment: ""
+                        ),
+                        NSLocalizedString("""
                         DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
                         your encrypted VPN traffic.
-
+                        """, comment: ""),
+                        NSLocalizedString("""
                         By using sophisticated AI it’s possible to analyze the traffic of data \
                         packets going in and out of your device (even if the traffic is encrypted).
-                        """,
-                        comment: ""
-                    ),
+                        """, comment: ""),
+                    ].joinedParagraphs(),
                     image: .daitaOffIllustration
                 ),
                 SettingsInfoViewModelPage(
-                    body: NSLocalizedString(
-                        """
-                        If an observer monitors these data packets, DAITA makes it significantly \
-                        harder for them to identify which websites you are visiting or with whom \
-                        you are communicating.
-
-                        DAITA does this by carefully adding network noise and making all network \
-                        packets the same size.
-
-                        Not all our servers are DAITA-enabled. Therefore, we use multihop \
-                        automatically to enable DAITA with any server.
-
-                        """,
-                        comment: ""
-                    ),
+                    body: [
+                        NSLocalizedString(
+                            """
+                            If an observer monitors these data packets, DAITA makes it significantly \
+                            harder for them to identify which websites you are visiting or with whom \
+                            you are communicating.
+                            """,
+                            comment: ""
+                        ),
+                        String(format: NSLocalizedString(
+                            """
+                            %@ does this by carefully adding network noise and making all network \
+                            packets the same size.
+                            """,
+                            comment: ""
+                        ), "DAITA"),
+                        String(format: NSLocalizedString(
+                            """
+                            Not all our servers are %@-enabled. Therefore, we use multihop \
+                            automatically to enable %@ with any server.
+                            """,
+                            comment: ""
+                        ), daitaTitle, daitaTitle),
+                    ].joinedParagraphs(),
                     image: .daitaOnIllustration
                 ),
             ]
