@@ -16,7 +16,7 @@ use crate::format::{self, Installer};
 pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
 
 /// Query type for [VersionInfo]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VersionParameters {
     /// Architecture to retrieve data for
     pub architecture: VersionArchitecture,

@@ -29,7 +29,7 @@ itertools = { workspace = true }
 
 reqwest = { workspace = true, optional = true }
 sha2 = { workspace = true, optional = true }
-strum = { version = "0.27", features = ["derive"], optional = true }
+strum = { workspace = true, features = ["derive"], optional = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process", "macros"], optional = true }
 vec1 = { workspace = true }
 

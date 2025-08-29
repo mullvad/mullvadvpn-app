@@ -11,7 +11,10 @@ use config::Config;
 use io_util::create_dir_and_write;
 use platform::Platform;
 
-use mullvad_update::format::{self, SignedResponse, key};
+use mullvad_update::{
+    format::{self, SignedResponse, key},
+    version::Rollout,
+};
 
 mod artifacts;
 mod config;
@@ -103,6 +106,16 @@ pub enum Opt {
     Verify {
         /// Platforms to remove releases for. All if none are specified
         platforms: Vec<Platform>,
+    },
+
+    /// Return the latest releases in `signed/` based on the given parameters.
+    /// The output is in JSON format.
+    QueryLatest {
+        /// Platforms to query for. All if none are specified
+        platforms: Vec<Platform>,
+        /// Rollout threshold to use (.0 = not rolled out, 1 = fully rolled out)
+        #[arg(long, default_value_t = f32::EPSILON)]
+        rollout: Rollout,
     },
 }
 
@@ -207,6 +220,44 @@ async fn main() -> anyhow::Result<()> {
             if any_failed {
                 bail!("Some signatures failed to be verified");
             }
+            Ok(())
+        }
+        Opt::QueryLatest { platforms, rollout } => {
+            #[derive(Default, serde::Serialize)]
+            struct SummaryQueryResult {
+                linux: Option<mullvad_version::Version>,
+                linux_beta: Option<mullvad_version::Version>,
+                windows: Option<mullvad_version::Version>,
+                windows_beta: Option<mullvad_version::Version>,
+                macos: Option<mullvad_version::Version>,
+                macos_beta: Option<mullvad_version::Version>,
+            }
+
+            let mut summary_result = SummaryQueryResult::default();
+
+            for platform in all_platforms_if_empty(platforms) {
+                let out = platform.query_latest(rollout).await?;
+
+                match platform {
+                    Platform::Linux => {
+                        summary_result.linux = Some(out.stable);
+                        summary_result.linux_beta = out.beta;
+                    }
+                    Platform::Windows => {
+                        summary_result.windows = Some(out.stable);
+                        summary_result.windows_beta = out.beta;
+                    }
+                    Platform::Macos => {
+                        summary_result.macos = Some(out.stable);
+                        summary_result.macos_beta = out.beta;
+                    }
+                }
+            }
+
+            let json = serde_json::to_string_pretty(&summary_result)
+                .context("Failed to serialize versions")?;
+            println!("{json}");
+
             Ok(())
         }
     }

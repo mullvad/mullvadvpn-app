@@ -20,6 +20,7 @@ reqwest = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
 sha2 = { workspace = true }
+strum = { workspace = true }
 tokio = { version = "1", features = ["full"] }
 toml = "0.8"
 
