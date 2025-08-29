@@ -270,20 +270,22 @@ async fn main() -> anyhow::Result<()> {
         Opt::QueryLatest { platforms, rollout } => {
             #[derive(Default, serde::Serialize)]
             struct SummaryQueryResult {
-                linux: Option<QueryResultEntry>,
-                linux_beta: Option<QueryResultEntry>,
-                windows: Option<QueryResultEntry>,
-                windows_beta: Option<QueryResultEntry>,
-                macos: Option<QueryResultEntry>,
-                macos_beta: Option<QueryResultEntry>,
+                linux: Option<QueryResultOs>,
+                windows: Option<QueryResultOs>,
+                macos: Option<QueryResultOs>,
             }
             #[derive(serde::Serialize)]
-            struct QueryResultEntry {
+            struct QueryResultOs {
+                stable: QueryResultVersion,
+                beta: Option<QueryResultVersion>,
+            }
+            #[derive(serde::Serialize)]
+            struct QueryResultVersion {
                 version: mullvad_version::Version,
             }
-            impl From<mullvad_version::Version> for QueryResultEntry {
+            impl From<mullvad_version::Version> for QueryResultVersion {
                 fn from(version: mullvad_version::Version) -> Self {
-                    QueryResultEntry { version }
+                    QueryResultVersion { version }
                 }
             }
 
@@ -294,16 +296,22 @@ async fn main() -> anyhow::Result<()> {
 
                 match platform {
                     Platform::Linux => {
-                        summary_result.linux = Some(out.stable.into());
-                        summary_result.linux_beta = out.beta.map(Into::into);
+                        summary_result.linux = Some(QueryResultOs {
+                            stable: out.stable.into(),
+                            beta: out.beta.map(Into::into),
+                        });
                     }
                     Platform::Windows => {
-                        summary_result.windows = Some(out.stable.into());
-                        summary_result.windows_beta = out.beta.map(Into::into);
+                        summary_result.windows = Some(QueryResultOs {
+                            stable: out.stable.into(),
+                            beta: out.beta.map(Into::into),
+                        });
                     }
                     Platform::Macos => {
-                        summary_result.macos = Some(out.stable.into());
-                        summary_result.macos_beta = out.beta.map(Into::into);
+                        summary_result.macos = Some(QueryResultOs {
+                            stable: out.stable.into(),
+                            beta: out.beta.map(Into::into),
+                        });
                     }
                 }
             }
