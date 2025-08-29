@@ -1,12 +1,8 @@
 package net.mullvad.mullvadvpn.lib.map
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
@@ -51,33 +47,15 @@ fun AnimatedMap(
 @Composable
 internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
 
-    var view: MapGLSurfaceView? = remember { null }
-
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
-    DisposableEffect(key1 = lifeCycleState) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    view?.onResume()
-                }
-                Lifecycle.Event.ON_PAUSE -> {
-                    view?.onPause()
-                }
-                else -> {}
-            }
-        }
-        lifeCycleState.addObserver(observer)
-
-        onDispose {
-            lifeCycleState.removeObserver(observer)
-            view?.onPause()
-            view = null
-        }
-    }
-
-    AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it) }) { glSurfaceView ->
-        view = glSurfaceView
-        glSurfaceView.setData(mapViewState)
-    }
+    AndroidView(
+        modifier = modifier,
+        factory = { MapGLSurfaceView(it) },
+        update = { glSurfaceView ->
+            glSurfaceView.lifecycle = lifeCycleState
+            glSurfaceView.setData(mapViewState)
+        },
+        onRelease = { it.lifecycle = null },
+    )
 }
