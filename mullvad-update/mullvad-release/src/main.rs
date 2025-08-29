@@ -5,16 +5,20 @@
 
 use anyhow::{Context, bail};
 use clap::Parser;
-use std::str::FromStr;
+use std::{path::Path, str::FromStr};
+use tokio::fs;
 
 use config::Config;
 use io_util::create_dir_and_write;
 use platform::Platform;
 
 use mullvad_update::{
+    api::HttpVersionInfoProvider,
     format::{self, SignedResponse, key},
     version::Rollout,
 };
+
+use crate::io_util::wait_for_confirm;
 
 mod artifacts;
 mod config;
@@ -27,6 +31,9 @@ const DEFAULT_EXPIRY_MONTHS: usize = 6;
 
 /// Rollout to use when not specified
 const DEFAULT_ROLLOUT: f32 = 1.;
+
+/// Filename for latest.json metadata
+const LATEST_FILENAME: &str = "latest.json";
 
 /// A tool that generates signed Mullvad version metadata.
 ///
@@ -51,6 +58,10 @@ pub enum Opt {
         /// Replace signed files without asking for confirmation
         #[arg(long, short = 'y')]
         assume_yes: bool,
+
+        /// Also update the latest.json file
+        #[arg(long, default_value_t = true)]
+        latest_file: bool,
     },
 
     /// List releases in `work/`
@@ -151,10 +162,42 @@ async fn main() -> anyhow::Result<()> {
         Opt::Pull {
             platforms,
             assume_yes,
+            latest_file,
         } => {
             for platform in all_platforms_if_empty(platforms) {
                 platform.pull(assume_yes).await?;
             }
+
+            // Download latest.json metadata if available
+            if latest_file {
+                match HttpVersionInfoProvider::get_latest_versions_file()
+                    .await
+                    .and_then(|json| {
+                        serde_json::to_string_pretty(&json).context("Failed to format JSON")
+                    }) {
+                    Ok(json) => {
+                        let path = Path::new(LATEST_FILENAME);
+
+                        if !assume_yes && path.exists() {
+                            let msg = format!(
+                                "This will replace the existing file at {}. Continue?",
+                                path.display()
+                            );
+                            if !wait_for_confirm(&msg).await {
+                                bail!("Aborted");
+                            }
+                        }
+
+                        fs::write(path, json).await.context("Failed to write")?;
+
+                        println!("Updated {}", path.display());
+                    }
+                    Err(err) => {
+                        eprintln!("Failed to retrieve latest.json file: {err}");
+                    }
+                }
+            }
+
             Ok(())
         }
         Opt::Sign {
