@@ -1,6 +1,6 @@
-{ pkgs, rustPlatform, pkg-config, libmnl, libnftnl, libpcap, ... }:
+{  rustPlatform, pkg-config, libmnl, libnftnl, libpcap, ... }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "raas";
   version = "0.0.1";
 

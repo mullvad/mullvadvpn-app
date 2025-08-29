@@ -1,9 +1,12 @@
 {
   description = "Config for our testing router";
 
-  inputs = { nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11"; };
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    deploy-rs.url = "github:serokell/deploy-rs";
+  };
 
-  outputs = { self, nixpkgs }: {
+  outputs = { self, nixpkgs, deploy-rs }: {
     nixosConfigurations.app-team-ios-lab = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -24,6 +27,14 @@
         }
       ];
     };
+
+    deploy.nodes.app-team-ios-lab = {
+            hostname = "app-test-ios-tests";
+            profiles.system = {
+              user = "root";
+              path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.app-team-ios-lab;
+            };
+        };
 
     nixosConfigurations.app-team-ios-lab-iso = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
