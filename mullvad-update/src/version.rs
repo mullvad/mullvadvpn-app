@@ -16,7 +16,7 @@ use crate::format::{self, Installer};
 pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
 
 /// Query type for [VersionInfo]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VersionParameters {
     /// Architecture to retrieve data for
     pub architecture: VersionArchitecture,
@@ -34,6 +34,10 @@ pub type Rollout = f32;
 
 /// Accept *any* version (rollout >= 0) when querying for app info.
 pub const IGNORE: Rollout = 0.;
+
+/// Accept any version (rollout > 0) when querying for app info.
+/// Only versions with a non-zero rollout are supported.
+pub const SUPPORTED_VERSION: Rollout = f32::EPSILON;
 
 /// Accept only fully rolled out versions (rollout >= 1) when querying for app info.
 pub const FULLY_ROLLED_OUT: Rollout = 1.;

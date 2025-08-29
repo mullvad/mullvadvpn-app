@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
-# publishes new version metadata to Mullvads API.
+# publishes new version metadata to Mullvads API (including latest.json).
 # * This should be run after `4-make-release`.
 # * You need to put the private ed25519 signing key in the clipboard before running this script.
 
@@ -34,15 +34,19 @@ function publish_metadata {
     local platforms
     platforms=(windows macos linux)
     local signed_dir="signed/"
+    local latest_path="latest.json"
+    local latest_path_prev="latest.prev.json"
 
     rm -rf currently_published/
+    rm -rf "$latest_path_prev"
 
     echo ">>> Fetching current version metadata"
-    mullvad-release pull --assume-yes "${platforms[@]}"
+    mullvad-release pull --assume-yes --latest-file "${platforms[@]}"
     echo ""
 
     echo ">>> Backing up released data"
     cp -r $signed_dir currently_published/
+    cp -f "$latest_path" "$latest_path_prev"
     echo ""
 
     echo ">>> Replacing work/ directory with latest published data"
@@ -61,12 +65,21 @@ function publish_metadata {
     mullvad-release verify "${platforms[@]}"
     echo ""
 
+    echo ">>> Generating $latest_path current version metadata"
+    mullvad-release query-latest "${platforms[@]}" > "$latest_path"
+    echo ""
+
     echo ">>> New metadata including $PRODUCT_VERSION"
     git --no-pager diff --no-index -- currently_published/ $signed_dir || true
     echo ""
 
-    read -rp "Press enter to upload if the diff looks good "
+    echo ">>> New changes to $latest_path"
+    git --no-pager diff --no-index -- "$latest_path_prev" "$latest_path" || true
+    echo ""
+
+    read -rp "Press enter to upload if the diffs look good "
     ./publish-metadata-to-api $signed_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    ./publish-metadata-to-api $latest_path "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 function remove_release_artifacts {
