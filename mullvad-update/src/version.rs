@@ -216,4 +216,38 @@ mod test {
 
         Ok(())
     }
+
+    /// Test whether [SUPPORTED_VERSION] ignores unsupported versions (where rollout = 0.0)
+    #[test]
+    fn test_version_unsupported_filtering() -> anyhow::Result<()> {
+        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
+            "../test-version-response.json"
+        ))?;
+
+        let params = VersionParameters {
+            architecture: VersionArchitecture::X86,
+            rollout: SUPPORTED_VERSION,
+            allow_empty: true,
+            lowest_metadata_version: 0,
+        };
+
+        let info = VersionInfo::try_from_response(&params, response.signed.clone())?;
+
+        // Expect: The available latest versions for x86, where the rollout is non-zero.
+        assert_yaml_snapshot!(info);
+
+        let params = VersionParameters {
+            architecture: VersionArchitecture::X86,
+            rollout: IGNORE,
+            allow_empty: true,
+            lowest_metadata_version: 0,
+        };
+
+        let info = VersionInfo::try_from_response(&params, response.signed)?;
+
+        // Expect: There is an even higher version where the rollout is zero.
+        assert_yaml_snapshot!(info);
+
+        Ok(())
+    }
 }
