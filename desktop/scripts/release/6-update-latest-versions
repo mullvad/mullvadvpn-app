@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# This script updates the "latest.json" metadata and uploads it to the Mullvad "API" (CDN).
+# * This should be run after `5-update-and-publish-metadata`.
+# * The latest version must already be present in the API.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+if [ $# -ne 3 ]; then
+    echo "Please provide the following arguments:"
+    echo "    $(basename "$0") \\"
+    echo "        <build server SSH destination> \\"
+    echo "        <metadata server SSH destination>"
+    echo ""
+    echo "Note that the metadata server SSH destination is part of the rsync command executed on the build server and will be checked against the SSH config of build@\$buildserver_host."
+    exit 1
+fi
+
+# The hostname (can be the alias in your ~/.ssh/config) of the build server
+BUILDSERVER_HOST=$1
+# The server to upload the metadata to *from* the build server (argument above)
+METADATA_SERVER_HOST=$2
+
+# shellcheck source=desktop/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
+
+function publish_latest_json {
+    local platforms
+    platforms=(windows macos linux)
+    local latest_path="latest.json"
+    local latest_path_prev="latest.prev.json"
+
+    echo ">>> Fetching metadata including latest.json"
+    mullvad-release pull --assume-yes --latest-file "${platforms[@]}"
+    echo ""
+
+    cp -f "$latest_path" "$latest_path_prev"
+
+    echo ">>> Fetching current version metadata"
+    mullvad-release query-latest "${platforms[@]}" > "$latest_path"
+    echo ""
+
+    echo ">>> Changes to latest.json"
+    git --no-pager diff --no-index -- "$latest_path_prev" "$latest_path" || true
+    echo ""
+
+    read -rp "Press enter to upload if the diff looks good "
+    ./publish-metadata-to-api $latest_path "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+}
+
+publish_latest_json
