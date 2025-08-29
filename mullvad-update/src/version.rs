@@ -35,6 +35,10 @@ pub type Rollout = f32;
 /// Accept *any* version (rollout >= 0) when querying for app info.
 pub const IGNORE: Rollout = 0.;
 
+/// Accept any version (rollout > 0) when querying for app info.
+/// Only versions with a non-zero rollout are supported.
+pub const SUPPORTED_VERSION: Rollout = f32::EPSILON;
+
 /// Accept only fully rolled out versions (rollout >= 1) when querying for app info.
 pub const FULLY_ROLLED_OUT: Rollout = 1.;
 

@@ -124,8 +124,10 @@ pub enum Opt {
     QueryLatest {
         /// Platforms to query for. All if none are specified
         platforms: Vec<Platform>,
-        /// Rollout threshold to use (.0 = not rolled out, 1 = fully rolled out)
-        #[arg(long, default_value_t = f32::EPSILON)]
+        /// Rollout threshold to use (.0 = not rolled out, 1 = fully rolled out).
+        ///
+        /// By default, any non-zero (i.e. supported) rollout is accepted.
+        #[arg(long, default_value_t = mullvad_update::version::SUPPORTED_VERSION)]
         rollout: Rollout,
     },
 }
