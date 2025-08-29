@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add helpful warnings when clearing account history. This helps users not lose their account
+  numbers.
+
 ### Security
 #### Windows
 - Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
