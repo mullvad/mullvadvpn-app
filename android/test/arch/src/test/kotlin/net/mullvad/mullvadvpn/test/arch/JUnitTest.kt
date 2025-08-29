@@ -10,7 +10,7 @@ class JUnitTest {
 
     @Test
     fun `ensure only junit5 annotations are used for functions`() =
-        Konsist.scopeFromProject()
+        (Konsist.scopeFromProject() - Konsist.scopeFromDirectory("test/baselineprofile"))
             .functions()
             .filter {
                 it.annotations.any { annotation ->
@@ -22,7 +22,7 @@ class JUnitTest {
 
     @Test
     fun `ensure only junit5 annotations are used for classes`() =
-        Konsist.scopeFromProject()
+        (Konsist.scopeFromProject() - Konsist.scopeFromDirectory("test/baselineprofile"))
             .classes()
             .filter {
                 it.annotations.any { annotation ->
