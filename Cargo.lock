@@ -2912,6 +2912,7 @@ dependencies = [
  "mullvad-fs",
  "mullvad-types",
  "mullvad-update",
+ "mullvad-version",
  "rustls-pemfile 2.1.3",
  "serde",
  "serde_json",
