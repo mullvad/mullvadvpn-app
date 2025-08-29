@@ -117,7 +117,13 @@ impl Firewall {
         Ok(Firewall { fwmark })
     }
 
+    // TODO: Remove #[allow(unused)]
+    #[allow(unused)]
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
+        // FIXME: Either implemenet firewall integration or skip it properly (i.e. specifically on OpenWRT).
+        log::warn!("reset_policy: OpenWRT does not integrate with the firewall (yet)!");
+        return Ok(());
+
         let table = Table::new(&TABLE_NAME, ProtoFamily::Inet);
         let batch = PolicyBatch::new(&table).finalize(&policy, self.fwmark)?;
         Self::send_and_process(&batch)?;
@@ -125,7 +131,13 @@ impl Firewall {
         self.verify_tables(&[TABLE_NAME])
     }
 
+    // TODO: Remove #[allow(unused)]
+    #[allow(unused)]
     pub fn reset_policy(&mut self) -> Result<()> {
+        // FIXME: Either implemenet firewall integration or skip it properly (i.e. specifically on OpenWRT).
+        log::warn!("reset_policy: OpenWRT does not integrate with the firewall (yet)!");
+        return Ok(());
+
         let table = Table::new(&TABLE_NAME, ProtoFamily::Inet);
         let mut batch = Batch::new();
 
