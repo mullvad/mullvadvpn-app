@@ -26,8 +26,6 @@ This folder contains a Bash workflow that:
 
 ```
 
-> **Important:** Ensure `build/` and `logs/` are ignored by Git (see [Git Ignore](#git-ignore)).
-
 ---
 
 ## Quick Start
@@ -92,6 +90,4 @@ logs/
   build_20250723_142915.log
   build_20250724_094401.log
 ```
-
-To prune logs older than 7 days automatically, the script includes an optional cleanup step (disabled by default; enable by setting `PRUNE_LOGS_DAYS`).
 
