@@ -43,5 +43,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
+    // UI tooling
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
     implementation(libs.kermit)
 }
