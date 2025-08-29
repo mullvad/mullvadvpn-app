@@ -1,8 +1,9 @@
 use std::future::Future;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use http::StatusCode;
-use mullvad_update::version::{VersionInfo, VersionParameters};
+use mullvad_update::version::{VersionInfo, VersionParameters, is_version_supported};
 
 type AppVersion = String;
 
@@ -29,6 +30,8 @@ pub struct AppVersionResponse2 {
     /// Index of the metadata version used to sign the response.
     /// Used to prevent replay/downgrade attacks.
     pub metadata_version: usize,
+    /// Whether or not the current app version (mullvad_version::VERSION) is supported.
+    pub current_version_supported: bool,
 }
 
 impl AppVersionProxy {
@@ -66,13 +69,17 @@ impl AppVersionProxy {
         architecture: mullvad_update::format::Architecture,
         rollout: f32,
         lowest_metadata_version: usize,
+        platform_version: String,
     ) -> impl Future<Output = Result<AppVersionResponse2, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
 
         async move {
-            let request = request?.expected_status(&[StatusCode::OK]);
+            let request = request?
+                .expected_status(&[StatusCode::OK])
+                .header("M-App-Version", mullvad_version::VERSION)?
+                .header("M-Platform-Version", &platform_version)?;
             let response = service.request(request).await?;
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
@@ -90,12 +97,17 @@ impl AppVersionProxy {
                 lowest_metadata_version,
             };
 
+            let current_version =
+                mullvad_version::Version::from_str(mullvad_version::VERSION).unwrap();
+            let current_version_supported = is_version_supported(current_version, &response.signed);
+
             let metadata_version = response.signed.metadata_version;
             Ok(AppVersionResponse2 {
                 version_info: VersionInfo::try_from_response(&params, response.signed)
                     .map_err(Arc::new)
                     .map_err(rest::Error::FetchVersions)?,
                 metadata_version,
+                current_version_supported,
             })
         }
     }
