@@ -11,7 +11,10 @@ use config::Config;
 use io_util::create_dir_and_write;
 use platform::Platform;
 
-use mullvad_update::format::{self, SignedResponse, key};
+use mullvad_update::{
+    format::{self, SignedResponse, key},
+    version::Rollout,
+};
 
 mod artifacts;
 mod config;
@@ -103,6 +106,20 @@ pub enum Opt {
     Verify {
         /// Platforms to remove releases for. All if none are specified
         platforms: Vec<Platform>,
+    },
+
+    /// Return the latest releases in `signed/` based on the given parameters.
+    /// The output is in JSON format.
+    QueryLatest {
+        /// Platforms to query for. All if none are specified
+        platforms: Vec<Platform>,
+        /// Rollout threshold to use (.0 = not rolled out, 1 = fully rolled out).
+        ///
+        /// By default, any non-zero rollout is accepted.
+        /// Setting the value to zero will also show supported versions that have
+        /// been released but are currently not being rolled out.
+        #[arg(long, default_value_t = mullvad_update::version::SUPPORTED_VERSION)]
+        rollout: Rollout,
     },
 }
 
@@ -207,6 +224,61 @@ async fn main() -> anyhow::Result<()> {
             if any_failed {
                 bail!("Some signatures failed to be verified");
             }
+            Ok(())
+        }
+        Opt::QueryLatest { platforms, rollout } => {
+            #[derive(Default, serde::Serialize)]
+            struct SummaryQueryResult {
+                linux: Option<QueryResultOs>,
+                windows: Option<QueryResultOs>,
+                macos: Option<QueryResultOs>,
+            }
+            #[derive(serde::Serialize)]
+            struct QueryResultOs {
+                stable: QueryResultVersion,
+                beta: Option<QueryResultVersion>,
+            }
+            #[derive(serde::Serialize)]
+            struct QueryResultVersion {
+                version: mullvad_version::Version,
+            }
+            impl From<mullvad_version::Version> for QueryResultVersion {
+                fn from(version: mullvad_version::Version) -> Self {
+                    QueryResultVersion { version }
+                }
+            }
+
+            let mut summary_result = SummaryQueryResult::default();
+
+            for platform in all_platforms_if_empty(platforms) {
+                let out = platform.query_latest(rollout).await?;
+
+                match platform {
+                    Platform::Linux => {
+                        summary_result.linux = Some(QueryResultOs {
+                            stable: out.stable.into(),
+                            beta: out.beta.map(Into::into),
+                        });
+                    }
+                    Platform::Windows => {
+                        summary_result.windows = Some(QueryResultOs {
+                            stable: out.stable.into(),
+                            beta: out.beta.map(Into::into),
+                        });
+                    }
+                    Platform::Macos => {
+                        summary_result.macos = Some(QueryResultOs {
+                            stable: out.stable.into(),
+                            beta: out.beta.map(Into::into),
+                        });
+                    }
+                }
+            }
+
+            let json = serde_json::to_string_pretty(&summary_result)
+                .context("Failed to serialize versions")?;
+            println!("{json}");
+
             Ok(())
         }
     }

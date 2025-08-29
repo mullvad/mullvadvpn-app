@@ -4,6 +4,7 @@ use anyhow::{Context, anyhow, bail};
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     format::{self, key},
+    version::{MIN_VERIFY_METADATA_VERSION, VersionArchitecture, VersionInfo, VersionParameters},
 };
 use std::{
     cmp::Ordering,
@@ -11,6 +12,7 @@ use std::{
     path::{Path, PathBuf},
     str::FromStr,
 };
+use strum::IntoEnumIterator;
 use tokio::{fs, io};
 
 use crate::{
@@ -18,11 +20,21 @@ use crate::{
     io_util::{create_dir_and_write, wait_for_confirm},
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Platform {
     Windows,
     Linux,
     Macos,
+}
+
+/// Output used by `Platform::query_latest`
+#[derive(serde::Serialize)]
+pub struct VersionQueryOutput {
+    /// Stable version info
+    pub stable: mullvad_version::Version,
+    /// Beta version info (if available and newer than `stable`).
+    /// If latest stable version is newer, this will be `None`.
+    pub beta: Option<mullvad_version::Version>,
 }
 
 impl fmt::Display for Platform {
@@ -204,14 +216,7 @@ impl Platform {
     pub async fn verify(&self) -> anyhow::Result<()> {
         let signed_path = self.signed_path();
         println!("Verifying signature of {}...", signed_path.display());
-        let bytes = fs::read(signed_path).await.context("Failed to read file")?;
-
-        format::SignedResponse::deserialize_and_verify(
-            &bytes,
-            mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
-        )
-        .context("Failed to verify metadata for {platform}: {error}")?;
-
+        self.read_signed().await?;
         Ok(())
     }
 
@@ -382,6 +387,41 @@ impl Platform {
         Ok(())
     }
 
+    /// Return the latest release for platforms in `signed/`
+    pub async fn query_latest(&self, rollout: f32) -> anyhow::Result<VersionQueryOutput> {
+        let response = self.read_signed().await?;
+
+        // Grab version info for all architectures
+        let mut version_info = vec![];
+
+        for architecture in VersionArchitecture::iter() {
+            let params = VersionParameters {
+                architecture,
+                rollout,
+                // NOTE: Empty versions are allowed on Linux
+                allow_empty: self == &Platform::Linux,
+                lowest_metadata_version: MIN_VERIFY_METADATA_VERSION,
+            };
+            version_info.push(VersionInfo::try_from_response(
+                &params,
+                response.signed.clone(),
+            )?);
+        }
+
+        // Verify that all architectures have the same version
+        assert_same_architecture_versions(version_info.iter())?;
+
+        let version_info = version_info
+            .into_iter()
+            .next()
+            .expect("at least one version exists");
+
+        Ok(VersionQueryOutput {
+            stable: version_info.stable.version,
+            beta: version_info.beta.map(|v| v.version),
+        })
+    }
+
     /// Reads the metadata for `platform` in the work directory.
     /// If the file doesn't exist, this returns a new, empty response.
     async fn read_work(&self) -> anyhow::Result<format::SignedResponse> {
@@ -399,6 +439,18 @@ impl Platform {
         };
         // Note: We don't need to verify the signature here
         format::SignedResponse::deserialize_insecure(&bytes)
+    }
+
+    /// Read and verify the metadata for `platform` in the signed directory.
+    async fn read_signed(&self) -> anyhow::Result<format::SignedResponse> {
+        let signed_path = self.signed_path();
+        let bytes = fs::read(signed_path).await.context("Failed to read file")?;
+
+        format::SignedResponse::deserialize_and_verify(
+            &bytes,
+            mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
+        )
+        .context(format!("Failed to verify metadata for {self}"))
     }
 }
 
@@ -430,4 +482,25 @@ fn print_release_info(release: &format::Release) {
         architectures,
         (release.rollout * 100.) as u32
     );
+}
+
+fn assert_same_architecture_versions<'a>(
+    mut version_infos: impl Iterator<Item = &'a VersionInfo> + 'a,
+) -> anyhow::Result<()> {
+    let Some(first_version_info) = version_infos.next() else {
+        bail!("No version was found");
+    };
+
+    fn versions_are_equal(a: &VersionInfo, b: &VersionInfo) -> bool {
+        a.stable.version == b.stable.version
+            && a.beta.as_ref().map(|version| &version.version)
+                == b.beta.as_ref().map(|version| &version.version)
+    }
+
+    let all_are_equal = version_infos.all(|info| versions_are_equal(first_version_info, info));
+    if !all_are_equal {
+        bail!("Versions differ for different architectures. This is currently unsupported");
+    }
+
+    Ok(())
 }
