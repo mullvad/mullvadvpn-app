@@ -1171,7 +1171,7 @@ impl ManagementService for ManagementServiceImpl {
                         let _ = tx.send(Ok(types::LogMessage { message: log }));
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
-                        let _ = tx.send(Err(Status::internal(format!("{} lagged messages", n))));
+                        let _ = tx.send(Err(Status::internal(format!("{n} lagged messages"))));
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => {
                         break;

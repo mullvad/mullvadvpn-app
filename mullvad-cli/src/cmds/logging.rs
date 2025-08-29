@@ -29,8 +29,8 @@ async fn on_listen() -> std::result::Result<(), anyhow::Error> {
     log_stream
         .for_each(|log| async {
             match log {
-                Ok(log) => print!("{}", log), // newlines?
-                Err(e) => eprint!("Error: {}", e),
+                Ok(log) => print!("{log}"), // newlines?
+                Err(e) => eprint!("Error: {e}"),
             }
         })
         .await;
