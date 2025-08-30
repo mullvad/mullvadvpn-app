@@ -545,8 +545,7 @@ async fn client_socket_tx_task(
 ) -> Result<()> {
     use windows::*;
 
-    use std::os::windows::io::AsRawSocket;
-    use windows_sys::Win32::Networking::WinSock::{WSABUF, WSASendMsg};
+    let client_socket_ref = socket2::SockRef::from(&client_socket);
 
     /// Maximum number of segments to send using UDP GSO
     const MAX_SEGMENT_COUNT: usize = 512;
@@ -613,15 +612,10 @@ async fn client_socket_tx_task(
 
         client_socket
             .async_io(Interest::WRITABLE, || {
-                let daddr: socket2::SockAddr = dest.into();
+                use std::io::IoSlice;
 
                 // Call `WSASendMsg` with one CMSG containing the segment size.
                 // This will send all packets in `buffer`, except the last packet, which may be smaller.
-
-                let mut data = WSABUF {
-                    buf: buffer.as_ptr() as *mut _,
-                    len: buffer.len() as _,
-                };
 
                 let cmsg_hdr = unsafe { &mut *(cmsg_buf.as_mut_ptr() as *mut CMSGHDR) };
                 *cmsg_hdr = CMSGHDR {
@@ -635,51 +629,19 @@ async fn client_socket_tx_task(
                     *cmsg_data = segment_size as u32;
                 }
 
-                let len = cmsg_space(mem::size_of::<u32>()) as u32;
+                let io_slices = [IoSlice::new(&mut buffer); 1];
+                let daddr = socket2::SockAddr::from(dest);
+                let msg_hdr = socket2::MsgHdr::new()
+                    .with_addr(&daddr)
+                    .with_buffers(&io_slices)
+                    .with_control(&cmsg_buf);
 
-                let ctrl = WSABUF {
-                    buf: cmsg_buf.as_mut_ptr() as *mut _,
-                    len,
-                };
-
-                let raw_socket = client_socket.as_raw_socket();
-
-                let wsa_msg = WSAMSG {
-                    name: daddr.as_ptr() as *mut _,
-                    namelen: daddr.len(),
-                    lpBuffers: &mut data,
-                    Control: ctrl,
-                    dwBufferCount: 1,
-                    dwFlags: 0,
-                };
-
-                let mut bytes_sent = 0;
-
-                // SAFETY: The socket, data buffer, and CMSG buffer are all valid
-                let status = unsafe {
-                    WSASendMsg(
-                        raw_socket as usize,
-                        &wsa_msg,
-                        0,
-                        &mut bytes_sent,
-                        ptr::null_mut(),
-                        None,
-                    )
-                };
-                if status != 0 {
-                    let last_err = unsafe { WSAGetLastError() };
-                    if last_err == WSAEWOULDBLOCK {
-                        // Poll more for WRITABLE
-                        return Err(io::ErrorKind::WouldBlock.into());
-                    }
-                    // TODO: Not sure if WSA error is fully equivalent to `GetLastError()`
-                    return Err(io::Error::from_raw_os_error(last_err));
-                }
-                Ok(())
+                client_socket_ref.sendmsg(&msg_hdr, 0)
             })
             .await
             .map_err(Error::ClientWrite)?;
     }
+
     Ok(())
 }
 
