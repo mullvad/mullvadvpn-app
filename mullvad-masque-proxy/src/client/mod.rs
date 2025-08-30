@@ -110,7 +110,7 @@ pub enum Error {
     #[error("Failed to construct a URI")]
     Uri(#[source] http::Error),
     #[error("Failed to send datagram to proxy")]
-    SendDatagram(#[source] h3::Error),
+    SendDatagram(#[source] quinn::SendDatagramError),
     #[error("Failed to read certificates")]
     ReadCerts(#[source] io::Error),
     #[error("Failed to parse certificates")]
@@ -449,25 +449,18 @@ async fn server_socket_task(
     let mut fragment_id = 0u16;
     let stream_id_size = VarInt::from(stream_id).size() as u16;
 
-    loop {
-        let packet = select! {
-            datagram = connection.read_datagram() => {
-                match datagram {
-                    Ok(Some(response)) => {
-                        if server_tx.send(response).await.is_err() {
-                            break;
-                        }
-                    }
-                    Ok(None) => break,
-                    Err(err) => return Err(Error::ProxyResponse(err)),
-                }
-
-                continue;
+    tokio::spawn(async move {
+        while let Ok(Some(datagram)) = connection.read_datagram().await {
+            if server_tx.send(datagram).await.is_err() {
+                break;
             }
-            packet = client_rx.recv() => packet,
-        };
+        }
+    });
 
-        let Some(mut packet) = packet else { break };
+    loop {
+        let Some(mut packet) = client_rx.recv().await else {
+            break;
+        };
 
         // Maximum QUIC payload (including fragmentation headers)
         let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
@@ -476,11 +469,21 @@ async fn server_socket_task(
             max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
         };
 
+        fn send_datagram(
+            conn: &quinn::Connection,
+            stream_id: StreamId,
+            packet: &[u8],
+        ) -> Result<()> {
+            let data = Datagram::new(stream_id, packet);
+            let mut buf = BytesMut::new();
+            data.encode(&mut buf);
+            conn.send_datagram(buf.freeze())
+                .map_err(Error::SendDatagram)
+        }
+
         if packet.len() <= usize::from(maximum_packet_size) {
             stats.tx(packet.len(), false);
-            connection
-                .send_datagram(stream_id, packet)
-                .map_err(Error::SendDatagram)?;
+            send_datagram(&quinn_conn, stream_id, &packet)?;
         } else {
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
@@ -491,9 +494,7 @@ async fn server_socket_task(
                 debug_assert!(fragment.len() <= maximum_packet_size as usize);
 
                 stats.tx(fragment.len(), true);
-                connection
-                    .send_datagram(stream_id, fragment)
-                    .map_err(Error::SendDatagram)?;
+                send_datagram(&quinn_conn, stream_id, &fragment)?;
             }
             fragment_id = fragment_id.wrapping_add(1);
         }
