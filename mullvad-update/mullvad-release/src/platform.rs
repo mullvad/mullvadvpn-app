@@ -441,7 +441,7 @@ impl Platform {
         format::SignedResponse::deserialize_insecure(&bytes)
     }
 
-    /// Reads and verify the metadata for `platform` in the signed directory.
+    /// Read and verify the metadata for `platform` in the signed directory.
     async fn read_signed(&self) -> anyhow::Result<format::SignedResponse> {
         let signed_path = self.signed_path();
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
