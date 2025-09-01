@@ -515,6 +515,7 @@ mod test {
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 0,
+                last_handshake_time: None,
             },
         );
         conn_state.update(Instant::now(), stats);
@@ -540,6 +541,7 @@ mod test {
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 0,
+                last_handshake_time: None,
             },
         );
         conn_state.update(connect_time, stats);
@@ -564,6 +566,7 @@ mod test {
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 0,
+                last_handshake_time: None,
             },
         );
         conn_state.update(start, stats);
@@ -575,6 +578,7 @@ mod test {
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 1,
+                last_handshake_time: None,
             },
         );
         conn_state.update(update_time, stats);
@@ -671,6 +675,7 @@ mod test {
                     Stats {
                         tx_bytes: 0,
                         rx_bytes: 0,
+                        last_handshake_time: None,
                     },
                 );
                 MockTunnel::new(move || Ok(tunnel_stats.clone())).boxed()

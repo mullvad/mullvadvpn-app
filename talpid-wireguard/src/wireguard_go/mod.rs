@@ -758,6 +758,7 @@ impl Tunnel for WgGoTunnel {
 
 mod stats {
     use super::{Stats, StatsMap};
+    use std::time::{Duration, UNIX_EPOCH};
 
     #[derive(thiserror::Error, Debug, PartialEq)]
     pub enum Error {
@@ -773,8 +774,11 @@ mod stats {
             let mut map = StatsMap::new();
 
             let mut peer = None;
+
             let mut tx_bytes = None;
             let mut rx_bytes = None;
+            let mut last_handshake_time_sec = None;
+            let mut last_handshake_time_nsec = None;
 
             // parts iterates over keys and values
             let parts = config.split('\n').filter_map(|line| {
@@ -793,6 +797,8 @@ mod stats {
                         peer = Some(buffer);
                         tx_bytes = None;
                         rx_bytes = None;
+                        last_handshake_time_sec = None;
+                        last_handshake_time_nsec = None;
                     }
                     "rx_bytes" => {
                         rx_bytes = Some(
@@ -810,6 +816,22 @@ mod stats {
                                 .map_err(|err| Error::IntParse(value.to_string(), err))?,
                         );
                     }
+                    "last_handshake_time_sec" => {
+                        last_handshake_time_sec = Some(
+                            value
+                                .trim()
+                                .parse()
+                                .map_err(|err| Error::IntParse(value.to_string(), err))?,
+                        );
+                    }
+                    "last_handshake_time_nsec" => {
+                        last_handshake_time_nsec = Some(
+                            value
+                                .trim()
+                                .parse()
+                                .map_err(|err| Error::IntParse(value.to_string(), err))?,
+                        );
+                    }
 
                     _ => continue,
                 }
@@ -817,16 +839,27 @@ mod stats {
                 if let (Some(peer_val), Some(tx_bytes_val), Some(rx_bytes_val)) =
                     (peer, tx_bytes, rx_bytes)
                 {
+                    let last_handshake_time = if let (Some(handshake_sec), Some(handshake_nsec)) =
+                        (last_handshake_time_sec, last_handshake_time_nsec)
+                    {
+                        Some(UNIX_EPOCH + Duration::new(handshake_sec, handshake_nsec))
+                    } else {
+                        None
+                    };
+
                     map.insert(
                         peer_val,
                         Self {
                             tx_bytes: tx_bytes_val,
                             rx_bytes: rx_bytes_val,
+                            last_handshake_time,
                         },
                     );
                     peer = None;
                     tx_bytes = None;
                     rx_bytes = None;
+                    last_handshake_time_sec = None;
+                    last_handshake_time_nsec = None;
                 }
             }
             Ok(map)
