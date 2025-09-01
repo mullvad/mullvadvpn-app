@@ -19,6 +19,9 @@ pub enum Error {
     BindError(#[source] io::Error),
     #[error("Masque proxy error")]
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
+    #[cfg(target_os = "linux")]
+    #[error("Failed to set fwmark on remote socket")]
+    Fwmark(#[source] io::Error),
 }
 
 #[derive(Debug)]
@@ -130,12 +133,12 @@ impl Quic {
         } else {
             SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
         };
-        let quic_socket = Client::create_quic_socket(
-            quic_client_local_addr,
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .unwrap(); // TODO: Do not unwrap
+        let quic_socket =
+            Client::create_masque_socket(quic_client_local_addr).map_err(Error::BindError)?;
+        #[cfg(target_os = "linux")]
+        if let Some(fwmark) = settings.fwmark {
+            quic_socket.set_mark(fwmark).map_err(Error::Fwmark)?;
+        }
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
             .quinn_socket(std::net::UdpSocket::from(quic_socket))
@@ -144,9 +147,6 @@ impl Quic {
             .target_addr(settings.wireguard_endpoint)
             .auth_header(Some(settings.auth_header()))
             .mtu(settings.mtu.unwrap_or(1500));
-
-        //#[cfg(target_os = "linux")]
-        //let config_builder = config_builder.fwmark(settings.fwmark);
 
         let config = config_builder.build();
 
