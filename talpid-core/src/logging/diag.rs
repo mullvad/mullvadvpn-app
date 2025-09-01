@@ -37,12 +37,7 @@ pub mod windows {
 
         let log_path = log_dir.join("device.log");
 
-        // why u gotta be 'static
-        let log_path2 = log_path.clone();
-        tokio::task::spawn_blocking(move || rotate_log(&log_path2))
-            .await
-            .unwrap()
-            .context("Failed to rotate log")?;
+        tokio::task::block_in_place(|| rotate_log(&log_path)).context("Failed to rotate log")?;
 
         let logger = File::options()
             .write(true)
