@@ -126,7 +126,9 @@ pub enum Opt {
         platforms: Vec<Platform>,
         /// Rollout threshold to use (.0 = not rolled out, 1 = fully rolled out).
         ///
-        /// By default, any non-zero (i.e. supported) rollout is accepted.
+        /// By default, any non-zero rollout is accepted.
+        /// Setting the value to zero will also show supported versions that have
+        /// been released but are currently not being rolled out.
         #[arg(long, default_value_t = mullvad_update::version::SUPPORTED_VERSION)]
         rollout: Rollout,
     },
