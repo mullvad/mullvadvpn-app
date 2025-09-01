@@ -205,7 +205,7 @@ export const ipcSchema = {
     setDnsOptions: invoke<IDnsOptions, void>(),
     setObfuscationSettings: invoke<ObfuscationSettings, void>(),
     addApiAccessMethod: invoke<NewAccessMethodSetting, string | AccessMethodExistsError>(),
-    updateApiAccessMethod: invoke<AccessMethodSetting, void>(),
+    updateApiAccessMethod: invoke<AccessMethodSetting, void | AccessMethodExistsError>(),
     removeApiAccessMethod: invoke<string, void>(),
     setApiAccessMethod: invoke<string, void>(),
     testApiAccessMethodById: invoke<string, boolean>(),
