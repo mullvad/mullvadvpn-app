@@ -2,7 +2,7 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")"  && pwd)"
 cd "$SCRIPT_DIR"
 
 # shellcheck disable=SC1091
@@ -10,106 +10,138 @@ source utils/log
 
 function main {
     case ${1:-""} in
-        prepare) prepare_localization_strings;;
-        upload) upload_to_crowdin;;
-        download) download_from_crowdin;;
-        sync-local-files) sync_localizations;;
-        verify) verify;;
-        "")
-            echo "Available subcommands: prepare, upload, download, sync-local-files and verify"
-            ;;
-        *)
-            echo "Unknown parameter: $1"
-            exit 1
-            ;;
+    prepare)      prepare_localization_strings ;;
+    upload)      upload_to_crowdin ;;
+    download)      download_from_crowdin ;;
+    sync-local-files)      sync_localizations ;;
+    verify)      verify ;;
+    "")
+        echo         "Available subcommands: prepare, upload, download, sync-local-files and verify"
+        ;;
+    *)
+        echo         "Unknown parameter: $1"
+        exit         1
+        ;;
     esac
 }
 
 function sync_localizations {
     # Update desktop strings in messages.pot
-    log_header "Extracting localization strings from desktop app source code"
-    pushd ../desktop/packages/mullvad-vpn
-    npm run update-translations
+    log_header  "Extracting localization strings from desktop app source code"
+    pushd  ../desktop/packages/mullvad-vpn
+    npm  run update-translations
     popd
 
     # Update android strings and add Android strings to messages.pot
-    log_header "Extracting localization strings from android app source code"
-    pushd ../android/translations-converter/
-    cargo run
+    log_header  "Extracting localization strings from android app source code"
+    pushd  ../android/translations-converter/
+    cargo  run
     popd
 }
 
 function update_relay_locations_pot {
-    log_header "Retrieving relay locations from server list and translating by using map data"
-    pushd ../desktop/packages/mullvad-vpn/scripts
+    log_header  "Retrieving relay locations from server list and translating by using map data"
+    pushd  ../desktop/packages/mullvad-vpn/scripts
 
     # Add translations from geo data
-    python3 fetch-relay-locations.py
-    python3 integrate-relay-locations.py
+    python3  fetch-relay-locations.py
+    python3  integrate-relay-locations.py
 
     popd
 }
 
 function commit_changes {
-    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
-        git commit -a -S -m "$1"
+    if  [[ $(git diff --shortstat 2>/dev/null  | tail -n1) != "" ]]; then
+        git     commit -a -S -m "$1"
     fi
 }
 
 function prepare_localization_strings {
     sync_localizations
-    commit_changes "Update messages.pot"
+    commit_changes  "Update messages.pot"
 
     update_relay_locations_pot
-    commit_changes "Update relay-locations.pot"
+    commit_changes  "Update relay-locations.pot"
+
+    update_ios_strings  export
+    commit_changes  "Update en.xliff"
 }
 
 function ensure_crowdin_api_key {
-    test ! -z "$CROWDIN_API_KEY"
+    test  ! -z "$CROWDIN_API_KEY"
 }
 
 function upload_to_crowdin {
     ensure_crowdin_api_key
 
-    log_header "Uploading translations to crowdin"
+    log_header  "Uploading translations to crowdin"
 
-    pushd ../desktop/packages/mullvad-vpn
-    crowdin upload sources
-    crowdin upload translations
+    pushd  ../desktop/packages/mullvad-vpn
+    crowdin  upload sources
+    crowdin  upload translations
+    popd
+
+    log_header  "Uploading iOS translations to Crowdin"
+    pushd  ../ios/translation
+    crowdin  upload sources
+    crowdin  upload translations
     popd
 }
 
 function download_from_crowdin {
     ensure_crowdin_api_key
 
-    log_header "Downloading translations from crowdin"
-    pushd ../desktop/packages/mullvad-vpn
-    crowdin download
+    log_header  "Downloading translations from crowdin"
+    pushd  ../desktop/packages/mullvad-vpn
+    crowdin  download
+    popd
+
+    log_header  "Downloading iOS translations from crowdin"
+    pushd  ../ios/translation
+    crowdin  download
     popd
 
     # Add new translations to Android xml-files
-    log_header "Updating Android xml-files with new translations"
+    log_header  "Updating Android xml-files with new translations"
     sync_localizations
-    commit_changes "Update translations"
+
+    # Add new translations to iOS source code
+    update_ios_strings  import
+
+    commit_changes  "Update translations"
 }
 
 function verify {
     sync_localizations
-    git diff
+    git  diff
 
     # shellcheck disable=SC2251
-    ! git status -s | grep .
-    local out_of_sync=$?
+    !  git status -s | grep .
+    local  out_of_sync=$?
 
-    pushd ../desktop/packages/mullvad-vpn
-    npm exec ts-node scripts/verify-translations-format.ts
-    local incorrect_format=$?
+    pushd  ../desktop/packages/mullvad-vpn
+    npm  exec ts-node scripts/verify-translations-format.ts
+    local  incorrect_format=$?
     popd
 
-    if [ "$out_of_sync" -ne 0 ] || [ "$incorrect_format" -ne 0 ]; then
-        exit 1
+    if  [ "$out_of_sync" -ne 0 ] || [ "$incorrect_format" -ne 0 ]; then
+        exit     1
     fi
+}
+function update_ios_strings {
+    if  [ $# -ne 1 ] || { [ "$1" != "export" ] && [ "$1" != "import" ]; }; then
+        echo     "Usage: update_ios_strings [export|import]" >&2
+        return     2
+    fi
+    if  [ "$1" = "export" ]; then
+        log_header     "Extracting strings from iOS app source code"
+    else
+        log_header     "Updating strings into iOS app source code with new translations"
+    fi
+
+    pushd  ../ios/translation
+    ./scripts/localizations.sh  "$1"
+    popd
 }
 
 main "$@"
-
