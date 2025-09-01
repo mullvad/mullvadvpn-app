@@ -475,7 +475,8 @@ fun VpnSettingsContent(
     val initialIndexFocus =
         when (initialScrollToFeature) {
             FeatureIndicator.UDP_2_TCP,
-            FeatureIndicator.SHADOWSOCKS -> VpnSettingItem.ObfuscationHeader::class
+            FeatureIndicator.SHADOWSOCKS,
+            FeatureIndicator.QUIC -> VpnSettingItem.ObfuscationHeader::class
             FeatureIndicator.LAN_SHARING -> VpnSettingItem.LocalNetworkSharingSetting::class
             FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistanceHeader::class
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> VpnSettingItem.DnsContentBlockersHeader::class
@@ -849,6 +850,16 @@ fun VpnSettingsContent(
                             onNavigate = navigateToUdp2TcpSettings,
                             testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG,
                             modifier = Modifier.animateItem(),
+                        )
+                    }
+
+                is VpnSettingItem.ObfuscationItem.Quic ->
+                    item(key = it::class.simpleName) {
+                        SelectableCell(
+                            title = stringResource(id = R.string.quic),
+                            isSelected = it.selected,
+                            modifier = Modifier.animateItem(),
+                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Quic) },
                         )
                     }
 
