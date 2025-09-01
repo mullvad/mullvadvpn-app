@@ -160,16 +160,14 @@ impl HttpVersionInfoProvider {
     ///
     /// By default, `pinned_certificate` will be set to the LE root certificate. The contents are
     /// unsigned.
-    pub async fn get_latest_versions_file() -> anyhow::Result<serde_json::Value> {
-        let bytes = Self::get(
+    pub async fn get_latest_versions_file() -> anyhow::Result<Vec<u8>> {
+        Self::get(
             &format!("{META_REPOSITORY_URL}/latest.json"),
             Some(crate::defaults::PINNED_CERTIFICATE.clone()),
             Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
         )
         .await
-        .context("Failed to get latest.json file")?;
-
-        serde_json::from_slice(&bytes).context("Failed to parse latest.json file")
+        .context("Failed to get latest.json file")
     }
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
