@@ -21,6 +21,14 @@ class RelayProvider(val currentFlavor: String = BuildConfig.FLAVOR_billing) {
             else -> error("Invalid flavor: $currentFlavor")
         }
     }
+
+    fun getQuicRelay(): TestRelay {
+        return when (currentFlavor) {
+            "play" -> Stagemole.QUIC_RELAY
+            "oss" -> Production.QUIC_RELAY
+            else -> error("Invalid flavor: $currentFlavor")
+        }
+    }
 }
 
 data class TestRelay(val country: String, val city: String, val relay: String)
