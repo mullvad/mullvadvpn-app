@@ -164,6 +164,8 @@ impl Default for Settings {
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("Access method with name already exists")]
+    DuplicateName,
     /// Built-in access methods can not be removed
     #[error("Cannot remove built-in access method {}", attempted)]
     RemoveBuiltin { attempted: BuiltInAccessMethod },
