@@ -621,8 +621,19 @@ export class DaemonRpc extends GrpcClient {
     }
   }
 
-  public async updateApiAccessMethod(method: AccessMethodSetting) {
-    await this.call(this.client.updateApiAccessMethod, convertToApiAccessMethodSetting(method));
+  public async updateApiAccessMethod(
+    method: AccessMethodSetting,
+  ): Promise<void | AccessMethodExistsError> {
+    try {
+      await this.call(this.client.updateApiAccessMethod, convertToApiAccessMethodSetting(method));
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      if (error.code === 6) {
+        return { type: 'name already exists' };
+      } else {
+        throw error;
+      }
+    }
   }
 
   public async getCurrentApiAccessMethod() {
