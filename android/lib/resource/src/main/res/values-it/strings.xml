@@ -191,8 +191,8 @@
     <string name="feature_custom_dns">DNS personalizzato</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Altri %1$s...</string>
+    <string name="feature_obfuscation">Offuscamento</string>
     <string name="feature_quantum_resistant">Resistenza ad attacchi quantistici</string>
-    <string name="feature_udp_2_tcp">Offuscamento</string>
     <string name="filter">Filtra</string>
     <string name="filters">Filtri:</string>
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>

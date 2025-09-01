@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
+import net.mullvad.mullvadvpn.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.util.toLc
 
 class DaitaViewModel(
@@ -27,8 +28,8 @@ class DaitaViewModel(
             .filterNotNull()
             .map { settings ->
                 DaitaUiState(
-                        daitaEnabled = settings.daitaSettings().enabled,
-                        directOnly = settings.daitaSettings().directOnly,
+                        daitaEnabled = settings.isDaitaEnabled(),
+                        directOnly = settings.isDaitaDirectOnly(),
                         navArgs.isModal,
                     )
                     .toLc<Boolean, DaitaUiState>()
@@ -46,6 +47,4 @@ class DaitaViewModel(
     fun setDirectOnly(enable: Boolean) {
         viewModelScope.launch { settingsRepository.setDaitaDirectOnly(enable) }
     }
-
-    private fun Settings.daitaSettings() = tunnelOptions.wireguard.daitaSettings
 }

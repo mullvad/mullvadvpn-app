@@ -173,11 +173,7 @@ impl Quic {
         Ok(quic)
     }
 
-    async fn run_forwarding(config: ClientConfig, cancel_token: CancellationToken) -> Result<()> {
-        log::trace!("Spawning QUIC client ..");
-        let client = Client::connect(config)
-            .await
-            .map_err(Error::MasqueProxyError)?;
+    async fn run_forwarding(client: Client, cancel_token: CancellationToken) -> Result<()> {
         let mut client = tokio::spawn(client.run());
         log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
         tokio::select! {

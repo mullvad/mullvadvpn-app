@@ -191,8 +191,8 @@
     <string name="feature_custom_dns">Пользовательский DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Еще %1$s...</string>
+    <string name="feature_obfuscation">Обфускация</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>
-    <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
     <string name="filters">Фильтры:</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>

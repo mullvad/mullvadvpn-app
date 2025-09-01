@@ -191,8 +191,8 @@
     <string name="feature_custom_dns">Eigenes DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s weitere …</string>
+    <string name="feature_obfuscation">Verschleierung</string>
     <string name="feature_quantum_resistant">Quantenresistenz</string>
-    <string name="feature_udp_2_tcp">Verschleierung</string>
     <string name="filter">Filter</string>
     <string name="filters">Filter:</string>
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN-Tunnels an</string>

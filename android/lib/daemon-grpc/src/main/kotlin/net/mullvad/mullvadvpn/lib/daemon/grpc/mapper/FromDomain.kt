@@ -92,6 +92,7 @@ internal fun ObfuscationMode.fromDomain():
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP
         ObfuscationMode.Shadowsocks ->
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS
+        ObfuscationMode.Quic -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC
         ObfuscationMode.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
         ObfuscationMode.Off -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF
     }
