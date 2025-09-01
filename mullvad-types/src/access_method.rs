@@ -94,6 +94,21 @@ impl Settings {
         }
     }
 
+    /// This function will return an error if a custom access method with
+    /// the same name already exists.
+    fn check_custom_access_method_name_is_unique(
+        &self,
+        new_api_access_method: &AccessMethodSetting,
+    ) -> Result<(), Error> {
+        if self.custom.iter().any(|api_access_method| {
+            api_access_method.id != new_api_access_method.id
+                && api_access_method.name == new_api_access_method.name
+        }) {
+            return Err(Error::DuplicateName);
+        }
+        Ok(())
+    }
+
     /// Iterate over references of built-in & custom access methods.
     pub fn iter(&self) -> impl Iterator<Item = &AccessMethodSetting> + Clone {
         use std::iter::once;
