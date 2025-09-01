@@ -10,30 +10,21 @@ import MullvadSettings
 import MullvadTypes
 
 struct SinglehopPicker: RelayPicking {
-    let obfuscation: ObfuscatorPortSelection
-    let constraints: RelayConstraints
+    let obfuscation: RelayObfuscation
+    let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
-    let daitaSettings: DAITASettings
 
     func pick() throws -> SelectedRelays {
         do {
-            return try pick(from: obfuscation.exitRelays)
+            return try pick(from: obfuscation.obfuscatedRelays)
         } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
-            // If DAITA is on, Direct only is off and obfuscation is on, and no supported relays are found, we should see if
-            // the obfuscated subset of exit relays is the cause of this. We can do this by checking if relay selection would
-            // have been successful with all relays available. If that's the case, throw error and point to obfuscation.
-            if (try? pick(from: obfuscation.unfilteredRelays)) != nil {
-                throw NoRelaysSatisfyingConstraintsError(.noObfuscatedRelaysFound)
-            }
-
             // If DAITA is on, Direct only is off and obfuscation has been ruled out, and no supported relays are found,
             // we should try to find the nearest available relay that supports DAITA and use it as entry in a multihop selection.
-            if daitaSettings.isAutomaticRouting {
+            if tunnelSettings.daita.isAutomaticRouting {
                 return try MultihopPicker(
                     obfuscation: obfuscation,
-                    constraints: constraints,
-                    connectionAttemptCount: connectionAttemptCount,
-                    daitaSettings: daitaSettings
+                    tunnelSettings: tunnelSettings,
+                    connectionAttemptCount: connectionAttemptCount
                 ).pick()
             } else {
                 throw error
@@ -43,10 +34,10 @@ struct SinglehopPicker: RelayPicking {
 
     private func pick(from exitRelays: REST.ServerRelaysResponse) throws -> SelectedRelays {
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
-            by: constraints.exitLocations,
+            by: tunnelSettings.relayConstraints.exitLocations,
             in: exitRelays,
-            filterConstraint: constraints.filter,
-            daitaEnabled: daitaSettings.daitaState.isEnabled
+            filterConstraint: tunnelSettings.relayConstraints.filter,
+            daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
         )
 
         let match = try findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: true)
