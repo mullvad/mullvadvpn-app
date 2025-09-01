@@ -13,5 +13,6 @@ fun shouldFilterByDaita(daitaDirectOnly: Boolean, relayListType: RelayListType) 
 fun shouldFilterByQuic(isQuicEnabled: Boolean, relayListType: RelayListType) =
     when (relayListType) {
         RelayListType.Single -> isQuicEnabled
-        is RelayListType.Multihop -> isQuicEnabled && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+        is RelayListType.Multihop ->
+            isQuicEnabled && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
     }

@@ -59,6 +59,7 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Quic
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
@@ -206,6 +207,8 @@ internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndp
             Endpoint(address = InetSocketAddress(address, port), protocol = protocol.toDomain()),
         obfuscationType = obfuscationType.toDomain(),
     )
+
+private fun String.toInetAddress(): InetAddress = InetAddress.getByName(this)
 
 private fun String.toInetSocketAddress(): InetSocketAddress {
     val indexOfSeparator = indexOfLast { it == ':' }
@@ -590,8 +593,16 @@ internal fun ManagementInterface.Relay.toDomain(
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
         daita = endpointData.wireguard.daita,
-        quic = endpointData.wireguard.hasQuic(),
+        quic =
+            if (endpointData.wireguard.hasQuic()) {
+                endpointData.wireguard.quic.toDomain()
+            } else {
+                null
+            },
     )
+
+private fun ManagementInterface.Relay.RelayData.Wireguard.Quic.toDomain(): Quic =
+    Quic(inAddresses = addrInList.map { it.toInetAddress() })
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
 
@@ -693,6 +704,7 @@ internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndic
 internal fun ManagementInterface.TunnelOptions.GenericOptions.toDomain(): GenericOptions =
     GenericOptions(enableIpv6 = enableIpv6)
 
+@Suppress("ComplexMethod")
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
         ManagementInterface.FeatureIndicator.QUANTUM_RESISTANCE ->

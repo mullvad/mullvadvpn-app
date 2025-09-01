@@ -74,7 +74,7 @@ class SelectLocationListViewModel(
         combine(
             filteredRelayListUseCase(relayListType = relayListType),
             filteredCustomListRelayItemsUseCase(relayListType = relayListType),
-            recentsUseCase(),
+            recentsUseCase(isMultihop = relayListType is RelayListType.Multihop),
             selectedLocationUseCase(),
             _expandedItems,
         ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
