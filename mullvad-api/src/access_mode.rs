@@ -255,7 +255,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         {
             if api_endpoint.force_direct {
                 access_method_settings
-                    .update(|setting| setting.is_direct(), |setting| setting.enable());
+                    .update_builtin(|setting| setting.is_direct(), |setting| setting.enable());
             }
         }
 
