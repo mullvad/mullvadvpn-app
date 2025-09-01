@@ -250,6 +250,11 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                 "No DAITA compatible servers match your location settings. Try changing location.",
                 comment: ""
             )
+        case .noRelaysSatisfyingObfuscationSettings:
+            NSLocalizedString(
+                "No servers match your obfuscation settings. Try changing location or obfuscation method.",
+                comment: ""
+            )
         case .noRelaysSatisfyingConstraints:
             NSLocalizedString("No servers match your settings, try changing server or other settings.", comment: "")
         case .noRelaysSatisfyingPortConstraints:

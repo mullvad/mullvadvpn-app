@@ -50,15 +50,9 @@ public enum WireGuardObfuscationState: Codable, Sendable {
         }
     }
 
-    #if DEBUG
     public var isEnabled: Bool {
         [.udpOverTcp, .shadowsocks, .quic].contains(self)
     }
-    #else
-    public var isEnabled: Bool {
-        [.udpOverTcp, .shadowsocks].contains(self)
-    }
-    #endif
 }
 
 public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomStringConvertible, Sendable {
