@@ -13,6 +13,7 @@ import { Button, Flex } from '../lib/components';
 import { FlexRow } from '../lib/components/flex-row';
 import { IpAddress } from '../lib/ip';
 import { useEffectEvent } from '../lib/utility-hooks';
+import { useSelector } from '../redux/store';
 import * as Cell from './cell';
 import { SettingsForm, useSettingsFormSubmittable } from './cell/SettingsForm';
 import { SettingsGroup } from './cell/SettingsGroup';
@@ -135,15 +136,30 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
 
 function ProxyFormNameField() {
   const { name, setName } = useContext(namedProxyFormContext);
+  const customAccessMethods = useSelector((state) => state.settings.apiAccessMethods.custom);
+  const onValidate = useCallback(
+    (value: string) => {
+      return customAccessMethods.every((customAccessMethod) => customAccessMethod.name !== value);
+    },
+    [customAccessMethods],
+  );
 
   return (
-    <SettingsRow label={messages.gettext('Name')}>
-      <SettingsTextInput
-        defaultValue={name}
-        placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
-        onUpdate={setName}
-      />
-    </SettingsRow>
+    <SettingsGroup>
+      <SettingsRow
+        errorMessage={messages.pgettext(
+          'api-access-methods-view',
+          'Please select a name for the access method not already in use.',
+        )}
+        label={messages.gettext('Name')}>
+        <SettingsTextInput
+          defaultValue={name}
+          placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
+          onUpdate={setName}
+          validate={onValidate}
+        />
+      </SettingsRow>
+    </SettingsGroup>
   );
 }
 
