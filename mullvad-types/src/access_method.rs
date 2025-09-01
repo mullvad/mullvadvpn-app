@@ -162,7 +162,7 @@ impl Default for Settings {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, PartialEq)]
 pub enum Error {
     #[error("Access method with name already exists")]
     DuplicateName,
