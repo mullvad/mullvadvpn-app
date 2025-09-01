@@ -4,6 +4,7 @@ import kotlin.collections.mapNotNull
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -13,6 +14,7 @@ import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
 class FilterCustomListsRelayItemUseCase(
     private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
@@ -37,6 +39,11 @@ class FilterCustomListsRelayItemUseCase(
                         daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
                         relayListType = relayListType,
                     ),
+                quic =
+                    shouldFilterByQuic(
+                        settings?.isQuicEnabled() == true,
+                        relayListType = relayListType,
+                    ),
             )
         }
 
@@ -44,9 +51,13 @@ class FilterCustomListsRelayItemUseCase(
         ownership: Constraint<Ownership>,
         providers: Constraint<Providers>,
         daita: Boolean,
-    ) = mapNotNull { it.filter(ownership, providers, daita = daita) }
+        quic: Boolean,
+    ) = mapNotNull { it.filter(ownership, providers, daita = daita, quic = quic) }
 
     private fun Settings.daitaAndDirectOnly() =
         tunnelOptions.wireguard.daitaSettings.enabled &&
             tunnelOptions.wireguard.daitaSettings.directOnly
+
+    private fun Settings.isQuicEnabled() =
+        obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
 }

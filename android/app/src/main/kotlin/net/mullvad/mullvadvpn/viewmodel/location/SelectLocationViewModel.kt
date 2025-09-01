@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -69,13 +70,24 @@ class SelectLocationViewModel(
             ) { filterChips, wireguardConstraints, relayListSelection, relayList, settings ->
                 Lc.Content(
                     SelectLocationUiState(
-                        filterChips = filterChips,
+                        filterChips =
+                            if (
+                                showFilterRow(
+                                    relayListSelection = relayListSelection,
+                                    settings = settings,
+                                )
+                            ) {
+                                filterChips
+                            } else {
+                                emptyList()
+                            },
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListSelection,
                         isSearchButtonEnabled =
                             searchButtonEnabled(
                                 relayList = relayList,
                                 relayListSelection = relayListSelection,
+                                settings = settings,
                             ),
                         isFilterButtonEnabled = relayList.isNotEmpty(),
                         isRecentsEnabled = settings?.recents is Recents.Enabled,
@@ -92,14 +104,19 @@ class SelectLocationViewModel(
     private fun searchButtonEnabled(
         relayList: List<RelayItem.Location.Country>,
         relayListSelection: RelayListType,
+        settings: Settings?,
     ): Boolean {
         val hasRelayListItems = relayList.isNotEmpty()
         val isMultihopEntry =
             relayListSelection is RelayListType.Multihop &&
                 relayListSelection.multihopRelayListType == MultihopRelayListType.ENTRY
-        val isEntryBlocked = settingsRepository.settingsUpdates.value?.entryBlocked() == true
-        return hasRelayListItems && !(isMultihopEntry && isEntryBlocked)
+        return hasRelayListItems && !(isMultihopEntry && settings?.entryBlocked() == true)
     }
+
+    private fun showFilterRow(relayListSelection: RelayListType, settings: Settings?) =
+        relayListSelection is RelayListType.Multihop &&
+            relayListSelection.multihopRelayListType == MultihopRelayListType.EXIT &&
+            settings?.entryBlocked() == true
 
     fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
         viewModelScope.launch { _relayListType.emit(RelayListType.Multihop(multihopRelayListType)) }

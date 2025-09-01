@@ -57,13 +57,14 @@ fun RelayItem.CustomList.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
     daita: Boolean,
+    quic: Boolean,
 ): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
             when (it) {
-                is RelayItem.Location.Country -> it.filter(ownership, providers, daita)
-                is RelayItem.Location.City -> it.filter(ownership, providers, daita)
-                is RelayItem.Location.Relay -> it.filter(ownership, providers, daita)
+                is RelayItem.Location.Country -> it.filter(ownership, providers, daita, quic)
+                is RelayItem.Location.City -> it.filter(ownership, providers, daita, quic)
+                is RelayItem.Location.Relay -> it.filter(ownership, providers, daita, quic)
             }
         }
     return copy(locations = newLocations)
@@ -73,8 +74,9 @@ fun RelayItem.Location.Country.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
     daita: Boolean,
+    quic: Boolean,
 ): RelayItem.Location.Country? {
-    val cities = cities.mapNotNull { it.filter(ownership, providers, daita) }
+    val cities = cities.mapNotNull { it.filter(ownership, providers, daita, quic) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
     } else {
@@ -86,8 +88,9 @@ private fun RelayItem.Location.City.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
     daita: Boolean,
+    quic: Boolean,
 ): RelayItem.Location.City? {
-    val relays = relays.mapNotNull { it.filter(ownership, providers, daita) }
+    val relays = relays.mapNotNull { it.filter(ownership, providers, daita, quic) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
     } else {
@@ -95,15 +98,24 @@ private fun RelayItem.Location.City.filter(
     }
 }
 
-private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(filterDaita: Boolean): Boolean =
-    if (filterDaita) daita else true
+private fun RelayItem.Location.Relay.requiredFeatures(
+    requireDaita: Boolean,
+    requireQuic: Boolean,
+): Boolean =
+    when {
+        requireDaita && requireQuic -> daita && quic
+        requireDaita -> daita
+        requireQuic -> quic
+        else -> true
+    }
 
 private fun RelayItem.Location.Relay.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
     daita: Boolean,
+    quic: Boolean,
 ): RelayItem.Location.Relay? =
-    if (hasMatchingDaitaSetting(daita) && hasOwnership(ownership) && hasProvider(providers)) this
+    if (requiredFeatures(daita, quic) && hasOwnership(ownership) && hasProvider(providers)) this
     else null
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(
