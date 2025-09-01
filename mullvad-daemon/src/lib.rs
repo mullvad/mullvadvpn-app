@@ -3054,10 +3054,7 @@ impl Daemon {
         tx: ResponseTx<(), Error>,
         method: AccessMethodSetting,
     ) {
-        let result = self
-            .update_access_method(method)
-            .await
-            .map_err(Error::AccessMethodError);
+        let result = self.update_access_method(method).await;
         Self::oneshot_send(tx, result, "update_api_access_method response");
     }
 
