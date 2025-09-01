@@ -12,7 +12,7 @@ import SwiftUI
 
 final class AccountDeletionCoordinator: Coordinator, Presentable {
     private let navigationController: UINavigationController
-    private let interactor: AccountDeletionInteractor
+    private let tunnelManager: TunnelManager
 
     var didConclude: (@MainActor (AccountDeletionCoordinator, Bool) -> Void)?
 
@@ -22,15 +22,18 @@ final class AccountDeletionCoordinator: Coordinator, Presentable {
 
     init(
         navigationController: UINavigationController,
-        interactor: AccountDeletionInteractor
+        tunnelManager: TunnelManager
     ) {
         self.navigationController = navigationController
-        self.interactor = interactor
+        self.tunnelManager = tunnelManager
     }
 
     func start() {
         navigationController.navigationBar.isHidden = true
-        let viewModel = interactor.makeViewModel(onConclusion: self.onConclusion)
+        let viewModel = AccountDeletionViewModel(
+            tunnelManager: tunnelManager,
+            onConclusion: self.onConclusion(_:)
+        )
         let viewController = UIHostingController(rootView: AccountDeletionView(viewModel: viewModel))
         navigationController.pushViewController(viewController, animated: true)
     }
