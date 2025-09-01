@@ -32,11 +32,15 @@ const val WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG =
     "wireguard_obfuscation_shadowsocks_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
+
+const val WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG = "wireguard_obfuscation_quic_cell_test_tag"
 // Account screen
 const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
+
+const val SELECT_LOCATION_LIST_TEST_TAG = "select_location_list_test_tag"
 const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator_test_tag"
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"

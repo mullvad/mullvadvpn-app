@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.clickObjectAwaitIsChecked
@@ -35,6 +36,10 @@ class VpnSettingsPage internal constructor() : Page() {
         scrollUntilCell(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG)
     }
 
+    fun scrollUntilWireGuardObfuscationQuicCell() {
+        scrollUntilCell(WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG)
+    }
+
     fun scrollUntilWireGuardObfuscationOffCell() {
         scrollUntilCell(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)
     }
@@ -53,6 +58,10 @@ class VpnSettingsPage internal constructor() : Page() {
 
     fun clickWireguardObfuscationUdpOverTcpCell() {
         uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
+    }
+
+    fun clickWireguardObfuscationQuicCell() {
+        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG))
     }
 
     fun clickWireGuardObfuscationOffCell() {

@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +45,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -136,7 +138,8 @@ private fun SelectLocationListContent(
                 .drawVerticalScrollbar(
                     lazyListState,
                     MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-                ),
+                )
+                .testTag(SELECT_LOCATION_LIST_TEST_TAG),
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement =
