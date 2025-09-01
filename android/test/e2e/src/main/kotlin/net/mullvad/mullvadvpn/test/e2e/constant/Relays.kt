@@ -4,9 +4,9 @@ import net.mullvad.mullvadvpn.test.e2e.misc.TestRelay
 
 object Stagemole {
     val DEFAULT_RELAY = Relays.gotWg001
-    val DAITA_RELAY = Relays.stoWg001
+    val DAITA_RELAY = Relays.gotWg002RelaySoftware
 
-    val QUIC_RELAY = Relays.gotWg002RelaySoftware
+    val QUIC_RELAY = Relays.stoWg001
 }
 
 object Production {
