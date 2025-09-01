@@ -9,9 +9,6 @@ use std::{
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
-#[cfg(target_os = "android")]
-use std::{os::fd::AsRawFd, os::fd::RawFd};
-
 use crate::Obfuscator;
 
 type Result<T> = std::result::Result<T, Error>;
@@ -28,10 +25,6 @@ pub enum Error {
 pub struct Quic {
     local_endpoint: SocketAddr,
     config: ClientConfig,
-    #[cfg(target_os = "android")]
-    // Note: The lifetime of this fd is strictly tied to the lifetime of `config`, since it
-    // owns the underlying socket.
-    outbound_fd: RawFd,
 }
 
 #[derive(Debug)]
@@ -143,8 +136,6 @@ impl Quic {
             settings.fwmark,
         )
         .unwrap(); // TODO: Do not unwrap
-        #[cfg(target_os = "android")]
-        let outbound_fd = quic_socket.as_raw_fd();
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
             .quinn_socket(std::net::UdpSocket::from(quic_socket))
@@ -162,8 +153,6 @@ impl Quic {
         let quic = Quic {
             local_endpoint: local_udp_client_addr,
             config,
-            #[cfg(target_os = "android")]
-            outbound_fd,
         };
 
         Ok(quic)
@@ -233,6 +222,7 @@ impl Obfuscator for Quic {
 
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        self.outbound_fd
+        use std::os::fd::AsRawFd;
+        self.config.quinn_socket.as_raw_fd()
     }
 }
