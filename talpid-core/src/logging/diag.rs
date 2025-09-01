@@ -114,51 +114,71 @@ pub mod windows {
         Ok(buf)
     }
 
+    /// Partial CSV records for `driverquery /FO csv ...`
+    #[derive(serde::Deserialize, serde::Serialize)]
+    struct DriverQueryRecords {
+        #[serde(rename = "Module Name")]
+        module_name: String,
+        #[serde(rename = "Display Name")]
+        display_name: String,
+        #[serde(rename = "Description")]
+        description: String,
+        #[serde(rename = "Driver Type")]
+        driver_type: String,
+        #[serde(rename = "Start Mode")]
+        start_mode: String,
+        #[serde(rename = "State")]
+        state: String,
+        #[serde(rename = "Status")]
+        status: String,
+        #[serde(rename = "Path")]
+        path: String,
+    }
+
     fn parse_driverquery(out_s: String) -> anyhow::Result<String> {
-        const KEEP_FIELDS: &[&str] = &[
-            "\"Module Name\"",
-            "\"Display Name\"",
-            "\"Description\"",
-            "\"Driver Type\"",
-            "\"Start Mode\"",
-            "\"Description\"",
-            "\"State\"",
-            "\"Status\"",
-            "\"Path\"",
-        ];
-        parse_csv(&out_s, KEEP_FIELDS, keyword_filter_fn)
+        parse_csv::<DriverQueryRecords>(out_s.as_bytes(), driverquery_filter)
+    }
+
+    fn driverquery_filter(records: &DriverQueryRecords) -> bool {
+        string_contains_keyword(&records.module_name)
+            || string_contains_keyword(&records.display_name)
+            || string_contains_keyword(&records.description)
+            || string_contains_keyword(&records.path)
+    }
+
+    /// Partial CSV records for `pnputil /format csv ...`
+    #[derive(serde::Deserialize, serde::Serialize)]
+    #[serde(rename_all = "PascalCase")]
+    struct PnputilRecords {
+        instance_id: String,
+        device_description: String,
+        status: String,
+        problem_code: String,
+        problem_status: String,
+        driver_name: String,
     }
 
     fn parse_pnputil(out_s: String) -> anyhow::Result<String> {
-        const KEEP_FIELDS: &[&str] = &[
-            "InstanceId",
-            "DeviceDescription",
-            "Status",
-            "ProblemCode",
-            "ProblemStatus",
-            "DriverName",
-        ];
-        parse_csv(&out_s, KEEP_FIELDS, keyword_filter_fn)
+        parse_csv::<PnputilRecords>(out_s.as_bytes(), pnputil_filter)
     }
 
     fn parse_pnputil_problem(out_s: String) -> anyhow::Result<String> {
-        const KEEP_FIELDS: &[&str] = &[
-            "InstanceId",
-            "DeviceDescription",
-            "Status",
-            "ProblemCode",
-            "ProblemStatus",
-            "DriverName",
-        ];
         // In this case, we keep all entries
-        parse_csv(&out_s, KEEP_FIELDS, |_| true)
+        parse_csv::<PnputilRecords>(out_s.as_bytes(), |_| true)
     }
 
-    fn keyword_filter_fn(line: &str) -> bool {
-        KEYWORDS.iter().any(|word| {
-            line.to_ascii_lowercase()
-                .contains(&word.to_ascii_lowercase())
-        })
+    fn pnputil_filter(records: &PnputilRecords) -> bool {
+        string_contains_keyword(&records.instance_id)
+            || string_contains_keyword(&records.device_description)
+            || string_contains_keyword(&records.driver_name)
+    }
+
+    /// Return whether `s` contains one of the keywords in [KEYWORDS].
+    /// This is case-insensitive.
+    fn string_contains_keyword(s: &str) -> bool {
+        KEYWORDS
+            .iter()
+            .any(|word| s.to_ascii_lowercase().contains(&word.to_ascii_lowercase()))
     }
 
     fn parse_raw_cmd_output(bytes: &[u8]) -> anyhow::Result<String> {
@@ -173,44 +193,28 @@ pub mod windows {
         Ok(out_s.to_string_lossy().into_owned())
     }
 
-    fn parse_csv(
-        s: &str,
-        keep_fields: &[&str],
-        entry_filter_fn: impl Fn(&str) -> bool,
+    fn parse_csv<RecordType: serde::de::DeserializeOwned + serde::Serialize>(
+        data: &[u8],
+        filter_fn: impl Fn(&RecordType) -> bool,
     ) -> anyhow::Result<String> {
-        let mut lines = s.lines();
-        // The first line contains the columns, so always keep it
-        let first_line = lines.next().context("Empty output")?;
+        let mut csv = csv::Reader::from_reader(data);
 
-        let fields_to_keep: Vec<_> = first_line
-            .split(',')
-            .enumerate()
-            .filter_map(|(ind, field)| {
-                if keep_fields
-                    .iter()
-                    .any(|keep_f| field.eq_ignore_ascii_case(keep_f))
-                {
-                    return Some(ind);
+        let mut buf = vec![];
+        let mut out = csv::Writer::from_writer(&mut buf);
+
+        csv.deserialize()
+            .filter_map(|record_result| record_result.ok())
+            .try_for_each(|record: RecordType| {
+                if !filter_fn(&record) {
+                    return Ok(());
                 }
-                None
-            })
-            .collect();
+                out.serialize(record)
+                    .context("Failed to serialize csv record")
+            })?;
 
-        let filtered_lines: Vec<_> = std::iter::once(first_line)
-            // Filter out entries using entry_filter_fn
-            .chain(lines.filter(|line| entry_filter_fn(line)))
-            // Keep only fields of interest
-            .map(|line| {
-                line.split(',').enumerate().filter_map(|(ind, field)| {
-                    if fields_to_keep.contains(&ind) {
-                        return Some(field);
-                    }
-                    None
-                }).collect::<Vec<_>>().join(",")
-            })
-            .collect();
+        drop(out);
 
-        Ok(filtered_lines.join("\n"))
+        Ok(String::from_utf8_lossy(&buf).into_owned())
     }
 
     fn driverquery_cmd() -> anyhow::Result<Command> {

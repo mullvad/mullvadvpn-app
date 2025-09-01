@@ -68,11 +68,13 @@ talpid-net = { path = "../talpid-net" }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "2.6"
+csv = "1.3.1"
 widestring = "1.0"
 winreg = { version = "0.51", features = ["transactions"] }
 memoffset = "0.6"
 once_cell = { workspace = true }
 windows-service = "0.6.0"
+serde = { workspace = true, features = ["derive"] }
 talpid-windows = { path = "../talpid-windows" }
 
 wmi = "0.14.0"
