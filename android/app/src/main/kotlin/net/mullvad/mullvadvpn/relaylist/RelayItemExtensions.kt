@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.Quic
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 fun RelayItem.children(): List<RelayItem> {
@@ -58,13 +60,17 @@ fun RelayItem.CustomList.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    ipVersion: Constraint<IpVersion>,
 ): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
             when (it) {
-                is RelayItem.Location.Country -> it.filter(ownership, providers, daita, quic)
-                is RelayItem.Location.City -> it.filter(ownership, providers, daita, quic)
-                is RelayItem.Location.Relay -> it.filter(ownership, providers, daita, quic)
+                is RelayItem.Location.Country ->
+                    it.filter(ownership, providers, daita, quic, ipVersion)
+                is RelayItem.Location.City ->
+                    it.filter(ownership, providers, daita, quic, ipVersion)
+                is RelayItem.Location.Relay ->
+                    it.filter(ownership, providers, daita, quic, ipVersion)
             }
         }
     return copy(locations = newLocations)
@@ -75,8 +81,9 @@ fun RelayItem.Location.Country.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    ipVersion: Constraint<IpVersion>,
 ): RelayItem.Location.Country? {
-    val cities = cities.mapNotNull { it.filter(ownership, providers, daita, quic) }
+    val cities = cities.mapNotNull { it.filter(ownership, providers, daita, quic, ipVersion) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
     } else {
@@ -89,8 +96,9 @@ private fun RelayItem.Location.City.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    ipVersion: Constraint<IpVersion>,
 ): RelayItem.Location.City? {
-    val relays = relays.mapNotNull { it.filter(ownership, providers, daita, quic) }
+    val relays = relays.mapNotNull { it.filter(ownership, providers, daita, quic, ipVersion) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
     } else {
@@ -101,12 +109,20 @@ private fun RelayItem.Location.City.filter(
 private fun RelayItem.Location.Relay.requiredFeatures(
     requireDaita: Boolean,
     requireQuic: Boolean,
+    ipVersion: Constraint<IpVersion>,
 ): Boolean =
     when {
-        requireDaita && requireQuic -> daita && quic
+        requireDaita && requireQuic -> daita && quic?.supports(ipVersion) == true
         requireDaita -> daita
-        requireQuic -> quic
+        requireQuic -> quic?.supports(ipVersion) == true
         else -> true
+    }
+
+private fun Quic.supports(ipVersion: Constraint<IpVersion>) =
+    when (ipVersion.getOrNull()) {
+        IpVersion.IPV4 -> supportsIpv4
+        IpVersion.IPV6 -> supportsIpv6
+        else -> inAddresses.isNotEmpty()
     }
 
 private fun RelayItem.Location.Relay.filter(
@@ -114,8 +130,14 @@ private fun RelayItem.Location.Relay.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    ipVersion: Constraint<IpVersion>,
 ): RelayItem.Location.Relay? =
-    if (requiredFeatures(daita, quic) && hasOwnership(ownership) && hasProvider(providers)) this
+    if (
+        requiredFeatures(daita, quic, ipVersion) &&
+            hasOwnership(ownership) &&
+            hasProvider(providers)
+    )
+        this
     else null
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(

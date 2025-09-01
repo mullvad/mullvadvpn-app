@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -22,31 +23,42 @@ class RecentsUseCase(
     private val settingsRepository: SettingsRepository,
 ) {
 
-    operator fun invoke(): Flow<List<Hop>?> =
+    operator fun invoke(isMultihop: Boolean): Flow<List<Hop>?> =
+        if (isMultihop) {
+            multiHopRecents()
+        } else {
+            singleHopRecents()
+        }
+
+    private fun singleHopRecents(): Flow<List<Hop.Single<RelayItem>>?> =
         combine(
-            recents(),
+            recents().map { it?.filterIsInstance<Recent.Singlehop>() },
+            filteredRelayListUseCase(RelayListType.Single),
+            customListsRelayItemUseCase(RelayListType.Single),
+        ) { recents, relayList, customList ->
+            recents?.mapNotNull { recent ->
+                val relayListItem = recent.location.findItem(customList, relayList)
+
+                relayListItem?.let { Hop.Single(it) }
+            }
+        }
+
+    private fun multiHopRecents(): Flow<List<Hop.Multi>?> =
+        combine(
+            recents().map { it?.filterIsInstance<Recent.Multihop>() },
             filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
             customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
             filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
             customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
         ) { recents, entryRelayList, entryCustomLists, exitRelayList, exitCustomLists ->
             recents?.mapNotNull { recent ->
-                when (recent) {
-                    is Recent.Multihop -> {
-                        val entry = recent.entry.findItem(entryCustomLists, entryRelayList)
-                        val exit = recent.exit.findItem(exitCustomLists, exitRelayList)
+                val entry = recent.entry.findItem(entryCustomLists, entryRelayList)
+                val exit = recent.exit.findItem(exitCustomLists, exitRelayList)
 
-                        if (entry != null && exit != null) {
-                            Hop.Multi(entry, exit)
-                        } else {
-                            null
-                        }
-                    }
-                    is Recent.Singlehop -> {
-                        val relayListItem = recent.location.findItem(exitCustomLists, exitRelayList)
-
-                        relayListItem?.let { Hop.Single(it) }
-                    }
+                if (entry != null && exit != null) {
+                    Hop.Multi(entry, exit)
+                } else {
+                    null
                 }
             }
         }
@@ -66,7 +78,7 @@ class RecentsUseCase(
         relayList: List<RelayItem.Location.Country>,
     ): RelayItem? =
         when (this) {
-            is CustomListId -> customLists.firstOrNull { this == it.id }
+            is CustomListId -> customLists.firstOrNull { this == it.id && it.hasChildren }
             is GeoLocationId -> relayList.findByGeoLocationId(this)
         }
 }

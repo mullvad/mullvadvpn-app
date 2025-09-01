@@ -4,6 +4,7 @@ import kotlin.collections.mapNotNull
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
@@ -44,6 +45,7 @@ class FilterCustomListsRelayItemUseCase(
                         settings?.isQuicEnabled() == true,
                         relayListType = relayListType,
                     ),
+                ipVersion = settings?.ipVersionConstraint() ?: Constraint.Any,
             )
         }
 
@@ -52,7 +54,10 @@ class FilterCustomListsRelayItemUseCase(
         providers: Constraint<Providers>,
         daita: Boolean,
         quic: Boolean,
-    ) = mapNotNull { it.filter(ownership, providers, daita = daita, quic = quic) }
+        ipVersion: Constraint<IpVersion>,
+    ) = mapNotNull {
+        it.filter(ownership, providers, daita = daita, quic = quic, ipVersion = ipVersion)
+    }
 
     private fun Settings.daitaAndDirectOnly() =
         tunnelOptions.wireguard.daitaSettings.enabled &&
@@ -60,4 +65,7 @@ class FilterCustomListsRelayItemUseCase(
 
     private fun Settings.isQuicEnabled() =
         obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
+
+    private fun Settings.ipVersionConstraint() =
+        relaySettings.relayConstraints.wireguardConstraints.ipVersion
 }
