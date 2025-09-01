@@ -21,80 +21,71 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
         let relays = try relayCache.read().relays
-        try validateWireguardPort(tunnelSettings, relays: relays)
+        try validateWireguardCustomPort(tunnelSettings, relays: relays)
 
-        let obfuscation = try prepareObfuscation(
-            for: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount,
-            relays: relays
+        let obfuscation = try RelayObfuscator(relays: relays).obfuscate(
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: connectionAttemptCount
         )
 
         return switch tunnelSettings.tunnelMultihopState {
         case .off:
             try SinglehopPicker(
                 obfuscation: obfuscation,
-                constraints: tunnelSettings.relayConstraints,
-                connectionAttemptCount: connectionAttemptCount,
-                daitaSettings: tunnelSettings.daita
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
             ).pick()
         case .on:
             try MultihopPicker(
                 obfuscation: obfuscation,
-                constraints: tunnelSettings.relayConstraints,
-                connectionAttemptCount: connectionAttemptCount,
-                daitaSettings: tunnelSettings.daita
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
             ).pick()
         }
     }
 
     public func findCandidates(tunnelSettings: LatestTunnelSettings) throws -> RelayCandidates {
         let relays = try relayCache.read().relays
-        let obfuscation = try prepareObfuscation(
-            for: tunnelSettings,
-            connectionAttemptCount: 0,
-            relays: relays
+
+        let obfuscation = try RelayObfuscator(relays: relays).obfuscate(
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0
         )
 
-        let findCandidates: (REST.ServerRelaysResponse, Bool) throws
-            -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled in
+        let findCandidates: (REST.ServerRelaysResponse, Bool, RelayObfuscation?) throws
+            -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled, obfuscation in
                 try RelaySelector.WireGuard.findCandidates(
                     by: .any,
                     in: relays,
                     filterConstraint: tunnelSettings.relayConstraints.filter,
-                    daitaEnabled: daitaEnabled
+                    daitaEnabled: daitaEnabled,
+                    relaysForFilteringObfuscation: obfuscation?.obfuscatedRelays
                 )
             }
 
         if tunnelSettings.daita.isAutomaticRouting || tunnelSettings.tunnelMultihopState.isEnabled {
             let entryCandidates = try findCandidates(
-                tunnelSettings.tunnelMultihopState.isEnabled ? obfuscation.entryRelays : obfuscation.exitRelays,
-                tunnelSettings.daita.daitaState.isEnabled
+                obfuscation.obfuscatedRelays,
+                tunnelSettings.daita.daitaState.isEnabled,
+                obfuscation
             )
-            let exitCandidates = try findCandidates(obfuscation.exitRelays, false)
+            let exitCandidates = try findCandidates(obfuscation.allRelays, false, nil)
             return RelayCandidates(entryRelays: entryCandidates, exitRelays: exitCandidates)
         } else {
-            let exitCandidates = try findCandidates(obfuscation.exitRelays, tunnelSettings.daita.daitaState.isEnabled)
+            let exitCandidates = try findCandidates(
+                obfuscation.obfuscatedRelays,
+                tunnelSettings.daita.daitaState.isEnabled,
+                nil
+            )
             return RelayCandidates(entryRelays: nil, exitRelays: exitCandidates)
         }
     }
 
-    private func prepareObfuscation(
-        for tunnelSettings: LatestTunnelSettings,
-        connectionAttemptCount: UInt,
-        relays: REST.ServerRelaysResponse
-    ) throws -> ObfuscatorPortSelection {
-        return try ObfuscatorPortSelector(relays: relays).obfuscate(
-            tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount
-        )
-    }
-
-    private func validateWireguardPort(
+    private func validateWireguardCustomPort(
         _ tunnelSettings: LatestTunnelSettings,
         relays: REST.ServerRelaysResponse
     ) throws {
-        switch tunnelSettings.wireGuardObfuscation.state {
-        case .automatic, .off:
+        if [.automatic, .off].contains(tunnelSettings.wireGuardObfuscation.state) {
             if case let .only(port) = tunnelSettings.relayConstraints.port {
                 let isPortWithinValidWireGuardRanges: Bool =
                     relays.wireguard.portRanges
@@ -108,8 +99,6 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                     throw NoRelaysSatisfyingConstraintsError(.invalidPort)
                 }
             }
-        case .on, .udpOverTcp, .shadowsocks, .quic:
-            break
         }
     }
 }

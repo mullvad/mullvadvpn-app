@@ -16,7 +16,8 @@ extension RelaySelector {
             by relayConstraint: RelayConstraint<UserSelectedRelays>,
             in relays: REST.ServerRelaysResponse,
             filterConstraint: RelayConstraint<RelayFilter>,
-            daitaEnabled: Bool
+            daitaEnabled: Bool,
+            relaysForFilteringObfuscation: REST.ServerRelaysResponse?
         ) throws -> [RelayWithLocation<REST.ServerRelay>] {
             let mappedRelays = RelayWithLocation.locateRelays(
                 relays: relays.wireguard.relays,
@@ -27,6 +28,7 @@ extension RelaySelector {
                 relayConstraint,
                 filterConstraint: filterConstraint,
                 daitaEnabled: daitaEnabled,
+                relaysForFilteringObfuscation: relaysForFilteringObfuscation,
                 relays: mappedRelays
             )
         }

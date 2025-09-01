@@ -11,10 +11,9 @@ import MullvadTypes
 import Network
 
 protocol RelayPicking {
-    var obfuscation: ObfuscatorPortSelection { get }
-    var constraints: RelayConstraints { get }
+    var obfuscation: RelayObfuscation { get }
+    var tunnelSettings: LatestTunnelSettings { get }
     var connectionAttemptCount: UInt { get }
-    var daitaSettings: DAITASettings { get }
     func pick() throws -> SelectedRelays
 }
 
@@ -26,8 +25,10 @@ extension RelayPicking {
     ) throws -> SelectedRelay {
         var match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
-            wireguard: obfuscation.wireguard,
-            portConstraint: useObfuscatedPortIfAvailable ? obfuscation.port : constraints.port,
+            wireguard: obfuscation.allRelays.wireguard,
+            portConstraint: useObfuscatedPortIfAvailable
+                ? obfuscation.port
+                : tunnelSettings.relayConstraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
             closeTo: location
         )
@@ -46,7 +47,7 @@ extension RelayPicking {
 
     private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> RelaySelectorMatch {
         let port = match.endpoint.ipv4Relay.port
-        let portRanges = RelaySelector.parseRawPortRanges(obfuscation.wireguard.shadowsocksPortRanges)
+        let portRanges = RelaySelector.parseRawPortRanges(obfuscation.allRelays.wireguard.shadowsocksPortRanges)
         let portIsWithinRange = portRanges.contains(where: { $0.contains(port) })
 
         var endpoint = match.endpoint

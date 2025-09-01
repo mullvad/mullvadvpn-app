@@ -10,17 +10,20 @@ import MullvadSettings
 import MullvadTypes
 
 struct MultihopPicker: RelayPicking {
-    let obfuscation: ObfuscatorPortSelection
-    let constraints: RelayConstraints
+    let obfuscation: RelayObfuscation
+    let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
-    let daitaSettings: DAITASettings
 
     func pick() throws -> SelectedRelays {
+        let constraints = tunnelSettings.relayConstraints
+        let daitaSettings = tunnelSettings.daita
+
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
-            in: obfuscation.exitRelays,
+            in: obfuscation.allRelays,
             filterConstraint: constraints.filter,
-            daitaEnabled: false
+            daitaEnabled: false,
+            relaysForFilteringObfuscation: nil
         )
 
         /*
@@ -50,9 +53,10 @@ struct MultihopPicker: RelayPicking {
         do {
             let entryCandidates = try RelaySelector.WireGuard.findCandidates(
                 by: daitaSettings.isAutomaticRouting ? .any : constraints.entryLocations,
-                in: obfuscation.entryRelays,
+                in: obfuscation.allRelays,
                 filterConstraint: constraints.filter,
-                daitaEnabled: daitaSettings.daitaState.isEnabled
+                daitaEnabled: daitaSettings.daitaState.isEnabled,
+                relaysForFilteringObfuscation: obfuscation.obfuscatedRelays
             )
 
             return try decisionFlow.pick(

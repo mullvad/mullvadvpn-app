@@ -9,29 +9,23 @@
 import MullvadSettings
 import MullvadTypes
 
-struct ObfuscatorPortSelection {
-    let entryRelays: REST.ServerRelaysResponse
-    let exitRelays: REST.ServerRelaysResponse
-    let unfilteredRelays: REST.ServerRelaysResponse
+public struct RelayObfuscation {
+    let allRelays: REST.ServerRelaysResponse
+    let obfuscatedRelays: REST.ServerRelaysResponse
     let port: RelayConstraint<UInt16>
-    let method: WireGuardObfuscationState
-
-    var wireguard: REST.ServerWireguardTunnels {
-        exitRelays.wireguard
-    }
+    var method: WireGuardObfuscationState
 }
 
-struct ObfuscatorPortSelector {
+struct RelayObfuscator {
     let relays: REST.ServerRelaysResponse
 
     func obfuscate(
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
-    ) throws -> ObfuscatorPortSelection {
-        var entryRelays = relays
-        var exitRelays = relays
-
+    ) throws -> RelayObfuscation {
+        var obfuscatedRelays = relays
         var port = tunnelSettings.relayConstraints.port
+
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
             connectionAttemptCount: connectionAttemptCount,
             tunnelSettings: tunnelSettings
@@ -44,34 +38,21 @@ struct ObfuscatorPortSelector {
                 connectionAttemptCount: connectionAttemptCount
             )
         case .shadowsocks:
-            let filteredRelays = obfuscateShadowsocksRelays(tunnelSettings: tunnelSettings)
-            if tunnelSettings.tunnelMultihopState.isEnabled {
-                entryRelays = filteredRelays
-            } else {
-                exitRelays = filteredRelays
-            }
-
+            obfuscatedRelays = obfuscateShadowsocksRelays(tunnelSettings: tunnelSettings)
             port = obfuscateShadowsocksPort(
                 tunnelSettings: tunnelSettings,
                 shadowsocksPortRanges: relays.wireguard.shadowsocksPortRanges
             )
         case .quic:
-            let filteredRelays = obfuscateQUICRelays(tunnelSettings: tunnelSettings)
-            if tunnelSettings.tunnelMultihopState.isEnabled {
-                entryRelays = filteredRelays
-            } else {
-                exitRelays = filteredRelays
-            }
-
+            obfuscatedRelays = obfuscateQUICRelays(tunnelSettings: tunnelSettings)
             port = .only(443)
         default:
             break
         }
 
-        return ObfuscatorPortSelection(
-            entryRelays: entryRelays,
-            exitRelays: exitRelays,
-            unfilteredRelays: relays,
+        return RelayObfuscation(
+            allRelays: relays,
+            obfuscatedRelays: obfuscatedRelays,
             port: port,
             method: obfuscationMethod
         )

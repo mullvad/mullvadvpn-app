@@ -74,6 +74,7 @@ class RelaySelectorTests: XCTestCase {
             constraints.exitLocations,
             filterConstraint: constraints.filter,
             daitaEnabled: false,
+            relaysForFilteringObfuscation: nil,
             relays: relayWithLocations
         )
 
@@ -284,7 +285,8 @@ extension RelaySelectorTests {
             by: constraints.exitLocations,
             in: relays,
             filterConstraint: constraints.filter,
-            daitaEnabled: daitaEnabled
+            daitaEnabled: daitaEnabled,
+            relaysForFilteringObfuscation: nil
         )
 
         return try RelaySelector.WireGuard.pickCandidate(

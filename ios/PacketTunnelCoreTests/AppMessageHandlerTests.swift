@@ -123,7 +123,8 @@ final class AppMessageHandlerTests: XCTestCase {
             by: relayConstraints.exitLocations,
             in: ServerRelaysResponseStubs.sampleRelays,
             filterConstraint: relayConstraints.filter,
-            daitaEnabled: false
+            daitaEnabled: false,
+            relaysForFilteringObfuscation: nil
         )
 
         let match = try RelaySelector.WireGuard.pickCandidate(

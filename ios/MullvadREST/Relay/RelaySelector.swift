@@ -65,13 +65,18 @@ public enum RelaySelector {
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
         filterConstraint: RelayConstraint<RelayFilter>,
         daitaEnabled: Bool,
+        relaysForFilteringObfuscation: REST.ServerRelaysResponse?,
         relays: [RelayWithLocation<T>]
     ) throws -> [RelayWithLocation<T>] {
-        // Filter on active status, daita support, filter constraint and relay constraint.
+        // Filter on various settings and constraints.
         var filteredRelays = try filterByActive(relays: relays)
         filteredRelays = try filterByFilterConstraint(relays: filteredRelays, constraint: filterConstraint)
         filteredRelays = try filterByLocationConstraint(relays: filteredRelays, constraint: relayConstraint)
         filteredRelays = try filterByDaita(relays: filteredRelays, daitaEnabled: daitaEnabled)
+        filteredRelays = try filterByObfuscation(
+            relays: filteredRelays,
+            relaysWithObfuscation: relaysForFilteringObfuscation
+        )
         return filterByCountryInclusion(relays: filteredRelays, constraint: relayConstraint)
     }
 
@@ -171,6 +176,25 @@ public enum RelaySelector {
 
         return if filteredRelays.isEmpty {
             throw NoRelaysSatisfyingConstraintsError(.noDaitaRelaysFound)
+        } else {
+            filteredRelays
+        }
+    }
+
+    private static func filterByObfuscation<T: AnyRelay>(
+        relays: [RelayWithLocation<T>],
+        relaysWithObfuscation: REST.ServerRelaysResponse?
+    ) throws -> [RelayWithLocation<T>] {
+        guard let relaysWithObfuscation else { return relays }
+
+        let filteredRelays = relays.filter { relayWithLocation in
+            relaysWithObfuscation.wireguard.relays.contains {
+                relayWithLocation.relay as? REST.ServerRelay == $0
+            }
+        }
+
+        return if filteredRelays.isEmpty {
+            throw NoRelaysSatisfyingConstraintsError(.noObfuscatedRelaysFound)
         } else {
             filteredRelays
         }
