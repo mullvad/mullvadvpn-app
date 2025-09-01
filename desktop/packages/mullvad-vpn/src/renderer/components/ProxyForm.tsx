@@ -230,9 +230,11 @@ function ProxyFormInner() {
 
   return (
     <>
-      <SettingsRow label={messages.gettext('Type')}>
-        <SettingsSelect defaultValue={type} onUpdate={setType} items={types} />
-      </SettingsRow>
+      <SettingsGroup>
+        <SettingsRow label={messages.gettext('Type')}>
+          <SettingsSelect defaultValue={type} onUpdate={setType} items={types} />
+        </SettingsRow>
+      </SettingsGroup>
 
       {type === 'shadowsocks' && (
         <EditShadowsocks
