@@ -763,6 +763,7 @@ mod test {
         let mut version: mullvad_version::Version = mullvad_version::VERSION.parse().unwrap();
         version.incremental += 1;
         VersionCache {
+            cache_version: version.clone(),
             current_version_supported: true,
             version_info: VersionInfo {
                 beta: None,
@@ -791,6 +792,7 @@ mod test {
         beta.version.pre_stable = Some(mullvad_version::PreStableType::Beta(1));
         beta.version.incremental += 1;
         VersionCache {
+            cache_version: stable.version.clone(),
             current_version_supported: true,
             version_info: VersionInfo {
                 beta: Some(beta),

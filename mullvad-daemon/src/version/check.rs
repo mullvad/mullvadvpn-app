@@ -56,6 +56,9 @@ const PLATFORM: &str = "android";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub(super) struct VersionCache {
+    /// Version used for the [VersionCache]. This is needed to ensure that
+    /// `current_version_supported` refers to the installed app.
+    pub cache_version: mullvad_version::Version,
     /// Whether the current (installed) version is supported or an upgrade is required
     pub current_version_supported: bool,
     /// The latest available versions
@@ -420,6 +423,7 @@ fn version_check_inner(
         ) = tokio::try_join!(supported_fut, v2_endpoint).map_err(Error::Download)?;
 
         Ok(VersionCache {
+            cache_version: APP_VERSION.clone(),
             current_version_supported,
             version_info,
             metadata_version,
@@ -451,6 +455,7 @@ fn version_check_inner(
             .filter(|version: &mullvad_version::Version| version.pre_stable.is_some());
 
         Ok(VersionCache {
+            cache_version: APP_VERSION.clone(),
             current_version_supported: response.supported,
             // Note: We're pretending that this is complete information,
             // but on Android and Linux, most of the information is missing
@@ -515,32 +520,21 @@ async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), 
 
     let cache: VersionCache = serde_json::from_str(&content).map_err(Error::Deserialize)?;
 
-    if cache_is_old(&cache.version_info, &APP_VERSION) {
+    if cache_is_stale(&cache, &APP_VERSION) {
         return Err(Error::OutdatedVersion);
     }
 
     Ok((cache, mtime))
 }
 
-/// Check if the cached version is older than the current version. If so, assume the cache is stale.
-/// It could in principle mean that a version has been yanked, but we do not really support this,
-/// and it should not cause any real issue to delete the cache anyway.
-fn cache_is_old(cached_version: &VersionInfo, current_version: &mullvad_version::Version) -> bool {
-    let last_version = if current_version.pre_stable.is_some() {
-        // Discard suggested version if current beta is newer
-        cached_version
-            .beta
-            .as_ref()
-            .unwrap_or(&cached_version.stable)
-    } else {
-        // Discard suggested version if current stable is newer
-        &cached_version.stable
-    };
-    current_version > &last_version.version
+/// Check if the cache is left over from another version of the app. If so, discard it.
+fn cache_is_stale(cache: &VersionCache, current_version: &mullvad_version::Version) -> bool {
+    &cache.cache_version != current_version
 }
 
 fn dev_version_cache() -> VersionCache {
     VersionCache {
+        cache_version: mullvad_version::VERSION.parse().unwrap(),
         current_version_supported: false,
         version_info: VersionInfo {
             stable: mullvad_update::version::Version {
@@ -569,52 +563,51 @@ mod test {
 
     use super::*;
 
-    /// Test whether outdated version caches are ignored correctly.
-    /// This prevents old versions from being suggested as updates.
+    /// Test whether mismatching version caches are ignored.
+    /// This prevents old versions from being suggested as updates,
+    /// and the current version from being labeled unsupported.
     #[test]
-    fn test_old_cache() {
-        assert!(cache_is_old(
-            &version_info("2025.5", None),
-            &"2025.6".parse().unwrap()
-        ));
-        assert!(!cache_is_old(
-            &version_info("2025.5", None),
+    fn test_invalid_cache() {
+        assert!(!cache_is_stale(
+            &version_cache("2025.5", "2025.5", None),
             &"2025.5".parse().unwrap()
         ));
-        assert!(!cache_is_old(
-            &version_info("2025.5", Some("2025.5-beta1")),
+        assert!(cache_is_stale(
+            &version_cache("2025.5", "2025.5", None),
+            &"2025.6".parse().unwrap()
+        ));
+        assert!(!cache_is_stale(
+            &version_cache("2025.5-beta1", "2025.5", Some("2025.5-beta1")),
             &"2025.5-beta1".parse().unwrap()
         ));
-        assert!(cache_is_old(
-            &version_info("2025.5", Some("2025.5-beta1")),
+        assert!(cache_is_stale(
+            &version_cache("2025.5-beta1", "2025.5", Some("2025.5-beta1")),
             &"2025.5-beta2".parse().unwrap()
-        ));
-        assert!(!cache_is_old(
-            &version_info("2025.5", None),
-            &"2025.5-beta2".parse().unwrap()
-        ));
-        assert!(cache_is_old(
-            &version_info("2025.5", None),
-            &"2025.6-beta2".parse().unwrap()
         ));
     }
 
-    fn version_info(stable: &str, beta: Option<&str>) -> VersionInfo {
-        VersionInfo {
-            stable: Version {
-                version: stable.parse().unwrap(),
-                urls: vec![],
-                size: 0,
-                changelog: "".to_owned(),
-                sha256: [0u8; 32],
+    fn version_cache(cache_version: &str, stable: &str, beta: Option<&str>) -> VersionCache {
+        VersionCache {
+            cache_version: cache_version.parse().unwrap(),
+            current_version_supported: false,
+            version_info: VersionInfo {
+                stable: Version {
+                    version: stable.parse().unwrap(),
+                    urls: vec![],
+                    size: 0,
+                    changelog: "".to_owned(),
+                    sha256: [0u8; 32],
+                },
+                beta: beta.map(|beta| Version {
+                    version: beta.parse().unwrap(),
+                    urls: vec![],
+                    size: 0,
+                    changelog: "".to_owned(),
+                    sha256: [0u8; 32],
+                }),
             },
-            beta: beta.map(|beta| Version {
-                version: beta.parse().unwrap(),
-                urls: vec![],
-                size: 0,
-                changelog: "".to_owned(),
-                sha256: [0u8; 32],
-            }),
+            #[cfg(in_app_upgrade)]
+            metadata_version: 0,
         }
     }
 
@@ -775,6 +768,7 @@ mod test {
     fn fake_version_response() -> VersionCache {
         // TODO: The tests pass, but check that this is a sane fake version cache anyway
         VersionCache {
+            cache_version: mullvad_version::VERSION.parse().unwrap(),
             current_version_supported: true,
             version_info: VersionInfo {
                 stable: Version {

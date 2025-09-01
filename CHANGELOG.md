@@ -32,6 +32,10 @@ Line wrap the file at 100 chars.                                              Th
   encrypted once, but leave the entry node unencrypted, if and only if the destination were the exit
   node. E.g., this might occur if a browser tries to open a TCP connection to the exit node IP.
 
+### Fixed
+- Fix version being labeled unsupported unexpectedly. So far, this only an issue when using
+  development builds.
+
 
 ## [2025.9-beta1] - 2025-08-25
 ### Added
