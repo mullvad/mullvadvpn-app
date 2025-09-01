@@ -25,6 +25,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::Deref,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
@@ -376,11 +377,20 @@ impl Tunnel for BoringTun {
             };
 
             for peer in response.peers {
+                let last_handshake_time = if let (Some(handshake_sec), Some(handshake_nsec)) =
+                    (peer.last_handshake_time_sec, peer.last_handshake_time_nsec)
+                {
+                    Some(Duration::new(handshake_sec, handshake_nsec))
+                } else {
+                    None
+                };
+
                 stats.insert(
                     peer.peer.public_key.0,
                     Stats {
                         tx_bytes: peer.tx_bytes.unwrap_or_default(),
                         rx_bytes: peer.rx_bytes.unwrap_or_default(),
+                        last_handshake_time,
                     },
                 );
             }

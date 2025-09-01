@@ -1,3 +1,5 @@
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 use super::wg_message::{DeviceMessage, DeviceNla, PeerNla};
 use crate::stats::{Stats, StatsMap};
 
@@ -10,18 +12,39 @@ impl Stats {
                 for msg in peers {
                     let mut tx_bytes = 0;
                     let mut rx_bytes = 0;
+                    let mut last_handshake_time = None;
                     let mut pub_key = None;
 
                     for nla in &msg.0 {
                         match nla {
                             PeerNla::TxBytes(bytes) => tx_bytes = *bytes,
                             PeerNla::RxBytes(bytes) => rx_bytes = *bytes,
+                            PeerNla::LastHandshakeTime(time) => {
+                                last_handshake_time = Some(
+                                    SystemTime::now()
+                                        .duration_since(
+                                            UNIX_EPOCH
+                                                + Duration::new(
+                                                    time.tv_sec().try_into().unwrap_or(0),
+                                                    time.tv_nsec().try_into().unwrap_or(0),
+                                                ),
+                                        )
+                                        .unwrap_or(Duration::ZERO),
+                                );
+                            }
                             PeerNla::PublicKey(key) => pub_key = Some(*key),
                             _ => continue,
                         }
                     }
                     if let Some(key) = pub_key {
-                        map.insert(key, Stats { tx_bytes, rx_bytes });
+                        map.insert(
+                            key,
+                            Stats {
+                                tx_bytes,
+                                rx_bytes,
+                                last_handshake_time,
+                            },
+                        );
                     }
                 }
             }
