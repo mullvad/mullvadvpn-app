@@ -510,7 +510,10 @@ impl MullvadProxyClient {
             enabled,
             access_method: Some(types::AccessMethod::from(access_method)),
         };
-        self.0.add_api_access_method(request).await?;
+        self.0
+            .add_api_access_method(request)
+            .await
+            .map_err(map_api_access_method_error)?;
         Ok(())
     }
 
