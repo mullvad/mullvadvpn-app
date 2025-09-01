@@ -81,6 +81,10 @@ extension REST {
         public let shadowsocksExtraAddrIn: [String]?
         public let features: Features?
 
+        public var supportsQuic: Bool {
+            !(features?.quic?.addrIn.isEmpty ?? true)
+        }
+
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
             ServerRelay(
                 hostname: hostname,
