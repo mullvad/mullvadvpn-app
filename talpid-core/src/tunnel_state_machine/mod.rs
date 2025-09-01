@@ -371,11 +371,8 @@ impl TunnelStateMachine {
                 && let Some(log_dir) = &args.log_dir
             {
                 log::debug!("Logging device info");
-                if crate::logging::diag::windows::log_device_info(log_dir)
-                    .await
-                    .is_err()
-                {
-                    log::error!("Failed to dump device logs");
+                if let Err(err) = crate::logging::diag::windows::log_device_info(log_dir).await {
+                    log::error!("Failed to dump device logs: {err}");
                 }
             }
 
