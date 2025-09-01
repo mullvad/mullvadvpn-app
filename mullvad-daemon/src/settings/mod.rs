@@ -1,5 +1,6 @@
 use futures::TryFutureExt;
 use mullvad_types::{
+    access_method::Error as ApiAccessMethodError,
     custom_list::Error as CustomListError,
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
     settings::{DnsState, Settings},
@@ -60,11 +61,33 @@ impl From<Error> for mullvad_management_interface::Status {
                 let custom_list_err = *err.downcast::<CustomListError>().unwrap();
                 handle_custom_list_error(custom_list_err)
             }
+            Error::UpdateFailed(err)
+                if err
+                    .downcast_ref::<mullvad_types::access_method::Error>()
+                    .is_some() =>
+            {
+                let api_access_method_err = *err.downcast::<ApiAccessMethodError>().unwrap();
+                handle_api_access_method_error(api_access_method_err)
+            }
             Error::SerializeError(..)
             | Error::ParseError(..)
             | Error::UpdateFailed(..)
             | Error::ParseIp(..) => Status::new(Code::Internal, error.to_string()),
         }
+    }
+}
+
+fn handle_api_access_method_error(
+    api_access_method_err: ApiAccessMethodError,
+) -> mullvad_management_interface::Status {
+    use mullvad_management_interface::{Code, Status};
+    match api_access_method_err {
+        error @ ApiAccessMethodError::DuplicateName => Status::with_details(
+            Code::AlreadyExists,
+            error.to_string(),
+            mullvad_management_interface::API_ACCESS_METHOD_EXISTS_DETAILS.into(),
+        ),
+        error => Status::unknown(error.to_string()),
     }
 }
 
