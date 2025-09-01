@@ -4362,6 +4362,9 @@
         }
       }
     },
+    "No servers match your obfuscation settings. Try changing location or obfuscation method." : {
+
+    },
     "No servers match your settings, try changing server or other settings." : {
       "localizations" : {
         "de" : {
