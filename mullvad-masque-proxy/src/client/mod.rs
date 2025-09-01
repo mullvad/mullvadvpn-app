@@ -70,9 +70,6 @@ pub enum Error {
     Bind(#[source] io::Error),
     #[error("Failed to setup a QUIC endpoint")]
     Endpoint(#[source] io::Error),
-    #[cfg(target_os = "linux")]
-    #[error("Failed to set fwmark on remote socket")]
-    Fwmark(#[source] io::Error),
     #[error("Failed to begin connecting to QUIC endpoint")]
     Connect(#[from] quinn::ConnectError),
     #[error("Failed to connect to QUIC endpoint")]
@@ -121,6 +118,8 @@ pub struct ClientConfig {
     pub client_socket: UdpSocket,
 
     /// Socket to bind the QUIC endpoint socket to
+    ///
+    /// May be created by [Self::create_masque_socket].
     pub quinn_socket: std::net::UdpSocket,
 
     /// Destination to which traffic is forwarded
@@ -214,12 +213,8 @@ impl Client {
         }
     }
 
-    /// - fwmark: Optional fwmark to set on the QUIC endpoint socket
-    pub fn create_quic_socket(
-        local_addr: SocketAddr,
-        // TODO: Why is this even an argument? One can just set it on the returned socket ..
-        #[cfg(target_os = "linux")] fwmark: Option<u32>,
-    ) -> Result<Socket> {
+    /// Create & bind a new UDP socket to `local_addr`.
+    pub fn create_masque_socket(local_addr: SocketAddr) -> io::Result<Socket> {
         // family
         let domain = match &local_addr {
             SocketAddr::V4(_) => socket2::Domain::IPV4,
@@ -227,12 +222,8 @@ impl Client {
         };
         let ty = socket2::Type::DGRAM;
         let protocol = Some(socket2::Protocol::UDP);
-        let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::Bind)?;
-        #[cfg(target_os = "linux")]
-        if let Some(fwmark) = fwmark {
-            socket.set_mark(fwmark).map_err(Error::Fwmark)?;
-        }
-        socket.bind(&local_addr.into()).map_err(Error::Bind)?;
+        let socket = socket2::Socket::new(domain, ty, protocol)?;
+        socket.bind(&socket2::SockAddr::from(local_addr))?;
         Ok(socket)
     }
 
