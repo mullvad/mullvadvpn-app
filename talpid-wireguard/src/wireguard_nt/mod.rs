@@ -22,6 +22,7 @@ use std::{
     pin::Pin,
     ptr,
     sync::{Arc, LazyLock, Mutex},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 #[cfg(daita)]
 use std::{ffi::c_uchar, path::PathBuf};
@@ -1072,11 +1073,20 @@ impl Tunnel for WgNtTunnel {
                 super::TunnelError::GetConfigError
             })?;
             for (peer, _allowed_ips) in &peers {
+                let last_handshake_time = if peer.last_handshake > 0 {
+                    SystemTime::now()
+                        .duration_since(filetime_to_systemtime(peer.last_handshake))
+                        .unwrap_or(Duration::ZERO)
+                } else {
+                    None
+                };
+
                 map.insert(
                     peer.public_key,
                     Stats {
                         tx_bytes: peer.tx_bytes,
                         rx_bytes: peer.rx_bytes,
+                        last_handshake_time,
                     },
                 );
             }
@@ -1132,6 +1142,19 @@ impl Tunnel for WgNtTunnel {
 
 pub fn as_uninit_byte_slice<T: Copy + Sized>(value: &T) -> &[mem::MaybeUninit<u8>] {
     unsafe { std::slice::from_raw_parts(value as *const _ as *const _, mem::size_of::<T>()) }
+}
+
+/// wireguard-nt uses the `FILETIME` timestamp (100ns intervals since 1601-01-01).
+/// This function converts this to [SystemTime].
+fn filetime_to_systemtime(filetime: u64) -> SystemTime {
+    // Difference between 1601-01-01 and 1970-01-01 in 100ns intervals
+    const WINDOWS_TO_UNIX_EPOCH_DIFF: u64 = 11644473600u64;
+    const HUNDRED_NANOSECONDS: u64 = 10_000_000;
+
+    let seconds = filetime / HUNDRED_NANOSECONDS;
+    let nanos = (filetime % HUNDRED_NANOSECONDS) * 100;
+
+    UNIX_EPOCH + Duration::new(seconds - WINDOWS_TO_UNIX_EPOCH_DIFF, nanos as u32)
 }
 
 #[cfg(test)]
