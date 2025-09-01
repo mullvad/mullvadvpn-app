@@ -273,6 +273,8 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             errorString = "The entry and exit servers cannot be the same. Try changing one to a new server or location."
         case .noRelaysSatisfyingDaitaConstraints:
             errorString = "No DAITA compatible servers match your location settings. Try changing location."
+        case .noRelaysSatisfyingObfuscationSettings:
+            errorString = "No servers match your obfuscation settings. Try changing location or obfuscation method."
         case .noRelaysSatisfyingConstraints:
             errorString = "No servers match your settings, try changing server or other settings."
         case .noRelaysSatisfyingPortConstraints:

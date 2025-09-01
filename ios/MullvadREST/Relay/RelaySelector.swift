@@ -67,7 +67,7 @@ public enum RelaySelector {
         daitaEnabled: Bool,
         relays: [RelayWithLocation<T>]
     ) throws -> [RelayWithLocation<T>] {
-        // Filter on active status, daita support, filter constraint and relay constraint.
+        // Filter on various settings and constraints.
         var filteredRelays = try filterByActive(relays: relays)
         filteredRelays = try filterByFilterConstraint(relays: filteredRelays, constraint: filterConstraint)
         filteredRelays = try filterByLocationConstraint(relays: filteredRelays, constraint: relayConstraint)
