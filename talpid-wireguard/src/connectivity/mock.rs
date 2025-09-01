@@ -35,6 +35,7 @@ pub fn connected_state(timestamp: Instant) -> ConnState {
         Stats {
             tx_bytes: 0,
             rx_bytes: 0,
+            last_handshake_time: None,
         },
     );
     ConnState::Connected {
@@ -65,6 +66,7 @@ impl MockTunnel {
             Stats {
                 tx_bytes: 0,
                 rx_bytes: 0,
+                last_handshake_time: None,
             },
         );
         let peers = std::sync::Mutex::new(map);
@@ -89,6 +91,7 @@ impl MockTunnel {
                     Stats {
                         tx_bytes: 0,
                         rx_bytes: 0,
+                        last_handshake_time: None,
                     },
                 );
                 Ok(map)

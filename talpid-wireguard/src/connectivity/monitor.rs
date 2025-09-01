@@ -131,6 +131,7 @@ mod test {
             Stats {
                 tx_bytes: 0,
                 rx_bytes: 0,
+                last_handshake_time: None,
             },
         );
         let tunnel_stats = std::sync::Mutex::new(map);
