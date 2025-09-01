@@ -30,8 +30,10 @@ impl Settings {
     }
 
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
-    pub fn append(&mut self, api_access_method: AccessMethodSetting) {
-        self.custom.push(api_access_method)
+    pub fn append(&mut self, api_access_method: AccessMethodSetting) -> Result<(), Error> {
+        self.check_custom_access_method_name_is_unique(&api_access_method)?;
+        self.custom.push(api_access_method);
+        Ok(())
     }
 
     /// Remove an [`AccessMethod`] from `api_access_methods`.
