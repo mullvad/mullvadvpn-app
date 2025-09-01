@@ -2,6 +2,7 @@ import { GetTextTranslations } from 'gettext-parser';
 
 import { ILinuxSplitTunnelingApplication, ISplitTunnelingApplication } from './application-types';
 import {
+  AccessMethodExistsError,
   AccessMethodSetting,
   AccountDataError,
   AccountNumber,
@@ -203,7 +204,7 @@ export const ipcSchema = {
     updateBridgeSettings: invoke<BridgeSettings, void>(),
     setDnsOptions: invoke<IDnsOptions, void>(),
     setObfuscationSettings: invoke<ObfuscationSettings, void>(),
-    addApiAccessMethod: invoke<NewAccessMethodSetting, string>(),
+    addApiAccessMethod: invoke<NewAccessMethodSetting, string | AccessMethodExistsError>(),
     updateApiAccessMethod: invoke<AccessMethodSetting, void>(),
     removeApiAccessMethod: invoke<string, void>(),
     setApiAccessMethod: invoke<string, void>(),
