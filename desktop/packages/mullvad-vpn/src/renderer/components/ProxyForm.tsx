@@ -137,13 +137,15 @@ function ProxyFormNameField() {
   const { name, setName } = useContext(namedProxyFormContext);
 
   return (
-    <SettingsRow label={messages.gettext('Name')}>
-      <SettingsTextInput
-        defaultValue={name}
-        placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
-        onUpdate={setName}
-      />
-    </SettingsRow>
+    <SettingsGroup>
+      <SettingsRow label={messages.gettext('Name')}>
+        <SettingsTextInput
+          defaultValue={name}
+          placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
+          onUpdate={setName}
+        />
+      </SettingsRow>
+    </SettingsGroup>
   );
 }
 
