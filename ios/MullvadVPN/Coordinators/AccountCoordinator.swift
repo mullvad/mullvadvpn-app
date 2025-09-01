@@ -181,7 +181,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     private func navigateToDeleteAccount() {
         let coordinator = AccountDeletionCoordinator(
             navigationController: CustomNavigationController(),
-            interactor: AccountDeletionInteractor(tunnelManager: interactor.tunnelManager)
+            tunnelManager: interactor.tunnelManager
         )
 
         coordinator.start()

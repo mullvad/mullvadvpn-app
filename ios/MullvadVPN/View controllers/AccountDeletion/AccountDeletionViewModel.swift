@@ -13,19 +13,39 @@ class AccountDeletionViewModel: ObservableObject {
     enum State {
         case initial
         case working
-        case failure(Error)
+        case failure(Swift.Error)
+    }
+
+    enum Error: LocalizedError {
+        case invalidInput
+
+        var errorDescription: String? {
+            switch self {
+            case .invalidInput:
+                return NSLocalizedString("Last four digits of the account number are incorrect", comment: "")
+            }
+        }
     }
 
     @Published var accountNumber: String
     @Published var enteredAccountNumberSuffix = ""
     @Published var state: State = .initial
 
-    var interactor: AccountDeletionInteractor?
+    private let tunnelManager: TunnelManager?
+
     var onConclusion: ((Bool) -> Void)?
 
-    init(accountNumber: String, interactor: AccountDeletionInteractor? = nil, onConclusion: ((Bool) -> Void)? = nil) {
-        self.accountNumber = accountNumber
-        self.interactor = interactor
+    var tunnelManagerAccountNumber: String {
+        tunnelManager?.deviceState.accountData?.number ?? ""
+    }
+
+    var accountNumberSuffix: Substring {
+        accountNumber.suffix(4)
+    }
+
+    init(tunnelManager: TunnelManager? = nil, onConclusion: ((Bool) -> Void)? = nil) {
+        self.accountNumber = tunnelManager?.deviceState.accountData?.number.formattedAccountNumber ?? "testtesttesttest"
+        self.tunnelManager = tunnelManager
         self.onConclusion = onConclusion
     }
 
@@ -48,7 +68,7 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     var canDelete: Bool {
-        !isWorking && enteredAccountNumberSuffix.count == 4 && accountNumber.suffix(4) == enteredAccountNumberSuffix
+        !isWorking && enteredAccountNumberSuffix.count == 4 && accountNumberSuffix == enteredAccountNumberSuffix
     }
 
     var isWorking: Bool {
@@ -58,9 +78,19 @@ class AccountDeletionViewModel: ObservableObject {
         }
     }
 
+    func validate(input: String) -> Result<String, Error> {
+        if let deviceAccountNumber = tunnelManager?.deviceState.accountData?.number,
+           let fourLastDigits = deviceAccountNumber.split(every: 4).last,
+           fourLastDigits == input {
+            return .success(deviceAccountNumber)
+        } else {
+            return .failure(Error.invalidInput)
+        }
+    }
+
     @MainActor func deleteButtonTapped() {
-        guard let interactor else { return }
-        switch interactor.validate(input: enteredAccountNumberSuffix) {
+        guard let tunnelManager else { return }
+        switch validate(input: enteredAccountNumberSuffix) {
         case let .success(accountNumber):
             doDelete(accountNumber: accountNumber)
         case let .failure(error):
@@ -73,16 +103,25 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     @MainActor func doDelete(accountNumber: String) {
-        guard let interactor else { return }
+        guard let tunnelManager else { return }
         state = .working
         Task { [weak self] in
             guard let self else { return }
             do {
-                try await interactor.delete(accountNumber: accountNumber)
+                try await tunnelManager.deleteAccount(accountNumber: accountNumber)
                 self.state = State.initial
                 self.onConclusion?(true)
             } catch {
-                self.state = State.failure(error)
+                if tunnelManager.deviceState.accountData == nil {
+                    // the account is gone from the device, though
+                    // the network call failed. In any case, UI state will
+                    // be broken, so go back to login
+                    self.state = State.initial
+                    self.onConclusion?(true)
+
+                } else {
+                    self.state = State.failure(error)
+                }
             }
         }
     }

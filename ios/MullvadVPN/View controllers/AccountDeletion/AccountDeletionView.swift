@@ -76,5 +76,5 @@ struct AccountDeletionView: View {
 }
 
 #Preview {
-    AccountDeletionView(viewModel: AccountDeletionViewModel(accountNumber: "1234 5678 9012 3456"))
+    AccountDeletionView(viewModel: AccountDeletionViewModel())
 }

@@ -1102,7 +1102,6 @@
 		F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedController.swift */; };
 		F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */; };
 		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
-		F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
 		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
@@ -2557,7 +2556,6 @@
 		F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedController.swift; sourceTree = "<group>"; };
 		F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeInteractor.swift; sourceTree = "<group>"; };
 		F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewModel.swift; sourceTree = "<group>"; };
-		F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionInteractor.swift; sourceTree = "<group>"; };
 		F0EE6E772E4A321B0089DFF3 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequest.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
@@ -4921,7 +4919,6 @@
 		F0E8E4BF2A602C7D00ED26A3 /* AccountDeletion */ = {
 			isa = PBXGroup;
 			children = (
-				F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */,
 				44EE8E052E4CB8B30025196E /* AccountDeletionView.swift */,
 				F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */,
 			);
@@ -6416,7 +6413,6 @@
 				5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				7A8A190A2CE5FFE9000BCB5B /* SettingsDAITAView.swift in Sources */,
-				F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */,
 				449E9A6D2D283A2500F8574A /* ConnectionViewComponentPreview.swift in Sources */,
 				F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */,
 				7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */,
