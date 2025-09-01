@@ -71,15 +71,26 @@ impl Settings {
         &mut self,
         predicate: impl Fn(&AccessMethodSetting) -> bool,
         f: impl FnOnce(&mut AccessMethodSetting),
-    ) -> bool {
+    ) -> Result<bool, Error> {
         let mut updated = false;
+
+        let handle = self.clone();
+        let update_check = |new_access_method| {
+            handle.check_custom_access_method_name_is_unique(new_access_method)?;
+            Ok(())
+        };
+
         if let Some(access_method) = self.iter_mut().find(|setting| predicate(setting)) {
-            f(access_method);
+            let mut new_access_method = access_method.clone();
+            f(&mut new_access_method);
+            update_check(&new_access_method)?;
+            *access_method = new_access_method;
+
             updated = true;
         }
         self.ensure_consistent_state();
 
-        updated
+        Ok(updated)
     }
 
     /// Remove all custom access methods.
