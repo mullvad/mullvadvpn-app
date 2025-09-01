@@ -488,6 +488,8 @@ export type NewCustomList = Pick<ICustomList, 'name' | 'locations'>;
 
 export type CustomListError = { type: 'name already exists' };
 
+export type AccessMethodExistsError = { type: 'name already exists' };
+
 export interface ISettings {
   allowLan: boolean;
   autoConnect: boolean;
