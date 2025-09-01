@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.usecase
 
+import androidx.compose.material3.FilterChip
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
@@ -11,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
 typealias ModelOwnership = Ownership
 
@@ -30,7 +33,7 @@ class FilterChipUseCase(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,
                 providerToOwnerships = providerOwnership,
-                daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
+                settings = settings,
                 relayListType = relayListType,
             )
         }
@@ -39,7 +42,7 @@ class FilterChipUseCase(
         selectedOwnership: Constraint<Ownership>,
         selectedConstraintProviders: Constraint<Providers>,
         providerToOwnerships: Map<ProviderId, Set<Ownership>>,
-        daitaDirectOnly: Boolean,
+        settings: Settings?,
         relayListType: RelayListType,
     ): List<FilterChip> {
         val ownershipFilter = selectedOwnership.getOrNull()
@@ -70,11 +73,16 @@ class FilterChipUseCase(
             }
             if (
                 shouldFilterByDaita(
-                    daitaDirectOnly = daitaDirectOnly,
+                    daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
                     relayListType = relayListType,
                 )
             ) {
                 add(FilterChip.Daita)
+            }
+            if (
+                shouldFilterByQuic(settings?.quicEnabled() == true, relayListType = relayListType)
+            ) {
+                add(FilterChip.Quic)
             }
         }
     }
@@ -82,6 +90,9 @@ class FilterChipUseCase(
     private fun Settings.daitaAndDirectOnly() =
         tunnelOptions.wireguard.daitaSettings.enabled &&
             tunnelOptions.wireguard.daitaSettings.directOnly
+
+    private fun Settings.quicEnabled() =
+        obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
 }
 
 sealed interface FilterChip {
@@ -94,4 +105,6 @@ sealed interface FilterChip {
     data object Entry : FilterChip
 
     data object Exit : FilterChip
+
+    data object Quic : FilterChip
 }
