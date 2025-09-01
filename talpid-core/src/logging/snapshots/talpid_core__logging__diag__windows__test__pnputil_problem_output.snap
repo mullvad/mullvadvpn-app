@@ -6,5 +6,6 @@ snapshot_kind: text
 pnputil.exe "/enum-devices" "/problem" "/format" "csv" (filtered)
 --------
 InstanceId,DeviceDescription,Status,ProblemCode,ProblemStatus,DriverName
-"UEFI\RES_{redacted}\0","Camera Firmware","Problem","10","0xC0210000","oem84.inf"
+UEFI\RES_{redacted}\0,Camera Firmware,Problem,10,0xC0210000,oem84.inf
+
 --------
