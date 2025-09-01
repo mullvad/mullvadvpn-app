@@ -254,7 +254,8 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         #[cfg(feature = "api-override")]
         {
             if api_endpoint.force_direct {
-                access_method_settings
+                // TODO: Properly handle error thrown by the update method
+                let _ = access_method_settings
                     .update(|setting| setting.is_direct(), |setting| setting.enable());
             }
         }
