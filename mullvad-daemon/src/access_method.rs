@@ -81,11 +81,12 @@ impl Daemon {
         access_method: access_method::Id,
     ) -> Result<(), Error> {
         self.settings
-            .update(|settings| {
+            .try_update(|settings| -> Result<(), Error> {
                 settings.api_access_methods.update(
                     |setting| setting.get_id() == access_method,
                     |setting| setting.enable(),
-                );
+                )?;
+                Ok(())
             })
             .await?;
         self.access_mode_handler
@@ -112,16 +113,20 @@ impl Daemon {
     pub async fn update_access_method(
         &mut self,
         access_method_update: AccessMethodSetting,
-    ) -> Result<(), Error> {
+    ) -> Result<(), crate::Error> {
         self.settings
-            .update(|settings: &mut Settings| {
-                let target = access_method_update.get_id();
-                settings.api_access_methods.update(
-                    |access_method| access_method.get_id() == target,
-                    |method| *method = access_method_update,
-                );
-            })
-            .await?;
+            .try_update(
+                |settings: &mut Settings| -> Result<(), access_method::Error> {
+                    let target = access_method_update.get_id();
+                    settings.api_access_methods.update(
+                        |access_method| access_method.get_id() == target,
+                        |method| *method = access_method_update,
+                    )?;
+                    Ok(())
+                },
+            )
+            .await
+            .map_err(crate::Error::SettingsError)?;
 
         Ok(())
     }
