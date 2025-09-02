@@ -14,10 +14,10 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
-  BridgeModeSelector,
+  BridgeModeSetting,
   MssFixSetting,
-  PortSelector,
-  TransportProtocolSelector,
+  OpenVpnPortSetting,
+  TransportProtocolSetting,
 } from './components';
 
 export enum BridgeModeAvailability {
@@ -69,17 +69,17 @@ export function OpenVpnSettingsView() {
               </SettingsHeader>
 
               <Cell.Group>
-                <TransportProtocolSelector />
+                <TransportProtocolSetting />
               </Cell.Group>
 
               {protocol ? (
                 <Cell.Group>
-                  <PortSelector />
+                  <OpenVpnPortSetting />
                 </Cell.Group>
               ) : undefined}
 
               <Cell.Group>
-                <BridgeModeSelector />
+                <BridgeModeSetting />
               </Cell.Group>
 
               <Cell.Group>
