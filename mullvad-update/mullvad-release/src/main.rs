@@ -60,7 +60,7 @@ pub enum Opt {
         assume_yes: bool,
 
         /// Also update the latest.json file
-        #[arg(long, default_value_t = true)]
+        #[arg(long, default_value_t = false)]
         latest_file: bool,
     },
 
