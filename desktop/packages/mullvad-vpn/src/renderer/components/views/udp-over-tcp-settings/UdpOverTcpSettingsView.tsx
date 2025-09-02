@@ -38,7 +38,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export function UdpOverTcp() {
+export function UdpOverTcpSettingsView() {
   const { pop } = useHistory();
 
   return (
