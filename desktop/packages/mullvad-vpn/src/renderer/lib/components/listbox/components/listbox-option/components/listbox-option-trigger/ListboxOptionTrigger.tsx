@@ -102,6 +102,7 @@ export const ListboxOptionTrigger = ({ children, ...props }: ListboxOptionTrigge
       ref={triggerRef}
       role="option"
       aria-selected={selected}
+      aria-disabled={disabled}
       tabIndex={!disabled && selected && focusedValue === undefined ? 0 : -1}
       onClick={!disabled ? onTriggerClick : undefined}
       onKeyDown={handleKeyDown}
