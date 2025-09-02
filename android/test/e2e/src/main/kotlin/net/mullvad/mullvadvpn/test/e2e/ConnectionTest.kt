@@ -251,6 +251,7 @@ class ConnectionTest : EndToEndTest() {
             val quicRelay = relayProvider.getQuicRelay()
             clickLocationExpandButton(quicRelay.country)
             clickLocationExpandButton(quicRelay.city)
+            scrollUntilCell(quicRelay.relay)
             clickLocationCell(quicRelay.relay)
         }
 
