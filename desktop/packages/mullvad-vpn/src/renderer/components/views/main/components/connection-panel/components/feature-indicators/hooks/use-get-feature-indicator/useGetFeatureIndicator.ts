@@ -88,6 +88,42 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
+  const gotoMtuFeature = React.useCallback(() => {
+    history.push(RoutePath.wireguardSettings, {
+      transition: TransitionType.show,
+      options: [
+        {
+          type: 'scroll-to-anchor',
+          id: 'mtu-setting',
+        },
+      ],
+    });
+  }, [history]);
+
+  const gotoQuantumResistantFeature = React.useCallback(() => {
+    history.push(RoutePath.wireguardSettings, {
+      transition: TransitionType.show,
+      options: [
+        {
+          type: 'scroll-to-anchor',
+          id: 'quantum-resistant-setting',
+        },
+      ],
+    });
+  }, [history]);
+
+  const gotoObfuscation = React.useCallback(() => {
+    history.push(RoutePath.wireguardSettings, {
+      transition: TransitionType.show,
+      options: [
+        {
+          type: 'scroll-to-anchor',
+          id: 'obfuscation-setting',
+        },
+      ],
+    });
+  }, [history]);
+
   const featureMap: Record<FeatureIndicator, { label: string; onClick?: () => void }> = {
     [FeatureIndicator.daita]: { label: strings.daita, onClick: gotoDaitaFeature },
     [FeatureIndicator.daitaMultihop]: {
@@ -101,14 +137,20 @@ export const useGetFeatureIndicator = () => {
           DAITA: strings.daita,
         },
       ),
+      onClick: gotoDaitaFeature,
     },
     [FeatureIndicator.udp2tcp]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      onClick: gotoObfuscation,
     },
     [FeatureIndicator.shadowsocks]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      onClick: gotoObfuscation,
     },
-    [FeatureIndicator.quic]: { label: messages.pgettext('wireguard-settings-view', 'Obfuscation') },
+    [FeatureIndicator.quic]: {
+      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      onClick: gotoObfuscation,
+    },
     [FeatureIndicator.multihop]: {
       label:
         // TRANSLATORS: This refers to the multihop setting in the VPN settings view. This is
@@ -123,7 +165,10 @@ export const useGetFeatureIndicator = () => {
         messages.gettext('Custom DNS'),
       onClick: gotoCustomDnsFeature,
     },
-    [FeatureIndicator.customMtu]: { label: messages.pgettext('wireguard-settings-view', 'MTU') },
+    [FeatureIndicator.customMtu]: {
+      label: messages.pgettext('wireguard-settings-view', 'MTU'),
+      onClick: gotoMtuFeature,
+    },
     [FeatureIndicator.bridgeMode]: {
       label: messages.pgettext('openvpn-settings-view', 'Bridge mode'),
     },
@@ -145,10 +190,13 @@ export const useGetFeatureIndicator = () => {
     [FeatureIndicator.serverIpOverride]: {
       label: messages.pgettext('settings-import', 'Server IP override'),
     },
-    [FeatureIndicator.quantumResistance]:
-      // TRANSLATORS: This refers to the quantum resistance setting in the WireGuard settings view.
-      // TRANSLATORS: This is displayed when the feature is on.
-      { label: messages.gettext('Quantum resistance') },
+    [FeatureIndicator.quantumResistance]: {
+      label:
+        // TRANSLATORS: This refers to the quantum resistance setting in the WireGuard settings view.
+        // TRANSLATORS: This is displayed when the feature is on.
+        messages.gettext('Quantum resistance'),
+      onClick: gotoQuantumResistantFeature,
+    },
     [FeatureIndicator.dnsContentBlockers]: {
       label: messages.pgettext('vpn-settings-view', 'DNS content blockers'),
       onClick: gotoDnsContentBlockersFeature,
