@@ -20,6 +20,8 @@ impl Stats {
                             PeerNla::TxBytes(bytes) => tx_bytes = *bytes,
                             PeerNla::RxBytes(bytes) => rx_bytes = *bytes,
                             PeerNla::LastHandshakeTime(time) => {
+                                // handshake_{sec,nsec} are relative to UNIX_EPOCH
+                                // https://www.wireguard.com/xplatform/
                                 last_handshake_time = Some(
                                     UNIX_EPOCH
                                         + Duration::new(

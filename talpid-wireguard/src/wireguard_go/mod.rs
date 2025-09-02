@@ -842,6 +842,8 @@ mod stats {
                     let last_handshake_time = if let (Some(handshake_sec), Some(handshake_nsec)) =
                         (last_handshake_time_sec, last_handshake_time_nsec)
                     {
+                        // handshake_{sec,nsec} are relative to UNIX_EPOCH
+                        // https://www.wireguard.com/xplatform/
                         Some(UNIX_EPOCH + Duration::new(handshake_sec, handshake_nsec))
                     } else {
                         None
