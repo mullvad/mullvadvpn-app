@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Flex } from '../flex';
 import {
   ListItemContent,
   ListItemFooter,
@@ -21,14 +20,12 @@ export type ListItemProps = {
   disabled?: boolean;
   animation?: ListItemAnimation;
   children: React.ReactNode;
-} & React.ComponentPropsWithRef<'div'>;
+};
 
-const ListItem = ({ level = 0, disabled, animation, children, ...props }: ListItemProps) => {
+const ListItem = ({ level = 0, disabled, animation, children }: ListItemProps) => {
   return (
     <ListItemProvider level={level} disabled={disabled} animation={animation}>
-      <Flex $flexDirection="column" $flex={1} {...props}>
-        {children}
-      </Flex>
+      {children}
     </ListItemProvider>
   );
 };

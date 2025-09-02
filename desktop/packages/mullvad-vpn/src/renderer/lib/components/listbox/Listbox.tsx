@@ -13,9 +13,7 @@ function Listbox<T>({ value, onValueChange, children, ...props }: ListboxProps<T
 
   return (
     <ListboxProvider labelId={labelId} value={value} onValueChange={onValueChange}>
-      <ListItem role="listbox" aria-labelledby={labelId} {...props}>
-        {children}
-      </ListItem>
+      <ListItem {...props}>{children}</ListItem>
     </ListboxProvider>
   );
 }

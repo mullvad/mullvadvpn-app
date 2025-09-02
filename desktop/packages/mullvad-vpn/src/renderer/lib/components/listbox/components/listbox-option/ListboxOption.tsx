@@ -1,15 +1,15 @@
 import { ListItem, ListItemProps } from '../../../list-item';
-import { ListItemTriggerProps } from '../../../list-item/components';
-import { ListboxOptionLabel } from './components';
-import { ListboxOptionProvider } from './components/listbox-option-context/ListboxOptionContext';
-import { ListboxOptionIcon } from './components/listbox-option-icon';
-import { ListboxOptionItem } from './components/listbox-option-item/ListboxOptionItem';
-import { ListboxOptionTrigger } from './components/listbox-option-trigger/ListboxOptionTrigger';
+import {
+  ListboxOptionIcon,
+  ListboxOptionItem,
+  ListboxOptionLabel,
+  ListboxOptionProvider,
+  ListboxOptionTrigger,
+} from './components';
 
-export type ListboxOptionProps<T> = ListItemProps &
-  Pick<ListItemTriggerProps, 'onClick'> & {
-    value: T;
-  };
+export type ListboxOptionProps<T> = ListItemProps & {
+  value: T;
+};
 
 function ListboxOption<T>({ value, children, ...props }: ListboxOptionProps<T>) {
   return (

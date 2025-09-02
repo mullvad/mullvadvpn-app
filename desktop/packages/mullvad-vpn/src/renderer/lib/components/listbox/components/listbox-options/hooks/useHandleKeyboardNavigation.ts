@@ -3,23 +3,16 @@ import React from 'react';
 import { useListboxContext } from '../../listbox-context';
 
 export const useHandleKeyboardNavigation = <T>(options: T[]) => {
-  const {
-    value: selectedValue,
-    focusedValue,
-    setFocusedValue,
-    onValueChange,
-  } = useListboxContext<T>();
+  const { value: selectedValue, focusedValue, setFocusedValue } = useListboxContext<T>();
 
   return React.useCallback(
-    async (event: React.KeyboardEvent) => {
-      if (event.key === 'Space' || event.key === 'Enter') {
-        if (onValueChange && focusedValue) {
-          await onValueChange(focusedValue);
-        }
-      }
+    (event: React.KeyboardEvent) => {
+      let value: T;
+      if (focusedValue !== undefined) value = focusedValue;
+      else if (selectedValue !== undefined) value = selectedValue;
+      else value = options[0];
 
       // Use roving tabindex to determine the next focusable option
-      const value = focusedValue || selectedValue || options[0];
       let nextValue: T | undefined;
       if (event.key === 'ArrowUp') {
         event.preventDefault();
@@ -45,6 +38,6 @@ export const useHandleKeyboardNavigation = <T>(options: T[]) => {
         setFocusedValue(nextValue);
       }
     },
-    [focusedValue, selectedValue, options, onValueChange, setFocusedValue],
+    [focusedValue, selectedValue, options, setFocusedValue],
   );
 };
