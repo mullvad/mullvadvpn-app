@@ -2,12 +2,28 @@ package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import net.mullvad.mullvadvpn.lib.map.BuildConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 
 internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val renderer: MapGLRenderer
+    var lifecycle: Lifecycle? = null
+        set(value) {
+            field?.removeObserver(observer)
+            value?.addObserver(observer)
+            field = value
+        }
+
+    private val observer = LifecycleEventObserver { source, event ->
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> onResume()
+            Lifecycle.Event.ON_PAUSE -> onPause()
+            else -> {}
+        }
+    }
 
     init {
         // Create an OpenGL ES 2.0 context
