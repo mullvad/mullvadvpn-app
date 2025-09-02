@@ -25,6 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Set default server based on the current location when the app is started for the first time.
 
+### Changed
+- Enable quantum-resistant tunnels by default (when set to `Automatic`).
+
 
 ## [android/2025.7-beta1] - 2025-08-27
 ### Added
