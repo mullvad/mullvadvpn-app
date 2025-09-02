@@ -1,6 +1,5 @@
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { strings } from '../../../../../../shared/constants';
 import {
@@ -11,22 +10,23 @@ import {
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useAppContext } from '../../../../../context';
+import { useScrollToListItem } from '../../../../../hooks';
+import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription, AriaInputGroup } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
-import Selector, { SelectorItem } from '../../../../cell/Selector';
+import { DefaultListboxOption } from '../../../../default-listbox-option';
+import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
-
-const StyledSelectorContainer = styled.div({
-  flex: 0,
-});
 
 export function BridgeModeSetting() {
   const { setBridgeState: setBridgeStateImpl } = useAppContext();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
   const bridgeState = useSelector((state) => state.settings.bridgeState);
+
+  const id = 'bridge-mode-setting';
+  const ref = React.useRef<HTMLDivElement>(null);
+  const scrollToAnchor = useScrollToListItem(ref, id);
 
   const tunnelProtocol = useMemo(() => {
     const protocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any';
@@ -37,22 +37,6 @@ export function BridgeModeSetting() {
     const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : 'any';
     return protocol === 'any' ? null : protocol;
   }, [relaySettings]);
-
-  const options: SelectorItem<BridgeState>[] = useMemo(
-    () => [
-      {
-        label: messages.gettext('On'),
-        value: 'on',
-        disabled: tunnelProtocol !== 'openvpn' || transportProtocol === 'udp',
-        'data-testid': 'bridge-mode-on',
-      },
-      {
-        label: messages.gettext('Off'),
-        value: 'off',
-      },
-    ],
-    [tunnelProtocol, transportProtocol],
-  );
 
   const setBridgeState = useCallback(
     async (bridgeState: BridgeState) => {
@@ -76,50 +60,56 @@ export function BridgeModeSetting() {
   const footerText = bridgeModeFooterText(bridgeState === 'on', tunnelProtocol, transportProtocol);
 
   return (
-    <>
-      <AriaInputGroup>
-        <StyledSelectorContainer>
-          <Selector
-            title={
+    <Listbox
+      value={bridgeState}
+      onValueChange={onSelectBridgeState}
+      animation={scrollToAnchor?.animation}>
+      <Listbox.Item ref={ref}>
+        <Listbox.Content>
+          <Listbox.Label>
+            {
               // TRANSLATORS: The title for the shadowsocks bridge selector section.
               messages.pgettext('openvpn-settings-view', 'Bridge mode')
             }
-            infoTitle={messages.pgettext('openvpn-settings-view', 'Bridge mode')}
-            details={
-              <>
-                <ModalMessage>
-                  {sprintf(
-                    // TRANSLATORS: This is used as a description for the bridge mode
-                    // TRANSLATORS: setting.
-                    // TRANSLATORS: Available placeholders:
-                    // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
-                    messages.pgettext(
-                      'openvpn-settings-view',
-                      'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder.',
-                    ),
-                    { openvpn: strings.openvpn },
-                  )}
-                </ModalMessage>
-                <ModalMessage>
-                  {messages.gettext('This setting increases latency. Use only if needed.')}
-                </ModalMessage>
-              </>
-            }
-            items={options}
-            value={bridgeState}
-            onSelect={onSelectBridgeState}
-            automaticValue={'auto' as const}
-          />
-        </StyledSelectorContainer>
-        {footerText !== undefined && (
-          <Cell.CellFooter>
-            <AriaDescription>
-              <Cell.CellFooterText>{footerText}</Cell.CellFooterText>
-            </AriaDescription>
-          </Cell.CellFooter>
-        )}
-      </AriaInputGroup>
-    </>
+          </Listbox.Label>
+          <InfoButton>
+            <>
+              <ModalMessage>
+                {sprintf(
+                  // TRANSLATORS: This is used as a description for the bridge mode
+                  // TRANSLATORS: setting.
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+                  messages.pgettext(
+                    'openvpn-settings-view',
+                    'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder.',
+                  ),
+                  { openvpn: strings.openvpn },
+                )}
+              </ModalMessage>
+              <ModalMessage>
+                {messages.gettext('This setting increases latency. Use only if needed.')}
+              </ModalMessage>
+            </>
+          </InfoButton>
+        </Listbox.Content>
+      </Listbox.Item>
+      <Listbox.Options>
+        <DefaultListboxOption value={'auto'}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        <DefaultListboxOption
+          value={'on'}
+          disabled={tunnelProtocol !== 'openvpn' || transportProtocol === 'udp'}
+          data-testid="bridge-mode-on">
+          {messages.gettext('On')}
+        </DefaultListboxOption>
+        <DefaultListboxOption value={'off'}>{messages.gettext('Off')}</DefaultListboxOption>
+      </Listbox.Options>
+      {footerText !== undefined && (
+        <Listbox.Footer>
+          <Listbox.Text>{footerText}</Listbox.Text>
+        </Listbox.Footer>
+      )}
+    </Listbox>
   );
 }
 
