@@ -1,1 +1,1 @@
-export * from './UdpOverTcp';
+export * from './UdpOverTcpSettingsView';
