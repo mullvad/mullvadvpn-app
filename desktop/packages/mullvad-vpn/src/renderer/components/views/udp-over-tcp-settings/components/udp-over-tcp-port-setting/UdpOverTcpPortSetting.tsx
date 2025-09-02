@@ -7,15 +7,18 @@ import {
 } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
+import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useSelector } from '../../../../../redux/store';
-import { AriaInputGroup } from '../../../../AriaGroup';
-import Selector, { SelectorItem } from '../../../../cell/Selector';
+import { SelectorItem } from '../../../../cell/Selector';
+import { DefaultListboxOption } from '../../../../default-listbox-option';
+import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
-import {
-  mapPortToSelectorItem,
-  StyledSelectorContainer,
-  UDP2TCP_PORTS,
-} from '../../UdpOverTcpSettingsView';
+
+const UDP2TCP_PORTS = [80, 5001];
+
+function mapPortToSelectorItem(value: number): SelectorItem<number> {
+  return { label: value.toString(), value };
+}
 
 export function UdpOverTcpPortSetting() {
   const { setObfuscationSettings } = useAppContext();
@@ -41,26 +44,35 @@ export function UdpOverTcpPortSetting() {
   );
 
   return (
-    <AriaInputGroup>
-      <StyledSelectorContainer>
-        <Selector
-          // TRANSLATORS: The title for the UDP-over-TCP port selector.
-          title={messages.pgettext('wireguard-settings-view', 'UDP-over-TCP port')}
-          details={
+    <Listbox value={port} onValueChange={selectPort}>
+      <Listbox.Item>
+        <Listbox.Content>
+          <Listbox.Label>
+            {
+              // TRANSLATORS: The title for the WireGuard port selector.
+              messages.pgettext('wireguard-settings-view', 'Port')
+            }
+          </Listbox.Label>
+          <InfoButton>
             <ModalMessage>
               {messages.pgettext(
                 'wireguard-settings-view',
                 'Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.',
               )}
             </ModalMessage>
-          }
-          items={portItems}
-          value={port}
-          onSelect={selectPort}
-          thinTitle
-          automaticValue={'any' as const}
-        />
-      </StyledSelectorContainer>
-    </AriaInputGroup>
+          </InfoButton>
+        </Listbox.Content>
+      </Listbox.Item>
+      <Listbox.Options>
+        <DefaultListboxOption value={'any'}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        {portItems.map((item) => {
+          return (
+            <DefaultListboxOption key={item.value} value={item.value}>
+              {item.label}
+            </DefaultListboxOption>
+          );
+        })}
+      </Listbox.Options>
+    </Listbox>
   );
 }
