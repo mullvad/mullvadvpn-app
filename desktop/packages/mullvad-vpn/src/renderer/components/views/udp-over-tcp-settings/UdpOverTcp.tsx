@@ -1,21 +1,25 @@
 import { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
-import { liftConstraint, LiftedConstraint, wrapConstraint } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaInputGroup } from './AriaGroup';
-import * as Cell from './cell';
-import Selector, { SelectorItem } from './cell/Selector';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { ModalMessage } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import {
+  liftConstraint,
+  LiftedConstraint,
+  wrapConstraint,
+} from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaInputGroup } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import Selector, { SelectorItem } from '../../cell/Selector';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { ModalMessage } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const UDP2TCP_PORTS = [80, 5001];
 
@@ -34,7 +38,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export default function UdpOverTcp() {
+export function UdpOverTcp() {
   const { pop } = useHistory();
 
   return (
