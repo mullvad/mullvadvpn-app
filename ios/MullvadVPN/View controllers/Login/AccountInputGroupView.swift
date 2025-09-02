@@ -98,7 +98,7 @@ final class AccountInputGroupView: UIView {
         button.configuration?
             .titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributeContainer in
                 var updatedAttributeContainer = attributeContainer
-                updatedAttributeContainer.font = .mullvadMedium
+                updatedAttributeContainer.font = UIFont.mullvadMedium
                 updatedAttributeContainer.foregroundColor = .AccountTextField.NormalState.textColor
                 return updatedAttributeContainer
             }
