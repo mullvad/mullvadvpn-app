@@ -1,33 +1,63 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../../../foundations';
-import { ListItem } from '../../../../../list-item';
-import { ListItemTriggerProps } from '../../../../../list-item/components';
+import { useListItem } from '../../../../../list-item/ListItemContext';
 import { useListboxContext } from '../../../listbox-context';
-import { useListboxOptionContext } from '../listbox-option-context/ListboxOptionContext';
-import { StyledListItemOptionItem } from '../listbox-option-item/ListboxOptionItem';
+import { useListboxOptionContext } from '../';
+import { StyledListItemOptionItem } from '../';
 
-export type ListboxOptionTriggerProps = ListItemTriggerProps;
+export type ListboxOptionTriggerProps = React.ComponentPropsWithRef<'li'>;
 
-export const StyledListItemOptionTrigger = styled(ListItem.Trigger)`
-  &&[aria-selected='true'] {
-    &:hover {
-      ${StyledListItemOptionItem} {
-        background-color: ${colors.green};
-      }
-    }
-    &:active {
-      ${StyledListItemOptionItem} {
-        background-color: ${colors.green};
-      }
-    }
+export const StyledListItemOptionTrigger = styled.li<{ $disabled?: boolean }>`
+  display: flex;
+  width: 100%;
+  background-color: transparent;
+
+  &&:focus-visible {
+    outline: 2px solid ${colors.white};
+    outline-offset: -2px;
+    z-index: 10;
   }
+
+  ${({ $disabled }) => {
+    if (!$disabled) {
+      return css`
+        &&:hover {
+          ${StyledListItemOptionItem} {
+            background-color: ${colors.whiteOnBlue10};
+          }
+        }
+
+        &&:active {
+          ${StyledListItemOptionItem} {
+            background-color: ${colors.whiteOnBlue20};
+          }
+        }
+
+        &&[aria-selected='true'] {
+          &:hover {
+            ${StyledListItemOptionItem} {
+              background-color: ${colors.green};
+            }
+          }
+          &:active {
+            ${StyledListItemOptionItem} {
+              background-color: ${colors.green};
+            }
+          }
+        }
+      `;
+    }
+
+    return null;
+  }}
 `;
 
 export const ListboxOptionTrigger = ({ children, ...props }: ListboxOptionTriggerProps) => {
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
   const { value } = useListboxOptionContext();
+  const { disabled } = useListItem();
+  const triggerRef = React.useRef<HTMLLIElement>(null);
 
   const {
     value: selectedValue,
@@ -55,15 +85,28 @@ export const ListboxOptionTrigger = ({ children, ...props }: ListboxOptionTrigge
     setFocusedValue(value);
   }, [focused, setFocusedValue, value]);
 
-  // TODO: can focus logic be cleaned up?
+  const handleKeyDown = React.useCallback(
+    async (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (onValueChange) {
+          await onValueChange(value);
+        }
+      }
+    },
+    [onValueChange, value],
+  );
+
   return (
     <StyledListItemOptionTrigger
       ref={triggerRef}
       role="option"
       aria-selected={selected}
-      tabIndex={selected && focusedValue === undefined ? 0 : -1}
-      onClick={onTriggerClick}
+      tabIndex={!disabled && selected && focusedValue === undefined ? 0 : -1}
+      onClick={!disabled ? onTriggerClick : undefined}
+      onKeyDown={handleKeyDown}
       onFocus={onFocus}
+      $disabled={disabled}
       {...props}>
       {children}
     </StyledListItemOptionTrigger>

@@ -1,10 +1,11 @@
+import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
 import { useAnimation, useBackgroundColor } from './hooks';
 
-export interface ListItemItemProps {
+export type ListItemItemProps = {
   children: React.ReactNode;
-}
+} & React.ComponentPropsWithRef<'div'>;
 
 export const StyledListItemItem = styled.div<{
   $backgroundColor: string;
