@@ -113,10 +113,12 @@ class SelectLocationViewModel(
         return hasRelayListItems && !(isMultihopEntry && settings?.entryBlocked() == true)
     }
 
-    private fun showFilterRow(relayListSelection: RelayListType, settings: Settings?) =
-        relayListSelection is RelayListType.Multihop &&
-            relayListSelection.multihopRelayListType == MultihopRelayListType.EXIT &&
-            settings?.entryBlocked() == true
+    private fun showFilterRow(relayListSelection: RelayListType, settings: Settings?): Boolean {
+        val isMultihopEntry =
+            relayListSelection is RelayListType.Multihop &&
+                relayListSelection.multihopRelayListType == MultihopRelayListType.ENTRY
+        return !(isMultihopEntry && settings?.entryBlocked() == true)
+    }
 
     fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
         viewModelScope.launch { _relayListType.emit(RelayListType.Multihop(multihopRelayListType)) }

@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
+import net.mullvad.mullvadvpn.util.customDnsAddresses
 import org.apache.commons.validator.routines.InetAddressValidator
 
 sealed interface DnsDialogSideEffect {
@@ -80,7 +81,9 @@ class DnsDialogViewModel(
                 DnsDialogViewState(
                     input = input,
                     validationError =
-                        input.validateDnsEntry(currentIndex, settings.addresses()).leftOrNull(),
+                        input
+                            .validateDnsEntry(currentIndex, settings.customDnsAddresses())
+                            .leftOrNull(),
                     isAllowLanEnabled = settings.allowLan,
                     isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
                     index = currentIndex,
@@ -168,8 +171,6 @@ class DnsDialogViewModel(
                 entry == this
             }
         }
-
-    private fun Settings.addresses() = tunnelOptions.dnsOptions.customOptions.addresses
 
     companion object {
         private const val EMPTY_STRING = ""

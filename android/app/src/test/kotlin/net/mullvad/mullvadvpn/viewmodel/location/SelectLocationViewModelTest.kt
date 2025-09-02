@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -40,6 +41,7 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
@@ -84,6 +86,7 @@ class SelectLocationViewModelTest {
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
         mockkStatic(CUSTOM_LIST_EXTENSIONS)
+        mockkStatic(SETTINGS_UTIL_EXTENSIONS)
         viewModel =
             SelectLocationViewModel(
                 relayListFilterRepository = mockRelayListFilterRepository,
@@ -300,6 +303,43 @@ class SelectLocationViewModelTest {
             }
         }
 
+    @Test
+    fun `given entry blocked should not emit any filter if in entry list`() = runTest {
+        // Arrange
+        val mockSettings = mockk<Settings>(relaxed = true)
+        settings.value = mockSettings
+        every { mockSettings.entryBlocked() } returns true
+        filterChips.value = listOf(FilterChip.Quic, FilterChip.Daita)
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem() // Initial state
+            viewModel.selectRelayList(MultihopRelayListType.ENTRY)
+            val state = awaitItem()
+            assertIs<Lc.Content<SelectLocationUiState>>(state)
+            assert(state.value.filterChips.isEmpty())
+        }
+    }
+
+    @Test
+    fun `given entry blocked should emit filters if in exit list`() = runTest {
+        // Arrange
+        val mockSettings = mockk<Settings>(relaxed = true)
+        val expectedFilters = listOf(FilterChip.Ownership(ModelOwnership.MullvadOwned))
+        settings.value = mockSettings
+        every { mockSettings.entryBlocked() } returns true
+        filterChips.value = expectedFilters
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem() // Initial state
+            viewModel.selectRelayList(MultihopRelayListType.EXIT)
+            val state = awaitItem()
+            assertIs<Lc.Content<SelectLocationUiState>>(state)
+            assertLists(expectedFilters, state.value.filterChips)
+        }
+    }
+
     companion object {
         private const val RELAY_LIST_EXTENSIONS =
             "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
@@ -307,5 +347,7 @@ class SelectLocationViewModelTest {
             "net.mullvad.mullvadvpn.relaylist.RelayItemExtensionsKt"
         private const val CUSTOM_LIST_EXTENSIONS =
             "net.mullvad.mullvadvpn.relaylist.CustomListExtensionsKt"
+        private const val SETTINGS_UTIL_EXTENSIONS =
+            "net.mullvad.mullvadvpn.viewmodel.location.SettingsUtilKt"
     }
 }

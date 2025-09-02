@@ -67,7 +67,7 @@ class SelectLocationListViewModelTest {
             filteredCustomListRelayItems
         every { mockCustomListRelayItemsUseCase() } returns customListRelayItems
         every { mockSettingsRepository.settingsUpdates } returns settings
-        every { recentsUseCase() } returns recentsRelayItems
+        every { recentsUseCase(any()) } returns recentsRelayItems
     }
 
     @Test

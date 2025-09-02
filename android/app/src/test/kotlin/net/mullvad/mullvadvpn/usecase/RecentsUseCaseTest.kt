@@ -47,67 +47,65 @@ class RecentsUseCaseTest {
 
     @Test
     fun `given null settings when invoke then emit null`() = runTest {
+        // Arrange
         settingsFlow.value = null
         every { customListsRelayItemUseCase(any()) } returns flowOf(emptyList())
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
-        useCase().test { assertNull(awaitItem()) }
+        // Act, Assert
+        useCase(isMultihop = false).test { assertNull(awaitItem()) }
     }
 
     @Test
     fun `given recents disabled when invoke then emit null`() = runTest {
+        // Arrange
         settingsFlow.value = mockk<Settings> { every { recents } returns Recents.Disabled }
         every { customListsRelayItemUseCase(any()) } returns flowOf(emptyList())
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
-        useCase().test { assertNull(awaitItem()) }
+        // Act, Assert
+        useCase(isMultihop = false).test { assertNull(awaitItem()) }
     }
 
     @Test
     fun `given recents enabled but empty when invoke then emit empty list`() = runTest {
+        // Arrange
         settingsFlow.value =
             mockk<Settings> { every { recents } returns Recents.Enabled(emptyList()) }
         every { customListsRelayItemUseCase(any()) } returns flowOf(emptyList())
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
-        useCase().test { assertEquals(emptyList(), awaitItem()) }
+        // Act, Assert
+        useCase(isMultihop = false).test { assertEquals(emptyList(), awaitItem()) }
+    }
+
+    @Test
+    fun `given recent custom list with no children should not emit that recent`() = runTest {
+        // Arrange
+        val id = CustomListId("id")
+        val customList =
+            RelayItem.CustomList(
+                customList =
+                    CustomList(
+                        id = id,
+                        name = CustomListName.fromString("name"),
+                        locations = emptyList(),
+                    ),
+                locations = emptyList(),
+            )
+        val recent = Recent.Singlehop(location = id)
+        settingsFlow.value =
+            mockk<Settings> { every { recents } returns Recents.Enabled(listOf(recent)) }
+        every { customListsRelayItemUseCase(any()) } returns flowOf(listOf(customList))
+        every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
+
+        useCase(isMultihop = false).test { assertEquals(emptyList(), awaitItem()) }
     }
 
     @Test
     fun `given recents enabled when invoke then emit hops based on the relay item filters`() =
         runTest {
-            val swedenId = GeoLocationId.Country("se")
-            val stockholmId = GeoLocationId.City(swedenId, "sto")
-            val sweden =
-                RelayItem.Location.Country(
-                    id = swedenId,
-                    name = "Sweden",
-                    cities =
-                        listOf(
-                            RelayItem.Location.City(
-                                id = stockholmId,
-                                name = "Stockholm",
-                                relays = emptyList(),
-                            )
-                        ),
-                )
-
-            val norwayId = GeoLocationId.Country("no")
-            val norway =
-                RelayItem.Location.Country(id = norwayId, name = "Norway", cities = emptyList())
-
-            val entryCustomListId = CustomListId("custom")
-            val customList =
-                CustomList(
-                    id = entryCustomListId,
-                    name = CustomListName.fromString("Custom"),
-                    locations = listOf(swedenId, norwayId),
-                )
-            val entryCustomList =
-                RelayItem.CustomList(customList = customList, locations = emptyList())
-
-            val singleHopRecent = Recent.Singlehop(stockholmId)
-            val multiHopRecent = Recent.Multihop(entry = entryCustomListId, exit = norwayId)
+            val singleHopRecent = Recent.Singlehop(STOCKHOLM_ID)
             val filteredOutRecent =
                 Recent.Singlehop(
                     GeoLocationId.City(country = GeoLocationId.Country("xx"), code = "xx-xxx-xx")
@@ -116,30 +114,72 @@ class RecentsUseCaseTest {
             settingsFlow.value =
                 mockk<Settings> {
                     every { recents } returns
-                        Recents.Enabled(listOf(singleHopRecent, multiHopRecent, filteredOutRecent))
+                        Recents.Enabled(listOf(singleHopRecent, filteredOutRecent))
                 }
 
-            every {
-                customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
-            } returns flowOf(listOf(entryCustomList))
-            every {
-                customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
-            } returns flowOf(emptyList())
-            every {
-                filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
-            } returns flowOf(listOf(sweden, norway))
-            every {
-                filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
-            } returns flowOf(listOf(sweden, norway))
+            every { customListsRelayItemUseCase(RelayListType.Single) } returns flowOf(emptyList())
+            every { filteredRelayListUseCase(RelayListType.Single) } returns
+                flowOf(listOf(SWEDEN, NORWAY))
 
-            useCase().test {
+            useCase(isMultihop = false).test {
                 val hops = awaitItem()
 
-                val stockholmCity = sweden.cities.first()
-
-                val expectedHops =
-                    listOf(Hop.Single(stockholmCity), Hop.Multi(entryCustomList, norway))
+                val expectedHops = listOf(Hop.Single(STOCKHOLM))
                 assertEquals(expectedHops, hops)
             }
         }
+
+    @Test
+    fun `given multihop true should filter out singlehop recents`() = runTest {
+        val singleHopRecent = Recent.Singlehop(STOCKHOLM_ID)
+        val multiHopRecent = Recent.Multihop(entry = CUSTOM_LIST_ID, exit = NORWAY_ID)
+
+        settingsFlow.value =
+            mockk<Settings> {
+                every { recents } returns Recents.Enabled(listOf(singleHopRecent, multiHopRecent))
+            }
+
+        every {
+            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+        } returns flowOf(listOf(CUSTOM_LIST_SWE_NO))
+        every {
+            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
+        } returns flowOf(emptyList())
+        every {
+            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+        } returns flowOf(listOf(SWEDEN, NORWAY))
+        every {
+            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
+        } returns flowOf(listOf(SWEDEN, NORWAY))
+
+        useCase(isMultihop = true).test {
+            val hops = awaitItem()
+
+            val expectedHops = listOf(Hop.Multi(CUSTOM_LIST_SWE_NO, NORWAY))
+            assertEquals(expectedHops, hops)
+        }
+    }
+
+    companion object {
+        private val SWEDEN_ID = GeoLocationId.Country("se")
+        private val STOCKHOLM_ID = GeoLocationId.City(SWEDEN_ID, "sto")
+        private val STOCKHOLM =
+            RelayItem.Location.City(id = STOCKHOLM_ID, name = "Stockholm", relays = emptyList())
+        private val SWEDEN =
+            RelayItem.Location.Country(id = SWEDEN_ID, name = "Sweden", cities = listOf(STOCKHOLM))
+        private val NORWAY_ID = GeoLocationId.Country("no")
+        private val NORWAY =
+            RelayItem.Location.Country(id = NORWAY_ID, name = "Norway", cities = emptyList())
+        private val CUSTOM_LIST_ID = CustomListId("custom")
+        private val CUSTOM_LIST_SWE_NO =
+            RelayItem.CustomList(
+                customList =
+                    CustomList(
+                        id = CUSTOM_LIST_ID,
+                        name = CustomListName.fromString("Custom"),
+                        locations = listOf(SWEDEN_ID, NORWAY_ID),
+                    ),
+                locations = listOf(SWEDEN, NORWAY),
+            )
+    }
 }
