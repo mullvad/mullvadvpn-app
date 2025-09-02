@@ -4,10 +4,11 @@ import styled from 'styled-components';
 
 import { wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
+import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
-import { AriaInputGroup } from '../../../../AriaGroup';
-import Selector, { SelectorItem } from '../../../../cell/Selector';
+import { SelectorItem } from '../../../../cell/Selector';
+import { DefaultListboxOption } from '../../../../default-listbox-option';
 
 const UDP_PORTS = [1194, 1195, 1196, 1197, 1300, 1301, 1302];
 const TCP_PORTS = [80, 443];
@@ -54,24 +55,30 @@ export function OpenVpnPortSetting() {
   }
 
   return (
-    <StyledSelectorContainer>
-      <AriaInputGroup>
-        <Selector
-          title={sprintf(
-            // TRANSLATORS: The title for the port selector section.
-            // TRANSLATORS: Available placeholders:
-            // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-            messages.pgettext('openvpn-settings-view', '%(portType)s port'),
-            {
-              portType: protocol.toUpperCase(),
-            },
-          )}
-          items={portItems[protocol]}
-          value={port}
-          onSelect={onSelect}
-          automaticValue={null}
-        />
-      </AriaInputGroup>
-    </StyledSelectorContainer>
+    <Listbox value={port} onValueChange={onSelect}>
+      <Listbox.Item>
+        <Listbox.Content>
+          <Listbox.Label>
+            {sprintf(
+              // TRANSLATORS: The title for the port selector section.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+              messages.pgettext('openvpn-settings-view', '%(portType)s port'),
+              {
+                portType: protocol.toUpperCase(),
+              },
+            )}
+          </Listbox.Label>
+        </Listbox.Content>
+      </Listbox.Item>
+      <Listbox.Options>
+        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        {portItems[protocol].map((item) => (
+          <DefaultListboxOption key={item.value} value={item.value}>
+            {item.label}
+          </DefaultListboxOption>
+        ))}
+      </Listbox.Options>
+    </Listbox>
   );
 }
