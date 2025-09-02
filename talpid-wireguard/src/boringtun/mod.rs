@@ -381,7 +381,7 @@ impl Tunnel for BoringTun {
                     let handshake_sec = peer.last_handshake_time_sec?;
                     let handshake_nsec = peer.last_handshake_time_nsec?;
                     // TODO: Boringtun should probably return a Unix timestamp (like wg-go)
-                    Some(SystemTime::now() + Duration::new(handshake_sec, handshake_nsec))
+                    Some(SystemTime::now() - Duration::new(handshake_sec, handshake_nsec))
                 };
 
                 stats.insert(
