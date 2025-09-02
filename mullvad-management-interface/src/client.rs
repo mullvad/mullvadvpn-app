@@ -654,21 +654,11 @@ fn map_device_error(status: Status) -> Error {
 
 #[cfg(not(target_os = "android"))]
 fn map_custom_list_error(status: Status) -> Error {
-    match status.code() {
-        Code::NotFound => {
-            if status.details() == crate::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS {
-                Error::CustomListListNotFound
-            } else {
-                Error::Rpc(Box::new(status))
-            }
+    match (status.code(), status.details()) {
+        (Code::NotFound, crate::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS) => {
+            Error::CustomListListNotFound
         }
-        Code::AlreadyExists => {
-            if status.details() == crate::CUSTOM_LIST_LIST_EXISTS_DETAILS {
-                Error::CustomListExists
-            } else {
-                Error::Rpc(Box::new(status))
-            }
-        }
+        (Code::AlreadyExists, crate::CUSTOM_LIST_LIST_EXISTS_DETAILS) => Error::CustomListExists,
         _other => Error::Rpc(Box::new(status)),
     }
 }
