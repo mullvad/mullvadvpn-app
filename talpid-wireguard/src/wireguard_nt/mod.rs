@@ -1073,13 +1073,10 @@ impl Tunnel for WgNtTunnel {
                 super::TunnelError::GetConfigError
             })?;
             for (peer, _allowed_ips) in &peers {
-                let last_handshake_time = if peer.last_handshake > 0 {
-                    // last_handshake is in 100s of ns relative to 1601-01-01 UTC
-                    // https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h?id=30a2817d913460ed8a23388d3da485cf9347afa3#n246
-                    Some(filetime_to_systemtime(peer.last_handshake))
-                } else {
-                    None
-                };
+                // last_handshake is in 100s of ns relative to 1601-01-01 UTC
+                // https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h?id=30a2817d913460ed8a23388d3da485cf9347afa3#n246
+                let last_handshake_time =
+                    (peer.last_handshake > 0).then(|| filetime_to_systemtime(peer.last_handshake));
 
                 map.insert(
                     peer.public_key,
