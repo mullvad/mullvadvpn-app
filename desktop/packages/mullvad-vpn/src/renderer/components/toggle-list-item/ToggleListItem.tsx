@@ -1,4 +1,5 @@
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
+import { ListItemItemProps } from '../../lib/components/list-item/components';
 import { Switch, SwitchProps } from '../../lib/components/switch';
 import { ToggleListItemLabel, ToggleListItemSwitch } from './components';
 
@@ -6,9 +7,10 @@ export type ToggleListItemProps = ListItemProps & {
   footer?: string;
   checked?: SwitchProps['checked'];
   onCheckedChange?: SwitchProps['onCheckedChange'];
-};
+} & Pick<ListItemItemProps, 'ref'>;
 
 function ToggleListItem({
+  ref,
   children,
   footer,
   checked,
@@ -18,7 +20,7 @@ function ToggleListItem({
 }: ToggleListItemProps) {
   return (
     <ListItem disabled={disabled} {...props}>
-      <ListItem.Item>
+      <ListItem.Item ref={ref}>
         <ListItem.Content>
           <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled}>
             {children}
