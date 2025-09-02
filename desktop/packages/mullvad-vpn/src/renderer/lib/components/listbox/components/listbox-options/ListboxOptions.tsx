@@ -8,20 +8,20 @@ export type ListboxOptionsProps = {
 };
 
 export function ListboxOptions({ children }: ListboxOptionsProps) {
-  const { setFocusedValue } = useListboxContext();
-  const ref = React.useRef<HTMLDivElement>(null);
+  const { labelId, setFocusedValue } = useListboxContext();
+  const ref = React.useRef<HTMLUListElement>(null);
   const values = useChildrenValues(children);
 
   const handleKeyboardNavigation = useHandleKeyboardNavigation(values);
   const onKeyDown = React.useCallback(
-    async (event: React.KeyboardEvent) => {
-      await handleKeyboardNavigation(event);
+    (event: React.KeyboardEvent) => {
+      handleKeyboardNavigation(event);
     },
     [handleKeyboardNavigation],
   );
 
   const onBlur = React.useCallback(
-    (e: React.FocusEvent<HTMLDivElement>) => {
+    (e: React.FocusEvent<HTMLUListElement>) => {
       const container = ref.current;
       const nextFocus = e.relatedTarget as Node | null;
 
@@ -34,8 +34,8 @@ export function ListboxOptions({ children }: ListboxOptionsProps) {
   );
 
   return (
-    <div ref={ref} onKeyDown={onKeyDown} onBlur={onBlur}>
+    <ul ref={ref} role="listbox" onKeyDown={onKeyDown} onBlur={onBlur} aria-labelledby={labelId}>
       {children}
-    </div>
+    </ul>
   );
 }

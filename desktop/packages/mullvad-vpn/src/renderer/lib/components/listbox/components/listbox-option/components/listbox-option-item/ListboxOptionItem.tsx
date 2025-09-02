@@ -4,7 +4,7 @@ import { colors } from '../../../../../../foundations';
 import { ListItem } from '../../../../../list-item';
 import { ListItemItemProps } from '../../../../../list-item/components';
 import { useListboxContext } from '../../../listbox-context';
-import { useListboxOptionContext } from '../listbox-option-context/ListboxOptionContext';
+import { useListboxOptionContext } from '../listbox-option-context';
 
 export type ListItemOptionItemProps = ListItemItemProps;
 
