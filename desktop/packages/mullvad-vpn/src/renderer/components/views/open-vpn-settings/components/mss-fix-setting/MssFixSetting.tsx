@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../../../../shared/constants';
@@ -6,9 +6,10 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
+import { useScrollToListItem } from '../../../../../hooks';
+import { ListItem } from '../../../../../lib/components/list-item';
+import { useTextField } from '../../../../../lib/components/text-field';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -16,6 +17,14 @@ const MAX_MSSFIX_VALUE = 1450;
 export function MssFixSetting() {
   const { setOpenVpnMssfix: setOpenVpnMssfixImpl } = useAppContext();
   const mssfix = useSelector((state) => state.settings.openVpn.mssfix);
+
+  const id = 'mss-fix-setting';
+  const ref = React.useRef<HTMLDivElement>(null);
+  const scrollToAnchor = useScrollToListItem(ref, id);
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const labelId = React.useId();
+  const descriptionId = React.useId();
 
   const setOpenVpnMssfix = useCallback(
     async (mssfix?: number) => {
@@ -39,48 +48,76 @@ export function MssFixSetting() {
     [setOpenVpnMssfix],
   );
 
+  const { value, handleChange, invalid, dirty, blur, reset } = useTextField({
+    inputRef,
+    defaultValue: mssfix ? mssfix.toString() : '',
+    format: removeNonNumericCharacters,
+    validate: mssfixIsValid,
+  });
+
+  const handleBlur = React.useCallback(async () => {
+    if (!invalid && dirty) {
+      await onMssfixSubmit(value);
+    }
+    if (invalid) {
+      reset();
+    }
+  }, [dirty, invalid, onMssfixSubmit, reset, value]);
+
+  const handleSubmit = React.useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      if (!invalid) {
+        await onMssfixSubmit(value);
+        blur();
+      }
+    },
+    [blur, invalid, onMssfixSubmit, value],
+  );
+
   return (
-    <AriaInputGroup>
-      <Cell.Container>
-        <AriaLabel>
-          <Cell.InputLabel>{messages.pgettext('openvpn-settings-view', 'Mssfix')}</Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.AutoSizingTextInput
-            initialValue={mssfix ? mssfix.toString() : ''}
-            inputMode={'numeric'}
-            maxLength={4}
-            placeholder={messages.gettext('Default')}
-            onSubmitValue={onMssfixSubmit}
-            validateValue={mssfixIsValid}
-            submitOnBlur={true}
-            modifyValue={removeNonNumericCharacters}
-          />
-        </AriaInput>
-      </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {sprintf(
-              // TRANSLATORS: The hint displayed below the Mssfix input field.
-              // TRANSLATORS: Available placeholders:
-              // TRANSLATORS: %(openvpn)s - will be replaced with "OpenVPN"
-              // TRANSLATORS: %(max)d - the maximum possible mssfix value
-              // TRANSLATORS: %(min)d - the minimum possible mssfix value
-              messages.pgettext(
-                'openvpn-settings-view',
-                'Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d.',
-              ),
-              {
-                openvpn: strings.openvpn,
-                min: MIN_MSSFIX_VALUE,
-                max: MAX_MSSFIX_VALUE,
-              },
-            )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
-    </AriaInputGroup>
+    <ListItem animation={scrollToAnchor?.animation}>
+      <ListItem.Item ref={ref}>
+        <ListItem.Content>
+          <ListItem.Label id={labelId}>
+            {messages.pgettext('openvpn-settings-view', 'Mssfix')}
+          </ListItem.Label>
+          <ListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
+            <ListItem.TextField.Input
+              ref={inputRef}
+              value={value}
+              placeholder={messages.gettext('Default')}
+              inputMode="numeric"
+              maxLength={4}
+              aria-labelledby={labelId}
+              aria-describedby={descriptionId}
+              onBlur={handleBlur}
+              onChange={handleChange}
+            />
+          </ListItem.TextField>
+        </ListItem.Content>
+      </ListItem.Item>
+      <ListItem.Footer>
+        <ListItem.Text id={descriptionId}>
+          {sprintf(
+            // TRANSLATORS: The hint displayed below the Mssfix input field.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(openvpn)s - will be replaced with "OpenVPN"
+            // TRANSLATORS: %(max)d - the maximum possible mssfix value
+            // TRANSLATORS: %(min)d - the minimum possible mssfix value
+            messages.pgettext(
+              'openvpn-settings-view',
+              'Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d.',
+            ),
+            {
+              openvpn: strings.openvpn,
+              min: MIN_MSSFIX_VALUE,
+              max: MAX_MSSFIX_VALUE,
+            },
+          )}
+        </ListItem.Text>
+      </ListItem.Footer>
+    </ListItem>
   );
 }
 
