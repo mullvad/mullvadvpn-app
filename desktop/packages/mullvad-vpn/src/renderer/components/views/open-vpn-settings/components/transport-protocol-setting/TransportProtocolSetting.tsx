@@ -10,7 +10,7 @@ import * as Cell from '../../../../cell';
 import Selector, { SelectorItem } from '../../../../cell/Selector';
 import { StyledSelectorContainer } from '../../OpenVpnSettingsView';
 
-export function TransportProtocolSelector() {
+export function TransportProtocolSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const bridgeState = useSelector((state) => state.settings.bridgeState);

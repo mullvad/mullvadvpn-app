@@ -20,7 +20,7 @@ function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
 
-export function PortSelector() {
+export function OpenVpnPortSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
