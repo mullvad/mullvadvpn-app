@@ -758,7 +758,7 @@ impl Tunnel for WgGoTunnel {
 
 mod stats {
     use super::{Stats, StatsMap};
-    use std::time::{Duration, UNIX_EPOCH};
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
     #[derive(thiserror::Error, Debug, PartialEq)]
     pub enum Error {
@@ -839,14 +839,12 @@ mod stats {
                 if let (Some(peer_val), Some(tx_bytes_val), Some(rx_bytes_val)) =
                     (peer, tx_bytes, rx_bytes)
                 {
-                    let last_handshake_time = if let (Some(handshake_sec), Some(handshake_nsec)) =
-                        (last_handshake_time_sec, last_handshake_time_nsec)
-                    {
+                    let last_handshake_time = || -> Option<SystemTime> {
+                        let handshake_sec = last_handshake_time_sec?;
+                        let handshake_nsec = last_handshake_time_nsec?;
                         // handshake_{sec,nsec} are relative to UNIX_EPOCH
                         // https://www.wireguard.com/xplatform/
                         Some(UNIX_EPOCH + Duration::new(handshake_sec, handshake_nsec))
-                    } else {
-                        None
                     };
 
                     map.insert(
@@ -854,7 +852,7 @@ mod stats {
                         Self {
                             tx_bytes: tx_bytes_val,
                             rx_bytes: rx_bytes_val,
-                            last_handshake_time,
+                            last_handshake_time: last_handshake_time(),
                         },
                     );
                     peer = None;

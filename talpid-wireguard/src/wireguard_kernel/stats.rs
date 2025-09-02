@@ -20,15 +20,19 @@ impl Stats {
                             PeerNla::TxBytes(bytes) => tx_bytes = *bytes,
                             PeerNla::RxBytes(bytes) => rx_bytes = *bytes,
                             PeerNla::LastHandshakeTime(time) => {
+                                let get_last_handshake_time = || -> Option<SystemTime> {
+                                    Some(
+                                        UNIX_EPOCH
+                                            + Duration::new(
+                                                time.tv_sec().try_into()?,
+                                                time.tv_nsec().try_into()?,
+                                            ),
+                                    )
+                                };
+
                                 // handshake_{sec,nsec} are relative to UNIX_EPOCH
                                 // https://www.wireguard.com/xplatform/
-                                last_handshake_time = Some(
-                                    UNIX_EPOCH
-                                        + Duration::new(
-                                            time.tv_sec().try_into().unwrap_or(0),
-                                            time.tv_nsec().try_into().unwrap_or(0),
-                                        ),
-                                );
+                                last_handshake_time = get_last_handshake_time();
                             }
                             PeerNla::PublicKey(key) => pub_key = Some(*key),
                             _ => continue,
