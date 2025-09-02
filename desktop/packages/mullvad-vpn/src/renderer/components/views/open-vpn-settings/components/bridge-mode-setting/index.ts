@@ -1,1 +1,1 @@
-export * from './BridgeModeSelector';
+export * from './BridgeModeSetting';

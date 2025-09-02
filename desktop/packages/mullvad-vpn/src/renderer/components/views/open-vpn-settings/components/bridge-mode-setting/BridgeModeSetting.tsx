@@ -22,7 +22,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export function BridgeModeSelector() {
+export function BridgeModeSetting() {
   const { setBridgeState: setBridgeStateImpl } = useAppContext();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
