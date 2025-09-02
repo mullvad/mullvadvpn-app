@@ -2,31 +2,31 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../shared/constants';
+import { strings } from '../../../../shared/constants';
 import {
   BridgeState,
   RelayProtocol,
   TunnelProtocol,
   wrapConstraint,
-} from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import log from '../../shared/logging';
-import { removeNonNumericCharacters } from '../../shared/string-helpers';
-import { useAppContext } from '../context';
-import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { useHistory } from '../lib/history';
-import { formatHtml } from '../lib/html-formatter';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './cell';
-import Selector, { SelectorItem } from './cell/Selector';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { ModalMessage } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+} from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { removeNonNumericCharacters } from '../../../../shared/string-helpers';
+import { useAppContext } from '../../../context';
+import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
+import { useHistory } from '../../../lib/history';
+import { formatHtml } from '../../../lib/html-formatter';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import Selector, { SelectorItem } from '../../cell/Selector';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { ModalMessage } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -51,7 +51,7 @@ export const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export default function OpenVpnSettings() {
+export function OpenVpnSettings() {
   const { pop } = useHistory();
 
   const relaySettings = useSelector((state) => state.settings.relaySettings);
