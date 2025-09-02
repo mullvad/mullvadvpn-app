@@ -1,0 +1,33 @@
+package net.mullvad.mullvadvpn.util
+
+import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.Settings
+
+fun Settings.quantumResistant() = tunnelOptions.wireguard.quantumResistant
+
+fun Settings.isCustomDnsEnabled() = tunnelOptions.dnsOptions.state == DnsState.Custom
+
+fun Settings.customDnsAddresses() = tunnelOptions.dnsOptions.customOptions.addresses
+
+fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
+
+fun Settings.selectedObfuscationMode() = obfuscationSettings.selectedObfuscationMode
+
+fun Settings.wireguardPort() = relaySettings.relayConstraints.wireguardConstraints.port
+
+fun Settings.deviceIpVersion() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
+
+fun Settings.daitaAndDirectOnly() = daitaEnabled() && daitaDirectOnly()
+
+fun Settings.quicEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
+
+fun Settings.ipVersionConstraint() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
+
+fun Settings.daitaEnabled() = daitaSettings().enabled
+
+fun Settings.daitaDirectOnly() = daitaSettings().directOnly
+
+fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
+
+private fun Settings.daitaSettings() = tunnelOptions.wireguard.daitaSettings

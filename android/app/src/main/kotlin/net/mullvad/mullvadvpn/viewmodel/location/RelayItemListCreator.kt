@@ -121,17 +121,8 @@ private fun createRecentsSection(
 ): List<RelayListItem> = buildList {
     add(RelayListItem.RecentsListHeader)
 
-    val selectionIsSingle = itemSelection is RelayItemSelection.Single
-    val selectionIsMulti = itemSelection is RelayItemSelection.Multiple
-
     val shown =
         recents
-            .filter { recent ->
-                when (recent) {
-                    is Hop.Multi -> selectionIsMulti
-                    is Hop.Single<*> -> selectionIsSingle
-                }
-            }
             .map { recent ->
                 val isSelected = recent.matches(itemSelection, isEntryBlocked)
                 if (isEntryBlocked) {

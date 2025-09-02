@@ -5,13 +5,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.daitaAndDirectOnly
+import net.mullvad.mullvadvpn.util.quicEnabled
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
 import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
@@ -86,13 +87,6 @@ class FilterChipUseCase(
             }
         }
     }
-
-    private fun Settings.daitaAndDirectOnly() =
-        tunnelOptions.wireguard.daitaSettings.enabled &&
-            tunnelOptions.wireguard.daitaSettings.directOnly
-
-    private fun Settings.quicEnabled() =
-        obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
 }
 
 sealed interface FilterChip {

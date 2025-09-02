@@ -16,9 +16,9 @@ import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsUiState
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.shadowSocksPort
 import net.mullvad.mullvadvpn.util.toLc
 
 class ShadowsocksSettingsViewModel(private val settingsRepository: SettingsRepository) :
@@ -31,7 +31,7 @@ class ShadowsocksSettingsViewModel(private val settingsRepository: SettingsRepos
                 settings,
                 customPort ->
                 ShadowsocksSettingsUiState(
-                        port = settings.getShadowSocksPort(),
+                        port = settings.shadowSocksPort(),
                         customPort = customPort,
                     )
                     .toLc<Unit, ShadowsocksSettingsUiState>()
@@ -46,7 +46,7 @@ class ShadowsocksSettingsViewModel(private val settingsRepository: SettingsRepos
         viewModelScope.launch {
             val initialSettings = settingsRepository.settingsUpdates.filterNotNull().first()
             customPort.update {
-                val initialPort = initialSettings.getShadowSocksPort()
+                val initialPort = initialSettings.shadowSocksPort()
                 if (initialPort.getOrNull() !in SHADOWSOCKS_PRESET_PORTS) {
                     initialPort.getOrNull()
                 } else {
@@ -79,6 +79,4 @@ class ShadowsocksSettingsViewModel(private val settingsRepository: SettingsRepos
             }
         }
     }
-
-    private fun Settings.getShadowSocksPort() = obfuscationSettings.shadowsocks.port
 }
