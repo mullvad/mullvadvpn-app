@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { DeviceEvent } from '../../../src/shared/daemon-rpc-types';
 import { RoutesObjectModel } from '../route-object-models';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
@@ -18,9 +17,9 @@ test.describe('Clear account history warnings', () => {
   };
 
   const logout = async () => {
-    await util.sendMockIpcResponse<DeviceEvent>({
-      channel: util.ipcEvents.account.device,
-      response: { type: 'logged out', deviceState: { type: 'logged out' } },
+    await util.ipc.account.device.notify({
+      type: 'logged out',
+      deviceState: { type: 'logged out' },
     });
 
     await routes.login.waitForRoute();
@@ -40,20 +39,14 @@ test.describe('Clear account history warnings', () => {
   });
 
   const setAccountHistory = async () => {
-    await util.sendMockIpcResponse({
-      channel: util.ipcEvents.accountHistory[''],
-      response: '1234123412341234',
-    });
+    await util.ipc.accountHistory[''].notify('1234123412341234');
   };
 
   test('Should not warn about creating an account', async () => {
     const accountHistoryItemButton = routes.login.getAccountHistoryItemButton();
     await expect(accountHistoryItemButton).not.toBeVisible();
 
-    await Promise.all([
-      util.expectIpcCall(util.ipcEvents.account.create),
-      routes.login.createNewAccount(),
-    ]);
+    await Promise.all([util.ipc.account.create.expect(), routes.login.createNewAccount()]);
   });
 
   test('Should warn about creating an account', async () => {
@@ -68,10 +61,7 @@ test.describe('Clear account history warnings', () => {
 
     await routes.login.createNewAccount();
 
-    await Promise.all([
-      util.expectIpcCall(util.ipcEvents.account.create),
-      routes.login.confirmCreateNewAccount(),
-    ]);
+    await Promise.all([util.ipc.account.create.expect(), routes.login.confirmCreateNewAccount()]);
   });
 
   test('Should warn about clearing account history', async () => {
@@ -90,14 +80,11 @@ test.describe('Clear account history warnings', () => {
 
     await routes.login.clearAccountHistory();
     await Promise.all([
-      util.expectIpcCall(util.ipcEvents.accountHistory.clear),
+      util.ipc.accountHistory.clear.expect(),
       routes.login.confirmClearAccountHistory(),
     ]);
 
-    await util.sendMockIpcResponse({
-      channel: util.ipcEvents.accountHistory[''],
-      response: undefined,
-    });
+    await util.ipc.accountHistory[''].notify(undefined);
     await expect(accountHistoryItemButton).not.toBeVisible();
   });
 });
