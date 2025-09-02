@@ -1,20 +1,15 @@
 import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { strings } from '../../../../../../shared/constants';
 import { IpVersion, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
+import { useScrollToListItem } from '../../../../../hooks';
+import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription, AriaInputGroup } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
-import Selector, { SelectorItem } from '../../../../cell/Selector';
-
-const StyledSelectorContainer = styled.div({
-  flex: 0,
-});
+import { DefaultListboxOption } from '../../../../default-listbox-option';
 
 export function IpVersionSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
@@ -24,19 +19,7 @@ export function IpVersionSetting() {
     return ipVersion === 'any' ? null : ipVersion;
   }, [relaySettings]);
 
-  const ipVersionItems: SelectorItem<IpVersion>[] = useMemo(
-    () => [
-      {
-        label: messages.gettext('IPv4'),
-        value: 'ipv4',
-      },
-      {
-        label: messages.gettext('IPv6'),
-        value: 'ipv6',
-      },
-    ],
-    [],
-  );
+  const scrollToAnchor = useScrollToListItem();
 
   const setIpVersion = useCallback(
     async (ipVersion: IpVersion | null) => {
@@ -54,33 +37,36 @@ export function IpVersionSetting() {
   );
 
   return (
-    <AriaInputGroup>
-      <StyledSelectorContainer>
-        <Selector
-          // TRANSLATORS: The title for the WireGuard IP version selector.
-          title={messages.pgettext('wireguard-settings-view', 'IP version')}
-          items={ipVersionItems}
-          value={ipVersion}
-          onSelect={setIpVersion}
-          automaticValue={null}
-        />
-      </StyledSelectorContainer>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {sprintf(
-              // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
-              // TRANSLATORS: Available placeholders:
-              // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-              messages.pgettext(
-                'wireguard-settings-view',
-                'This allows access to %(wireguard)s for devices that only support IPv6.',
-              ),
-              { wireguard: strings.wireguard },
-            )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
-    </AriaInputGroup>
+    <Listbox value={ipVersion} onValueChange={setIpVersion} animation={scrollToAnchor?.animation}>
+      <Listbox.Item>
+        <Listbox.Content>
+          <Listbox.Label>
+            {
+              // TRANSLATORS: The title for the WireGuard IP version selector.
+              messages.pgettext('wireguard-settings-view', 'IP version')
+            }
+          </Listbox.Label>
+        </Listbox.Content>
+      </Listbox.Item>
+      <Listbox.Options>
+        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        <DefaultListboxOption value={'ipv4'}>{messages.gettext('IPv4')}</DefaultListboxOption>
+        <DefaultListboxOption value={'ipv6'}>{messages.gettext('IPv6')}</DefaultListboxOption>
+      </Listbox.Options>
+      <Listbox.Footer>
+        <Listbox.Text>
+          {sprintf(
+            // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+            messages.pgettext(
+              'wireguard-settings-view',
+              'This allows access to %(wireguard)s for devices that only support IPv6.',
+            ),
+            { wireguard: strings.wireguard },
+          )}
+        </Listbox.Text>
+      </Listbox.Footer>
+    </Listbox>
   );
 }
