@@ -603,7 +603,7 @@ impl RelaySelector {
     /// This function defines the merge between a set of pre-defined queries and `user_preferences`
     /// for the given `retry_attempt`.
     ///
-    /// This algorithm will loop back to the start of `retry_order` if `retry_attempt <
+    /// This algorithm will loop back to the start of `retry_order` if `retry_attempt >
     /// retry_order.len()`. If `user_preferences` is not compatible with any of the pre-defined
     /// queries in `retry_order`, `user_preferences` is returned.
     ///
@@ -630,7 +630,7 @@ impl RelaySelector {
             .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
-            .ok_or(Error::NoRelay)
+            .ok_or_else(|| Error::NoRelay(Box::new(user_query)))
     }
 
     /// "Execute" the given query, yielding a final set of relays and/or bridges which the VPN
@@ -735,7 +735,7 @@ impl RelaySelector {
                         )?;
                         WireguardConfig::from(multihop)
                     } else {
-                        return Err(Error::NoRelay);
+                        return Err(Error::NoRelay(Box::new(query.clone())));
                     }
                 }
             }
@@ -791,7 +791,8 @@ impl RelaySelector {
 
         let exit_candidates =
             filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
-        let exit = helpers::pick_random_relay(&exit_candidates).ok_or(Error::NoRelay)?;
+        let exit = helpers::pick_random_relay(&exit_candidates)
+            .ok_or_else(|| Error::NoRelay(Box::new(exit_relay_query)))?;
 
         // generate a list of potential entry relays, disregarding any location constraint
         let mut entry_query = query.clone();
@@ -815,8 +816,8 @@ impl RelaySelector {
             .take_while(|relay| relay.distance <= smallest_distance)
             .map(|relay_with_distance| relay_with_distance.relay)
             .collect_vec();
-        let entry =
-            helpers::pick_random_relay_excluding(&entry_candidates, exit).ok_or(Error::NoRelay)?;
+        let entry = helpers::pick_random_relay_excluding(&entry_candidates, exit)
+            .ok_or_else(|| Error::NoRelay(Box::new(entry_query)))?;
 
         Ok(Multihop::new(entry.clone(), exit.clone()))
     }
@@ -880,7 +881,7 @@ impl RelaySelector {
                     exit_candidates.as_slice(),
                     entry_candidates.as_slice(),
                 )
-                .ok_or(Error::NoRelay)?;
+                .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
                 Ok(Multihop::new(entry.clone(), exit.clone()))
             }
         }
@@ -987,8 +988,8 @@ impl RelaySelector {
         parsed_relays: &RelayList,
     ) -> Result<GetRelay, Error> {
         assert_eq!(query.tunnel_protocol(), TunnelType::OpenVpn);
-        let exit =
-            Self::choose_openvpn_relay(query, custom_lists, parsed_relays).ok_or(Error::NoRelay)?;
+        let exit = Self::choose_openvpn_relay(query, custom_lists, parsed_relays)
+            .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
         let endpoint = Self::get_openvpn_endpoint(query, &exit, parsed_relays)?;
         let bridge = Self::get_openvpn_bridge(
             query,
@@ -1116,7 +1117,7 @@ impl RelaySelector {
             Some(location) => Self::get_proximate_bridge(bridges, location),
             None => helpers::pick_random_relay(&bridges)
                 .cloned()
-                .ok_or(Error::NoRelay),
+                .ok_or(Error::NoBridge),
         }?;
         let endpoint = detailer::bridge_endpoint(bridge_data, &bridge).ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
