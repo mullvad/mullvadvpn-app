@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add helpful warnings when clearing account history. This helps users not lose their account
   numbers.
+### Changed
+- Add validation for API access methods to only allow unique names.
 
 ### Security
 #### Windows
