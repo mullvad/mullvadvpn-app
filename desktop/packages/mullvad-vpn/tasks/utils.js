@@ -52,6 +52,7 @@ async function runNpmScript(scriptName) {
         console.error(new Error(error));
       });
     }
+    process.exit(1);
   }
 }
 
