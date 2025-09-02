@@ -4,6 +4,7 @@ export * from './daita-settings';
 export * from './launch';
 export * from './main';
 export * from './multihop-settings';
+export * from './open-vpn-settings';
 export * from './changelog';
 export * from './settings';
 export * from './shadowsocks-settings';
