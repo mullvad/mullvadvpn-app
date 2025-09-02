@@ -93,6 +93,30 @@ impl Settings {
         Ok(updated)
     }
 
+    /// Update an existing builtin [`AccessMethodSetting`] chosen by
+    /// `predicate`, in a closure `f`, saving the result to `self`.
+    ///
+    /// Returns a bool to indicate whether some [`AccessMethodSetting`] was
+    /// updated.
+    pub fn update_builtin(
+        &mut self,
+        predicate: impl Fn(&AccessMethodSetting) -> bool,
+        f: impl FnOnce(&mut AccessMethodSetting),
+    ) -> bool {
+        let mut updated = false;
+
+        if let Some(access_method) = self
+            .iter_mut()
+            .find(|setting| setting.is_builtin() && predicate(setting))
+        {
+            f(access_method);
+
+            updated = true;
+        }
+
+        updated
+    }
+
     /// Remove all custom access methods.
     pub fn clear_custom(&mut self) {
         self.custom.clear();
