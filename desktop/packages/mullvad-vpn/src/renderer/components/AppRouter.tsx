@@ -25,7 +25,6 @@ import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
-import Shadowsocks from './Shadowsocks';
 import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import UdpOverTcp from './UdpOverTcp';
@@ -39,6 +38,7 @@ import {
   MainView,
   MultihopSettingsView,
   SettingsView,
+  Shadowsocks,
   SplitTunnelingSettingsView,
   VpnSettingsView,
   WireguardSettingsView,
