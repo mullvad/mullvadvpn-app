@@ -1,1 +1,1 @@
-export * from './Udp2tcpPortSetting';
+export * from './UdpOverTcpPortSetting';
