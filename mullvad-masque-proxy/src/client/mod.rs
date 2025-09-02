@@ -573,7 +573,11 @@ async fn client_socket_tx_task(
                 send(reassembled_payload.chunk()).await?;
             }
             Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
-            Err(_) => (),
+            Err(e) => {
+                use log::Level::*;
+                let level = if cfg!(debug_assertions) { Debug } else { Trace };
+                log::log!(level, "Packet reassembly failed: {e}");
+            }
         }
     }
 

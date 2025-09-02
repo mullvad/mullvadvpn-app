@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque, btree_map};
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use h3::proto::varint::VarInt;
@@ -10,7 +10,7 @@ const FRAGMENT_INDEX_START: u8 = 1;
 
 /// The maximum number of unassembled fragments that we buffer.
 // 255 is the theoretical maximum number of fragments for a single packet.
-const FRAGMENT_BUFFER_CAP: usize = 255;
+pub const FRAGMENT_BUFFER_CAP: usize = 255;
 
 pub struct Fragments {
     /// FIFO queue of fragment indices. Used to mitigate floods of unordered packet fragments.
@@ -22,6 +22,8 @@ pub struct Fragments {
     /// Map of fragmented packets.
     ///
     /// If fragments are arriving in order, this should never hold more than one set of fragments.
+    ///
+    /// INVARIANT: The `Vec` is sorted by `Fragment::index`
     // TODO: would a hashmap be faster?
     fragment_map: BTreeMap<u16, Vec<Fragment>>,
 }
@@ -34,6 +36,12 @@ pub enum DefragError {
 
     #[error("Payload is too small")]
     PayloadTooSmall,
+
+    #[error("Too few fragments in fragmented packet")]
+    TooFewFragments,
+
+    #[error("Received a fragment twice")]
+    DuplicateFragment,
 }
 
 // When a packet is larger than u16::MAX, it can't be fragmented.
@@ -84,6 +92,10 @@ impl Fragments {
         let fragment_count = payload
             .try_get_u8()
             .map_err(|_| DefragError::PayloadTooSmall)?;
+        if fragment_count < 2 {
+            // Packets with only one fragment should be sent as non-fragmented packets.
+            return Err(DefragError::TooFewFragments);
+        }
         let fragment = Fragment { index, payload };
 
         // ensure that the fifo has capacity before pushing the new fragment id
@@ -101,49 +113,42 @@ impl Fragments {
             "fragment_index_fifo must never grow",
         );
 
-        let fragments = self.fragment_map.entry(id).or_default();
-        fragments.push(fragment);
+        let entry = self.fragment_map.entry(id);
 
-        let reassembled = self.try_reassemble(id, fragment_count)
-            .map(DefragReceived::Reassembled)
-            // TODO: This may also occur if a packet is discarded
-            .unwrap_or(DefragReceived::Fragment);
-        Ok(reassembled)
-    }
+        let mut entry = match entry {
+            btree_map::Entry::Occupied(occupied) => occupied,
 
-    // TODO: Let caller provide output buffer.
-    fn try_reassemble(&mut self, id: u16, fragment_count: u8) -> Option<Bytes> {
-        // establish that there are enough fragments to reconstruct the whole packet
-        let fragments = &self.fragment_map[&id];
-        if fragments.len() != fragment_count.into() {
-            return None;
-        }
-
-        // looks like a valid fragment set. pop it from the map.
-        let mut fragments = self.fragment_map.remove(&id).expect("fragment must exist");
-
-        fragments.sort_unstable_by_key(|f| f.index);
-
-        // assert that fragments are in the correct order
-        // TODO: is this excessively paranoid?
-        let fragments_missing = (FRAGMENT_INDEX_START..)
-            .zip(&fragments)
-            .any(|(expected_index, fragment)| fragment.index != expected_index);
-        if fragments_missing {
-            if cfg!(debug_assertions) {
-                log::debug!("Discarding unordered fragment set");
+            // if this is the first received fragment, don't bother trying to reassemble
+            btree_map::Entry::Vacant(vacant) => {
+                let mut fragment_list = Vec::with_capacity(2); // two fragments should be the norm
+                fragment_list.push(fragment);
+                vacant.insert(fragment_list);
+                return Ok(DefragReceived::Fragment);
             }
-            return None;
+        };
+
+        let fragments = entry.get_mut();
+
+        // insert the fragment such that the list is sorted
+        match fragments.binary_search_by_key(&fragment.index, |f| f.index) {
+            Err(insert_here) => fragments.insert(insert_here, fragment),
+            Ok(_) => return Err(DefragError::DuplicateFragment),
+        };
+
+        // establish that there are enough fragments to reconstruct the whole packet
+        if fragments.len() != fragment_count.into() {
+            return Ok(DefragReceived::Fragment);
         }
+
+        let fragments = entry.remove();
 
         // smush the fragments together
         let mut payload = BytesMut::with_capacity(fragments.iter().map(|f| f.payload.len()).sum());
         for fragment in fragments {
             payload.extend_from_slice(&fragment.payload);
         }
-        let payload = payload.freeze();
 
-        Some(payload)
+        Ok(DefragReceived::Reassembled(payload.freeze()))
     }
 }
 
@@ -203,9 +208,9 @@ mod test {
     fn test_fragment_reconstruction() {
         let mut fragments = Fragments::default();
 
-        'outer: for packet_id in 1..255u16 {
+        let max_payload_size = 50;
+        'outer: for packet_id in max_payload_size..255u16 {
             let payload = (0..packet_id as u8).collect::<Vec<u8>>();
-            let max_payload_size = 50;
 
             let mut payload_clone = Bytes::from(payload.clone());
             let mut fragment_buf = fragment_packet(max_payload_size, &mut payload_clone, packet_id)
@@ -268,8 +273,8 @@ mod test {
         let fragment_survives_flood = |number_of_bad_fragments| {
             let mut fragments = Fragments::default();
 
-            let packet_id = 123;
-            let bad_packet_id = 321;
+            let packet_id = 1;
+            let mut bad_packet_ids = 2..0xffff;
 
             let payload = (0..255).collect::<Vec<u8>>();
             let max_payload_size = 50;
@@ -292,15 +297,16 @@ mod test {
 
             // then send a bunch of fragments to fill the queue
             let mut bad_payload = Bytes::from([0u8; 2].to_vec());
-            let incomplete_fragment = fragment_packet(
-                1 + FRAGMENT_HEADER_SIZE_FRAGMENTED,
-                &mut bad_payload,
-                bad_packet_id,
-            )
-            .unwrap()
-            .next()
-            .unwrap();
             for _ in fragment_buf.len()..number_of_bad_fragments {
+                let incomplete_fragment = fragment_packet(
+                    1 + FRAGMENT_HEADER_SIZE_FRAGMENTED,
+                    &mut bad_payload,
+                    bad_packet_ids.next().unwrap(),
+                )
+                .unwrap()
+                .next()
+                .unwrap();
+
                 let packet = fragments
                     .handle_incoming_packet(incomplete_fragment.clone())
                     .unwrap();
