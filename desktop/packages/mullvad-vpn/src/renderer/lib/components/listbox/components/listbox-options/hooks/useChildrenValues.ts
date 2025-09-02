@@ -6,7 +6,7 @@ export function useChildrenValues(children: React.ReactNode[]): string[] {
 
     React.Children.forEach(children, (child) => {
       if (React.isValidElement<{ value?: string }>(child)) {
-        if ('value' in child.props && typeof child.props.value === 'string') {
+        if ('value' in child.props && typeof child.props.value !== 'undefined') {
           values.push(child.props.value);
         }
       }

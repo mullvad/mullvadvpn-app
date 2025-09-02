@@ -20,13 +20,10 @@ export function useListboxOptionContext<T>(): ListboxOptionContext<T> {
   return context;
 }
 
-export function ListboxOptionProvider<T>({ value, children }: ListboxOptionProviderProps<T>) {
+export function ListboxOptionProvider<T>({ children, ...props }: ListboxOptionProviderProps<T>) {
   const TypedListboxOptionContext = ListboxOptionContext as React.Context<ListboxOptionContext<T>>;
   return (
-    <TypedListboxOptionContext.Provider
-      value={{
-        value,
-      }}>
+    <TypedListboxOptionContext.Provider value={props}>
       {children}
     </TypedListboxOptionContext.Provider>
   );
