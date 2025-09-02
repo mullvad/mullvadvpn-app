@@ -1,1 +1,1 @@
-export * from './OpenVpnSettings';
+export * from './OpenVpnSettingsView';
