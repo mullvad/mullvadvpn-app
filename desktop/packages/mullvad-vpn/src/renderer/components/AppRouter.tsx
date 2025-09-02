@@ -38,7 +38,7 @@ import {
   MainView,
   MultihopSettingsView,
   SettingsView,
-  Shadowsocks,
+  ShadowsocksSettingsView,
   SplitTunnelingView,
   VpnSettingsView,
   WireguardSettingsView,
@@ -74,7 +74,7 @@ export default function AppRouter() {
         <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsView} />
         <Route exact path={RoutePath.daitaSettings} component={DaitaSettingsView} />
         <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcp} />
-        <Route exact path={RoutePath.shadowsocks} component={Shadowsocks} />
+        <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
         <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
         <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingView} />
         <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />

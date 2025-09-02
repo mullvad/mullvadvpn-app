@@ -32,7 +32,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export function Shadowsocks() {
+export function ShadowsocksSettingsView() {
   const { pop } = useHistory();
 
   return (
