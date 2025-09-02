@@ -9,7 +9,7 @@ import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { ShadowsocksPortSelector } from './components';
+import { ShadowsocksPortSetting } from './components';
 
 const StyledContent = styled.div({
   display: 'flex',
@@ -42,7 +42,7 @@ export function ShadowsocksSettingsView() {
 
               <StyledContent>
                 <Cell.Group>
-                  <ShadowsocksPortSelector />
+                  <ShadowsocksPortSetting />
                 </Cell.Group>
               </StyledContent>
             </NavigationScrollbars>
