@@ -10,7 +10,7 @@ import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { Udp2tcpPortSetting } from './components';
+import { UdpOverTcpPortSetting } from './components';
 
 export const UDP2TCP_PORTS = [80, 5001];
 
@@ -53,7 +53,7 @@ export function UdpOverTcpSettingsView() {
 
               <StyledContent>
                 <Cell.Group>
-                  <Udp2tcpPortSetting />
+                  <UdpOverTcpPortSetting />
                 </Cell.Group>
               </StyledContent>
             </NavigationScrollbars>
