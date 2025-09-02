@@ -1,19 +1,24 @@
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { RelayProtocol, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
+import { useScrollToListItem } from '../../../../../hooks';
+import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription, AriaInputGroup } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
-import Selector, { SelectorItem } from '../../../../cell/Selector';
-import { StyledSelectorContainer } from '../../OpenVpnSettingsView';
+import { DefaultListboxOption } from '../../../../default-listbox-option';
 
 export function TransportProtocolSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const bridgeState = useSelector((state) => state.settings.bridgeState);
+
+  const id = 'transport-protocol-setting';
+  const ref = React.useRef<HTMLDivElement>(null);
+  const scrollToListItem = useScrollToListItem(ref, id);
+
+  const descriptionId = React.useId();
 
   const protocol = useMemo(() => {
     const protocol = 'normal' in relaySettings ? relaySettings.normal.openvpn.protocol : 'any';
@@ -31,48 +36,39 @@ export function TransportProtocolSetting() {
     [relaySettingsUpdater],
   );
 
-  const items: SelectorItem<RelayProtocol>[] = useMemo(
-    () => [
-      {
-        label: messages.gettext('TCP'),
-        value: 'tcp',
-      },
-      {
-        label: messages.gettext('UDP'),
-        value: 'udp',
-        disabled: bridgeState === 'on',
-      },
-    ],
-    [bridgeState],
-  );
-
   return (
-    <StyledSelectorContainer>
-      <AriaInputGroup>
-        <Selector
-          title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
-          items={items}
-          value={protocol}
-          onSelect={onSelect}
-          automaticValue={null}
-        />
-        {bridgeState === 'on' && (
-          <Cell.CellFooter>
-            <AriaDescription>
-              <Cell.CellFooterText>
-                {formatHtml(
-                  // TRANSLATORS: This is used to instruct users how to make UDP mode
-                  // TRANSLATORS: available.
-                  messages.pgettext(
-                    'openvpn-settings-view',
-                    'To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>.',
-                  ),
-                )}
-              </Cell.CellFooterText>
-            </AriaDescription>
-          </Cell.CellFooter>
-        )}
-      </AriaInputGroup>
-    </StyledSelectorContainer>
+    <Listbox animation={scrollToListItem?.animation} value={protocol} onValueChange={onSelect}>
+      <Listbox.Item ref={ref}>
+        <Listbox.Content>
+          <Listbox.Label>
+            {messages.pgettext('openvpn-settings-view', 'Transport protocol')}
+          </Listbox.Label>
+        </Listbox.Content>
+      </Listbox.Item>
+      <Listbox.Options>
+        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        <DefaultListboxOption value={'tcp'}>{messages.gettext('TCP')}</DefaultListboxOption>
+        <DefaultListboxOption
+          value={'udp'}
+          disabled={bridgeState === 'on'}
+          aria-describedby={bridgeState === 'on' ? descriptionId : undefined}>
+          {messages.gettext('UDP')}
+        </DefaultListboxOption>
+      </Listbox.Options>
+      {bridgeState === 'on' && (
+        <Listbox.Footer>
+          <Listbox.Text id={descriptionId}>
+            {formatHtml(
+              // TRANSLATORS: This is used to instruct users how to make UDP mode
+              // TRANSLATORS: available.
+              messages.pgettext(
+                'openvpn-settings-view',
+                'To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>.',
+              ),
+            )}
+          </Listbox.Text>
+        </Listbox.Footer>
+      )}
+    </Listbox>
   );
 }
