@@ -17,7 +17,7 @@ import {
   UDP2TCP_PORTS,
 } from '../../UdpOverTcpSettingsView';
 
-export function Udp2tcpPortSetting() {
+export function UdpOverTcpPortSetting() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
