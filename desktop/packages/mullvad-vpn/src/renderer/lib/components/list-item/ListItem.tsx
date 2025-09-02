@@ -8,6 +8,7 @@ import {
   ListItemItem,
   ListItemLabel,
   ListItemText,
+  ListItemTextField,
   ListItemTrigger,
 } from './components';
 import { levels } from './levels';
@@ -39,6 +40,7 @@ const ListItemNamespace = Object.assign(ListItem, {
   Item: ListItemItem,
   Footer: ListItemFooter,
   Icon: ListItemIcon,
+  TextField: ListItemTextField,
 });
 
 export { ListItemNamespace as ListItem };
