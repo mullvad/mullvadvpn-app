@@ -1,6 +1,6 @@
 import { ElectronApplication } from 'playwright';
 
-import { createIpcEvents, IpcEvents } from '../../../src/shared/ipc-helpers';
+import { AnyIpcCall, createIpc, Schema } from '../../../src/shared/ipc-helpers';
 import { IpcSchema, ipcSchema } from '../../../src/shared/ipc-schema';
 import { startApp, TestUtils } from '../utils';
 
@@ -16,7 +16,7 @@ export interface MockedTestUtils extends TestUtils {
   mockIpcHandle: MockIpcHandle;
   sendMockIpcResponse: SendMockIpcResponse;
   expectIpcCall: ExpectIpcCall;
-  ipcEvents: IpcEvents<IpcSchema>;
+  ipc: IpcMockedTest<IpcSchema>;
 }
 
 export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
@@ -41,7 +41,7 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
       sendMockIpcResponse,
       expectIpcCall,
 
-      ipcEvents: createIpcEvents(ipcSchema),
+      ipc: createTestIpc(startAppResult.app),
     },
   };
 };
@@ -101,6 +101,10 @@ export const generateExpectIpcCall = (electronApp: ElectronApplication) => {
         return new Promise<T>((resolve) => {
           ipcMain.handleOnce(channel, (_event, arg) => {
             resolve(arg);
+            return {
+              type: 'success',
+              value: null,
+            };
           });
         });
       },
@@ -108,3 +112,46 @@ export const generateExpectIpcCall = (electronApp: ElectronApplication) => {
     );
   };
 };
+
+type IpcMockedTestKey<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
+  ? 'notify'
+  : 'handle';
+
+type IpcMockedTestExpectKey<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
+  ? never
+  : 'expect';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Async<F extends (...args: any) => any> = (arg: Parameters<F>[0]) => Promise<ReturnType<F>>;
+
+type IpcMockedTestFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
+  ? Async<NonNullable<ReturnType<I['send']>>>
+  : Async<Parameters<ReturnType<I['receive']>>[0]>;
+
+export type IpcMockedTest<S extends Schema> = {
+  [G in keyof S]: {
+    [K in keyof S[G]]: {
+      [C in IpcMockedTestKey<S[G][K]>]: IpcMockedTestFn<S[G][K]>;
+    } & {
+      [C in IpcMockedTestExpectKey<S[G][K]>]: () => Promise<void>;
+    } & {
+      eventKey: string;
+    };
+  };
+};
+
+export function createTestIpc(electronApp: ElectronApplication): IpcMockedTest<IpcSchema> {
+  return createIpc(ipcSchema, (event, key, _spec) => {
+    return [
+      key,
+      {
+        eventKey: event,
+        notify: <T>(message: T) =>
+          generateSendMockIpcResponse(electronApp)({ channel: event, response: message }),
+        handle: <T>(response: T) =>
+          generateMockIpcHandle(electronApp)({ channel: event, response }),
+        expect: () => generateExpectIpcCall(electronApp)(event),
+      },
+    ];
+  });
+}
