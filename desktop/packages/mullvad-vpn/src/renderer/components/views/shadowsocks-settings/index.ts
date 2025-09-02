@@ -1,1 +1,1 @@
-export * from './Shadowsocks';
+export * from './ShadowsocksSettingsView';
