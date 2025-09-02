@@ -21,6 +21,8 @@ impl Stats {
                             PeerNla::RxBytes(bytes) => rx_bytes = *bytes,
                             PeerNla::LastHandshakeTime(time) => {
                                 let get_last_handshake_time = || -> Option<SystemTime> {
+                                    // handshake_{sec,nsec} are relative to UNIX_EPOCH
+                                    // https://www.wireguard.com/xplatform/
                                     Some(
                                         UNIX_EPOCH
                                             + Duration::new(
@@ -30,8 +32,6 @@ impl Stats {
                                     )
                                 };
 
-                                // handshake_{sec,nsec} are relative to UNIX_EPOCH
-                                // https://www.wireguard.com/xplatform/
                                 last_handshake_time = get_last_handshake_time();
                             }
                             PeerNla::PublicKey(key) => pub_key = Some(*key),
