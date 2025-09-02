@@ -7,6 +7,7 @@ export * from './multihop-settings';
 export * from './login';
 export * from './changelog';
 export * from './settings';
+export * from './shadowsocks-settings';
 export * from './split-tunneling';
 export * from './vpn-settings';
 export * from './wireguard-settings';

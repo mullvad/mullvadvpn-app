@@ -2,21 +2,21 @@ import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { wrapConstraint } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import { removeNonNumericCharacters } from '../../shared/string-helpers';
-import { useAppContext } from '../context';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaDescription, AriaInputGroup } from './AriaGroup';
-import * as Cell from './cell';
-import { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { wrapConstraint } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { removeNonNumericCharacters } from '../../../../shared/string-helpers';
+import { useAppContext } from '../../../context';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaDescription, AriaInputGroup } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import { SelectorItem, SelectorWithCustomItem } from '../../cell/Selector';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const PORTS: Array<SelectorItem<number>> = [];
 const ALLOWED_RANGE = [1, 65535];
@@ -32,7 +32,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export default function Shadowsocks() {
+export function Shadowsocks() {
   const { pop } = useHistory();
 
   return (
