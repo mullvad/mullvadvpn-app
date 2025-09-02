@@ -2,11 +2,10 @@ import { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../foundations';
-import { ListItemProps } from '../../ListItem';
 import { useListItem } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
 
-const StyledButton = styled.button<Pick<ListItemProps, 'disabled'>>`
+const StyledButton = styled.button<{ $disabled?: boolean }>`
   display: flex;
   width: 100%;
   background-color: transparent;
