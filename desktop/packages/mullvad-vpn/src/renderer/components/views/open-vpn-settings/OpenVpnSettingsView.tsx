@@ -51,7 +51,7 @@ export const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export function OpenVpnSettings() {
+export function OpenVpnSettingsView() {
   const { pop } = useHistory();
 
   const relaySettings = useSelector((state) => state.settings.relaySettings);
