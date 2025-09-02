@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../../../../shared/constants';
@@ -6,9 +6,10 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
+import { useScrollToListItem } from '../../../../../hooks';
+import { ListItem } from '../../../../../lib/components/list-item';
+import { useTextField } from '../../../../../lib/components/text-field';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
@@ -24,6 +25,14 @@ function mtuIsValid(mtu: string): boolean {
 export function MtuSetting() {
   const { setWireguardMtu: setWireguardMtuImpl } = useAppContext();
   const mtu = useSelector((state) => state.settings.wireguard.mtu);
+
+  const id = 'mtu-setting';
+  const ref = React.useRef<HTMLDivElement>(null);
+  const scrollToAnchor = useScrollToListItem(ref, id);
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const labelId = React.useId();
+  const descriptionId = React.useId();
 
   const setMtu = useCallback(
     async (mtu?: number) => {
@@ -47,47 +56,80 @@ export function MtuSetting() {
     [setMtu],
   );
 
+  const { value, handleChange, invalid, dirty, blur, reset } = useTextField({
+    inputRef,
+    defaultValue: mtu ? mtu.toString() : '',
+    format: removeNonNumericCharacters,
+    validate: mtuIsValid,
+  });
+
+  const handleBlur = React.useCallback(async () => {
+    if (!invalid && dirty) {
+      await onSubmit(value);
+    }
+    if (invalid) {
+      reset();
+    }
+  }, [dirty, invalid, onSubmit, reset, value]);
+
+  const handleSubmit = React.useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      if (!invalid) {
+        await onSubmit(value);
+        blur();
+      }
+    },
+    [blur, invalid, onSubmit, value],
+  );
+
   return (
-    <AriaInputGroup>
-      <Cell.Container>
-        <AriaLabel>
-          <Cell.InputLabel>{messages.pgettext('wireguard-settings-view', 'MTU')}</Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.AutoSizingTextInput
-            initialValue={mtu ? mtu.toString() : ''}
-            inputMode={'numeric'}
-            maxLength={4}
-            placeholder={messages.gettext('Default')}
-            onSubmitValue={onSubmit}
-            validateValue={mtuIsValid}
-            submitOnBlur={true}
-            modifyValue={removeNonNumericCharacters}
-          />
-        </AriaInput>
-      </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {sprintf(
-              // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
-              // TRANSLATORS: Available placeholders:
-              // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-              // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
-              // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
-              messages.pgettext(
-                'wireguard-settings-view',
-                'Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d.',
-              ),
-              {
-                wireguard: strings.wireguard,
-                min: MIN_WIREGUARD_MTU_VALUE,
-                max: MAX_WIREGUARD_MTU_VALUE,
-              },
-            )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
-    </AriaInputGroup>
+    <ListItem animation={scrollToAnchor?.animation}>
+      <ListItem.Item ref={ref}>
+        <ListItem.Content>
+          <ListItem.Label id={labelId}>
+            {
+              // TRANSLATORS: The title for the WireGuard MTU setting. MTU stands for Maximum
+              // TRANSLATORS: Transmission Unit and controls the maximum size of packets sent over
+              // TRANSLATORS: the VPN tunnel.
+              messages.pgettext('wireguard-settings-view', 'MTU')
+            }
+          </ListItem.Label>
+          <ListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
+            <ListItem.TextField.Input
+              ref={inputRef}
+              value={value}
+              placeholder={messages.gettext('Default')}
+              inputMode="numeric"
+              maxLength={4}
+              aria-labelledby={labelId}
+              aria-describedby={descriptionId}
+              onBlur={handleBlur}
+              onChange={handleChange}
+            />
+          </ListItem.TextField>
+        </ListItem.Content>
+      </ListItem.Item>
+      <ListItem.Footer>
+        <ListItem.Text id={descriptionId}>
+          {sprintf(
+            // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+            // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
+            // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
+            messages.pgettext(
+              'wireguard-settings-view',
+              'Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d.',
+            ),
+            {
+              wireguard: strings.wireguard,
+              min: MIN_WIREGUARD_MTU_VALUE,
+              max: MAX_WIREGUARD_MTU_VALUE,
+            },
+          )}
+        </ListItem.Text>
+      </ListItem.Footer>
+    </ListItem>
   );
 }
