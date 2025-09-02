@@ -18,7 +18,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export function ShadowsocksPortSelector() {
+export function ShadowsocksPortSetting() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
