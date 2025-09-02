@@ -1,34 +1,22 @@
-import { useCallback, useMemo } from 'react';
-import styled from 'styled-components';
+import { useCallback } from 'react';
+import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
+import { useScrollToListItem } from '../../../../../hooks';
+import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useSelector } from '../../../../../redux/store';
-import { AriaInputGroup } from '../../../../AriaGroup';
-import Selector, { SelectorItem } from '../../../../cell/Selector';
+import { DefaultListboxOption } from '../../../../default-listbox-option';
+import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
-
-const StyledSelectorContainer = styled.div({
-  flex: 0,
-});
 
 export function QuantumResistantSetting() {
   const { setWireguardQuantumResistant } = useAppContext();
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
 
-  const items: SelectorItem<boolean>[] = useMemo(
-    () => [
-      {
-        label: messages.gettext('On'),
-        value: true,
-      },
-      {
-        label: messages.gettext('Off'),
-        value: false,
-      },
-    ],
-    [],
-  );
+  const id = 'quantum-resistant-setting';
+  const ref = React.useRef<HTMLDivElement>(null);
+  const scrollToListItem = useScrollToListItem(ref, id);
 
   const selectQuantumResistant = useCallback(
     async (quantumResistant: boolean | null) => {
@@ -38,16 +26,21 @@ export function QuantumResistantSetting() {
   );
 
   return (
-    <AriaInputGroup>
-      <StyledSelectorContainer>
-        <Selector
-          title={
-            // TRANSLATORS: The title for the WireGuard quantum resistance selector. This setting
-            // TRANSLATORS: makes the cryptography resistant to the future abilities of quantum
-            // TRANSLATORS: computers.
-            messages.pgettext('wireguard-settings-view', 'Quantum-resistant tunnel')
-          }
-          details={
+    <Listbox
+      animation={scrollToListItem?.animation}
+      value={quantumResistant ?? null}
+      onValueChange={selectQuantumResistant}>
+      <Listbox.Item ref={ref}>
+        <Listbox.Content>
+          <Listbox.Label>
+            {
+              // TRANSLATORS: The title for the WireGuard quantum resistance selector. This setting
+              // TRANSLATORS: makes the cryptography resistant to the future abilities of quantum
+              // TRANSLATORS: computers.
+              messages.pgettext('wireguard-settings-view', 'Quantum-resistant tunnel')
+            }
+          </Listbox.Label>
+          <InfoButton>
             <>
               <ModalMessage>
                 {messages.pgettext(
@@ -62,13 +55,14 @@ export function QuantumResistantSetting() {
                 )}
               </ModalMessage>
             </>
-          }
-          items={items}
-          value={quantumResistant ?? null}
-          onSelect={selectQuantumResistant}
-          automaticValue={null}
-        />
-      </StyledSelectorContainer>
-    </AriaInputGroup>
+          </InfoButton>
+        </Listbox.Content>
+      </Listbox.Item>
+      <Listbox.Options>
+        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        <DefaultListboxOption value={true}>{messages.gettext('On')}</DefaultListboxOption>
+        <DefaultListboxOption value={false}>{messages.gettext('Off')}</DefaultListboxOption>
+      </Listbox.Options>
+    </Listbox>
   );
 }
