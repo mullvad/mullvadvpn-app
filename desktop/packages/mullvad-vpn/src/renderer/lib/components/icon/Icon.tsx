@@ -13,6 +13,7 @@ export type IconProps = {
 const StyledIcon = styled.div<{ $color: string; $size: number; $src: string }>`
   ${({ $size, $src, $color }) => {
     return css`
+      flex-shrink: 0;
       width: ${$size}px;
       height: ${$size}px;
       mask: url(${$src}) no-repeat center;
