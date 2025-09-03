@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, ButtonProps } from '../lib/components';
+import { Button, ButtonProps } from '../../../../../../../../../lib/components';
 
 const ButtonRow = styled.div({
   display: 'flex',
