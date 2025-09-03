@@ -67,6 +67,10 @@ export default function List<T>(props: ListProps<T>) {
   }, [props.skipAddTransition]);
 
   const onRemoved = useCallback((key: string) => {
+    console.log('key', key);
+    if (!(key in removeFallbackSchedulers.current)) {
+      console.log('missing key!', key, removeFallbackSchedulers.current);
+    }
     removeFallbackSchedulers.current[key].cancel();
     delete removeFallbackSchedulers.current[key];
 

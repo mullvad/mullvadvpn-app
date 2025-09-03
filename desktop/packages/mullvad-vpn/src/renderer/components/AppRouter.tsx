@@ -29,12 +29,18 @@ import SelectLanguage from './SelectLanguage';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import Shadowsocks from './Shadowsocks';
-import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
-import { AppInfoView, AppUpgradeView, ChangelogView, LaunchView, SettingsView } from './views';
+import {
+  AppInfoView,
+  AppUpgradeView,
+  ChangelogView,
+  LaunchView,
+  SettingsView,
+  SplitTunneling,
+} from './views';
 import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
@@ -70,7 +76,7 @@ export default function AppRouter() {
         <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcp} />
         <Route exact path={RoutePath.shadowsocks} component={Shadowsocks} />
         <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
-        <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
+        <Route exact path={RoutePath.splitTunneling} component={SplitTunneling} />
         <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
         <Route exact path={RoutePath.settingsImport} component={SettingsImport} />
         <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImport} />
