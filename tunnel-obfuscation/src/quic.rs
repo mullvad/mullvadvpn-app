@@ -133,15 +133,30 @@ impl Quic {
         } else {
             SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
         };
-        let quic_socket =
-            Client::create_masque_socket(quic_client_local_addr).map_err(Error::BindError)?;
-        #[cfg(target_os = "linux")]
-        if let Some(fwmark) = settings.fwmark {
-            quic_socket.set_mark(fwmark).map_err(Error::Fwmark)?;
-        }
+        let quic_socket = {
+            // family
+            let domain = match quic_client_local_addr {
+                SocketAddr::V4(_) => socket2::Domain::IPV4,
+                SocketAddr::V6(_) => socket2::Domain::IPV6,
+            };
+            let ty = socket2::Type::DGRAM;
+            let protocol = Some(socket2::Protocol::UDP);
+            let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::BindError)?;
+            socket
+                .bind(&socket2::SockAddr::from(quic_client_local_addr))
+                .map_err(Error::BindError)?;
+
+            #[cfg(target_os = "linux")]
+            if let Some(fwmark) = settings.fwmark {
+                socket.set_mark(fwmark).map_err(Error::Fwmark)?;
+            }
+
+            UdpSocket::from_std(std::net::UdpSocket::from(socket)).map_err(Error::BindError)?
+        };
+
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
-            .quinn_socket(std::net::UdpSocket::from(quic_socket))
+            .quinn_socket(quic_socket)
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)

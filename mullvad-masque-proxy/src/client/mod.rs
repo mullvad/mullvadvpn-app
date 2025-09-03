@@ -24,7 +24,6 @@ use quinn::{
     Endpoint, EndpointConfig, IdleTimeout, TokioRuntime, TransportConfig,
     crypto::rustls::QuicClientConfig,
 };
-use socket2::Socket;
 
 use crate::{
     MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
@@ -118,9 +117,7 @@ pub struct ClientConfig {
     pub client_socket: UdpSocket,
 
     /// Socket to bind the QUIC endpoint socket to
-    ///
-    /// May be created by [Self::create_masque_socket].
-    pub quinn_socket: std::net::UdpSocket,
+    pub quinn_socket: UdpSocket,
 
     /// Destination to which traffic is forwarded
     pub target_addr: SocketAddr,
@@ -173,7 +170,10 @@ impl Client {
 
         let max_udp_payload_size = compute_udp_payload_size(config.mtu, config.server_addr);
 
-        let endpoint = Self::setup_quic_endpoint(config.quinn_socket, max_udp_payload_size)?;
+        let endpoint = Self::setup_quic_endpoint(
+            config.quinn_socket.into_std().map_err(Error::Endpoint)?,
+            max_udp_payload_size,
+        )?;
 
         let connecting =
             endpoint.connect_with(client_config, config.server_addr, &config.server_host)?;
@@ -211,20 +211,6 @@ impl Client {
         } else {
             Err(Error::InvalidMtu { min_mtu })
         }
-    }
-
-    /// Create & bind a new UDP socket to `local_addr`.
-    pub fn create_masque_socket(local_addr: SocketAddr) -> io::Result<Socket> {
-        // family
-        let domain = match &local_addr {
-            SocketAddr::V4(_) => socket2::Domain::IPV4,
-            SocketAddr::V6(_) => socket2::Domain::IPV6,
-        };
-        let ty = socket2::Type::DGRAM;
-        let protocol = Some(socket2::Protocol::UDP);
-        let socket = socket2::Socket::new(domain, ty, protocol)?;
-        socket.bind(&socket2::SockAddr::from(local_addr))?;
-        Ok(socket)
     }
 
     // `socket` is a UDP socket which quinn will read/write from/to.
