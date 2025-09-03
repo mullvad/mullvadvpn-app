@@ -6,7 +6,7 @@ import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
 import { useScrollToListItem } from '../../../hooks';
-import { Button, Flex } from '../../../lib/components';
+import { Button, Flex, Icon, Text } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
@@ -21,6 +21,7 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import PageSlider from '../../PageSlider';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 import { ToggleListItem } from '../../toggle-list-item';
+import { useShowDaitaMultihopInfo } from './hooks';
 
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
@@ -35,6 +36,7 @@ const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 
 export function DaitaSettingsView() {
   const { pop } = useHistory();
+  const showDaitaMultihopInfo = useShowDaitaMultihopInfo();
 
   return (
     <BackAction action={pop}>
@@ -46,6 +48,17 @@ export function DaitaSettingsView() {
             <NavigationScrollbars>
               <SettingsHeader>
                 <HeaderTitle>{strings.daita}</HeaderTitle>
+                {showDaitaMultihopInfo && (
+                  <Flex $gap="small" $alignItems="center">
+                    <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
+                    <Text variant="labelTiny" color="whiteAlpha60">
+                      {messages.pgettext(
+                        'wireguard-settings-view',
+                        'Multihop is being used to enable DAITA for your selected location',
+                      )}
+                    </Text>
+                  </Flex>
+                )}
                 <PageSlider
                   content={[
                     <React.Fragment key="without-daita">
