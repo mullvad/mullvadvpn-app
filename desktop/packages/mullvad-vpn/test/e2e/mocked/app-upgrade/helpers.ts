@@ -1,32 +1,15 @@
 import { expect } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { AppUpgradeError, AppUpgradeEvent } from '../../../../src/shared/app-upgrade';
-import {
-  DaemonAppUpgradeEventStatusDownloadProgress,
-  IAppVersionInfo,
-} from '../../../../src/shared/daemon-rpc-types';
+import { AppUpgradeEvent } from '../../../../src/shared/app-upgrade';
+import { DaemonAppUpgradeEventStatusDownloadProgress } from '../../../../src/shared/daemon-rpc-types';
 import { MockedTestUtils } from '../mocked-utils';
 
-export const createIpc = (util: MockedTestUtils) => {
-  const createMockHandle = <T>(channel: string, response?: T) =>
-    util.mockIpcHandle<T | undefined>({ channel, response });
-
-  const createMockResponse = <T>(channel: string, response: T) =>
-    util.sendMockIpcResponse<T>({
-      channel,
-      response,
-    });
-
+export const createAppUpgradeEventIpcHelper = (util: MockedTestUtils) => {
   const createMockResponseAppUpgradeEvent = (event: AppUpgradeEvent) =>
-    createMockResponse<AppUpgradeEvent>('app-upgradeEvent', event);
+    util.ipc.app.upgradeEvent.notify(event);
 
   return {
-    handle: {
-      appUpgrade: () => createMockHandle('appUpgrade'),
-      appUpgradeAbort: () => createMockHandle('appUpgradeAbort'),
-      appUpgradeInstallerStart: () => createMockHandle('appUpgradeInstallerStart'),
-    },
     send: {
       appUpgradeEventAborted: () =>
         createMockResponseAppUpgradeEvent({
@@ -59,11 +42,6 @@ export const createIpc = (util: MockedTestUtils) => {
         createMockResponseAppUpgradeEvent({
           type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
         }),
-      appUpgradeError: (error: AppUpgradeError) =>
-        createMockResponse<AppUpgradeError>('app-upgradeError', error),
-      upgradeVersion: (data: IAppVersionInfo) =>
-        createMockResponse<IAppVersionInfo>('upgradeVersion-', data),
-      windowFocus: (value: boolean) => createMockResponse<boolean>('window-focus', value),
     },
   };
 };
@@ -110,21 +88,14 @@ export const mockData = {
   version: '2100.1',
 };
 
-export const resolveIpcHandle = async (test: Promise<void>, trigger: Promise<void>) => {
-  // The promise is resolved when its handle has been called.
-  // The handle should be called when the trigger is called.
-  const promise = await Promise.all([test, trigger]);
-  expect(promise).toBeTruthy();
-};
-
 export const createHelpers = (page: Page, util: MockedTestUtils) => {
   const selectors = createSelectors(page);
-  const ipc = createIpc(util);
+  const ipc = createAppUpgradeEventIpcHelper(util);
 
   const startAppUpgrade = async () => {
     const downloadAndLaunchInstallerButton = selectors.downloadAndLaunchInstallerButton();
 
-    await resolveIpcHandle(ipc.handle.appUpgrade(), downloadAndLaunchInstallerButton.click());
+    await Promise.all([util.ipc.app.upgrade.expect(), downloadAndLaunchInstallerButton.click()]);
 
     await ipc.send.appUpgradeEventDownloadStarted();
   };

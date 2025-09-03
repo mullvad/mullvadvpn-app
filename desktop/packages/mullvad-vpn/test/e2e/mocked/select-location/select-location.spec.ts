@@ -3,7 +3,7 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
-import { ISettings, ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
+import { ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { mockData } from '../../mock-data';
 import { RoutesObjectModel } from '../../route-object-models';
@@ -279,10 +279,8 @@ test.describe('Select location', () => {
         if ('normal' in settings.relaySettings) {
           settings.obfuscationSettings.selectedObfuscation = ObfuscationType.quic;
         }
-        await util.sendMockIpcResponse<ISettings>({
-          channel: 'settings-',
-          response: settings,
-        });
+        await util.ipc.settings[''].notify(settings);
+
         const locatedRelays = helpers.locateRelaysByObfuscation(relayList);
         const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
