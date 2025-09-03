@@ -37,6 +37,7 @@ export function CustomDnsSettings() {
   const willShowConfirmationDialog = useRef(false);
 
   const { ref, animation } = useScrollToListItem('custom-dns-settings');
+  const descriptionId = React.useId();
 
   const featureAvailable = useMemo(
     () =>
@@ -198,7 +199,7 @@ export function CustomDnsSettings() {
         <ToggleListItem.Label>
           {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
         </ToggleListItem.Label>
-        <ToggleListItem.Switch ref={switchRef} />
+        <ToggleListItem.Switch ref={switchRef} aria-describedby={descriptionId} />
       </ToggleListItem>
       <Accordion expanded={listExpanded} disabled={!featureAvailable}>
         <Accordion.Content>
@@ -251,7 +252,7 @@ export function CustomDnsSettings() {
       </Accordion>
 
       <StyledCustomDnsFooter>
-        <Cell.CellFooterText>
+        <Cell.CellFooterText id={descriptionId}>
           {featureAvailable
             ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
             : formatHtml(
