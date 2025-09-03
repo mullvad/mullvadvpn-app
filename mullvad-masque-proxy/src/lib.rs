@@ -11,9 +11,9 @@ pub const MASQUE_WELL_KNOWN_PATH: &str = "/.well-known/masque/udp/";
 pub const HTTP_MASQUE_DATAGRAM_CONTEXT_ID: VarInt = VarInt::from_u32(0);
 pub const HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID: VarInt = VarInt::from_u32(1);
 
-/// Minimum size of buffer used to hold UDP packets.
+/// Maximum possible buffer size UDP packets, plus context ID.
 // 1 byte for size of HTTP_MASQUE_DATAGRAM_CONTEXT_ID
-const PACKET_BUFFER_SIZE: usize = (u16::MAX - UDP_HEADER_SIZE + 1) as usize;
+const MAX_UDP_SIZE: usize = (u16::MAX - UDP_HEADER_SIZE + 1) as usize;
 
 /// Maximum number of inflight packets, in both directions.
 const MAX_INFLIGHT_PACKETS: usize = 100;
