@@ -1,30 +1,16 @@
 import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
-import { ICustomList } from '../../../../../../../../shared/daemon-rpc-types';
-import { messages, relayLocations } from '../../../../../../../../shared/gettext';
-import log from '../../../../../../../../shared/logging';
-import { RoutePath } from '../../../../../../../../shared/routes';
-import { useAppContext } from '../../../../../../../context';
-import { Button, ButtonProps, Icon } from '../../../../../../../lib/components';
-import { TransitionType, useHistory } from '../../../../../../../lib/history';
+import { ICustomList } from '../../../../../../../../../../shared/daemon-rpc-types';
+import { messages, relayLocations } from '../../../../../../../../../../shared/gettext';
+import { RoutePath } from '../../../../../../../../../../shared/routes';
+import { Button, ButtonProps } from '../../../../../../../../../lib/components';
+import { TransitionType, useHistory } from '../../../../../../../../../lib/history';
 import {
   IRelayLocationCountryRedux,
   RelaySettingsRedux,
-} from '../../../../../../../redux/settings/reducers';
-import { useSelector } from '../../../../../../../redux/store';
-import { MultiButton } from '../../../../../../MultiButton';
-
-export default function SelectLocationButtons() {
-  const tunnelState = useSelector((state) => state.connection.status.state);
-
-  if (tunnelState === 'connecting' || tunnelState === 'connected') {
-    return <MultiButton mainButton={SelectLocationButton} sideButton={ReconnectButton} />;
-  } else {
-    return <SelectLocationButton />;
-  }
-}
+} from '../../../../../../../../../redux/settings/reducers';
+import { useSelector } from '../../../../../../../../../redux/store';
 
 export function SelectLocationButton(props: ButtonProps) {
   const { push } = useHistory();
@@ -112,31 +98,4 @@ function getRelayName(
   } else {
     throw new Error('Unsupported relay settings.');
   }
-}
-
-const StyledReconnectButton = styled(Button)({
-  minWidth: '40px',
-});
-
-function ReconnectButton(props: ButtonProps) {
-  const { reconnectTunnel } = useAppContext();
-
-  const onReconnect = useCallback(async () => {
-    try {
-      await reconnectTunnel();
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to reconnect the tunnel: ${error.message}`);
-    }
-  }, [reconnectTunnel]);
-
-  return (
-    <StyledReconnectButton
-      onClick={onReconnect}
-      width="fit"
-      aria-label={messages.gettext('Reconnect')}
-      {...props}>
-      <Icon icon="reconnect" />
-    </StyledReconnectButton>
-  );
 }
