@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
@@ -12,9 +12,7 @@ import { ToggleListItem } from '../../../../toggle-list-item';
 export function EnableIpv6Setting() {
   const enableIpv6 = useSelector((state) => state.settings.enableIpv6);
   const { setEnableIpv6: setEnableIpv6Impl } = useAppContext();
-  const id = 'enable-ipv6-setting';
-  const ref = useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const scrollToAnchor = useScrollToListItem();
 
   const setEnableIpv6 = useCallback(
     async (enableIpv6: boolean) => {
@@ -30,7 +28,6 @@ export function EnableIpv6Setting() {
 
   return (
     <ToggleListItem
-      ref={ref}
       animation={scrollToAnchor?.animation}
       checked={enableIpv6}
       onCheckedChange={setEnableIpv6}>
