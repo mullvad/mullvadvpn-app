@@ -2496,7 +2496,7 @@ msgstr ""
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
 msgstr ""
 
 #. This is displayed when either or both of the block ads/trackers settings are
@@ -2689,6 +2689,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr ""
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr ""
@@ -2697,12 +2698,19 @@ msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
 msgstr ""
 
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
 msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2718,6 +2726,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr ""
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr ""
@@ -2728,6 +2737,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr ""
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr ""
@@ -2788,10 +2798,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
 msgstr ""
 
 #. Text describing the valid port range for a port selector.
@@ -2993,9 +2999,6 @@ msgid "Delete method?"
 msgstr ""
 
 msgid "Device IP version"
-msgstr ""
-
-msgid "Disable \"%s\" below to activate these settings."
 msgstr ""
 
 msgid "Disable all \"%s\" above to activate this setting."
