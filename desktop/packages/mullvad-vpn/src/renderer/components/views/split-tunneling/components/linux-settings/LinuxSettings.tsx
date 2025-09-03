@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAppContext } from '../../../../../context';
-import { Flex } from '../../../../../lib/components';
+import { Flex, Spinner } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useAfterTransition } from '../../../../../lib/transition-hooks';
 import { useEffectEvent } from '../../../../../lib/utility-hooks';
@@ -44,7 +44,13 @@ function LinuxSettingsInner() {
       <SearchBar />
       {showNoSearchResult && <NoSearchResult searchTerm={searchTerm} />}
       <FlexColumn $gap="medium">
-        {showLinuxApplicationList && <LinuxApplicationList />}
+        {showLinuxApplicationList ? (
+          <LinuxApplicationList />
+        ) : (
+          <Flex $justifyContent="center" $margin={{ top: 'large' }}>
+            <Spinner size="big" />
+          </Flex>
+        )}
         <Flex $margin={{ horizontal: 'medium', bottom: 'large' }}>
           <OpenFilePickerButton />
         </Flex>
