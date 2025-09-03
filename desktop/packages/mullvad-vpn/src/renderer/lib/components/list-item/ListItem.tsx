@@ -21,12 +21,12 @@ export type ListItemProps = {
   disabled?: boolean;
   animation?: ListItemAnimation;
   children: React.ReactNode;
-};
+} & React.ComponentPropsWithRef<'div'>;
 
-const ListItem = ({ level = 0, disabled, animation, children }: ListItemProps) => {
+const ListItem = ({ level = 0, disabled, animation, children, ...props }: ListItemProps) => {
   return (
     <ListItemProvider level={level} disabled={disabled} animation={animation}>
-      {children}
+      <div {...props}>{children}</div>
     </ListItemProvider>
   );
 };
