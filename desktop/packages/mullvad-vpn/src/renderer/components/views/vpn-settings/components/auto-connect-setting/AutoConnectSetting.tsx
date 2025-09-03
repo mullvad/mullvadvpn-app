@@ -7,7 +7,7 @@ import { ToggleListItem } from '../../../../toggle-list-item';
 export function AutoConnectSetting() {
   const autoConnect = useSelector((state) => state.settings.guiSettings.autoConnect);
   const { setAutoConnect } = useAppContext();
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   const footer = messages.pgettext(
     'vpn-settings-view',
@@ -16,7 +16,7 @@ export function AutoConnectSetting() {
 
   return (
     <ToggleListItem
-      animation={scrollToAnchor?.animation}
+      animation={animation}
       checked={autoConnect}
       onCheckedChange={setAutoConnect}
       footer={footer}>

@@ -13,7 +13,7 @@ export function TransportProtocolSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const bridgeState = useSelector((state) => state.settings.bridgeState);
-  const scrollToListItem = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   const descriptionId = React.useId();
 
@@ -34,7 +34,7 @@ export function TransportProtocolSetting() {
   );
 
   return (
-    <Listbox animation={scrollToListItem?.animation} value={protocol} onValueChange={onSelect}>
+    <Listbox animation={animation} value={protocol} onValueChange={onSelect}>
       <Listbox.Item>
         <Listbox.Content>
           <Listbox.Label>
