@@ -337,13 +337,18 @@ async fn proxy_rx_task(
     udp_socket: impl AsRef<UdpSocket>,
     send_tx: mpsc::Sender<Bytes>,
 ) {
+    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
+
     let stream_id_size = VarInt::from(stream_id).size() as u16;
     let udp_socket = udp_socket.as_ref();
-    let mut proxy_recv_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
+    let mut proxy_recv_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
     let mut fragment_id = 0u16;
 
     loop {
-        proxy_recv_buf.reserve(crate::PACKET_BUFFER_SIZE);
+        if !proxy_recv_buf.try_reclaim(crate::MAX_UDP_SIZE) {
+            // Allocate space for new packets
+            proxy_recv_buf.reserve(TOTAL_BUFFER_CAPACITY);
+        }
         crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut proxy_recv_buf);
 
         let (_n, sender_addr) = match udp_socket.recv_buf_from(&mut proxy_recv_buf).await {
