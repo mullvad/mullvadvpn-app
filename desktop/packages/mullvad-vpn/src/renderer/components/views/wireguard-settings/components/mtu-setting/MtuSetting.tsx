@@ -26,9 +26,7 @@ export function MtuSetting() {
   const { setWireguardMtu: setWireguardMtuImpl } = useAppContext();
   const mtu = useSelector((state) => state.settings.wireguard.mtu);
 
-  const id = 'mtu-setting';
-  const ref = React.useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('mtu-setting');
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const labelId = React.useId();
@@ -84,7 +82,7 @@ export function MtuSetting() {
   );
 
   return (
-    <ListItem animation={scrollToAnchor?.animation}>
+    <ListItem animation={animation}>
       <ListItem.Item ref={ref}>
         <ListItem.Content>
           <ListItem.Label id={labelId}>

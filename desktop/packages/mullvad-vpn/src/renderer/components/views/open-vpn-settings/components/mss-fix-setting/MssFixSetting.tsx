@@ -18,9 +18,7 @@ export function MssFixSetting() {
   const { setOpenVpnMssfix: setOpenVpnMssfixImpl } = useAppContext();
   const mssfix = useSelector((state) => state.settings.openVpn.mssfix);
 
-  const id = 'mss-fix-setting';
-  const ref = React.useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('mss-fix-setting');
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const labelId = React.useId();
@@ -76,7 +74,7 @@ export function MssFixSetting() {
   );
 
   return (
-    <ListItem animation={scrollToAnchor?.animation}>
+    <ListItem animation={animation}>
       <ListItem.Item ref={ref}>
         <ListItem.Content>
           <ListItem.Label id={labelId}>
