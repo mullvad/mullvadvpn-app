@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2025-08-06 07:47\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mehr …"
@@ -1851,6 +1851,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Ein Fehler ist aufgetreten."
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab."
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2071,7 +2075,6 @@ msgid "Multihop"
 msgstr "Multihop"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "Einstellungen"
@@ -2805,6 +2808,12 @@ msgstr "%s (entfernt)"
 msgid "%s custom port"
 msgstr "%s – eigener Port"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s wurde bereits als Eingangs-Relay ausgewählt"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s wurde bereits als Ausgangs-Relay ausgewählt"
+
 msgid "%s is unavailable"
 msgstr "%s ist nicht verfügbar"
 
@@ -2901,8 +2910,8 @@ msgstr "Automatische Verbindung & Sperrmodus"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Die automatische Verbindung wird in den Android-Systemeinstellungen als „Always-on VPN“ bezeichnet und sorgt dafür, dass Sie ständig mit dem VPN-Tunnel verbunden sind und sich nach einem Neustart automatisch verbinden."
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "Automatische Verbindung beim Start des Geräts. Funktioniert nur, wenn die App die VPN-Berechtigung erhalten hat."
+msgid "Automatically connect on device start-up."
+msgstr "Automatische Verbindung beim Start des Geräts."
 
 msgid "Blocking internet (device offline)"
 msgstr "Internet sperren (Gerät offline)"
@@ -3024,6 +3033,9 @@ msgstr "Letzte aktivieren"
 msgid "Enter MTU"
 msgstr "MTU eingeben"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "Eingangs-Relay ist dasselbe wie Ausgangs-Relay"
+
 msgid "Excluded applications"
 msgstr "Ausgeschlossene Anwendungen"
 
@@ -3050,6 +3062,9 @@ msgstr "Datei"
 
 msgid "Filters:"
 msgstr "Filter:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "Damit sich das VPN beim Start des Geräts automatisch verbindet, muss die App über VPN-Berechtigungen verfügen. Sie können diese erteilen, indem Sie in der Kartenansicht auf „Verbinden“ klicken und „OK“ auswählen, wenn Sie dazu aufgefordert werden. Stellen Sie außerdem sicher, dass die App im internen Speicher installiert ist, indem Sie die Speicherinformationen in den App-Details in den Systemeinstellungen überprüfen."
 
 msgid "Go to VPN settings"
 msgstr "VPN-Einstellungen öffnen"
@@ -3095,9 +3110,6 @@ msgstr "Ungültiger oder fehlender Wert „%1$s“"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Dies kann nützlich sein, wenn Sie von Problemen wissen, die durch eine bestimmte IP-Version verursacht werden."
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Hiermit können Sie Apps auswählen, die ohne den VPN-Tunnel direkt auf das Internet zugreifen sollen."
@@ -3158,6 +3170,9 @@ msgstr "Kein Ergebnis für „%s“, bitte versuchen Sie einen anderen Suchbegri
 
 msgid "Not found"
 msgstr "Nicht gefunden"
+
+msgid "Open app details"
+msgstr "App-Details öffnen"
 
 msgid "Overrides active"
 msgstr "Überschreibungen aktiv"

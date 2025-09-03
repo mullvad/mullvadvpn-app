@@ -76,6 +76,8 @@
     <string name="congrats">Tillykke!</string>
     <string name="connect">Tilslut</string>
     <string name="connect_on_start">Opret forbindelse ved opstart af enheden</string>
+    <string name="connect_on_start_info_first">Forbind automatisk, når enheden startes.</string>
+    <string name="connect_on_start_info_second">For at VPN kan forbindes automatisk, når enheden startes, skal appen have VPN-tilladelser. Du kan tildele disse ved at klikke på \"Forbind\" i kortvisningen og vælge \"OK\", hvis du bliver bedt om det. Sørg desuden for, at appen er installeret på interne lager ved at tjekke lageroplysninger i appdetaljerne i systemindstillinger.</string>
     <string name="connect_panel_active_features">Aktive funktioner</string>
     <string name="connect_panel_connection_details">Forbindelsesoplysninger</string>
     <string name="connected">Tilsluttet</string>
@@ -173,6 +175,7 @@
     <string name="enter_value_placeholder">Indtast MTU</string>
     <string name="enter_voucher_code">Indtast kuponkode</string>
     <string name="entry">Indgang</string>
+    <string name="entry_and_exit_are_same">Indgangsrelæ er det samme som udgangsrelæ</string>
     <string name="error_occurred">Der opstod en fejl.</string>
     <string name="error_state">KUNNE IKKE OPRETTE FORBINDELSE</string>
     <string name="exclude_applications">Ekskluderede applikationer</string>
@@ -278,6 +281,7 @@
     <string name="obfuscation_title">WireGuard-tilsløring</string>
     <string name="off">Fra</string>
     <string name="on">Til</string>
+    <string name="open_app_details">Se oplysninger om app</string>
     <string name="open_feature_settings">Åbn indstillinger for %1$s</string>
     <string name="open_url">Åbn URL</string>
     <string name="out_of_time">Tid udløbet</string>
@@ -314,6 +318,8 @@
     <string name="reconnect">Genopret forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
+    <string name="relay_item_already_selected_as_entry">%1$s er allerede valgt som indgangsrelæ</string>
+    <string name="relay_item_already_selected_as_exit">%1$s er allerede valgt som udgangsrelæ</string>
     <string name="relayitem_is_inactive">%1$s er ikke tilgængelig</string>
     <string name="remove_button">Fjern</string>
     <string name="remove_location_from_list">Fjern %1$s fra %2$s</string>
@@ -404,7 +410,7 @@
     <string name="version">Version</string>
     <string name="view_logs">Se app-logfiler</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
-    <string name="voucher_is_account_number">Det ser ud til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge ud.</string>
+    <string name="voucher_is_account_number">Det lader til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge af.</string>
     <string name="voucher_success_title">Indløsning af kuponen lykkedes.</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev afvist, eller en anden app har \"VPN altid aktiveret\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-tilladelse blev afvist</string>

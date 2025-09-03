@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2025-08-08 07:35\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "Еще %(amount)d..."
@@ -1863,6 +1863,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Произошла ошибка."
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы."
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2083,7 +2087,6 @@ msgid "Multihop"
 msgstr "Многократный переход"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "Настройки"
@@ -2816,6 +2819,12 @@ msgstr "%s (удалено)"
 msgid "%s custom port"
 msgstr "Пользовательский порт %s"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s уже используется как входной сервер ретрансляции"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s уже используется как выходной сервер ретрансляции"
+
 msgid "%s is unavailable"
 msgstr "%s недоступно"
 
@@ -2912,8 +2921,8 @@ msgstr "Автоподключение и режим блокировки"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "В системных настройках Android автоподключение называется «Постоянная VPN». Эта опция обеспечивает постоянное подключение к туннелю VPN и автоподключение после перезапуска."
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "Автоматическое подключение при запуске устройства. Приложению понадобится разрешение для VPN."
+msgid "Automatically connect on device start-up."
+msgstr "Автоматически подключаться при запуске устройства."
 
 msgid "Blocking internet (device offline)"
 msgstr "Блокируется доступ в Интернет (устройство офлайн)"
@@ -3035,6 +3044,9 @@ msgstr "Включить недавние"
 msgid "Enter MTU"
 msgstr "Введите MTU"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "Входной сервер ретрансляции совпадает с выходным сервером ретрансляции"
+
 msgid "Excluded applications"
 msgstr "Исключенные приложения"
 
@@ -3061,6 +3073,9 @@ msgstr "Файл"
 
 msgid "Filters:"
 msgstr "Фильтры:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "Чтобы VPN подключался автоматически при запуске устройства, приложению нужны разрешения на использование VPN. Чтобы предоставить их, нажмите «Подключить» на карте и подтвердите выбор кнопкой «ОК». Убедитесь также, что приложение установлено во внутренней памяти устройства — это можно увидеть в сведениях о приложении в системных настройках."
 
 msgid "Go to VPN settings"
 msgstr "Перейти к настройкам VPN"
@@ -3106,9 +3121,6 @@ msgstr "Недопустимое или отсутствующее значен�
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Может быть полезно, если вам известно, что с определенной версией IP есть проблемы."
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Позволяет выбрать приложения, которые должны получать доступ к Интернету напрямую, не проходя через VPN-туннель."
@@ -3169,6 +3181,9 @@ msgstr "По запросу «%s» ничего не найдено — поп�
 
 msgid "Not found"
 msgstr "Не найдено"
+
+msgid "Open app details"
+msgstr "Открыть сведения о приложении"
 
 msgid "Overrides active"
 msgstr "Переопределения активны"

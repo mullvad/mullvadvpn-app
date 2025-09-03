@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2025-08-08 07:35\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -1851,6 +1851,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Det oppstod en feil."
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut."
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2071,7 +2075,6 @@ msgid "Multihop"
 msgstr "Multihopp"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "Innstillinger"
@@ -2804,6 +2807,12 @@ msgstr "%s (fjernet)"
 msgid "%s custom port"
 msgstr "tilpasset %s-port"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s er allerede valgt som inngangsrelé"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s er allerede valgt som utgangsrelé"
+
 msgid "%s is unavailable"
 msgstr "%s er utilgjengelig"
 
@@ -2900,8 +2909,8 @@ msgstr "Automatisk tilkobling og låsemodus"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automatisk tilkobling heter «Alltid-på-VPN» i Androids systeminnstillinger og sørger for at du alltid er tilkoblet VPN-tunnelen og automatisk tilkobling etter omstart."
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "Koble til automatisk ved oppstart av enheten. Fungerer bare hvis appen har fått VPN-tillatelse."
+msgid "Automatically connect on device start-up."
+msgstr "Koble automatisk til enheten ved oppstart."
 
 msgid "Blocking internet (device offline)"
 msgstr "Blokkerer internett (enhet frakoblet)"
@@ -3023,6 +3032,9 @@ msgstr "Aktiver nylige"
 msgid "Enter MTU"
 msgstr "Angi MTU"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "Inngangsrelé er det samme som utgangsrelé"
+
 msgid "Excluded applications"
 msgstr "Ekskluder applikasjoner"
 
@@ -3049,6 +3061,9 @@ msgstr "Fil"
 
 msgid "Filters:"
 msgstr "Filtre:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "For at VPN skal kobles automatisk til ved oppstart av enheten, må appen ha VPN-tillatelser. Du kan gi disse ved å klikke på «Koble til» i kartvisningen og velge «OK» hvis du blir bedt om det. I tillegg må du sørge for at appen er installert på det interne lagringsmediet ved å sjekke lagringsinformasjonen i appdetaljene i systeminnstillingene."
 
 msgid "Go to VPN settings"
 msgstr "Gå til VPN-innstillinger"
@@ -3094,9 +3109,6 @@ msgstr "Ugyldig eller mangler verdien «%1$s»"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Det kan være nyttig når du er klar over problemer som skyldes en bestemt IP-versjon."
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Lar deg velge apper som skal få tilgang til internett direkte uten å gå gjennom VPN-tunnelen."
@@ -3157,6 +3169,9 @@ msgstr "Ingen resultater for «%s». Prøv et annet søk"
 
 msgid "Not found"
 msgstr "Ikke funnet"
+
+msgid "Open app details"
+msgstr "Åpne appdetaljer"
 
 msgid "Overrides active"
 msgstr "Overstyringer aktive"

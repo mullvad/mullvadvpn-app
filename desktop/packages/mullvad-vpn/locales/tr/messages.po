@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2025-08-08 07:35\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -1851,6 +1851,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Bir hata oluştu."
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın."
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2071,7 +2075,6 @@ msgid "Multihop"
 msgstr "Çoklu geçiş"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "Ayarlar"
@@ -2804,6 +2807,12 @@ msgstr "%s (kaldırıldı)"
 msgid "%s custom port"
 msgstr "%s özel portu"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s zaten giriş aktarıcısı olarak seçildi"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s zaten çıkış aktarıcısı olarak seçildi"
+
 msgid "%s is unavailable"
 msgstr "%s kullanılamıyor"
 
@@ -2900,8 +2909,8 @@ msgstr "Otomatik bağlantı ve Kilitleme modu"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar."
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "Cihaz başlatılırken otomatik olarak bağlanır. Yalnızca uygulamaya VPN izni verilmişse etkinleşir."
+msgid "Automatically connect on device start-up."
+msgstr "Cihaz başlatıldığında otomatik bağlan."
 
 msgid "Blocking internet (device offline)"
 msgstr "İnternet bağlantısı engelleniyor (cihaz çevrimdışı)"
@@ -3023,6 +3032,9 @@ msgstr "Son filtreleri etkinleştir"
 msgid "Enter MTU"
 msgstr "MTU'yu girin"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "Giriş aktarıcısı çıkış aktarıcısıyla aynı"
+
 msgid "Excluded applications"
 msgstr "Hariç tutulan uygulamalar"
 
@@ -3049,6 +3061,9 @@ msgstr "Dosya"
 
 msgid "Filters:"
 msgstr "Filtreler:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "VPN'in cihaz başlatıldığında otomatik olarak bağlanabilmesi için uygulamanın VPN izinlerine sahip olması gerekir. Harita görünümünde “Bağlan”a tıklayıp istendiğinde “Tamam”ı seçerek bu izinleri verebilirsiniz. Ayrıca, sistem ayarlarında yer alan uygulama ayrıntılarındaki depolama bilgilerini kontrol ederek uygulamanın dahili depolamaya yüklendiğinden emin olun."
 
 msgid "Go to VPN settings"
 msgstr "VPN ayarlarına git"
@@ -3094,9 +3109,6 @@ msgstr "Geçersiz veya eksik \"%1$s\" değeri"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Bu, belirli bir IP sürümünün neden olduğu sorunların farkında olduğunuzda faydalı olabilir."
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar."
@@ -3157,6 +3169,9 @@ msgstr "\"%s\" için sonuç yok, lütfen farklı bir arama yapın"
 
 msgid "Not found"
 msgstr "Bulunamadı"
+
+msgid "Open app details"
+msgstr "Uygulama ayrıntılarını aç"
 
 msgid "Overrides active"
 msgstr "Geçersiz kılmalar etkin"
