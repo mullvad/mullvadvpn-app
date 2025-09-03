@@ -2,8 +2,7 @@ import styled, { css, RuleSet } from 'styled-components';
 
 import { colors } from '../../../foundations';
 import { Flex } from '../../flex';
-import { useAccordionContext } from '../AccordionContext';
-import { useAnimation } from '../hooks';
+import { ListItem } from '../../list-item';
 
 export type AccordionHeaderProps = {
   children?: React.ReactNode;
@@ -28,16 +27,9 @@ export const StyledAccordionHeader = styled(Flex)<{
 `;
 
 export function AccordionHeader({ children }: AccordionHeaderProps) {
-  const animation = useAnimation();
-  const { disabled } = useAccordionContext();
   return (
-    <StyledAccordionHeader
-      $padding={{ horizontal: 'medium', vertical: 'small' }}
-      $alignItems="center"
-      $justifyContent="space-between"
-      $animation={animation}
-      $disabled={disabled}>
-      {children}
-    </StyledAccordionHeader>
+    <ListItem.Item>
+      <ListItem.Content>{children}</ListItem.Content>
+    </ListItem.Item>
   );
 }

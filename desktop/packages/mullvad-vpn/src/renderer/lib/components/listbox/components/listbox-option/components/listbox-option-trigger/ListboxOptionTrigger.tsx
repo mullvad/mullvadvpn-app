@@ -36,12 +36,17 @@ export const StyledListItemOptionTrigger = styled.li<{ $disabled?: boolean }>`
         }
 
         &&[aria-selected='true'] {
-          &:hover {
+          ${StyledListItemOptionItem} {
             ${StyledListItemOptionItem} {
               background-color: ${colors.green};
             }
           }
-          &:active {
+          &&:hover {
+            ${StyledListItemOptionItem} {
+              background-color: ${colors.green};
+            }
+          }
+          &&:active {
             ${StyledListItemOptionItem} {
               background-color: ${colors.green};
             }
