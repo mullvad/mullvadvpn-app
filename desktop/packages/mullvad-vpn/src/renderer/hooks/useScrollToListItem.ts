@@ -1,16 +1,17 @@
+import React from 'react';
+
 import { ScrollToAnchorId } from '../../shared/ipc-types';
 import { ListItemAnimation } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
 import { useScrollToReference } from '.';
 
-export const useScrollToListItem = (
-  ref?: React.RefObject<HTMLDivElement | null>,
+export const useScrollToListItem = <T extends Element = HTMLDivElement>(
   id?: ScrollToAnchorId,
-):
-  | {
-      animation: ListItemAnimation;
-    }
-  | undefined => {
+): {
+  ref?: React.RefObject<T | null>;
+  animation?: ListItemAnimation;
+} => {
+  const ref = React.useRef<T>(null);
   const { location, action } = useHistory();
   const { state } = location;
 
@@ -19,8 +20,14 @@ export const useScrollToListItem = (
   const scroll = id === anchorId && !isPop;
   useScrollToReference(ref, scroll);
 
-  if (anchorId === undefined || isPop) return undefined;
+  if (anchorId === undefined || isPop) {
+    return {
+      ref: undefined,
+      animation: undefined,
+    };
+  }
   return {
+    ref,
     animation: scroll ? 'flash' : 'dim',
   };
 };
