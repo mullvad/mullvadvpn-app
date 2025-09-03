@@ -85,7 +85,7 @@ export function useSettingsRowContext() {
   return useContext(settingsRowContext);
 }
 
-interface IndentedRowProps {
+export interface IndentedRowProps {
   label: string;
   infoMessage?: string | Array<string>;
   errorMessage?: string;
