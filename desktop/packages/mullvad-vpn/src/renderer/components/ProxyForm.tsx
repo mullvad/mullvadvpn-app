@@ -17,7 +17,7 @@ import * as Cell from './cell';
 import { SettingsForm, useSettingsFormSubmittable } from './cell/SettingsForm';
 import { SettingsGroup } from './cell/SettingsGroup';
 import { SettingsRadioGroup } from './cell/SettingsRadioGroup';
-import { SettingsRow } from './cell/SettingsRow';
+import { IndentedRowProps, SettingsRow } from './cell/SettingsRow';
 import { SettingsSelect, SettingsSelectItem } from './cell/SettingsSelect';
 import {
   SettingsNumberInput,
@@ -136,6 +136,7 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
 
 type ProxyFormNameFieldProps = {
   inputProps?: Partial<SettingsTextInputProps>;
+  rowProps?: Partial<IndentedRowProps>;
 };
 
 export function ProxyFormNameField(props: ProxyFormNameFieldProps) {
@@ -143,7 +144,7 @@ export function ProxyFormNameField(props: ProxyFormNameFieldProps) {
 
   return (
     <SettingsGroup>
-      <SettingsRow label={messages.gettext('Name')}>
+      <SettingsRow label={messages.gettext('Name')} {...props?.rowProps}>
         <SettingsTextInput
           defaultValue={name}
           placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
