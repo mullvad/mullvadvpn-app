@@ -1,12 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
 
-import { FlexColumn } from '../flex-column';
+import { ListItem, ListItemProps } from '../list-item';
 import { AccordionProvider } from './AccordionContext';
-import { AccordionHeader, AccordionTrigger } from './components';
-import { AccordionContent } from './components/AccordionContent';
-import { AccordionIcon } from './components/AccordionIcon';
-import { AccordionTitle } from './components/AccordionTitle';
+import {
+  AccordionContent,
+  AccordionHeader,
+  AccordionIcon,
+  AccordionTitle,
+  AccordionTrigger,
+} from './components';
 
 export type AccordionAnimation = 'flash' | 'dim';
 
@@ -16,11 +18,7 @@ export type AccordionProps = {
   disabled?: boolean;
   animation?: AccordionAnimation;
   children?: React.ReactNode;
-} & React.ComponentPropsWithRef<'div'>;
-
-const StyledAccordion = styled(FlexColumn)`
-  width: 100%;
-`;
+} & ListItemProps;
 
 function Accordion({
   expanded = false,
@@ -40,11 +38,10 @@ function Accordion({
       titleId={titleId}
       expanded={expanded}
       onExpandedChange={onOpenChange}
-      disabled={disabled}
-      animation={animation}>
-      <StyledAccordion $flex={1} {...props}>
+      disabled={disabled}>
+      <ListItem disabled={disabled} animation={animation} {...props}>
         {children}
-      </StyledAccordion>
+      </ListItem>
     </AccordionProvider>
   );
 }
