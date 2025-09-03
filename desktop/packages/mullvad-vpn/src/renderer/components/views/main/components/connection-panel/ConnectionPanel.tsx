@@ -15,8 +15,8 @@ import {
   FeatureIndicators,
   Hostname,
   Location,
+  SelectLocationButtons,
 } from './components';
-import SelectLocationButton from './components/select-location-button/SelectLocationButton';
 
 const PANEL_MARGIN = '16px';
 
@@ -120,7 +120,7 @@ export function ConnectionPanel() {
           </StyledAccordion>
         </StyledCustomScrollbars>
         <StyledConnectionButtonContainer>
-          <SelectLocationButton />
+          <SelectLocationButtons />
           <ConnectionActionButton />
         </StyledConnectionButtonContainer>
       </StyledConnectionPanel>
