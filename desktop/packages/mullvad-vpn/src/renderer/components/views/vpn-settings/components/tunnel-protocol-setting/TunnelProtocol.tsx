@@ -24,7 +24,7 @@ export function TunnelProtocolSetting() {
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
   const openVpnDisabled = daita || multihop || quantumResistant;
 
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   const featuresToDisableForOpenVpn = [];
   if (daita) {
@@ -66,7 +66,7 @@ export function TunnelProtocolSetting() {
     <Listbox
       onValueChange={setTunnelProtocol}
       value={tunnelProtocol}
-      animation={scrollToAnchor?.animation}
+      animation={animation}
       aria-description={openVpnDisabled ? openVpnDisabledFooter : undefined}>
       <Listbox.Item>
         <Listbox.Content>

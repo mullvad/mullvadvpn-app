@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
@@ -14,9 +14,7 @@ import { ToggleListItem } from '../../../../toggle-list-item';
 export function LockdownModeSetting() {
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
   const { setBlockWhenDisconnected: setBlockWhenDisconnectedImpl } = useAppContext();
-  const id = 'lockdown-mode-setting';
-  const ref = useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('lockdown-mode-setting');
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
     useBoolean(false);
@@ -52,7 +50,7 @@ export function LockdownModeSetting() {
   return (
     <ToggleListItem
       ref={ref}
-      animation={scrollToAnchor?.animation}
+      animation={animation}
       checked={blockWhenDisconnected}
       onCheckedChange={setLockDownMode}>
       <ToggleListItem.Label>
