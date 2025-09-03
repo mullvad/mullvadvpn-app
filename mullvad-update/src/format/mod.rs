@@ -50,9 +50,9 @@ struct PartialSignedResponse {
 }
 
 /// Signed JSON response, not including the signature
-#[derive(Default, Debug, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(test, derive(Clone, PartialEq))]
+#[cfg_attr(test, derive(PartialEq))]
 pub struct Response {
     /// Version counter
     pub metadata_version: usize,
@@ -63,8 +63,7 @@ pub struct Response {
 }
 
 /// App release
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(test, derive(Clone))]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Release {
     /// Mullvad app version
     pub version: mullvad_version::Version,
@@ -116,6 +115,7 @@ pub struct Installer {
 /// Installer architecture
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "strum", derive(strum::EnumIter))]
 pub enum Architecture {
     /// x86-64 architecture
     X86,
