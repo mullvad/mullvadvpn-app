@@ -125,6 +125,9 @@ test.describe('Select location', () => {
     });
 
     test('Should disable entry server in exit list', async () => {
+      await util.ipc.tunnel.connect.ignore();
+      await util.ipc.settings.setRelaySettings.ignore();
+
       const settings = await helpers.updateMockSettings({
         multihop: true,
         daita: true,
