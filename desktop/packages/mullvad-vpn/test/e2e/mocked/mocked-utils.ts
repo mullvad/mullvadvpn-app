@@ -2,6 +2,7 @@ import { ElectronApplication } from 'playwright';
 
 import { AnyIpcCall, createIpc, Schema } from '../../../src/shared/ipc-helpers';
 import { IpcSchema, ipcSchema } from '../../../src/shared/ipc-schema';
+import { Async } from '../../../src/shared/utility-types';
 import { startApp, TestUtils } from '../utils';
 
 // This option can be removed in the future when/if we're able to tun the tests with the sandbox
@@ -13,9 +14,6 @@ interface StartMockedAppResponse extends Awaited<ReturnType<typeof startApp>> {
 }
 
 export interface MockedTestUtils extends TestUtils {
-  mockIpcHandle: MockIpcHandle;
-  sendMockIpcResponse: SendMockIpcResponse;
-  expectIpcCall: ExpectIpcCall;
   ipc: IpcMockedTest<IpcSchema>;
 }
 
@@ -29,77 +27,55 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
   args.push('--gtk-version=3');
 
   const startAppResult = await startApp({ args });
-  const mockIpcHandle = generateMockIpcHandle(startAppResult.app);
-  const sendMockIpcResponse = generateSendMockIpcResponse(startAppResult.app);
-  const expectIpcCall = generateExpectIpcCall(startAppResult.app);
 
   return {
     ...startAppResult,
     util: {
       ...startAppResult.util,
-      mockIpcHandle,
-      sendMockIpcResponse,
-      expectIpcCall,
-
       ipc: createTestIpc(startAppResult.app),
     },
   };
 };
 
-type MockIpcHandleProps<T> = {
-  channel: string;
-  response: T;
-};
-
-export type MockIpcHandle = ReturnType<typeof generateMockIpcHandle>;
-
-export const generateMockIpcHandle = (electronApp: ElectronApplication) => {
-  return async <T>({ channel, response }: MockIpcHandleProps<T>): Promise<void> => {
+export const createMockIpcHandle = (electronApp: ElectronApplication, event: string) => {
+  // This function resolves when the handle is registered. To await the event, use `expect()`.
+  return async <T>(response: T): Promise<void> => {
     await electronApp.evaluate(
-      ({ ipcMain }, { channel, response }) => {
-        ipcMain.removeHandler(channel);
-        ipcMain.handle(channel, () => {
+      ({ ipcMain }, { event, response }) => {
+        ipcMain.removeHandler(event);
+        ipcMain.handle(event, () => {
           return Promise.resolve({
             type: 'success',
             value: response,
           });
         });
       },
-      { channel, response },
+      { event, response },
     );
   };
 };
 
-type SendMockIpcResponseProps<T> = {
-  channel: string;
-  response: T;
-};
-
-export type SendMockIpcResponse = ReturnType<typeof generateSendMockIpcResponse>;
-
-export const generateSendMockIpcResponse = (electronApp: ElectronApplication) => {
-  return async <T>({ channel, response }: SendMockIpcResponseProps<T>) => {
+export const createMockIpcNotify = (electronApp: ElectronApplication, event: string) => {
+  return async <T>(arg: T) => {
     await electronApp.evaluate(
-      ({ webContents }, { channel, response }) => {
+      ({ webContents }, { event, arg }) => {
         webContents
           .getAllWebContents()
           // Select window that isn't devtools
           .find((webContents) => webContents.getURL().startsWith('file://'))!
-          .send(channel, response);
+          .send(event, arg);
       },
-      { channel, response },
+      { event, arg },
     );
   };
 };
 
-export type ExpectIpcCall = ReturnType<typeof generateExpectIpcCall>;
-
-export const generateExpectIpcCall = (electronApp: ElectronApplication) => {
-  return <T>(channel: string): Promise<T> => {
+export const createMockIpcExpect = (electronApp: ElectronApplication, event: string) => {
+  return <T>(): Promise<T> => {
     return electronApp.evaluate(
-      ({ ipcMain }, { channel }) => {
+      ({ ipcMain }, { event }) => {
         return new Promise<T>((resolve) => {
-          ipcMain.handleOnce(channel, (_event, arg) => {
+          ipcMain.handleOnce(event, (_event, arg) => {
             resolve(arg);
             return {
               type: 'success',
@@ -108,22 +84,22 @@ export const generateExpectIpcCall = (electronApp: ElectronApplication) => {
           });
         });
       },
-      { channel },
+      { event },
     );
   };
 };
 
-export const generateIgnoreIpcCall = (electronApp: ElectronApplication) => {
-  return async (channel: string): Promise<void> => {
+export const createMockIpcIgnore = (electronApp: ElectronApplication, event: string) => {
+  return async (): Promise<void> => {
     await electronApp.evaluate(
-      ({ ipcMain }, { channel }) => {
-        ipcMain.removeHandler(channel);
-        ipcMain.handle(channel, () => ({
+      ({ ipcMain }, { event }) => {
+        ipcMain.removeHandler(event);
+        ipcMain.handle(event, () => ({
           type: 'success',
           value: null,
         }));
       },
-      { channel },
+      { event },
     );
   };
 };
@@ -136,9 +112,6 @@ type IpcMockedTestExtraHandlerKey<
   I extends AnyIpcCall,
   K,
 > = I['direction'] extends 'main-to-renderer' ? never : K;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Async<F extends (...args: any) => any> = (arg: Parameters<F>[0]) => Promise<ReturnType<F>>;
 
 type IpcMockedTestFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
   ? Async<NonNullable<ReturnType<I['send']>>>
@@ -164,12 +137,10 @@ export function createTestIpc(electronApp: ElectronApplication): IpcMockedTest<I
       key,
       {
         eventKey: event,
-        notify: <T>(message: T) =>
-          generateSendMockIpcResponse(electronApp)({ channel: event, response: message }),
-        handle: <T>(response: T) =>
-          generateMockIpcHandle(electronApp)({ channel: event, response }),
-        expect: () => generateExpectIpcCall(electronApp)(event),
-        ignore: () => generateIgnoreIpcCall(electronApp)(event),
+        notify: createMockIpcNotify(electronApp, event),
+        handle: createMockIpcHandle(electronApp, event),
+        expect: createMockIpcExpect(electronApp, event),
+        ignore: createMockIpcIgnore(electronApp, event),
       },
     ];
   });
