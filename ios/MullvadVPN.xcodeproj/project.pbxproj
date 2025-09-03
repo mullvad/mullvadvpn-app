@@ -744,6 +744,7 @@
 		85F1E17E2C0A256200DB8F55 /* LeakTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85F1E17D2C0A256200DB8F55 /* LeakTests.swift */; };
 		85FB5A0C2B6903990015DCED /* WelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0B2B6903990015DCED /* WelcomePage.swift */; };
 		85FB5A102B6960A30015DCED /* AccountDeletionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0F2B6960A30015DCED /* AccountDeletionPage.swift */; };
+		A9019ED72E6878CD0002ACA9 /* SegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */; };
 		A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */; };
 		A90763B02B2857D50045ADF0 /* Socks5ConnectCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */; };
 		A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */; };
@@ -1040,7 +1041,6 @@
 		F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */; };
 		F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
 		F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */; };
-		F0A7AAA22E1D31E200D433E8 /* ScaledSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7AAA12E1D31E200D433E8 /* ScaledSegmentedControl.swift */; };
 		F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7EBB12CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift */; };
 		F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		F0A89CB32D9D6C2100580C27 /* MullvadDeviceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A89CB22D9D6C1400580C27 /* MullvadDeviceProxy.swift */; };
@@ -2322,6 +2322,7 @@
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "APIProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessTokenManager+Stubs.swift"; sourceTree = "<group>"; };
+		A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControl.swift; sourceTree = "<group>"; };
 		A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileOutputStreamTests.swift; sourceTree = "<group>"; };
 		A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectCommand.swift; sourceTree = "<group>"; };
 		A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Endpoint.swift; sourceTree = "<group>"; };
@@ -2503,7 +2504,6 @@
 		F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsStrategyTests.swift; sourceTree = "<group>"; };
 		F0A163882C47B46300592300 /* SingleHopEphemeralPeerExchangerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleHopEphemeralPeerExchangerTests.swift; sourceTree = "<group>"; };
 		F0A66C992E4A3607006F190A /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F0A7AAA12E1D31E200D433E8 /* ScaledSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaledSegmentedControl.swift; sourceTree = "<group>"; };
 		F0A7EBB12CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLogTests.swift; sourceTree = "<group>"; };
 		F0A89CB22D9D6C1400580C27 /* MullvadDeviceProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadDeviceProxy.swift; sourceTree = "<group>"; };
 		F0A89CB62D9D922300580C27 /* String+UnsafePointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+UnsafePointer.swift"; sourceTree = "<group>"; };
@@ -3396,12 +3396,12 @@
 				F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */,
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
-				F0A7AAA12E1D31E200D433E8 /* ScaledSegmentedControl.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */,
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
 				7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */,
+				A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -6652,6 +6652,7 @@
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
+				A9019ED72E6878CD0002ACA9 /* SegmentedControl.swift in Sources */,
 				F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */,
 				F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */,
 				58CEB2F92AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift in Sources */,
@@ -6777,7 +6778,6 @@
 				A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */,
 				7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */,
 				586C0D812B03CA8400E7CDD7 /* CurrentValueSubject+UIActionBindings.swift in Sources */,
-				F0A7AAA22E1D31E200D433E8 /* ScaledSegmentedControl.swift in Sources */,
 				581DFAEA2B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift in Sources */,
 				A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */,
 				F910A4312D4A1B41002FF3BB /* InAppPurchaseCoordinator.swift in Sources */,
