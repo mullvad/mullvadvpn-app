@@ -33,10 +33,9 @@ struct MullvadPrimaryTextField: View {
 
     private var showSuggestion: Bool {
         if let suggestion,
-            !suggestion.isEmpty,
-            suggestion != text,
-            isEnabled
-        {
+           !suggestion.isEmpty,
+           suggestion != text,
+           isEnabled {
             return true
         }
         return false
@@ -88,7 +87,7 @@ struct MullvadPrimaryTextField: View {
                 .foregroundColor(isEnabled ? .MullvadTextField.textInput : .MullvadTextField.textDisabled)
                 .overlay {
                     if isFocused {
-                        RoundedCorner(
+                        MullvadRoundedCorner(
                             cornerRadius: 4,
                             corners: !showSuggestion
                                 ? [.allCorners]
@@ -104,7 +103,7 @@ struct MullvadPrimaryTextField: View {
                             lineWidth: 4
                         )
                     } else if isEnabled {
-                        RoundedCorner(
+                        MullvadRoundedCorner(
                             cornerRadius: 4,
                             corners: !showSuggestion
                                 ? [.allCorners]
@@ -121,20 +120,18 @@ struct MullvadPrimaryTextField: View {
                         )
                     }
                 }
-                .clipShape(
-                    RoundedCorner(
-                        cornerRadius: 4,
-                        corners: !showSuggestion
-                            ? [.allCorners]
-                            : [
-                                .topLeft,
-                                .topRight,
-                            ]
-                    ))
+                .clipShape(MullvadRoundedCorner(
+                    cornerRadius: 4,
+                    corners: !showSuggestion
+                        ? [.allCorners]
+                        : [
+                            .topLeft,
+                            .topRight,
+                        ]
+                ))
 
                 if showSuggestion,
-                    let suggestion
-                {
+                   let suggestion {
                     HStack {
                         Button {
                             withAnimation {
@@ -160,27 +157,11 @@ struct MullvadPrimaryTextField: View {
                 }
             }
             .clipShape(
-                RoundedCorner(cornerRadius: 4)
+                MullvadRoundedCorner(cornerRadius: 4)
             )
         }
         .transformEffect(.identity)
         .animation(.default, value: showSuggestion)
-    }
-}
-
-private struct RoundedCorner: Shape {
-    var cornerRadius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-    var insertBy: CGFloat = 0
-
-    func path(in rect: CGRect) -> Path {
-        let insetRect = rect.insetBy(dx: insertBy, dy: insertBy)
-        let path = UIBezierPath(
-            roundedRect: insetRect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: cornerRadius, height: cornerRadius)
-        )
-        return Path(path.cgPath)
     }
 }
 
