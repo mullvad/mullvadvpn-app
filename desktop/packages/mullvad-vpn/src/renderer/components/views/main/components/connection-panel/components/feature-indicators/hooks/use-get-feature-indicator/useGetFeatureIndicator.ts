@@ -13,6 +13,12 @@ export const useGetFeatureIndicator = () => {
   const gotoDaitaFeature = React.useCallback(() => {
     history.push(RoutePath.daitaSettings, {
       transition: TransitionType.show,
+    });
+  }, [history]);
+
+  const gotoEnableDaitaFeature = React.useCallback(() => {
+    history.push(RoutePath.daitaSettings, {
+      transition: TransitionType.show,
       options: [
         {
           type: 'scroll-to-anchor',
@@ -149,7 +155,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const featureMap: Record<FeatureIndicator, { label: string; onClick?: () => void }> = {
-    [FeatureIndicator.daita]: { label: strings.daita, onClick: gotoDaitaFeature },
+    [FeatureIndicator.daita]: { label: strings.daita, onClick: gotoEnableDaitaFeature },
     [FeatureIndicator.daitaMultihop]: {
       label: sprintf(
         // TRANSLATORS: This is used as a feature indicator to show that DAITA is enabled through
