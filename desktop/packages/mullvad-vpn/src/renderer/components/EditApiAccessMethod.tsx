@@ -91,6 +91,19 @@ function AccessMethodForm() {
   const title = getTitle(id === undefined);
   const subtitle = getSubtitle(id === undefined);
 
+  const customAccessMethods = useSelector((state) => state.settings.apiAccessMethods.custom);
+  const onValidate = useCallback(
+    (value: string) => {
+      const nameUsedInOtherAccessMethod = customAccessMethods.some(
+        (customAccessMethod) =>
+          method?.id !== customAccessMethod.id && customAccessMethod.name === value,
+      );
+
+      return !nameUsedInOtherAccessMethod;
+    },
+    [customAccessMethods, method],
+  );
+
   return (
     <BackAction action={pop}>
       <Layout>
@@ -109,7 +122,15 @@ function AccessMethodForm() {
                   <span>Failed to open method</span>
                 ) : (
                   <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop}>
-                    <ProxyFormNameField />
+                    <ProxyFormNameField
+                      rowProps={{
+                        errorMessage: messages.pgettext(
+                          'api-access-methods-view',
+                          'Please select a name for the access method not already in use.',
+                        ),
+                      }}
+                      inputProps={{ validate: onValidate }}
+                    />
                     <ProxyFormInner />
                     <ProxyFormButtons />
                   </NamedProxyForm>
