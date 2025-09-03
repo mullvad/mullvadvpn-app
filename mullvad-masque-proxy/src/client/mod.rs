@@ -388,8 +388,7 @@ impl Client {
             return_addr_tx,
         ));
 
-        let (send_tx, send_rx): (_, mpsc::Receiver<(SocketAddr, Bytes)>) =
-            mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (send_tx, send_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
 
         let mut client_socket_tx_task =
             tokio::task::spawn(client_socket_tx_task(self.client_socket.clone(), send_rx));
@@ -533,26 +532,37 @@ async fn client_socket_rx_task(
     Ok(())
 }
 
-#[cfg(target_os = "windows")]
 async fn client_socket_tx_task(
+    client_socket: Arc<UdpSocket>,
+    send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
+) -> Result<()> {
+    #[cfg(target_os = "windows")]
+    {
+        if *windows::MAX_GSO_SEGMENTS == 1 {
+            log::debug!("Disabling UDP GSO");
+            return client_socket_non_gso_tx_task(client_socket, send_rx).await;
+        }
+        client_socket_gso_tx_task(client_socket, send_rx).await
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    client_socket_non_gso_tx_task(client_socket, send_rx).await
+}
+
+#[cfg(target_os = "windows")]
+async fn client_socket_gso_tx_task(
     client_socket: Arc<UdpSocket>,
     mut send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
 ) -> Result<()> {
     use bytes::Buf;
-    use std::collections::VecDeque;
-    use std::mem;
+    use std::{collections::VecDeque, mem};
     use tokio::io::Interest;
     use windows::*;
     use windows_sys::Win32::Networking::WinSock;
 
-    let client_socket_ref = socket2::SockRef::from(&client_socket);
-
     const MAX_SEGMENT_SIZE: usize = 1500;
 
-    if *MAX_GSO_SEGMENTS == 1 {
-        log::debug!("Disabling UDP GSO");
-        return client_socket_non_gso_tx_task(client_socket, send_rx).await;
-    }
+    let client_socket_ref = socket2::SockRef::from(&client_socket);
 
     let mut buffer = Vec::with_capacity(*MAX_GSO_SEGMENTS * MAX_SEGMENT_SIZE);
     let mut cmsg_buf = Cmsg::new(
@@ -648,14 +658,6 @@ async fn client_socket_tx_task(
     }
 
     Ok(())
-}
-
-#[cfg(not(target_os = "windows"))]
-async fn client_socket_tx_task(
-    client_socket: Arc<UdpSocket>,
-    send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
-) -> Result<()> {
-    client_socket_non_gso_tx_task(client_socket, send_rx).await
 }
 
 async fn client_socket_non_gso_tx_task(
@@ -889,7 +891,9 @@ impl rustls::client::danger::ServerCertVerifier for Approver {
 
 #[cfg(target_os = "windows")]
 mod windows {
-    use std::{ffi::c_uchar, mem};
+    use socket2::{Domain, Socket, Type};
+    use std::{ffi::c_uchar, mem, sync::LazyLock};
+    use std::{ffi::c_uint, os::windows::io::AsRawSocket};
     use windows_sys::Win32::Networking::WinSock::{self, CMSGHDR};
 
     /// Struct representing a CMSG
@@ -932,59 +936,61 @@ mod windows {
         }
     }
 
+    /// The total size of an ancillary data object given the amount of data
+    /// Source: ws2def.h: CMSG_SPACE macro
+    pub fn cmsg_space(length: usize) -> usize {
+        cmsgdata_align(mem::size_of::<CMSGHDR>() + cmsghdr_align(length))
+    }
+
+    /// Value to store in the `cmsg_len` of the CMSG header given an amount of data.
+    /// Source: ws2def.h: CMSG_LEN macro
+    pub fn cmsg_len(length: usize) -> usize {
+        cmsgdata_align(mem::size_of::<CMSGHDR>()) + length
+    }
+
+    /// Pointer to the first byte of data in `cmsg`.
+    /// Source: ws2def.h: CMSG_DATA macro
+    pub unsafe fn cmsg_data(cmsg: *mut CMSGHDR) -> *mut c_uchar {
+        (cmsg as usize + cmsgdata_align(mem::size_of::<CMSGHDR>())) as *mut c_uchar
+    }
+
+    // Taken from ws2def.h: CMSGHDR_ALIGN macro
     pub fn cmsghdr_align(length: usize) -> usize {
         (length + mem::align_of::<WinSock::CMSGHDR>() - 1)
             & !(mem::align_of::<WinSock::CMSGHDR>() - 1)
     }
 
+    // Source: ws2def.h: CMSGDATA_ALIGN macro
     pub fn cmsgdata_align(length: usize) -> usize {
         (length + mem::align_of::<usize>() - 1) & !(mem::align_of::<usize>() - 1)
     }
 
-    pub fn cmsg_space(length: usize) -> usize {
-        cmsgdata_align(mem::size_of::<CMSGHDR>() + cmsghdr_align(length))
-    }
+    pub static MAX_GSO_SEGMENTS: LazyLock<usize> = LazyLock::new(|| {
+        // Detect whether UDP GSO is supported
 
-    pub fn cmsg_len(length: usize) -> usize {
-        cmsgdata_align(mem::size_of::<CMSGHDR>()) + length
-    }
+        let Ok(socket) = Socket::new(Domain::IPV4, Type::DGRAM, None) else {
+            return 1;
+        };
 
-    pub unsafe fn cmsg_data(cmsg: *mut CMSGHDR) -> *mut c_uchar {
-        (cmsg as usize + cmsgdata_align(mem::size_of::<CMSGHDR>())) as *mut c_uchar
-    }
+        let mut gso_size: c_uint = 1500;
+
+        // SAFETY: We're correctly passing an *mut c_uint specifying the size, a valid socket, and
+        // its correct size.
+        let result = unsafe {
+            libc::setsockopt(
+                socket.as_raw_socket() as libc::SOCKET,
+                WinSock::IPPROTO_UDP,
+                WinSock::UDP_SEND_MSG_SIZE,
+                &mut gso_size as *mut _ as *mut _,
+                i32::try_from(std::mem::size_of_val(&gso_size)).unwrap(),
+            )
+        };
+
+        // If non-zero (error), set max segment count to 1. Otherwise, set it to 512.
+        // 512 is the "empirically found" value also used by quinn
+        match result {
+            0 => 512,
+            _ => 1,
+        }
+    });
 }
-
-#[cfg(target_os = "windows")]
-static MAX_GSO_SEGMENTS: LazyLock<usize> = LazyLock::new(|| {
-    // Detect whether UDP GSO is supported
-    use socket2::{Domain, Socket, Type};
-    use std::{ffi::c_uint, os::windows::io::AsRawSocket};
-    use windows_sys::Win32::Networking::WinSock;
-
-    let Ok(socket) = Socket::new(Domain::IPV6, Type::DGRAM, None)
-        .or_else(|_| Socket::new(Domain::IPV4, Type::DGRAM, None))
-    else {
-        return 1;
-    };
-
-    let mut gso_size: c_uint = 1500;
-
-    // SAFETY: We're correctly passing an *mut c_uint specifying the size, a valid socket, and
-    // its correct size.
-    let result = unsafe {
-        libc::setsockopt(
-            socket.as_raw_socket() as libc::SOCKET,
-            WinSock::IPPROTO_UDP,
-            WinSock::UDP_SEND_MSG_SIZE,
-            &mut gso_size as *mut _ as *mut _,
-            i32::try_from(std::mem::size_of_val(&gso_size)).unwrap(),
-        )
-    };
-
-    // If non-zero (error), set max segment count to 1. Otherwise, set it to 512.
-    // 512 is the "empirically found" value also used by quinn
-    match result {
-        0 => 512,
-        _ => 1,
-    }
-});
