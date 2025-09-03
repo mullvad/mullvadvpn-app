@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
-import { Flex } from '../../../../../lib/components';
+import { Flex, Spinner } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useAfterTransition } from '../../../../../lib/transition-hooks';
 import { useEffectEvent } from '../../../../../lib/utility-hooks';
@@ -11,7 +11,7 @@ import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../../../Setting
 import { ApplicationSearchBar } from '../application-search-bar';
 import { ApplicationSearchNoResult } from '../application-search-no-result';
 import { LaunchErrorDialog, LinuxApplicationList, OpenFilePickerButton } from './components';
-import { useShowLinuxApplicationList, useShowNoSearchResult } from './hooks';
+import { useShowLinuxApplicationList, useShowNoSearchResult, useShowSpinner } from './hooks';
 import { LinuxSettingsContextProvider, useLinuxSettingsContext } from './LinuxSettingsContext';
 
 function LinuxSettingsInner() {
@@ -20,6 +20,7 @@ function LinuxSettingsInner() {
   const runAfterTransition = useAfterTransition();
   const showLinuxApplicationList = useShowLinuxApplicationList();
   const showNoSearchResult = useShowNoSearchResult();
+  const showSpinner = useShowSpinner();
 
   const updateApplications = useEffectEvent(() => {
     runAfterTransition(async () => {
@@ -50,6 +51,11 @@ function LinuxSettingsInner() {
       {showNoSearchResult && <ApplicationSearchNoResult searchTerm={searchTerm} />}
       <FlexColumn $gap="medium">
         {showLinuxApplicationList && <LinuxApplicationList />}
+        {showSpinner && (
+          <Flex $justifyContent="center" $margin={{ top: 'large' }}>
+            <Spinner size="big" />
+          </Flex>
+        )}
         <Flex $margin={{ horizontal: 'medium', bottom: 'large' }}>
           <OpenFilePickerButton />
         </Flex>
