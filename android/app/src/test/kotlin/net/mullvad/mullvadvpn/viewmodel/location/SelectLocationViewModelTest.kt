@@ -86,7 +86,6 @@ class SelectLocationViewModelTest {
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
         mockkStatic(CUSTOM_LIST_EXTENSIONS)
-        mockkStatic(SETTINGS_UTIL_EXTENSIONS)
         viewModel =
             SelectLocationViewModel(
                 relayListFilterRepository = mockRelayListFilterRepository,
@@ -308,7 +307,11 @@ class SelectLocationViewModelTest {
         // Arrange
         val mockSettings = mockk<Settings>(relaxed = true)
         settings.value = mockSettings
-        every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.tunnelOptions.wireguard.daitaSettings.enabled } returns true
+        every { mockSettings.tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+        every {
+            mockSettings.relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
+        } returns true
         filterChips.value = listOf(FilterChip.Quic, FilterChip.Daita)
 
         // Act, Assert
@@ -327,8 +330,12 @@ class SelectLocationViewModelTest {
         val mockSettings = mockk<Settings>(relaxed = true)
         val expectedFilters = listOf(FilterChip.Ownership(ModelOwnership.MullvadOwned))
         settings.value = mockSettings
-        every { mockSettings.entryBlocked() } returns true
         filterChips.value = expectedFilters
+        every { mockSettings.tunnelOptions.wireguard.daitaSettings.enabled } returns true
+        every { mockSettings.tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+        every {
+            mockSettings.relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
+        } returns true
 
         // Act, Assert
         viewModel.uiState.test {
@@ -347,7 +354,5 @@ class SelectLocationViewModelTest {
             "net.mullvad.mullvadvpn.relaylist.RelayItemExtensionsKt"
         private const val CUSTOM_LIST_EXTENSIONS =
             "net.mullvad.mullvadvpn.relaylist.CustomListExtensionsKt"
-        private const val SETTINGS_UTIL_EXTENSIONS =
-            "net.mullvad.mullvadvpn.viewmodel.location.SettingsUtilKt"
     }
 }
