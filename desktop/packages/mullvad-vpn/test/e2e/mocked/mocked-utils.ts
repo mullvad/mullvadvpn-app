@@ -113,13 +113,29 @@ export const generateExpectIpcCall = (electronApp: ElectronApplication) => {
   };
 };
 
+export const generateIgnoreIpcCall = (electronApp: ElectronApplication) => {
+  return async (channel: string): Promise<void> => {
+    await electronApp.evaluate(
+      ({ ipcMain }, { channel }) => {
+        ipcMain.removeHandler(channel);
+        ipcMain.handle(channel, () => ({
+          type: 'success',
+          value: null,
+        }));
+      },
+      { channel },
+    );
+  };
+};
+
 type IpcMockedTestKey<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
   ? 'notify'
   : 'handle';
 
-type IpcMockedTestExpectKey<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
-  ? never
-  : 'expect';
+type IpcMockedTestExtraHandlerKey<
+  I extends AnyIpcCall,
+  K,
+> = I['direction'] extends 'main-to-renderer' ? never : K;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Async<F extends (...args: any) => any> = (arg: Parameters<F>[0]) => Promise<ReturnType<F>>;
@@ -133,7 +149,9 @@ export type IpcMockedTest<S extends Schema> = {
     [K in keyof S[G]]: {
       [C in IpcMockedTestKey<S[G][K]>]: IpcMockedTestFn<S[G][K]>;
     } & {
-      [C in IpcMockedTestExpectKey<S[G][K]>]: () => Promise<void>;
+      [C in IpcMockedTestExtraHandlerKey<S[G][K], 'expect'>]: () => Promise<void>;
+    } & {
+      [C in IpcMockedTestExtraHandlerKey<S[G][K], 'ignore'>]: () => Promise<void>;
     } & {
       eventKey: string;
     };
@@ -151,6 +169,7 @@ export function createTestIpc(electronApp: ElectronApplication): IpcMockedTest<I
         handle: <T>(response: T) =>
           generateMockIpcHandle(electronApp)({ channel: event, response }),
         expect: () => generateExpectIpcCall(electronApp)(event),
+        ignore: () => generateIgnoreIpcCall(electronApp)(event),
       },
     ];
   });
