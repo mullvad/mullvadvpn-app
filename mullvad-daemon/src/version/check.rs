@@ -63,7 +63,7 @@ pub(super) struct VersionCache {
     pub current_version_supported: bool,
     /// The latest available versions
     pub version_info: mullvad_update::version::VersionInfo,
-    #[cfg(in_app_upgrade)]
+    #[cfg(not(target_os = "android"))]
     pub metadata_version: usize,
 }
 
@@ -120,7 +120,7 @@ impl VersionUpdaterInner {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
     }
 
-    #[cfg(in_app_upgrade)]
+    #[cfg(not(target_os = "android"))]
     pub fn get_min_metadata_version(&self) -> usize {
         self.last_app_version_info
             .as_ref()
@@ -131,7 +131,7 @@ impl VersionUpdaterInner {
             .unwrap_or(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)
     }
 
-    #[cfg(not(in_app_upgrade))]
+    #[cfg(target_os = "android")]
     pub fn get_min_metadata_version(&self) -> usize {
         mullvad_update::version::MIN_VERIFY_METADATA_VERSION
     }
@@ -144,7 +144,7 @@ impl VersionUpdaterInner {
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
         mut new_version_info: VersionCache,
     ) {
-        #[cfg(in_app_upgrade)]
+        #[cfg(not(target_os = "android"))]
         if let Some((current_cache, _)) = self.last_app_version_info.as_ref() {
             if current_cache.metadata_version == new_version_info.metadata_version {
                 log::trace!("Ignoring version info with same metadata version");
@@ -377,7 +377,7 @@ fn do_version_check_in_background(
 }
 
 /// Combine the old version and new version endpoint
-#[cfg(any(in_app_upgrade, target_os = "linux"))]
+#[cfg(not(target_os = "android"))]
 fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
@@ -405,7 +405,6 @@ fn version_check_inner(
             cache_version: APP_VERSION.clone(),
             current_version_supported: result.current_version_supported,
             version_info: result.version_info,
-            #[cfg(in_app_upgrade)]
             metadata_version: result.metadata_version,
         })
     }
@@ -526,7 +525,7 @@ fn dev_version_cache() -> VersionCache {
             },
             beta: None,
         },
-        #[cfg(in_app_upgrade)]
+        #[cfg(not(target_os = "android"))]
         metadata_version: 0,
     }
 }
@@ -586,7 +585,7 @@ mod test {
                     sha256: [0u8; 32],
                 }),
             },
-            #[cfg(in_app_upgrade)]
+            #[cfg(not(target_os = "android"))]
             metadata_version: 0,
         }
     }
@@ -760,7 +759,7 @@ mod test {
                 },
                 beta: None,
             },
-            #[cfg(in_app_upgrade)]
+            #[cfg(not(target_os = "android"))]
             metadata_version: 0,
         }
     }
