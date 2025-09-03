@@ -19,7 +19,11 @@ import { SettingsGroup } from './cell/SettingsGroup';
 import { SettingsRadioGroup } from './cell/SettingsRadioGroup';
 import { SettingsRow } from './cell/SettingsRow';
 import { SettingsSelect, SettingsSelectItem } from './cell/SettingsSelect';
-import { SettingsNumberInput, SettingsTextInput } from './cell/SettingsTextInput';
+import {
+  SettingsNumberInput,
+  SettingsTextInput,
+  SettingsTextInputProps,
+} from './cell/SettingsTextInput';
 
 interface ProxyFormContext {
   proxy?: CustomProxy;
@@ -133,7 +137,11 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
   );
 }
 
-function ProxyFormNameField() {
+type ProxyFormNameFieldProps = {
+  inputProps?: Partial<SettingsTextInputProps>;
+};
+
+function ProxyFormNameField(props: ProxyFormNameFieldProps) {
   const { name, setName } = useContext(namedProxyFormContext);
 
   return (
@@ -143,6 +151,7 @@ function ProxyFormNameField() {
           defaultValue={name}
           placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
           onUpdate={setName}
+          {...props?.inputProps}
         />
       </SettingsRow>
     </SettingsGroup>
