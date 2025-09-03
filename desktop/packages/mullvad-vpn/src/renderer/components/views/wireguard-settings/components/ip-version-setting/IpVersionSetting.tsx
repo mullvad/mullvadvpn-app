@@ -19,7 +19,7 @@ export function IpVersionSetting() {
     return ipVersion === 'any' ? null : ipVersion;
   }, [relaySettings]);
 
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   const setIpVersion = useCallback(
     async (ipVersion: IpVersion | null) => {
@@ -37,7 +37,7 @@ export function IpVersionSetting() {
   );
 
   return (
-    <Listbox value={ipVersion} onValueChange={setIpVersion} animation={scrollToAnchor?.animation}>
+    <Listbox value={ipVersion} onValueChange={setIpVersion} animation={animation}>
       <Listbox.Item>
         <Listbox.Content>
           <Listbox.Label>

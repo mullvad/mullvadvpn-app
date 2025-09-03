@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
@@ -24,9 +23,7 @@ export function DnsBlockerSettings() {
   const dns = useSelector((state) => state.settings.dns);
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
   const [expanded, , , toggleExpanded] = useBoolean();
-  const id = 'dns-blocker-setting';
-  const ref = useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('dns-blocker-setting');
 
   return (
     <>
@@ -35,7 +32,7 @@ export function DnsBlockerSettings() {
         expanded={expanded}
         onExpandedChange={toggleExpanded}
         disabled={dns.state === 'custom'}
-        animation={scrollToAnchor?.animation}>
+        animation={animation}>
         <Accordion.Header>
           <Accordion.Title>
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}

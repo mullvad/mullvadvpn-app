@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
@@ -14,9 +13,7 @@ export function QuantumResistantSetting() {
   const { setWireguardQuantumResistant } = useAppContext();
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
 
-  const id = 'quantum-resistant-setting';
-  const ref = React.useRef<HTMLDivElement>(null);
-  const scrollToListItem = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('quantum-resistant-setting');
 
   const selectQuantumResistant = useCallback(
     async (quantumResistant: boolean | null) => {
@@ -27,7 +24,7 @@ export function QuantumResistantSetting() {
 
   return (
     <Listbox
-      animation={scrollToListItem?.animation}
+      animation={animation}
       value={quantumResistant ?? null}
       onValueChange={selectQuantumResistant}>
       <Listbox.Item ref={ref}>

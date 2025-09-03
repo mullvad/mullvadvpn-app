@@ -36,9 +36,7 @@ export function CustomDnsSettings() {
   const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
 
-  const id = 'custom-dns-settings';
-  const ref = useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('custom-dns-settings');
 
   const featureAvailable = useMemo(
     () =>
@@ -195,7 +193,7 @@ export function CustomDnsSettings() {
         ref={ref}
         checked={dns.state === 'custom' || inputVisible}
         onCheckedChange={setCustomDnsEnabled}
-        animation={scrollToAnchor?.animation}
+        animation={animation}
         disabled={!featureAvailable}>
         <ToggleListItem.Label>
           {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}

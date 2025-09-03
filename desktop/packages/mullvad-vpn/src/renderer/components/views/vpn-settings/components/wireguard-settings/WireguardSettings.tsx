@@ -22,7 +22,7 @@ function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
 }
 
 export function WireguardSettings() {
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
   const tunnelProtocol = useSelector((state) =>
     mapRelaySettingsToProtocol(state.settings.relaySettings),
   );
@@ -31,7 +31,7 @@ export function WireguardSettings() {
     <NavigationListItem
       to={RoutePath.wireguardSettings}
       disabled={tunnelProtocol === 'openvpn'}
-      animation={scrollToAnchor?.animation}>
+      animation={animation}>
       <NavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(wireguard)s will be replaced with the string "WireGuard"
