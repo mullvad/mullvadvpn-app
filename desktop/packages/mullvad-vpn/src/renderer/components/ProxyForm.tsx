@@ -78,7 +78,7 @@ export function ProxyForm(props: ProxyFormContextProviderProps) {
     <ProxyFormContextProvider {...props}>
       <SettingsForm>
         <ProxyFormInner />
-        <ProxyFormButtons new={props.proxy === undefined} />
+        <ProxyFormButtons />
       </SettingsForm>
     </ProxyFormContextProvider>
   );
@@ -126,7 +126,7 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
         <SettingsForm>
           <ProxyFormNameField />
           <ProxyFormInner />
-          <ProxyFormButtons new={props.proxy === undefined} />
+          <ProxyFormButtons />
         </SettingsForm>
       </ProxyFormContextProvider>
     </namedProxyFormContext.Provider>
@@ -149,12 +149,8 @@ function ProxyFormNameField() {
   );
 }
 
-interface ProxyFormButtonsProps {
-  new: boolean;
-}
-
-export function ProxyFormButtons(props: ProxyFormButtonsProps) {
-  const { onSave, onCancel, onDelete } = useContext(proxyFormContext);
+export function ProxyFormButtons() {
+  const { onSave, onCancel, onDelete, proxy } = useContext(proxyFormContext);
 
   // Contains form submittability to know whether or not to enable the Add/Save button.
   const formSubmittable = useSettingsFormSubmittable();
@@ -172,9 +168,7 @@ export function ProxyFormButtons(props: ProxyFormButtonsProps) {
           <Button.Text>{messages.gettext('Cancel')}</Button.Text>
         </Button>
         <Button onClick={onSave} disabled={!formSubmittable}>
-          <Button.Text>
-            {props.new ? messages.gettext('Add') : messages.gettext('Save')}
-          </Button.Text>
+          <Button.Text>{proxy ? messages.gettext('Save') : messages.gettext('Add')}</Button.Text>
         </Button>
       </FlexRow>
     </Flex>
