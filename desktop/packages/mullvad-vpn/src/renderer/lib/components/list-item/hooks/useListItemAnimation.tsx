@@ -1,7 +1,7 @@
 import { css, keyframes } from 'styled-components';
 
-import { colors } from '../../../../../foundations';
-import { useListItem } from '../../../ListItemContext';
+import { colors } from '../../../foundations';
+import { ListItemAnimation } from '../ListItem';
 
 const flash = keyframes`
   0%   { background-color: var(--background-color) }
@@ -17,8 +17,7 @@ const dim = keyframes`
   100% { opacity: 100% }
 `;
 
-export const useAnimation = () => {
-  const { animation } = useListItem();
+export const useListItemAnimation = (animation: ListItemAnimation | undefined) => {
   if (animation === 'flash') {
     return css`
       animation: ${flash} 0.75s ease-in-out 0s 2 normal forwards;

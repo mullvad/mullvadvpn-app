@@ -1,7 +1,9 @@
 import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
-import { useAnimation, useBackgroundColor } from './hooks';
+import { useListItemAnimation } from '../../hooks';
+import { useListItem } from '../../ListItemContext';
+import { useBackgroundColor } from './hooks';
 
 export type ListItemItemProps = {
   children: React.ReactNode;
@@ -32,9 +34,13 @@ export const StyledListItemItem = styled.div<{
 
 export function ListItemItem({ children, ...props }: ListItemItemProps) {
   const backgroundColor = useBackgroundColor();
-  const animation = useAnimation();
+  const { animation: contextAnimation } = useListItem();
+  const animation = useListItemAnimation(contextAnimation);
   return (
-    <StyledListItemItem $backgroundColor={backgroundColor} $animation={animation} {...props}>
+    <StyledListItemItem
+      $backgroundColor={backgroundColor}
+      $animation={contextAnimation === 'flash' ? animation : undefined}
+      {...props}>
       {children}
     </StyledListItemItem>
   );
