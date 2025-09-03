@@ -1,10 +1,11 @@
+import { ScrollToAnchorId } from '../../shared/ipc-types';
 import { ListItemAnimation } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
 import { useScrollToReference } from '.';
 
 export const useScrollToListItem = (
   ref?: React.RefObject<HTMLDivElement | null>,
-  id?: string,
+  id?: ScrollToAnchorId,
 ):
   | {
       animation: ListItemAnimation;
