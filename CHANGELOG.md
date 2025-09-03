@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add additional logging for tunnel devices and split tunneling to problem reports.
 
+### Changed
+#### Windows
+- Implement UDP GSO for QUIC on client socket. This improves download speeds slightly.
+
 ### Security
 #### Windows
 - Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
