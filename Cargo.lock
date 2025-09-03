@@ -3284,6 +3284,7 @@ dependencies = [
  "h3-datagram",
  "h3-quinn",
  "http 1.1.0",
+ "libc",
  "log",
  "quinn",
  "rand 0.8.5",
@@ -3294,6 +3295,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "typed-builder 0.21.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
