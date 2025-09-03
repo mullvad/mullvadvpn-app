@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -153,10 +153,8 @@ function DaitaToggle() {
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
-  const enableId = 'daita-enable-setting';
-  const ref = useRef<HTMLDivElement>(null);
-  const scrollToEnable = useScrollToListItem(ref, enableId);
-  const scrollToDirectOnly = useScrollToListItem();
+  const { ref, animation: enableAnimation } = useScrollToListItem('daita-enable-setting');
+  const { animation: directOnlyAnimation } = useScrollToListItem();
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
@@ -195,7 +193,7 @@ function DaitaToggle() {
         disabled={unavailable}
         checked={daita && !unavailable}
         onCheckedChange={setDaita}
-        animation={scrollToEnable?.animation}>
+        animation={enableAnimation}>
         <ToggleListItem.Label>{messages.gettext('Enable')}</ToggleListItem.Label>
         <ToggleListItem.Switch />
       </ToggleListItem>
@@ -203,7 +201,7 @@ function DaitaToggle() {
         disabled={!daita || unavailable}
         checked={directOnly && !unavailable}
         onCheckedChange={setDirectOnly}
-        animation={scrollToDirectOnly?.animation}>
+        animation={directOnlyAnimation}>
         <ToggleListItem.Label>{directOnlyString}</ToggleListItem.Label>
         <ToggleListItem.Group>
           <InfoButton>

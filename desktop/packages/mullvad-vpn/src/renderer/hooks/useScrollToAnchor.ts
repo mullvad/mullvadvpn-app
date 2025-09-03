@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-export const useScrollToReference = (
-  ref?: React.RefObject<HTMLDivElement | null>,
+export const useScrollToReference = <T extends Element = HTMLDivElement>(
+  ref?: React.RefObject<T | null>,
   scroll?: boolean,
 ) => {
   useEffect(() => {

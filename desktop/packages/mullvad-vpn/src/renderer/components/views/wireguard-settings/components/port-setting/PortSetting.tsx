@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react';
-import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
@@ -27,9 +26,7 @@ export function PortSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
 
-  const id = 'port-setting';
-  const ref = React.useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('port-setting');
 
   const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
     () => WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
@@ -90,10 +87,7 @@ export function PortSetting() {
     .join(', ');
 
   return (
-    <Listbox
-      value={selectedOption.value}
-      onValueChange={setWireguardPort}
-      animation={scrollToAnchor?.animation}>
+    <Listbox value={selectedOption.value} onValueChange={setWireguardPort} animation={animation}>
       <Listbox.Item ref={ref}>
         <Listbox.Content>
           <Listbox.Label>

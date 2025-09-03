@@ -9,13 +9,13 @@ import { NavigationListItem } from '../../../../NavigationListItem';
 
 export function OpenVpnSettings() {
   const tunnelProtocol = useTunnelProtocol();
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   return (
     <NavigationListItem
       to={RoutePath.openVpnSettings}
       disabled={tunnelProtocol === 'wireguard'}
-      animation={scrollToAnchor?.animation}>
+      animation={animation}>
       <NavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(openvpn)s will be replaced with the string "OpenVPN"
