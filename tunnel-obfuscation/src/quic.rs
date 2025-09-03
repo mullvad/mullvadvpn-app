@@ -212,21 +212,19 @@ impl Obfuscator for Quic {
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
         let token = CancellationToken::new();
+        let child_token = token.child_token();
+        // This will always cancel `child_token` as soon as `run` is finished or aborted.
+        let _drop_guard = token.drop_guard();
 
         let client = Client::connect(self.config)
             .await
             .map_err(Error::MasqueProxyError)
             .map_err(crate::Error::RunQuicObfuscator)?;
 
-        let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
-
-        let result = local_proxy
+        tokio::spawn(Quic::run_forwarding(client, child_token))
             .await
             .unwrap()
-            .map_err(crate::Error::RunQuicObfuscator);
-
-        token.cancel();
-        result
+            .map_err(crate::Error::RunQuicObfuscator)
     }
 
     fn packet_overhead(&self) -> u16 {
