@@ -17,9 +17,24 @@ export type SuppressOutdatedVersionOption = {
   type: 'suppress-outdated-version-warning';
 };
 
+export type ScrollToAnchorId =
+  | 'daita-enable-setting'
+  | 'multihop-setting'
+  | 'custom-dns-settings'
+  | 'allow-lan-setting'
+  | 'lockdown-mode-setting'
+  | 'dns-blocker-setting'
+  | 'mtu-setting'
+  | 'obfuscation-setting'
+  | 'port-setting'
+  | 'bridge-mode-setting'
+  | 'mss-fix-setting'
+  | 'quantum-resistant-setting'
+  | 'tunnel-protocol-setting';
+
 export type ScrollToAnchorOption = {
   type: 'scroll-to-anchor';
-  id: string;
+  id: ScrollToAnchorId;
 };
 
 export type LocationStateOptions = SuppressOutdatedVersionOption | ScrollToAnchorOption;
