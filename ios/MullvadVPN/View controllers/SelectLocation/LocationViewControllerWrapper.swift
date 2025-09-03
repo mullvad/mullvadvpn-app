@@ -9,6 +9,7 @@
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import SwiftUI
 import UIKit
 
 protocol LocationViewControllerWrapperDelegate: AnyObject {
@@ -182,8 +183,8 @@ final class LocationViewControllerWrapper: UIViewController {
     }
 
     private func setUpSegmentedControl() {
-        segmentedControl.backgroundColor = .SegmentedControl.backgroundColor
-        segmentedControl.selectedSegmentTintColor = .SegmentedControl.selectedColor
+        segmentedControl.backgroundColor = UIColor.SegmentedControl.backgroundColor
+        segmentedControl.selectedSegmentTintColor = UIColor.SegmentedControl.selectedColor
 
         segmentedControl.insertSegment(
             withTitle: MultihopContext.entry.description,
@@ -197,18 +198,32 @@ final class LocationViewControllerWrapper: UIViewController {
         )
 
         segmentedControl.selectedSegmentIndex = multihopContext.rawValue
-        segmentedControl.addTarget(self, action: #selector(segmentedControlDidChange), for: .valueChanged)
+//        segmentedControl.addTarget(self, action: #selector(segmentedControlDidChange), for: .valueChanged)
     }
 
     private func addSubviews() {
-        view.addConstrainedSubviews([segmentedControl, locationViewContainer]) {
-            segmentedControl.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
-            segmentedControl.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .leading(8), .trailing(8)]))
+//        let swiftUISegmentedControl = SegmentedControl(
+//            selectedSegmentIndex: multihopContext.rawValue,
+//            onSelectedSegment: segmentedControlDidChange
+//        )
+        let swiftUISegmentedControl = SwiftUISegmentedControl(
+            segments: ["Entry", "Exit"], selectedSegmentIndex: multihopContext.rawValue,
+            onSelectedSegment: segmentedControlDidChange
+        )
+        let host = UIHostingController(rootView: swiftUISegmentedControl)
+        addChild(host)
+        host.didMove(toParent: self)
+        let segmentedView = host.view!
+        host.view.backgroundColor = .clear
+
+        view.addConstrainedSubviews([host.view, locationViewContainer]) {
+            segmentedView.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
+            segmentedView.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .leading(8), .trailing(8)]))
 
             locationViewContainer.pinEdgesToSuperview(.all().excluding(.top))
 
             if settings.tunnelMultihopState.isEnabled {
-                locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 4)
+                locationViewContainer.topAnchor.constraint(equalTo: segmentedView.bottomAnchor, constant: 4)
             } else {
                 locationViewContainer.pinEdgeToSuperviewMargin(.top(0))
             }
@@ -224,9 +239,8 @@ final class LocationViewControllerWrapper: UIViewController {
         }
     }
 
-    @objc
-    private func segmentedControlDidChange(sender: UISegmentedControl) {
-        multihopContext = .allCases[segmentedControl.selectedSegmentIndex]
+    private func segmentedControlDidChange(selectedIndex: Int) {
+        multihopContext = .allCases[selectedIndex]
         swapViewController()
     }
 
