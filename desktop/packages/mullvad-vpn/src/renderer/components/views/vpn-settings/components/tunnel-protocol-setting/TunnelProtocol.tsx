@@ -24,8 +24,7 @@ export function TunnelProtocolSetting() {
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
   const openVpnDisabled = daita || multihop || quantumResistant;
 
-  const id = 'tunnel-protocol-setting';
-  const scrollToAnchor = useScrollToListItem(undefined, id);
+  const scrollToAnchor = useScrollToListItem();
 
   const featuresToDisableForOpenVpn = [];
   if (daita) {
