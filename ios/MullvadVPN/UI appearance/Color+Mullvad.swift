@@ -73,6 +73,13 @@ extension Color {
     enum MullvadList {
         static let separator: Color = .mullvadSecondaryColor
         static let background: Color = .mullvadPrimaryColor
+        enum Item {
+            static let parent: Color = .mullvadPrimaryColor
+            static let child1 = Color.MullvadBlue._60
+            static let child2 = Color.MullvadBlue._40
+            static let child3 = Color.MullvadBlue._20
+            static let child4 = Color.MullvadBlue._10
+        }
     }
 
     enum MullvadTextField {
