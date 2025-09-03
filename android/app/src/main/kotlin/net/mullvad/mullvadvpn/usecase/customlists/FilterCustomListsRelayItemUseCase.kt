@@ -12,9 +12,9 @@ import net.mullvad.mullvadvpn.relaylist.filter
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.util.daitaAndDirectOnly
 import net.mullvad.mullvadvpn.util.ipVersionConstraint
-import net.mullvad.mullvadvpn.util.quicEnabled
+import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
+import net.mullvad.mullvadvpn.util.isQuicEnabled
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
 import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
@@ -38,12 +38,12 @@ class FilterCustomListsRelayItemUseCase(
                 providers = selectedProviders,
                 daita =
                     shouldFilterByDaita(
-                        daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
+                        daitaDirectOnly = settings?.isDaitaAndDirectOnly() == true,
                         relayListType = relayListType,
                     ),
                 quic =
                     shouldFilterByQuic(
-                        settings?.quicEnabled() == true,
+                        settings?.isQuicEnabled() == true,
                         relayListType = relayListType,
                     ),
                 ipVersion = settings?.ipVersionConstraint() ?: Constraint.Any,

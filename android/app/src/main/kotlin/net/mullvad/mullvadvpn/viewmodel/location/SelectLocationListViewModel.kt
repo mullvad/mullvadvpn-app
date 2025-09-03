@@ -13,7 +13,6 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
@@ -44,7 +43,7 @@ class SelectLocationListViewModel(
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
             ) { relayListItems, customLists, settings ->
-                if (settings.isBlocked()) {
+                if (relayListType.isEntryAndBlocked(settings)) {
                     Lce.Error(Unit)
                 } else {
                     Lce.Content(
@@ -61,14 +60,6 @@ class SelectLocationListViewModel(
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
         _expandedItems.onToggleExpandSet(item, parent, expand)
     }
-
-    private fun Settings?.isBlocked(): Boolean =
-        when (relayListType) {
-            RelayListType.Single -> false
-            is RelayListType.Multihop ->
-                relayListType.multihopRelayListType == MultihopRelayListType.ENTRY &&
-                    this?.entryBlocked() == true
-        }
 
     private fun relayListItems() =
         combine(
@@ -103,7 +94,7 @@ class SelectLocationListViewModel(
                         selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
                     expandedItems = expandedItems,
                     isEntryBlocked =
-                        settingsRepository.settingsUpdates.value?.entryBlocked() == true,
+                        relayListType.isEntryAndBlocked(settingsRepository.settingsUpdates.value),
                 )
             }
         }

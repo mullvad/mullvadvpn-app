@@ -275,7 +275,7 @@ class ConnectionTest : EndToEndTest() {
         on<SettingsPage> { clickVpnSettings() }
 
         on<VpnSettingsPage> {
-            scrollUntilWireGuardObfuscationUdpOverTcpCell()
+            scrollUntilWireGuardObfuscationQuicCell()
             clickWireguardObfuscationQuicCell()
         }
 

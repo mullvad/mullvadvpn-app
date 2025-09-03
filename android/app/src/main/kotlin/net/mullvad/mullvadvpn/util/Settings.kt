@@ -18,15 +18,15 @@ fun Settings.wireguardPort() = relaySettings.relayConstraints.wireguardConstrain
 
 fun Settings.deviceIpVersion() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
-fun Settings.daitaAndDirectOnly() = daitaEnabled() && daitaDirectOnly()
+fun Settings.isDaitaAndDirectOnly() = isDaitaEnabled() && isDaitaDirectOnly()
 
-fun Settings.quicEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
+fun Settings.isQuicEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
 
 fun Settings.ipVersionConstraint() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
-fun Settings.daitaEnabled() = daitaSettings().enabled
+fun Settings.isDaitaEnabled() = daitaSettings().enabled
 
-fun Settings.daitaDirectOnly() = daitaSettings().directOnly
+fun Settings.isDaitaDirectOnly() = daitaSettings().directOnly
 
 fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 

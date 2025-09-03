@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.Lc
-import net.mullvad.mullvadvpn.util.daitaDirectOnly
-import net.mullvad.mullvadvpn.util.daitaEnabled
+import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
+import net.mullvad.mullvadvpn.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.util.toLc
 
 class DaitaViewModel(
@@ -28,8 +28,8 @@ class DaitaViewModel(
             .filterNotNull()
             .map { settings ->
                 DaitaUiState(
-                        daitaEnabled = settings.daitaEnabled(),
-                        directOnly = settings.daitaDirectOnly(),
+                        daitaEnabled = settings.isDaitaEnabled(),
+                        directOnly = settings.isDaitaDirectOnly(),
                         navArgs.isModal,
                     )
                     .toLc<Boolean, DaitaUiState>()

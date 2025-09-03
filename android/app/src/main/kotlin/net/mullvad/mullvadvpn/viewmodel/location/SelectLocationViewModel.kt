@@ -71,15 +71,11 @@ class SelectLocationViewModel(
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips =
-                            if (
-                                showFilterRow(
-                                    relayListSelection = relayListSelection,
-                                    settings = settings,
-                                )
-                            ) {
-                                filterChips
-                            } else {
+                            // Hide filter chips when entry and blocked
+                            if (relayListSelection.isEntryAndBlocked(settings)) {
                                 emptyList()
+                            } else {
+                                filterChips
                             },
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListSelection,
@@ -107,17 +103,8 @@ class SelectLocationViewModel(
         settings: Settings?,
     ): Boolean {
         val hasRelayListItems = relayList.isNotEmpty()
-        val isMultihopEntry =
-            relayListSelection is RelayListType.Multihop &&
-                relayListSelection.multihopRelayListType == MultihopRelayListType.ENTRY
-        return hasRelayListItems && !(isMultihopEntry && settings?.entryBlocked() == true)
-    }
-
-    private fun showFilterRow(relayListSelection: RelayListType, settings: Settings?): Boolean {
-        val isMultihopEntry =
-            relayListSelection is RelayListType.Multihop &&
-                relayListSelection.multihopRelayListType == MultihopRelayListType.ENTRY
-        return !(isMultihopEntry && settings?.entryBlocked() == true)
+        val isEntryAndBlocked = relayListSelection.isEntryAndBlocked(settings = settings)
+        return hasRelayListItems && !isEntryAndBlocked
     }
 
     fun selectRelayList(multihopRelayListType: MultihopRelayListType) {

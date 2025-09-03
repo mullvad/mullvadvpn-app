@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.usecase
 
-import androidx.compose.material3.FilterChip
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -11,8 +10,8 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.util.daitaAndDirectOnly
-import net.mullvad.mullvadvpn.util.quicEnabled
+import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
+import net.mullvad.mullvadvpn.util.isQuicEnabled
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
 import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
@@ -74,14 +73,14 @@ class FilterChipUseCase(
             }
             if (
                 shouldFilterByDaita(
-                    daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
+                    daitaDirectOnly = settings?.isDaitaAndDirectOnly() == true,
                     relayListType = relayListType,
                 )
             ) {
                 add(FilterChip.Daita)
             }
             if (
-                shouldFilterByQuic(settings?.quicEnabled() == true, relayListType = relayListType)
+                shouldFilterByQuic(settings?.isQuicEnabled() == true, relayListType = relayListType)
             ) {
                 add(FilterChip.Quic)
             }
