@@ -1,0 +1,11 @@
+---
+source: talpid-core/src/logging/diag.rs
+expression: formatted_logs
+snapshot_kind: text
+---
+pnputil.exe "/enum-devices" "/problem" "/format" "csv" (filtered)
+--------
+InstanceId,DeviceDescription,Status,ProblemCode,ProblemStatus,DriverName
+UEFI\RES_{redacted}\0,Camera Firmware,Problem,10,0xC0210000,oem84.inf
+
+--------

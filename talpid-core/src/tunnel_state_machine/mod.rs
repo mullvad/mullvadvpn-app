@@ -357,14 +357,27 @@ impl TunnelStateMachine {
         let filtering_resolver = crate::resolver::start_resolver(Default::default()).await?;
 
         #[cfg(windows)]
-        let split_tunnel = split_tunnel::SplitTunnel::new(
-            runtime.clone(),
-            args.resource_dir.clone(),
-            args.command_tx.clone(),
-            volume_update_rx,
-            args.route_manager.clone(),
-        )
-        .map_err(Error::InitSplitTunneling)?;
+        let split_tunnel = {
+            let result = split_tunnel::SplitTunnel::new(
+                runtime.clone(),
+                args.resource_dir.clone(),
+                args.command_tx.clone(),
+                volume_update_rx,
+                args.route_manager.clone(),
+            )
+            .map_err(Error::InitSplitTunneling);
+
+            if result.is_err()
+                && let Some(log_dir) = &args.log_dir
+            {
+                log::debug!("Logging device info");
+                if let Err(err) = crate::logging::diag::windows::log_device_info(log_dir).await {
+                    log::error!("Failed to dump device logs: {err}");
+                }
+            }
+
+            result?
+        };
 
         #[cfg(target_os = "macos")]
         let split_tunnel =

@@ -1,23 +1,20 @@
 use std::{
-    ffi::{OsStr, OsString},
+    ffi::OsStr,
     io, iter,
     mem::{self, MaybeUninit},
-    os::{
-        raw::c_void,
-        windows::ffi::{OsStrExt, OsStringExt},
-    },
-    path::PathBuf,
+    os::{raw::c_void, windows::ffi::OsStrExt},
     ptr,
 };
+use talpid_windows::env::get_system_dir;
 use windows_sys::Win32::{
-    Foundation::{MAX_PATH, NTSTATUS, STATUS_SUCCESS},
+    Foundation::{NTSTATUS, STATUS_SUCCESS},
     Storage::FileSystem::{
         GetFileVersionInfoSizeW, GetFileVersionInfoW, VS_FFI_SIGNATURE, VS_FIXEDFILEINFO,
         VerQueryValueW,
     },
     System::{
         LibraryLoader::{GetModuleHandleW, GetProcAddress},
-        SystemInformation::{GetSystemDirectoryW, OSVERSIONINFOEXW},
+        SystemInformation::OSVERSIONINFOEXW,
         SystemServices::VER_NT_WORKSTATION,
     },
 };
@@ -221,18 +218,6 @@ fn ntoskrnl_version() -> io::Result<(u32, u32, u32)> {
     let build = info.dwProductVersionLS >> 16;
 
     Ok((major, minor, build))
-}
-
-fn get_system_dir() -> io::Result<PathBuf> {
-    let mut sysdir = [0u16; MAX_PATH as usize + 1];
-    // SAFETY: `sysdir` points to a valid buffer
-    let len = unsafe { GetSystemDirectoryW(sysdir.as_mut_ptr(), (sysdir.len() - 1) as u32) };
-    if len == 0 {
-        return Err(io::Error::last_os_error());
-    }
-    Ok(PathBuf::from(OsString::from_wide(
-        &sysdir[0..(len as usize)],
-    )))
 }
 
 /// Return a null-terminated UTF16 string

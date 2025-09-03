@@ -1,0 +1,12 @@
+---
+source: talpid-core/src/logging/diag.rs
+expression: formatted_driverquery_log
+snapshot_kind: text
+---
+driverquery.exe "/FO" "csv" "/V" (filtered)
+--------
+Module Name,Display Name,Description,Driver Type,Start Mode,State,Status,Path
+mullvad-split-tunnel,Mullvad Split Tunnel Service,Mullvad Split Tunnel Service,Kernel ,Manual,Stopped,OK,\??\C:\Program Files\Mullvad VPN\resources\mullvad-split-tunnel.sys
+MullvadWireGuard,MullvadWireGuard,MullvadWireGuard,Kernel ,Manual,Stopped,OK,C:\WINDOWS\system32\drivers\mullvad-wireguard.sys
+
+--------
