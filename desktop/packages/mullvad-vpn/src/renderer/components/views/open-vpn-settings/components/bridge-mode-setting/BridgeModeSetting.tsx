@@ -24,9 +24,7 @@ export function BridgeModeSetting() {
 
   const bridgeState = useSelector((state) => state.settings.bridgeState);
 
-  const id = 'bridge-mode-setting';
-  const ref = React.useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('bridge-mode-setting');
 
   const tunnelProtocol = useMemo(() => {
     const protocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any';
@@ -60,10 +58,7 @@ export function BridgeModeSetting() {
   const footerText = bridgeModeFooterText(bridgeState === 'on', tunnelProtocol, transportProtocol);
 
   return (
-    <Listbox
-      value={bridgeState}
-      onValueChange={onSelectBridgeState}
-      animation={scrollToAnchor?.animation}>
+    <Listbox value={bridgeState} onValueChange={onSelectBridgeState} animation={animation}>
       <Listbox.Item ref={ref}>
         <Listbox.Content>
           <Listbox.Label>

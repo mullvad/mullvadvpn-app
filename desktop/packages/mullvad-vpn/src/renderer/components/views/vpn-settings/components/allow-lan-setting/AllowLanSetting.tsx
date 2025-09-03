@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
@@ -18,14 +17,12 @@ const LanIpRanges = styled.ul({
 export function AllowLanSetting() {
   const allowLan = useSelector((state) => state.settings.allowLan);
   const { setAllowLan } = useAppContext();
-  const id = 'allow-lan-setting';
-  const ref = useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('allow-lan-setting');
 
   return (
     <ToggleListItem
       ref={ref}
-      animation={scrollToAnchor?.animation}
+      animation={animation}
       checked={allowLan}
       onCheckedChange={setAllowLan}>
       <ToggleListItem.Label>

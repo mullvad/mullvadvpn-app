@@ -10,7 +10,7 @@ import { ToggleListItem } from '../../../../toggle-list-item';
 export function AutoStartSetting() {
   const autoStart = useSelector((state) => state.settings.autoStart);
   const { setAutoStart: setAutoStartImpl } = useAppContext();
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   const setAutoStart = useCallback(
     async (autoStart: boolean) => {
@@ -25,10 +25,7 @@ export function AutoStartSetting() {
   );
 
   return (
-    <ToggleListItem
-      animation={scrollToAnchor?.animation}
-      checked={autoStart}
-      onCheckedChange={setAutoStart}>
+    <ToggleListItem animation={animation} checked={autoStart} onCheckedChange={setAutoStart}>
       <ToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
       </ToggleListItem.Label>

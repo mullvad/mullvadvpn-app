@@ -12,7 +12,7 @@ import { ToggleListItem } from '../../../../toggle-list-item';
 export function EnableIpv6Setting() {
   const enableIpv6 = useSelector((state) => state.settings.enableIpv6);
   const { setEnableIpv6: setEnableIpv6Impl } = useAppContext();
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   const setEnableIpv6 = useCallback(
     async (enableIpv6: boolean) => {
@@ -27,10 +27,7 @@ export function EnableIpv6Setting() {
   );
 
   return (
-    <ToggleListItem
-      animation={scrollToAnchor?.animation}
-      checked={enableIpv6}
-      onCheckedChange={setEnableIpv6}>
+    <ToggleListItem animation={animation} checked={enableIpv6} onCheckedChange={setEnableIpv6}>
       <ToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Enable IPv6')}
       </ToggleListItem.Label>
