@@ -33,15 +33,21 @@ import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.contentBlockersSettings
+import net.mullvad.mullvadvpn.util.customDnsAddresses
+import net.mullvad.mullvadvpn.util.deviceIpVersion
+import net.mullvad.mullvadvpn.util.isCustomDnsEnabled
 import net.mullvad.mullvadvpn.util.onFirst
+import net.mullvad.mullvadvpn.util.quantumResistant
+import net.mullvad.mullvadvpn.util.selectedObfuscationMode
 import net.mullvad.mullvadvpn.util.toLc
+import net.mullvad.mullvadvpn.util.wireguardPort
 
 sealed interface VpnSettingsSideEffect {
     sealed interface ShowToast : VpnSettingsSideEffect {
@@ -75,7 +81,7 @@ class VpnSettingsViewModel(
         combine(
                 settingsRepository.settingsUpdates.filterNotNull().onFirst {
                     // Initialize wg port and content blockers state expand state
-                    val initialPort = it.getWireguardPort().getOrNull()
+                    val initialPort = it.wireguardPort().getOrNull()
                     customPort.value =
                         Some(
                             if (initialPort !in WIREGUARD_PRESET_PORTS) {
@@ -101,19 +107,19 @@ class VpnSettingsViewModel(
                         mtu = settings.tunnelOptions.wireguard.mtu,
                         isLocalNetworkSharingEnabled = settings.allowLan,
                         isCustomDnsEnabled = settings.isCustomDnsEnabled(),
-                        customDnsItems = settings.addresses().asStringAddressList(),
+                        customDnsItems = settings.customDnsAddresses().asStringAddressList(),
                         contentBlockersOptions = settings.contentBlockersSettings(),
                         obfuscationMode = settings.selectedObfuscationMode(),
                         selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
                         selectedShadowsocksObfuscationPort =
                             settings.obfuscationSettings.shadowsocks.port,
                         quantumResistant = settings.quantumResistant(),
-                        selectedWireguardPort = settings.getWireguardPort(),
+                        selectedWireguardPort = settings.wireguardPort(),
                         customWireguardPort = customWgPort,
                         availablePortRanges = portRanges,
                         systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                         autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
-                        deviceIpVersion = settings.getDeviceIpVersion(),
+                        deviceIpVersion = settings.deviceIpVersion(),
                         isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
                         isContentBlockersExpanded = isContentBlockersExpanded,
                         isModal = navArgs.isModal,
@@ -138,7 +144,7 @@ class VpnSettingsViewModel(
                 return@launch
             }
 
-            val hasDnsEntries = settings.addresses().isNotEmpty()
+            val hasDnsEntries = settings.customDnsAddresses().isNotEmpty()
 
             if (hasDnsEntries) {
                 settingsRepository
@@ -257,22 +263,6 @@ class VpnSettingsViewModel(
             isIpv6 = it is Inet6Address,
         )
     }
-
-    private fun Settings.quantumResistant() = tunnelOptions.wireguard.quantumResistant
-
-    private fun Settings.isCustomDnsEnabled() = tunnelOptions.dnsOptions.state == DnsState.Custom
-
-    private fun Settings.addresses() = tunnelOptions.dnsOptions.customOptions.addresses
-
-    private fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
-
-    private fun Settings.selectedObfuscationMode() = obfuscationSettings.selectedObfuscationMode
-
-    private fun Settings.getWireguardPort() =
-        relaySettings.relayConstraints.wireguardConstraints.port
-
-    private fun Settings.getDeviceIpVersion() =
-        relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
     private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 

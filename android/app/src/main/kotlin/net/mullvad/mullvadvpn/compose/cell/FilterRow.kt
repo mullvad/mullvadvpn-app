@@ -65,6 +65,7 @@ fun FilterRow(
                 is FilterChip.Daita -> DaitaFilterChip()
                 is FilterChip.Entry -> EntryFilterChip()
                 is FilterChip.Exit -> ExitFilterChip()
+                is FilterChip.Quic -> QuicFilterChip()
             }
         }
     }
@@ -110,6 +111,15 @@ fun EntryFilterChip() {
 fun ExitFilterChip() {
     MullvadFilterChip(
         text = stringResource(id = R.string.exit),
+        onRemoveClick = {},
+        enabled = false,
+    )
+}
+
+@Composable
+fun QuicFilterChip() {
+    MullvadFilterChip(
+        text = stringResource(id = R.string.quic),
         onRemoveClick = {},
         enabled = false,
     )

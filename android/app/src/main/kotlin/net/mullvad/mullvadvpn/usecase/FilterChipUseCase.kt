@@ -10,7 +10,10 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
+import net.mullvad.mullvadvpn.util.isQuicEnabled
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
 typealias ModelOwnership = Ownership
 
@@ -30,7 +33,7 @@ class FilterChipUseCase(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,
                 providerToOwnerships = providerOwnership,
-                daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
+                settings = settings,
                 relayListType = relayListType,
             )
         }
@@ -39,7 +42,7 @@ class FilterChipUseCase(
         selectedOwnership: Constraint<Ownership>,
         selectedConstraintProviders: Constraint<Providers>,
         providerToOwnerships: Map<ProviderId, Set<Ownership>>,
-        daitaDirectOnly: Boolean,
+        settings: Settings?,
         relayListType: RelayListType,
     ): List<FilterChip> {
         val ownershipFilter = selectedOwnership.getOrNull()
@@ -70,18 +73,19 @@ class FilterChipUseCase(
             }
             if (
                 shouldFilterByDaita(
-                    daitaDirectOnly = daitaDirectOnly,
+                    daitaDirectOnly = settings?.isDaitaAndDirectOnly() == true,
                     relayListType = relayListType,
                 )
             ) {
                 add(FilterChip.Daita)
             }
+            if (
+                shouldFilterByQuic(settings?.isQuicEnabled() == true, relayListType = relayListType)
+            ) {
+                add(FilterChip.Quic)
+            }
         }
     }
-
-    private fun Settings.daitaAndDirectOnly() =
-        tunnelOptions.wireguard.daitaSettings.enabled &&
-            tunnelOptions.wireguard.daitaSettings.directOnly
 }
 
 sealed interface FilterChip {
@@ -94,4 +98,6 @@ sealed interface FilterChip {
     data object Entry : FilterChip
 
     data object Exit : FilterChip
+
+    data object Quic : FilterChip
 }

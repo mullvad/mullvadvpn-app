@@ -791,6 +791,6 @@ private fun FeatureIndicator.destination() =
         FeatureIndicator.LAN_SHARING,
         FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_DNS,
-        FeatureIndicator.CUSTOM_MTU ->
-            VpnSettingsDestination(scrollToFeature = this, isModal = true)
+        FeatureIndicator.CUSTOM_MTU,
+        FeatureIndicator.QUIC -> VpnSettingsDestination(scrollToFeature = this, isModal = true)
     }

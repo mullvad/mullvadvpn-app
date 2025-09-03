@@ -9,6 +9,7 @@ enum class FeatureIndicator {
     SPLIT_TUNNELING,
     UDP_2_TCP,
     SHADOWSOCKS,
+    QUIC,
     LAN_SHARING,
     DNS_CONTENT_BLOCKERS,
     CUSTOM_DNS,

@@ -59,6 +59,7 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Quic
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
@@ -207,6 +208,8 @@ internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndp
         obfuscationType = obfuscationType.toDomain(),
     )
 
+private fun String.toInetAddress(): InetAddress = InetAddress.getByName(this)
+
 private fun String.toInetSocketAddress(): InetSocketAddress {
     val indexOfSeparator = indexOfLast { it == ':' }
     val ipPart = substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
@@ -219,8 +222,7 @@ internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain():
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UDP2TCP -> ObfuscationType.Udp2Tcp
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
             ObfuscationType.Shadowsocks
-        ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC ->
-            throw IllegalArgumentException("Unsupported obfuscation type")
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC -> ObfuscationType.Quic
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
     }
@@ -426,8 +428,7 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Udp2Tcp
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
             ObfuscationMode.Shadowsocks
-        ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC ->
-            throw IllegalArgumentException("Unsupported obfuscation type")
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -592,8 +593,16 @@ internal fun ManagementInterface.Relay.toDomain(
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
         daita = endpointData.wireguard.daita,
-        quic = endpointData.wireguard.hasQuic(),
+        quic =
+            if (endpointData.wireguard.hasQuic()) {
+                endpointData.wireguard.quic.toDomain()
+            } else {
+                null
+            },
     )
+
+private fun ManagementInterface.Relay.RelayData.Wireguard.Quic.toDomain(): Quic =
+    Quic(inAddresses = addrInList.map { it.toInetAddress() })
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
 
@@ -695,6 +704,7 @@ internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndic
 internal fun ManagementInterface.TunnelOptions.GenericOptions.toDomain(): GenericOptions =
     GenericOptions(enableIpv6 = enableIpv6)
 
+@Suppress("ComplexMethod")
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
         ManagementInterface.FeatureIndicator.QUANTUM_RESISTANCE ->
@@ -712,7 +722,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
         ManagementInterface.FeatureIndicator.MULTIHOP -> FeatureIndicator.MULTIHOP
         ManagementInterface.FeatureIndicator.DAITA_MULTIHOP -> FeatureIndicator.DAITA_MULTIHOP
-        ManagementInterface.FeatureIndicator.QUIC,
+        ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,

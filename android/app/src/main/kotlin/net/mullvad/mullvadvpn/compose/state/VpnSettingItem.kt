@@ -104,6 +104,8 @@ sealed interface VpnSettingItem {
         data class UdpOverTcp(override val selected: Boolean, val port: Constraint<Port>) :
             ObfuscationItem
 
+        data class Quic(override val selected: Boolean) : ObfuscationItem
+
         data class Off(override val selected: Boolean) : ObfuscationItem
     }
 

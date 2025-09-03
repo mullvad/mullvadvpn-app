@@ -241,6 +241,57 @@ class ConnectionTest : EndToEndTest() {
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
+    fun testQuic() = runTest {
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+        on<ConnectPage> { enableLocalNetworkSharingStory() }
+
+        on<ConnectPage> { clickSelectLocation() }
+
+        on<SelectLocationPage> {
+            val quicRelay = relayProvider.getQuicRelay()
+            clickLocationExpandButton(quicRelay.country)
+            clickLocationExpandButton(quicRelay.city)
+            scrollUntilCell(quicRelay.relay)
+            clickLocationCell(quicRelay.relay)
+        }
+
+        device.acceptVpnPermissionDialog()
+
+        var relayIpAddress: String? = null
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            relayIpAddress = extractInIpv4Address()
+            clickDisconnect()
+        }
+
+        // Block UDP traffic to the relay
+        val firewallRule = DropRule.blockWireGuardTrafficRule(relayIpAddress!!)
+        firewallClient.createRule(firewallRule)
+
+        // Enable QUIC
+        on<ConnectPage> { clickSettings() }
+
+        on<SettingsPage> { clickVpnSettings() }
+
+        on<VpnSettingsPage> {
+            scrollUntilWireGuardObfuscationQuicCell()
+            clickWireguardObfuscationQuicCell()
+        }
+
+        device.pressBack()
+        device.pressBack()
+
+        on<ConnectPage> {
+            clickConnect()
+            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+            clickDisconnect()
+        }
+    }
+
+    @Test
+    @HasDependencyOnLocalAPI
+    @ClearFirewallRules
     fun testShadowsocks() = runTest {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage> { enableLocalNetworkSharingStory() }
