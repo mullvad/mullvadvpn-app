@@ -1,12 +1,7 @@
 import { test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import {
-  ErrorStateCause,
-  ILocation,
-  ITunnelEndpoint,
-  TunnelState,
-} from '../../../src/shared/daemon-rpc-types';
+import { ErrorStateCause, ILocation, ITunnelEndpoint } from '../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../src/shared/routes';
 import {
   expectConnected,
@@ -41,14 +36,7 @@ test.afterAll(async () => {
  * Disconnected state
  */
 test('App should show disconnected tunnel state', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockLocation,
-  });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: { state: 'disconnected', lockedDown: false },
-  });
+  await util.ipc.tunnel[''].notify({ state: 'disconnected', lockedDown: false });
   await expectDisconnected(page);
 });
 
@@ -56,14 +44,7 @@ test('App should show disconnected tunnel state', async () => {
  * Connecting state
  */
 test('App should show connecting tunnel state', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockLocation,
-  });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: { state: 'connecting', featureIndicators: undefined },
-  });
+  await util.ipc.tunnel[''].notify({ state: 'connecting', featureIndicators: undefined });
   await expectConnecting(page);
 });
 
@@ -72,10 +53,6 @@ test('App should show connecting tunnel state', async () => {
  */
 test('App should show connected tunnel state', async () => {
   const location: ILocation = { ...mockLocation, mullvadExitIp: true };
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: location,
-  });
 
   const endpoint: ITunnelEndpoint = {
     address: 'wg10:80',
@@ -84,9 +61,10 @@ test('App should show connected tunnel state', async () => {
     tunnelType: 'wireguard',
     daita: false,
   };
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: { state: 'connected', details: { endpoint, location }, featureIndicators: undefined },
+  await util.ipc.tunnel[''].notify({
+    state: 'connected',
+    details: { endpoint, location },
+    featureIndicators: undefined,
   });
 
   await expectConnected(page);
@@ -96,14 +74,7 @@ test('App should show connected tunnel state', async () => {
  * Disconnecting state
  */
 test('App should show disconnecting tunnel state', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockLocation,
-  });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: { state: 'disconnecting', details: 'nothing' },
-  });
+  await util.ipc.tunnel[''].notify({ state: 'disconnecting', details: 'nothing' });
   await expectDisconnecting(page);
 });
 
@@ -111,13 +82,9 @@ test('App should show disconnecting tunnel state', async () => {
  * Error state
  */
 test('App should show error tunnel state', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockLocation,
-  });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: { state: 'error', details: { cause: ErrorStateCause.isOffline } },
+  await util.ipc.tunnel[''].notify({
+    state: 'error',
+    details: { cause: ErrorStateCause.isOffline },
   });
   await expectError(page);
 });

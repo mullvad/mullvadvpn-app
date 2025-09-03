@@ -1,12 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import {
-  FeatureIndicator,
-  ILocation,
-  ITunnelEndpoint,
-  TunnelState,
-} from '../../../src/shared/daemon-rpc-types';
+import { FeatureIndicator, ILocation, ITunnelEndpoint } from '../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../src/shared/routes';
 import { expectConnected } from '../shared/tunnel-state';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
@@ -42,17 +37,10 @@ test.afterAll(async () => {
 });
 
 test('App should show no feature indicators', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockDisconnectedLocation,
-  });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: {
-      state: 'connected',
-      details: { endpoint, location: mockConnectedLocation },
-      featureIndicators: undefined,
-    },
+  await util.ipc.tunnel[''].notify({
+    state: 'connected',
+    details: { endpoint, location: mockConnectedLocation },
+    featureIndicators: undefined,
   });
 
   await expectConnected(page);
@@ -69,28 +57,21 @@ test('App should show no feature indicators', async () => {
 });
 
 test('App should show feature indicators', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockDisconnectedLocation,
-  });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: {
-      state: 'connected',
-      details: { endpoint, location: mockConnectedLocation },
-      featureIndicators: [
-        FeatureIndicator.daita,
-        FeatureIndicator.udp2tcp,
-        FeatureIndicator.customMssFix,
-        FeatureIndicator.customMtu,
-        FeatureIndicator.lanSharing,
-        FeatureIndicator.serverIpOverride,
-        FeatureIndicator.customDns,
-        FeatureIndicator.lockdownMode,
-        FeatureIndicator.quantumResistance,
-        FeatureIndicator.multihop,
-      ],
-    },
+  await util.ipc.tunnel[''].notify({
+    state: 'connected',
+    details: { endpoint, location: mockConnectedLocation },
+    featureIndicators: [
+      FeatureIndicator.daita,
+      FeatureIndicator.udp2tcp,
+      FeatureIndicator.customMssFix,
+      FeatureIndicator.customMtu,
+      FeatureIndicator.lanSharing,
+      FeatureIndicator.serverIpOverride,
+      FeatureIndicator.customDns,
+      FeatureIndicator.lockdownMode,
+      FeatureIndicator.quantumResistance,
+      FeatureIndicator.multihop,
+    ],
   });
 
   // Make sure panel is collapsed before checking indicator visibility.

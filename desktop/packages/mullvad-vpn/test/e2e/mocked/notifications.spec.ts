@@ -3,14 +3,7 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../src/main/default-settings';
 import { colorTokens } from '../../../src/renderer/lib/foundations';
-import {
-  Constraint,
-  ErrorStateCause,
-  IAccountData,
-  IRelayListWithEndpointData,
-  ISettings,
-  TunnelState,
-} from '../../../src/shared/daemon-rpc-types';
+import { Constraint, ErrorStateCause, TunnelState } from '../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../src/shared/routes';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
@@ -31,9 +24,8 @@ test.afterAll(async () => {
  * Expires soon
  */
 test('App should notify user about account expiring soon', async () => {
-  await util.sendMockIpcResponse<IAccountData>({
-    channel: 'account-',
-    response: { expiry: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString() },
+  await util.ipc.account[''].notify({
+    expiry: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
   const title = page.getByTestId('notificationTitle');
@@ -46,16 +38,14 @@ test('App should notify user about account expiring soon', async () => {
   const indicatorColor = await getBackgroundColor(indicator);
   expect(indicatorColor).toBe(colorTokens.yellow);
 
-  await util.sendMockIpcResponse<IAccountData>({
-    channel: 'account-',
-    response: { expiry: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
+  await util.ipc.account[''].notify({
+    expiry: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
   });
   subTitle = page.getByTestId('notificationSubTitle');
   await expect(subTitle).toContainText(/2 days left\. buy more credit\./i);
 
-  await util.sendMockIpcResponse<IAccountData>({
-    channel: 'account-',
-    response: { expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString() },
+  await util.ipc.account[''].notify({
+    expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
   });
   subTitle = page.getByTestId('notificationSubTitle');
   await expect(subTitle).toContainText(/less than a day left\. buy more credit\./i);
@@ -74,32 +64,23 @@ test.describe('Unsupported wireguard port', () => {
     if ('normal' in settings.relaySettings) {
       settings.relaySettings.normal.wireguardConstraints.port = port;
     }
-    await util.sendMockIpcResponse<ISettings>({
-      channel: 'settings-',
-      response: settings,
-    });
+    await util.ipc.settings[''].notify(settings);
   };
 
   const updatePortRanges = async (portRanges: [number, number][]) => {
-    await util.sendMockIpcResponse<IRelayListWithEndpointData>({
-      channel: 'relays-',
-      response: {
-        relayList: {
-          countries: [],
-        },
-        wireguardEndpointData: {
-          portRanges,
-          udp2tcpPorts: [],
-        },
+    await util.ipc.relays[''].notify({
+      relayList: {
+        countries: [],
+      },
+      wireguardEndpointData: {
+        portRanges,
+        udp2tcpPorts: [],
       },
     });
   };
 
   const updateTunnelState = async (tunnelState: TunnelState) => {
-    await util.sendMockIpcResponse<TunnelState>({
-      channel: 'tunnel-',
-      response: tunnelState,
-    });
+    await util.ipc.tunnel[''].notify(tunnelState);
   };
 
   test.beforeAll(async () => {
