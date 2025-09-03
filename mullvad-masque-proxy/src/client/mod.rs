@@ -1,7 +1,6 @@
 use anyhow::{Context, anyhow};
 use bytes::{Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
-use std::mem;
 use std::{
     fs::{self},
     future, io,
@@ -541,6 +540,7 @@ async fn client_socket_tx_task(
 ) -> Result<()> {
     use bytes::Buf;
     use std::collections::VecDeque;
+    use std::mem;
     use tokio::io::Interest;
     use windows::*;
     use windows_sys::Win32::Networking::WinSock;
