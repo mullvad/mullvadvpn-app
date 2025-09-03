@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { colorTokens } from '../../../src/renderer/lib/foundations';
-import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../src/shared/routes';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
@@ -20,9 +19,8 @@ test.afterEach(async () => {
 });
 
 test('App should show Expired Account Error View', async () => {
-  await util.sendMockIpcResponse<IAccountData>({
-    channel: 'account-',
-    response: { expiry: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+  await util.ipc.account[''].notify({
+    expiry: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
   await expect(page.locator('text=Out of time')).toBeVisible();
@@ -39,9 +37,6 @@ test('App should show out of time view after running out of time', async () => {
   const expiryDate = new Date();
   expiryDate.setSeconds(expiryDate.getSeconds() + 2);
 
-  await util.sendMockIpcResponse<IAccountData>({
-    channel: 'account-',
-    response: { expiry: expiryDate.toISOString() },
-  });
+  await util.ipc.account[''].notify({ expiry: expiryDate.toISOString() });
   await util.waitForRoute(RoutePath.expired);
 });
