@@ -1,4 +1,5 @@
 import React from 'react';
+import styled, { css, RuleSet } from 'styled-components';
 
 import {
   ListItemContent,
@@ -11,10 +12,21 @@ import {
   ListItemTextField,
   ListItemTrigger,
 } from './components';
+import { useListItemAnimation } from './hooks';
 import { levels } from './levels';
 import { ListItemProvider } from './ListItemContext';
 
 export type ListItemAnimation = 'flash' | 'dim';
+
+export const StyledListItem = styled.div<{
+  $animation?: RuleSet<object>;
+}>`
+  ${({ $animation }) => {
+    return css`
+      ${$animation}
+    `;
+  }}
+`;
 
 export type ListItemProps = {
   level?: keyof typeof levels;
@@ -23,10 +35,19 @@ export type ListItemProps = {
   children: React.ReactNode;
 } & React.ComponentPropsWithRef<'div'>;
 
-const ListItem = ({ level = 0, disabled, animation, children, ...props }: ListItemProps) => {
+const ListItem = ({
+  level = 0,
+  disabled,
+  animation: animationProp,
+  children,
+  ...props
+}: ListItemProps) => {
+  const animation = useListItemAnimation(animationProp);
   return (
-    <ListItemProvider level={level} disabled={disabled} animation={animation}>
-      <div {...props}>{children}</div>
+    <ListItemProvider level={level} disabled={disabled} animation={animationProp}>
+      <StyledListItem $animation={animationProp == 'dim' ? animation : undefined} {...props}>
+        {children}
+      </StyledListItem>
     </ListItemProvider>
   );
 };
