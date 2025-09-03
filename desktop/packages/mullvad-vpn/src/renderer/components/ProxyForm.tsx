@@ -104,12 +104,13 @@ const namedProxyFormContext = React.createContext<NamedProxyFormContext>({
 
 interface NamedProxyFormContainerProps
   extends Omit<ProxyFormContextProviderProps, 'proxy' | 'onSave'> {
+  children?: React.ReactNode;
   proxy?: NamedCustomProxy;
   onSave: (proxy: NamedCustomProxy) => void;
 }
 
 export function NamedProxyForm(props: NamedProxyFormContainerProps) {
-  const { onSave, ...otherProps } = props;
+  const { children, onSave, ...otherProps } = props;
 
   const [name, setName] = useState<string>(props.proxy?.name ?? '');
 
@@ -127,11 +128,7 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
   return (
     <namedProxyFormContext.Provider value={nameContextValue}>
       <ProxyFormContextProvider {...otherProps} onSave={save}>
-        <SettingsForm>
-          <ProxyFormNameField />
-          <ProxyFormInner />
-          <ProxyFormButtons />
-        </SettingsForm>
+        <SettingsForm>{children}</SettingsForm>
       </ProxyFormContextProvider>
     </namedProxyFormContext.Provider>
   );
@@ -141,7 +138,7 @@ type ProxyFormNameFieldProps = {
   inputProps?: Partial<SettingsTextInputProps>;
 };
 
-function ProxyFormNameField(props: ProxyFormNameFieldProps) {
+export function ProxyFormNameField(props: ProxyFormNameFieldProps) {
   const { name, setName } = useContext(namedProxyFormContext);
 
   return (
@@ -184,7 +181,7 @@ export function ProxyFormButtons() {
   );
 }
 
-function ProxyFormInner() {
+export function ProxyFormInner() {
   const { proxy, setProxy } = useContext(proxyFormContext);
 
   // Available custom proxies

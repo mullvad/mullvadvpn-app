@@ -21,7 +21,7 @@ import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
-import { NamedProxyForm } from './ProxyForm';
+import { NamedProxyForm, ProxyFormButtons, ProxyFormInner, ProxyFormNameField } from './ProxyForm';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 export function EditApiAccessMethod() {
@@ -108,7 +108,11 @@ function AccessMethodForm() {
                 {id !== undefined && method === undefined ? (
                   <span>Failed to open method</span>
                 ) : (
-                  <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop} />
+                  <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop}>
+                    <ProxyFormNameField />
+                    <ProxyFormInner />
+                    <ProxyFormButtons />
+                  </NamedProxyForm>
                 )}
 
                 <TestingDialog
