@@ -13,10 +13,7 @@ export function TransportProtocolSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const bridgeState = useSelector((state) => state.settings.bridgeState);
-
-  const id = 'transport-protocol-setting';
-  const ref = React.useRef<HTMLDivElement>(null);
-  const scrollToListItem = useScrollToListItem(ref, id);
+  const scrollToListItem = useScrollToListItem();
 
   const descriptionId = React.useId();
 
@@ -38,7 +35,7 @@ export function TransportProtocolSetting() {
 
   return (
     <Listbox animation={scrollToListItem?.animation} value={protocol} onValueChange={onSelect}>
-      <Listbox.Item ref={ref}>
+      <Listbox.Item>
         <Listbox.Content>
           <Listbox.Label>
             {messages.pgettext('openvpn-settings-view', 'Transport protocol')}
