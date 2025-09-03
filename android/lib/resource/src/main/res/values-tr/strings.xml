@@ -76,7 +76,8 @@
     <string name="congrats">Tebrikler!</string>
     <string name="connect">Bağlan</string>
     <string name="connect_on_start">Cihaz başlatılırken bağlan</string>
-    <string name="connect_on_start_footer">Cihaz başlatılırken otomatik olarak bağlanır. Yalnızca uygulamaya VPN izni verilmişse etkinleşir.</string>
+    <string name="connect_on_start_info_first">Cihaz başlatıldığında otomatik bağlan.</string>
+    <string name="connect_on_start_info_second">VPN\'in cihaz başlatıldığında otomatik olarak bağlanabilmesi için uygulamanın VPN izinlerine sahip olması gerekir. Harita görünümünde “Bağlan”a tıklayıp istendiğinde “Tamam”ı seçerek bu izinleri verebilirsiniz. Ayrıca, sistem ayarlarında yer alan uygulama ayrıntılarındaki depolama bilgilerini kontrol ederek uygulamanın dahili depolamaya yüklendiğinden emin olun.</string>
     <string name="connect_panel_active_features">Aktif özellikler</string>
     <string name="connect_panel_connection_details">Bağlantı ayrıntıları</string>
     <string name="connected">Bağlandı</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">MTU\'yu girin</string>
     <string name="enter_voucher_code">Kupon kodunu girin</string>
     <string name="entry">Giriş</string>
+    <string name="entry_and_exit_are_same">Giriş aktarıcısı çıkış aktarıcısıyla aynı</string>
     <string name="error_occurred">Bir hata oluştu.</string>
     <string name="error_state">BAĞLANTI KURULAMADI</string>
     <string name="exclude_applications">Hariç tutulan uygulamalar</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">WireGuard gizlemesi</string>
     <string name="off">Kapalı</string>
     <string name="on">Açık</string>
+    <string name="open_app_details">Uygulama ayrıntılarını aç</string>
     <string name="open_feature_settings">%1$s ayarlarını aç</string>
     <string name="open_url">URL\'yi aç</string>
     <string name="out_of_time">Süre doldu</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">Yeniden Bağlan</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
+    <string name="relay_item_already_selected_as_entry">%1$s zaten giriş aktarıcısı olarak seçildi</string>
+    <string name="relay_item_already_selected_as_exit">%1$s zaten çıkış aktarıcısı olarak seçildi</string>
     <string name="relayitem_is_inactive">%1$s kullanılamıyor</string>
     <string name="remove_button">Kaldır</string>
     <string name="remove_location_from_list">%1$s, %2$s listesinden kaldırılsın</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-08-08 07:35\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -1845,6 +1845,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "エラー発生。"
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。"
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2065,7 +2069,6 @@ msgid "Multihop"
 msgstr "マルチホップ"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "設定"
@@ -2798,6 +2801,12 @@ msgstr "%s (削除済み)"
 msgid "%s custom port"
 msgstr "%sカスタムポート"
 
+msgid "%s is already selected as entry relay"
+msgstr "%sはすでに入口中継サーバーとして選択されています"
+
+msgid "%s is already selected as exit relay"
+msgstr "%sはすでに出口中継サーバーとして選択されています"
+
 msgid "%s is unavailable"
 msgstr "%sは使用できません"
 
@@ -2894,8 +2903,8 @@ msgstr "自動接続とロックダウンモード"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。"
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "デバイスの起動時に自動接続します。これはアプリにVPNへのアクセス許可が付与されている場合にのみ機能します。"
+msgid "Automatically connect on device start-up."
+msgstr "デバイスの起動時に自動接続します。"
 
 msgid "Blocking internet (device offline)"
 msgstr "インターネットをブロック中 (デバイスがオフライン)"
@@ -3017,6 +3026,9 @@ msgstr "最近の項目を有効化"
 msgid "Enter MTU"
 msgstr "MTU を入力"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "入口中継サーバーと出口中継サーバーが同じです"
+
 msgid "Excluded applications"
 msgstr "除外対象アプリケーション"
 
@@ -3043,6 +3055,9 @@ msgstr "ファイル"
 
 msgid "Filters:"
 msgstr "絞り込み:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "デバイスの起動時にVPNを自動接続するには、アプリにVPNへのアクセス許可が必要です。このアクセス許可は、地図表示で [接続] をクリックし、プロンプトが表示されたら [OK] を選択すると付与できます。また、システム設定のアプリの詳細でストレージ情報を調べ、内部ストレージにアプリがインストールされていることも確認してください。"
 
 msgid "Go to VPN settings"
 msgstr "VPN設定に移動"
@@ -3088,9 +3103,6 @@ msgstr "値「%1$s」は無効であるか、欠測しています"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "特定のIPバージョンが問題の原因であることが分かっている場合に役立つ場合があります。"
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN トンネルを経由せずに、直接インターネットにアクセスするアプリを選択できます。"
@@ -3151,6 +3163,9 @@ msgstr "「%s」の結果はありません。別の検索をお試しくださ�
 
 msgid "Not found"
 msgstr "見つかりませんでした"
+
+msgid "Open app details"
+msgstr "アプリの詳細を開く"
 
 msgid "Overrides active"
 msgstr "オーバーライドは有効です"

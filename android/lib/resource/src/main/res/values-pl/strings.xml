@@ -76,7 +76,8 @@
     <string name="congrats">Gratulacje!</string>
     <string name="connect">Połącz</string>
     <string name="connect_on_start">Połącz przy uruchomieniu urządzenia</string>
-    <string name="connect_on_start_footer">Automatycznie łącz się przy uruchomieniu urządzenia. Działa tylko wtedy, gdy aplikacji przyznano uprawnienie VPN.</string>
+    <string name="connect_on_start_info_first">Automatycznie połącz przy uruchamianiu urządzenia.</string>
+    <string name="connect_on_start_info_second">Aby łączyć automatycznie sieć VPN po uruchomieniu urządzenia, aplikacja musi mieć uprawnienia do sieci VPN. Możesz je przyznać, klikając opcję „Połącz” w widoku mapy i wybierając przycisk „OK”, jeśli wyświetlony zostanie monit. Dodatkowo upewnij się, że aplikacja jest zainstalowana w wewnętrznej pamięci masowej, sprawdzając informacje o pamięci masowej w szczegółach aplikacji, w ustawieniach systemowych.</string>
     <string name="connect_panel_active_features">Aktywne funkcje</string>
     <string name="connect_panel_connection_details">Szczegóły połączenia</string>
     <string name="connected">Połączono</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">Wprowadź MTU</string>
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="entry">Wejście</string>
+    <string name="entry_and_exit_are_same">Przekaźnik wejściowy jest taki sam jak przekaźnik wyjściowy</string>
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">POŁĄCZENIE NIE POWIODŁO SIĘ</string>
     <string name="exclude_applications">Wykluczone aplikacje</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">Zaciemnianie WireGuard</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
+    <string name="open_app_details">Otwórz szczegóły aplikacji</string>
     <string name="open_feature_settings">Otwórz ustawienia %1$s</string>
     <string name="open_url">Otwórz adres URL</string>
     <string name="out_of_time">Koniec czasu</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">Połącz ponownie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
+    <string name="relay_item_already_selected_as_entry">%1$s: wybrano już jako przekaźnik wejściowy</string>
+    <string name="relay_item_already_selected_as_exit">%1$s już wybrano jako przekaźnik wyjściowy</string>
     <string name="relayitem_is_inactive">%1$s: niedostępne</string>
     <string name="remove_button">Usuń</string>
     <string name="remove_location_from_list">Usuń %1$s z %2$s</string>

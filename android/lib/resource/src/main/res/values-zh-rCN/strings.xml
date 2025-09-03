@@ -76,7 +76,8 @@
     <string name="congrats">恭喜！</string>
     <string name="connect">连接</string>
     <string name="connect_on_start">设备启动时连接</string>
-    <string name="connect_on_start_footer">设备启动时自动连接。仅适用于已为应用授予 VPN 权限的情况。</string>
+    <string name="connect_on_start_info_first">设备启动时自动连接。</string>
+    <string name="connect_on_start_info_second">为了让 VPN 在设备启动时自动连接，应用必须拥有 VPN 权限。您可以通过点击地图视图中的“连接”并在弹出提示时选择“确定”来授予这些权限。此外，请通过检查系统设置中应用详细信息内的存储信息，确保该应用已安装在内部存储空间中。</string>
     <string name="connect_panel_active_features">有效功能</string>
     <string name="connect_panel_connection_details">连接详细信息</string>
     <string name="connected">已连接</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">输入 MTU</string>
     <string name="enter_voucher_code">输入优惠码</string>
     <string name="entry">入口</string>
+    <string name="entry_and_exit_are_same">入口中继与出口中继相同</string>
     <string name="error_occurred">出错了。</string>
     <string name="error_state">无法连接</string>
     <string name="exclude_applications">排除的应用程序</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">关</string>
     <string name="on">开</string>
+    <string name="open_app_details">打开应用详细信息</string>
     <string name="open_feature_settings">打开 %1$s 设置</string>
     <string name="open_url">打开网址</string>
     <string name="out_of_time">已没有时间</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
+    <string name="relay_item_already_selected_as_entry">%1$s 已被选为入口中继</string>
+    <string name="relay_item_already_selected_as_exit">%1$s 已被选为出口中继</string>
     <string name="relayitem_is_inactive">%1$s 不可用</string>
     <string name="remove_button">移除</string>
     <string name="remove_location_from_list">将%1$s从“%2$s”中移除</string>
@@ -405,7 +410,7 @@
     <string name="version">版本</string>
     <string name="view_logs">查看应用日志</string>
     <string name="voucher_already_used">该优惠券码已被使用。</string>
-    <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券码。如果您想更改有效帐户，请先退出登录。</string>
+    <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
     <string name="vpn_permission_denied_error">VPN 权限被拒绝，或其他应用已启用“始终开启 VPN”</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN 权限被拒绝</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2025-08-06 07:47\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mere..."
@@ -1851,6 +1851,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Der opstod en fejl."
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Det lader til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge af."
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2071,7 +2075,6 @@ msgid "Multihop"
 msgstr "Multihop"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "Indstillinger"
@@ -2804,6 +2807,12 @@ msgstr "%s (er fjernet)"
 msgid "%s custom port"
 msgstr "%s brugerdefineret port"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s er allerede valgt som indgangsrelæ"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s er allerede valgt som udgangsrelæ"
+
 msgid "%s is unavailable"
 msgstr "%s er ikke tilgængelig"
 
@@ -2900,8 +2909,8 @@ msgstr "Auto-tilslutning og Lockdown-tilstand"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Auto-tilslutning kaldes Altid-til VPN i Android-systemindstillingerne, og det sørger for, at du konstant er forbundet til VPN-tunnelen og automatisk forbinder efter genstart."
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "Opretter automatisk forbindelse ved opstart af enheden. Virker kun, hvis appen har fået VPN-tilladelse."
+msgid "Automatically connect on device start-up."
+msgstr "Forbind automatisk, når enheden startes."
 
 msgid "Blocking internet (device offline)"
 msgstr "Blokering af internet (enhed offline)"
@@ -3023,6 +3032,9 @@ msgstr "Aktivér nylige"
 msgid "Enter MTU"
 msgstr "Indtast MTU"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "Indgangsrelæ er det samme som udgangsrelæ"
+
 msgid "Excluded applications"
 msgstr "Ekskluderede applikationer"
 
@@ -3049,6 +3061,9 @@ msgstr "Fil"
 
 msgid "Filters:"
 msgstr "Filtre:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "For at VPN kan forbindes automatisk, når enheden startes, skal appen have VPN-tilladelser. Du kan tildele disse ved at klikke på \"Forbind\" i kortvisningen og vælge \"OK\", hvis du bliver bedt om det. Sørg desuden for, at appen er installeret på interne lager ved at tjekke lageroplysninger i appdetaljerne i systemindstillinger."
 
 msgid "Go to VPN settings"
 msgstr "Gå til VPN-indstillinger"
@@ -3094,9 +3109,6 @@ msgstr "Ugyldig eller manglende værdi \"%1$s\""
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Det kan være brugbart, hvis man opdager problemer, der skyldes en bestemt IP-version."
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Det ser ud til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge ud."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Giver dig mulighed for at vælge apps, der skal have direkte adgang til internettet uden at gå gennem VPN-tunnelen."
@@ -3157,6 +3169,9 @@ msgstr "Intet resultat for \"%s\". Prøv en anden søgning"
 
 msgid "Not found"
 msgstr "Ikke fundet"
+
+msgid "Open app details"
+msgstr "Se oplysninger om app"
 
 msgid "Overrides active"
 msgstr "Tilsidesættelser aktive"

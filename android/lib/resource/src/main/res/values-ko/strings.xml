@@ -76,7 +76,8 @@
     <string name="congrats">축하합니다!</string>
     <string name="connect">연결</string>
     <string name="connect_on_start">장치 시작 시 연결</string>
-    <string name="connect_on_start_footer">장치 시작 시 자동으로 연결됩니다. 앱에 VPN 권한이 부여된 경우에만 작동됩니다.</string>
+    <string name="connect_on_start_info_first">장치 시작 시 자동으로 연결됩니다.</string>
+    <string name="connect_on_start_info_second">장치 시작 시 VPN이 자동으로 연결되려면 앱에 VPN 권한이 있어야 합니다. 지도 보기에서 \"연결\"을 클릭하고, 메시지가 표시되는 경우 \"확인\"을 선택하면, 해당 권한이 부여됩니다. 또한 시스템 설정의 앱 세부 정보에서 저장소 정보를 보고 앱이 내부 저장소에 설치되어 있는지 확인하세요.</string>
     <string name="connect_panel_active_features">활성 기능</string>
     <string name="connect_panel_connection_details">연결 세부 정보</string>
     <string name="connected">연결됨</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">MTU 입력</string>
     <string name="enter_voucher_code">바우처 코드 입력</string>
     <string name="entry">시작</string>
+    <string name="entry_and_exit_are_same">진입 릴레이가 출구 릴레이와 동일합니다</string>
     <string name="error_occurred">오류가 발생했습니다.</string>
     <string name="error_state">연결 실패</string>
     <string name="exclude_applications">제외된 애플리케이션</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">WireGuard 난독화</string>
     <string name="off">끄기</string>
     <string name="on">켜기</string>
+    <string name="open_app_details">앱 세부 정보 열기</string>
     <string name="open_feature_settings">%1$s 설정 열기</string>
     <string name="open_url">URL 열기</string>
     <string name="out_of_time">시간 초과</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">다시 연결</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
+    <string name="relay_item_already_selected_as_entry">%1$s이(가) 이미 진입 릴레이로 선택되었습니다</string>
+    <string name="relay_item_already_selected_as_exit">%1$s이(가) 이미 출구 릴레이로 선택되었습니다</string>
     <string name="relayitem_is_inactive">%1$s 사용 불가</string>
     <string name="remove_button">제거</string>
     <string name="remove_location_from_list">%1$s에서 %2$s 제거</string>

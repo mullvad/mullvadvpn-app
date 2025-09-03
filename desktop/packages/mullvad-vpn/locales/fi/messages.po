@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-08-06 13:58\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -1851,6 +1851,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Ilmeni virhe."
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä."
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2071,7 +2075,6 @@ msgid "Multihop"
 msgstr "Multihop"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "Asetukset"
@@ -2804,6 +2807,12 @@ msgstr "%s (poistettu)"
 msgid "%s custom port"
 msgstr "Mukautettu %s-portti"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s on jo valittu tulovälityspalvelimeksi"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s on jo valittu lähtövälityspalvelimeksi"
+
 msgid "%s is unavailable"
 msgstr "%s ei ole käytettävissä"
 
@@ -2900,8 +2909,8 @@ msgstr "Automaattinen yhdistäminen ja lukitustila"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen."
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "Muodosta yhteys automaattisesti laitteen käynnistyksen yhteydessä. Tämä toimii ainoastaan kun sovellukselle on myönnetty VPN:n käyttöoikeus."
+msgid "Automatically connect on device start-up."
+msgstr "Muodosta yhteys automaattisesti, kun laite käynnistetään."
 
 msgid "Blocking internet (device offline)"
 msgstr "Internetyhteys on estetty (laite on offline-tilassa)"
@@ -3023,6 +3032,9 @@ msgstr "Ota viimeisimmät käyttöön"
 msgid "Enter MTU"
 msgstr "Syötä MTU"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "Tulovälityspalvelin on sama kuin lähtövälityspalvelin"
+
 msgid "Excluded applications"
 msgstr "Poissuljetut sovellukset"
 
@@ -3049,6 +3061,9 @@ msgstr "Tiedosto"
 
 msgid "Filters:"
 msgstr "Suodattimet:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "Jotta VPN voi muodostaa yhteyden automaattisesti kun laite käynnistetään, sovelluksella täytyy olla VPN-oikeudet. Voit antaa ne napsauttamalla \"Yhdistä\" karttanäkymässä ja valitsemalla OK kysyttäessä. Varmista lisäksi, että sovellus on asennettu sisäiseen tallennustilaan, tarkistamalla tallennustilatiedot sovelluksen tiedoista järjestelmäasetuksista."
 
 msgid "Go to VPN settings"
 msgstr "Siirry VPN-asetuksiin"
@@ -3094,9 +3109,6 @@ msgstr "Arvo \"%1$s\" puuttuu tai on virheellinen"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Se voi olla hyödyllistä, kun olet tietoinen tietyn IP-version aiheuttamista ongelmista."
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Voit valita sovelluksia, joiden pitäisi muodostaa yhteys Internetiin suoraan kulkematta VPN-tunnelin läpi."
@@ -3157,6 +3169,9 @@ msgstr "Haulle \"%s\" ei löytynyt tuloksia. Kokeile toista hakua."
 
 msgid "Not found"
 msgstr "Ei löydy"
+
+msgid "Open app details"
+msgstr "Avaa sovelluksen tiedot"
 
 msgid "Overrides active"
 msgstr "Ohituksia on käytössä"

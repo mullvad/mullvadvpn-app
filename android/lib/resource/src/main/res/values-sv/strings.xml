@@ -76,7 +76,8 @@
     <string name="congrats">Grattis!</string>
     <string name="connect">Anslut</string>
     <string name="connect_on_start">Anslut när enheten startas</string>
-    <string name="connect_on_start_footer">Anslut automatiskt när enheten startar. Fungerar bara om appen har beviljats VPN-behörighet.</string>
+    <string name="connect_on_start_info_first">Anslut automatiskt när enheten startas.</string>
+    <string name="connect_on_start_info_second">För att VPN ska anslutas automatiskt när enheten startas måste appen ha VPN-behörighet. Du kan bevilja dessa genom att klicka på \"Anslut\" i kartvisningen och välja \"OK\" om du uppmanas till det. Dessutom ska du säkerställa att appen har installerats på det interna lagringsutrymmet genom att kontrollera lagringsinformationen i appinformationen i systeminställningarna.</string>
     <string name="connect_panel_active_features">Aktiva funktioner</string>
     <string name="connect_panel_connection_details">Anslutningsinformation</string>
     <string name="connected">Ansluten</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">Ange MTU</string>
     <string name="enter_voucher_code">Ange kupongkod</string>
     <string name="entry">Ingång</string>
+    <string name="entry_and_exit_are_same">Ingångsrelä är samma som utgångsrelä</string>
     <string name="error_occurred">Ett fel har inträffat.</string>
     <string name="error_state">DET GICK INTE ATT ANSLUTA</string>
     <string name="exclude_applications">Exkluderade applikationer</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">WireGuard-obfuskering</string>
     <string name="off">Av</string>
     <string name="on">På</string>
+    <string name="open_app_details">Öppna appinformation</string>
     <string name="open_feature_settings">Öppna %1$s-inställningarna</string>
     <string name="open_url">Öppna URL</string>
     <string name="out_of_time">Ingen tid kvar</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">Återanslut</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
+    <string name="relay_item_already_selected_as_entry">%1$s har redan valts som ingångsrelä</string>
+    <string name="relay_item_already_selected_as_exit">%1$s har redan valts som utgångsrelä</string>
     <string name="relayitem_is_inactive">%1$s är inte tillgänglig</string>
     <string name="remove_button">Ta bort</string>
     <string name="remove_location_from_list">Ta bort %1$s från %2$s</string>

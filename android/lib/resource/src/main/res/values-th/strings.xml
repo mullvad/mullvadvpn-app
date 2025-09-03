@@ -76,7 +76,8 @@
     <string name="congrats">ยินดีด้วย!</string>
     <string name="connect">เชื่อมต่อ</string>
     <string name="connect_on_start">เชื่อมต่อเมื่ออุปกรณ์เริ่มทำงาน</string>
-    <string name="connect_on_start_footer">เชื่อมต่อโดยอัตโนมัติเมื่ออุปกรณ์เริ่มทำงาน ใช้งานได้เมื่อแอปได้รับสิทธิ์ VPN แล้วเท่านั้น</string>
+    <string name="connect_on_start_info_first">เชื่อมต่ออัตโนมัติเมื่อเริ่มต้นอุปกรณ์</string>
+    <string name="connect_on_start_info_second">เพื่อให้ VPN เชื่อมต่อโดยอัตโนมัติเมื่ออุปกรณ์เริ่มทำงาน แอปต้องมีสิทธิ์ VPN คุณสามารถให้สิทธิ์เหล่านี้ได้โดยคลิก \"เชื่อมต่อ\" ในมุมมองแผนที่ และเลือก \"ตกลง\" หากได้รับแจ้ง นอกจากนี้ โปรดตรวจสอบให้แน่ใจว่าแอปติดตั้งอยู่ในพื้นที่จัดเก็บข้อมูลภายใน โดยตรวจสอบข้อมูลพื้นที่จัดเก็บข้อมูลในรายละเอียดแอปในการตั้งค่าระบบ</string>
     <string name="connect_panel_active_features">คุณลักษณะที่ใช้งาน</string>
     <string name="connect_panel_connection_details">รายละเอียดการเชื่อมต่อ</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">ป้อน MTU</string>
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
     <string name="entry">เข้า</string>
+    <string name="entry_and_exit_are_same">Entry Relay เหมือนกับ Exit Relay</string>
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
     <string name="error_state">ไม่สามารถเชื่อมต่อได้</string>
     <string name="exclude_applications">แอปพลิเคชันที่แยกออก</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">การทำให้ข้อมูลยุ่งเหยิงของ WireGuard</string>
     <string name="off">ปิด</string>
     <string name="on">เปิด</string>
+    <string name="open_app_details">เปิดรายละเอียดแอป</string>
     <string name="open_feature_settings">เปิดการตั้งค่า %1$s</string>
     <string name="open_url">Open URL</string>
     <string name="out_of_time">หมดเวลา</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">เชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
+    <string name="relay_item_already_selected_as_entry">%1$s ถูกเลือกเป็น Entry Relay อยู่แล้ว</string>
+    <string name="relay_item_already_selected_as_exit">%1$s ถูกเลือกเป็น Exit Relay อยู่แล้ว</string>
     <string name="relayitem_is_inactive">%1$s ไม่พร้อมใช้งาน</string>
     <string name="remove_button">ลบ</string>
     <string name="remove_location_from_list">ลบ %1$s จาก %2$s</string>

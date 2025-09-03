@@ -76,7 +76,8 @@
     <string name="congrats">Onnittelut!</string>
     <string name="connect">Yhdistä</string>
     <string name="connect_on_start">Luo yhteys, kun laite käynnistyy</string>
-    <string name="connect_on_start_footer">Muodosta yhteys automaattisesti laitteen käynnistyksen yhteydessä. Tämä toimii ainoastaan kun sovellukselle on myönnetty VPN:n käyttöoikeus.</string>
+    <string name="connect_on_start_info_first">Muodosta yhteys automaattisesti, kun laite käynnistetään.</string>
+    <string name="connect_on_start_info_second">Jotta VPN voi muodostaa yhteyden automaattisesti kun laite käynnistetään, sovelluksella täytyy olla VPN-oikeudet. Voit antaa ne napsauttamalla \"Yhdistä\" karttanäkymässä ja valitsemalla OK kysyttäessä. Varmista lisäksi, että sovellus on asennettu sisäiseen tallennustilaan, tarkistamalla tallennustilatiedot sovelluksen tiedoista järjestelmäasetuksista.</string>
     <string name="connect_panel_active_features">Käytössä olevat ominaisuudet</string>
     <string name="connect_panel_connection_details">Yhteyden tiedot</string>
     <string name="connected">Yhdistetty</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">Syötä MTU</string>
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="entry">Tulo</string>
+    <string name="entry_and_exit_are_same">Tulovälityspalvelin on sama kuin lähtövälityspalvelin</string>
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHDISTÄMINEN EPÄONNISTUI</string>
     <string name="exclude_applications">Poissuljetut sovellukset</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">WireGuard-obfuskointi</string>
     <string name="off">Pois</string>
     <string name="on">Päällä</string>
+    <string name="open_app_details">Avaa sovelluksen tiedot</string>
     <string name="open_feature_settings">Avaa %1$s-asetukset</string>
     <string name="open_url">Avaa URL</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">Yhdistä uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
+    <string name="relay_item_already_selected_as_entry">%1$s on jo valittu tulovälityspalvelimeksi</string>
+    <string name="relay_item_already_selected_as_exit">%1$s on jo valittu lähtövälityspalvelimeksi</string>
     <string name="relayitem_is_inactive">%1$s ei ole käytettävissä</string>
     <string name="remove_button">Poista</string>
     <string name="remove_location_from_list">Poista %1$s luettelosta %2$s</string>

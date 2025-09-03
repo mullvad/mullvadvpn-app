@@ -76,7 +76,8 @@
     <string name="congrats">Complimenti!</string>
     <string name="connect">Connetti</string>
     <string name="connect_on_start">Connetti all\'avvio del dispositivo</string>
-    <string name="connect_on_start_footer">Connettiti automaticamente all\'avvio del dispositivo. Funziona solo se all\'app è stata concessa l\'autorizzazione VPN.</string>
+    <string name="connect_on_start_info_first">Connessione automatica all\'avvio del dispositivo.</string>
+    <string name="connect_on_start_info_second">Affinché la VPN si connetta automaticamente all\'avvio del dispositivo, l\'app deve disporre delle autorizzazioni VPN. Puoi concederle cliccando su \"Connetti\" nella vista mappa e selezionando \"OK\" se richiesto. Inoltre, assicurati che l\'app sia installata nella memoria interna controllando le informazioni di archiviazione nei dettagli dell\'app, dalle impostazioni di sistema.</string>
     <string name="connect_panel_active_features">Funzionalità attive</string>
     <string name="connect_panel_connection_details">Dettagli connessione</string>
     <string name="connected">Connesso</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">Inserisci MTU</string>
     <string name="enter_voucher_code">Inserisci codice voucher</string>
     <string name="entry">Ingresso</string>
+    <string name="entry_and_exit_are_same">L\'entry relay è uguale all\'exit relay</string>
     <string name="error_occurred">Si è verificato un errore.</string>
     <string name="error_state">IMPOSSIBILE CONNETTERSI</string>
     <string name="exclude_applications">Applicazioni escluse</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">Offuscamento WireGuard</string>
     <string name="off">Off</string>
     <string name="on">On</string>
+    <string name="open_app_details">Apri dettagli app</string>
     <string name="open_feature_settings">Apri le impostazioni %1$s</string>
     <string name="open_url">Apri URL</string>
     <string name="out_of_time">Scaduto</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">Riconnetti</string>
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>
+    <string name="relay_item_already_selected_as_entry">%1$s già selezionato come entry relay</string>
+    <string name="relay_item_already_selected_as_exit">%1$s già selezionato come exit relay</string>
     <string name="relayitem_is_inactive">%1$s non disponibile</string>
     <string name="remove_button">Rimuovi</string>
     <string name="remove_location_from_list">Rimuovi %1$s da %2$s</string>
@@ -405,7 +410,7 @@
     <string name="version">Versione</string>
     <string name="view_logs">Visualizza registri app</string>
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
-    <string name="voucher_is_account_number">Sembra che tu abbia inserito un numero di account anziché un codice voucher. Se desideri modificare l\'account attivo, effettua prima la disconnessione.</string>
+    <string name="voucher_is_account_number">Hai inserito un numero di account anziché un codice voucher. Se vuoi modificare l\'account attivo, effettua prima la disconnessione.</string>
     <string name="voucher_success_title">Il voucher è stato riscattato correttamente.</string>
     <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata o un\'altra app ha abilitato \"VPN sempre attiva\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Autorizzazione VPN negata</string>

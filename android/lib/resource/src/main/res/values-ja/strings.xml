@@ -76,7 +76,8 @@
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続</string>
     <string name="connect_on_start">デバイス起動時に接続</string>
-    <string name="connect_on_start_footer">デバイスの起動時に自動接続します。これはアプリにVPNへのアクセス許可が付与されている場合にのみ機能します。</string>
+    <string name="connect_on_start_info_first">デバイスの起動時に自動接続します。</string>
+    <string name="connect_on_start_info_second">デバイスの起動時にVPNを自動接続するには、アプリにVPNへのアクセス許可が必要です。このアクセス許可は、地図表示で [接続] をクリックし、プロンプトが表示されたら [OK] を選択すると付与できます。また、システム設定のアプリの詳細でストレージ情報を調べ、内部ストレージにアプリがインストールされていることも確認してください。</string>
     <string name="connect_panel_active_features">有効な機能</string>
     <string name="connect_panel_connection_details">接続の詳細</string>
     <string name="connected">接続済み</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">MTU を入力</string>
     <string name="enter_voucher_code">バウチャーコードを入力</string>
     <string name="entry">入口</string>
+    <string name="entry_and_exit_are_same">入口中継サーバーと出口中継サーバーが同じです</string>
     <string name="error_occurred">エラー発生。</string>
     <string name="error_state">接続に失敗しました</string>
     <string name="exclude_applications">除外対象アプリケーション</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">WireGuardの難読化</string>
     <string name="off">オフ</string>
     <string name="on">オン</string>
+    <string name="open_app_details">アプリの詳細を開く</string>
     <string name="open_feature_settings">%1$s設定を開く</string>
     <string name="open_url">URLを開く</string>
     <string name="out_of_time">時間切れ</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">再接続</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
+    <string name="relay_item_already_selected_as_entry">%1$sはすでに入口中継サーバーとして選択されています</string>
+    <string name="relay_item_already_selected_as_exit">%1$sはすでに出口中継サーバーとして選択されています</string>
     <string name="relayitem_is_inactive">%1$sは使用できません</string>
     <string name="remove_button">削除</string>
     <string name="remove_location_from_list">%1$sを%2$sから削除する</string>

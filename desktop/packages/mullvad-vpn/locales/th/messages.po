@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-08-08 07:35\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -1845,6 +1845,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "เกิดข้อผิดพลาดขึ้น"
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน"
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2065,7 +2069,6 @@ msgid "Multihop"
 msgstr "มัลติฮอป"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "การตั้งค่า"
@@ -2798,6 +2801,12 @@ msgstr "%s (ลบแล้ว)"
 msgid "%s custom port"
 msgstr "พอร์ต %s แบบกำหนดเอง"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s ถูกเลือกเป็น Entry Relay อยู่แล้ว"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s ถูกเลือกเป็น Exit Relay อยู่แล้ว"
+
 msgid "%s is unavailable"
 msgstr "%s ไม่พร้อมใช้งาน"
 
@@ -2894,8 +2903,8 @@ msgstr "เชื่อมต่ออัตโนมัติและโหม
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต"
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "เชื่อมต่อโดยอัตโนมัติเมื่ออุปกรณ์เริ่มทำงาน ใช้งานได้เมื่อแอปได้รับสิทธิ์ VPN แล้วเท่านั้น"
+msgid "Automatically connect on device start-up."
+msgstr "เชื่อมต่ออัตโนมัติเมื่อเริ่มต้นอุปกรณ์"
 
 msgid "Blocking internet (device offline)"
 msgstr "กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)"
@@ -3017,6 +3026,9 @@ msgstr "เปิดใช้งานล่าสุด"
 msgid "Enter MTU"
 msgstr "ป้อน MTU"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "Entry Relay เหมือนกับ Exit Relay"
+
 msgid "Excluded applications"
 msgstr "แอปพลิเคชันที่แยกออก"
 
@@ -3043,6 +3055,9 @@ msgstr "ไฟล์"
 
 msgid "Filters:"
 msgstr "ตัวกรอง:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "เพื่อให้ VPN เชื่อมต่อโดยอัตโนมัติเมื่ออุปกรณ์เริ่มทำงาน แอปต้องมีสิทธิ์ VPN คุณสามารถให้สิทธิ์เหล่านี้ได้โดยคลิก \"เชื่อมต่อ\" ในมุมมองแผนที่ และเลือก \"ตกลง\" หากได้รับแจ้ง นอกจากนี้ โปรดตรวจสอบให้แน่ใจว่าแอปติดตั้งอยู่ในพื้นที่จัดเก็บข้อมูลภายใน โดยตรวจสอบข้อมูลพื้นที่จัดเก็บข้อมูลในรายละเอียดแอปในการตั้งค่าระบบ"
 
 msgid "Go to VPN settings"
 msgstr "ไปที่การตั้งค่า VPN"
@@ -3088,9 +3103,6 @@ msgstr "ค่า \"%1$s” ไม่ถูกต้องหรือขาด�
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "นี่จะมีประโยชน์อย่างมาก เมื่อคุณทราบถึงปัญหาที่เกิดจากเวอร์ชัน IP บางเวอร์ชัน"
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "ช่วยให้คุณเลือกแอปที่เข้าถึงอินเทอร์เน็ตได้โดยตรง โดยไม่ต้องผ่านอุโมงค์ VPN"
@@ -3151,6 +3163,9 @@ msgstr "ไม่พบผลลัพธ์สำหรับ \"%s\" โปร�
 
 msgid "Not found"
 msgstr "ไม่พบ"
+
+msgid "Open app details"
+msgstr "เปิดรายละเอียดแอป"
 
 msgid "Overrides active"
 msgstr "เปิดใช้โอเวอร์ไรด์อยู่"

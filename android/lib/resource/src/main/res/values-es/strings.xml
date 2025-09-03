@@ -76,7 +76,8 @@
     <string name="congrats">¡Enhorabuena!</string>
     <string name="connect">Conectar</string>
     <string name="connect_on_start">Conectar al iniciar el dispositivo</string>
-    <string name="connect_on_start_footer">Se conecta automáticamente al iniciar el dispositivo. Solo funciona si a la aplicación se le ha concedido el permiso VPN.</string>
+    <string name="connect_on_start_info_first">Conectar automáticamente al iniciarse el dispositivo.</string>
+    <string name="connect_on_start_info_second">Para que la VPN se conecte automáticamente al iniciarse el dispositivo, la aplicación debe tener permisos de VPN. Puede concederlos haciendo clic en «Conectar» en la vista de mapa y seleccionando «Aceptar» si se le indica. Además, asegúrese de que la aplicación esté instalada en el almacenamiento interno consultando la información de almacenamiento en los detalles de la aplicación en la configuración del sistema.</string>
     <string name="connect_panel_active_features">Características activas</string>
     <string name="connect_panel_connection_details">Detalles de la conexión</string>
     <string name="connected">Conectado</string>
@@ -174,6 +175,7 @@
     <string name="enter_value_placeholder">Introducir MTU</string>
     <string name="enter_voucher_code">Escriba el código del cupón</string>
     <string name="entry">Entrada</string>
+    <string name="entry_and_exit_are_same">El retransmisor de entrada es el mismo que el retransmisor de salida</string>
     <string name="error_occurred">Se produjo un error.</string>
     <string name="error_state">NO SE HA PODIDO CONECTAR</string>
     <string name="exclude_applications">Aplicaciones excluidas</string>
@@ -279,6 +281,7 @@
     <string name="obfuscation_title">Ofuscación de WireGuard</string>
     <string name="off">Desactivado</string>
     <string name="on">Activado</string>
+    <string name="open_app_details">Abrir detalles de la aplicación</string>
     <string name="open_feature_settings">Abrir la configuración de %1$s</string>
     <string name="open_url">Abrir URL</string>
     <string name="out_of_time">Tiempo agotado</string>
@@ -315,6 +318,8 @@
     <string name="reconnect">Reconectar</string>
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
+    <string name="relay_item_already_selected_as_entry">%1$s ya está seleccionado como retransmisor de entrada</string>
+    <string name="relay_item_already_selected_as_exit">%1$s ya está seleccionado como retransmisor de salida</string>
     <string name="relayitem_is_inactive">%1$s no está disponible</string>
     <string name="remove_button">Quitar</string>
     <string name="remove_location_from_list">Quitar %1$s de %2$s</string>
