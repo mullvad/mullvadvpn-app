@@ -464,11 +464,16 @@ async fn client_socket_rx_task(
     client_tx: mpsc::Sender<Bytes>,
     return_addr_tx: broadcast::Sender<SocketAddr>,
 ) -> Result<()> {
-    let mut client_read_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
+    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
+
+    let mut client_read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
     let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
 
     loop {
-        client_read_buf.reserve(crate::PACKET_BUFFER_SIZE);
+        if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
+            // Allocate space for new packets
+            client_read_buf.reserve(TOTAL_BUFFER_CAPACITY);
+        }
 
         // this is the variable ID used to signify UDP payloads in HTTP datagrams.
         crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
