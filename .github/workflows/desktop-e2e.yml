@@ -317,6 +317,10 @@ jobs:
       !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: windows-latest
     steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        run: |
+          git config --system core.longpaths true
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Checkout submodules
