@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { Constraint, ObfuscationType } from '../../../../../../shared/daemon-rpc-types';
@@ -24,9 +23,7 @@ export function ObfuscationSettings() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
-  const id = 'obfuscation-setting';
-  const ref = React.useRef<HTMLDivElement>(null);
-  const scrollToAnchor = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('obfuscation-setting');
 
   // TRANSLATORS: Text showing currently selected port.
   // TRANSLATORS: Available placeholders:
@@ -46,10 +43,7 @@ export function ObfuscationSettings() {
   );
 
   return (
-    <Listbox
-      onValueChange={selectObfuscationType}
-      value={obfuscationType}
-      animation={scrollToAnchor?.animation}>
+    <Listbox onValueChange={selectObfuscationType} value={obfuscationType} animation={animation}>
       <Listbox.Item ref={ref}>
         <Listbox.Content>
           <Listbox.Label>

@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -70,9 +70,7 @@ function MultihopSetting() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
-  const id = 'multihop-setting';
-  const ref = useRef<HTMLDivElement>(null);
-  const scrollTo = useScrollToListItem(ref, id);
+  const { ref, animation } = useScrollToListItem('multihop-setting');
 
   const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
   const unavailable =
@@ -97,7 +95,7 @@ function MultihopSetting() {
     <>
       <ToggleListItem
         ref={ref}
-        animation={scrollTo?.animation}
+        animation={animation}
         disabled={unavailable}
         checked={multihop && !unavailable}
         onCheckedChange={setMultihop}>

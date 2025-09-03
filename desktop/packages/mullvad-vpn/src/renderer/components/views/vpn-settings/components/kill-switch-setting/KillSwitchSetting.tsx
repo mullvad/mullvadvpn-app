@@ -6,10 +6,10 @@ import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 
 export function KillSwitchSetting() {
-  const scrollToAnchor = useScrollToListItem();
+  const { animation } = useScrollToListItem();
 
   return (
-    <ListItem animation={scrollToAnchor?.animation}>
+    <ListItem animation={animation}>
       <ListItem.Item>
         <ListItem.Content>
           <ListItem.Label>{messages.pgettext('vpn-settings-view', 'Kill switch')}</ListItem.Label>
