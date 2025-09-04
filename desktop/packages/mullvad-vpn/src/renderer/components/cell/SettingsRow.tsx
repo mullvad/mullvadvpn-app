@@ -60,6 +60,7 @@ const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   display: 'flex',
   alignItems: 'center',
   marginLeft: measurements.horizontalViewMargin,
+  marginRight: measurements.horizontalViewMargin,
   marginTop: '5px',
   color: colors.whiteAlpha60,
 });
