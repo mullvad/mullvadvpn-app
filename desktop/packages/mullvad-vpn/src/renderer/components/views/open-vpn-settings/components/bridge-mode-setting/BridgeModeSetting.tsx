@@ -93,8 +93,7 @@ export function BridgeModeSetting() {
         <DefaultListboxOption value={'auto'}>{messages.gettext('Automatic')}</DefaultListboxOption>
         <DefaultListboxOption
           value={'on'}
-          disabled={tunnelProtocol !== 'openvpn' || transportProtocol === 'udp'}
-          data-testid="bridge-mode-on">
+          disabled={tunnelProtocol !== 'openvpn' || transportProtocol === 'udp'}>
           {messages.gettext('On')}
         </DefaultListboxOption>
         <DefaultListboxOption value={'off'}>{messages.gettext('Off')}</DefaultListboxOption>
