@@ -67,7 +67,7 @@ export function ObfuscationSettings() {
         </Listbox.Content>
       </Listbox.Item>
       <Listbox.Options>
-        <DefaultListboxOption value={ObfuscationType.auto} data-testid="automatic-obfuscation">
+        <DefaultListboxOption value={ObfuscationType.auto}>
           {messages.gettext('Automatic')}
         </DefaultListboxOption>
         <SplitListboxOption value={ObfuscationType.shadowsocks}>
