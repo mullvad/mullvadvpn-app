@@ -43,6 +43,7 @@ use hickory_server::{
 use rand::random_range;
 use socket2::{Domain, Protocol, Socket, Type};
 use std::sync::LazyLock;
+use talpid_routing::data::RouteSocketMessage;
 use talpid_types::drop_guard::{OnDrop, on_drop};
 use tokio::{
     net::{self, UdpSocket},

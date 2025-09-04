@@ -32,7 +32,7 @@ pub enum Error {
     Deletion(RouteMessage),
 }
 
-/// Provides an interface for manipulating the routing table on macOS using a PF_ROUTE socket.
+/// Provides an interface for PF_ROUTE sockets
 pub struct RoutingTable {
     socket: routing_socket::RoutingSocket,
 }
@@ -47,12 +47,13 @@ pub enum AddResult {
 }
 
 impl RoutingTable {
+    /// New routing table interface
     pub fn new() -> Result<Self> {
         let socket = routing_socket::RoutingSocket::new().map_err(Error::RoutingSocket)?;
-
         Ok(Self { socket })
     }
 
+    /// Receive the next message from the routing socket
     pub async fn next_message(&mut self) -> Result<RouteSocketMessage> {
         let mut buf = [0u8; 2048];
 
@@ -72,8 +73,9 @@ impl RoutingTable {
         data::RouteSocketMessage::parse_message(msg_buf).map_err(Error::InvalidMessage)
     }
 
+    /// Add route to the routing table
     pub async fn add_route(&mut self, message: &RouteMessage) -> Result<AddResult> {
-        if let Ok(destination) = message.destination_ip() {
+        if let Ok(Some(destination)) = message.destination_ip() {
             if Some(destination.ip()) == message.gateway_ip() {
                 // Workaround that allows us to reach a wg peer on our router.
                 // If we don't do this, adding the route fails due to errno 49
@@ -132,6 +134,7 @@ impl RoutingTable {
         }
     }
 
+    /// Delete route from the routing table
     pub async fn delete_route(&mut self, message: &RouteMessage) -> Result<()> {
         log::trace!("Delete route: {message:?}");
 
@@ -151,6 +154,7 @@ impl RoutingTable {
         }
     }
 
+    /// Get route from the routing table
     pub async fn get_route(
         &mut self,
         message: &RouteMessage,
