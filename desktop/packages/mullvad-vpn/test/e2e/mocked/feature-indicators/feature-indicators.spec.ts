@@ -32,90 +32,91 @@ const mockConnectedLocation: ILocation = { ...mockDisconnectedLocation, mullvadE
 let page: Page;
 let util: MockedTestUtils;
 
-test.beforeAll(async () => {
-  ({ page, util } = await startMockedApp());
-  await util.waitForRoute(RoutePath.main);
-});
-
-test.afterAll(async () => {
-  await page.close();
-});
-
-test('App should show no feature indicators', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockDisconnectedLocation,
-  });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: {
-      state: 'connected',
-      details: { endpoint, location: mockConnectedLocation },
-      featureIndicators: undefined,
-    },
+test.describe('Feature indicators', () => {
+  test.beforeAll(async () => {
+    ({ page, util } = await startMockedApp());
+    await util.waitForRoute(RoutePath.main);
   });
 
-  await expectConnected(page);
-  await expectFeatureIndicators(page, []);
-
-  const ellipsis = page.getByText(/^\d more.../);
-  await expect(ellipsis).not.toBeVisible();
-
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(ellipsis).not.toBeVisible();
-
-  await expectFeatureIndicators(page, []);
-  await page.getByTestId('connection-panel-chevron').click();
-});
-
-test('App should show feature indicators', async () => {
-  await util.mockIpcHandle<ILocation>({
-    channel: 'location-get',
-    response: mockDisconnectedLocation,
+  test.afterAll(async () => {
+    await page.close();
   });
-  await util.sendMockIpcResponse<TunnelState>({
-    channel: 'tunnel-',
-    response: {
-      state: 'connected',
-      details: { endpoint, location: mockConnectedLocation },
-      featureIndicators: [
-        FeatureIndicator.daita,
-        FeatureIndicator.udp2tcp,
-        FeatureIndicator.customMssFix,
-        FeatureIndicator.customMtu,
-        FeatureIndicator.lanSharing,
-        FeatureIndicator.serverIpOverride,
-        FeatureIndicator.customDns,
-        FeatureIndicator.lockdownMode,
-        FeatureIndicator.quantumResistance,
-        FeatureIndicator.multihop,
-      ],
-    },
+  test('App should show no feature indicators', async () => {
+    await util.mockIpcHandle<ILocation>({
+      channel: 'location-get',
+      response: mockDisconnectedLocation,
+    });
+    await util.sendMockIpcResponse<TunnelState>({
+      channel: 'tunnel-',
+      response: {
+        state: 'connected',
+        details: { endpoint, location: mockConnectedLocation },
+        featureIndicators: undefined,
+      },
+    });
+
+    await expectConnected(page);
+    await expectFeatureIndicators(page, []);
+
+    const ellipsis = page.getByText(/^\d more.../);
+    await expect(ellipsis).not.toBeVisible();
+
+    await page.getByTestId('connection-panel-chevron').click();
+    await expect(ellipsis).not.toBeVisible();
+
+    await expectFeatureIndicators(page, []);
+    await page.getByTestId('connection-panel-chevron').click();
   });
 
-  // Make sure panel is collapsed before checking indicator visibility.
-  const ellipsis = page.getByText(/^\d more.../);
-  await expect(ellipsis).toBeVisible();
+  test('App should show feature indicators', async () => {
+    await util.mockIpcHandle<ILocation>({
+      channel: 'location-get',
+      response: mockDisconnectedLocation,
+    });
+    await util.sendMockIpcResponse<TunnelState>({
+      channel: 'tunnel-',
+      response: {
+        state: 'connected',
+        details: { endpoint, location: mockConnectedLocation },
+        featureIndicators: [
+          FeatureIndicator.daita,
+          FeatureIndicator.udp2tcp,
+          FeatureIndicator.customMssFix,
+          FeatureIndicator.customMtu,
+          FeatureIndicator.lanSharing,
+          FeatureIndicator.serverIpOverride,
+          FeatureIndicator.customDns,
+          FeatureIndicator.lockdownMode,
+          FeatureIndicator.quantumResistance,
+          FeatureIndicator.multihop,
+        ],
+      },
+    });
 
-  await expectConnected(page);
-  await expectFeatureIndicators(page, ['DAITA', 'Quantum resistance'], false);
-  await expectHiddenFeatureIndicator(page, 'Mssfix');
+    // Make sure panel is collapsed before checking indicator visibility.
+    const ellipsis = page.getByText(/^\d more.../);
+    await expect(ellipsis).toBeVisible();
 
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(ellipsis).not.toBeVisible();
+    await expectConnected(page);
+    await expectFeatureIndicators(page, ['DAITA', 'Quantum resistance'], false);
+    await expectHiddenFeatureIndicator(page, 'Mssfix');
 
-  await expectFeatureIndicators(page, [
-    'DAITA',
-    'Quantum resistance',
-    'Mssfix',
-    'MTU',
-    'Obfuscation',
-    'Local network sharing',
-    'Lockdown mode',
-    'Multihop',
-    'Custom DNS',
-    'Server IP override',
-  ]);
+    await page.getByTestId('connection-panel-chevron').click();
+    await expect(ellipsis).not.toBeVisible();
+
+    await expectFeatureIndicators(page, [
+      'DAITA',
+      'Quantum resistance',
+      'Mssfix',
+      'MTU',
+      'Obfuscation',
+      'Local network sharing',
+      'Lockdown mode',
+      'Multihop',
+      'Custom DNS',
+      'Server IP override',
+    ]);
+  });
 });
 
 async function expectHiddenFeatureIndicator(page: Page, hiddenIndicator: string) {
