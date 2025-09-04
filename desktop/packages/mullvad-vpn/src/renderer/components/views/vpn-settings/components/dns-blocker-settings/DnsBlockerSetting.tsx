@@ -1,11 +1,12 @@
+import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useScrollToListItem } from '../../../../../hooks';
 import { Accordion } from '../../../../../lib/components/accordion';
 import { FlexRow } from '../../../../../lib/components/flex-row';
+import { useHistory } from '../../../../../lib/history';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import { useBoolean } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
@@ -21,8 +22,10 @@ import {
 
 export function DnsBlockerSettings() {
   const dns = useSelector((state) => state.settings.dns);
+  const { location } = useHistory();
+  const initialExpanded = location.state.expandedSections['dns-blocker-setting'];
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
-  const [expanded, , , toggleExpanded] = useBoolean();
+  const [expanded, setExpanded] = React.useState(initialExpanded);
   const { ref, animation } = useScrollToListItem('dns-blocker-setting');
 
   return (
@@ -30,7 +33,7 @@ export function DnsBlockerSettings() {
       <Accordion
         ref={ref}
         expanded={expanded}
-        onExpandedChange={toggleExpanded}
+        onExpandedChange={setExpanded}
         disabled={dns.state === 'custom'}
         animation={animation}>
         <Accordion.Header>
