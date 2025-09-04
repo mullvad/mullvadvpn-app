@@ -16,6 +16,7 @@ interface MainToRenderer<T> {
 
 interface RendererToMain<T, R> {
   direction: 'renderer-to-main';
+  type: 'send' | 'invoke';
   send: (event: string, ipcRenderer: EIpcRenderer) => Sender<T, R>;
   receive: (event: string, ipcMain: EIpcMain) => Handler<T, R>;
 }
@@ -118,6 +119,7 @@ export function createIpc<S extends Schema, T, R>(
 export function send<T>(): RendererToMain<T, void> {
   return {
     direction: 'renderer-to-main',
+    type: 'send',
     send: (event, ipcRenderer) => (newValue: T) => ipcRenderer.send(event, newValue),
     receive: (event, ipcMain) => (handlerFn: (value: T) => void) => {
       ipcMain.on(event, (_event, newValue: T) => {
@@ -131,6 +133,7 @@ export function send<T>(): RendererToMain<T, void> {
 export function invokeSync<T, R>(): RendererToMain<T, R> {
   return {
     direction: 'renderer-to-main',
+    type: 'send',
     send: (event, ipcRenderer) => (newValue: T) => ipcRenderer.sendSync(event, newValue),
     receive: (event, ipcMain) => (handlerFn: (value: T) => R) => {
       ipcMain.on(event, (ipcEvent, newValue: T) => {
@@ -144,6 +147,7 @@ export function invokeSync<T, R>(): RendererToMain<T, R> {
 export function invoke<T, R>(): RendererToMain<T, Promise<R>> {
   return {
     direction: 'renderer-to-main',
+    type: 'invoke',
     send: invokeImpl,
     receive: handle,
   };
