@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-08-06 21:06\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
@@ -1845,6 +1845,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "出错了。"
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。"
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2065,7 +2069,6 @@ msgid "Multihop"
 msgstr "多跳"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "设置"
@@ -2798,6 +2801,12 @@ msgstr "%s（已移除）"
 msgid "%s custom port"
 msgstr "%s 自定义端口"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s 已被选为入口中继"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s 已被选为出口中继"
+
 msgid "%s is unavailable"
 msgstr "%s 不可用"
 
@@ -2894,8 +2903,8 @@ msgstr "自动连接和锁定模式"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。"
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "设备启动时自动连接。仅适用于已为应用授予 VPN 权限的情况。"
+msgid "Automatically connect on device start-up."
+msgstr "设备启动时自动连接。"
 
 msgid "Blocking internet (device offline)"
 msgstr "正在阻止网络（设备离线）"
@@ -3017,6 +3026,9 @@ msgstr "启用最近使用"
 msgid "Enter MTU"
 msgstr "输入 MTU"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "入口中继与出口中继相同"
+
 msgid "Excluded applications"
 msgstr "排除的应用程序"
 
@@ -3043,6 +3055,9 @@ msgstr "文件"
 
 msgid "Filters:"
 msgstr "筛选器："
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "为了让 VPN 在设备启动时自动连接，应用必须拥有 VPN 权限。您可以通过点击地图视图中的“连接”并在弹出提示时选择“确定”来授予这些权限。此外，请通过检查系统设置中应用详细信息内的存储信息，确保该应用已安装在内部存储空间中。"
 
 msgid "Go to VPN settings"
 msgstr "前往“VPN 设置”"
@@ -3088,9 +3103,6 @@ msgstr "值“%1$s”无效或者缺失"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "当您了解某个 IP 版本导致的问题时，这会很有用。"
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "您输入的似乎是帐号，而不是代金券码。如果您想更改有效帐户，请先退出登录。"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "允许您选择不经过 VPN 隧道而直接访问互联网的应用。"
@@ -3151,6 +3163,9 @@ msgstr "“%s”无结果，请尝试其他搜索"
 
 msgid "Not found"
 msgstr "找不到"
+
+msgid "Open app details"
+msgstr "打开应用详细信息"
 
 msgid "Overrides active"
 msgstr "覆盖设置已激活"

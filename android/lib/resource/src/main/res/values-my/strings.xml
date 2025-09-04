@@ -76,6 +76,8 @@
     <string name="congrats">ဝမ်းသာပါတယ်။</string>
     <string name="connect">ချိတ်ဆက်ရန်</string>
     <string name="connect_on_start">စက်စဖွင့်သည့်အခါ ချိတ်ဆက်ရန်</string>
+    <string name="connect_on_start_info_first">စက်စတင်ချိန်တွင် အလိုအလျောက်ချိတ်ဆက်ပါ။</string>
+    <string name="connect_on_start_info_second">စက်စတင်ချိန်တွင် VPN ကို အလိုအလျောက်ချိတ်ဆက်ရန်အတွက်၊ အက်ပ်တွင် VPN ခွင့်ပြုချက်များ ရှိရမည်။ မြေပုံမြင်ကွင်းရှိ “ချိတ်ဆက်ပါ” ကိုနှိပ်ပြီး “အိုကေ” ကိုရွေးချယ်ခြင်းဖြင့် ခွင့်ပြုချက် ပေးနိုင်သည်။ ထို့အပြင် စနစ်ဆက်တင်များရှိ အက်ပ်အသေးစိတ်တွင် သိုလှောင်သိမ်းဆည်းမှုအချက်အလက်များကို စစ်ဆေးခြင်းဖြင့် အက်ပ်အား စက်တွင်းသိုလှောင်ရာနေရာတွင် ထည့်သွင်းထားကြောင်း သေချာပါစေ။</string>
     <string name="connect_panel_active_features">သက်ဝင်နေသည့် လုပ်ဆောင်ချက်များ</string>
     <string name="connect_panel_connection_details">ချိတ်ဆက်မှု အသေးစိတ်အချက်များ</string>
     <string name="connected">ချိတ်ဆက်ပြီး</string>
@@ -173,6 +175,7 @@
     <string name="enter_value_placeholder">MTU ကို ရိုက်ထည့်ရန်</string>
     <string name="enter_voucher_code">ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်</string>
     <string name="entry">အဝင်</string>
+    <string name="entry_and_exit_are_same">ထပ်ဆင့်ဝင်ပေါက်နှင့် ထပ်ဆင့်ထွက်ပေါက် တူနေသည်</string>
     <string name="error_occurred">ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။</string>
     <string name="error_state">ချိတ်ဆက်မှု မအောင်မြင်ခဲ့ပါ</string>
     <string name="exclude_applications">အပလီကေးရှင်းများ ဖယ်ထားပြီး</string>
@@ -278,6 +281,7 @@
     <string name="obfuscation_title">WireGuard Obfuscation\\n</string>
     <string name="off">ပိတ်</string>
     <string name="on">ဖွင့်</string>
+    <string name="open_app_details">အက်ပ်အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ</string>
     <string name="open_feature_settings">%1$s ဆက်တင်များကို ဖွင့်ရန်</string>
     <string name="open_url">URL ဖွင့်ရန်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
@@ -314,6 +318,8 @@
     <string name="reconnect">ပြန်ချိတ်ဆက်ရန်</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
+    <string name="relay_item_already_selected_as_entry">%1$s ကို ထပ်ဆင့်ဝင်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
+    <string name="relay_item_already_selected_as_exit">%1$s ကို ထပ်ဆင့်ထွက်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
     <string name="relayitem_is_inactive">%1$s ကို မရရှိနိုင်ပါ</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
     <string name="remove_location_from_list">%1$s မှ %2$s ကို ဖယ်ရှားရန်</string>
@@ -404,7 +410,7 @@
     <string name="version">ဗားရှင်း</string>
     <string name="view_logs">အက်ပ်မှတ်တမ်းများ ကြည့်ရန်</string>
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
-    <string name="voucher_is_account_number">ဘောက်ချာကုဒ်အစား အကောင့်နံပါတ်တစ်ခုကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။</string>
+    <string name="voucher_is_account_number">ဘောက်ချာကုဒ်မဟုတ်ဘဲ အကောင့်နံပါတ်ကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။</string>
     <string name="voucher_success_title">ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။</string>
     <string name="vpn_permission_denied_error">VPN ခွင့်ပြုချက်ကို ငြင်းပယ်ထားသည် သို့မဟုတ် အခြားအက်ပ်တွင် \"အမြဲဖွင့် VPN\" ဖွင့်ထားသည်</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN ခွင့်ပြုချက်ကို ငြင်းပယ်ထားသည်</string>

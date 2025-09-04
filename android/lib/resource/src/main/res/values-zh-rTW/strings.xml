@@ -76,6 +76,8 @@
     <string name="congrats">恭喜！</string>
     <string name="connect">連線</string>
     <string name="connect_on_start">裝置啟動時連線</string>
+    <string name="connect_on_start_info_first">裝置啟動時自動連線。</string>
+    <string name="connect_on_start_info_second">為讓 VPN 在裝置啟動時自動連線，應用程式需擁有 VPN 權限。您可以在地圖檢視中點擊「連線」，然後在顯示提示時選擇「確定」來授予權限。此外，請在系統設定中檢查應用程式詳細資訊中的儲存資訊，以確保應用程式已安裝於內部儲存空間。</string>
     <string name="connect_panel_active_features">有效功能</string>
     <string name="connect_panel_connection_details">連線詳細資訊</string>
     <string name="connected">已連線</string>
@@ -173,6 +175,7 @@
     <string name="enter_value_placeholder">輸入 MTU</string>
     <string name="enter_voucher_code">輸入優惠券兌換碼</string>
     <string name="entry">入口</string>
+    <string name="entry_and_exit_are_same">入口節點與出口節點相同</string>
     <string name="error_occurred">發生錯誤了。</string>
     <string name="error_state">連線失敗</string>
     <string name="exclude_applications">已排除的應用程式</string>
@@ -278,6 +281,7 @@
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">關閉</string>
     <string name="on">開啟</string>
+    <string name="open_app_details">開啟應用程式詳細資訊</string>
     <string name="open_feature_settings">開啟 %1$s 設定</string>
     <string name="open_url">開啟 URL</string>
     <string name="out_of_time">逾時</string>
@@ -314,6 +318,8 @@
     <string name="reconnect">重新連線</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
+    <string name="relay_item_already_selected_as_entry">已選取 %1$s 為入口節點</string>
+    <string name="relay_item_already_selected_as_exit">已選取 %1$s 為出口節點</string>
     <string name="relayitem_is_inactive">%1$s 無法使用</string>
     <string name="remove_button">移除</string>
     <string name="remove_location_from_list">將 %1$s 從 %2$s 中移除</string>
@@ -404,7 +410,7 @@
     <string name="version">版本</string>
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
-    <string name="voucher_is_account_number">您輸入的似乎是帳戶，而不是憑證代碼。如果您想變更有效帳戶，請先登出。</string>
+    <string name="voucher_is_account_number">您輸入的似乎是帳戶號碼，而不是優惠券兌換碼。如果您想變更啟用中帳戶，請先登出。</string>
     <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="vpn_permission_denied_error">VPN 權限遭到拒絕，或者已有其他應用程式啟用「一律啟用 VPN」</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN 權限遭拒</string>

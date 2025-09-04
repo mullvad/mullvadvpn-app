@@ -76,6 +76,8 @@
     <string name="congrats">Parabéns!</string>
     <string name="connect">Ligar</string>
     <string name="connect_on_start">Ligar no arranque do dispositivo</string>
+    <string name="connect_on_start_info_first">Ligar automaticamente no arranque do dispositivo.</string>
+    <string name="connect_on_start_info_second">Para que a VPN se ligue automaticamente no arranque do dispositivo, a aplicação deve ter permissões de VPN. Pode concedê-las clicando em \"Ligar\" na vista de mapa e selecionando \"OK\" se solicitado. Além disso, confirme se a aplicação está instalada no armazenamento interno, verificando as informações de armazenamento nos detalhes da aplicação, nas definições do sistema.</string>
     <string name="connect_panel_active_features">Funcionalidades ativas</string>
     <string name="connect_panel_connection_details">Detalhes da ligação</string>
     <string name="connected">Ligado</string>
@@ -173,6 +175,7 @@
     <string name="enter_value_placeholder">Introduzir MTU</string>
     <string name="enter_voucher_code">Introduza o código do voucher</string>
     <string name="entry">Entrada</string>
+    <string name="entry_and_exit_are_same">O retransmissor de entrada é o mesmo que o de saída</string>
     <string name="error_occurred">Ocorreu um erro.</string>
     <string name="error_state">FALHA NA LIGAÇÃO</string>
     <string name="exclude_applications">Aplicações excluídas</string>
@@ -278,6 +281,7 @@
     <string name="obfuscation_title">Ofuscação WireGuard</string>
     <string name="off">Desligado</string>
     <string name="on">Ligado</string>
+    <string name="open_app_details">Abrir detalhes da aplicação</string>
     <string name="open_feature_settings">Abrir as definições de %1$s</string>
     <string name="open_url">Abrir URL</string>
     <string name="out_of_time">Sem tempo</string>
@@ -314,6 +318,8 @@
     <string name="reconnect">Religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
+    <string name="relay_item_already_selected_as_entry">%1$s já está selecionado como retransmissor de entrada</string>
+    <string name="relay_item_already_selected_as_exit">%1$s já está selecionado como retransmissor de saída</string>
     <string name="relayitem_is_inactive">%1$s não está disponível</string>
     <string name="remove_button">Remover</string>
     <string name="remove_location_from_list">Remover %1$s de %2$s</string>
@@ -409,7 +415,7 @@
     <string name="vpn_permission_denied_error">A permissão de VPN foi negada, ou outra aplicação tem a opção \"VPN sempre ligada\" ativada</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">A permissão de VPN foi negada</string>
     <string name="vpn_permission_error_notification_message">Prima \"ligar\" para solicitar a permissão de VPN</string>
-    <string name="vpn_permission_error_notification_title">Erro de permissão da VPN</string>
+    <string name="vpn_permission_error_notification_title">Erro de permissão de VPN</string>
     <string name="vpn_settings_not_available">Definições de VPN não disponíveis no dispositivo</string>
     <string name="we_will_look_into_this">Vamos analisar esta situação.</string>
     <string name="wg_port_subtitle">Defina abaixo a ofuscação %1$s para \"Automático\" ou \"Desligado\" para ativar esta definição.</string>

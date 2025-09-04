@@ -76,6 +76,8 @@
     <string name="congrats">Gratulerer!</string>
     <string name="connect">Koble til</string>
     <string name="connect_on_start">Koble til når enheten startes</string>
+    <string name="connect_on_start_info_first">Koble automatisk til enheten ved oppstart.</string>
+    <string name="connect_on_start_info_second">For at VPN skal kobles automatisk til ved oppstart av enheten, må appen ha VPN-tillatelser. Du kan gi disse ved å klikke på «Koble til» i kartvisningen og velge «OK» hvis du blir bedt om det. I tillegg må du sørge for at appen er installert på det interne lagringsmediet ved å sjekke lagringsinformasjonen i appdetaljene i systeminnstillingene.</string>
     <string name="connect_panel_active_features">Aktive funksjoner</string>
     <string name="connect_panel_connection_details">Tilkoblingsdetaljer</string>
     <string name="connected">Tilkoblet</string>
@@ -173,6 +175,7 @@
     <string name="enter_value_placeholder">Angi MTU</string>
     <string name="enter_voucher_code">Skriv inn kupongkode</string>
     <string name="entry">Inngang</string>
+    <string name="entry_and_exit_are_same">Inngangsrelé er det samme som utgangsrelé</string>
     <string name="error_occurred">Det oppstod en feil.</string>
     <string name="error_state">KUNNE IKKE KOBLE TIL</string>
     <string name="exclude_applications">Ekskluder applikasjoner</string>
@@ -278,6 +281,7 @@
     <string name="obfuscation_title">Tilsløring av WireGuard</string>
     <string name="off">Av</string>
     <string name="on">På</string>
+    <string name="open_app_details">Åpne appdetaljer</string>
     <string name="open_feature_settings">Åpne innstillinger for %1$s</string>
     <string name="open_url">Åpne URL</string>
     <string name="out_of_time">Tiden har utløpt</string>
@@ -314,6 +318,8 @@
     <string name="reconnect">Koble til på nytt</string>
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
+    <string name="relay_item_already_selected_as_entry">%1$s er allerede valgt som inngangsrelé</string>
+    <string name="relay_item_already_selected_as_exit">%1$s er allerede valgt som utgangsrelé</string>
     <string name="relayitem_is_inactive">%1$s er utilgjengelig</string>
     <string name="remove_button">Fjern</string>
     <string name="remove_location_from_list">Fjern %1$s fra %2$s</string>

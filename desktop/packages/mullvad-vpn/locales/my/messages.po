@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2025-08-08 07:35\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -1426,7 +1426,7 @@ msgstr "Mullvad VPN ဝန်ဆောင်မှုအတွက် ခွင�
 #. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
 msgid "Reinstalling the app"
-msgstr "အက်ပ်ကို ပြန်လည် ထည့်သွင်းနေပါသည်"
+msgstr "အက်ပ်ကို ပြန်လည် ထည့်သွင်းခြင်း"
 
 #. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
@@ -1845,6 +1845,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။"
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "ဘောက်ချာကုဒ်မဟုတ်ဘဲ အကောင့်နံပါတ်ကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။"
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2065,7 +2069,6 @@ msgid "Multihop"
 msgstr "မာလ်တီဟော့ပ်"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "ဆက်တင်များ"
@@ -2798,6 +2801,12 @@ msgstr "%s (ဖယ်ရှားထား)"
 msgid "%s custom port"
 msgstr "%s စိတ်ကြိုက်ပေါ့တ်"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s ကို ထပ်ဆင့်ဝင်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s ကို ထပ်ဆင့်ထွက်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်"
+
 msgid "%s is unavailable"
 msgstr "%s ကို မရရှိနိုင်ပါ"
 
@@ -2894,8 +2903,8 @@ msgstr "အော်တို ချိတ်ဆက်မှု နှင့် 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။"
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "စက် စဖွင့်သည့်အခါ အလိုအလျောက် ချိတ်ဆက်ပါသည်။ အက်ပ်ကို VPN ခွင့်ပြုချက်ပေးထားမှသာ အလုပ်လုပ်သည်။"
+msgid "Automatically connect on device start-up."
+msgstr "စက်စတင်ချိန်တွင် အလိုအလျောက်ချိတ်ဆက်ပါ။"
 
 msgid "Blocking internet (device offline)"
 msgstr "အင်တာနက် ပိတ်ဆို့နေဆဲ (စက် အော့ဖ်လိုင်း)"
@@ -3017,6 +3026,9 @@ msgstr "လတ်တလောအရာများကို ဖွင့်ရ�
 msgid "Enter MTU"
 msgstr "MTU ကို ရိုက်ထည့်ရန်"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "ထပ်ဆင့်ဝင်ပေါက်နှင့် ထပ်ဆင့်ထွက်ပေါက် တူနေသည်"
+
 msgid "Excluded applications"
 msgstr "အပလီကေးရှင်းများ ဖယ်ထားပြီး"
 
@@ -3043,6 +3055,9 @@ msgstr "ဖိုင်"
 
 msgid "Filters:"
 msgstr "စစ်ထုတ်မှုများ-"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "စက်စတင်ချိန်တွင် VPN ကို အလိုအလျောက်ချိတ်ဆက်ရန်အတွက်၊ အက်ပ်တွင် VPN ခွင့်ပြုချက်များ ရှိရမည်။ မြေပုံမြင်ကွင်းရှိ “ချိတ်ဆက်ပါ” ကိုနှိပ်ပြီး “အိုကေ” ကိုရွေးချယ်ခြင်းဖြင့် ခွင့်ပြုချက် ပေးနိုင်သည်။ ထို့အပြင် စနစ်ဆက်တင်များရှိ အက်ပ်အသေးစိတ်တွင် သိုလှောင်သိမ်းဆည်းမှုအချက်အလက်များကို စစ်ဆေးခြင်းဖြင့် အက်ပ်အား စက်တွင်းသိုလှောင်ရာနေရာတွင် ထည့်သွင်းထားကြောင်း သေချာပါစေ။"
 
 msgid "Go to VPN settings"
 msgstr "VPN ဆက်တင်များသို့ သွားရန်"
@@ -3088,9 +3103,6 @@ msgstr "မမှန်ကန်ပါ သို့မဟုတ် \"%1$s\" တ�
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "အချို့သော IP ဗားရှင်းတစ်ခုကြောင့် ဖြစ်ပေါ်လာသော ပြဿနာများကို သင်သိရှိပါက ၎င်းက အသုံးဝင်နိုင်သည်။"
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "ဘောက်ချာကုဒ်အစား အကောင့်နံပါတ်တစ်ခုကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN Tunnel ကို မဝင်ရောက်ဘဲ အင်တာနက်ကို တိုက်ရိုက် ဝင်ရောက်သုံးစွဲသင့်သည့် အက်ပ်များကို ရွေးချယ်ပေးပါ။"
@@ -3151,6 +3163,9 @@ msgstr "\"%s\" အတွက် ရလဒ်မရှိပါ၊ အခြား
 
 msgid "Not found"
 msgstr "ရှာမတွေ့ပါ"
+
+msgid "Open app details"
+msgstr "အက်ပ်အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ"
 
 msgid "Overrides active"
 msgstr "ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်နေသည်"
