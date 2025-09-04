@@ -3,12 +3,12 @@
 # they would if you listed the entire repository as a tree.
 
 # Container images used for building the app are owned by respective team leads and tech lead
-/building/android-container-image.txt @faern @albin-mullvad
+/building/android-container-image.txt @faern @albin-mullvad @rawa
 /building/linux-container-image.txt @faern @raksooo
 
 # Developer signing keys must be approved by team/tech leads
-/ci/keys/ @faern @raksooo @pinkisemils @albin-mullvad
-/mullvad-update/trusted-metadata-signing-pubkeys @faern @raksooo @pinkisemils @albin-mullvad
+/ci/keys/ @faern @raksooo @pinkisemils @rawa
+/mullvad-update/trusted-metadata-signing-pubkeys @faern @raksooo @pinkisemils @rawa
 
 # Desktop build server files owned by desktop leads
 /ci/buildserver* @faern @raksooo
@@ -18,15 +18,15 @@
 **/deny.toml @faern @raksooo
 
 # Changes to what CVEs are ignored must be approved by leads
-**/osv-scanner.toml @faern @raksooo @pinkisemils @albin-mullvad
-/.github/workflows/osv-scanner*.yml @faern @raksooo @pinkisemils @albin-mullvad
+**/osv-scanner.toml @faern @raksooo @pinkisemils @albin-mullvad @rawa
+/.github/workflows/osv-scanner*.yml @faern @raksooo @pinkisemils @rawa
 
 # Security related github action workflow changes must be approved by leads
-/.github/workflows/verify-locked-down-signatures.yml @faern @raksooo @pinkisemils @albin-mullvad
-/ci/verify-locked-down-signatures.sh @faern @raksooo @pinkisemils @albin-mullvad
-/.github/workflows/unicop.yml @faern @raksooo @pinkisemils @albin-mullvad
+/.github/workflows/verify-locked-down-signatures.yml @faern @raksooo @pinkisemils @rawa
+/ci/verify-locked-down-signatures.sh @faern @raksooo @pinkisemils @rawa
+/.github/workflows/unicop.yml @faern @raksooo @pinkisemils @rawa
 
 # The CODEOWNERS itself must be protected from unauthorized changes,
 # otherwise the protection becomes quite moot.
 # Keep this entry last, so it is sure to override any existing previous wildcard match
-/.github/CODEOWNERS @faern @raksooo @pinkisemils @albin-mullvad
+/.github/CODEOWNERS @faern @raksooo @pinkisemils @rawa
