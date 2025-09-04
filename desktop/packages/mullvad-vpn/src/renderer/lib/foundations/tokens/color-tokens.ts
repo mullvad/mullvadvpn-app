@@ -9,6 +9,7 @@ export const colorTokens = {
   blackAlpha50: 'rgba(0, 0, 0, 0.5)',
 
   red: 'rgb(227, 64, 57)',
+  newRed: 'rgb(235, 93, 64)',
   redAlpha40: 'rgba(227, 64, 57, 0.4)',
   red80: 'rgb(187, 60, 59)',
   red40: 'rgb(106, 53, 64)',
