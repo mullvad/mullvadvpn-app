@@ -91,6 +91,9 @@ export const useGetFeatureIndicator = () => {
   const gotoDnsContentBlockersFeature = React.useCallback(() => {
     history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
+      expandedSections: {
+        'dns-blocker-setting': true,
+      },
       options: [
         {
           type: 'scroll-to-anchor',
