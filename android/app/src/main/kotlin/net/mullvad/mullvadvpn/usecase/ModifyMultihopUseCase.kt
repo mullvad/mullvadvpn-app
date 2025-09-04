@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.usecase
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import co.touchlab.kermit.Logger
 import kotlin.collections.first
@@ -28,15 +28,15 @@ class ModifyMultihopUseCase(
             ensure(change.item.active) { ModifyMultihopError.RelayItemInactive(change.item) }
             val changeId: RelayItemId =
                 change.item.id.convertCustomListWithOnlyHostNameToHostName().bind()
+            val settings = settingsRepository.settingsUpdates.value
+            ensureNotNull(settings) { ModifyMultihopError.GenericError }
             val other =
                 when (change) {
-                        is MultihopChange.Entry ->
-                            settingsRepository.settingsUpdates.value.exit().bind()
-                        is MultihopChange.Exit ->
-                            settingsRepository.settingsUpdates.value.entry().bind()
+                        is MultihopChange.Entry -> settings.exit()
+                        is MultihopChange.Exit -> settings.entry()
                     }
-                    .convertCustomListWithOnlyHostNameToHostName()
-                    .bind()
+                    ?.convertCustomListWithOnlyHostNameToHostName()
+                    ?.bind()
             ensure(!changeId.isSameHost(other)) { ModifyMultihopError.EntrySameAsExit(change.item) }
             when (change) {
                     is MultihopChange.Entry ->
@@ -51,17 +51,10 @@ class ModifyMultihopUseCase(
                 .bind()
         }
 
-    private fun Settings?.exit(): Either<ModifyMultihopError.GenericError, RelayItemId> =
-        this?.relaySettings?.relayConstraints?.location?.getOrNull()?.right()
-            ?: ModifyMultihopError.GenericError.left()
+    private fun Settings.exit(): RelayItemId? = relaySettings.relayConstraints.location.getOrNull()
 
-    private fun Settings?.entry(): Either<ModifyMultihopError.GenericError, RelayItemId> =
-        this?.relaySettings
-            ?.relayConstraints
-            ?.wireguardConstraints
-            ?.entryLocation
-            ?.getOrNull()
-            ?.right() ?: ModifyMultihopError.GenericError.left()
+    private fun Settings.entry(): RelayItemId? =
+        relaySettings.relayConstraints.wireguardConstraints.entryLocation.getOrNull()
 
     private fun RelayItemId.convertCustomListWithOnlyHostNameToHostName():
         Either<ModifyMultihopError.GenericError, RelayItemId> =
@@ -83,7 +76,7 @@ class ModifyMultihopUseCase(
             else -> this.right()
         }
 
-    private fun RelayItemId.isSameHost(other: RelayItemId): Boolean =
+    private fun RelayItemId.isSameHost(other: RelayItemId?): Boolean =
         this is GeoLocationId.Hostname && other == this
 }
 
