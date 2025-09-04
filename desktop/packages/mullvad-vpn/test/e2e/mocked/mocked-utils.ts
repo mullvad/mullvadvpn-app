@@ -8,6 +8,7 @@ import { startApp, TestUtils } from '../utils';
 // This option can be removed in the future when/if we're able to tun the tests with the sandbox
 // enabled in GitHub actions (frontend.yml).
 const noSandbox = process.env.NO_SANDBOX === '1';
+const showWindow = process.env.SHOW_WINDOW === '1';
 
 interface StartMockedAppResponse extends Awaited<ReturnType<typeof startApp>> {
   util: MockedTestUtils;
@@ -19,10 +20,16 @@ export interface MockedTestUtils extends TestUtils {
 
 export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
   const args = ['.'];
+
   if (noSandbox) {
     console.log('Running tests without chromium sandbox');
     args.unshift('--no-sandbox');
   }
+
+  if (showWindow) {
+    args.unshift('--show-window');
+  }
+
   // NOTE: Keep in sync with index.ts
   args.push('--gtk-version=3');
 
