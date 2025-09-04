@@ -44,24 +44,6 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
   };
 };
 
-export const createMockIpcHandle = (electronApp: ElectronApplication, event: string) => {
-  // This function resolves when the handle is registered. To await the event, use `expect()`.
-  return async <T>(response: T): Promise<void> => {
-    await electronApp.evaluate(
-      ({ ipcMain }, { event, response }) => {
-        ipcMain.removeHandler(event);
-        ipcMain.handle(event, () => {
-          return Promise.resolve({
-            type: 'success',
-            value: response,
-          });
-        });
-      },
-      { event, response },
-    );
-  };
-};
-
 export const createMockIpcNotify = (electronApp: ElectronApplication, event: string) => {
   return async <T>(arg: T) => {
     await electronApp.evaluate(
@@ -77,36 +59,83 @@ export const createMockIpcNotify = (electronApp: ElectronApplication, event: str
   };
 };
 
-export const createMockIpcExpect = (electronApp: ElectronApplication, event: string) => {
-  return <T>(): Promise<T> => {
-    return electronApp.evaluate(
-      ({ ipcMain }, { event }) => {
-        return new Promise<T>((resolve) => {
-          ipcMain.handleOnce(event, (_event, arg) => {
-            resolve(arg);
-            return {
-              type: 'success',
-              value: null,
-            };
+export const createMockIpcHandle = (
+  electronApp: ElectronApplication,
+  event: string,
+  spec: AnyIpcCall,
+) => {
+  // This function resolves when the handle is registered. To await the event, use `expect()`.
+  return async <T>(response: T): Promise<void> => {
+    if ('type' in spec && spec.type === 'send') {
+      throw new Error(`No value can be returned on a send call (${event})`);
+    }
+
+    await electronApp.evaluate(
+      ({ ipcMain }, { event, response }) => {
+        ipcMain.removeHandler(event);
+        ipcMain.handle(event, () => {
+          return Promise.resolve({
+            type: 'success',
+            value: response,
           });
         });
       },
-      { event },
+      { event, response },
     );
   };
 };
 
-export const createMockIpcIgnore = (electronApp: ElectronApplication, event: string) => {
+export const createMockIpcExpect = (
+  electronApp: ElectronApplication,
+  event: string,
+  spec: AnyIpcCall,
+) => {
+  const type = 'type' in spec ? spec.type : 'invoke';
+
+  return <T>(): Promise<T> => {
+    return electronApp.evaluate(
+      ({ ipcMain }, { event, type }) => {
+        return new Promise<T>((resolve) => {
+          if (type === 'send') {
+            ipcMain.once(event, (_event, arg) => resolve(arg));
+          } else {
+            ipcMain.handleOnce(event, (_event, arg) => {
+              resolve(arg);
+              return {
+                type: 'success',
+                value: null,
+              };
+            });
+          }
+        });
+      },
+      { event, type: type },
+    );
+  };
+};
+
+export const createMockIpcIgnore = (
+  electronApp: ElectronApplication,
+  event: string,
+  spec: AnyIpcCall,
+) => {
+  const type = 'type' in spec ? spec.type : 'invoke';
+
   return async (): Promise<void> => {
     await electronApp.evaluate(
-      ({ ipcMain }, { event }) => {
-        ipcMain.removeHandler(event);
-        ipcMain.handle(event, () => ({
-          type: 'success',
-          value: null,
-        }));
+      ({ ipcMain }, { event, type }) => {
+        if (type === 'send') {
+          ipcMain.removeAllListeners(event);
+          ipcMain.addListener(event, () => {});
+        } else {
+          ipcMain.removeHandler(event);
+          ipcMain.handle(event, () => ({
+            type: 'success',
+            value: null,
+          }));
+        }
       },
-      { event },
+      { event, type },
     );
   };
 };
@@ -139,15 +168,15 @@ export type IpcMockedTest<S extends Schema> = {
 };
 
 export function createTestIpc(electronApp: ElectronApplication): IpcMockedTest<IpcSchema> {
-  return createIpc(ipcSchema, (event, key, _spec) => {
+  return createIpc(ipcSchema, (event, key, spec) => {
     return [
       key,
       {
         eventKey: event,
         notify: createMockIpcNotify(electronApp, event),
-        handle: createMockIpcHandle(electronApp, event),
-        expect: createMockIpcExpect(electronApp, event),
-        ignore: createMockIpcIgnore(electronApp, event),
+        handle: createMockIpcHandle(electronApp, event, spec),
+        expect: createMockIpcExpect(electronApp, event, spec),
+        ignore: createMockIpcIgnore(electronApp, event, spec),
       },
     ];
   });
