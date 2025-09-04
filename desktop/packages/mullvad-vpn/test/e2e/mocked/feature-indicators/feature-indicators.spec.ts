@@ -6,10 +6,10 @@ import {
   ILocation,
   ITunnelEndpoint,
   TunnelState,
-} from '../../../src/shared/daemon-rpc-types';
-import { RoutePath } from '../../../src/shared/routes';
-import { expectConnected } from '../shared/tunnel-state';
-import { MockedTestUtils, startMockedApp } from './mocked-utils';
+} from '../../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../../src/shared/routes';
+import { expectConnected } from '../../shared/tunnel-state';
+import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 
 const endpoint: ITunnelEndpoint = {
   address: 'wg10:80',
