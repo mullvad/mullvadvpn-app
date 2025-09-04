@@ -114,6 +114,10 @@ class ApplicationMain {
 
     await window.loadFile(path.join(__dirname, 'index.html'));
 
+    if (process.argv.includes('--show-window')) {
+      window.show();
+    }
+
     if (DEBUG) {
       window.webContents.openDevTools({ mode: 'detach' });
     }
