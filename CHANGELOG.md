@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Fix apps attempting to use IPv6 with in-tunnel IPv6 disabled.
+- Re-add missing loopback alias if removed. This fixes some issues with DNS resolution.
 
 
 ## [2025.9-beta1] - 2025-08-25
