@@ -163,6 +163,10 @@ impl Quic {
                 socket.set_mark(fwmark).map_err(Error::Fwmark)?;
             }
 
+            // The caller is responsible for ensuring that the socket is in non-blocking mode
+            // when calling UdpSocket::from_std
+            socket.set_nonblocking(true).map_err(Error::BindError)?;
+
             UdpSocket::from_std(std::net::UdpSocket::from(socket)).map_err(Error::BindError)?
         };
 
