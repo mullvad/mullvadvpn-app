@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-08-06 07:47\n"
+"PO-Revision-Date: 2025-09-03 14:39\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -1845,6 +1845,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "오류가 발생했습니다."
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요."
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -2065,7 +2069,6 @@ msgid "Multihop"
 msgstr "멀티홉"
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr "설정"
@@ -2798,6 +2801,12 @@ msgstr "%s(제거됨)"
 msgid "%s custom port"
 msgstr "%s 사용자 지정 포트"
 
+msgid "%s is already selected as entry relay"
+msgstr "%s이(가) 이미 진입 릴레이로 선택되었습니다"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s이(가) 이미 출구 릴레이로 선택되었습니다"
+
 msgid "%s is unavailable"
 msgstr "%s 사용 불가"
 
@@ -2894,8 +2903,8 @@ msgstr "자동 연결 및 잠금 모드"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "자동 연결은 Android 시스템 설정에서 상시 접속 VPN이라고 하며 VPN 터널에 지속적으로 연결되고 다시 시작한 후 자동 연결되게 해줍니다."
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
-msgstr "장치 시작 시 자동으로 연결됩니다. 앱에 VPN 권한이 부여된 경우에만 작동됩니다."
+msgid "Automatically connect on device start-up."
+msgstr "장치 시작 시 자동으로 연결됩니다."
 
 msgid "Blocking internet (device offline)"
 msgstr "인터넷 차단(장치 오프라인)"
@@ -3017,6 +3026,9 @@ msgstr "최근 항목 활성화"
 msgid "Enter MTU"
 msgstr "MTU 입력"
 
+msgid "Entry relay is the same as exit relay"
+msgstr "진입 릴레이가 출구 릴레이와 동일합니다"
+
 msgid "Excluded applications"
 msgstr "제외된 애플리케이션"
 
@@ -3043,6 +3055,9 @@ msgstr "파일"
 
 msgid "Filters:"
 msgstr "필터:"
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "장치 시작 시 VPN이 자동으로 연결되려면 앱에 VPN 권한이 있어야 합니다. 지도 보기에서 \"연결\"을 클릭하고, 메시지가 표시되는 경우 \"확인\"을 선택하면, 해당 권한이 부여됩니다. 또한 시스템 설정의 앱 세부 정보에서 저장소 정보를 보고 앱이 내부 저장소에 설치되어 있는지 확인하세요."
 
 msgid "Go to VPN settings"
 msgstr "VPN 설정으로 이동"
@@ -3088,9 +3103,6 @@ msgstr "\"%1$s\" 값이 유효하지 않거나 누락되었습니다"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "특정 IP 버전으로 인해 발생하는 문제를 알고 있는 경우 유용합니다."
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN 터널을 거치지 않고 인터넷에서 바로 액세스할 앱을 선택할 수 있습니다."
@@ -3151,6 +3163,9 @@ msgstr "\"%s\" 검색 결과가 없습니다. 다른 검색어를 시도하세�
 
 msgid "Not found"
 msgstr "찾을 수 없음"
+
+msgid "Open app details"
+msgstr "앱 세부 정보 열기"
 
 msgid "Overrides active"
 msgstr "재정의 활성화"

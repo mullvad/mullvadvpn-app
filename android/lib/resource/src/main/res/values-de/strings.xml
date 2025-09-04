@@ -76,6 +76,8 @@
     <string name="congrats">Glückwunsch!</string>
     <string name="connect">Verbinden</string>
     <string name="connect_on_start">Verbinden beim Einschalten des Geräts</string>
+    <string name="connect_on_start_info_first">Automatische Verbindung beim Start des Geräts.</string>
+    <string name="connect_on_start_info_second">Damit sich das VPN beim Start des Geräts automatisch verbindet, muss die App über VPN-Berechtigungen verfügen. Sie können diese erteilen, indem Sie in der Kartenansicht auf „Verbinden“ klicken und „OK“ auswählen, wenn Sie dazu aufgefordert werden. Stellen Sie außerdem sicher, dass die App im internen Speicher installiert ist, indem Sie die Speicherinformationen in den App-Details in den Systemeinstellungen überprüfen.</string>
     <string name="connect_panel_active_features">Aktive Funktionen</string>
     <string name="connect_panel_connection_details">Verbindungsdetails</string>
     <string name="connected">Verbunden</string>
@@ -173,6 +175,7 @@
     <string name="enter_value_placeholder">MTU eingeben</string>
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
     <string name="entry">Eingang</string>
+    <string name="entry_and_exit_are_same">Eingangs-Relay ist dasselbe wie Ausgangs-Relay</string>
     <string name="error_occurred">Ein Fehler ist aufgetreten.</string>
     <string name="error_state">VERBINDUNG FEHLGESCHLAGEN</string>
     <string name="exclude_applications">Ausgeschlossene Anwendungen</string>
@@ -278,6 +281,7 @@
     <string name="obfuscation_title">WireGuard-Verschleierung</string>
     <string name="off">Aus</string>
     <string name="on">Ein</string>
+    <string name="open_app_details">App-Details öffnen</string>
     <string name="open_feature_settings">%1$s-Einstellungen öffnen</string>
     <string name="open_url">URL öffnen</string>
     <string name="out_of_time">Zeit abgelaufen</string>
@@ -314,6 +318,8 @@
     <string name="reconnect">Erneut verbinden</string>
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
+    <string name="relay_item_already_selected_as_entry">%1$s wurde bereits als Eingangs-Relay ausgewählt</string>
+    <string name="relay_item_already_selected_as_exit">%1$s wurde bereits als Ausgangs-Relay ausgewählt</string>
     <string name="relayitem_is_inactive">%1$s ist nicht verfügbar</string>
     <string name="remove_button">Entfernen</string>
     <string name="remove_location_from_list">%1$s von %2$s entfernen</string>

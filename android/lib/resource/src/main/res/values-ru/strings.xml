@@ -76,6 +76,8 @@
     <string name="congrats">Поздравляем!</string>
     <string name="connect">Подключить</string>
     <string name="connect_on_start">Подключаться при запуске устройства</string>
+    <string name="connect_on_start_info_first">Автоматически подключаться при запуске устройства.</string>
+    <string name="connect_on_start_info_second">Чтобы VPN подключался автоматически при запуске устройства, приложению нужны разрешения на использование VPN. Чтобы предоставить их, нажмите «Подключить» на карте и подтвердите выбор кнопкой «ОК». Убедитесь также, что приложение установлено во внутренней памяти устройства — это можно увидеть в сведениях о приложении в системных настройках.</string>
     <string name="connect_panel_active_features">Активные функции</string>
     <string name="connect_panel_connection_details">Сведения о подключении</string>
     <string name="connected">Подключено</string>
@@ -173,6 +175,7 @@
     <string name="enter_value_placeholder">Введите MTU</string>
     <string name="enter_voucher_code">Введите код ваучера</string>
     <string name="entry">Вход</string>
+    <string name="entry_and_exit_are_same">Входной сервер ретрансляции совпадает с выходным сервером ретрансляции</string>
     <string name="error_occurred">Произошла ошибка.</string>
     <string name="error_state">НЕ УДАЛОСЬ ПОДКЛЮЧИТЬСЯ</string>
     <string name="exclude_applications">Исключенные приложения</string>
@@ -278,6 +281,7 @@
     <string name="obfuscation_title">Обфускация WireGuard</string>
     <string name="off">Выкл.</string>
     <string name="on">Вкл.</string>
+    <string name="open_app_details">Открыть сведения о приложении</string>
     <string name="open_feature_settings">Открыть настройки %1$s</string>
     <string name="open_url">Открыть URL</string>
     <string name="out_of_time">Закончилось время</string>
@@ -314,6 +318,8 @@
     <string name="reconnect">Переподключить</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
+    <string name="relay_item_already_selected_as_entry">%1$s уже используется как входной сервер ретрансляции</string>
+    <string name="relay_item_already_selected_as_exit">%1$s уже используется как выходной сервер ретрансляции</string>
     <string name="relayitem_is_inactive">%1$s недоступно</string>
     <string name="remove_button">Удалить</string>
     <string name="remove_location_from_list">Удалить местоположение %1$s из списка «%2$s»</string>
