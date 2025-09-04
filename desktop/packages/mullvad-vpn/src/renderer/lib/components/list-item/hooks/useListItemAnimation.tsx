@@ -4,28 +4,30 @@ import { colors } from '../../../foundations';
 import { ListItemAnimation } from '../ListItem';
 
 const flash = keyframes`
-  0%   { background-color: var(--background-color) }
-  50%  { background-color: ${colors.whiteOnBlue20} }
-  100% { background-color: var(--background-color) }
+  from   { background-color: var(--background-color) }
+  to  { background-color: ${colors.whiteOnBlue20} }
 `;
 
 const dim = keyframes`
   0%   { opacity: 100% }
-  25%  { opacity: 50% }
+  10%  { opacity: 50% }
   50%  { opacity: 50% }
-  75%  { opacity: 50% }
+  90%  { opacity: 50% }
   100% { opacity: 100% }
 `;
 
 export const useListItemAnimation = (animation: ListItemAnimation | undefined) => {
+  const flashDuration = 200;
+  const flashDelay = 450;
+  const dimDuration = (flashDelay + flashDuration * 4) * 1.1;
   if (animation === 'flash') {
     return css`
-      animation: ${flash} 0.75s ease-in-out 0s 2 normal forwards;
+      animation: ${flash} ${flashDuration}ms ease-in-out ${flashDelay}ms 4 alternate;
     `;
   }
   if (animation === 'dim') {
     return css`
-      animation: ${dim} 1.5s ease-in-out 0s 1 normal forwards;
+      animation: ${dim} ${dimDuration}ms ease-in-out 0ms normal;
     `;
   }
   return undefined;
