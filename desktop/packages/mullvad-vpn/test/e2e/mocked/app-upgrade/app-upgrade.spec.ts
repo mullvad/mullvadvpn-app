@@ -39,6 +39,8 @@ test.describe('App upgrade', () => {
       },
     });
 
+    await util.ipc.app.getUpgradeCacheDir.ignore();
+
     await page.click('button[aria-label="Settings"]');
     await util.waitForRoute(RoutePath.settings);
     await page.getByRole('button', { name: 'App info' }).click();
