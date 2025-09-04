@@ -7,8 +7,7 @@ export type TextFieldInputProps = React.ComponentPropsWithRef<'input'>;
 
 export const StyledTextField = styled.input<{ $disabled?: boolean; $invalid?: boolean }>`
   ${({ $invalid, $disabled }) => {
-    // TODO: Add color to tokens
-    const borderColor = $invalid ? 'rgba(235, 93, 64, 1)' : colors.chalkAlpha40;
+    const borderColor = $invalid ? colors.newRed : colors.chalkAlpha40;
     const backgroundColor = $disabled ? colors.whiteOnDarkBlue5 : colors.blue40;
     const color = $disabled ? colors.whiteAlpha20 : colors.white;
     return css`
