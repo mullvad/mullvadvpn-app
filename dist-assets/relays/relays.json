@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"68aece0e-33111\"",
+  "etag": "W/\"68b957b6-336fb\"",
   "countries": [
     {
       "name": "Albania",
@@ -17,11 +17,11 @@
               "ipv6_addr_in": "2a04:27c0:0:3::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "iRegister",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "bPfJDdgBXlY4w3ACs68zOMMhLUbbzktCKnLOFHqbxl4=",
@@ -45,6 +45,34 @@
               "ipv6_addr_in": "2a04:27c0:0:4::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
+              "include_in_country": false,
+              "active": true,
+              "owned": false,
+              "provider": "iRegister",
+              "weight": 1,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "/wPQafVa/60OIp8KqhC1xTTG+nQXZF17uo8XfdUnz2E=",
+                  "daita": false,
+                  "quic": null,
+                  "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "Albania",
+                "country_code": "al",
+                "city": "Tirana",
+                "city_code": "tia",
+                "latitude": 41.327953,
+                "longitude": 19.819025
+              }
+            },
+            {
+              "hostname": "al-tia-wg-003",
+              "ipv4_addr_in": "103.204.123.130",
+              "ipv6_addr_in": "2a04:27c0:0:c::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
               "include_in_country": true,
               "active": true,
               "owned": false,
@@ -52,10 +80,42 @@
               "weight": 100,
               "endpoint_data": {
                 "wireguard": {
-                  "public_key": "/wPQafVa/60OIp8KqhC1xTTG+nQXZF17uo8XfdUnz2E=",
+                  "public_key": "rWiQxq5lAWD8v/bws9ITSAvThyZW8cR2x+Ins9ZvvRo=",
                   "daita": false,
                   "quic": null,
-                  "shadowsocks_extra_addr_in": []
+                  "shadowsocks_extra_addr_in": [
+                    "103.204.123.136"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Albania",
+                "country_code": "al",
+                "city": "Tirana",
+                "city_code": "tia",
+                "latitude": 41.327953,
+                "longitude": 19.819025
+              }
+            },
+            {
+              "hostname": "al-tia-wg-004",
+              "ipv4_addr_in": "103.204.123.191",
+              "ipv6_addr_in": "2a04:27c0:0:d::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "iRegister",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "x62J1c4gfHu/bF3DSjwIjC0qOE3azRG03i/YW6bOEGY=",
+                  "daita": false,
+                  "quic": null,
+                  "shadowsocks_extra_addr_in": [
+                    "103.204.123.197"
+                  ]
                 }
               },
               "location": {
@@ -214,7 +274,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "DataPacket",
               "weight": 100,
@@ -542,7 +602,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "hostuniversal",
               "weight": 100,
@@ -932,6 +992,126 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "Australia",
+                "country_code": "au",
+                "city": "Sydney",
+                "city_code": "syd",
+                "latitude": -33.861481,
+                "longitude": 151.205475
+              }
+            },
+            {
+              "hostname": "au-syd-wg-301",
+              "ipv4_addr_in": "103.120.6.2",
+              "ipv6_addr_in": "2a06:3040:18:210::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "bQIQLk9zVOZLEGJsQOMu0K3rCMc85gExkS/0b1tSVBk=",
+                  "daita": false,
+                  "quic": null,
+                  "shadowsocks_extra_addr_in": [
+                    "103.120.6.13"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Australia",
+                "country_code": "au",
+                "city": "Sydney",
+                "city_code": "syd",
+                "latitude": -33.861481,
+                "longitude": 151.205475
+              }
+            },
+            {
+              "hostname": "au-syd-wg-302",
+              "ipv4_addr_in": "103.120.6.127",
+              "ipv6_addr_in": "2a06:3040:18:210::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "6tTqSMUVPhaMsFFdphijwdura5RnNOzlz33Ekp1oCmc=",
+                  "daita": false,
+                  "quic": null,
+                  "shadowsocks_extra_addr_in": [
+                    "103.120.6.138"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Australia",
+                "country_code": "au",
+                "city": "Sydney",
+                "city_code": "syd",
+                "latitude": -33.861481,
+                "longitude": 151.205475
+              }
+            },
+            {
+              "hostname": "au-syd-wg-303",
+              "ipv4_addr_in": "103.141.60.2",
+              "ipv6_addr_in": "2a06:3040:18:210::f201",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "RK/eoKsyX4fu7iJ9F5mTf07en/WgYOMAtPGivKTntlw=",
+                  "daita": false,
+                  "quic": null,
+                  "shadowsocks_extra_addr_in": [
+                    "103.141.60.13"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Australia",
+                "country_code": "au",
+                "city": "Sydney",
+                "city_code": "syd",
+                "latitude": -33.861481,
+                "longitude": 151.205475
+              }
+            },
+            {
+              "hostname": "au-syd-wg-304",
+              "ipv4_addr_in": "103.141.60.127",
+              "ipv6_addr_in": "2a06:3040:18:210::f301",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "gXZZhcHfOD7FtnwTw8APUnccwMTVQYDNs4bbjHGS3CI=",
+                  "daita": false,
+                  "quic": null,
+                  "shadowsocks_extra_addr_in": [
+                    "103.141.60.138"
+                  ]
                 }
               },
               "location": {
@@ -1420,8 +1600,8 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": [
-                    "103.139.178.75",
-                    "103.139.178.74"
+                    "103.139.178.74",
+                    "103.139.178.75"
                   ]
                 }
               },
@@ -1451,8 +1631,8 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": [
-                    "103.139.178.135",
-                    "103.139.178.134"
+                    "103.139.178.134",
+                    "103.139.178.135"
                   ]
                 }
               },
@@ -1482,8 +1662,8 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": [
-                    "103.139.178.194",
-                    "103.139.178.195"
+                    "103.139.178.195",
+                    "103.139.178.194"
                   ]
                 }
               },
@@ -3559,13 +3739,7 @@
                 "wireguard": {
                   "public_key": "wLBxTaISMJ++vUht4hlAOUog9fhZxDql16TaYWaboDc=",
                   "daita": false,
-                  "quic": {
-                    "addr_in": [
-                      "146.70.129.126"
-                    ],
-                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
-                    "domain": "cz-prg-wg-101.blockerad.eu"
-                  },
+                  "quic": null,
                   "shadowsocks_extra_addr_in": []
                 }
               },
@@ -3593,7 +3767,13 @@
                 "wireguard": {
                   "public_key": "cRCJ0vULwKRbTfzuo9W+fIt0fJGQE7DLvojIiURIpiI=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "146.70.129.158"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "cz-prg-wg-102.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": []
                 }
               },
@@ -4150,27 +4330,6 @@
               }
             },
             {
-              "hostname": "de-fra-ovpn-006",
-              "ipv4_addr_in": "185.213.155.71",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": true,
-              "provider": "31173",
-              "weight": 100,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "Germany",
-                "country_code": "de",
-                "city": "Frankfurt",
-                "city_code": "fra",
-                "latitude": 50.110924,
-                "longitude": 8.682127
-              }
-            },
-            {
               "hostname": "de-fra-ovpn-101",
               "ipv4_addr_in": "146.70.117.66",
               "ipv6_addr_in": null,
@@ -4415,13 +4574,13 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "31173",
               "weight": 100,
               "endpoint_data": {
                 "wireguard": {
-                  "public_key": "TOS3U/dJPzPnk/qsAx6gHxRVIC2wI5l+tAWaJY2mXzY=",
+                  "public_key": "+DuVLLPwGNlfZFoI24PRPdaTrO4i+WPDlYaOVcavHDo=",
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": []
@@ -4988,7 +5147,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -5466,7 +5625,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "HostRoyale",
               "weight": 100,
@@ -6174,7 +6333,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -7196,27 +7355,6 @@
               }
             },
             {
-              "hostname": "gb-mnc-ovpn-004",
-              "ipv4_addr_in": "146.70.132.98",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "M247",
-              "weight": 100,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "UK",
-                "country_code": "gb",
-                "city": "Manchester",
-                "city_code": "mnc",
-                "latitude": 53.5,
-                "longitude": -2.216667
-              }
-            },
-            {
               "hostname": "gb-mnc-wg-002",
               "ipv4_addr_in": "146.70.132.130",
               "ipv6_addr_in": "2001:ac8:8b:26::f001",
@@ -7391,13 +7529,41 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "M247",
               "weight": 100,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "2bciRobW0TPtjrZ2teilr+7PjyiBMUGfixvAKOE52Xo=",
+                  "daita": false,
+                  "quic": null,
+                  "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "UK",
+                "country_code": "gb",
+                "city": "Manchester",
+                "city_code": "mnc",
+                "latitude": 53.5,
+                "longitude": -2.216667
+              }
+            },
+            {
+              "hostname": "gb-mnc-wg-009",
+              "ipv4_addr_in": "146.70.132.98",
+              "ipv6_addr_in": "2001:ac8:8b:25::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "M247",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "+XsiGXrwqMIgHAnCagmKZZvWJwWb0kifQ/HreBglAzI=",
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": []
@@ -8925,7 +9091,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "M247",
               "weight": 100,
@@ -9989,7 +10155,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Blix",
               "weight": 100,
@@ -11848,11 +12014,11 @@
               "ipv6_addr_in": "2a03:1b20:1:f410:40::a04f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "31173",
-              "weight": 100,
+              "weight": 10,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "m4jnogFbACz7LByjo++8z5+1WV0BuR1T7E1OWA+n8h0=",
@@ -12749,7 +12915,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -14993,48 +15159,6 @@
           "longitude": -104.990251,
           "relays": [
             {
-              "hostname": "us-den-ovpn-001",
-              "ipv4_addr_in": "198.44.128.98",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 1,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Denver, CO",
-                "city_code": "den",
-                "latitude": 39.739236,
-                "longitude": -104.990251
-              }
-            },
-            {
-              "hostname": "us-den-ovpn-002",
-              "ipv4_addr_in": "198.44.128.226",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 1,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Denver, CO",
-                "city_code": "den",
-                "latitude": 39.739236,
-                "longitude": -104.990251
-              }
-            },
-            {
               "hostname": "us-den-wg-101",
               "ipv4_addr_in": "37.19.210.1",
               "ipv6_addr_in": "2a02:6ea0:d70a::b57f",
@@ -16369,7 +16493,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "HostRoyale",
               "weight": 100,
@@ -20106,7 +20230,7 @@
               "ipv6_addr_in": "2607:fc98:0:8a::f301",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": false,
+              "include_in_country": true,
               "active": true,
               "owned": false,
               "provider": "100TB",
@@ -20134,8 +20258,8 @@
               "ipv6_addr_in": "2607:fc98:0:8a::f401",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
+              "include_in_country": true,
+              "active": true,
               "owned": false,
               "provider": "100TB",
               "weight": 100,
@@ -20162,7 +20286,7 @@
               "ipv6_addr_in": "2607:fc98:0:8a::f501",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": false,
+              "include_in_country": true,
               "active": true,
               "owned": false,
               "provider": "100TB",
@@ -20190,7 +20314,7 @@
               "ipv6_addr_in": "2607:fc98:0:8a::f601",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": false,
+              "include_in_country": true,
               "active": true,
               "owned": false,
               "provider": "100TB",
