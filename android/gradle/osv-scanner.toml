@@ -78,3 +78,9 @@ reason = "Netty is not used in conjunction with SSL."
 id = "CVE-2025-55163" # GHSA-prj3-ccx8-p6x4
 ignoreUntil = 2025-11-14
 reason = "No impact on this app since it uses UDS rather than HTTP2."
+
+# netty: Netty's decoders vulnerable to DoS via zip bomb style attack
+[[IgnoredVulns]]
+id = "CVE-2025-58057" # GHSA-3p8m-j85q-pgmj
+ignoreUntil = 2025-12-04
+reason = "We do not use netty decoders"
