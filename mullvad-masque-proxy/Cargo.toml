@@ -24,6 +24,9 @@ libc = "0.2"
 log = { workspace = true }
 typed-builder = "0.21.0"
 
+[target.'cfg(windows)'.dependencies]
+socket2 = { workspace = true }
+
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = ["Win32", "Win32_Foundation", "Win32_Networking", "Win32_Networking_WinSock"]
