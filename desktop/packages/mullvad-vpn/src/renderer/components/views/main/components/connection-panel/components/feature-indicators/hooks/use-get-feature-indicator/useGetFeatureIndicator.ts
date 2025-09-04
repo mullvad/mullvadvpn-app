@@ -82,6 +82,12 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
+  const gotoServerIpOverride = React.useCallback(() => {
+    history.push(RoutePath.settingsImport, {
+      transition: TransitionType.show,
+    });
+  }, [history]);
+
   const gotoDnsContentBlockersFeature = React.useCallback(() => {
     history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
@@ -221,6 +227,7 @@ export const useGetFeatureIndicator = () => {
     },
     [FeatureIndicator.serverIpOverride]: {
       label: messages.pgettext('settings-import', 'Server IP override'),
+      onClick: gotoServerIpOverride,
     },
     [FeatureIndicator.quantumResistance]: {
       label:
