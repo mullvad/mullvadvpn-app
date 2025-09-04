@@ -1,1 +1,1 @@
-- Added a list of recent server selections in the select location view.
+- Fixed a rare issue where it would not be possible to change location.
