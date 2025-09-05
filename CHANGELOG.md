@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Add additional logging for tunnel devices and split tunneling to problem reports.
+- Log WFP sessions when transaction lock timeout occurs.
 
 ### Changed
 #### Windows
