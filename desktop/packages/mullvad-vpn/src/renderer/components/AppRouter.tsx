@@ -7,7 +7,6 @@ import LoginPage from '../components/views/login/Login';
 import { useViewTransitions } from '../lib/transition-hooks';
 import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
-import DaitaSettings from './DaitaSettings';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
@@ -21,22 +20,29 @@ import {
 import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
-import MainView from './main-view/MainView';
-import MultihopSettings from './MultihopSettings';
-import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
-import Shadowsocks from './Shadowsocks';
-import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
 import TooManyDevices from './TooManyDevices';
-import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
-import { AppInfoView, AppUpgradeView, ChangelogView, LaunchView, SettingsView } from './views';
-import VpnSettings from './VpnSettings';
-import WireguardSettings from './WireguardSettings';
+import {
+  AppInfoView,
+  AppUpgradeView,
+  ChangelogView,
+  DaitaSettingsView,
+  LaunchView,
+  MainView,
+  MultihopSettingsView,
+  OpenVpnSettingsView,
+  SettingsView,
+  ShadowsocksSettingsView,
+  SplitTunnelingSettingsView,
+  UdpOverTcpSettingsView,
+  VpnSettingsView,
+  WireguardSettingsView,
+} from './views';
 
 export default function AppRouter() {
   const focusRef = useRef<IFocusHandle>(null);
@@ -63,14 +69,14 @@ export default function AppRouter() {
         <Route exact path={RoutePath.settings} component={SettingsView} />
         <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
         <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
-        <Route exact path={RoutePath.multihopSettings} component={MultihopSettings} />
-        <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
-        <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
-        <Route exact path={RoutePath.daitaSettings} component={DaitaSettings} />
-        <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcp} />
-        <Route exact path={RoutePath.shadowsocks} component={Shadowsocks} />
-        <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
-        <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
+        <Route exact path={RoutePath.multihopSettings} component={MultihopSettingsView} />
+        <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
+        <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsView} />
+        <Route exact path={RoutePath.daitaSettings} component={DaitaSettingsView} />
+        <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcpSettingsView} />
+        <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
+        <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettingsView} />
+        <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettingsView} />
         <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
         <Route exact path={RoutePath.settingsImport} component={SettingsImport} />
         <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImport} />

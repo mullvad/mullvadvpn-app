@@ -14,11 +14,11 @@ function NavigationListItem({ to, children, ...props }: NavigationListItemProps)
 
   return (
     <ListItem {...props}>
-      <ListItem.Item>
-        <ListItem.Trigger onClick={navigate}>
+      <ListItem.Trigger onClick={navigate}>
+        <ListItem.Item>
           <ListItem.Content>{children}</ListItem.Content>
-        </ListItem.Trigger>
-      </ListItem.Item>
+        </ListItem.Item>
+      </ListItem.Trigger>
     </ListItem>
   );
 }
