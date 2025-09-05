@@ -42,4 +42,5 @@ include(
     ":test:e2e",
     ":test:mockapi",
     ":test:detekt",
+    ":test:baselineprofile",
 )
