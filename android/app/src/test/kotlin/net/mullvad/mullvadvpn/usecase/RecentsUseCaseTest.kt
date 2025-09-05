@@ -104,7 +104,7 @@ class RecentsUseCaseTest {
                     locations = listOf(swedenId, norwayId),
                 )
             val entryCustomList =
-                RelayItem.CustomList(customList = customList, locations = emptyList())
+                RelayItem.CustomList(customList = customList, locations = listOf(sweden, norway))
 
             val singleHopRecent = Recent.Singlehop(stockholmId)
             val multiHopRecent = Recent.Multihop(entry = entryCustomListId, exit = norwayId)
@@ -125,12 +125,15 @@ class RecentsUseCaseTest {
             every {
                 customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
             } returns flowOf(emptyList())
+            every { customListsRelayItemUseCase(RelayListType.Single) } returns flowOf(emptyList())
             every {
                 filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
             } returns flowOf(listOf(sweden, norway))
             every {
                 filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
             } returns flowOf(listOf(sweden, norway))
+            every { filteredRelayListUseCase(RelayListType.Single) } returns
+                flowOf(listOf(sweden, norway))
 
             useCase().test {
                 val hops = awaitItem()
