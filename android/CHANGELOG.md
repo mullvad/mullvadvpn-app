@@ -29,6 +29,12 @@ Line wrap the file at 100 chars.                                              Th
 - Enable quantum-resistant tunnels by default (when set to `Automatic`).
 
 
+## [android/2025.7-beta2] - 2025-09-04
+### Fixed
+- Fix a rare case of not being able to change exit location 
+  if entry location had never been selected.
+
+
 ## [android/2025.7-beta1] - 2025-08-27
 ### Added
 - Add list of recent server selections in the select location view.
