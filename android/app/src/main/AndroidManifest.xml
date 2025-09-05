@@ -27,7 +27,7 @@
     <application android:name=".MullvadApplication"
                  android:banner="@mipmap/ic_banner"
                  android:allowBackup="false"
-                 tools:targetApi="31"
+                 tools:targetApi="33"
                  android:memtagMode="async"
                  android:fullBackupContent="@xml/full_backup_content"
                  android:dataExtractionRules="@xml/data_extraction_rules"
@@ -35,6 +35,7 @@
                  android:label="@string/app_name"
                  android:roundIcon="@mipmap/ic_launcher"
                  android:theme="@style/Theme.App.Starting"
+                 android:localeConfig="@xml/locales_config"
                  tools:ignore="CredManMissingDal,CredentialDependency,GoogleAppIndexingWarning">
 
         <!--
