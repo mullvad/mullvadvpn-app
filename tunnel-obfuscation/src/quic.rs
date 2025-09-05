@@ -9,7 +9,7 @@ use std::{
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
-use crate::Obfuscator;
+use crate::{Obfuscator, socket::create_remote_socket};
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -19,9 +19,6 @@ pub enum Error {
     BindError(#[source] io::Error),
     #[error("Masque proxy error")]
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
-    #[cfg(target_os = "linux")]
-    #[error("Failed to set fwmark on remote socket")]
-    Fwmark(#[source] io::Error),
 }
 
 #[derive(Debug)]
@@ -121,42 +118,17 @@ impl std::str::FromStr for AuthToken {
 }
 
 impl Quic {
-    pub(crate) async fn new(settings: &Settings) -> Result<Self> {
+    pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
         let (local_socket, local_udp_client_addr) =
-            Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4()).await?;
+            Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
+                .await
+                .map_err(crate::Error::CreateQuicObfuscator)?;
         // The address family of the local QUIC client socket has to match the address family
         // of the endpoint we're connecting to. The address itself is not important to consumers wanting
         // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
         // obfuscator is running.
-        let quic_client_local_addr = if settings.quic_endpoint.is_ipv4() {
-            SocketAddr::from((Ipv4Addr::UNSPECIFIED, 0))
-        } else {
-            SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
-        };
-        let quic_socket = {
-            // family
-            let domain = match quic_client_local_addr {
-                SocketAddr::V4(_) => socket2::Domain::IPV4,
-                SocketAddr::V6(_) => socket2::Domain::IPV6,
-            };
-            let ty = socket2::Type::DGRAM;
-            let protocol = Some(socket2::Protocol::UDP);
-            let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::BindError)?;
-            socket
-                .bind(&socket2::SockAddr::from(quic_client_local_addr))
-                .map_err(Error::BindError)?;
-
-            #[cfg(target_os = "linux")]
-            if let Some(fwmark) = settings.fwmark {
-                socket.set_mark(fwmark).map_err(Error::Fwmark)?;
-            }
-
-            // The caller is responsible for ensuring that the socket is in non-blocking mode
-            // when calling UdpSocket::from_std
-            socket.set_nonblocking(true).map_err(Error::BindError)?;
-
-            UdpSocket::from_std(std::net::UdpSocket::from(socket)).map_err(Error::BindError)?
-        };
+        let quic_socket =
+            create_remote_socket(settings.quic_endpoint.is_ipv4(), settings.fwmark).await?;
 
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
