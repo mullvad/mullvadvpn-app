@@ -147,6 +147,7 @@ pub async fn test_ui_login(
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     mullvad_client.logout_account().await?;
+    mullvad_client.clear_account_history().await?;
     let ui_result = run_test_env(
         &rpc,
         &["login.spec"],

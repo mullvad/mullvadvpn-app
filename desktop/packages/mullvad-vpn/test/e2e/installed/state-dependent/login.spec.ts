@@ -7,7 +7,7 @@ import { expectDisconnected } from '../../shared/tunnel-state';
 import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
-// This test expects the daemon to be logged out.
+// This test expects the daemon to be logged out and the account history to be cleared.
 // Env parameters:
 //   `ACCOUNT_NUMBER`: Account number to use when logging in
 
