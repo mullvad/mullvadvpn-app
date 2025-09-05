@@ -4,3 +4,4 @@ export * from './launch';
 export * from './login';
 export * from './changelog';
 export * from './settings';
+export * from './split-tunneling';
