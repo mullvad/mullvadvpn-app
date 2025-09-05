@@ -434,6 +434,12 @@ impl ServiceClient {
         self.client.spawn(tarpc::context::current(), opts).await?
     }
 
+    pub async fn kill_child(&self, pid: u32) -> Result<(), Error> {
+        self.client
+            .kill_child(tarpc::context::current(), pid)
+            .await?
+    }
+
     pub async fn read_child_stdout(&self, pid: u32) -> Result<Option<String>, Error> {
         self.client
             .read_child_stdout(tarpc::context::current(), pid)
