@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../foundations';
-import { useListItem } from '../../ListItemContext';
+import { useListItemContext } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
 
 const StyledButton = styled.button<{ $disabled?: boolean }>`
@@ -40,7 +40,7 @@ const StyledButton = styled.button<{ $disabled?: boolean }>`
 export type ListItemTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>;
 
 export const ListItemTrigger = forwardRef<HTMLButtonElement, ListItemTriggerProps>((props, ref) => {
-  const { disabled } = useListItem();
+  const { disabled } = useListItemContext();
   return <StyledButton ref={ref} disabled={disabled} {...props} />;
 });
 

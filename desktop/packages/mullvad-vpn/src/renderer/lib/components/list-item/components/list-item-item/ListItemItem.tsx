@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
 import { useListItemAnimation } from '../../hooks';
-import { useListItem } from '../../ListItemContext';
+import { useListItemContext } from '../../ListItemContext';
 import { useBackgroundColor } from './hooks';
 
 export type ListItemItemProps = {
@@ -34,7 +34,7 @@ export const StyledListItemItem = styled.div<{
 
 export function ListItemItem({ children, ...props }: ListItemItemProps) {
   const backgroundColor = useBackgroundColor();
-  const { animation: contextAnimation } = useListItem();
+  const { animation: contextAnimation } = useListItemContext();
   const animation = useListItemAnimation(contextAnimation);
   return (
     <StyledListItemItem

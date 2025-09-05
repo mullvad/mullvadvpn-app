@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../../../foundations';
-import { useListItem } from '../../../../../list-item/ListItemContext';
+import { useListItemContext } from '../../../../../list-item/ListItemContext';
 import { useListboxContext } from '../../../listbox-context';
 import { useListboxOptionContext } from '../';
 import { StyledListItemOptionItem } from '../';
@@ -61,7 +61,7 @@ export const StyledListItemOptionTrigger = styled.li<{ $disabled?: boolean }>`
 
 export const ListboxOptionTrigger = ({ children, ...props }: ListboxOptionTriggerProps) => {
   const { value } = useListboxOptionContext();
-  const { disabled } = useListItem();
+  const { disabled } = useListItemContext();
   const triggerRef = React.useRef<HTMLLIElement>(null);
 
   const {
