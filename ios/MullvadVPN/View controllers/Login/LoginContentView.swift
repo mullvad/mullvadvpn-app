@@ -91,6 +91,8 @@ class LoginContentView: UIView {
         return button
     }()
 
+    private let scrollView = UIScrollView()
+
     private var isStatusImageVisible = false
     private var contentContainerBottomConstraint: NSLayoutConstraint?
 
@@ -131,28 +133,20 @@ class LoginContentView: UIView {
         footerContainer.addSubview(footerLabel)
         footerContainer.addSubview(createAccountButton)
 
-        let contentContainerBottomConstraint = bottomAnchor
-            .constraint(equalTo: contentContainer.bottomAnchor)
-        self.contentContainerBottomConstraint = contentContainerBottomConstraint
+        scrollView.addConstrainedSubviews([contentContainer]) {
+            contentContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            contentContainer.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor)
+            contentContainer.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor)
 
-        addConstrainedSubviews([contentContainer, footerContainer]) {
-            contentContainer.pinEdges(PinnableEdges([.top(0)]), to: safeAreaLayoutGuide)
-            contentContainer.pinEdgesToSuperview(PinnableEdges([.leading(0), .trailing(0)]))
-            contentContainerBottomConstraint
-
-            footerContainer.pinEdgesToSuperview(.all().excluding(.top))
-            footerLabel.pinEdges(.all().excluding(.bottom), to: footerContainer.layoutMarginsGuide)
-
-            createAccountButton.topAnchor.constraint(equalToSystemSpacingBelow: footerLabel.bottomAnchor, multiplier: 1)
-            createAccountButton.pinEdges(.all().excluding(.top), to: footerContainer.layoutMarginsGuide)
-
+            statusActivityView.topAnchor.constraint(greaterThanOrEqualTo: contentContainer.topAnchor)
             statusActivityView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor)
             statusActivityView.widthAnchor.constraint(equalToConstant: 60.0)
             statusActivityView.heightAnchor.constraint(equalTo: statusActivityView.widthAnchor, multiplier: 1.0)
 
             formContainer.topAnchor.constraint(equalTo: statusActivityView.bottomAnchor, constant: 30)
             formContainer.centerYAnchor.constraint(equalTo: contentContainer.centerYAnchor, constant: -20)
-            formContainer.pinEdges(PinnableEdges([.leading(0), .trailing(0)]), to: contentContainer)
+            formContainer.bottomAnchor.constraint(lessThanOrEqualTo: contentContainer.bottomAnchor)
+            formContainer.pinEdgesToSuperview(PinnableEdges([.leading(0), .trailing(0)]))
             formContainer.pinEdges(PinnableEdges([.bottom(0)]), to: accountInputGroupWrapper)
 
             titleLabel.pinEdges(.all().excluding(.bottom), to: formContainer.layoutMarginsGuide)
@@ -171,5 +165,34 @@ class LoginContentView: UIView {
             accountInputGroupWrapper.heightAnchor.constraint(equalTo: accountInputGroup.contentView.heightAnchor)
             accountInputGroup.pinEdges(.all().excluding(.bottom), to: accountInputGroupWrapper)
         }
+
+        let contentContainerBottomConstraint = bottomAnchor
+            .constraint(equalTo: scrollView.bottomAnchor)
+        self.contentContainerBottomConstraint = contentContainerBottomConstraint
+
+        addConstrainedSubviews([scrollView, footerContainer]) {
+            scrollView.pinEdges(PinnableEdges([.top(0)]), to: safeAreaLayoutGuide)
+            scrollView.pinEdgesToSuperview(.all().excluding(.top))
+
+            footerContainer.pinEdgesToSuperview(.all().excluding(.top))
+            footerLabel.pinEdges(.all().excluding(.bottom), to: footerContainer.layoutMarginsGuide)
+
+            createAccountButton.topAnchor.constraint(equalToSystemSpacingBelow: footerLabel.bottomAnchor, multiplier: 1)
+            createAccountButton.pinEdges(.all().excluding(.top), to: footerContainer.layoutMarginsGuide)
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateScrollViewContentInset()
+    }
+
+    private func updateScrollViewContentInset() {
+        scrollView.contentInset = .init(
+            top: 0,
+            left: 0,
+            bottom: footerContainer.frame.height,
+            right: 0
+        )
     }
 }

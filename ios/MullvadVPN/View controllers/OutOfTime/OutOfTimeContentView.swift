@@ -22,6 +22,7 @@ class OutOfTimeContentView: UIView {
         label.font = .mullvadLarge
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
@@ -36,7 +37,7 @@ class OutOfTimeContentView: UIView {
     lazy var disconnectButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.alpha = 0
+        button.isHidden = true
         let localizedString = NSLocalizedString("Disconnect", comment: "")
         button.setTitle(localizedString, for: .normal)
         return button
@@ -57,6 +58,8 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
+    private let scrollView = UIScrollView()
+
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -72,6 +75,7 @@ class OutOfTimeContentView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.TableView.sectionSpacing
+        stackView.backgroundColor = .secondaryColor
         return stackView
     }()
 
@@ -80,7 +84,6 @@ class OutOfTimeContentView: UIView {
         setAccessibilityIdentifier(.outOfTimeView)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         setUpSubviews()
     }
 
@@ -91,7 +94,7 @@ class OutOfTimeContentView: UIView {
     func enableDisconnectButton(_ enabled: Bool, animated: Bool) {
         disconnectButton.isEnabled = enabled
         UIView.animate(withDuration: animated ? 0.25 : 0) {
-            self.disconnectButton.alpha = enabled ? 1 : 0
+            self.disconnectButton.isHidden = !enabled
         }
     }
 
@@ -102,30 +105,39 @@ class OutOfTimeContentView: UIView {
     // MARK: - Private Functions
 
     func setUpSubviews() {
-        addSubview(topStackView)
+        scrollView.addConstrainedSubviews([topStackView]) {
+            topStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(0),
+                .trailing(0),
+            ]))
+            topStackView.topAnchor.constraint(
+                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
+            topStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
+        }
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+        }
         addSubview(bottomStackView)
         configureConstraints()
     }
 
     func configureConstraints() {
         NSLayoutConstraint.activate([
-            topStackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -20),
-
-            topStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
-            ),
-            topStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
-            ),
-
             bottomStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
+                equalTo: layoutMarginsGuide.leadingAnchor,
+                constant: UIMetrics.padding8
             ),
             bottomStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
+                equalTo: layoutMarginsGuide.trailingAnchor,
+                constant: -UIMetrics.padding8
             ),
             bottomStackView.bottomAnchor.constraint(
                 equalTo: layoutMarginsGuide.bottomAnchor
+            ),
+            scrollView.bottomAnchor.constraint(
+                equalTo: bottomStackView.topAnchor
             ),
         ])
     }
