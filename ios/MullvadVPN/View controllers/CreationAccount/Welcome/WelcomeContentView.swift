@@ -61,6 +61,7 @@ final class WelcomeContentView: UIView, Sendable {
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return button
     }()
 
@@ -148,6 +149,8 @@ final class WelcomeContentView: UIView, Sendable {
         return stackView
     }()
 
+    private let scrollView = UIScrollView()
+
     weak var delegate: WelcomeContentViewDelegate?
     var viewModel: WelcomeViewModel? {
         didSet {
@@ -164,7 +167,6 @@ final class WelcomeContentView: UIView, Sendable {
 
         setAccessibilityIdentifier(.welcomeView)
         backgroundColor = .primaryColor
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         backgroundColor = .secondaryColor
 
         configureUI()
@@ -198,20 +200,41 @@ final class WelcomeContentView: UIView, Sendable {
 
         buttonsStackView.addArrangedSubview(purchaseButton)
 
-        addSubview(textsStackView)
-        addSubview(buttonsStackView)
         addConstraints()
 
         showCheckmark(false)
     }
 
     private func addConstraints() {
-        addConstrainedSubviews([textsStackView, buttonsStackView]) {
-            textsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+        scrollView.addConstrainedSubviews([textsStackView]) {
+            textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(0),
+                .trailing(0),
+            ]))
 
-            buttonsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.top))
+            textsStackView.pinEdgesToSuperview(PinnableEdges([
+                .top(0),
+                .bottom(0),
+            ]))
+        }
+
+        addConstrainedSubviews([scrollView, buttonsStackView]) {
+            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .top(UIMetrics.contentLayoutMargins.top),
+                .leading(0),
+                .trailing(0),
+            ]))
+
+            buttonsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(UIMetrics.padding8),
+                .trailing(UIMetrics.padding8),
+                .bottom(UIMetrics.contentLayoutMargins.bottom),
+            ]))
+
+            buttonsStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
         }
     }
 

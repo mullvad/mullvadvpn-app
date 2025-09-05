@@ -22,6 +22,7 @@ class OutOfTimeContentView: UIView {
         label.font = .mullvadLarge
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
@@ -36,7 +37,7 @@ class OutOfTimeContentView: UIView {
     lazy var disconnectButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.alpha = 0
+        button.isHidden = true
         let localizedString = NSLocalizedString("Disconnect", comment: "")
         button.setTitle(localizedString, for: .normal)
         return button
@@ -57,6 +58,8 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
+    private let scrollView = UIScrollView()
+
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -71,7 +74,8 @@ class OutOfTimeContentView: UIView {
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.TableView.sectionSpacing
+        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.backgroundColor = .secondaryColor
         return stackView
     }()
 
@@ -80,7 +84,6 @@ class OutOfTimeContentView: UIView {
         setAccessibilityIdentifier(.outOfTimeView)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         setUpSubviews()
     }
 
@@ -91,7 +94,7 @@ class OutOfTimeContentView: UIView {
     func enableDisconnectButton(_ enabled: Bool, animated: Bool) {
         disconnectButton.isEnabled = enabled
         UIView.animate(withDuration: animated ? 0.25 : 0) {
-            self.disconnectButton.alpha = enabled ? 1 : 0
+            self.disconnectButton.isHidden = !enabled
         }
     }
 
@@ -102,32 +105,36 @@ class OutOfTimeContentView: UIView {
     // MARK: - Private Functions
 
     func setUpSubviews() {
-        addSubview(topStackView)
-        addSubview(bottomStackView)
-        configureConstraints()
-    }
+        scrollView.addConstrainedSubviews([topStackView]) {
+            topStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(0),
+                .trailing(0),
+            ]))
 
-    func configureConstraints() {
-        NSLayoutConstraint.activate([
-            topStackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -20),
+            topStackView.pinEdgesToSuperview(PinnableEdges([
+                .top(0),
+                .bottom(0),
+            ]))
+        }
 
-            topStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
-            ),
-            topStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
-            ),
+        addConstrainedSubviews([scrollView, bottomStackView]) {
+            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .top(UIMetrics.contentLayoutMargins.top),
+                .leading(0),
+                .trailing(0),
+            ]))
 
-            bottomStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
-            ),
-            bottomStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
-            ),
-            bottomStackView.bottomAnchor.constraint(
-                equalTo: layoutMarginsGuide.bottomAnchor
-            ),
-        ])
+            bottomStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(UIMetrics.padding8),
+                .trailing(UIMetrics.padding8),
+                .bottom(UIMetrics.contentLayoutMargins.bottom),
+            ]))
+
+            bottomStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
+        }
     }
 
     func setBodyLabelText(_ text: String) {
