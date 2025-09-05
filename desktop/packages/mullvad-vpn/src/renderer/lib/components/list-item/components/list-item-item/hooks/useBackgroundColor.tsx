@@ -1,7 +1,7 @@
 import { levels } from '../../../levels';
-import { useListItem } from '../../../ListItemContext';
+import { useListItemContext } from '../../../ListItemContext';
 
 export const useBackgroundColor = () => {
-  const { level, disabled } = useListItem();
+  const { level, disabled } = useListItemContext();
   return disabled ? levels[level].disabled : levels[level].enabled;
 };

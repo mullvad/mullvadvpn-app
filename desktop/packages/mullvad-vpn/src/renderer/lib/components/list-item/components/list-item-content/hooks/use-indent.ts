@@ -1,7 +1,7 @@
 import { levels } from '../../../levels';
-import { useListItem } from '../../../ListItemContext';
+import { useListItemContext } from '../../../ListItemContext';
 
 export const useIndent = () => {
-  const { level } = useListItem();
+  const { level } = useListItemContext();
   return levels[level].indent;
 };
