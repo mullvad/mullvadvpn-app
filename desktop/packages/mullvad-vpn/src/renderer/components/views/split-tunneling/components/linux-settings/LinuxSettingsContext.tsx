@@ -1,0 +1,46 @@
+import React, { useMemo, useState } from 'react';
+
+import { type ILinuxSplitTunnelingApplication } from '../../../../../../shared/application-types';
+
+type LinuxSettingsContextProviderProps = {
+  children: React.ReactNode;
+};
+
+type LinuxSettingsContext = {
+  applications?: ILinuxSplitTunnelingApplication[];
+  browseError?: string;
+  searchTerm: string;
+  setApplications: (value: ILinuxSplitTunnelingApplication[]) => void;
+  setBrowseError: (value?: string) => void;
+  setSearchTerm: (value: string) => void;
+};
+
+const LinuxSettingsContext = React.createContext<LinuxSettingsContext | undefined>(undefined);
+
+export const useLinuxSettingsContext = (): LinuxSettingsContext => {
+  const context = React.useContext(LinuxSettingsContext);
+  if (!context) {
+    throw new Error('useLinuxSettings must be used within a LinuxSettingsContext');
+  }
+  return context;
+};
+
+export function LinuxSettingsContextProvider({ children }: LinuxSettingsContextProviderProps) {
+  const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
+  const [browseError, setBrowseError] = useState<string>();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const value = useMemo(
+    () => ({
+      applications,
+      browseError,
+      searchTerm,
+      setApplications,
+      setBrowseError,
+      setSearchTerm,
+    }),
+    [applications, browseError, searchTerm, setApplications, setBrowseError, setSearchTerm],
+  );
+
+  return <LinuxSettingsContext value={value}>{children}</LinuxSettingsContext>;
+}
