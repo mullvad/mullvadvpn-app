@@ -103,6 +103,11 @@ export interface ISetSplitTunnelingApplicationsAction {
   applications: ISplitTunnelingApplication[];
 }
 
+export interface ISetSplitTunnelingSupportedAction {
+  type: 'SET_SPLIT_TUNNELING_SUPPORTED';
+  supported: boolean;
+}
+
 export interface ISetObfuscationSettings {
   type: 'SET_OBFUSCATION_SETTINGS';
   obfuscationSettings: ObfuscationSettings;
@@ -147,6 +152,7 @@ export type SettingsAction =
   | IUpdateDnsOptionsAction
   | IUpdateSplitTunnelingStateAction
   | ISetSplitTunnelingApplicationsAction
+  | ISetSplitTunnelingSupportedAction
   | ISetObfuscationSettings
   | ISetCustomLists
   | ISetApiAccessMethods
@@ -289,6 +295,13 @@ function setSplitTunnelingApplications(
   };
 }
 
+function setSplitTunnelingSupported(supported: boolean): ISetSplitTunnelingSupportedAction {
+  return {
+    type: 'SET_SPLIT_TUNNELING_SUPPORTED',
+    supported,
+  };
+}
+
 function updateObfuscationSettings(
   obfuscationSettings: ObfuscationSettings,
 ): ISetObfuscationSettings {
@@ -345,6 +358,7 @@ export default {
   updateDnsOptions,
   updateSplitTunnelingState,
   setSplitTunnelingApplications,
+  setSplitTunnelingSupported,
   updateObfuscationSettings,
   updateCustomLists,
   updateApiAccessMethods,

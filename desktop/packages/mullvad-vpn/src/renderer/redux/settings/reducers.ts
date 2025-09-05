@@ -118,6 +118,7 @@ export interface ISettingsReduxState {
   dns: IDnsOptions;
   splitTunneling: boolean;
   splitTunnelingApplications: ISplitTunnelingApplication[];
+  splitTunnelingSupported: boolean;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
   apiAccessMethods: ApiAccessMethodSettings;
@@ -186,6 +187,7 @@ const initialState: ISettingsReduxState = {
   },
   splitTunneling: false,
   splitTunnelingApplications: [],
+  splitTunnelingSupported: false,
   obfuscationSettings: {
     selectedObfuscation: ObfuscationType.auto,
     udp2tcpSettings: {
@@ -323,6 +325,12 @@ export default function (
       return {
         ...state,
         splitTunnelingApplications: action.applications,
+      };
+
+    case 'SET_SPLIT_TUNNELING_SUPPORTED':
+      return {
+        ...state,
+        splitTunnelingSupported: action.supported,
       };
 
     case 'SET_OBFUSCATION_SETTINGS':
