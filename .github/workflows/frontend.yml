@@ -14,7 +14,7 @@ jobs:
   check-frontend:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -57,7 +57,7 @@ jobs:
         working-directory: desktop
         run: xvfb-run -a npm test
 
-      - name: Run headless test Windows
+      - name: Run headless test Windows/macOS
         if: runner.os != 'Linux'
         working-directory: desktop
         shell: bash
@@ -70,7 +70,7 @@ jobs:
         # since Ubuntu 24.04.
         run: NO_SANDBOX=1 npm run e2e:no-build -w mullvad-vpn
 
-      - name: Run Playwright tests on Windows
+      - name: Run Playwright tests on Windows/macOS
         if: runner.os != 'Linux'
         working-directory: desktop
         shell: bash
