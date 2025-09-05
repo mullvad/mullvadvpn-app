@@ -17,7 +17,6 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
-use watch::RoutingTable;
 
 use super::RouteManagerCommand;
 use data::{Destination, RouteDestination, RouteMessage, RouteSocketMessage};
@@ -25,12 +24,15 @@ use data::{Destination, RouteDestination, RouteMessage, RouteSocketMessage};
 pub use super::DefaultRouteEvent;
 pub use interface::DefaultRoute;
 
-mod data;
+/// PF_ROUTE/[RoutingTable] types
+pub mod data;
 mod default_routes;
 mod interface;
 mod ip_map;
 mod routing_socket;
 mod watch;
+
+pub use watch::RoutingTable;
 
 pub use watch::Error as RouteError;
 
@@ -329,7 +331,7 @@ impl RouteManagerImpl {
                 };
 
                 RouteMessage::new_route(Destination::from(route.prefix))
-                    .set_gateway_sockaddr(*link_addr)
+                    .set_gateway_addr(*link_addr)
                     .set_interface_index(interface_index as u16)
             } else {
                 log::error!("Specifying gateway by IP rather than device is unimplemented");
@@ -454,10 +456,8 @@ impl RouteManagerImpl {
         log::trace!("Refreshing routes");
 
         // Remove any existing ifscoped default route that we've added
-        self.remove_applied_routes(|route| {
-            route.is_ifscope() && route.is_default().unwrap_or(false)
-        })
-        .await;
+        self.remove_applied_routes(|route| route.ifscope() && route.is_default().unwrap_or(false))
+            .await;
 
         // Substitute route with a tunnel route
         self.apply_tunnel_default_routes().await?;
@@ -525,7 +525,7 @@ impl RouteManagerImpl {
                         .routing_table
                         .delete_route(&default_route_msg(family))
                         .await;
-                } else if !actual_default_route.is_ifscope() {
+                } else if !actual_default_route.ifscope() {
                     continue; // Skipping route
                 }
             }
@@ -587,7 +587,9 @@ impl RouteManagerImpl {
 
         let interface_index = default_route.interface_index;
         let default_route = RouteMessage::from(default_route.clone());
-        let new_route = default_route.set_ifscope(interface_index);
+        let new_route = default_route
+            .set_interface_index(interface_index)
+            .set_ifscope();
 
         log::trace!("Setting ifscope: {new_route:?}");
 
@@ -754,7 +756,7 @@ impl RouteManagerImpl {
 /// RTF_GATEAWAY-flag set. Used to reference the default route created by macOS.
 fn default_route_msg(family: interface::Family) -> RouteMessage {
     let mut msg = RouteMessage::new_route(family.default_network().into());
-    msg = msg.set_gateway_route(true);
+    msg = msg.append_route_flag(data::RouteFlag::RTF_GATEWAY);
     msg
 }
 

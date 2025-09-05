@@ -43,6 +43,7 @@ use hickory_server::{
 use rand::random_range;
 use socket2::{Domain, Protocol, Socket, Type};
 use std::sync::LazyLock;
+use talpid_routing::data::RouteSocketMessage;
 use talpid_types::drop_guard::{OnDrop, on_drop};
 use tokio::{
     net::{self, UdpSocket},
@@ -456,9 +457,14 @@ impl LocalResolver {
 
             log::debug!("Created loopback address {addr}");
 
+            let detect_removed_alias_task =
+                tokio::spawn(detect_loopback_address_removal(IpAddr::from(addr)));
+
             // Clean up ip address when stopping the resolver
             let cleanup_ifconfig = on_drop(move || {
                 tokio::task::spawn(async move {
+                    detect_removed_alias_task.abort();
+
                     log::debug!("Cleaning up loopback address {addr}");
                     if let Err(e) =
                         talpid_macos::net::remove_alias(LOOPBACK, IpAddr::from(addr)).await
@@ -614,6 +620,48 @@ fn kill_mdnsresponder() -> io::Result<()> {
         )?;
     }
     Ok(())
+}
+
+/// Detect when the loopback address is removed on the loopback interface, and add it back whenever
+/// that occurs.
+async fn detect_loopback_address_removal(addr: IpAddr) -> Result<(), talpid_routing::RouteError> {
+    let mut routing_table = talpid_routing::RoutingTable::new().map_err(|e| {
+        log::warn!("Failed to create routing table interface: {e}");
+        e
+    })?;
+
+    // Listen for the loopback address being removed, and add it back if that happens
+    loop {
+        let Ok(msg) = routing_table.next_message().await else {
+            log::trace!("Failed to read next message from routing table");
+            continue;
+        };
+
+        let RouteSocketMessage::DeleteAddress(msg) = msg else {
+            continue;
+        };
+
+        // The deleted address either matches the one we care about, or we do not know
+        let matches_addr = msg
+            .address()
+            .map(|deleted_addr| deleted_addr == addr)
+            .unwrap_or(true);
+        if !matches_addr {
+            continue;
+        }
+
+        // Sleep for a bit so we do not spin if something weird is going on
+        tokio::time::sleep(Duration::from_secs(1)).await;
+
+        log::debug!("Detected possible removal of loopback address {addr}. Adding it back");
+
+        talpid_macos::net::add_alias(LOOPBACK, addr)
+            .await
+            .inspect_err(|e| {
+                log::warn!("Failed to add loopback {LOOPBACK} alias {addr}: {e}");
+            })
+            .ok();
+    }
 }
 
 type LookupResponse<'a> = MessageResponse<
