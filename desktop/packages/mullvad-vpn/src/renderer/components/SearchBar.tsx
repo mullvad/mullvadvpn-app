@@ -55,7 +55,7 @@ export const StyledSearchIcon = styled(Icon)({
   },
 });
 
-interface ISearchBarProps {
+export interface ISearchBarProps {
   searchTerm: string;
   onSearch: (searchTerm: string) => void;
   className?: string;
