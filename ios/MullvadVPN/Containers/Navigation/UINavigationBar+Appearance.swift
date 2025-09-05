@@ -20,8 +20,8 @@ extension UINavigationBar {
 
     func configureCustomAppeareance() {
         var directionalMargins = directionalLayoutMargins
-        directionalMargins.leading = UIMetrics.contentLayoutMargins.leading
-        directionalMargins.trailing = UIMetrics.contentLayoutMargins.trailing
+        directionalMargins.leading = UIMetrics.largeNavigationTitlePadding.leading
+        directionalMargins.trailing = UIMetrics.largeNavigationTitlePadding.trailing
 
         directionalLayoutMargins = directionalMargins
         tintColor = UIColor.NavigationBar.titleColor
