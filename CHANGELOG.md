@@ -47,6 +47,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix apps attempting to use IPv6 with in-tunnel IPv6 disabled.
 
 
+## [2025.9] - 2025-09-08
+This release is identical to 2025.9-beta1.
+
+
 ## [2025.9-beta1] - 2025-08-25
 ### Added
 - Add QUIC obfuscation (WireGuard only). It will be used automatically when connecting fails with
