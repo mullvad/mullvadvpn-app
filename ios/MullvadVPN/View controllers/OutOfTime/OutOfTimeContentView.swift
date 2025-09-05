@@ -22,6 +22,7 @@ class OutOfTimeContentView: UIView {
         label.font = .mullvadLarge
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
@@ -36,7 +37,7 @@ class OutOfTimeContentView: UIView {
     lazy var disconnectButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.alpha = 0
+        button.isHidden = true
         let localizedString = NSLocalizedString("Disconnect", comment: "")
         button.setTitle(localizedString, for: .normal)
         return button
@@ -57,6 +58,12 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -72,6 +79,7 @@ class OutOfTimeContentView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.TableView.sectionSpacing
+        stackView.backgroundColor = .secondaryColor
         return stackView
     }()
 
@@ -80,7 +88,6 @@ class OutOfTimeContentView: UIView {
         setAccessibilityIdentifier(.outOfTimeView)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         setUpSubviews()
     }
 
@@ -91,7 +98,7 @@ class OutOfTimeContentView: UIView {
     func enableDisconnectButton(_ enabled: Bool, animated: Bool) {
         disconnectButton.isEnabled = enabled
         UIView.animate(withDuration: animated ? 0.25 : 0) {
-            self.disconnectButton.alpha = enabled ? 1 : 0
+            self.disconnectButton.isHidden = !enabled
         }
     }
 
@@ -102,22 +109,40 @@ class OutOfTimeContentView: UIView {
     // MARK: - Private Functions
 
     func setUpSubviews() {
-        addSubview(topStackView)
+        scrollView.addConstrainedSubviews([topStackView]) {
+            topStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(24), .trailing(24),
+            ]))
+            topStackView.topAnchor.constraint(greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor)
+            topStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
+        }
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperview(.init([.top(0), .leading(0), .trailing(0)]))
+            scrollView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+        }
         addSubview(bottomStackView)
         configureConstraints()
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateScrollViewContentInset()
+    }
+
+    private func updateScrollViewContentInset() {
+        /// For some reason, the top inset is automatically adjusted when we are using an accessibility content size.
+        let topInsetIsPreadjusted = UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory
+        let topContentInset = topInsetIsPreadjusted ? 0 : safeAreaInsets.top
+        scrollView.contentInset = .init(
+            top: topContentInset,
+            left: 0,
+            bottom: bottomStackView.frame.height,
+            right: 0
+        )
+    }
+
     func configureConstraints() {
         NSLayoutConstraint.activate([
-            topStackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -20),
-
-            topStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor
-            ),
-            topStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor
-            ),
-
             bottomStackView.leadingAnchor.constraint(
                 equalTo: layoutMarginsGuide.leadingAnchor
             ),
