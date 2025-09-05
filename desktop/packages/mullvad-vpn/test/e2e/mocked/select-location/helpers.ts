@@ -8,6 +8,7 @@ import {
   IRelayListHostname,
   ISettings,
   Ownership,
+  RelaySettings,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
@@ -107,14 +108,8 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
         settings.relaySettings.normal.providers = providers;
       }
     }
-    await utils.mockIpcHandle({
-      channel: 'settings-setRelaySettings',
-      response: {},
-    });
-    await utils.sendMockIpcResponse({
-      channel: 'settings-',
-      response: settings,
-    });
+    await utils.ipc.settings.setRelaySettings.handle({} as RelaySettings);
+    await utils.ipc.settings[''].notify(settings);
   };
 
   const updateMockSettings = async (
@@ -139,10 +134,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       if (directOnly !== undefined) settings.tunnelOptions.wireguard.daita.directOnly = directOnly;
     }
 
-    await utils.sendMockIpcResponse<ISettings>({
-      channel: 'settings-',
-      response: settings,
-    });
+    await utils.ipc.settings[''].notify(settings);
 
     return settings;
   };
@@ -161,10 +153,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       };
     }
 
-    await utils.sendMockIpcResponse<ISettings>({
-      channel: 'settings-',
-      response: settings,
-    });
+    await utils.ipc.settings[''].notify(settings);
 
     return settings;
   };

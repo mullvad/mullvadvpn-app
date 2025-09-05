@@ -16,20 +16,22 @@ interface MainToRenderer<T> {
 
 interface RendererToMain<T, R> {
   direction: 'renderer-to-main';
+  type: 'send' | 'invoke';
   send: (event: string, ipcRenderer: EIpcRenderer) => Sender<T, R>;
   receive: (event: string, ipcMain: EIpcMain) => Handler<T, R>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyIpcCall = MainToRenderer<any> | RendererToMain<any, any>;
+export type AnyIpcCall = MainToRenderer<any> | RendererToMain<any, any>;
 
 export type Schema = Record<string, Record<string, AnyIpcCall>>;
 
 // Renames all IPC calls, e.g. `callName` to either `notifyCallName` or `handleCallName` depending
 // on direction.
-type IpcMainKey<N extends string, I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
-  ? `notify${Capitalize<N>}`
-  : `handle${Capitalize<N>}`;
+export type IpcMainKey<
+  N extends string,
+  I extends AnyIpcCall,
+> = I['direction'] extends 'main-to-renderer' ? `notify${Capitalize<N>}` : `handle${Capitalize<N>}`;
 
 // Selects either the send or receive function depending on direction.
 type IpcMainFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
@@ -59,11 +61,6 @@ export type IpcRenderer<S extends Schema> = {
   [G in keyof S]: {
     [K in keyof S[G] as IpcRendererKey<string & K, S[G][K]>]: IpcRendererFn<S[G][K]>;
   };
-};
-
-// Transforms the provided schema into containing only the event keys.
-export type IpcEvents<S> = {
-  [G in keyof S]: { [C in keyof S[G]]: string };
 };
 
 // Preforms the transformation of the main event channel in accordance with the above types.
@@ -104,15 +101,10 @@ export function createIpcRenderer<S extends Schema>(
   });
 }
 
-export function createIpcEvents<S extends Schema>(schema: S): IpcEvents<S> {
-  return createIpc(schema, (event, key) => [key, event]);
-}
-
-export function createIpc<
-  S extends Schema,
-  T,
-  R extends IpcMain<S> | IpcRenderer<S> | IpcEvents<S>,
->(ipc: S, fn: (event: string, key: string, spec: AnyIpcCall) => [newKey: string, newValue: T]): R {
+export function createIpc<S extends Schema, T, R>(
+  ipc: S,
+  fn: (event: string, key: string, spec: AnyIpcCall) => [newKey: string, newValue: T],
+): R {
   return Object.fromEntries(
     Object.entries(ipc).map(([groupKey, group]) => {
       const newGroup = Object.fromEntries(
@@ -127,6 +119,7 @@ export function createIpc<
 export function send<T>(): RendererToMain<T, void> {
   return {
     direction: 'renderer-to-main',
+    type: 'send',
     send: (event, ipcRenderer) => (newValue: T) => ipcRenderer.send(event, newValue),
     receive: (event, ipcMain) => (handlerFn: (value: T) => void) => {
       ipcMain.on(event, (_event, newValue: T) => {
@@ -140,6 +133,7 @@ export function send<T>(): RendererToMain<T, void> {
 export function invokeSync<T, R>(): RendererToMain<T, R> {
   return {
     direction: 'renderer-to-main',
+    type: 'send',
     send: (event, ipcRenderer) => (newValue: T) => ipcRenderer.sendSync(event, newValue),
     receive: (event, ipcMain) => (handlerFn: (value: T) => R) => {
       ipcMain.on(event, (ipcEvent, newValue: T) => {
@@ -153,6 +147,7 @@ export function invokeSync<T, R>(): RendererToMain<T, R> {
 export function invoke<T, R>(): RendererToMain<T, Promise<R>> {
   return {
     direction: 'renderer-to-main',
+    type: 'invoke',
     send: invokeImpl,
     receive: handle,
   };

@@ -68,10 +68,10 @@ jobs:
         working-directory: desktop
         # The sandbox is disabled as a workaround for lacking userns permisisons which is required
         # since Ubuntu 24.04.
-        run: NO_SANDBOX=1 npm run e2e:no-build -w mullvad-vpn
+        run: NO_SANDBOX=1 npm run e2e:no-build -w mullvad-vpn -- --reporter=line
 
       - name: Run Playwright tests on Windows/macOS
         if: runner.os != 'Linux'
         working-directory: desktop
         shell: bash
-        run: npm run e2e:no-build --w mullvad-vpn
+        run: npm run e2e:no-build --w mullvad-vpn -- --reporter=line
