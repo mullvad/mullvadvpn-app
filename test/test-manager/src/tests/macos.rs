@@ -155,21 +155,13 @@ async fn get_first_dns_resolver(rpc: &ServiceClient) -> anyhow::Result<IpAddr> {
 }
 
 fn parse_scutil_dns_first_resolver(output: &str) -> Option<IpAddr> {
-    for line in output.lines() {
-        let line = line.trim();
-        //   nameserver[0] : 127.230.79.91
-        if let Some(server) = line.strip_prefix("nameserver[0]") {
-            if let Some(addr) = server
-                .split_whitespace()
-                .last()
-                .and_then(|ip| ip.parse().ok())
-            {
-                return Some(addr);
-            }
-        }
-    }
-
-    None
+    output
+        .lines()
+        .map(str::trim)
+        // nameserver[0] : 127.230.79.91
+        .flat_map(|line| line.strip_prefix("nameserver[0]"))
+        .flat_map(|server| server.split_whitespace().last())
+        .find_map(|addr| addr.parse().ok())
 }
 
 #[cfg(test)]
