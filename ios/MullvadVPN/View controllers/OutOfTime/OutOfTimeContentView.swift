@@ -117,7 +117,7 @@ class OutOfTimeContentView: UIView {
             topStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
         }
         addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperview(.init([.top(0), .leading(0), .trailing(0)]))
+            scrollView.pinEdgesToSuperview(.all().excluding(.bottom))
             scrollView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
         }
         addSubview(bottomStackView)
