@@ -29,7 +29,7 @@ export const ListItemProvider = ({
   );
 };
 
-export const useListItem = (): ListItemContextType => {
+export const useListItemContext = (): ListItemContextType => {
   const context = useContext(ListItemContext);
   if (!context) {
     throw new Error('useListItem must be used within a ListItemProvider');
