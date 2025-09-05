@@ -62,7 +62,11 @@ android {
 
     androidResources {
         @Suppress("UnstableApiUsage")
-        generateLocaleConfig = true
+        // Due to a bug in the Android platform we need to disable this as the auto-generated local
+        // config causes a crash on some versions of android.
+        // See: https://issuetracker.google.com/issues/399131926#comment29
+        // Restoring this behavior when the issue has been resolved is tracked in: DROID-2163
+        generateLocaleConfig = false
     }
 
     if (keystorePropertiesFile.exists()) {
