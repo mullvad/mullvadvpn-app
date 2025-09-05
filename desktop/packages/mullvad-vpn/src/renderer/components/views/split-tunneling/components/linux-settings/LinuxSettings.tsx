@@ -1,16 +1,18 @@
 import { useEffect } from 'react';
 
-import { strings } from '../../../../../../shared/constants';
-import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { Flex, Spinner } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useAfterTransition } from '../../../../../lib/transition-hooks';
 import { useEffectEvent } from '../../../../../lib/utility-hooks';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../../../SettingsHeader';
 import { ApplicationSearchBar } from '../application-search-bar';
 import { ApplicationSearchNoResult } from '../application-search-no-result';
-import { LaunchErrorDialog, LinuxApplicationList, OpenFilePickerButton } from './components';
+import {
+  Header,
+  LaunchErrorDialog,
+  LinuxApplicationList,
+  OpenFilePickerButton,
+} from './components';
 import { useShowLinuxApplicationList, useShowNoSearchResult } from './hooks';
 import { LinuxSettingsContextProvider, useLinuxSettingsContext } from './LinuxSettingsContext';
 
@@ -37,15 +39,7 @@ function LinuxSettingsInner() {
 
   return (
     <>
-      <SettingsHeader>
-        <HeaderTitle>{strings.splitTunneling}</HeaderTitle>
-        <HeaderSubTitle>
-          {messages.pgettext(
-            'split-tunneling-view',
-            'Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it.',
-          )}
-        </HeaderSubTitle>
-      </SettingsHeader>
+      <Header />
       <ApplicationSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
       {showNoSearchResult && <ApplicationSearchNoResult searchTerm={searchTerm} />}
       <FlexColumn $gap="medium">
