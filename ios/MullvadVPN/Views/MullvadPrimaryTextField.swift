@@ -6,19 +6,22 @@ struct MullvadPrimaryTextField: View {
     @Binding private var text: String
     @Binding private var suggestion: String?
     private let validate: ((String) -> Bool)?
+    private let keyboardType: UIKeyboardType?
 
     init(
         label: String,
         placeholder: String,
         text: Binding<String>,
         suggestion: Binding<String?>? = nil,
-        validate: ((String) -> Bool)? = nil
+        validate: ((String) -> Bool)? = nil,
+        keyboardType: UIKeyboardType? = nil
     ) {
         self.label = label
         self.placeholder = placeholder
         self._text = text
         self._suggestion = suggestion ?? .constant(nil)
         self.validate = validate
+        self.keyboardType = keyboardType
     }
 
     var isValid: Bool {
@@ -38,22 +41,30 @@ struct MullvadPrimaryTextField: View {
         return false
     }
 
+    private var textFieldComponent: some View {
+        TextField(
+            placeholder,
+            text: $text,
+            prompt: Text(placeholder)
+                .foregroundColor(
+                    isEnabled ? .MullvadTextField.inputPlaceholder : .MullvadTextField.textDisabled
+                )
+        )
+        .focused($isFocused)
+        .padding(.vertical, 12)
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             Text(label)
                 .foregroundColor(.MullvadTextField.label)
             VStack(spacing: 0) {
                 HStack(spacing: 4) {
-                    TextField(
-                        placeholder,
-                        text: $text,
-                        prompt: Text(placeholder)
-                            .foregroundColor(
-                                isEnabled ? .MullvadTextField.inputPlaceholder : .MullvadTextField.textDisabled
-                            )
-                    )
-                    .focused($isFocused)
-                    .padding(.vertical, 12)
+                    if let keyboardType {
+                        textFieldComponent.keyboardType(keyboardType)
+                    } else {
+                        textFieldComponent
+                    }
                     if !text.isEmpty && isEnabled {
                         Button {
                             withAnimation {
