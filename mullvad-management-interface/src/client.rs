@@ -510,7 +510,10 @@ impl MullvadProxyClient {
             enabled,
             access_method: Some(types::AccessMethod::from(access_method)),
         };
-        self.0.add_api_access_method(request).await?;
+        self.0
+            .add_api_access_method(request)
+            .await
+            .map_err(map_api_access_method_error)?;
         Ok(())
     }
 
@@ -530,7 +533,8 @@ impl MullvadProxyClient {
     ) -> Result<()> {
         self.0
             .update_api_access_method(types::AccessMethodSetting::from(access_method_update))
-            .await?;
+            .await
+            .map_err(map_api_access_method_error)?;
         Ok(())
     }
 
@@ -654,20 +658,20 @@ fn map_device_error(status: Status) -> Error {
 
 #[cfg(not(target_os = "android"))]
 fn map_custom_list_error(status: Status) -> Error {
-    match status.code() {
-        Code::NotFound => {
-            if status.details() == crate::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS {
-                Error::CustomListListNotFound
-            } else {
-                Error::Rpc(Box::new(status))
-            }
+    match (status.code(), status.details()) {
+        (Code::NotFound, crate::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS) => {
+            Error::CustomListListNotFound
         }
-        Code::AlreadyExists => {
-            if status.details() == crate::CUSTOM_LIST_LIST_EXISTS_DETAILS {
-                Error::CustomListExists
-            } else {
-                Error::Rpc(Box::new(status))
-            }
+        (Code::AlreadyExists, crate::CUSTOM_LIST_LIST_EXISTS_DETAILS) => Error::CustomListExists,
+        _other => Error::Rpc(Box::new(status)),
+    }
+}
+
+#[cfg(not(target_os = "android"))]
+fn map_api_access_method_error(status: Status) -> Error {
+    match (status.code(), status.details()) {
+        (Code::AlreadyExists, crate::API_ACCESS_METHOD_EXISTS_DETAILS) => {
+            Error::ApiAccessMethodExists
         }
         _other => Error::Rpc(Box::new(status)),
     }
