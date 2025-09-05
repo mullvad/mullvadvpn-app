@@ -54,7 +54,7 @@ class RelayFilterView: UIView {
     func setDaita(_ enabled: Bool) {
         let chip = ChipConfiguration(
             group: .settings,
-            title: NSLocalizedString("Setting: DAITA", comment: ""),
+            title: String(format: NSLocalizedString("Setting: %@", comment: ""), "DAITA"),
             accessibilityId: .daitaFilterPill,
             didTapButton: nil
         )
@@ -65,7 +65,7 @@ class RelayFilterView: UIView {
     func setObfuscation(_ enabled: Bool) {
         let chip = ChipConfiguration(
             group: .settings,
-            title: NSLocalizedString("Setting: Obfuscation", comment: ""),
+            title: String(format: NSLocalizedString("Setting: %@", comment: ""), "Obfuscation"),
             accessibilityId: .obfuscationFilterPill,
             didTapButton: nil
         )

@@ -201,8 +201,9 @@ extension ConnectionViewViewModel {
         let observedTunnelState = tunnelStatus.observedState
 
         var portAndTransport = ""
-        if let inPort = observedTunnelState.connectionState?.remotePort {
-            let protocolLayer = observedTunnelState.connectionState?.transportLayer == .tcp ? "TCP" : "UDP"
+        if let connectionState = observedTunnelState.connectionState {
+            let inPort = connectionState.remotePort
+            let protocolLayer = connectionState.transportLayer.name
             portAndTransport = ":\(inPort) \(protocolLayer)"
         }
 

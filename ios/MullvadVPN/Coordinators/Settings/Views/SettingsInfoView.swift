@@ -51,10 +51,11 @@ struct SettingsInfoView: View {
     }
 
     private func bodyText(_ page: SettingsInfoViewModelPage) -> some View {
-        (try? AttributedString(
-            markdown: page.body,
+        let message = page.body
+        return (try? AttributedString(
+            markdown: message,
             options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-        )).map(Text.init) ?? Text(page.body)
+        )).map(Text.init) ?? Text(message)
     }
 
     private func contentView() -> some View {

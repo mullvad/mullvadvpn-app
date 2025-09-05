@@ -20,7 +20,7 @@ struct MullvadAlert: Identifiable {
 
     let id = UUID()
     let type: AlertType
-    let message: LocalizedStringKey
+    let messages: [LocalizedStringKey]
     let action: Action?
     let dismissButtonTitle: LocalizedStringKey
 }
@@ -55,7 +55,7 @@ struct AlertModifier: ViewModifier {
     private func alertContent(for alert: MullvadAlert) -> some View {
         VStack(spacing: 16) {
             alertIcon(for: alert.type)
-            alertMessage(alert.message)
+            alertMessage(alert.messages)
             VStack(spacing: 16) {
                 alertAction(for: alert.action)
                 alertAction(for: MullvadAlert.Action(
@@ -82,12 +82,16 @@ struct AlertModifier: ViewModifier {
     }
 
     @ViewBuilder
-    private func alertMessage(_ message: LocalizedStringKey) -> some View {
-        HStack {
-            Text(message)
-                .font(.mullvadSmall)
-                .foregroundColor(.mullvadTextPrimary.opacity(0.6))
-            Spacer()
+    private func alertMessage(_ messages: [LocalizedStringKey]) -> some View {
+        VStack {
+            ForEach(Array(messages.enumerated()), id: \.offset) { _, text in
+                HStack {
+                    Text(text)
+                        .font(.mullvadSmall)
+                        .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                    Spacer()
+                }
+            }
         }
     }
 
@@ -125,7 +129,7 @@ extension View {
             .constant(
                 .init(
                     type: .warning,
-                    message: "Something needs to be done",
+                    messages: ["Something needs to be done"],
                     action: .init(
                         type: .danger,
                         title: "Do it!",
