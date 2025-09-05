@@ -61,6 +61,7 @@ final class WelcomeContentView: UIView, Sendable {
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return button
     }()
 
@@ -148,6 +149,8 @@ final class WelcomeContentView: UIView, Sendable {
         return stackView
     }()
 
+    private let scrollView = UIScrollView()
+
     weak var delegate: WelcomeContentViewDelegate?
     var viewModel: WelcomeViewModel? {
         didSet {
@@ -198,20 +201,31 @@ final class WelcomeContentView: UIView, Sendable {
 
         buttonsStackView.addArrangedSubview(purchaseButton)
 
-        addSubview(textsStackView)
-        addSubview(buttonsStackView)
         addConstraints()
 
         showCheckmark(false)
     }
 
     private func addConstraints() {
-        addConstrainedSubviews([textsStackView, buttonsStackView]) {
-            textsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-
+        scrollView.addConstrainedSubviews([textsStackView]) {
+            textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(0),
+                .trailing(0),
+            ]))
+            textsStackView.topAnchor.constraint(
+                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
+            textsStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
+        }
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+        }
+        addConstrainedSubviews([buttonsStackView]) {
             buttonsStackView
                 .pinEdgesToSuperviewMargins(.all().excluding(.top))
+            scrollView.bottomAnchor.constraint(equalTo: buttonsStackView.topAnchor)
+
         }
     }
 
