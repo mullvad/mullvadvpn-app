@@ -337,6 +337,7 @@ message ObfuscationEndpoint {
     UDP2TCP = 0;
     SHADOWSOCKS = 1;
     QUIC = 2;
+    LWO = 3;
   }
 
   string address = 1;
@@ -432,6 +433,7 @@ message ObfuscationSettings {
     UDP2TCP = 2;
     SHADOWSOCKS = 3;
     QUIC = 4;
+    LWO = 5;
   }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscationSettings udp2tcp = 2;
