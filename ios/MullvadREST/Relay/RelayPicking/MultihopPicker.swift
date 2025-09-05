@@ -10,19 +10,11 @@ import MullvadSettings
 import MullvadTypes
 
 struct MultihopPicker: RelayPicking {
-    let obfuscation: ObfuscatorPortSelection
-    let constraints: RelayConstraints
+    let obfuscation: RelayObfuscation
+    let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
-    let daitaSettings: DAITASettings
 
     func pick() throws -> SelectedRelays {
-        let exitCandidates = try RelaySelector.WireGuard.findCandidates(
-            by: constraints.exitLocations,
-            in: obfuscation.exitRelays,
-            filterConstraint: constraints.filter,
-            daitaEnabled: false
-        )
-
         /*
          Relay selection is prioritised in the following order:
          1. Both entry and exit constraints match only a single relay. Both relays are selected.
@@ -47,20 +39,28 @@ struct MultihopPicker: RelayPicking {
             relayPicker: self
         )
 
-        do {
-            let entryCandidates = try RelaySelector.WireGuard.findCandidates(
-                by: daitaSettings.isAutomaticRouting ? .any : constraints.entryLocations,
-                in: obfuscation.entryRelays,
-                filterConstraint: constraints.filter,
-                daitaEnabled: daitaSettings.daitaState.isEnabled
-            )
+        let constraints = tunnelSettings.relayConstraints
+        let daitaSettings = tunnelSettings.daita
 
-            return try decisionFlow.pick(
-                entryCandidates: entryCandidates,
-                exitCandidates: exitCandidates,
-                daitaAutomaticRouting: daitaSettings.isAutomaticRouting
-            )
-        }
+        let entryCandidates = try RelaySelector.WireGuard.findCandidates(
+            by: daitaSettings.isAutomaticRouting ? .any : constraints.entryLocations,
+            in: obfuscation.obfuscatedRelays,
+            filterConstraint: constraints.filter,
+            daitaEnabled: daitaSettings.daitaState.isEnabled
+        )
+
+        let exitCandidates = try RelaySelector.WireGuard.findCandidates(
+            by: constraints.exitLocations,
+            in: obfuscation.allRelays,
+            filterConstraint: constraints.filter,
+            daitaEnabled: false
+        )
+
+        return try decisionFlow.pick(
+            entryCandidates: entryCandidates,
+            exitCandidates: exitCandidates,
+            daitaAutomaticRouting: daitaSettings.isAutomaticRouting
+        )
     }
 
     func exclude(
