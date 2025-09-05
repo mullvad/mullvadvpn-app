@@ -1,3 +1,3 @@
-export * from './useSettingsShowBetaReleases';
-export * from './useSettingsRelaySettings';
-export * from './useSettingsDaitaEnabled';
+export * from './use-settings-daita-enabled';
+export * from './use-settings-relay-settings';
+export * from './use-settings-show-beta-releases';
