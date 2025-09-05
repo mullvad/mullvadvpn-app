@@ -58,29 +58,35 @@ reason = "This CVE only affect Multiplatform Gradle Projects, which this project
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2024-47535" # GHSA-xq3w-v528-46rv
-ignoreUntil = 2025-09-13
+ignoreUntil = 2025-11-01
 reason = "Only impacting Windows."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2025-25193" # GHSA-389x-839f-4rhx
-ignoreUntil = 2025-09-13
+ignoreUntil = 2025-11-01
 reason = "Only impacting Windows."
 
 # netty: Crash when using native SSLEngine
 [[IgnoredVulns]]
 id = "CVE-2025-24970" # GHSA-4g8c-wm8x-jfhw
-ignoreUntil = 2025-09-13
+ignoreUntil = 2025-11-01
 reason = "Netty is not used in conjunction with SSL."
 
 # netty: MadeYouReset HTTP/2 DDoS vulnerability
 [[IgnoredVulns]]
 id = "CVE-2025-55163" # GHSA-prj3-ccx8-p6x4
-ignoreUntil = 2025-11-14
+ignoreUntil = 2025-11-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # netty: Netty's decoders vulnerable to DoS via zip bomb style attack
 [[IgnoredVulns]]
 id = "CVE-2025-58057" # GHSA-3p8m-j85q-pgmj
-ignoreUntil = 2025-12-04
+ignoreUntil = 2025-11-01
 reason = "We do not use netty decoders"
+
+# netty: Netty vulnerable to request smuggling due to incorrect parsing of chunk extensions
+[[IgnoredVulns]]
+id = "CVE-2025-58056" #  GHSA-fghv-69vj-qj49
+ignoreUntil = 2025-11-01
+reason = "No impact on this app since it uses UDS rather than HTTP2."
