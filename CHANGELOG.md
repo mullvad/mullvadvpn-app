@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
-## [2025.9] - 2025-09-8
+## [2025.9] - 2025-09-08
 This release is identical to 2025.9-beta1.
 
 
