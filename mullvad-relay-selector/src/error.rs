@@ -1,7 +1,7 @@
 //! Definition of relay selector errors
 #![allow(dead_code)]
 
-use crate::{detailer, relay_selector::relays::WireguardConfig};
+use crate::{detailer, query::RelayQuery, relay_selector::relays::WireguardConfig};
 use mullvad_types::{relay_constraints::MissingCustomBridgeSettings, relay_list::Relay};
 use talpid_types::net::IpVersion;
 
@@ -16,8 +16,8 @@ pub enum Error {
     #[error("The combination of relay constraints is invalid")]
     InvalidConstraints,
 
-    #[error("No relays matching current constraints")]
-    NoRelay,
+    #[error("No relays matching current constraints: {0:?}")]
+    NoRelay(Box<RelayQuery>),
 
     #[error("No bridges matching current constraints")]
     NoBridge,
