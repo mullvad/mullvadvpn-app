@@ -6,10 +6,15 @@
 #include "rules/persistent/blockall.h"
 #include "rules/baseline/blockall.h"
 #include "libwfp/ipnetwork.h"
+#include "libwfp/filterengine.h"
+#include "libwfp/objectenumerator.h"
 #include <windows.h>
 #include <libcommon/error.h>
 #include <libcommon/string.h>
 #include <optional>
+#include <psapi.h>
+#include <sstream>
+#include <set>
 
 namespace
 {
@@ -21,6 +26,84 @@ void *g_logSinkContext = nullptr;
 
 FwContext *g_fwContext = nullptr;
 
+void
+LogActiveWfpSessions()
+{
+	if (nullptr == g_logSink)
+	{
+		return;
+	}
+
+	try
+	{
+		auto engine = wfp::FilterEngine::DynamicSession();
+		std::set<DWORD> sessionPids;
+
+		wfp::ObjectEnumerator::Sessions(*engine, [&sessionPids](const FWPM_SESSION0 &session) -> bool
+		{
+			if (session.processId != 0)
+			{
+				sessionPids.insert(session.processId);
+			}
+			return true;
+		});
+
+		if (sessionPids.empty())
+		{
+			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "No active WFP sessions found", g_logSinkContext);
+		}
+
+		std::stringstream ss;
+		ss << "Active WFP sessions from processes: ";
+		bool first = true;
+
+		for (DWORD pid : sessionPids)
+		{
+			if (!first)
+			{
+				ss << ", ";
+			}
+			first = false;
+
+			HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+			if (nullptr == hProcess)
+			{
+				// Log pid only if we cannot open the process
+				ss << "PID:" << pid;
+				continue;
+			}
+
+			wchar_t processPath[MAX_PATH];
+			DWORD pathSize = MAX_PATH;
+			if (QueryFullProcessImageNameW(hProcess, 0, processPath, &pathSize))
+			{
+				// Extract just the filename
+				wchar_t *filename = wcsrchr(processPath, L'\\');
+				if (nullptr != filename)
+				{
+					filename++;
+				}
+				else
+				{
+					filename = processPath;
+				}
+				ss << common::string::ToAnsi(filename);
+			}
+			else
+			{
+				// Log pid only if we cannot obtain the path
+				ss << "PID:" << pid;
+			}
+			CloseHandle(hProcess);
+		}
+
+		g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
+	}
+	catch (...)
+	{
+	}
+}
+
 WINFW_POLICY_STATUS
 HandlePolicyException(const common::error::WindowsException &err)
 {
@@ -31,7 +114,9 @@ HandlePolicyException(const common::error::WindowsException &err)
 
 	if (FWP_E_TIMEOUT == err.errorCode())
 	{
-		// TODO: Detect software that may cause this
+		// Log processes potentially holding the transaction lock
+		LogActiveWfpSessions();
+
 		return WINFW_POLICY_STATUS_LOCK_TIMEOUT;
 	}
 
