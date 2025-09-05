@@ -75,10 +75,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
             !isReady
         }
 
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-        )
+        enableEdgeToEdge()
 
         super.onCreate(savedInstanceState)
 
