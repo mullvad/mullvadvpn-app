@@ -9,6 +9,30 @@
 import Foundation
 import SwiftUICore
 
+protocol AccountDeletionBackEnd {
+    var accountNumber: String? { get }
+
+    func deleteAccount(accountNumber: String) async throws
+}
+
+struct TunnelManagerAccountDeletionBackEnd: AccountDeletionBackEnd {
+    let tunnelManager: TunnelManager
+
+    var accountNumber: String? {
+        tunnelManager.deviceState.accountData?.number
+    }
+
+    func deleteAccount(accountNumber: String) async throws {
+        try await tunnelManager.deleteAccount(accountNumber: accountNumber)
+    }
+}
+
+struct MockAccountDeletionBackEnd: AccountDeletionBackEnd {
+    let accountNumber: String?
+
+    func deleteAccount(accountNumber: String) async throws {}
+}
+
 class AccountDeletionViewModel: ObservableObject {
     enum State {
         case initial
@@ -31,22 +55,30 @@ class AccountDeletionViewModel: ObservableObject {
     @Published var enteredAccountNumberSuffix = ""
     @Published var state: State = .initial
 
-    private let tunnelManager: TunnelManager?
+    private let backEnd: AccountDeletionBackEnd
 
     var onConclusion: ((Bool) -> Void)?
 
     var tunnelManagerAccountNumber: String {
-        tunnelManager?.deviceState.accountData?.number ?? ""
+        backEnd.accountNumber ?? ""
     }
 
     var accountNumberSuffix: Substring {
         accountNumber.suffix(4)
     }
 
-    init(tunnelManager: TunnelManager? = nil, onConclusion: ((Bool) -> Void)? = nil) {
-        self.accountNumber = tunnelManager?.deviceState.accountData?.number.formattedAccountNumber ?? "testtesttesttest"
-        self.tunnelManager = tunnelManager
+    init(tunnelManager: TunnelManager, onConclusion: ((Bool) -> Void)? = nil) {
+        self.backEnd = TunnelManagerAccountDeletionBackEnd(tunnelManager: tunnelManager)
+        self.accountNumber = tunnelManager.deviceState.accountData?.number.formattedAccountNumber ?? ""
+//        self.tunnelManager = tunnelManager
         self.onConclusion = onConclusion
+    }
+
+    // for SwiftUI previews
+    init(mockAccountNumber: String?) {
+        self.backEnd = MockAccountDeletionBackEnd(accountNumber: mockAccountNumber)
+        self.accountNumber = mockAccountNumber ?? ""
+        self.onConclusion = nil
     }
 
     var messageText: AttributedString {
@@ -79,7 +111,7 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     func validate(input: String) -> Result<String, Error> {
-        if let deviceAccountNumber = tunnelManager?.deviceState.accountData?.number,
+        if let deviceAccountNumber = backEnd.accountNumber,
            let fourLastDigits = deviceAccountNumber.split(every: 4).last,
            fourLastDigits == input {
             return .success(deviceAccountNumber)
@@ -89,7 +121,6 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     @MainActor func deleteButtonTapped() {
-        guard let tunnelManager else { return }
         switch validate(input: enteredAccountNumberSuffix) {
         case let .success(accountNumber):
             doDelete(accountNumber: accountNumber)
@@ -103,16 +134,15 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     @MainActor func doDelete(accountNumber: String) {
-        guard let tunnelManager else { return }
         state = .working
         Task { [weak self] in
             guard let self else { return }
             do {
-                try await tunnelManager.deleteAccount(accountNumber: accountNumber)
+                try await backEnd.deleteAccount(accountNumber: accountNumber)
                 self.state = State.initial
                 self.onConclusion?(true)
             } catch {
-                if tunnelManager.deviceState.accountData == nil {
+                if backEnd.accountNumber == nil {
                     // the account is gone from the device, though
                     // the network call failed. In any case, UI state will
                     // be broken, so go back to login
