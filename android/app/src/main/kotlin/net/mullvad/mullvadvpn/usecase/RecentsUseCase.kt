@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -15,6 +14,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.combine
 
 class RecentsUseCase(
     private val customListsRelayItemUseCase: FilterCustomListsRelayItemUseCase,
@@ -29,7 +29,16 @@ class RecentsUseCase(
             customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
             filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
             customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
-        ) { recents, entryRelayList, entryCustomLists, exitRelayList, exitCustomLists ->
+            filteredRelayListUseCase(RelayListType.Single),
+            customListsRelayItemUseCase(RelayListType.Single),
+        ) {
+            recents,
+            entryRelayList,
+            entryCustomLists,
+            exitRelayList,
+            exitCustomLists,
+            singleRelayList,
+            singleCustomList ->
             recents?.mapNotNull { recent ->
                 when (recent) {
                     is Recent.Multihop -> {
@@ -43,7 +52,8 @@ class RecentsUseCase(
                         }
                     }
                     is Recent.Singlehop -> {
-                        val relayListItem = recent.location.findItem(exitCustomLists, exitRelayList)
+                        val relayListItem =
+                            recent.location.findItem(singleCustomList, singleRelayList)
 
                         relayListItem?.let { Hop.Single(it) }
                     }
@@ -66,7 +76,7 @@ class RecentsUseCase(
         relayList: List<RelayItem.Location.Country>,
     ): RelayItem? =
         when (this) {
-            is CustomListId -> customLists.firstOrNull { this == it.id }
+            is CustomListId -> customLists.firstOrNull { this == it.id && it.hasChildren }
             is GeoLocationId -> relayList.findByGeoLocationId(this)
         }
 }
