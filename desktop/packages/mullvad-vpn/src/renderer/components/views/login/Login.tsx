@@ -18,6 +18,8 @@ import {
   Spinner,
   TitleMedium,
 } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { formatHtml } from '../../../lib/html-formatter';
 import { IconBadge } from '../../../lib/icon-badge';
@@ -26,7 +28,6 @@ import { LoginState } from '../../../redux/account/reducers';
 import { useSelector } from '../../../redux/store';
 import Accordion from '../../Accordion';
 import { AppMainHeader } from '../../app-main-header';
-import { Container, Layout } from '../../Layout';
 import ClearAccountHistoryDialog from './ClearAccountHistoryDialog';
 import CreateAccountDialog from './CreateAccountDialog';
 import {
@@ -42,8 +43,6 @@ import {
   StyledDropdownSpacer,
   StyledFooter,
   StyledInput,
-  StyledInputButton,
-  StyledInputSubmitIcon,
   StyledLoginForm,
   StyledStatusIcon,
   StyledTitle,
@@ -138,24 +137,32 @@ class Login extends React.Component<IProps, IState> {
     const allowInteraction = this.allowInteraction();
 
     return (
-      <Layout>
-        <AppMainHeader>
-          <AppMainHeader.SettingsButton disabled={!allowInteraction} />
-        </AppMainHeader>
-        <Container>
-          <StyledTopInfo>
-            {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
-          </StyledTopInfo>
+      <View>
+        <FlexColumn $gap="large">
+          <AppMainHeader>
+            <AppMainHeader.SettingsButton disabled={!allowInteraction} />
+          </AppMainHeader>
+          <View.Container size="3">
+            <FlexColumn $gap="medium">
+              <StyledTopInfo>
+                {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
+              </StyledTopInfo>
 
-          <StyledLoginForm>
-            <StyledTitle aria-live="polite">{this.formTitle()}</StyledTitle>
+              <StyledLoginForm>
+                <StyledTitle aria-live="polite">{this.formTitle()}</StyledTitle>
 
-            {this.createLoginForm()}
-          </StyledLoginForm>
-
-          <StyledFooter $show={allowInteraction}>{this.createFooter()}</StyledFooter>
-        </Container>
-      </Layout>
+                {this.createLoginForm()}
+              </StyledLoginForm>
+            </FlexColumn>
+          </View.Container>
+        </FlexColumn>
+        <StyledFooter
+          $flexDirection="column"
+          $show={allowInteraction}
+          $padding={{ horizontal: 'large', bottom: 'large', top: 'medium' }}>
+          {this.createFooter()}
+        </StyledFooter>
+      </View>
     );
   }
 
@@ -358,55 +365,56 @@ class Login extends React.Component<IProps, IState> {
           <Label htmlFor={inputId} data-testid="subtitle">
             {this.formSubtitle()}
           </Label>
-          <StyledAccountInputGroup
-            $active={allowInteraction && this.state.isActive}
-            $editable={allowInteraction}
-            $error={hasError}
-            onSubmit={this.onSubmit}>
-            <StyledAccountInputBackdrop>
-              <StyledInput
-                id={inputId}
-                allowedCharacters="[0-9]"
-                separator=" "
-                groupLength={4}
-                placeholder="0000 0000 0000 0000"
-                value={this.props.accountNumber || ''}
-                disabled={!allowInteraction}
-                onFocus={this.onFocus}
-                onBlur={this.onBlur}
-                handleChange={this.onInputChange}
-                autoFocus={true}
-                ref={this.accountInput}
-                aria-autocomplete="list"
-              />
-              <StyledInputButton
+          <form onSubmit={this.onSubmit}>
+            <FlexColumn $gap="large">
+              <StyledAccountInputGroup
+                $active={allowInteraction && this.state.isActive}
+                $editable={allowInteraction}
+                $error={hasError}>
+                <StyledAccountInputBackdrop>
+                  <StyledInput
+                    id={inputId}
+                    allowedCharacters="[0-9]"
+                    separator=" "
+                    groupLength={4}
+                    placeholder="0000 0000 0000 0000"
+                    value={this.props.accountNumber || ''}
+                    disabled={!allowInteraction}
+                    onFocus={this.onFocus}
+                    onBlur={this.onBlur}
+                    handleChange={this.onInputChange}
+                    autoFocus={true}
+                    ref={this.accountInput}
+                    aria-autocomplete="list"
+                  />
+                </StyledAccountInputBackdrop>
+                <Accordion expanded={this.shouldShowAccountHistory()}>
+                  <StyledAccountDropdownContainer>
+                    <AccountDropdown
+                      item={this.props.accountHistory}
+                      onSelect={this.onSelectAccountFromHistory}
+                      onRemove={this.onClearAccountHistory}
+                    />
+                  </StyledAccountDropdownContainer>
+                </Accordion>
+              </StyledAccountInputGroup>
+              <Button
                 type="submit"
-                $visible={allowLogin}
+                variant="success"
                 disabled={!allowLogin}
                 aria-label={
                   // TRANSLATORS: This is used by screenreaders to communicate the login button.
                   messages.pgettext('accessibility', 'Login')
                 }>
-                <StyledInputSubmitIcon
-                  $visible={
-                    this.props.loginState.type !== 'logging in' &&
-                    !this.props.isPerformingPostUpgrade
+                <Button.Text>
+                  {
+                    // TRANSLATORS: Label for the login button.
+                    messages.pgettext('login-view', 'Login')
                   }
-                  icon="chevron-right"
-                  size="large"
-                />
-              </StyledInputButton>
-            </StyledAccountInputBackdrop>
-            <Accordion expanded={this.shouldShowAccountHistory()}>
-              <StyledAccountDropdownContainer>
-                <AccountDropdown
-                  item={this.props.accountHistory}
-                  onSelect={this.onSelectAccountFromHistory}
-                  onRemove={this.onClearAccountHistory}
-                />
-              </StyledAccountDropdownContainer>
-            </Accordion>
-          </StyledAccountInputGroup>
+                </Button.Text>
+              </Button>
+            </FlexColumn>
+          </form>
         </Flex>
 
         <ClearAccountHistoryDialog
@@ -511,6 +519,7 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
           <Box $height="48px" $width="48px" center>
             <StyledAccountDropdownItemIconButton
               onClick={handleRemove}
+              type="button"
               aria-controls={itemId}
               aria-label={sprintf(
                 // TRANSLATORS: This is used by screenreaders to communicate the "x" button next to a saved account number.
