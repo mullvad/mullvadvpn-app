@@ -1562,8 +1562,8 @@ impl Daemon {
                         error.display_chain_with_msg("Failed to update account history")
                     );
                 }
-                if self.settings.update_default_location {
-                    if let Err(e) = self
+                if self.settings.update_default_location
+                    && let Err(e) = self
                         .settings
                         .update(move |settings| settings.update_default_location = false)
                         .await
@@ -1574,7 +1574,6 @@ impl Daemon {
                             e.display_chain_with_msg("Unable to save has_updated_default_country")
                         );
                     }
-                }
                 if *self.target_state == TargetState::Secured {
                     log::debug!("Initiating tunnel restart because the account number changed");
                     self.reconnect_tunnel();
@@ -2389,8 +2388,8 @@ impl Daemon {
                 Self::oneshot_send(tx, Err(e), "set_relay_settings response");
             }
         }
-        if self.settings.update_default_location {
-            if let Err(e) = self
+        if self.settings.update_default_location
+            && let Err(e) = self
                 .settings
                 .update(move |settings| settings.update_default_location = false)
                 .await
@@ -2401,7 +2400,6 @@ impl Daemon {
                     e.display_chain_with_msg("Unable to save has_updated_default_country")
                 );
             }
-        }
     }
 
     async fn on_set_allow_lan(&mut self, tx: ResponseTx<(), settings::Error>, allow_lan: bool) {
