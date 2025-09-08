@@ -190,7 +190,7 @@ impl Server {
             && &proxy_uri.hostname != hostname
         {
             let valid_uri = ProxyUri {
-                hostname: hostname.to_string(),
+                hostname: hostname.clone(),
                 ..proxy_uri
             };
 

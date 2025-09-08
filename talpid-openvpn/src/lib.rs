@@ -345,7 +345,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 #[cfg(target_os = "linux")]
 fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute>> {
     let tun_interface = env.get("dev").ok_or(Error::MissingTunnelInterface)?;
-    let tun_node = talpid_routing::Node::device(tun_interface.to_string());
+    let tun_node = talpid_routing::Node::device(tun_interface.clone());
     let mut routes = HashSet::new();
     for network in &["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()] {
         routes.insert(RequiredRoute::new(*network, tun_node.clone()).use_main_table(false));
@@ -907,8 +907,7 @@ mod event_server {
         ) -> std::result::Result<TunnelMetadata, tonic::Status> {
             let tunnel_alias = env
                 .get("dev")
-                .ok_or_else(|| tonic::Status::invalid_argument("missing tunnel alias"))?
-                .to_string();
+                .ok_or_else(|| tonic::Status::invalid_argument("missing tunnel alias"))?.clone();
 
             let mut ips = vec![
                 env.get("ifconfig_local")
