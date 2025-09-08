@@ -15,13 +15,19 @@ import { useShowLinuxApplicationList, useShowNoSearchResult } from './hooks';
 import { LinuxSettingsContextProvider, useLinuxSettingsContext } from './LinuxSettingsContext';
 
 function LinuxSettingsInner() {
-  const { getLinuxSplitTunnelingApplications } = useAppContext();
-  const { searchTerm, setApplications, setSearchTerm } = useLinuxSettingsContext();
+  const { getSplitTunnelingSupported, getLinuxSplitTunnelingApplications } = useAppContext();
+  const { searchTerm, setApplications, setSearchTerm, setSplitTunnelingSupported } =
+    useLinuxSettingsContext();
   const runAfterTransition = useAfterTransition();
   const showLinuxApplicationList = useShowLinuxApplicationList();
   const showNoSearchResult = useShowNoSearchResult();
 
-  const updateApplications = useEffectEvent(() => {
+  const onMount = useEffectEvent(() => {
+    runAfterTransition(async () => {
+      const splitTunnelingSupported = await getSplitTunnelingSupported();
+      setSplitTunnelingSupported(splitTunnelingSupported);
+    });
+
     runAfterTransition(async () => {
       const applications = await getLinuxSplitTunnelingApplications();
       setApplications(applications);
@@ -33,7 +39,7 @@ function LinuxSettingsInner() {
   // Enable these rules again when eslint can lint useEffectEvent properly.
   // eslint-disable-next-line react-compiler/react-compiler
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => void updateApplications(), []);
+  useEffect(() => void onMount(), []);
 
   return (
     <>
