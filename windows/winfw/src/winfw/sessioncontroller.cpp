@@ -60,7 +60,6 @@ bool CheckpointKeyToIndex(const std::vector<SessionRecord> &container, uint32_t 
 
 SessionController::SessionController(std::unique_ptr<wfp::FilterEngine> &&engine)
 	: m_engine(std::move(engine))
-	, m_identityRegistry(MullvadGuids::Registry(MullvadGuids::IdentityQualifier::IncludePersistent))
 	, m_activeTransaction(false)
 {
 }
@@ -259,8 +258,9 @@ void SessionController::rewindState(size_t steps)
 
 void SessionController::validateObject(const wfp::IIdentifiable &object) const
 {
-	if (m_identityRegistry.end() == m_identityRegistry.find(object.id()))
+	if (object.providerId() != MullvadGuids::Provider()
+		&& object.providerId() != MullvadGuids::ProviderPersistent())
 	{
-		THROW_ERROR("Attempting to install non-registered WFP object");
+		THROW_ERROR("WFP object with unexpected provider");
 	}
 }
