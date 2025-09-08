@@ -1662,8 +1662,8 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": [
-                    "103.139.178.195",
-                    "103.139.178.194"
+                    "103.139.178.194",
+                    "103.139.178.195"
                   ]
                 }
               },
@@ -1749,8 +1749,8 @@
                   "daita": false,
                   "quic": {
                     "addr_in": [
-                      "146.70.198.126",
-                      "2a0d:5600:9:c::c101"
+                      "2a0d:5600:9:c::c101",
+                      "146.70.198.126"
                     ],
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-001.blockerad.eu"
@@ -12858,8 +12858,8 @@
                   "daita": false,
                   "quic": {
                     "addr_in": [
-                      "89.37.63.195",
-                      "2a02:6ea0:1508:4::c101"
+                      "2a02:6ea0:1508:4::c101",
+                      "89.37.63.195"
                     ],
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-204.blockerad.eu"
