@@ -209,9 +209,9 @@ impl<'a> GeographicLocationConstraintFormatter<'a> {
         };
 
         let country =
-            country_code.and_then(|country_code| cache.lookup_country(country_code.to_string()));
+            country_code.and_then(|country_code| cache.lookup_country(country_code.clone()));
         let city = city_code.and_then(|city_code| {
-            country.and_then(|country| country.lookup_city(city_code.to_string()))
+            country.and_then(|country| country.lookup_city(city_code.clone()))
         });
 
         Self {

@@ -205,7 +205,7 @@ fn print_connection_info(
 }
 
 pub fn format_location(location: &GeoIpLocation) -> String {
-    let mut formatted_location = location.country.to_string();
+    let mut formatted_location = location.country.clone();
     if let Some(city) = &location.city {
         formatted_location.push_str(&format!(", {city}"));
     }
