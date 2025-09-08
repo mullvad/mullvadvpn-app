@@ -49,7 +49,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository()
     private(set) var appPreferences = AppPreferences()
     private(set) var shadowsocksLoader: ShadowsocksLoader!
-    private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private(set) var relaySelector: RelaySelectorWrapper!
     private var launchArguments = LaunchArguments()
@@ -163,12 +162,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSessionTransport.urlSession)
-
-        configuredTransportProvider = ProxyConfigurationTransportProvider(
-            shadowsocksLoader: shadowsocksLoader,
-            addressCache: addressCache,
-            encryptedDNSTransport: encryptedDNSTransport
-        )
 
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,

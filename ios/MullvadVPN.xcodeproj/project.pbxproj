@@ -772,7 +772,6 @@
 		A91D78E42B03C01600FCD5D3 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		A91EBEDA2C1337040004A84D /* RetryStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91EBED92C1337040004A84D /* RetryStrategyTests.swift */; };
 		A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */; };
-		A932D9EF2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9EE2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift */; };
 		A932D9F32B5EB61100999395 /* HeadRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F22B5EB61100999395 /* HeadRequestTests.swift */; };
 		A932D9F52B5EBB9D00999395 /* RESTTransportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */; };
 		A935594C2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */; };
@@ -2354,7 +2353,6 @@
 		A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredDeviceData.swift; sourceTree = "<group>"; };
 		A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceState.swift; sourceTree = "<group>"; };
 		A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV4.swift; sourceTree = "<group>"; };
-		A932D9EE2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationTransportProvider.swift; sourceTree = "<group>"; };
 		A932D9F22B5EB61100999395 /* HeadRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadRequestTests.swift; sourceTree = "<group>"; };
 		A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportStub.swift; sourceTree = "<group>"; };
 		A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAvailabilityTestRequest.swift; sourceTree = "<group>"; };
@@ -4857,7 +4855,6 @@
 				7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
 				F0E5B2F62C9C689C0007F78C /* EncryptedDNS */,
-				A932D9EE2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
 				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
 				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
@@ -5957,7 +5954,6 @@
 				F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */,
 				F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */,
 				F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */,
-				A932D9EF2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift in Sources */,
 				F01528BB2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift in Sources */,
 				7AD63A392CD520FD00445268 /* RelayObfuscator.swift in Sources */,
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
