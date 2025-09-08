@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
@@ -50,6 +51,7 @@ class SearchLocationViewModel(
     private val filterChipUseCase: FilterChipUseCase,
     private val selectHopUseCase: SelectHopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
+    private val settingsRepository: SettingsRepository,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -89,6 +91,7 @@ class SearchLocationViewModel(
                         relayCountries = relayCountries,
                     )
                 val expandedItems = expandSet.with(expandOverrides)
+                val settings = settingsRepository.settingsUpdates.value
                 Lce.Content(
                     SearchLocationUiState(
                         searchTerm = searchTerm,
@@ -102,10 +105,14 @@ class SearchLocationViewModel(
                                 selectedByThisEntryExitList =
                                     selectedItem.selectedByThisEntryExitList(relayListType),
                                 selectedByOtherEntryExitList =
-                                    selectedItem.selectedByOtherEntryExitList(
-                                        relayListType,
-                                        customLists,
-                                    ),
+                                    if (ignoreEntrySelection(settings, relayListType)) {
+                                        null
+                                    } else {
+                                        selectedItem.selectedByOtherEntryExitList(
+                                            relayListType,
+                                            customLists,
+                                        )
+                                    },
                                 expandedItems = expandedItems,
                             ),
                         customLists = customLists,

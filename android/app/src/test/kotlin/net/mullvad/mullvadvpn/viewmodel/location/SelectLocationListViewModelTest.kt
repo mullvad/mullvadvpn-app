@@ -3,9 +3,13 @@ package net.mullvad.mullvadvpn.viewmodel.location
 import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -26,6 +30,7 @@ import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.Lce
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -68,6 +73,14 @@ class SelectLocationListViewModelTest {
         every { mockCustomListRelayItemsUseCase() } returns customListRelayItems
         every { mockSettingsRepository.settingsUpdates } returns settings
         every { recentsUseCase(any()) } returns recentsRelayItems
+
+        mockkStatic(RELAY_ITEM_LIST_CREATOR_CLASS)
+        mockkStatic(LOCATION_UTIL_CLASS)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkAll()
     }
 
     @Test
@@ -127,6 +140,40 @@ class SelectLocationListViewModelTest {
         }
     }
 
+    @Test
+    fun `given relay list type exit and entry blocked isEntryBlocked should be true`() = runTest {
+        // Arrange
+        viewModel =
+            createSelectLocationListViewModel(RelayListType.Multihop(MultihopRelayListType.EXIT))
+        filteredRelayList.value = testCountries
+        val exitLocation = Constraint.Only(GeoLocationId.Country("us"))
+        selectedLocationFlow.value =
+            RelayItemSelection.Multiple(
+                entryLocation = Constraint.Only(GeoLocationId.Country("se")),
+                exitLocation = exitLocation,
+            )
+        every { settings.value.entryBlocked() } returns true
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem()
+
+            verify {
+                relayListItems(
+                    relayListType = RelayListType.Multihop(MultihopRelayListType.EXIT),
+                    relayCountries = testCountries,
+                    customLists = any(),
+                    recents = any(),
+                    selectedItem = any(),
+                    selectedByThisEntryExitList = exitLocation.getOrNull(),
+                    selectedByOtherEntryExitList = null,
+                    expandedItems = emptySet(),
+                    isEntryBlocked = true,
+                )
+            }
+        }
+    }
+
     private fun createSelectLocationListViewModel(relayListType: RelayListType) =
         SelectLocationListViewModel(
             relayListType = relayListType,
@@ -157,6 +204,11 @@ class SelectLocationListViewModelTest {
         }
 
     companion object {
+        private const val RELAY_ITEM_LIST_CREATOR_CLASS =
+            "net.mullvad.mullvadvpn.viewmodel.location.RelayItemListCreatorKt"
+        private const val LOCATION_UTIL_CLASS =
+            "net.mullvad.mullvadvpn.viewmodel.location.LocationUtilKt"
+
         private val testCountries =
             listOf(
                 RelayItem.Location.Country(
