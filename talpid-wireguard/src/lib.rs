@@ -1,4 +1,4 @@
-//! Manage WireGuard tunnels.
+//! Manage WireGuard tunnelanne.
 
 #![deny(missing_docs)]
 
@@ -20,6 +20,7 @@ use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
+use tunnel_obfuscation::Obfuscator;
 
 #[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
@@ -156,6 +157,8 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
+        use std::net::{Ipv4Addr, Ipv6Addr};
+
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
@@ -169,25 +172,78 @@ impl WireguardMonitor {
 
         let endpoint_addrs = [params.get_next_hop_endpoint().address.ip()];
 
-        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        //let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscation_mtu = route_mtu;
-        let obfuscator = args
-            .runtime
-            .block_on(obfuscation::apply_obfuscation_config(
-                &mut config,
+        let (obfs_tx, obfs_rx, obfuscator_channels) = {
+            let capacity = 100;
+            let source_v4 = std::net::SocketAddr::from((Ipv4Addr::new(10, 0, 0, 1), 0)); // TODO: Is this correct?
+
+            tunnel_obfuscation::new_packet_channels(capacity, source_v4)
+        };
+
+        let quic_obfuscator = {
+            let obfuscator_config = config.obfuscator_config.as_ref().unwrap();
+            let settings = obfuscation::settings_from_config(
+                obfuscator_config,
                 obfuscation_mtu,
-                close_obfs_sender.clone(),
-            ))?;
+                #[cfg(target_os = "linux")]
+                config.fwmark,
+            );
+
+            args.runtime
+                .block_on(tunnel_obfuscation::create_quic_obfuscator(
+                    &settings,
+                    (obfs_tx, obfs_rx),
+                ))
+                .unwrap()
+                .unwrap()
+        };
+
+        //config.quic_obfuscator = Some(Arc::new((quic_obfuscator, obfuscator_channels)));
+
         // Adjust tunnel MTU again for obfuscation packet overhead
-        if params.options.mtu.is_none()
-            && let Some(obfuscator) = obfuscator.as_ref()
-        {
+        if params.options.mtu.is_none() {
             config.mtu = clamp_tunnel_mtu(
                 params,
-                config.mtu.saturating_sub(obfuscator.packet_overhead()),
+                config.mtu.saturating_sub(quic_obfuscator.packet_overhead()),
             );
         }
+
+        //let obfuscator = Arc::new(AsyncMutex::new(None));
+        // apply_obfuscator_config ??
+        //let obfs = Box::new(quic_obfuscator);
+        //let obfs = obfs.run();
+
+        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        let obfuscator = {
+            let packet_overhead = quic_obfuscator.packet_overhead();
+            let close_obfs_sender = close_obfs_sender.clone();
+            let obfuscation_task = tokio::spawn(async move {
+                let obfuscator = Box::new(quic_obfuscator);
+                match obfuscator.run().await {
+                    Ok(_) => {
+                        let _ = close_obfs_sender.send(CloseMsg::ObfuscatorExpired);
+                    }
+                    Err(error) => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Obfuscation controller failed")
+                        );
+                        let _ = close_obfs_sender
+                            .send(CloseMsg::ObfuscatorFailed(Error::ObfuscationError(error)));
+                    }
+                }
+            });
+
+            Some(ObfuscatorHandle {
+                obfuscation_task,
+                packet_overhead,
+            })
+        };
+
+        let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
 
         // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test
         // the implementation, as DAITA is not currently supported by boringtun.
@@ -197,23 +253,15 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
-        let tunnel = Self::open_tunnel(
-            args.runtime.clone(),
-            &config,
-            #[cfg(target_os = "windows")]
-            args.resource_dir,
-            #[cfg(not(all(target_os = "windows", not(feature = "boringtun"))))]
-            args.tun_provider.clone(),
-            #[cfg(all(windows, not(feature = "boringtun")))]
-            args.route_manager.clone(),
-            #[cfg(target_os = "windows")]
-            setup_done_tx,
-            userspace_wireguard,
-            _log_path,
-        )?;
-        let iface_name = tunnel.get_interface_name();
 
-        let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
+        let tunnel = boringtun::open_boringtun_tunnel(
+            &config,
+            args.tun_provider.clone(),
+            Some(obfuscator_channels),
+        );
+        let tunnel = args.runtime.block_on(tunnel).unwrap();
+
+        let iface_name = tunnel.get_interface_name();
 
         let gateway = config.ipv4_gateway;
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
@@ -228,7 +276,7 @@ impl WireguardMonitor {
 
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
-            tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
+            tunnel: Arc::new(AsyncMutex::new(Some(Box::new(tunnel)))),
             event_hook: args.event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: cancel_token,
@@ -775,7 +823,7 @@ impl WireguardMonitor {
             let f = wireguard_go::open_wireguard_go_tunnel(config, _log_path, tun_provider);
 
             #[cfg(feature = "boringtun")]
-            let f = boringtun::open_boringtun_tunnel(config, tun_provider);
+            let f = boringtun::open_boringtun_tunnel(config, tun_provider, None);
 
             let tunnel = runtime.block_on(f).map(Box::new)?;
             Ok(tunnel)
@@ -806,7 +854,7 @@ impl WireguardMonitor {
                     #[cfg(feature = "boringtun")]
                     {
                         Ok(runtime
-                            .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
+                            .block_on(boringtun::open_boringtun_tunnel(config, tun_provider, None))
                             .map(Box::new)?)
                     }
                 })
