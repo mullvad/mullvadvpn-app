@@ -13,7 +13,9 @@ type LinuxSettingsContext = {
   setApplications: (value: ILinuxSplitTunnelingApplication[]) => void;
   setBrowseError: (value?: string) => void;
   setSearchTerm: (value: string) => void;
+  setShowUnsupportedDialog: (value: boolean) => void;
   setSplitTunnelingSupported: (value: boolean) => void;
+  showUnsupportedDialog: boolean;
   splitTunnelingSupported?: boolean;
 };
 
@@ -34,6 +36,7 @@ export function LinuxSettingsContextProvider({ children }: LinuxSettingsContextP
   const [splitTunnelingSupported, setSplitTunnelingSupported] = useState<boolean | undefined>(
     undefined,
   );
+  const [showUnsupportedDialog, setShowUnsupportedDialog] = useState(false);
 
   const value = useMemo(
     () => ({
@@ -43,7 +46,9 @@ export function LinuxSettingsContextProvider({ children }: LinuxSettingsContextP
       setApplications,
       setBrowseError,
       setSearchTerm,
+      setShowUnsupportedDialog,
       setSplitTunnelingSupported,
+      showUnsupportedDialog,
       splitTunnelingSupported,
     }),
     [
@@ -53,7 +58,9 @@ export function LinuxSettingsContextProvider({ children }: LinuxSettingsContextP
       setApplications,
       setBrowseError,
       setSearchTerm,
+      setShowUnsupportedDialog,
       setSplitTunnelingSupported,
+      showUnsupportedDialog,
       splitTunnelingSupported,
     ],
   );
