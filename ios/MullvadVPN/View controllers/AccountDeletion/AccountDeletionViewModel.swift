@@ -70,7 +70,6 @@ class AccountDeletionViewModel: ObservableObject {
     init(tunnelManager: TunnelManager, onConclusion: ((Bool) -> Void)? = nil) {
         self.backEnd = TunnelManagerAccountDeletionBackEnd(tunnelManager: tunnelManager)
         self.accountNumber = tunnelManager.deviceState.accountData?.number.formattedAccountNumber ?? ""
-//        self.tunnelManager = tunnelManager
         self.onConclusion = onConclusion
     }
 
