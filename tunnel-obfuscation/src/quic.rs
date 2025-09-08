@@ -1,7 +1,7 @@
 //! Quic obfuscation
 
 use async_trait::async_trait;
-use mullvad_masque_proxy::client::{Client, ClientConfig};
+use mullvad_masque_proxy::client::{Client, ClientConfig, SimpleChannelRx, SimpleChannelTx};
 use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
@@ -24,10 +24,18 @@ pub enum Error {
     Fwmark(#[source] io::Error),
 }
 
-#[derive(Debug)]
+//#[derive(Debug)]
 pub struct Quic {
     local_endpoint: SocketAddr,
     config: ClientConfig,
+}
+
+impl std::fmt::Debug for Quic {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Quic")
+            .field("local_endpoint", &self.local_endpoint)
+            .finish()
+    }
 }
 
 #[derive(Debug)]
@@ -121,8 +129,11 @@ impl std::str::FromStr for AuthToken {
 }
 
 impl Quic {
-    pub(crate) async fn new(settings: &Settings) -> Result<Self> {
-        let (local_socket, local_udp_client_addr) =
+    pub(crate) async fn new_with(
+        settings: &Settings,
+        in_proceess_channel: (SimpleChannelTx, SimpleChannelRx),
+    ) -> Result<Self> {
+        let (_local_socket, local_udp_client_addr) =
             Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4()).await?;
         // The address family of the local QUIC client socket has to match the address family
         // of the endpoint we're connecting to. The address itself is not important to consumers wanting
@@ -133,6 +144,7 @@ impl Quic {
         } else {
             SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
         };
+
         let quic_socket = {
             // family
             let domain = match quic_client_local_addr {
@@ -155,7 +167,41 @@ impl Quic {
         };
 
         let config_builder = ClientConfig::builder()
-            .client_socket(local_socket)
+            .local_client(in_proceess_channel)
+            .quinn_socket(quic_socket)
+            //.local_addr(quic_client_local_addr)
+            .server_addr(settings.quic_endpoint)
+            .server_host(settings.hostname.clone())
+            .target_addr(settings.wireguard_endpoint)
+            .auth_header(Some(settings.auth_header()))
+            .mtu(settings.mtu.unwrap_or(1500));
+
+        let config = config_builder.build();
+
+        let quic = Quic {
+            local_endpoint: local_udp_client_addr,
+            config,
+        };
+
+        Ok(quic)
+    }
+
+    pub(crate) async fn new(settings: &Settings) -> Result<Self> {
+        let (_local_socket, local_udp_client_addr) =
+            Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4()).await?;
+        // The address family of the local QUIC client socket has to match the address family
+        // of the endpoint we're connecting to. The address itself is not important to consumers wanting
+        // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
+        // obfuscator is running.
+        let quic_client_local_addr = if settings.quic_endpoint.is_ipv4() {
+            SocketAddr::from((Ipv4Addr::UNSPECIFIED, 0))
+        } else {
+            SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
+        };
+        let udp_channels = todo!();
+        let quic_socket = todo!();
+        let config_builder = ClientConfig::builder()
+            .local_client(udp_channels)
             .quinn_socket(quic_socket)
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())

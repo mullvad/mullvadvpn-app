@@ -80,7 +80,7 @@ fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
     config.entry_peer.endpoint = endpoint;
 }
 
-fn settings_from_config(
+pub fn settings_from_config(
     config: &ObfuscatorConfig,
     mtu: u16,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
@@ -143,8 +143,8 @@ async fn bypass_vpn(
 
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 pub struct ObfuscatorHandle {
-    obfuscation_task: tokio::task::JoinHandle<()>,
-    packet_overhead: u16,
+    pub obfuscation_task: tokio::task::JoinHandle<()>,
+    pub packet_overhead: u16,
 }
 
 impl ObfuscatorHandle {

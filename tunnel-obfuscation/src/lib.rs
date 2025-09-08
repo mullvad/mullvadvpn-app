@@ -1,9 +1,14 @@
 use async_trait::async_trait;
+use quic::Quic;
 use std::net::SocketAddr;
 
 pub mod quic;
 pub mod shadowsocks;
 pub mod udp2tcp;
+
+pub use mullvad_masque_proxy::client::{
+    PacketChannelSimple, SimpleChannelRx, SimpleChannelTx, new_packet_channels,
+};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -50,6 +55,19 @@ pub enum Settings {
     Udp2Tcp(udp2tcp::Settings),
     Shadowsocks(shadowsocks::Settings),
     Quic(quic::Settings),
+}
+
+pub async fn create_quic_obfuscator(
+    settings: &Settings,
+    in_proceess_channel: (SimpleChannelTx, SimpleChannelRx),
+) -> Option<Result<Quic>> {
+    let Settings::Quic(s) = settings else {
+        return None;
+    };
+    let obfuscator = Quic::new_with(s, in_proceess_channel)
+        .await
+        .map_err(Error::CreateQuicObfuscator);
+    Some(obfuscator)
 }
 
 pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {

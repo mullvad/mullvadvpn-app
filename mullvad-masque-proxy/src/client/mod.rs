@@ -1,9 +1,12 @@
 use anyhow::{Context, anyhow};
+use boringtun::{
+    packet::Packet,
+    udp::{UdpRecv, UdpSend, UdpTransport, UdpTransportFactory},
+};
 use bytes::{Buf, Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
 use std::{
-    fs::{self},
-    future, io,
+    fs, future, io,
     net::{Ipv4Addr, SocketAddr},
     path::Path,
     str::FromStr as _,
@@ -13,7 +16,7 @@ use std::{
 use tokio::{
     net::UdpSocket,
     select,
-    sync::{broadcast, mpsc},
+    sync::{Mutex, broadcast, mpsc},
 };
 use typed_builder::TypedBuilder;
 
@@ -38,8 +41,10 @@ const MAX_REDIRECT_COUNT: usize = 1;
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
+// TODO: Make the client agnostic over the local transport.
 pub struct Client {
-    client_socket: Arc<UdpSocket>,
+    local_client_write: SimpleChannelTx,
+    local_client_read: SimpleChannelRx,
 
     /// QUIC endpoint
     quinn_conn: quinn::Connection,
@@ -111,10 +116,12 @@ pub enum Error {
     InvalidHttpRedirect(#[source] anyhow::Error),
 }
 
-#[derive(TypedBuilder, Debug)]
+#[derive(TypedBuilder)]
 pub struct ClientConfig {
     /// Socket that accepts proxy clients
-    pub client_socket: UdpSocket,
+    //pub client_socket: UdpSocket,
+    /// In-process channel that accepts proxy clients
+    pub local_client: (SimpleChannelTx, SimpleChannelRx),
 
     /// Socket to bind the QUIC endpoint socket to
     pub quinn_socket: UdpSocket,
@@ -146,7 +153,7 @@ pub struct ClientConfig {
 }
 
 impl Client {
-    pub async fn connect(config: ClientConfig) -> Result<Self> {
+    pub async fn connect(mut config: ClientConfig) -> Result<Self> {
         let quic_client_config = QuicClientConfig::try_from(config.tls_config)
             .expect("Failed to construct a valid TLS configuration");
 
@@ -189,10 +196,25 @@ impl Client {
         )
         .await?;
 
+        /*
+                let (local_client_write, local_client_read) = {
+                    let params = UdpTransportFactoryParams {
+                        addr_v4: Ipv4Addr::UNSPECIFIED,
+                        addr_v6: Ipv6Addr::UNSPECIFIED,
+                        port: 0,
+                        fwmark: None,
+                    };
+                    let ((local_client_write, local_client_read), _ipv6) =
+                        config.local_client.bind(&params).await.unwrap();
+                    ((local_client_write, local_client_read))
+                };
+        */
+
         Ok(Self {
             quinn_conn: connection,
             connection: h3_connection,
-            client_socket: Arc::new(config.client_socket),
+            local_client_write: config.local_client.0,
+            local_client_read: config.local_client.1,
             request_stream,
             _send_stream: send_stream,
             max_udp_payload_size,
@@ -350,16 +372,16 @@ impl Client {
         let (return_addr_tx, return_addr_rx) = broadcast::channel(1);
 
         let mut client_socket_rx_task = tokio::task::spawn(client_socket_rx_task(
-            self.client_socket.clone(),
+            self.local_client_read,
             client_tx,
             return_addr_tx,
         ));
 
-        let mut client_socket_tx_task = tokio::task::spawn(client_socket_tx_task(
+        let mut client_socket_tx_task = tokio::task::spawn(client_tx_task(
             stream_id,
             server_rx,
             return_addr_rx,
-            self.client_socket.clone(),
+            self.local_client_write,
             Arc::clone(&self.stats),
         ));
 
@@ -453,21 +475,19 @@ async fn server_socket_task(
 }
 
 async fn client_socket_rx_task(
-    client_socket: Arc<UdpSocket>,
+    mut client: impl boringtun::udp::UdpRecv,
     client_tx: mpsc::Sender<Bytes>,
     return_addr_tx: broadcast::Sender<SocketAddr>,
 ) -> Result<()> {
-    let mut client_read_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
+    let mut client_read_buf =
+        //boringtun::packet::PacketBufPool::<{ crate::PACKET_BUFFER_SIZE }>::new(100);
+        boringtun::packet::PacketBufPool::<4096>::new(100);
+    //let mut client_read_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
     let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
 
     loop {
-        client_read_buf.reserve(crate::PACKET_BUFFER_SIZE);
-
-        // this is the variable ID used to signify UDP payloads in HTTP datagrams.
-        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
-
-        let (_bytes_received, recv_addr) = client_socket
-            .recv_buf_from(&mut client_read_buf)
+        let (packet, recv_addr) = client
+            .recv_from(&mut client_read_buf)
             .await
             .map_err(Error::ClientRead)?;
 
@@ -477,9 +497,15 @@ async fn client_socket_rx_task(
                 break;
             }
         }
-        let packet = client_read_buf.split().freeze();
 
-        if client_tx.send(packet).await.is_err() {
+        let mut bytes =
+            BytesMut::with_capacity(packet.len() + crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.size());
+
+        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut bytes);
+        bytes.extend_from_slice(&packet);
+        let bytes = bytes.freeze();
+
+        if client_tx.send(bytes).await.is_err() {
             break;
         };
     }
@@ -487,11 +513,11 @@ async fn client_socket_rx_task(
     Ok(())
 }
 
-async fn client_socket_tx_task(
+async fn client_tx_task(
     stream_id: StreamId,
     mut server_rx: mpsc::Receiver<Datagram>,
     mut return_addr_rx: broadcast::Receiver<SocketAddr>,
-    client_socket: Arc<UdpSocket>,
+    client: impl boringtun::udp::UdpSend,
     stats: Arc<Stats>,
 ) -> Result<()> {
     let mut fragments = Fragments::default();
@@ -523,8 +549,10 @@ async fn client_socket_tx_task(
         let original_payload_len = payload.len();
 
         let send = async |payload: &[u8]| -> Result<()> {
-            client_socket
-                .send_to(payload, return_addr)
+            let bytes = BytesMut::from(payload);
+            let packet = boringtun::packet::Packet::from_bytes(bytes);
+            client
+                .send_to(packet, return_addr)
                 .await
                 .map_err(Error::ClientWrite)?;
             Ok(())
@@ -701,4 +729,152 @@ impl rustls::client::danger::ServerCertVerifier for Approver {
             rustls::SignatureScheme::ED448,
         ]
     }
+}
+
+/// An implementation of [`UdpSend`] using tokio channels. Create using
+/// [`get_packet_channels`].
+#[derive(Clone)]
+pub struct SimpleChannelTx {
+    _tx: mpsc::Sender<Bytes>,
+    _tx_v6: mpsc::Sender<Bytes>,
+}
+
+impl UdpSend for SimpleChannelTx {
+    type SendManyBuf = ();
+
+    async fn send_to(
+        &self,
+        mut packet: boringtun::packet::Packet,
+        _destination: SocketAddr,
+    ) -> io::Result<()> {
+        let bytes = packet.buf_mut().split().freeze();
+        // log::warn!("send_to: {bytes:#?}");
+        self._tx.send(bytes).await.unwrap();
+        Ok(())
+    }
+}
+
+impl UdpTransport for SimpleChannelTx {}
+
+/// An implementation of [`UdpRecv`] using tokio channels. Create using
+/// [`get_packet_channels`].
+pub struct SimpleChannelRx {
+    _rx: mpsc::Receiver<Bytes>,
+    source_addr: SocketAddr,
+}
+
+impl UdpRecv for SimpleChannelRx {
+    type RecvManyBuf = ();
+
+    async fn recv_from(
+        &mut self,
+        _pool: &mut boringtun::packet::PacketBufPool,
+    ) -> io::Result<(Packet, SocketAddr)> {
+        let mbytes = self._rx.recv().await;
+        // TODO: use `pool`, don't allocate
+        match mbytes {
+            Some(bytes) => {
+                //log::warn!("recv_from: {bytes:#?}");
+                let bytes = bytes.into();
+                let packet = Packet::from_bytes(bytes);
+                Ok((packet, self.source_addr))
+            }
+            None => {
+                log::warn!("Did not actually receive anything");
+                Ok((Packet::default(), self.source_addr))
+            }
+        }
+    }
+}
+
+/// An implementation of [`UdpTransportFactory`], producing [`UdpSend`] and
+/// [`UdpRecv`] implementations that use channels to send and receive packets.
+pub struct PacketChannelSimple {
+    _tx: mpsc::Sender<Bytes>,
+
+    _rx: Arc<Mutex<Option<mpsc::Receiver<Bytes>>>>,
+    _rx_v6: Arc<Mutex<Option<mpsc::Receiver<Bytes>>>>,
+
+    source_addr: SocketAddr,
+}
+
+impl std::fmt::Debug for PacketChannelSimple {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("PacketChannelSimple")
+            .field("source_addr", &self.source_addr)
+            .finish()
+    }
+}
+
+impl UdpTransportFactory for PacketChannelSimple {
+    type Send = SimpleChannelTx;
+    type RecvV4 = SimpleChannelRx;
+    type RecvV6 = SimpleChannelRx;
+
+    async fn bind(
+        &mut self,
+        _params: &boringtun::udp::UdpTransportFactoryParams,
+    ) -> io::Result<((Self::Send, Self::RecvV4), (Self::Send, Self::RecvV6))> {
+        log::info!("Binding PacketChannelSimple@{}", self.source_addr);
+        let sender = &self._tx;
+        let sender = SimpleChannelTx {
+            _tx: sender.clone(),
+            _tx_v6: sender.clone(), // TODO: ????/
+        };
+
+        let v4_recv = {
+            let mut v4_rx_mutex_guard = self._rx.clone().try_lock_owned().unwrap();
+            let v4_rx = v4_rx_mutex_guard.take();
+            debug_assert!(v4_rx.is_some());
+            let v4_rx = v4_rx.unwrap();
+
+            SimpleChannelRx {
+                _rx: v4_rx,
+                source_addr: self.source_addr,
+            }
+        };
+
+        let v6_recv = {
+            let mut v6_rx_mutex_guard = self._rx_v6.clone().try_lock_owned().unwrap();
+            let v6_rx = v6_rx_mutex_guard.take();
+            debug_assert!(v6_rx.is_some());
+            let v6_rx = v6_rx.unwrap();
+
+            SimpleChannelRx {
+                _rx: v6_rx,
+                source_addr: self.source_addr,
+            }
+        };
+
+        Ok(((sender.clone(), v4_recv), (sender, v6_recv)))
+    }
+}
+
+pub fn new_packet_channels(
+    capacity: usize,
+    source_addr: SocketAddr,
+) -> (SimpleChannelTx, SimpleChannelRx, PacketChannelSimple) {
+    let (udp_tx, tun_rx) = mpsc::channel(capacity);
+
+    let (tun_tx_v4, udp_rx_v4) = mpsc::channel(capacity);
+    let (tun_tx_v6, udp_rx_v6) = mpsc::channel(capacity);
+
+    // masque
+    let tun_tx = SimpleChannelTx {
+        _tx: tun_tx_v4,
+        _tx_v6: tun_tx_v6,
+    };
+    let tun_rx = SimpleChannelRx {
+        _rx: tun_rx,
+        source_addr,
+    };
+
+    // boringtun
+    let _channel_factory = PacketChannelSimple {
+        _tx: udp_tx,
+        _rx: Arc::new(Mutex::new(Some(udp_rx_v4))),
+        _rx_v6: Arc::new(Mutex::new(Some(udp_rx_v6))),
+        source_addr,
+    };
+    (tun_tx, tun_rx, _channel_factory)
 }

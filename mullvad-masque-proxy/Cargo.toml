@@ -8,6 +8,10 @@ edition.workspace = true
 rust-version.workspace = true
 description = "A limited functionality UDP over HTTP3 proxy"
 
+#[features]
+#default = ["boringtun"] # TODO: Don't
+#boringtun = ["dep:boringtun"]
+
 [dependencies]
 quinn = { version = "0.11", default-features = false, features = ["log", "runtime-tokio", "rustls-ring"] }
 thiserror = { workspace = true }
@@ -22,6 +26,17 @@ bytes = "1"
 anyhow = { workspace = true }
 log = { workspace = true }
 typed-builder = "0.21.0"
+
+[dependencies.boringtun]
+features = ["device", "tun"]
+git = "https://github.com/mullvad/boringtun"
+rev = "83b3b5bb1bf3ec8b9849cc0d250d96d623b6181f"
+
+#[dependencies.boringtun]
+#optional = true
+#features = ["device", "tun"]
+#git = "https://github.com/mullvad/boringtun"
+#rev = "83b3b5bb1bf3ec8b9849cc0d250d96d623b6181f"
 
 [dev-dependencies]
 env_logger = { workspace = true }

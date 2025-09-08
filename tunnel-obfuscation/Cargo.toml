@@ -21,5 +21,10 @@ shadowsocks = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 socket2 = { workspace = true, features = ["all"] }
 
+[dependencies.boringtun]
+features = ["device", "tun"]
+git = "https://github.com/mullvad/boringtun"
+rev = "83b3b5bb1bf3ec8b9849cc0d250d96d623b6181f"
+
 [target.'cfg(target_os="linux")'.dependencies]
 nix = { workspace = true }

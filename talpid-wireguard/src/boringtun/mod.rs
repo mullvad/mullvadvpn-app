@@ -30,6 +30,7 @@ use std::{
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use tun07::{AbstractDevice, AsyncDevice};
+use tunnel_obfuscation::PacketChannelSimple;
 
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
@@ -38,8 +39,16 @@ type UdpFactory = AndroidUdpSocketFactory;
 type UdpFactory = UdpSocketFactory;
 
 type SinglehopDevice = DeviceHandle<(UdpFactory, Arc<tun07::AsyncDevice>, Arc<tun07::AsyncDevice>)>;
+type Obfuscator = DeviceHandle<(
+    PacketChannelSimple,
+    Arc<tun07::AsyncDevice>,
+    Arc<tun07::AsyncDevice>,
+)>;
+
 type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
 type ExitDevice = DeviceHandle<(PacketChannelUdp, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
+
+// Boringtun -Channel-> Masque-client -UdpSocket-> Network -> Masque-sever (entry) -> WG Relay (exit)
 
 const PACKET_CHANNEL_CAPACITY: usize = 100;
 
@@ -66,12 +75,14 @@ impl BoringTun {
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
         config: Config,
         interface_name: String,
+        obfuscator_channels: Option<PacketChannelSimple>,
     ) -> Result<Self, TunnelError> {
         let devices = create_devices(
             &config,
             tun.clone(),
             #[cfg(target_os = "android")]
             android_tun.clone(),
+            obfuscator_channels,
         )
         .await?;
         Ok(Self {
@@ -86,11 +97,16 @@ impl BoringTun {
 }
 
 enum Devices {
+    // an obfuscated boringtun tunnel will first go through the obfuscator (in-process) before
+    // leaving the physical interface.
+    Obufscated {
+        device: Obfuscator,
+        api: ApiClient,
+    },
     Singlehop {
         device: SinglehopDevice,
         api: ApiClient,
     },
-
     Multihop {
         entry_device: EntryDevice,
         entry_api: ApiClient,
@@ -129,6 +145,7 @@ impl UdpTransportFactory for AndroidUdpSocketFactory {
 pub async fn open_boringtun_tunnel(
     config: &Config,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
+    obfuscator_channels: Option<PacketChannelSimple>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
 ) -> super::Result<BoringTun> {
     log::info!("BoringTun::start_tunnel");
@@ -183,12 +200,15 @@ pub async fn open_boringtun_tunnel(
     log::info!("passing tunnel dev to boringtun");
     let async_tun = Arc::new(async_tun);
 
+    // TODO: Pass the channel to the obfuscator here v
+    // This could def be done via `config`, then we can match on it in `Boringtun::new`.
     let boringtun = BoringTun::new(
         async_tun,
         #[cfg(target_os = "android")]
         tun.clone(),
         config.clone(),
         interface_name,
+        obfuscator_channels,
     )
     .await
     .inspect_err(|e| log::error!("Failed to open BoringTun: {e:?}"))?;
@@ -212,6 +232,7 @@ async fn create_devices(
     config: &Config,
     async_tun: Arc<AsyncDevice>,
     #[cfg(target_os = "android")] tun: Arc<Tun>,
+    obfuscator_channels: Option<PacketChannelSimple>,
 ) -> Result<Devices, TunnelError> {
     let (entry_api, entry_api_server) = ApiServer::new();
     let boringtun_entry_config = DeviceConfig {
@@ -245,6 +266,8 @@ async fn create_devices(
             get_packet_channels(PACKET_CHANNEL_CAPACITY, source_v4, source_v6);
 
         let (exit_api, exit_api_server) = ApiServer::new();
+        // NOTE: Boringtun will be equiv to ExitDevice here. So this code will look the same, but
+        // we need a `get_packet_channels` that returns UdpChannel{Rx,Tx} instead of IpChannel{Rx,Tx}.
         let exit_device = ExitDevice::new(
             udp_channels,
             async_tun.clone(),
@@ -294,39 +317,68 @@ async fn create_devices(
             exit_api,
         })
     } else {
-        #[cfg(target_os = "android")]
-        let factory = AndroidUdpSocketFactory { tun };
+        match obfuscator_channels {
+            Some(yaboi) => {
+                let device =
+                    Obfuscator::new(yaboi, async_tun.clone(), async_tun, boringtun_entry_config)
+                        .await;
 
-        #[cfg(not(target_os = "android"))]
-        let factory = UdpSocketFactory;
+                log::info!("configuring boringtun device");
+                let private_key = &config.tunnel.private_key;
+                let peer = &config.entry_peer;
+                let set_cmd = create_set_command(
+                    #[cfg(target_os = "linux")]
+                    config.fwmark,
+                    private_key,
+                    peer,
+                );
 
-        let device = SinglehopDevice::new(
-            factory,
-            async_tun.clone(),
-            async_tun,
-            boringtun_entry_config,
-        )
-        .await;
+                entry_api.send(set_cmd).await.map_err(|err| {
+                    log::error!("Failed to set boringtun config: {err:#}");
+                    TunnelError::SetConfigError
+                })?;
 
-        log::info!("configuring boringtun device");
-        let private_key = &config.tunnel.private_key;
-        let peer = &config.entry_peer;
-        let set_cmd = create_set_command(
-            #[cfg(target_os = "linux")]
-            config.fwmark,
-            private_key,
-            peer,
-        );
+                Ok(Devices::Obufscated {
+                    device,
+                    api: entry_api,
+                })
+            }
+            None => {
+                #[cfg(target_os = "android")]
+                let factory = AndroidUdpSocketFactory { tun };
 
-        entry_api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set boringtun config: {err:#}");
-            TunnelError::SetConfigError
-        })?;
+                #[cfg(not(target_os = "android"))]
+                let factory = UdpSocketFactory;
 
-        Ok(Devices::Singlehop {
-            device,
-            api: entry_api,
-        })
+                let device = SinglehopDevice::new(
+                    factory,
+                    async_tun.clone(),
+                    async_tun,
+                    boringtun_entry_config,
+                )
+                .await;
+
+                log::info!("configuring boringtun device");
+                let private_key = &config.tunnel.private_key;
+                let peer = &config.entry_peer;
+                let set_cmd = create_set_command(
+                    #[cfg(target_os = "linux")]
+                    config.fwmark,
+                    private_key,
+                    peer,
+                );
+
+                entry_api.send(set_cmd).await.map_err(|err| {
+                    log::error!("Failed to set boringtun config: {err:#}");
+                    TunnelError::SetConfigError
+                })?;
+
+                Ok(Devices::Singlehop {
+                    device,
+                    api: entry_api,
+                })
+            }
+        }
     }
 }
 
@@ -340,9 +392,8 @@ impl Tunnel for BoringTun {
         log::info!("BoringTun::stop"); // remove me
         tokio::runtime::Handle::current().block_on(async {
             match self.devices.take().unwrap() {
-                Devices::Singlehop { device, .. } => {
-                    device.stop().await;
-                }
+                Devices::Obufscated { device, .. } => device.stop().await,
+                Devices::Singlehop { device, .. } => device.stop().await,
                 Devices::Multihop {
                     entry_device,
                     exit_device,
@@ -361,6 +412,7 @@ impl Tunnel for BoringTun {
         let mut stats = StatsMap::default();
 
         let apis = match self.devices.as_ref().unwrap() {
+            Devices::Obufscated { api, .. } => [Some(api), None],
             Devices::Singlehop { api, .. } => [Some(api), None],
             Devices::Multihop {
                 entry_api,
@@ -419,6 +471,7 @@ impl Tunnel for BoringTun {
                         exit_device.stop().await;
                         entry_device.stop().await;
                     }
+                    Devices::Obufscated { device, api } => device.stop().await,
                 }
 
                 self.devices = Some(
@@ -427,6 +480,7 @@ impl Tunnel for BoringTun {
                         self.tun.clone(),
                         #[cfg(target_os = "android")]
                         self.android_tun.clone(),
+                        None, // TODO: Pass obfuscator_channels if `self` is of variant Obfuscated.
                     )
                     .await?,
                 );

@@ -3276,6 +3276,7 @@ name = "mullvad-masque-proxy"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "boringtun",
  "bytes",
  "clap",
  "criterion",
@@ -6453,6 +6454,7 @@ name = "tunnel-obfuscation"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "boringtun",
  "log",
  "mullvad-masque-proxy",
  "nix 0.30.1",
