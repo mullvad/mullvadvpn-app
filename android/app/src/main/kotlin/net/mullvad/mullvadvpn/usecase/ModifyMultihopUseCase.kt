@@ -16,6 +16,8 @@ import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
+import net.mullvad.mullvadvpn.util.isDaitaEnabled
 
 class ModifyMultihopUseCase(
     private val relayListRepository: RelayListRepository,
@@ -37,7 +39,13 @@ class ModifyMultihopUseCase(
                     }
                     ?.convertCustomListWithOnlyHostNameToHostName()
                     ?.bind()
-            ensure(!changeId.isSameHost(other)) { ModifyMultihopError.EntrySameAsExit(change.item) }
+            // If DAITA is enabled and direct only is disabled, allow same relay for entry and
+            // exit.
+            if (!settings.isDaitaEnabled() || settings.isDaitaDirectOnly()) {
+                ensure(!changeId.isSameHost(other)) {
+                    ModifyMultihopError.EntrySameAsExit(change.item)
+                }
+            }
             when (change) {
                     is MultihopChange.Entry ->
                         wireguardConstraintsRepository.setEntryLocation(change.item.id)

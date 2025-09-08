@@ -19,7 +19,7 @@ internal fun RelayListType.isEntryAndBlocked(settings: Settings?): Boolean {
     return settings?.entryBlocked() == true
 }
 
-private fun Settings.entryBlocked() =
+internal fun Settings.entryBlocked() =
     isDaitaEnabled() && !isDaitaDirectOnly() && isMultihopEnabled()
 
 private fun RelayListType.isMultihopEntry() =

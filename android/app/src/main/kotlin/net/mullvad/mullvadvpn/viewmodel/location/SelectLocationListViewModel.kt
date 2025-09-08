@@ -94,7 +94,7 @@ class SelectLocationListViewModel(
                         selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
                     expandedItems = expandedItems,
                     isEntryBlocked =
-                        relayListType.isEntryAndBlocked(settingsRepository.settingsUpdates.value),
+                        settingsRepository.settingsUpdates.value?.entryBlocked() == true,
                 )
             }
         }

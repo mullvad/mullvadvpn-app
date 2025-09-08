@@ -9,32 +9,32 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class SelectedLocationUseCaseTest {
     private val mockRelayListRepository: RelayListRepository = mockk()
-    private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
+    private val mockSettingsRepository: SettingsRepository = mockk()
 
     private val selectedLocation = MutableStateFlow<Constraint<RelayItemId>>(Constraint.Any)
-    private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
+    private val settingsFlow = MutableStateFlow<Settings>(mockk(relaxed = true))
 
     private lateinit var selectLocationUseCase: SelectedLocationUseCase
 
     @BeforeEach
     fun setup() {
         every { mockRelayListRepository.selectedLocation } returns selectedLocation
-        every { mockWireguardConstraintsRepository.wireguardConstraints } returns
-            wireguardConstraints
+        every { mockSettingsRepository.settingsUpdates } returns settingsFlow
 
         selectLocationUseCase =
             SelectedLocationUseCase(
                 relayListRepository = mockRelayListRepository,
-                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                settingsRepository = mockSettingsRepository,
             )
     }
 
@@ -43,13 +43,15 @@ class SelectedLocationUseCaseTest {
         // Arrange
         val entryLocation: Constraint<RelayItemId> = Constraint.Only(GeoLocationId.Country("se"))
         val exitLocation = Constraint.Only(GeoLocationId.Country("us"))
-        wireguardConstraints.value =
+        val settingsMock = mockk<Settings>(relaxed = true)
+        every { settingsMock.relaySettings.relayConstraints.wireguardConstraints } returns
             WireguardConstraints(
                 isMultihopEnabled = true,
                 entryLocation = entryLocation,
                 port = Constraint.Any,
                 ipVersion = Constraint.Any,
             )
+        settingsFlow.value = settingsMock
         selectedLocation.value = exitLocation
 
         // Act, Assert
