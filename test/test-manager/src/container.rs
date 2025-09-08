@@ -11,7 +11,15 @@ pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
     }
 
     let mut cmd = Command::new("rootlesskit");
-    cmd.args(["--net", "slirp4netns", "--copy-up=/etc"]);
+    cmd.args([
+        "--net",
+        "slirp4netns",
+        "--ipv6",
+        // A higher MTU breaks IPv6
+        "--mtu",
+        "1500",
+        "--copy-up=/etc",
+    ]);
 
     if let Some(port) = vnc_port {
         log::debug!("VNC port: {port} -> 5901/tcp");
