@@ -16,7 +16,7 @@ const sizes: Record<'3' | '4', string> = {
 
 const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({
   width: props.$size,
-  margin: 'auto',
+  margin: '0 auto',
 }));
 
 export function Container({ size = '4', ...props }: ContainerProps) {
