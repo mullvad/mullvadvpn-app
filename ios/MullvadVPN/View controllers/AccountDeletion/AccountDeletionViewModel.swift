@@ -141,16 +141,7 @@ class AccountDeletionViewModel: ObservableObject {
                 self.state = State.initial
                 self.onConclusion?(true)
             } catch {
-                if backEnd.accountNumber == nil {
-                    // the account is gone from the device, though
-                    // the network call failed. In any case, UI state will
-                    // be broken, so go back to login
-                    self.state = State.initial
-                    self.onConclusion?(true)
-
-                } else {
-                    self.state = State.failure(error)
-                }
+                self.state = State.failure(error)
             }
         }
     }
