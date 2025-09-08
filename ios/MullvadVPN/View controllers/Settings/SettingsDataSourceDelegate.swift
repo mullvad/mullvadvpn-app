@@ -11,5 +11,4 @@ import UIKit
 
 protocol SettingsDataSourceDelegate: AnyObject {
     func didSelectItem(item: SettingsDataSource.Item)
-    func showInfo(for: SettingsInfoButtonItem)
 }

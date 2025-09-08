@@ -74,10 +74,8 @@ class ProblemReportSubmissionOverlayView: UIView {
                 return [
                     NSAttributedString(
                         string: NSLocalizedString(
-                            """
-                            If you exit the form and try again later, the information you already entered will still \
-                            be here.
-                            """,
+                            "If you exit the form and try again later, the information you " +
+                                "already entered will still be here.",
                             comment: ""
                         )
                     ),
