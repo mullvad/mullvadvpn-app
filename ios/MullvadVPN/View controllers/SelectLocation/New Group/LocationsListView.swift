@@ -2,44 +2,66 @@ import SwiftUI
 
 struct LocationsListView: View {
     let locations: [LocationNode]
+    let selectedLocation: LocationNode?
+    let connectedRelayHostname: String?
+    let onSelectLocation: (LocationNode) -> Void
 
     var body: some View {
-            VStack(spacing: 4) {
-                ForEach(Array(locations.enumerated()), id: \.offset) { index, country in
-                    LocationListItem(
-                        location: country,
-                        position: ItemPosition(
-                            index: index,
-                            count: locations.count
-                        )
-                    )
-                }
+        VStack(spacing: 4) {
+            ForEach(Array(locations.enumerated()), id: \.offset) { index, location in
+                LocationListItem(
+                    location: location,
+                    selectedLocation: selectedLocation,
+                    connectedRelayHostname: connectedRelayHostname,
+                    position: ItemPosition(
+                        index: index,
+                        count: locations.count
+                    ),
+                    onSelect: onSelectLocation
+                )
+            }
         }
     }
 }
 
 struct LocationListItem: View {
     let location: LocationNode
+    let selectedLocation: LocationNode?
+    let connectedRelayHostname: String?
     let position: ItemPosition
-    var level: Int = 0
+    let onSelect: (LocationNode) -> Void
+    var level = 0
     var body: some View {
         if location.children.isEmpty {
             Button {
-                print("Selected relay: \(location.name)")
+                onSelect(location)
             } label: {
                 HStack {
                     RelayItemView(
                         label: location.name,
-                        text: "Connected Server",
+                        isSelected: selectedLocation?.code == location.code,
+                        isConnected: connectedRelayHostname == location.name,
                         position: position,
                         level: level
                     )
                 }
             }
         } else {
+            var shouldBeExpanded: Bool {
+                guard let selectedLocation else { return false }
+                var curr = selectedLocation
+                while let parent = curr.parent {
+                    if parent.code == location.code {
+                        return true
+                    }
+                    curr = parent
+                }
+                return false
+            }
             LocationDisclosureGroup(
                 level: level,
-                position: position
+                position: position,
+                isExpanded: shouldBeExpanded
             ) {
                 ForEach(
                     Array(location.children.enumerated()),
@@ -47,21 +69,35 @@ struct LocationListItem: View {
                 ) { index, child in
                     LocationListItem(
                         location: child,
-                        position: level > 0 && position != .last ? .middle : ItemPosition(
-                            index: index + 1,
-                            count: location.children.count + 1
-                        ),
+                        selectedLocation: selectedLocation,
+                        connectedRelayHostname: connectedRelayHostname,
+                        position: level > 0 && position != .last
+                            ? .middle
+                            : ItemPosition(
+                                index: index + 1,
+                                count: location.children.count + 1
+                            ),
+                        onSelect: onSelect,
                         level: level + 1,
                     )
                 }
             } label: {
-                Text(location.name)
-                    .foregroundStyle(Color.mullvadTextPrimary)
-                    .font(.mullvadSmallSemiBold)
-                    .padding(.horizontal, CGFloat(16 * (level + 1)))
-                    .padding(.vertical, 16)
+                let isSelected = selectedLocation?.code == location.code
+                HStack {
+                    if isSelected {
+                        Image.mullvadIconTick
+                            .foregroundStyle(Color.mullvadSuccessColor)
+                    }
+                    Text(location.name)
+                        .foregroundStyle(
+                            isSelected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary
+                        )
+                        .font(.mullvadSmallSemiBold)
+                }
+                .padding(.horizontal, CGFloat(16 * (level + 1)))
+                .padding(.vertical, 16)
             } onSelect: {
-                print("Selected location: \(location.name)")
+                onSelect(location)
             }
         }
     }
@@ -69,32 +105,44 @@ struct LocationListItem: View {
 
 private struct RelayItemView: View {
     let label: String
-    let text: String?
+    let isSelected: Bool
+    let isConnected: Bool
     let position: ItemPosition
     let level: Int
 
-    init(label: String, text: String? = nil, position: ItemPosition, level: Int) {
+    var showSubtitle: Bool {
+        !isSelected && isConnected
+    }
+
+    init(label: String, isSelected: Bool, isConnected: Bool, position: ItemPosition, level: Int) {
         self.label = label
-        self.text = text
+        self.isSelected = isSelected
+        self.isConnected = isConnected
         self.position = position
         self.level = level
     }
 
     var body: some View {
         HStack {
+            if isSelected {
+                Image.mullvadIconTick
+                    .foregroundStyle(Color.mullvadSuccessColor)
+            }
             VStack(alignment: .leading) {
                 Text(label)
                     .font(.mullvadSmallSemiBold)
-                    .foregroundStyle(Color.mullvadTextPrimary)
-                if let text {
-                    Text(text)
+                    .foregroundStyle(isSelected
+                                     ? Color.mullvadSuccessColor
+                                     : Color.mullvadTextPrimary)
+                if showSubtitle {
+                    Text("Connected server")
                         .font(.mullvadMiniSemiBold)
                         .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
                 }
             }
             Spacer()
         }
-        .padding(.vertical, text == nil ? 16 : 8)
+        .padding(.vertical, showSubtitle ? 8 : 16)
         .padding(.horizontal, CGFloat(16 * (level + 1)))
         .background {
             let backgroundColor = Color.colorForLevel(level)
@@ -243,7 +291,6 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
                 }
                 .contentShape(Rectangle())
             }
-            .zIndex(1)
 
             if isExpanded {
                 VStack(spacing: 1) {
@@ -258,16 +305,19 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
 #Preview {
     var locations: [LocationNode] = [
         LocationNode(name: "Sweden", code: "se", children: [
-            LocationNode(name: "Stockholm", code: "sth", children: [
-                LocationNode(name: "se-sto-001", code: "se-sto-001"),
-                LocationNode(name: "se-sto-002", code: "se-sto-002"),
-                LocationNode(name: "se-sto-003", code: "se-sto-003")
-            ]
-                        ),
+            LocationNode(
+                name: "Stockholm",
+                code: "sth",
+                children: [
+                    LocationNode(name: "se-sto-001", code: "se-sto-001"),
+                    LocationNode(name: "se-sto-002", code: "se-sto-002"),
+                    LocationNode(name: "se-sto-003", code: "se-sto-003"),
+                ]
+            ),
             LocationNode(name: "Gothenburg", code: "gto", children: [
                 LocationNode(name: "se-got-001", code: "se-got-001"),
                 LocationNode(name: "se-got-002", code: "se-got-002"),
-                LocationNode(name: "se-got-003", code: "se-got-003")
+                LocationNode(name: "se-got-003", code: "se-got-003"),
             ]),
         ]),
         LocationNode(name: "blo-la-003", code: "blo-la-003"),
@@ -275,24 +325,24 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
             LocationNode(name: "Berlin", code: "ber", children: [
                 LocationNode(name: "de-ber-001", code: "de-ber-001"),
                 LocationNode(name: "de-ber-002", code: "de-ber-002"),
-                LocationNode(name: "de-ber-003", code: "de-ber-003")
+                LocationNode(name: "de-ber-003", code: "de-ber-003"),
             ]),
             LocationNode(name: "Frankfurt", code: "fra", children: [
                 LocationNode(name: "de-fra-001", code: "de-fra-001"),
                 LocationNode(name: "de-fra-002", code: "de-fra-002"),
-                LocationNode(name: "de-fra-003", code: "de-fra-003")
+                LocationNode(name: "de-fra-003", code: "de-fra-003"),
             ]),
         ]),
         LocationNode(name: "France", code: "fr", children: [
             LocationNode(name: "Paris", code: "par", children: [
                 LocationNode(name: "fr-par-001", code: "fr-par-001"),
                 LocationNode(name: "fr-par-002", code: "fr-par-002"),
-                LocationNode(name: "fr-par-003", code: "fr-par-003")
+                LocationNode(name: "fr-par-003", code: "fr-par-003"),
             ]),
             LocationNode(name: "Lyon", code: "lyo", children: [
                 LocationNode(name: "fr-lyo-001", code: "fr-lyo-001"),
                 LocationNode(name: "fr-lyo-002", code: "fr-lyo-002"),
-                LocationNode(name: "fr-lyo-003", code: "fr-lyo-003")
+                LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
             ]),
         ]),
         LocationNode(name: "Lalala", code: "test"),
@@ -303,20 +353,25 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
                 LocationNode(name: "Paris", code: "par", children: [
                     LocationNode(name: "fr-par-001", code: "fr-par-001"),
                     LocationNode(name: "fr-par-002", code: "fr-par-002"),
-                    LocationNode(name: "fr-par-003", code: "fr-par-003")
+                    LocationNode(name: "fr-par-003", code: "fr-par-003"),
                 ]),
                 LocationNode(name: "Lyon", code: "lyo", children: [
                     LocationNode(name: "fr-lyo-001", code: "fr-lyo-001"),
                     LocationNode(name: "fr-lyo-002", code: "fr-lyo-002"),
-                    LocationNode(name: "fr-lyo-003", code: "fr-lyo-003")
+                    LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
                 ]),
             ]),
-            LocationNode(name: "testserver", code: "1234")
+            LocationNode(name: "testserver", code: "1234"),
         ]),
-]
+    ]
     ScrollView {
         LocationsListView(
             locations: locations,
+            selectedLocation: LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
+            connectedRelayHostname: "fr-lyo-003",
+            onSelectLocation: { location in
+                print("Selected: \(location.name)")
+            },
         )
         .padding()
     }
