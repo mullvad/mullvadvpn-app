@@ -1,12 +1,13 @@
 import { messages } from '../../../../../../../../shared/gettext';
 import { Button } from '../../../../../../../lib/components';
-import { useLaunchWithFilePicker } from './hooks';
+import { useDisabled, useLaunchWithFilePicker } from './hooks';
 
 export function OpenFilePickerButton() {
+  const disabled = useDisabled();
   const launchWithFilePicker = useLaunchWithFilePicker();
 
   return (
-    <Button onClick={launchWithFilePicker}>
+    <Button disabled={disabled} onClick={launchWithFilePicker}>
       <Button.Text>
         {
           // TRANSLATORS: Button label for browsing applications with split tunneling.
