@@ -51,6 +51,7 @@ LogActiveWfpSessions()
 		if (sessionPids.empty())
 		{
 			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "No active WFP sessions found", g_logSinkContext);
+			return;
 		}
 
 		std::stringstream ss;
