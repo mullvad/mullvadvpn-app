@@ -58,9 +58,6 @@ private:
 
 	std::unique_ptr<wfp::FilterEngine> m_engine;
 
-	// Implement cache here since the source data doesn't change.
-	const MullvadGuids::IdentityRegistry m_identityRegistry;
-
 	std::vector<SessionRecord> m_records;
 	std::vector<SessionRecord> m_transactionRecords;
 

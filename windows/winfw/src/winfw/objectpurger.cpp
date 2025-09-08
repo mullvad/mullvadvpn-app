@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "objectpurger.h"
 #include "mullvadguids.h"
-#include "wfpobjecttype.h"
 #include "libwfp/filterengine.h"
 #include "libwfp/objectdeleter.h"
 #include "libwfp/transaction.h"

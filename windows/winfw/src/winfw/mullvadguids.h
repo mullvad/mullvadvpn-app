@@ -1,6 +1,5 @@
 #pragma once
 
-#include "wfpobjecttype.h"
 #include "guidhash.h"
 #include <guiddef.h>
 #include <unordered_set>
@@ -9,26 +8,6 @@
 class MullvadGuids
 {
 public:
-
-	using IdentityRegistry = std::unordered_set<GUID>;
-	using DetailedIdentityRegistry = std::multimap<WfpObjectType, GUID>;
-
-private:
-
-	static DetailedIdentityRegistry DeprecatedIdentities();
-
-public:
-
-	enum class IdentityQualifier : uint32_t
-	{
-		OnlyCurrent			= 0x00,
-		IncludeDeprecated	= 0x01,
-		IncludePersistent	= 0x02,
-		IncludeAll			= IncludeDeprecated | IncludePersistent,
-	};
-
-	static IdentityRegistry Registry(IdentityQualifier qualifier);
-	static DetailedIdentityRegistry DetailedRegistry(IdentityQualifier qualifier);
 
 	MullvadGuids() = delete;
 
@@ -122,13 +101,3 @@ public:
 	static const GUID &Filter_Persistent_BlockAll_Inbound_Ipv6();
 	static const GUID &Filter_Persistent_BlockAll_Outbound_Ipv6();
 };
-
-inline MullvadGuids::IdentityQualifier operator|(MullvadGuids::IdentityQualifier lhs, MullvadGuids::IdentityQualifier rhs)
-{
-	return static_cast<MullvadGuids::IdentityQualifier>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-}
-
-inline MullvadGuids::IdentityQualifier operator&(MullvadGuids::IdentityQualifier lhs, MullvadGuids::IdentityQualifier rhs)
-{
-	return static_cast<MullvadGuids::IdentityQualifier>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-}
