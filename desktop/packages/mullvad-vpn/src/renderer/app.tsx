@@ -445,6 +445,13 @@ export default class AppRenderer {
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
+  public getSplitTunnelingSupported = () => {
+    if (window.env.platform === 'linux') {
+      return IpcRendererEventChannel.linuxSplitTunneling.isSplitTunnelingSupported();
+    }
+
+    return Promise.resolve(true); // Always supported for macOS and Windows
+  };
   public getAppUpgradeCacheDir = () => IpcRendererEventChannel.app.getUpgradeCacheDir();
 
   public tryStartDaemon = () => {
