@@ -529,9 +529,9 @@ impl NetworkManager {
         for (top_key, map) in settings.iter() {
             let mut inner_dict = HashMap::<String, Variant<Box<dyn RefArg>>>::new();
             for (key, variant) in map.iter() {
-                inner_dict.insert(key.to_string(), Variant(variant.0.box_clone()));
+                inner_dict.insert(key.clone(), Variant(variant.0.box_clone()));
             }
-            settings_backup.insert(top_key.to_string(), inner_dict);
+            settings_backup.insert(top_key.clone(), inner_dict);
         }
 
         // Update the DNS config
