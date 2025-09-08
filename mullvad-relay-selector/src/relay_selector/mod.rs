@@ -590,26 +590,28 @@ impl RelaySelector {
                 // Merge user preferences with the relay selector's default preferences.
                 let custom_lists = normal_config.custom_lists;
                 let mut user_query = RelayQuery::try_from(normal_config)?;
-                // Runtime parameters may affect which of the default queries that are considered. For example,
-                // queries which rely on IPv6 will not be considered if working IPv6 is not available at
-                // runtime.
+                // Runtime parameters may affect which of the default queries that are considered.
+                // For example, queries which rely on IPv6 will not be considered if
+                // working IPv6 is not available at runtime.
                 apply_ip_availability(runtime_ip_availability, &mut user_query)?;
                 log::trace!("Merging user preferences {user_query:?} with default retry strategy");
-                // This algorithm will loop back to the start of `retry_order` if `retry_attempt >
-                // retry_order.len()`. If `user_preferences` is not compatible with any of the pre-defined
-                // queries in `retry_order`, `user_preferences` is returned.
+                // Select a relay using the user's preferences merged with the nth compatible query
+                // in `retry_order`, looping back to the start of `retry_order` if
+                // necessary.
                 retry_order
-                        .iter()
-                        .filter_map(|query| query.clone().intersection(user_query.clone()))
-                        .filter_map(|query| {
-                            Self::get_relay_inner(&query, &parsed_relays, custom_lists).ok()
-                        })
-                        .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
-                        .nth(retry_attempt)
-                        // Failing to select a relay here means that none of the retry attempts could
-                        // resolve to a relay, i.e., the intersection between the user's preferences
-                        // and every default retry attempt-query yields queries with no matching relays.
-                        .ok_or_else(|| Error::NoRelay(Box::new(user_query)))
+                    .iter()
+                    .filter_map(|query| query.clone().intersection(user_query.clone()))
+                    .filter_map(|query| {
+                        Self::get_relay_inner(&query, &parsed_relays, custom_lists).ok()
+                    })
+                    .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
+                    .nth(retry_attempt)
+                    // If none of the queries in `retry_order` merged with `user_preferences` yield any relays,
+                    // attempt to only consider the user's preferences.
+                    .or_else(|| {
+                        Self::get_relay_inner(&user_query, &parsed_relays, custom_lists).ok()
+                    })
+                    .ok_or_else(|| Error::NoRelay(Box::new(user_query)))
             }
         }
     }
