@@ -15,14 +15,20 @@ import { useShowLinuxApplicationList, useShowNoSearchResult, useShowSpinner } fr
 import { LinuxSettingsContextProvider, useLinuxSettingsContext } from './LinuxSettingsContext';
 
 function LinuxSettingsInner() {
-  const { getLinuxSplitTunnelingApplications } = useAppContext();
-  const { searchTerm, setApplications, setSearchTerm } = useLinuxSettingsContext();
+  const { getLinuxSplitTunnelingSupported, getLinuxSplitTunnelingApplications } = useAppContext();
+  const { searchTerm, setApplications, setSearchTerm, setSplitTunnelingSupported } =
+    useLinuxSettingsContext();
   const runAfterTransition = useAfterTransition();
   const showLinuxApplicationList = useShowLinuxApplicationList();
   const showNoSearchResult = useShowNoSearchResult();
   const showSpinner = useShowSpinner();
 
-  const updateApplications = useEffectEvent(() => {
+  const onMount = useEffectEvent(() => {
+    runAfterTransition(async () => {
+      const linuxSplitTunnelingSupported = await getLinuxSplitTunnelingSupported();
+      setSplitTunnelingSupported(linuxSplitTunnelingSupported);
+    });
+
     runAfterTransition(async () => {
       const applications = await getLinuxSplitTunnelingApplications();
       setApplications(applications);
@@ -34,7 +40,7 @@ function LinuxSettingsInner() {
   // Enable these rules again when eslint can lint useEffectEvent properly.
   // eslint-disable-next-line react-compiler/react-compiler
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => void updateApplications(), []);
+  useEffect(() => void onMount(), []);
 
   return (
     <>
