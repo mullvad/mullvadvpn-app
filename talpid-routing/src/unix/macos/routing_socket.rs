@@ -16,7 +16,7 @@ use std::{
     os::fd::{AsRawFd, RawFd},
 };
 
-use super::data::{MessageType, RouteMessage, rt_msghdr_short};
+use super::data::{MessageType, RouteMessage, ffi::rt_msghdr_short};
 
 use tokio::io::{AsyncWrite, AsyncWriteExt, unix::AsyncFd};
 
@@ -136,10 +136,10 @@ impl RoutingSocket {
             std::ptr::copy_nonoverlapping(
                 &header as *const _ as *const u8,
                 msg_buffer.as_mut_ptr(),
-                size_of::<super::data::rt_msghdr>(),
+                size_of::<libc::rt_msghdr>(),
             );
         }
-        let mut sockaddr_buf = &mut msg_buffer[std::mem::size_of::<super::data::rt_msghdr>()..];
+        let mut sockaddr_buf = &mut msg_buffer[std::mem::size_of::<libc::rt_msghdr>()..];
         for socket_addr in payload {
             sockaddr_buf
                 .write_all(socket_addr.as_slice())

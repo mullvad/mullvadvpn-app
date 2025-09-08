@@ -26,7 +26,7 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 #[cfg(target_os = "macos")]
 pub use imp::{
     PlatformError,
-    imp::{DefaultRouteEvent, RouteError},
+    imp::{DefaultRouteEvent, RouteError, RoutingTable, data},
 };
 
 pub use imp::{Error, RouteManagerHandle};

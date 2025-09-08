@@ -2,11 +2,55 @@
 
 use anyhow::{Context, bail, ensure};
 use mullvad_management_interface::MullvadProxyClient;
-use std::net::{Ipv4Addr, SocketAddr};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
+use crate::tests::helpers::connect_and_wait;
+
 use super::TestContext;
+
+/// Test that the local resolver alias is readded if removed.
+#[test_function(target_os = "macos")]
+async fn test_app_ifconfig_alias(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // Connect to enable the local resolver
+    connect_and_wait(&mut mullvad_client).await?;
+
+    let current_resolver = get_first_dns_resolver(&rpc).await?;
+    log::debug!("Current DNS resolver: {current_resolver}");
+
+    let current_resolver = match current_resolver {
+        IpAddr::V4(ip) => ip,
+        IpAddr::V6(ip) => bail!("Expected IPv4 resolver, got {ip}"),
+    };
+
+    ensure!(
+        current_resolver.is_loopback() && current_resolver != Ipv4Addr::LOCALHOST,
+        "Current resolver should be a loopback address (and not 127.0.0.1), got {current_resolver}"
+    );
+
+    // Remove all alias and assert that one is readded.
+    rpc.ifconfig_alias_remove("lo0", current_resolver).await?;
+
+    ensure!(
+        !alias_exists(&rpc, "lo0", current_resolver).await?,
+        "Aliases should have been removed"
+    );
+
+    for _attempt in 0..5 {
+        if alias_exists(&rpc, "lo0", current_resolver).await? {
+            log::debug!("Alias was readded!");
+            return Ok(());
+        }
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    }
+
+    bail!("lo0 alias was not readded after removal");
+}
 
 /// Test that we can add and remove IP "aliases" to network interfaces.
 ///
@@ -92,4 +136,47 @@ async fn alias_exists(
     }
 
     Ok(stdout.contains(&alias))
+}
+
+/// Get first DNS resolver from `scutil --dns`
+async fn get_first_dns_resolver(rpc: &ServiceClient) -> anyhow::Result<IpAddr> {
+    let result = rpc.exec("scutil", ["--dns"]).await?;
+
+    let stdout = String::from_utf8(result.stdout)?;
+    let stderr = String::from_utf8(result.stderr)?;
+
+    if result.code != Some(0) {
+        log::error!("scutil stdout:\n{stdout}");
+        log::error!("scutil stderr:\n{stderr}");
+        bail!("`scutil` exited with code {:?}", result.code);
+    }
+
+    parse_scutil_dns_first_resolver(&stdout).context("No resolver found")
+}
+
+fn parse_scutil_dns_first_resolver(output: &str) -> Option<IpAddr> {
+    output
+        .lines()
+        .map(str::trim)
+        // nameserver[0] : 127.230.79.91
+        .flat_map(|line| line.strip_prefix("nameserver[0]"))
+        .flat_map(|server| server.split_whitespace().last())
+        .find_map(|addr| addr.parse().ok())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_parse_scutil_dns_first_resolver() {
+        let out = r#"resolver #1
+  nameserver[0] : 127.230.79.91
+  if_index : 11 (en0)
+  flags    : Scoped, Request A records
+  reach    : 0x00000000 (Not Reachable)"#;
+
+        let aliases = parse_scutil_dns_first_resolver(out);
+        assert_eq!(aliases, Some("127.230.79.91".parse::<IpAddr>().unwrap()),);
+    }
 }
