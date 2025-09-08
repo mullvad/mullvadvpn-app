@@ -102,6 +102,7 @@ LogActiveWfpSessions()
 	}
 	catch (...)
 	{
+		g_logSink(MULLVAD_LOG_LEVEL_ERROR, "Failed to log WFP sessions", g_logSinkContext);
 	}
 }
 
