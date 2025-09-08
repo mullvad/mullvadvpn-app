@@ -80,7 +80,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             ),
             appPreferences: appDelegate.appPreferences,
             accessMethodRepository: accessMethodRepository,
-            transportProvider: appDelegate.configuredTransportProvider,
             ipOverrideRepository: appDelegate.ipOverrideRepository,
             relaySelectorWrapper: appDelegate.relaySelector
         )

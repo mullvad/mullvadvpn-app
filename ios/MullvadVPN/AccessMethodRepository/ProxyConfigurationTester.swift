@@ -15,12 +15,9 @@ import MullvadTypes
 /// A concrete implementation of an access method proxy configuration.
 class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
     private var cancellable: MullvadTypes.Cancellable?
-    private let transportProvider: ProxyConfigurationTransportProvider
-    private var headRequest: REST.APIAvailabilityTestRequest?
     private let apiProxy: APIQuerying
 
-    init(transportProvider: ProxyConfigurationTransportProvider, apiProxy: APIQuerying) {
-        self.transportProvider = transportProvider
+    init(apiProxy: APIQuerying) {
         self.apiProxy = apiProxy
     }
 
@@ -36,6 +33,5 @@ class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
     func cancel() {
         cancellable?.cancel()
         cancellable = nil
-        headRequest = nil
     }
 }

@@ -52,7 +52,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private var appPreferences: AppPreferencesDataSource
     private var outgoingConnectionService: OutgoingConnectionServiceHandling
     private var accessMethodRepository: AccessMethodRepositoryProtocol
-    private let configuredTransportProvider: ProxyConfigurationTransportProvider
     private let ipOverrideRepository: IPOverrideRepository
     private let relaySelectorWrapper: RelaySelectorWrapper
 
@@ -72,7 +71,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         outgoingConnectionService: OutgoingConnectionServiceHandling,
         appPreferences: AppPreferencesDataSource,
         accessMethodRepository: AccessMethodRepositoryProtocol,
-        transportProvider: ProxyConfigurationTransportProvider,
         ipOverrideRepository: IPOverrideRepository,
         relaySelectorWrapper: RelaySelectorWrapper
 
@@ -86,7 +84,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.appPreferences = appPreferences
         self.outgoingConnectionService = outgoingConnectionService
         self.accessMethodRepository = accessMethodRepository
-        self.configuredTransportProvider = transportProvider
         self.ipOverrideRepository = ipOverrideRepository
         self.relaySelectorWrapper = relaySelectorWrapper
 
@@ -588,7 +585,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         navigationController.view.setAccessibilityIdentifier(.settingsContainerView)
 
         let configurationTester = ProxyConfigurationTester(
-            transportProvider: configuredTransportProvider,
             apiProxy: apiProxy
         )
 
