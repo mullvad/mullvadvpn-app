@@ -1547,6 +1547,7 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr ""
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr ""
