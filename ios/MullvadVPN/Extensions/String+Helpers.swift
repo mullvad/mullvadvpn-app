@@ -24,3 +24,10 @@ extension String {
         return self.size(withAttributes: fontAttributes).width
     }
 }
+
+extension Array where Element == String {
+    func joinedParagraphs(lineBreaks: Int = 2) -> String {
+        let separator = String(repeating: "\n", count: lineBreaks)
+        return self.joined(separator: separator)
+    }
+}

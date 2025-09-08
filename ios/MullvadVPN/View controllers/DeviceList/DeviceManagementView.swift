@@ -24,7 +24,7 @@ struct DeviceManagementView: View {
             }
         }
 
-        func warningMessage(deviceName: String) -> LocalizedStringKey {
+        func warningText(deviceName: String) -> [LocalizedStringKey] {
             var attributedDeviceName: AttributedString {
                 var fullText = AttributedString(deviceName.capitalized)
                 fullText.foregroundColor = Color.mullvadTextPrimary
@@ -32,15 +32,14 @@ struct DeviceManagementView: View {
             }
             return switch self {
             case .tooManyDevices:
-                LocalizedStringKey(
+                [LocalizedStringKey(
                     "Are you sure you want to log \(attributedDeviceName) out?"
-                )
+                )]
             case .deviceManagement:
-                LocalizedStringKey("""
-                    Remove \(attributedDeviceName)?
-                    The device will be removed from the list and logged out.
-                    """
-                )
+                [
+                    LocalizedStringKey("Remove \(attributedDeviceName)?"),
+                    LocalizedStringKey("The device will be removed from the list and logged out."),
+                ]
             }
         }
     }
@@ -60,13 +59,10 @@ struct DeviceManagementView: View {
     }
 
     var bodyText: LocalizedStringKey {
+        // swiftlint:disable line_length
         switch style {
         case .deviceManagement:
-            """
-            View and manage all your logged in devices. \
-            You can have up to 5 devices on one account at a time. \
-            Each device gets a name when logged in to help you tell them apart easily.
-            """
+            "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
         case .tooManyDevices:
             if canLoginNewDevice {
                 """
@@ -74,12 +70,10 @@ struct DeviceManagementView: View {
                 """
 
             } else {
-                """
-                Please log out of at least one by removing it from the list below. \
-                You can find the corresponding device name under the device’s Account settings.
-                """
+                "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
             }
         }
+        // swiftlint:enable line_length
     }
 
     private func fetchDevices() {
@@ -114,7 +108,7 @@ struct DeviceManagementView: View {
                 onRemoveDevice: { device in
                     deviceManagementAlert = MullvadAlert(
                         type: .warning,
-                        message: style.warningMessage(deviceName: device.name),
+                        messages: style.warningText(deviceName: device.name),
                         action: .init(
                             type: style.actionButtonStyle,
                             title: style.actionButtonTitle,

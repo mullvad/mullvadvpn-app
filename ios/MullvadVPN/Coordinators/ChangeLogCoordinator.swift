@@ -34,7 +34,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
     func start(animated: Bool) {
         let changeLogViewController = UIHostingController(rootView: ChangeLogView(viewModel: viewModel))
         changeLogViewController.view.setAccessibilityIdentifier(.changeLogAlert)
-        changeLogViewController.navigationItem.title = NSLocalizedString("What's new", comment: "")
+        changeLogViewController.navigationItem.title = NSLocalizedString("What’s new", comment: "")
 
         switch route {
         case .changelog:

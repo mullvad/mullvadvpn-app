@@ -28,14 +28,14 @@ class SetupAccountCompletedContentView: UIView {
     private let commentLabel: UILabel = {
         let label = UILabel()
 
-        let message = NSMutableAttributedString(string: NSLocalizedString(
-            """
-            Go ahead and start using the app to begin reclaiming your online privacy.
-            To continue your journey as a privacy ninja, \
-            visit our website to pick up other privacy-friendly habits and tools.
-            """,
+        let message = NSMutableAttributedString(string: [NSLocalizedString(
+            "Go ahead and start using the app to begin reclaiming your online privacy.",
             comment: ""
-        ))
+        ), NSLocalizedString(
+            "To continue your journey as a privacy ninja, visit our website to pick up" +
+                " other privacy-friendly habits and tools.",
+            comment: ""
+        )].joined(separator: " "))
         message.apply(paragraphStyle: .alert)
 
         label.attributedText = message

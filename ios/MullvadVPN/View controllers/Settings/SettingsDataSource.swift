@@ -108,7 +108,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
         tableView.sectionFooterHeight = 0
         tableView.delegate = self
-        settingsCellFactory.delegate = self
 
         registerClasses()
         updateDataSnapshot()
@@ -186,11 +185,5 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
 
         apply(snapshot)
-    }
-}
-
-extension SettingsDataSource: @preconcurrency SettingsCellEventHandler {
-    func showInfo(for button: SettingsInfoButtonItem) {
-        delegate?.showInfo(for: button)
     }
 }

@@ -489,7 +489,6 @@
 		7A1A26472A29CF0800B978AA /* RelayFilterDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26462A29CF0800B978AA /* RelayFilterDataSource.swift */; };
 		7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */; };
 		7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */; };
-		7A27E3C92CAE85710088BCFF /* SettingsInfoButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3C82CAE85660088BCFF /* SettingsInfoButtonItem.swift */; };
 		7A27E3CB2CAE861D0088BCFF /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3CA2CAE86170088BCFF /* SettingsViewModel.swift */; };
 		7A27E3CD2CB814EF0088BCFF /* DAITAInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3CC2CB814EA0088BCFF /* DAITAInfoView.swift */; };
 		7A27E3CF2CBD4A8C0088BCFF /* SelectableSettingsDetailsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3CE2CBD4A830088BCFF /* SelectableSettingsDetailsCell.swift */; };
@@ -2079,7 +2078,6 @@
 		7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterCellFactory.swift; sourceTree = "<group>"; };
 		7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsCell.swift; sourceTree = "<group>"; };
 		7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITextField+Appearance.swift"; sourceTree = "<group>"; };
-		7A27E3C82CAE85660088BCFF /* SettingsInfoButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInfoButtonItem.swift; sourceTree = "<group>"; };
 		7A27E3CA2CAE86170088BCFF /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		7A27E3CC2CB814EA0088BCFF /* DAITAInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITAInfoView.swift; sourceTree = "<group>"; };
 		7A27E3CE2CBD4A830088BCFF /* SelectableSettingsDetailsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsDetailsCell.swift; sourceTree = "<group>"; };
@@ -3284,7 +3282,6 @@
 				7A83C4012A57FAA800DFB83A /* SettingsDNSInfoCell.swift */,
 				584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */,
 				7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */,
-				7A27E3C82CAE85660088BCFF /* SettingsInfoButtonItem.swift */,
 				7A42DEC82A05164100B209BE /* SettingsInputCell.swift */,
 				58677711290976FB006F721F /* SettingsInteractor.swift */,
 				5867770F290975E8006F721F /* SettingsInteractorFactory.swift */,
@@ -6741,7 +6738,6 @@
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
-				7A27E3C92CAE85710088BCFF /* SettingsInfoButtonItem.swift in Sources */,
 				58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */,
@@ -7786,12 +7782,13 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;
@@ -7848,12 +7845,13 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;
@@ -8500,12 +8498,13 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;
@@ -8973,6 +8972,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG MULLVAD_ENVIRONMENT_STAGING";
+				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -8997,6 +8997,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = MULLVAD_ENVIRONMENT_PRODUCTION;
+				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -9357,11 +9358,12 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;

@@ -17,8 +17,10 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
         // Used in "statusDescription" below to form a complete sentence and therefore not localized here.
         var description: String {
             switch self {
-            case .file: "of file"
-            case .text: "via text"
+            case .file:
+                NSLocalizedString("file", comment: "")
+            case .text:
+                NSLocalizedString("text", comment: "")
             }
         }
     }
@@ -59,12 +61,12 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
             ""
         case let .importFailed(context):
             String(
-                format: NSLocalizedString("Import %@ was unsuccessful, please try again.", comment: ""),
+                format: NSLocalizedString("Import of %@ was unsuccessful, please try again.", comment: ""),
                 context.description
             )
         case let .importSuccessful(context):
             String(
-                format: NSLocalizedString("Import %@ was successful, overrides are now active.", comment: ""),
+                format: NSLocalizedString("Import of %@ was successful, overrides are now active.", comment: ""),
                 context.description
             )
         }

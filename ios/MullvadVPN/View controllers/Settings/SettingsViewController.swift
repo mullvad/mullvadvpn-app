@@ -23,15 +23,13 @@ class SettingsViewController: UITableViewController {
     weak var delegate: SettingsViewControllerDelegate?
     private var dataSource: SettingsDataSource?
     private let interactor: SettingsInteractor
-    private let alertPresenter: AlertPresenter
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    init(interactor: SettingsInteractor, alertPresenter: AlertPresenter) {
+    init(interactor: SettingsInteractor) {
         self.interactor = interactor
-        self.alertPresenter = alertPresenter
 
         super.init(style: .grouped)
     }
@@ -80,22 +78,6 @@ extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
     func didSelectItem(item: SettingsDataSource.Item) {
         guard let route = item.navigationRoute else { return }
         delegate?.settingsViewController(self, didRequestRoutePresentation: route)
-    }
-
-    func showInfo(for item: SettingsInfoButtonItem) {
-        let presentation = AlertPresentation(
-            id: "settings-info-alert",
-            icon: .info,
-            message: item.description,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default
-                ),
-            ]
-        )
-
-        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 }
 
