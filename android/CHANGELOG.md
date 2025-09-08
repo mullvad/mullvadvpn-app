@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.7] - 2025-09-08
+### Fixed
+- Fix an issue with recents containing ineligable items if DAITA is turned on.
+
+
 ## [android/2025.7-beta2] - 2025-09-04
 ### Fixed
 - Fix a rare case of not being able to change exit location 
