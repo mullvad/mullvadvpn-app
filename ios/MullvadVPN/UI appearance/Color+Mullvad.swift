@@ -5,7 +5,7 @@ extension Color {
     private static let mullvadSecondaryColor = MullvadDarkBlue.base
     private static let mullvadWarningColor = UIColor.warningColor.color
     private static let mullvadDangerColor = UIColor.dangerColor.color
-    private static let mullvadSuccessColor = UIColor.successColor.color
+    static let mullvadSuccessColor = UIColor.successColor.color
 
     static let mullvadBackground: Color = .mullvadSecondaryColor
     static let mullvadTextPrimary: Color = UIColor.primaryTextColor.color
