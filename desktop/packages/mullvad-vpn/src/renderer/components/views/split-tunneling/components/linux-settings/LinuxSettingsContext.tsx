@@ -13,6 +13,8 @@ type LinuxSettingsContext = {
   setApplications: (value: ILinuxSplitTunnelingApplication[]) => void;
   setBrowseError: (value?: string) => void;
   setSearchTerm: (value: string) => void;
+  setSplitTunnelingSupported: (value: boolean) => void;
+  splitTunnelingSupported?: boolean;
 };
 
 const LinuxSettingsContext = React.createContext<LinuxSettingsContext | undefined>(undefined);
@@ -29,6 +31,9 @@ export function LinuxSettingsContextProvider({ children }: LinuxSettingsContextP
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [browseError, setBrowseError] = useState<string>();
   const [searchTerm, setSearchTerm] = useState('');
+  const [splitTunnelingSupported, setSplitTunnelingSupported] = useState<boolean | undefined>(
+    undefined,
+  );
 
   const value = useMemo(
     () => ({
@@ -38,8 +43,19 @@ export function LinuxSettingsContextProvider({ children }: LinuxSettingsContextP
       setApplications,
       setBrowseError,
       setSearchTerm,
+      setSplitTunnelingSupported,
+      splitTunnelingSupported,
     }),
-    [applications, browseError, searchTerm, setApplications, setBrowseError, setSearchTerm],
+    [
+      applications,
+      browseError,
+      searchTerm,
+      setApplications,
+      setBrowseError,
+      setSearchTerm,
+      setSplitTunnelingSupported,
+      splitTunnelingSupported,
+    ],
   );
 
   return <LinuxSettingsContext value={value}>{children}</LinuxSettingsContext>;
