@@ -10,7 +10,7 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Routing
-import UIKit
+import SwiftUI
 
 class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
@@ -53,27 +53,37 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 .blockedState?.reason { .entry } else { .exit }
         }
 
-        let locationViewControllerWrapper = LocationViewControllerWrapper(
-            settings: tunnelManager.settings,
-            relaySelectorWrapper: relaySelectorWrapper,
-            customListRepository: customListRepository,
-            startContext: startContext
+        let hostingController = UIHostingController(
+            rootView: SelectLocationView(
+                viewModel: SelectLocationViewModelImpl(
+                    tunnelManager: tunnelManager,
+                    relaySelectorWrapper: relaySelectorWrapper,
+                    customListRepository: customListRepository,
+                    didSelectRelayLocations: { [weak self] relays in
+                        guard let self else { return }
+                        self.didSelectExitRelays(relays)
+                        self.didFinish?(self)
+                    },
+                    showFilterView: { [weak self] in
+                        guard let self else { return }
+                        self.navigateToFilter()
+                    },
+                    showEditCustomListView: { [weak self] locations in
+                        guard let self else { return }
+                        self.showEditCustomLists(nodes: locations)
+                    },
+                    showAddCustomListView: { [weak self] locations in
+                        guard let self else { return }
+                        self.showAddCustomList(nodes: locations)
+                    },
+                    didFinish: { [weak self] in
+                        guard let self else { return }
+                        self.didFinish?(self)
+                    }
+                )
+            )
         )
-
-        locationViewControllerWrapper.delegate = self
-
-        locationViewControllerWrapper.didFinish = { [weak self] in
-            guard let self else { return }
-
-            if let tunnelObserver {
-                tunnelManager.removeObserver(tunnelObserver)
-            }
-            didFinish?(self)
-        }
-
-        addTunnelObserver()
-
-        navigationController.pushViewController(locationViewControllerWrapper, animated: false)
+        navigationController.pushViewController(hostingController, animated: false)
     }
 
     private func addTunnelObserver() {

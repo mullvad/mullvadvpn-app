@@ -1119,6 +1119,8 @@
 		F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
+		F90052522E6B06AD0085C80E /* SelectLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90052512E6B06AA0085C80E /* SelectLocationView.swift */; };
+		F90052562E6EEB290085C80E /* SelectLocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90052552E6EEB290085C80E /* SelectLocationViewModel.swift */; };
 		F90A988A2E042D040020F64F /* ClearBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A98892E042D040020F64F /* ClearBackgroundView.swift */; };
 		F90A988C2E1268570020F64F /* MullvadPrimaryTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */; };
 		F90A988E2E13C5490020F64F /* MullvadSecondaryTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */; };
@@ -2574,6 +2576,8 @@
 		F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRelayCache.swift; sourceTree = "<group>"; };
 		F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModelTests.swift; sourceTree = "<group>"; };
 		F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchangingResultStub.swift; sourceTree = "<group>"; };
+		F90052512E6B06AA0085C80E /* SelectLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationView.swift; sourceTree = "<group>"; };
+		F90052552E6EEB290085C80E /* SelectLocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationViewModel.swift; sourceTree = "<group>"; };
 		F90A98892E042D040020F64F /* ClearBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearBackgroundView.swift; sourceTree = "<group>"; };
 		F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadPrimaryTextField.swift; sourceTree = "<group>"; };
 		F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadSecondaryTextField.swift; sourceTree = "<group>"; };
@@ -4977,6 +4981,8 @@
 		F900524C2E6B04470085C80E /* New Group */ = {
 			isa = PBXGroup;
 			children = (
+				F90052512E6B06AA0085C80E /* SelectLocationView.swift */,
+				F90052552E6EEB290085C80E /* SelectLocationViewModel.swift */,
 				F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */,
 			);
 			path = "New Group";
@@ -6654,6 +6660,7 @@
 				7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */,
 				F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */,
 				7A27E3CD2CB814EF0088BCFF /* DAITAInfoView.swift in Sources */,
+				F90052562E6EEB290085C80E /* SelectLocationViewModel.swift in Sources */,
 				F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */,
 				447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */,
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
@@ -6687,6 +6694,7 @@
 				440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */,
 				588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */,
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
+				F90052522E6B06AD0085C80E /* SelectLocationView.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,
 				F0B4957A2D02F49200CFEC2A /* ChipFeature.swift in Sources */,
 				F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */,
