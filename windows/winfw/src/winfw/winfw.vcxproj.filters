@@ -55,10 +55,7 @@
     <ClCompile Include="rules\persistent\blockall.cpp">
       <Filter>rules\persistent</Filter>
     </ClCompile>
-    <ClCompile Include="rules\baseline\permitendpoint.cpp">
-      <Filter>rules\baseline</Filter>
-    </ClCompile>
-    <ClCompile Include="rules\multi\permitvpnrelay.cpp">
+    <ClCompile Include="rules\multi\permitendpoint.cpp">
       <Filter>rules\multi</Filter>
     </ClCompile>
     <ClCompile Include="rules\dns\permitloopback.cpp">
@@ -129,10 +126,7 @@
     <ClInclude Include="rules\persistent\blockall.h">
       <Filter>rules\persistent</Filter>
     </ClInclude>
-    <ClInclude Include="rules\baseline\permitendpoint.h">
-      <Filter>rules\baseline</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\multi\permitvpnrelay.h">
+    <ClInclude Include="rules\multi\permitendpoint.h">
       <Filter>rules\multi</Filter>
     </ClInclude>
     <ClInclude Include="rules\dns\permitloopback.h">
