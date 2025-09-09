@@ -749,6 +749,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "duplicate"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97af9b5f014e228b33e77d75ee0e6e87960124f0f4b16337b586a6bec91867b1"
+
+[[package]]
 name = "ecdsa"
 version = "0.16.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3768,6 +3774,7 @@ dependencies = [
  "colored",
  "data-encoding-macro",
  "dirs",
+ "duplicate",
  "env_logger",
  "futures",
  "glob",

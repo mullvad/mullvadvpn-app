@@ -9,6 +9,7 @@ use crate::{
 };
 
 use anyhow::{Context, ensure};
+use duplicate::duplicate_item;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
@@ -20,7 +21,7 @@ use mullvad_types::{
 };
 use std::net::SocketAddr;
 use talpid_types::net::{
-    TransportProtocol, TunnelType,
+    IpVersion, TransportProtocol, TunnelType,
     proxy::{CustomProxy, Socks5Local, Socks5Remote},
 };
 use test_macro::test_function;
@@ -82,21 +83,29 @@ pub async fn test_openvpn_tunnel(
 /// Set up a WireGuard tunnel.
 /// This test fails if a working tunnel cannot be set up.
 /// WARNING: This test will fail if host has something bound to port 53 such as a connected Mullvad
+#[duplicate_item(
+      VX     test_wireguard_tunnel_ipvx;
+    [ V4 ] [ test_wireguard_tunnel_ipv4 ];
+    [ V6 ] [ test_wireguard_tunnel_ipv6 ];
+)]
 #[test_function]
-pub async fn test_wireguard_tunnel(
+pub async fn test_wireguard_tunnel_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     // TODO: observe UDP traffic on the expected destination/port (only)
-    // TODO: IPv6
 
     const PORTS: [(u16, bool); 3] = [(53, true), (51820, true), (1, false)];
+    let ip_version = IpVersion::VX;
 
     for (port, should_succeed) in PORTS {
         log::info!("Connect to WireGuard endpoint on port {port}");
 
-        let query = RelayQueryBuilder::wireguard().port(port).build();
+        let query = RelayQueryBuilder::wireguard()
+            .port(port)
+            .ip_version(ip_version)
+            .build();
 
         apply_settings_from_relay_query(&mut mullvad_client, query)
             .await
