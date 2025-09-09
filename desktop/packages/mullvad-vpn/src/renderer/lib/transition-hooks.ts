@@ -42,7 +42,7 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
 
   const transitionToView = useEffectEvent(
     (location: Location<LocationState>, transition: TransitionType) => {
-      if (reduceMotion) {
+      if (reduceMotion || window.env.e2e) {
         updateView(location);
         return;
       }
