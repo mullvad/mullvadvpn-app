@@ -30,6 +30,12 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         } as? LocationViewControllerWrapper
     }
 
+    var selectLocationViewModel: (any SelectLocationViewModel)? {
+        (navigationController.viewControllers.first {
+            $0 is UIHostingController<SelectLocationView<SelectLocationViewModelImpl>>
+        } as? UIHostingController<SelectLocationView<SelectLocationViewModelImpl>>)?.rootView.viewModel
+    }
+
     var didFinish: ((LocationCoordinator) -> Void)?
 
     init(
@@ -113,6 +119,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         coordinator.didFinish = { [weak self] addCustomListCoordinator in
             addCustomListCoordinator.dismiss(animated: true)
             self?.locationViewControllerWrapper?.refreshCustomLists()
+            self?.selectLocationViewModel?.refreshCustomLists()
         }
 
         coordinator.start()
@@ -130,6 +137,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
             listCustomListCoordinator.dismiss(animated: true)
             self?.locationViewControllerWrapper?.refreshCustomLists()
+            self?.selectLocationViewModel?.refreshCustomLists()
         }
 
         coordinator.start()
@@ -144,6 +152,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         locationViewControllerWrapper?.refreshCustomLists()
+        selectLocationViewModel?.refreshCustomLists()
     }
 }
 
