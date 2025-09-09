@@ -46,10 +46,6 @@ public:
 	static const GUID &Filter_Baseline_PermitDhcpServer_Inbound_Request_Ipv4();
 	static const GUID &Filter_Baseline_PermitDhcpServer_Outbound_Response_Ipv4();
 
-	static const GUID &Filter_Baseline_PermitVpnRelay();
-
-	static const GUID &Filter_Baseline_PermitEndpoint();
-
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1();
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1();
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2();
