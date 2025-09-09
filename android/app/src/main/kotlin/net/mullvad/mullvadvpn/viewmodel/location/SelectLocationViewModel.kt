@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -22,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -35,6 +37,7 @@ import net.mullvad.mullvadvpn.usecase.SelectHopError
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.onFirst
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions")
@@ -49,24 +52,17 @@ class SelectLocationViewModel(
     private val selectHopUseCase: SelectHopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
 ) : ViewModel() {
-    private val _relayListType: MutableStateFlow<RelayListType> =
-        MutableStateFlow(
-            if (
-                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled == true
-            ) {
-                RelayListType.Multihop(MultihopRelayListType.EXIT)
-            } else {
-                RelayListType.Single
-            }
-        )
+    private val _relayListType: MutableStateFlow<RelayListType?> = MutableStateFlow(null)
 
     val uiState =
         combine(
                 filterChips(),
-                wireguardConstraintsRepository.wireguardConstraints,
-                _relayListType,
+                wireguardConstraintsRepository.wireguardConstraints.filterNotNull().onFirst {
+                    _relayListType.emit(it.initialRelayListType())
+                },
+                _relayListType.filterNotNull(),
                 relayListRepository.relayList,
-                settingsRepository.settingsUpdates,
+                settingsRepository.settingsUpdates.filterNotNull(),
             ) { filterChips, wireguardConstraints, relayListSelection, relayList, settings ->
                 Lc.Content(
                     SelectLocationUiState(
@@ -77,7 +73,7 @@ class SelectLocationViewModel(
                             } else {
                                 filterChips
                             },
-                        multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
+                        multihopEnabled = wireguardConstraints.isMultihopEnabled,
                         relayListType = relayListSelection,
                         isSearchButtonEnabled =
                             searchButtonEnabled(
@@ -86,7 +82,7 @@ class SelectLocationViewModel(
                                 settings = settings,
                             ),
                         isFilterButtonEnabled = relayList.isNotEmpty(),
-                        isRecentsEnabled = settings?.recents is Recents.Enabled,
+                        isRecentsEnabled = settings.recents is Recents.Enabled,
                     )
                 )
             }
@@ -95,17 +91,25 @@ class SelectLocationViewModel(
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private fun filterChips() = _relayListType.flatMapLatest { filterChipUseCase(it) }
+    private fun filterChips() =
+        _relayListType.filterNotNull().flatMapLatest { filterChipUseCase(it) }
 
     private fun searchButtonEnabled(
         relayList: List<RelayItem.Location.Country>,
         relayListSelection: RelayListType,
-        settings: Settings?,
+        settings: Settings,
     ): Boolean {
         val hasRelayListItems = relayList.isNotEmpty()
         val isEntryAndBlocked = relayListSelection.isEntryAndBlocked(settings = settings)
         return hasRelayListItems && !isEntryAndBlocked
     }
+
+    private fun WireguardConstraints.initialRelayListType(): RelayListType =
+        if (isMultihopEnabled) {
+            RelayListType.Multihop(MultihopRelayListType.EXIT)
+        } else {
+            RelayListType.Single
+        }
 
     fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
         viewModelScope.launch { _relayListType.emit(RelayListType.Multihop(multihopRelayListType)) }
