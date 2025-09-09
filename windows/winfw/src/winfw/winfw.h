@@ -159,7 +159,7 @@ enum WINFW_POLICY_STATUS
 //
 // Apply restrictions in the firewall that block all traffic, except:
 // - What is specified by settings
-// - Communication with the relay server
+// - Communication with the relay server(s)
 // - Specified in-tunnel traffic, except DNS.
 //
 // Parameters:
@@ -174,7 +174,8 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
-	const WinFwEndpoint *relay,
+	size_t numRelays,
+	const WinFwEndpoint *relays,
 	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClient,
 	size_t relayClientLen,
@@ -188,7 +189,7 @@ WinFw_ApplyPolicyConnecting(
 //
 // Apply restrictions in the firewall that block all traffic, except:
 // - What is specified by settings
-// - Communication with the relay server
+// - Communication with the relay server(s)
 // - Non-DNS traffic inside the VPN tunnel
 // - DNS requests inside the VPN tunnel to any server in 'tunnelDnsServers'
 // - DNS requests outside the VPN tunnel to any server in 'nonTunnelDnsServers'
@@ -208,7 +209,8 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
-	const WinFwEndpoint *relay,
+	size_t numRelays,
+	const WinFwEndpoint *relays,
 	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClient,
 	size_t relayClientLen,
