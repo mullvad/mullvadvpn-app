@@ -155,7 +155,7 @@ type IpcMockedTestExtraHandlerKey<
 
 type IpcMockedTestFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
   ? Async<NonNullable<ReturnType<I['send']>>>
-  : Async<Parameters<ReturnType<I['receive']>>[0]>;
+  : (response: Awaited<ReturnType<Parameters<ReturnType<I['receive']>>[0]>>) => Promise<void>;
 
 export type IpcMockedTest<S extends Schema> = {
   [G in keyof S]: {
