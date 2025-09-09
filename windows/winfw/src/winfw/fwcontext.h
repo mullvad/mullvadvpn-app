@@ -27,7 +27,7 @@ public:
 	bool applyPolicyConnecting
 	(
 		const WinFwSettings &settings,
-		const WinFwEndpoint &relay,
+		const std::vector<WinFwEndpoint> &relays,
 		const std::optional<wfp::IpAddress> &exitEndpointIp,
 		const std::vector<std::wstring> &relayClients,
 		const std::optional<std::wstring> &tunnelInterfaceAlias,
@@ -38,7 +38,7 @@ public:
 	bool applyPolicyConnected
 	(
 		const WinFwSettings &settings,
-		const WinFwEndpoint &relay,
+		const std::vector<WinFwEndpoint> &relays,
 		const std::optional<wfp::IpAddress> &exitEndpointIp,
 		const std::vector<std::wstring> &relayClients,
 		const std::wstring &tunnelInterfaceAlias,

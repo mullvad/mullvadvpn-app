@@ -175,6 +175,7 @@ pub(super) fn apply_policy_connecting(
     let res = unsafe {
         WinFw_ApplyPolicyConnecting(
             winfw_settings,
+            1,
             &winfw_relay,
             exit_endpoint_ip_ptr,
             relay_client_wstr_ptrs.as_ptr(),
@@ -255,6 +256,7 @@ pub(super) fn apply_policy_connected(
     let result = unsafe {
         WinFw_ApplyPolicyConnected(
             winfw_settings,
+            1,
             &winfw_relay,
             exit_endpoint_ip_ptr,
             relay_client_wstr_ptrs.as_ptr(),
