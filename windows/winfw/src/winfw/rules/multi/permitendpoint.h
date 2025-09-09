@@ -8,7 +8,7 @@
 namespace rules::multi
 {
 
-class PermitVpnRelay : public IFirewallRule
+class PermitEndpoint : public IFirewallRule
 {
 public:
 
@@ -18,7 +18,7 @@ public:
 		Dns
 	};
 
-	PermitVpnRelay
+	PermitEndpoint
 	(
 		const wfp::IpAddress &relay,
 		uint16_t relayPort,
