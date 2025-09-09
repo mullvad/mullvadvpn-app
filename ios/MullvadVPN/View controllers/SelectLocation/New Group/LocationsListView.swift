@@ -132,8 +132,9 @@ private struct RelayItemView: View {
                 Text(label)
                     .font(.mullvadSmallSemiBold)
                     .foregroundStyle(isSelected
-                                     ? Color.mullvadSuccessColor
-                                     : Color.mullvadTextPrimary)
+                        ? Color.mullvadSuccessColor
+                        : Color.mullvadTextPrimary
+                    )
                 if showSubtitle {
                     Text("Connected server")
                         .font(.mullvadMiniSemiBold)

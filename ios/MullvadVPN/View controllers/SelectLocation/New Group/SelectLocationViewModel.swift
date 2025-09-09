@@ -4,10 +4,9 @@ import MullvadTypes
 
 @MainActor
 class SelectLocationViewModelImpl: SelectLocationViewModel {
+    @Published var activeFilter: [SelectLocationFilter] = []
     @Published var connectedRelayHostname: String?
-
     @Published var customLists: [LocationNode] = []
-
     @Published var allLocations: [LocationNode] = []
     @Published var selectedLocation: LocationNode?
 
@@ -50,6 +49,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 didUpdateTunnelSettings: { [weak self] _, settings in
                     guard let self else { return }
                     fetchLocations(settings: settings)
+                    let isMultihop = settings.tunnelMultihopState.isEnabled
+                    if isMultihop {}
+                    let isAutomaticRouting = settings.daita.isAutomaticRouting
+
+                    updateActiveFilters(settings)
                 }
             )
 
@@ -58,6 +62,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
         updateConnectedLocation(tunnelManager.tunnelStatus)
         fetchLocations(settings: tunnelManager.settings)
+        updateActiveFilters(tunnelManager.settings)
     }
 
     deinit {
@@ -65,7 +70,21 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         tunnelManager.removeObserver(tunnelObserver)
     }
 
-    fileprivate func updateConnectedLocation(_ status: TunnelStatus) {
+    private func updateActiveFilters(_ settings: LatestTunnelSettings) {
+        var activeFilter: [SelectLocationFilter] = []
+
+        if settings.daita.isDirectOnly {
+            activeFilter.append(.daita)
+        }
+
+        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
+        if isObfuscation {
+            activeFilter.append(.obfuscation)
+        }
+        self.activeFilter = activeFilter
+    }
+
+    private func updateConnectedLocation(_ status: TunnelStatus) {
         Task { @MainActor in
             if let hostname = status.state.relays?.exit.hostname {
                 self.connectedRelayHostname = hostname
@@ -131,103 +150,13 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 }
 
-class MockSelectLocationViewModel: SelectLocationViewModel {
-    var connectedRelayHostname: String?
-
-    var selectedLocation: LocationNode?
-
-    var showFilterView: (() -> Void)?
-
-    var showEditCustomListView: (([LocationNode]) -> Void)?
-
-    var showAddCustomListView: (([LocationNode]) -> Void)?
-
-    var didFinish: (() -> Void)?
-
-    func onSelectLocation(_ location: LocationNode) {
-        print("Selected location: \(location.name)")
+private extension WireGuardObfuscationState {
+    /// This flag affects whether the "Setting: Obfuscation" pill is shown when selecting a location
+    var affectsRelaySelection: Bool {
+        switch self {
+        case .shadowsocks, .quic:
+            true
+        default: false
+        }
     }
-
-    var customLists: [LocationNode] = [
-        LocationNode(name: "MyList1", code: "sth", children: [
-            LocationNode(name: "Sweden", code: "se", children: [
-                LocationNode(
-                    name: "Stockholm",
-                    code: "sth",
-                    children: [
-                        LocationNode(name: "se-sto-001", code: "se-sto-001"),
-                        LocationNode(name: "se-sto-002", code: "se-sto-002"),
-                        LocationNode(name: "se-sto-003", code: "se-sto-003"),
-                    ]
-                ),
-                LocationNode(name: "Gothenburg", code: "gto", children: [
-                    LocationNode(name: "se-got-001", code: "se-got-001"),
-                    LocationNode(name: "se-got-002", code: "se-got-002"),
-                    LocationNode(name: "se-got-003", code: "se-got-003"),
-                ]),
-            ]),
-            LocationNode(name: "Gothenburg", code: "gto", children: [
-                LocationNode(name: "se-got-001", code: "se-got-001"),
-                LocationNode(name: "se-got-002", code: "se-got-002"),
-            ]),
-            LocationNode(name: "se-got-003", code: "se-got-003"),
-        ]),
-        LocationNode(name: "MyList2", code: "sth", children: [
-            LocationNode(name: "Germany", code: "de", children: [
-                LocationNode(name: "Berlin", code: "ber", children: [
-                    LocationNode(name: "de-ber-001", code: "de-ber-001"),
-                    LocationNode(name: "de-ber-002", code: "de-ber-002"),
-                    LocationNode(name: "de-ber-003", code: "de-ber-003"),
-                ]),
-                LocationNode(name: "Frankfurt", code: "fra", children: [
-                    LocationNode(name: "de-fra-001", code: "de-fra-001"),
-                    LocationNode(name: "de-fra-002", code: "de-fra-002"),
-                    LocationNode(name: "de-fra-003", code: "de-fra-003"),
-                ]),
-            ]),
-        ]),
-    ]
-
-    var allLocations: [LocationNode] = [
-        LocationNode(name: "Sweden", code: "se", children: [
-            LocationNode(
-                name: "Stockholm",
-                code: "sth",
-                children: [
-                    LocationNode(name: "se-sto-001", code: "se-sto-001"),
-                    LocationNode(name: "se-sto-002", code: "se-sto-002"),
-                    LocationNode(name: "se-sto-003", code: "se-sto-003"),
-                ]
-            ),
-            LocationNode(name: "Gothenburg", code: "gto", children: [
-                LocationNode(name: "se-got-001", code: "se-got-001"),
-                LocationNode(name: "se-got-002", code: "se-got-002"),
-                LocationNode(name: "se-got-003", code: "se-got-003"),
-            ]),
-        ]),
-        LocationNode(name: "Germany", code: "de", children: [
-            LocationNode(name: "Berlin", code: "ber", children: [
-                LocationNode(name: "de-ber-001", code: "de-ber-001"),
-                LocationNode(name: "de-ber-002", code: "de-ber-002"),
-                LocationNode(name: "de-ber-003", code: "de-ber-003"),
-            ]),
-            LocationNode(name: "Frankfurt", code: "fra", children: [
-                LocationNode(name: "de-fra-001", code: "de-fra-001"),
-                LocationNode(name: "de-fra-002", code: "de-fra-002"),
-                LocationNode(name: "de-fra-003", code: "de-fra-003"),
-            ]),
-        ]),
-        LocationNode(name: "France", code: "fr", children: [
-            LocationNode(name: "Paris", code: "par", children: [
-                LocationNode(name: "fr-par-001", code: "fr-par-001"),
-                LocationNode(name: "fr-par-002", code: "fr-par-002"),
-                LocationNode(name: "fr-par-003", code: "fr-par-003"),
-            ]),
-            LocationNode(name: "Lyon", code: "lyo", children: [
-                LocationNode(name: "fr-lyo-001", code: "fr-lyo-001"),
-                LocationNode(name: "fr-lyo-002", code: "fr-lyo-002"),
-                LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
-            ]),
-        ]),
-    ]
 }
