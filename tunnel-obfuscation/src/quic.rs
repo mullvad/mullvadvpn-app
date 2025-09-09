@@ -186,6 +186,7 @@ impl Quic {
         Ok(quic)
     }
 
+    #[allow(unused)]
     pub(crate) async fn new(settings: &Settings) -> Result<Self> {
         let (_local_socket, local_udp_client_addr) =
             Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4()).await?;

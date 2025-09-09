@@ -153,7 +153,7 @@ pub struct ClientConfig {
 }
 
 impl Client {
-    pub async fn connect(mut config: ClientConfig) -> Result<Self> {
+    pub async fn connect(config: ClientConfig) -> Result<Self> {
         let quic_client_config = QuicClientConfig::try_from(config.tls_config)
             .expect("Failed to construct a valid TLS configuration");
 

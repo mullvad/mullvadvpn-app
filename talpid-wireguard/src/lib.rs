@@ -464,6 +464,8 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         #[allow(unused_variables)] log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
+        use std::net::Ipv4Addr;
+
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
@@ -476,25 +478,92 @@ impl WireguardMonitor {
             .map_err(Error::WireguardConfigError)?;
 
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
-        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         let obfuscation_mtu = route_mtu;
-        let obfuscator = args
-            .runtime
-            .block_on(obfuscation::apply_obfuscation_config(
-                &mut config,
+        let (obfs_tx, obfs_rx, obfuscator_channels) = {
+            let capacity = 100;
+            let source_v4 = std::net::SocketAddr::from((Ipv4Addr::new(10, 0, 0, 1), 0)); // TODO: Is this correct?
+
+            tunnel_obfuscation::new_packet_channels(capacity, source_v4)
+        };
+
+        let quic_obfuscator = {
+            let obfuscator_config = config.obfuscator_config.as_ref().unwrap();
+            let settings = obfuscation::settings_from_config(
+                obfuscator_config,
                 obfuscation_mtu,
-                close_obfs_sender.clone(),
-                args.tun_provider.clone(),
-            ))?;
-        // Adjust MTU again for obfuscation packet overhead
-        if params.options.mtu.is_none()
-            && let Some(obfuscator) = obfuscator.as_ref()
-        {
+                #[cfg(target_os = "linux")]
+                config.fwmark,
+            );
+
+            args.runtime
+                .block_on(tunnel_obfuscation::create_quic_obfuscator(
+                    &settings,
+                    (obfs_tx, obfs_rx),
+                ))
+                .unwrap()
+                .unwrap()
+        };
+
+        // Adjust tunnel MTU again for obfuscation packet overhead
+        if params.options.mtu.is_none() {
             config.mtu = clamp_tunnel_mtu(
                 params,
-                config.mtu.saturating_sub(obfuscator.packet_overhead()),
+                config.mtu.saturating_sub(quic_obfuscator.packet_overhead()),
             );
         }
+
+        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        let obfuscator = {
+            let packet_overhead = quic_obfuscator.packet_overhead();
+            let close_obfs_sender = close_obfs_sender.clone();
+            let obfuscation_task = tokio::spawn(async move {
+                let obfuscator = Box::new(quic_obfuscator);
+                match obfuscator.run().await {
+                    Ok(_) => {
+                        let _ = close_obfs_sender.send(CloseMsg::ObfuscatorExpired);
+                    }
+                    Err(error) => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Obfuscation controller failed")
+                        );
+                        let _ = close_obfs_sender
+                            .send(CloseMsg::ObfuscatorFailed(Error::ObfuscationError(error)));
+                    }
+                }
+            });
+
+            Some(ObfuscatorHandle {
+                obfuscation_task,
+                packet_overhead,
+            })
+        };
+
+        let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
+
+        /*
+                // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+                let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+                let obfuscation_mtu = route_mtu;
+                let obfuscator = args
+                    .runtime
+                    .block_on(obfuscation::apply_obfuscation_config(
+                        &mut config,
+                        obfuscation_mtu,
+                        close_obfs_sender.clone(),
+                        args.tun_provider.clone(),
+                    ))?;
+                // Adjust MTU again for obfuscation packet overhead
+                if params.options.mtu.is_none()
+                    && let Some(obfuscator) = obfuscator.as_ref()
+                {
+                    config.mtu = clamp_tunnel_mtu(
+                        params,
+                        config.mtu.saturating_sub(obfuscator.packet_overhead()),
+                    );
+                }
+        */
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
@@ -513,6 +582,7 @@ impl WireguardMonitor {
             .block_on(boringtun::open_boringtun_tunnel(
                 &config,
                 args.tun_provider.clone(),
+                Some(obfuscator_channels),
                 args.route_manager,
             ))
             .map(Box::new)? as Box<dyn Tunnel>;
@@ -542,7 +612,7 @@ impl WireguardMonitor {
             event_hook: event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: cancel_token,
-            obfuscator: Arc::new(AsyncMutex::new(obfuscator)),
+            obfuscator,
         };
 
         let moved_close_obfs_sender = close_obfs_sender.clone();
