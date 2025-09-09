@@ -106,7 +106,6 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       if (providers) {
         settings.relaySettings.normal.providers = providers;
       }
-      await utils.ipc.settings.setRelaySettings.ignore();
     }
     await utils.ipc.settings[''].notify(settings);
   };
