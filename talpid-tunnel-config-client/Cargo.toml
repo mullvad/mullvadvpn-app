@@ -29,7 +29,7 @@ sha2 = { workspace = true }
 zeroize = "1.5.7"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2"
+nix = { workspace = true, features = ["socket"] }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
