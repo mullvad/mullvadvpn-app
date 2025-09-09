@@ -82,6 +82,7 @@ class SelectLocationListViewModel(
                     expandedItems = expandedItems,
                 )
             } else {
+                val settings = settingsRepository.settingsUpdates.value
                 relayListItems(
                     relayCountries = relayCountries,
                     relayListType = relayListType,
@@ -91,10 +92,13 @@ class SelectLocationListViewModel(
                     selectedByThisEntryExitList =
                         selectedItem.selectedByThisEntryExitList(relayListType),
                     selectedByOtherEntryExitList =
-                        selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
+                        if (ignoreEntrySelection(settings, relayListType)) {
+                            null
+                        } else {
+                            selectedItem.selectedByOtherEntryExitList(relayListType, customLists)
+                        },
                     expandedItems = expandedItems,
-                    isEntryBlocked =
-                        relayListType.isEntryAndBlocked(settingsRepository.settingsUpdates.value),
+                    isEntryBlocked = settings?.entryBlocked() == true,
                 )
             }
         }

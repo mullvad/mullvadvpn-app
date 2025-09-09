@@ -16,10 +16,12 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
@@ -50,6 +52,7 @@ class SearchLocationViewModelTest {
     private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
     private val mockSelectHopUseCase: SelectHopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
+    private val mockSettingsRepository: SettingsRepository = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocation =
@@ -59,6 +62,7 @@ class SearchLocationViewModelTest {
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
+    private val settingsFlow = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SearchLocationViewModel
 
@@ -72,6 +76,7 @@ class SearchLocationViewModelTest {
         every { mockFilterChipUseCase(any()) } returns filterChips
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
+        every { mockSettingsRepository.settingsUpdates } returns settingsFlow
 
         viewModel =
             SearchLocationViewModel(
@@ -86,6 +91,7 @@ class SearchLocationViewModelTest {
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
                 selectHopUseCase = mockSelectHopUseCase,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
+                settingsRepository = mockSettingsRepository,
                 savedStateHandle =
                     SearchLocationNavArgs(relayListType = RelayListType.Single).toSavedStateHandle(),
             )

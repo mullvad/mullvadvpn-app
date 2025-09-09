@@ -19,8 +19,15 @@ internal fun RelayListType.isEntryAndBlocked(settings: Settings?): Boolean {
     return settings?.entryBlocked() == true
 }
 
-private fun Settings.entryBlocked() =
+internal fun Settings.entryBlocked() =
     isDaitaEnabled() && !isDaitaDirectOnly() && isMultihopEnabled()
+
+// If entry is blocked and we are on the exit list we should ignore any entry selection
+internal fun ignoreEntrySelection(settings: Settings?, relayListType: RelayListType) =
+    settings?.entryBlocked() == true && relayListType.isMultihopExit()
+
+private fun RelayListType.isMultihopExit() =
+    this is RelayListType.Multihop && multihopRelayListType == MultihopRelayListType.EXIT
 
 private fun RelayListType.isMultihopEntry() =
     this is RelayListType.Multihop && multihopRelayListType == MultihopRelayListType.ENTRY
