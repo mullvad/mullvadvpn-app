@@ -8,7 +8,6 @@ import {
   IRelayListHostname,
   ISettings,
   Ownership,
-  RelaySettings,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
@@ -108,7 +107,6 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
         settings.relaySettings.normal.providers = providers;
       }
     }
-    await utils.ipc.settings.setRelaySettings.handle({} as RelaySettings);
     await utils.ipc.settings[''].notify(settings);
   };
 
