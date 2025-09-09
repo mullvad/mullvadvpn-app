@@ -6,7 +6,7 @@
 # 🚨 TODO: Change project_id from sandbox to "production" 🚨
 # Only after all translations are complete!
 # ===============================================
-"project_id": "816306"
+"project_id": "827282"
 "base_path": "./locales"
 "base_url": "https://api.crowdin.com"
 "preserve_hierarchy": true

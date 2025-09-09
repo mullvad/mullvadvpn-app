@@ -964,17 +964,6 @@
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */; };
 		F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */; };
-		F04A66F92E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A66FA2E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A66FB2E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A66FC2E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A66FD2E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A66FE2E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A66FF2E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A67002E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A67012E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A67022E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
-		F04A67032E4B44EC0081C89C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */; };
 		F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */; };
 		F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
 		F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */; };
@@ -1071,6 +1060,17 @@
 		F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F02BF751E300817A42 /* RelayWithDistance.swift */; };
 		F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */; };
 		F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */; };
+		F0BC1E852E701C5A001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E862E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E872E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E882E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E892E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E8A2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E8B2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E8C2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E8D2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E8E2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
+		F0BC1E8F2E701D82001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
 		F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */; };
 		F0C13FE42C64F7CB00BD087D /* DAITASettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */; };
 		F0C13FE62C64FB3400BD087D /* TunnelSettingsV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */; };
@@ -2442,7 +2442,6 @@
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLanguage.swift; sourceTree = "<group>"; };
 		F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogModel.swift; sourceTree = "<group>"; };
-		F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiationState.swift; sourceTree = "<group>"; };
 		F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
 		F04FBE602A8379EE009278D7 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
@@ -2523,6 +2522,7 @@
 		F0B894F02BF751E300817A42 /* RelayWithDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithDistance.swift; sourceTree = "<group>"; };
 		F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Wireguard.swift"; sourceTree = "<group>"; };
 		F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Shadowsocks.swift"; sourceTree = "<group>"; };
+		F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderFooterView.swift; sourceTree = "<group>"; };
 		F0BEFD1F2E4A327A00C19030 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettings.swift; sourceTree = "<group>"; };
@@ -4234,7 +4234,7 @@
 			children = (
 				5859A55429CD9DD800F66591 /* changes.txt */,
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
-				F04A66F82E4B44EC0081C89C /* Localizable.xcstrings */,
+				F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -5668,7 +5668,7 @@
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
 				7A95B67B2D5F758300687524 /* relays.json in Resources */,
-				F04A66FC2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E882E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5690,7 +5690,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A66FF2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E8B2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5706,11 +5706,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
-				F04A66F92E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
 				7A83C3FF2A55B72E00DFB83A /* MullvadVPNApp.xctestplan in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				5859A55529CD9DD900F66591 /* changes.txt in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
+				F0BC1E852E701C5A001CA97A /* Localizable.xcstrings in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5719,8 +5719,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F0BC1E862E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 				A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
-				F04A66FA2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5728,7 +5728,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A66FB2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E872E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5736,7 +5736,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A66FD2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E892E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5744,7 +5744,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A66FE2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E8A2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5759,7 +5759,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A67012E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E8D2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5781,7 +5781,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A67032E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E8F2E701D82001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5796,7 +5796,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A67002E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E8C2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5804,7 +5804,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04A67022E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
+				F0BC1E8E2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
