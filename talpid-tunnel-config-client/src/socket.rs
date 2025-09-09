@@ -15,9 +15,8 @@ use tokio::net::TcpStream;
 mod sys {
     use super::*;
 
-    pub use libc::{IPPROTO_TCP, TCP_MAXSEG, setsockopt, socklen_t};
-    use std::ffi::c_int;
-    pub use std::os::fd::AsRawFd;
+    use nix::sys::socket::{setsockopt, sockopt::TcpMaxSeg};
+    use std::os::fd::AsFd;
 
     /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
     /// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
@@ -43,28 +42,12 @@ mod sys {
         }
     }
 
-    fn try_set_tcp_sock_mtu(sock: &impl AsRawFd) {
-        let mss = c_int::from(desired_mss());
-
+    fn try_set_tcp_sock_mtu(sock: &impl AsFd) {
+        let mss = u32::from(desired_mss());
         log::debug!("Tunnel config TCP socket MSS: {mss}");
-
-        // TODO: replace with nix when TcpMaxSeg is added for macos
-        // SAFETY: `mss` is a valid pointer to a c_int.
-        let result = unsafe {
-            setsockopt(
-                sock.as_raw_fd(),
-                IPPROTO_TCP,
-                TCP_MAXSEG,
-                &mss as *const _ as _,
-                socklen_t::try_from(std::mem::size_of_val(&mss)).unwrap(),
-            )
+        if let Err(e) = setsockopt(sock, TcpMaxSeg, &mss) {
+            log::error!("Failed to set MSS on tunnel config TCP socket: {e}");
         };
-        if result != 0 {
-            log::error!(
-                "Failed to set MSS on tunnel config TCP socket: {}",
-                std::io::Error::last_os_error()
-            );
-        }
     }
 
     const fn desired_mss() -> u16 {
