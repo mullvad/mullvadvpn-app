@@ -16,8 +16,6 @@ fun Settings.selectedObfuscationMode() = obfuscationSettings.selectedObfuscation
 
 fun Settings.wireguardPort() = relaySettings.relayConstraints.wireguardConstraints.port
 
-fun Settings.entryLocation() = relaySettings.relayConstraints.wireguardConstraints.entryLocation
-
 fun Settings.deviceIpVersion() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
 fun Settings.isDaitaAndDirectOnly() = isDaitaEnabled() && isDaitaDirectOnly()
