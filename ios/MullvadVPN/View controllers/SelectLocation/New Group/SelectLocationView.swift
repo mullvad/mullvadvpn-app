@@ -8,22 +8,28 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 if !viewModel.activeFilter.isEmpty {
                     ActiveFilterView(
                         activeFilter: viewModel.activeFilter) { filter in
-                            print("Open filter \(filter.title)")
+                            viewModel.onFilterTapped(filter)
                         } onRemove: { filter in
-                            print("Remove filter \(filter.title)")
+                            viewModel.onFilterRemoved(filter)
                         }
                 }
+                MullvadSecondaryTextField(
+                    placeholder: "Search for locations or servers...",
+                    text: $viewModel.searchText
+                )
                 HStack {
                     ListHeader(title: "Custom lists")
                     Button {
-                        viewModel.showAddCustomListView?([])
+                        viewModel.showAddCustomListView?(viewModel.allLocations)
                     } label: {
                         Image.mullvadIconAdd
                             .padding(12)
                     }
                     if !viewModel.customLists.isEmpty {
                         Button {
-                            viewModel.showEditCustomListView?(viewModel.customLists)
+                            viewModel.showEditCustomListView?(
+                                viewModel.allLocations
+                            )
                         } label: {
                             Image.mullvadIconEdit
                                 .padding(12)
@@ -31,7 +37,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 }
                 LocationsListView(
-                    locations: viewModel.customLists,
+                    locations: $viewModel.customLists,
                     selectedLocation: viewModel.selectedLocation,
                     connectedRelayHostname: viewModel.connectedRelayHostname
                 ) { location in
@@ -50,16 +56,17 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     .padding(.bottom, 16)
                 ListHeader(title: "All locations")
                 LocationsListView(
-                    locations: viewModel.allLocations,
+                    locations: $viewModel.allLocations,
                     selectedLocation: viewModel.selectedLocation,
                     connectedRelayHostname: viewModel.connectedRelayHostname
                 ) { location in
                     viewModel.onSelectLocation(location)
                 }
             }
+            .animation(.default, value: viewModel.activeFilter)
             // iOS 18 has a bug where the button press does not get cancelled on drag. This is a hacky fix
             // https://developer.apple.com/forums/thread/763436?answerId=829089022#829089022
-            .modifier(FixScrollViewWithTappedButton())
+//            .modifier(FixScrollViewWithTappedButton())
             .padding()
         }
         .background(Color.mullvadBackground)
@@ -67,29 +74,30 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(
-                placement: .cancellationAction,
+                placement: .topBarTrailing,
                 content: {
-                    Button {
+                    Button("Done") {
                         viewModel.didFinish?()
-                    } label: {
-                        Image.mullvadIconCross
                     }
+                    .foregroundStyle(Color.mullvadTextPrimary)
                 }
             )
             ToolbarItem(
-                placement: .topBarTrailing,
+                placement: .topBarLeading,
                 content: {
-                    Image.mullvadIconSearch
-                }
-            )
-            ToolbarItem(
-                placement: .topBarTrailing,
-                content: {
-                    Button {
-                        viewModel.showFilterView?()
+                    Menu {
+                        Button {
+                            viewModel.showFilterView?()
+                        } label: {
+                            HStack {
+                                Image(systemName: "line.3.horizontal.decrease")
+                                Text("Filters")
+                            }
+                            .foregroundStyle(Color.mullvadTextPrimary)
+                        }
                     } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
-                            .foregroundStyle(Color.gray)
+                        Image(systemName: "ellipsis.circle.fill")
+                            .foregroundStyle(Color.mullvadTextPrimary)
                     }
                 }
             )
@@ -134,45 +142,84 @@ struct FixScrollViewWithTappedButton: ViewModifier {
 }
 
 #Preview {
-    NavigationView {
-        SelectLocationView(
-            viewModel: MockSelectLocationViewModel()
-        )
-    }
+    Text("")
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                SelectLocationView(
+                    viewModel: MockSelectLocationViewModel()
+                )
+            }
+        }
 }
 
-enum SelectLocationFilter: Identifiable {
-    var id: Self { self }
-
+enum SelectLocationFilter: Hashable {
     case daita
     case obfuscation
+    case owned
+    case rented
+    case provider(Int)
+
+    var canBeRemoved: Bool {
+        switch self {
+        case .daita, .obfuscation:
+            return false
+        case .provider, .owned, .rented:
+            return true
+        }
+    }
 
     var title: LocalizedStringKey {
         switch self {
         case .daita:
-            return "Daita"
+            return "Setting: Daita"
         case .obfuscation:
-            return "Obfuscation"
+            return "Setting: Obfuscation"
+        case .owned:
+            return "Owned"
+        case .rented:
+            return "Rented"
+        case .provider(let count):
+            return "Providers: \(count)"
         }
     }
 }
 
 @MainActor
 protocol SelectLocationViewModel: ObservableObject {
-    var allLocations: [LocationNode] { get }
-    var customLists: [LocationNode] { get }
+    var allLocations: [LocationNode] { get set }
+    var customLists: [LocationNode] { get set }
     var selectedLocation: LocationNode? { get }
     var connectedRelayHostname: String? { get }
     var activeFilter: [SelectLocationFilter] { get }
+    var searchText: String { get set }
     var showFilterView: (() -> Void)? { get }
     var showEditCustomListView: (([LocationNode]) -> Void)? { get }
     var showAddCustomListView: (([LocationNode]) -> Void)? { get }
     var didFinish: (() -> Void)? { get }
     func onSelectLocation(_ location: LocationNode)
+    func onFilterTapped(_ filter: SelectLocationFilter)
+    func onFilterRemoved(_ filter: SelectLocationFilter)
+    func refreshCustomLists()
 }
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
-    var activeFilter: [SelectLocationFilter] = [.daita, .obfuscation]
+    func onFilterTapped(_ filter: SelectLocationFilter) {
+        print("show filter: \(filter)")
+    }
+
+    func onFilterRemoved(_ filter: SelectLocationFilter) {
+        print("remove filter: \(filter)")
+    }
+
+    var searchText: String = ""
+
+    var activeFilter: [SelectLocationFilter] = [
+        .daita,
+        .obfuscation,
+        .rented,
+        .owned,
+        .provider(12),
+    ]
 
     var connectedRelayHostname: String?
 
@@ -190,8 +237,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         print("Selected location: \(location.name)")
     }
 
-    var customLists: [LocationNode] = [
-        LocationNode(name: "MyList1", code: "sth", children: [
+    @Published var customLists: [LocationNode] = [
+        LocationNode(name: "MyList1", code: "mylist1", children: [
             LocationNode(name: "Sweden", code: "se", children: [
                 LocationNode(
                     name: "Stockholm",
@@ -209,7 +256,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
             ]),
             LocationNode(name: "se-got-003", code: "se-got-003"),
         ]),
-        LocationNode(name: "MyList2", code: "sth", children: [
+        LocationNode(name: "MyList2", code: "mylist2", children: [
             LocationNode(name: "Germany", code: "de", children: [
                 LocationNode(name: "Berlin", code: "ber", children: [
                     LocationNode(name: "de-ber-001", code: "de-ber-001"),
@@ -229,7 +276,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         ),
     ]
 
-    var allLocations: [LocationNode] = [
+    @Published var allLocations: [LocationNode] = [
         LocationNode(name: "Sweden", code: "se", children: [
             LocationNode(
                 name: "Stockholm",
@@ -245,7 +292,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                 LocationNode(name: "se-got-002", code: "se-got-002"),
                 LocationNode(name: "se-got-003", code: "se-got-003"),
             ]),
-        ]),
+        ], showsChildren: true),
         LocationNode(name: "Germany", code: "de", children: [
             LocationNode(name: "Berlin", code: "ber", children: [
                 LocationNode(name: "de-ber-001", code: "de-ber-001"),
@@ -271,27 +318,40 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
             ]),
         ]),
     ]
+
+    func refreshCustomLists() {}
 }
 
 struct ActiveFilterView: View {
     let activeFilter: [SelectLocationFilter]
     let onSelect: (SelectLocationFilter) -> Void
     let onRemove: (SelectLocationFilter) -> Void
+    @State private var maxItemHeight: CGFloat = 0
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             Text("Filtered:")
                 .font(.mullvadTiny)
-            ForEach(activeFilter) { filter in
-                Button {} label: {
+            MullvadHFlow(activeFilter) { filter in
+                Button {
+                    onSelect(filter)
+                } label: {
                     HStack {
                         Text(filter.title)
                             .font(.mullvadMiniSemiBold)
                             .foregroundStyle(Color.mullvadTextPrimary)
-                        Button {} label: {
-                            Image.mullvadIconCross
+                        if filter.canBeRemoved {
+                            Button {
+                                onRemove(filter)
+                            } label: {
+                                Image.mullvadIconCross
+                            }
                         }
                     }
                     .padding(8)
+                    .sizeOfView { size in
+                        maxItemHeight = max(maxItemHeight, size.height)
+                    }
+                    .frame(height: maxItemHeight)
                     .background {
                         RoundedRectangle(cornerRadius: 8)
                             .foregroundStyle(Color.MullvadButton.primary)
@@ -300,4 +360,20 @@ struct ActiveFilterView: View {
             }
         }
     }
+}
+
+#Preview {
+    Text("da")
+        .sheet(isPresented: .constant(true)) {
+            NavigationView {
+                ScrollView {
+                    ActiveFilterView(
+                        activeFilter: [.daita, .owned, .rented, .provider(2)],
+                        onSelect: { _ in
+                        },
+                        onRemove: { _ in }
+                    )
+                }
+            }
+        }
 }

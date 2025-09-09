@@ -1,23 +1,34 @@
 import SwiftUI
 
 struct LocationsListView: View {
-    let locations: [LocationNode]
+    @Binding var locations: [LocationNode]
     let selectedLocation: LocationNode?
     let connectedRelayHostname: String?
     let onSelectLocation: (LocationNode) -> Void
 
+    var filteredLocationIndices: [Int] {
+        locations
+            .enumerated()
+            .filter { !$0.element.isHiddenFromSearch }
+            .map { $0.offset }
+    }
+
     var body: some View {
         VStack(spacing: 4) {
-            ForEach(Array(locations.enumerated()), id: \.offset) { index, location in
+            ForEach(
+                Array(filteredLocationIndices.enumerated()),
+                id: \.element
+            ) { index, indexInLocationList in
+                let location = $locations[indexInLocationList]
                 LocationListItem(
                     location: location,
                     selectedLocation: selectedLocation,
                     connectedRelayHostname: connectedRelayHostname,
                     position: ItemPosition(
                         index: index,
-                        count: locations.count
+                        count: filteredLocationIndices.count
                     ),
-                    onSelect: onSelectLocation
+                    onSelect: onSelectLocation,
                 )
             }
         }
@@ -25,12 +36,32 @@ struct LocationsListView: View {
 }
 
 struct LocationListItem: View {
-    let location: LocationNode
+    @Binding var location: LocationNode
     let selectedLocation: LocationNode?
     let connectedRelayHostname: String?
     let position: ItemPosition
     let onSelect: (LocationNode) -> Void
     var level = 0
+    var shouldBeExpanded: Bool {
+        if let selectedLocation {
+            var curr = selectedLocation
+            while let parent = curr.parent {
+                if parent.code == location.code {
+                    return true
+                }
+                curr = parent
+            }
+        }
+        return location.showsChildren
+    }
+
+    var filteredChildrenIndices: [Int] {
+        location.children
+            .enumerated()
+            .filter { !$0.element.isHiddenFromSearch }
+            .map { $0.offset }
+    }
+
     var body: some View {
         if location.children.isEmpty {
             Button {
@@ -47,35 +78,25 @@ struct LocationListItem: View {
                 }
             }
         } else {
-            var shouldBeExpanded: Bool {
-                guard let selectedLocation else { return false }
-                var curr = selectedLocation
-                while let parent = curr.parent {
-                    if parent.code == location.code {
-                        return true
-                    }
-                    curr = parent
-                }
-                return false
-            }
             LocationDisclosureGroup(
                 level: level,
                 position: position,
-                isExpanded: shouldBeExpanded
+                isExpanded: $location.showsChildren
             ) {
                 ForEach(
-                    Array(location.children.enumerated()),
-                    id: \.offset
-                ) { index, child in
+                    Array(filteredChildrenIndices.enumerated()),
+                    id: \.element
+                ) { index, indexInChildrenList in
+                    let location = $location.children[indexInChildrenList]
                     LocationListItem(
-                        location: child,
+                        location: location,
                         selectedLocation: selectedLocation,
                         connectedRelayHostname: connectedRelayHostname,
                         position: level > 0 && position != .last
                             ? .middle
                             : ItemPosition(
                                 index: index + 1,
-                                count: location.children.count + 1
+                                count: filteredChildrenIndices.count + 1
                             ),
                         onSelect: onSelect,
                         level: level + 1,
@@ -201,7 +222,7 @@ enum ItemPosition: String {
 }
 
 private struct LocationDisclosureGroup<Label: View, Content: View>: View {
-    @State private var isExpanded = false
+    @Binding private var isExpanded: Bool
 
     let position: ItemPosition
     let level: Int
@@ -212,14 +233,15 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
     init(
         level: Int,
         position: ItemPosition = .only,
-        isExpanded: Bool? = nil,
+        isExpanded: Binding<Bool>,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil
     ) {
         self.position = position
         self.level = level
-        self.isExpanded = isExpanded ?? false
+        self._isExpanded = isExpanded
+
         self.label = label
         self.content = content
         self.onSelect = onSelect
@@ -303,8 +325,9 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
     }
 }
 
+@available(iOS 17, *)
 #Preview {
-    var locations: [LocationNode] = [
+    @Previewable @State var locations: [LocationNode] = [
         LocationNode(name: "Sweden", code: "se", children: [
             LocationNode(
                 name: "Stockholm",
@@ -367,7 +390,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
     ]
     ScrollView {
         LocationsListView(
-            locations: locations,
+            locations: $locations,
             selectedLocation: LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
             connectedRelayHostname: "fr-lyo-003",
             onSelectLocation: { location in
@@ -377,4 +400,35 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
         .padding()
     }
     .background(Color.mullvadBackground)
+}
+
+@available(iOS 17, *)
+#Preview {
+    @Previewable @State var location = LocationNode(name: "Custom list", code: "blda", children: [
+        LocationNode(name: "de-ber-003", code: "de-ber-003"),
+
+        LocationNode(name: "France", code: "fr", children: [
+            LocationNode(name: "Paris", code: "par", children: [
+                LocationNode(name: "fr-par-001", code: "fr-par-001"),
+                LocationNode(name: "fr-par-002", code: "fr-par-002"),
+                LocationNode(name: "fr-par-003", code: "fr-par-003"),
+            ], showsChildren: true),
+            LocationNode(name: "Lyon", code: "lyo", children: [
+                LocationNode(name: "fr-lyo-001", code: "fr-lyo-001"),
+                LocationNode(name: "fr-lyo-002", code: "fr-lyo-002"),
+                LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
+            ]),
+        ], showsChildren: true),
+        LocationNode(name: "testserver", code: "1234"),
+    ], showsChildren: true)
+    ScrollView {
+        LocationListItem(
+            location: $location,
+            selectedLocation: nil,
+            connectedRelayHostname: nil,
+            position: .only,
+            onSelect: { _ in },
+            level: 0
+        )
+    }
 }
