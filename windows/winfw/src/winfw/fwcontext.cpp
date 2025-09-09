@@ -114,13 +114,19 @@ void AppendAllowedEndpointRules
 		clients.push_back(endpoint.clients[i]);
 	}
 
+	auto sublayer =
+	(
+		DNS_SERVER_PORT == endpoint.endpoint.port
+		? rules::multi::PermitEndpoint::Sublayer::Dns
+		: rules::multi::PermitEndpoint::Sublayer::Baseline
+	);
+
 	ruleset.emplace_back(std::make_unique<multi::PermitEndpoint>(
 		wfp::IpAddress(endpoint.endpoint.ip),
 		endpoint.endpoint.port,
 		endpoint.endpoint.protocol,
 		clients,
-		// TODO: DNS sublayer if port 53
-		multi::PermitEndpoint::Sublayer::Baseline
+		sublayer
 	));
 }
 
