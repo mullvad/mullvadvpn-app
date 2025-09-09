@@ -10,6 +10,7 @@ import { MultihopSettingsRouteObjectModel } from './multihop-settings';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SelectLocationRouteObjectModel } from './select-location';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
+import { SplitTunnelingSettingsRouteObjectModel } from './split-tunneling-settings';
 import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
 import { VpnSettingsRouteObjectModel } from './vpn-settings';
@@ -29,6 +30,7 @@ export class RoutesObjectModel {
   readonly udpOverTcpSettings: UdpOverTcpSettingsRouteObjectModel;
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
+  readonly splitTunnelingSettings: SplitTunnelingSettingsRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -44,5 +46,6 @@ export class RoutesObjectModel {
     this.udpOverTcpSettings = new UdpOverTcpSettingsRouteObjectModel(page, utils);
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
+    this.splitTunnelingSettings = new SplitTunnelingSettingsRouteObjectModel(page, utils);
   }
 }
