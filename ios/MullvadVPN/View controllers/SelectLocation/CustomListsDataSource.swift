@@ -19,9 +19,9 @@ class CustomListsDataSource: LocationDataSourceProtocol {
         self.repository = repository
     }
 
-    var searchableNodes: [LocationNode] {
-        nodes.flatMap { $0.children }
-    }
+//    var searchableNodes: [LocationNode] {
+//        nodes.flatMap { $0.children }
+//    }
 
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.

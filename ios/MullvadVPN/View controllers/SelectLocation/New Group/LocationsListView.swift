@@ -1,104 +1,134 @@
 import SwiftUI
 
-struct LocationsListView: View {
-    let locations: [LocationNode]
+struct LocationsListView<ContextMenu>: View where ContextMenu: View {
+    @Binding var locations: [LocationNode]
     let selectedLocation: LocationNode?
     let connectedRelayHostname: String?
     let onSelectLocation: (LocationNode) -> Void
+    let contextMenu: (LocationNode) -> ContextMenu
+
+    var filteredLocationIndices: [Int] {
+        locations
+            .enumerated()
+            .filter { !$0.element.isHiddenFromSearch }
+            .map { $0.offset }
+    }
 
     var body: some View {
         VStack(spacing: 4) {
-            ForEach(Array(locations.enumerated()), id: \.offset) { index, location in
+            ForEach(
+                Array(filteredLocationIndices.enumerated()),
+                id: \.element
+            ) { index, indexInLocationList in
+                let location = $locations[indexInLocationList]
                 LocationListItem(
                     location: location,
                     selectedLocation: selectedLocation,
                     connectedRelayHostname: connectedRelayHostname,
                     position: ItemPosition(
                         index: index,
-                        count: locations.count
+                        count: filteredLocationIndices.count
                     ),
-                    onSelect: onSelectLocation
+                    onSelect: onSelectLocation,
+                    contextMenu: { contextMenu(location.wrappedValue) }
                 )
             }
         }
     }
 }
 
-struct LocationListItem: View {
-    let location: LocationNode
+struct LocationListItem<ContextMenu>: View where ContextMenu: View {
+    @Binding var location: LocationNode
     let selectedLocation: LocationNode?
     let connectedRelayHostname: String?
     let position: ItemPosition
     let onSelect: (LocationNode) -> Void
+    let contextMenu: () -> ContextMenu
     var level = 0
+    var shouldBeExpanded: Bool {
+        if let selectedLocation {
+            var curr = selectedLocation
+            while let parent = curr.parent {
+                if parent.code == location.code {
+                    return true
+                }
+                curr = parent
+            }
+        }
+        return location.showsChildren
+    }
+
+    var filteredChildrenIndices: [Int] {
+        location.children
+            .enumerated()
+            .filter { !$0.element.isHiddenFromSearch }
+            .map { $0.offset }
+    }
+
     var body: some View {
-        if location.children.isEmpty {
-            Button {
-                onSelect(location)
-            } label: {
-                HStack {
-                    RelayItemView(
-                        label: location.name,
-                        isSelected: selectedLocation?.code == location.code,
-                        isConnected: connectedRelayHostname == location.name,
-                        position: position,
-                        level: level
-                    )
-                }
-            }
-        } else {
-            var shouldBeExpanded: Bool {
-                guard let selectedLocation else { return false }
-                var curr = selectedLocation
-                while let parent = curr.parent {
-                    if parent.code == location.code {
-                        return true
-                    }
-                    curr = parent
-                }
-                return false
-            }
-            LocationDisclosureGroup(
-                level: level,
-                position: position,
-                isExpanded: shouldBeExpanded
-            ) {
-                ForEach(
-                    Array(location.children.enumerated()),
-                    id: \.offset
-                ) { index, child in
-                    LocationListItem(
-                        location: child,
-                        selectedLocation: selectedLocation,
-                        connectedRelayHostname: connectedRelayHostname,
-                        position: level > 0 && position != .last
-                            ? .middle
-                            : ItemPosition(
-                                index: index + 1,
-                                count: location.children.count + 1
-                            ),
-                        onSelect: onSelect,
-                        level: level + 1,
-                    )
-                }
-            } label: {
-                let isSelected = selectedLocation?.code == location.code
-                HStack {
-                    if isSelected {
-                        Image.mullvadIconTick
-                            .foregroundStyle(Color.mullvadSuccessColor)
-                    }
-                    Text(location.name)
-                        .foregroundStyle(
-                            isSelected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary
+        Group {
+            if location.children.isEmpty {
+                Button {
+                    onSelect(location)
+                } label: {
+                    HStack {
+                        RelayItemView(
+                            label: location.name,
+                            isSelected: selectedLocation?.code == location.code,
+                            isConnected: connectedRelayHostname == location.name,
+                            position: position,
+                            level: level
                         )
-                        .font(.mullvadSmallSemiBold)
+                    }
                 }
-                .padding(.horizontal, CGFloat(16 * (level + 1)))
-                .padding(.vertical, 16)
-            } onSelect: {
-                onSelect(location)
+            } else {
+                LocationDisclosureGroup(
+                    level: level,
+                    position: position,
+                    isExpanded: $location.showsChildren
+                ) {
+                    ForEach(
+                        Array(filteredChildrenIndices.enumerated()),
+                        id: \.element
+                    ) { index, indexInChildrenList in
+                        let location = $location.children[indexInChildrenList]
+                        LocationListItem(
+                            location: location,
+                            selectedLocation: selectedLocation,
+                            connectedRelayHostname: connectedRelayHostname,
+                            position: level > 0 && position != .last
+                                ? .middle
+                                : ItemPosition(
+                                    index: index + 1,
+                                    count: filteredChildrenIndices.count + 1
+                                ),
+                            onSelect: onSelect,
+                            contextMenu: { contextMenu() },
+                            level: level + 1,
+                        )
+                    }
+                } label: {
+                    let isSelected = selectedLocation?.code == location.code
+                    HStack {
+                        if isSelected {
+                            Image.mullvadIconTick
+                                .foregroundStyle(Color.mullvadSuccessColor)
+                        }
+                        Text(location.name)
+                            .foregroundStyle(
+                                isSelected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary
+                            )
+                            .font(.mullvadSmallSemiBold)
+                    }
+                    .padding(.horizontal, CGFloat(16 * (level + 1)))
+                    .padding(.vertical, 16)
+                } onSelect: {
+                    onSelect(location)
+                }
             }
+        }
+        .contextMenu {
+            contextMenu()
         }
     }
 }
@@ -132,8 +162,9 @@ private struct RelayItemView: View {
                 Text(label)
                     .font(.mullvadSmallSemiBold)
                     .foregroundStyle(isSelected
-                                     ? Color.mullvadSuccessColor
-                                     : Color.mullvadTextPrimary)
+                        ? Color.mullvadSuccessColor
+                        : Color.mullvadTextPrimary
+                    )
                 if showSubtitle {
                     Text("Connected server")
                         .font(.mullvadMiniSemiBold)
@@ -200,28 +231,32 @@ enum ItemPosition: String {
 }
 
 private struct LocationDisclosureGroup<Label: View, Content: View>: View {
-    @State private var isExpanded = false
+    @Binding private var isExpanded: Bool
 
     let position: ItemPosition
     let level: Int
     let label: () -> Label
     let content: () -> Content
     let onSelect: (() -> Void)?
+    let onLongPress: (() -> Void)?
 
     init(
         level: Int,
         position: ItemPosition = .only,
-        isExpanded: Bool? = nil,
+        isExpanded: Binding<Bool>,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
-        onSelect: (() -> Void)? = nil
+        onSelect: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil
     ) {
         self.position = position
         self.level = level
-        self.isExpanded = isExpanded ?? false
+        self._isExpanded = isExpanded
+
         self.label = label
         self.content = content
         self.onSelect = onSelect
+        self.onLongPress = onLongPress
     }
 
     var body: some View {
@@ -302,8 +337,9 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
     }
 }
 
+@available(iOS 17, *)
 #Preview {
-    var locations: [LocationNode] = [
+    @Previewable @State var locations: [LocationNode] = [
         LocationNode(name: "Sweden", code: "se", children: [
             LocationNode(
                 name: "Stockholm",
@@ -366,14 +402,47 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
     ]
     ScrollView {
         LocationsListView(
-            locations: locations,
+            locations: $locations,
             selectedLocation: LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
             connectedRelayHostname: "fr-lyo-003",
             onSelectLocation: { location in
                 print("Selected: \(location.name)")
             },
+            contextMenu: { _ in Text("Add to list") }
         )
         .padding()
     }
     .background(Color.mullvadBackground)
+}
+
+@available(iOS 17, *)
+#Preview {
+    @Previewable @State var location = LocationNode(name: "Custom list", code: "blda", children: [
+        LocationNode(name: "de-ber-003", code: "de-ber-003"),
+
+        LocationNode(name: "France", code: "fr", children: [
+            LocationNode(name: "Paris", code: "par", children: [
+                LocationNode(name: "fr-par-001", code: "fr-par-001"),
+                LocationNode(name: "fr-par-002", code: "fr-par-002"),
+                LocationNode(name: "fr-par-003", code: "fr-par-003"),
+            ], showsChildren: true),
+            LocationNode(name: "Lyon", code: "lyo", children: [
+                LocationNode(name: "fr-lyo-001", code: "fr-lyo-001"),
+                LocationNode(name: "fr-lyo-002", code: "fr-lyo-002"),
+                LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
+            ]),
+        ], showsChildren: true),
+        LocationNode(name: "testserver", code: "1234"),
+    ], showsChildren: true)
+    ScrollView {
+        LocationListItem(
+            location: $location,
+            selectedLocation: nil,
+            connectedRelayHostname: nil,
+            position: .only,
+            onSelect: { _ in },
+            contextMenu: { Text("Add to list") },
+            level: 0
+        )
+    }
 }

@@ -13,10 +13,6 @@ import MullvadTypes
 class AllLocationDataSource: LocationDataSourceProtocol {
     private(set) var nodes = [LocationNode]()
 
-    var searchableNodes: [LocationNode] {
-        nodes
-    }
-
     /// Constructs a collection of node trees from relays fetched from the API.
     /// ``RelayLocation.city`` is of special import since we use it to get country
     /// and city names.

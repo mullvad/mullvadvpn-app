@@ -12,57 +12,54 @@ import MullvadTypes
 
 protocol LocationDataSourceProtocol {
     var nodes: [LocationNode] { get }
-    var searchableNodes: [LocationNode] { get }
 }
 
 extension LocationDataSourceProtocol {
+    private func match(name: String, searchText: String) -> Bool {
+        name.lowercased().hasPrefix(searchText.lowercased())
+    }
+
+    private func hideInSearch(node: LocationNode, searchText: String) -> Bool {
+        let matchesSelf = match(name: node.name, searchText: searchText)
+        var childMatches = false
+        for child in node.children where !hideInSearch(node: child, searchText: searchText) {
+            childMatches = true
+        }
+        if matchesSelf && !childMatches {
+            node.children.forEach { $0.isHiddenFromSearch = false }
+        }
+        node.isHiddenFromSearch = !matchesSelf && !childMatches
+        node.showsChildren = childMatches
+        return node.isHiddenFromSearch
+    }
+
+    private func reset() {
+        func resetChildren(node: LocationNode) {
+            node.children.forEach { child in
+                child.isHiddenFromSearch = false
+                child.showsChildren = false
+                resetChildren(node: child)
+            }
+        }
+        nodes.forEach { node in
+            node.isHiddenFromSearch = false
+            node.showsChildren = false
+            resetChildren(node: node)
+        }
+    }
+
     func search(by text: String) -> [LocationNode] {
         guard !text.isEmpty else {
+            reset()
             return nodes
         }
-
-        var filteredNodes: [LocationNode] = []
-
-        searchableNodes.forEach { node in
-            // Use a copy of the node to preserve the expanded state,
-            // allowing us to restore the previous view state after a search.
-            let countryNode = node.copy()
-
-            countryNode.showsChildren = false
-
-            if countryNode.name.fuzzyMatch(text) {
-                filteredNodes.append(countryNode)
-            }
-
-            countryNode.children.forEach { cityNode in
-                cityNode.showsChildren = false
-                cityNode.isHiddenFromSearch = true
-
-                var relaysContainSearchString = false
-                cityNode.children.forEach { hostNode in
-                    hostNode.isHiddenFromSearch = true
-
-                    if hostNode.name.fuzzyMatch(text) {
-                        relaysContainSearchString = true
-                        hostNode.isHiddenFromSearch = false
-                    }
-                }
-
-                if cityNode.name.fuzzyMatch(text) || relaysContainSearchString {
-                    if !filteredNodes.contains(countryNode) {
-                        filteredNodes.append(countryNode)
-                    }
-
-                    countryNode.showsChildren = true
-                    cityNode.isHiddenFromSearch = false
-
-                    if relaysContainSearchString {
-                        cityNode.showsChildren = true
-                    }
-                }
-            }
+        nodes.forEach { node in
+            _ = hideInSearch(
+                node: node,
+                searchText: text
+            )
         }
 
-        return filteredNodes
+        return nodes
     }
 }
