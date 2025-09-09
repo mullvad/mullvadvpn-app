@@ -10,7 +10,7 @@ let routes: RoutesObjectModel;
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe('Clear account history warnings', () => {
+test.describe('Login view', () => {
   const startup = async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
@@ -41,6 +41,32 @@ test.describe('Clear account history warnings', () => {
   const setAccountHistory = async () => {
     await util.ipc.accountHistory[''].notify('1234123412341234');
   };
+
+  test('Should try to login when clicking login button', async () => {
+    await routes.login.fillAccountNumber('1234 1234 1234 1234');
+
+    await Promise.all([util.ipc.account.login.expect(), routes.login.loginByPressingEnter()]);
+    const header = routes.login.selectors.header();
+    await expect(header).toHaveText('Logging in...');
+    await expect(routes.login.selectors.loginButton()).toBeDisabled();
+  });
+
+  test('Should try to login when pressing enter', async () => {
+    await routes.login.fillAccountNumber('1234 1234 1234 1234');
+
+    await Promise.all([util.ipc.account.login.expect(), routes.login.loginByPressingEnter()]);
+    const header = routes.login.selectors.header();
+    await expect(header).toHaveText('Logging in...');
+    await expect(routes.login.selectors.loginButton()).toBeDisabled();
+  });
+
+  test('Should disable login button when input is invalid', async () => {
+    const loginButton = routes.login.selectors.loginButton();
+    await expect(loginButton).toBeDisabled();
+
+    await routes.login.fillAccountNumber('1234 1234');
+    await expect(loginButton).toBeDisabled();
+  });
 
   test('Should not warn about creating an account', async () => {
     const accountHistoryItemButton = routes.login.getAccountHistoryItemButton();
