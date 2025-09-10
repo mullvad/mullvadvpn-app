@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { Colors, colors, Radius, Typography } from '../../foundations';
-import { TransientProps } from '../../types';
+import { PolymorphicProps, TransientProps } from '../../types';
 import { LinkIcon, LinkText, StyledIcon as StyledLinkIcon, StyledLinkText } from './components';
 import { useHoverColor } from './hooks';
 import { LinkProvider } from './LinkContext';
@@ -10,11 +10,9 @@ import { LinkProvider } from './LinkContext';
 type LinkBaseProps = {
   variant?: Typography;
   color?: Colors;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
 
-export type LinkProps = LinkBaseProps &
-  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkBaseProps>;
+export type LinkProps<T extends React.ElementType = 'a'> = PolymorphicProps<T, LinkBaseProps>;
 
 const StyledLink = styled.a<
   TransientProps<LinkProps> & {
@@ -48,7 +46,12 @@ const StyledLink = styled.a<
   `;
 });
 
-function Link({ color, variant, children, ...props }: LinkProps) {
+function Link<T extends React.ElementType = 'a'>({
+  color,
+  variant,
+  children,
+  ...props
+}: LinkProps<T>) {
   const hoverColor = useHoverColor(color);
   return (
     <LinkProvider variant={variant} color={color}>
