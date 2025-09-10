@@ -239,30 +239,7 @@ impl TestOutput {
 
         println_with_time!("{}", format!("TEST {} HAD LOGS:", self.test_name).red());
         match &self.log_output {
-            Some(log) => {
-                match &log.settings_json {
-                    Ok(settings) => println_with_time!("settings.json: {}", settings),
-                    Err(e) => println_with_time!("Could not get settings.json: {}", e),
-                }
-
-                match &log.log_files {
-                    Ok(log_files) => {
-                        for log in log_files {
-                            match log {
-                                Ok(log) => {
-                                    println_with_time!(
-                                        "Log {}:\n{}",
-                                        log.name.to_str().unwrap(),
-                                        log.content
-                                    )
-                                }
-                                Err(e) => println_with_time!("Could not get log: {}", e),
-                            }
-                        }
-                    }
-                    Err(e) => println_with_time!("Could not get logs: {}", e),
-                }
-            }
+            Some(log) => print_mullvad_logs(log),
             None => println_with_time!("Missing logs for {}", self.test_name),
         }
 
@@ -279,5 +256,26 @@ impl TestOutput {
         }
 
         println_with_time!("{}", format!("TEST {} END OF OUTPUT", self.test_name).red());
+    }
+}
+
+pub fn print_mullvad_logs(log: &LogOutput) {
+    match &log.settings_json {
+        Ok(settings) => println_with_time!("settings.json: {}", settings),
+        Err(e) => println_with_time!("Could not get settings.json: {}", e),
+    }
+
+    match &log.log_files {
+        Ok(log_files) => {
+            for log in log_files {
+                match log {
+                    Ok(log) => {
+                        println_with_time!("Log {}:\n{}", log.name.to_str().unwrap(), log.content)
+                    }
+                    Err(e) => println_with_time!("Could not get log: {}", e),
+                }
+            }
+        }
+        Err(e) => println_with_time!("Could not get logs: {}", e),
     }
 }

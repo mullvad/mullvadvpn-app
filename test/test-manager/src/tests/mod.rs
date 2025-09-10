@@ -25,7 +25,9 @@ use anyhow::Context;
 use futures::future::BoxFuture;
 use std::{ops::Not, time::Duration};
 
-use crate::{mullvad_daemon::RpcClientProvider, package::get_version_from_path};
+use crate::{
+    logging::print_mullvad_logs, mullvad_daemon::RpcClientProvider, package::get_version_from_path,
+};
 use config::TEST_CONFIG;
 use helpers::{find_custom_list, get_app_env, install_app, set_location};
 pub use install::test_upgrade_app;
@@ -152,22 +154,37 @@ pub async fn prepare_daemon(
     rpc: &ServiceClient,
     rpc_provider: &RpcClientProvider,
 ) -> anyhow::Result<MullvadProxyClient> {
-    // Check if daemon should be restarted
-    let mut mullvad_client = ensure_daemon_version(rpc, rpc_provider)
-        .await
-        .context("Failed to restart daemon")?;
+    let client = async {
+        // Check if daemon should be restarted
+        let mut mullvad_client = ensure_daemon_version(rpc, rpc_provider)
+            .await
+            .context("Failed to restart daemon")?;
 
-    log::debug!("Resetting daemon settings before test");
-    helpers::disconnect_and_wait(&mut mullvad_client)
-        .await
-        .context("Failed to disconnect daemon after test")?;
-    mullvad_client
-        .reset_settings()
-        .await
-        .context("Failed to reset settings")?;
-    helpers::ensure_logged_in(&mut mullvad_client).await?;
+        log::debug!("Resetting daemon settings before test");
+        helpers::disconnect_and_wait(&mut mullvad_client)
+            .await
+            .context("Failed to disconnect daemon after test")?;
+        mullvad_client
+            .reset_settings()
+            .await
+            .context("Failed to reset settings")?;
+        helpers::ensure_logged_in(&mut mullvad_client).await?;
 
-    Ok(mullvad_client)
+        Ok(mullvad_client)
+    }
+    .await;
+
+    if client.is_err() {
+        log::error!("Failed to prepare daemon. Attempting to get logs from daemon");
+        match rpc.get_mullvad_app_logs().await {
+            Ok(logs) => print_mullvad_logs(&logs),
+            Err(err) => {
+                log::error!("Failed to get logs from daemon: {err}");
+            }
+        }
+    }
+
+    client
 }
 
 /// Create and selects an "anonymous" custom list for this test. The custom list will
