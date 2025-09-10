@@ -127,7 +127,13 @@ val uiModule = module {
 
     single { ChangelogRepository(get(), get(), get()) }
     single { SettingsRepository(get()) }
-    single { MullvadProblemReport(get(), get<DaemonConfig>().apiEndpointOverride, get()) }
+    single {
+        MullvadProblemReport(
+            context = androidContext(),
+            apiEndpointOverride = get<DaemonConfig>().apiEndpointOverride,
+            apiEndpointFromIntentHolder = get(),
+        )
+    }
     single { RelayOverridesRepository(get()) }
     single { CustomListsRepository(get()) }
     single { RelayListRepository(get(), get()) }
