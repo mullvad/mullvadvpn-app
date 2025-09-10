@@ -76,7 +76,7 @@ fun CustomPortCell(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier =
-                Modifier.clickable(enabled = isEnabled) { onMainCellClicked() }
+                Modifier.clickable(enabled = isEnabled, onClick = onMainCellClicked)
                     .height(Dimens.cellHeight)
                     .weight(1f)
                     .background(
@@ -110,7 +110,7 @@ fun CustomPortCell(
         Spacer(modifier = Modifier.width(Dimens.verticalSpacer))
         Box(
             modifier =
-                Modifier.clickable(enabled = isEnabled) { onPortCellClicked() }
+                Modifier.clickable(enabled = isEnabled, onClick = onPortCellClicked)
                     .height(Dimens.cellHeight)
                     .wrapContentWidth()
                     .defaultMinSize(minWidth = Dimens.customPortBoxMinWidth)
