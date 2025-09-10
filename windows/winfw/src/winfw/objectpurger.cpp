@@ -56,7 +56,7 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{
-		std::set<GUID> filtersToRemove;
+		std::unordered_set<GUID> filtersToRemove;
 		wfp::ObjectEnumerator::Filters(engine, [&](const auto &filter) -> bool
 		{
 			// Delete both non-persistent and persistent filters
@@ -67,7 +67,7 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
 			return true;
 		});
 
-		std::set<GUID> sublayersToRemove;
+		std::unordered_set<GUID> sublayersToRemove;
 		wfp::ObjectEnumerator::Sublayers(engine, [&](const auto &sublayer) -> bool
 		{
 			// Delete both non-persistent and persistent sublayers
@@ -98,7 +98,7 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveNonPersistentFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{
-		std::set<GUID> filtersToRemove;
+		std::unordered_set<GUID> filtersToRemove;
 		wfp::ObjectEnumerator::Filters(engine, [&](const auto &filter) -> bool
 		{
 			// Delete only non-persistent filters
@@ -109,7 +109,7 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveNonPersistentFunctor()
 			return true;
 		});
 
-		std::set<GUID> sublayersToRemove;
+		std::unordered_set<GUID> sublayersToRemove;
 		wfp::ObjectEnumerator::Sublayers(engine, [&](const auto &sublayer) -> bool
 		{
 			// Delete only non-persistent sublayers
