@@ -63,7 +63,7 @@
     "playwright": "^1.41.1",
     "postject": "^1.0.0-alpha.6",
     "sinon": "^14.0.1",
-    "vite": "6.3.5",
+    "vite": "7.1.5",
     "vite-plugin-electron": "^0.29.0",
     "xvfb-maybe": "^0.2.1"
   },
