@@ -73,14 +73,9 @@ internal fun BaseCell(
         horizontalArrangement = Arrangement.Start,
         modifier =
             modifier
-                // This is to avoid a crash when a child view is focused and clickable is set to
-                // false on the parent view
-                .then(
-                    if (isRowEnabled && onCellClicked != null) {
-                        Modifier.clickable(onClick = onCellClicked)
-                    } else {
-                        Modifier
-                    }
+                .clickable(
+                    enabled = isRowEnabled && onCellClicked != null,
+                    onClick = onCellClicked ?: {},
                 )
                 .wrapContentHeight()
                 .defaultMinSize(minHeight = minHeight)

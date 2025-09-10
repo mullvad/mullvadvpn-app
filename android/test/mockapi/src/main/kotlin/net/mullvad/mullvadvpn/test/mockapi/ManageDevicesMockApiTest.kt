@@ -35,7 +35,7 @@ class ManageDevicesMockApiTest : MockApiTest() {
         on<DeviceManagementPage> {
             // Assert - current device is shown but not clickable
             val current = uiDevice.findObjectWithTimeout(By.text("Current device")).parent
-            assertNull(current.findObject(By.clickable(true)))
+            assertNull(current.findObject(By.clickable(true).enabled(true)))
 
             removeDevice("Yellow Hat")
 
