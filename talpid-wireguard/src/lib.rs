@@ -826,7 +826,7 @@ impl WireguardMonitor {
 
             #[cfg(feature = "boringtun")]
             let tunnel = runtime
-                .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
+                .block_on(boringtun::open_boringtun_tunnel(config, tun_provider, None))
                 .map(Box::new)?;
 
             #[cfg(not(feature = "boringtun"))]
