@@ -2,6 +2,7 @@ import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
+import { ExpiredRouteObjectModel } from './expired';
 import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
 import { LoginRouteObjectModel } from './login';
@@ -21,6 +22,7 @@ export class RoutesObjectModel {
   readonly main: MainRouteObjectModel;
   readonly launch: LaunchRouteObjectModel;
   readonly login: LoginRouteObjectModel;
+  readonly expired: ExpiredRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
@@ -39,6 +41,7 @@ export class RoutesObjectModel {
     this.main = new MainRouteObjectModel(page, utils);
     this.launch = new LaunchRouteObjectModel(page, utils);
     this.login = new LoginRouteObjectModel(page, utils);
+    this.expired = new ExpiredRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
     this.userInterfaceSettings = new UserInterfaceSettingsRouteObjectModel(page, utils);
     this.filter = new FilterRouteObjectModel(page, utils);
