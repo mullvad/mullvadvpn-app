@@ -114,7 +114,7 @@ impl ServiceClient {
     }
 
     /// Wait for the Mullvad service to enter a specified state. The state is inferred from the
-    /// presence of a named pipe or UDS, not the actual system service state.
+    /// presence of a named pipe or UDS, and sometimes the system service state.
     pub async fn mullvad_daemon_wait_for_state(
         &self,
         accept_state_fn: impl Fn(ServiceStatus) -> bool,
@@ -123,7 +123,10 @@ impl ServiceClient {
         const POLL_INTERVAL: Duration = Duration::from_secs(3);
 
         for _ in 0..MAX_ATTEMPTS {
-            let last_state = self.mullvad_daemon_get_status().await?;
+            let Ok(last_state) = self.mullvad_daemon_get_status().await else {
+                tokio::time::sleep(POLL_INTERVAL).await;
+                continue;
+            };
             match accept_state_fn(last_state) {
                 true => return Ok(last_state),
                 false => tokio::time::sleep(POLL_INTERVAL).await,
