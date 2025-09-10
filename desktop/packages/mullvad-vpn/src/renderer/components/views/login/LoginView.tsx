@@ -14,8 +14,9 @@ import {
   Flex,
   Icon,
   Label,
-  LabelTiny,
+  Link,
   Spinner,
+  Text,
   TitleMedium,
 } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
@@ -41,12 +42,9 @@ import {
   StyledBlockMessageContainer,
   StyledBlockTitle,
   StyledDropdownSpacer,
-  StyledFooter,
   StyledInput,
-  StyledLoginForm,
+  StyledLine,
   StyledStatusIcon,
-  StyledTitle,
-  StyledTopInfo,
 } from './LoginStyles';
 
 export function LoginView() {
@@ -135,33 +133,45 @@ class Login extends React.Component<IProps, IState> {
 
   public render() {
     const allowInteraction = this.allowInteraction();
-
     return (
       <View>
-        <FlexColumn $gap="large">
-          <AppMainHeader>
-            <AppMainHeader.SettingsButton disabled={!allowInteraction} />
-          </AppMainHeader>
-          <View.Container size="3">
-            <FlexColumn $gap="medium">
-              <StyledTopInfo>
-                {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
-              </StyledTopInfo>
+        <AppMainHeader>
+          <AppMainHeader.SettingsButton disabled={!allowInteraction} />
+        </AppMainHeader>
+        <View.Container size="4" $justifyContent="center" $padding={{ bottom: 'large' }}>
+          <FlexColumn $gap="medium">
+            <Flex $flex={1} $justifyContent="center">
+              {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
+            </Flex>
 
-              <StyledLoginForm>
-                <StyledTitle aria-live="polite">{this.formTitle()}</StyledTitle>
+            <FlexColumn
+              $gap="large"
+              $margin={{ horizontal: 'small' }}
+              $justifyContent="center"
+              $flexGrow={1}>
+              <FlexColumn $gap="small">
+                <Text as="h1" variant="titleBig" aria-live="polite">
+                  {this.formTitle()}
+                </Text>
 
                 {this.createLoginForm()}
-              </StyledLoginForm>
+              </FlexColumn>
+              <Flex $justifyContent="center">
+                <StyledLine $margin={{ vertical: 'small', right: 'small' }} />
+                <Text variant="labelTiny">
+                  {
+                    // TRANSLATORS: Text shown between two horizontal lines above the "create account" button.
+                    // TRANSLATORS: In this context it is used to separate the users alternative of logging in
+                    // TRANSLATORS: or creating a new account, "Login or Create a new account".
+                    messages.pgettext('login-view', 'Or')
+                  }
+                </Text>
+                <StyledLine $margin={{ vertical: 'small', left: 'small' }} />
+              </Flex>
             </FlexColumn>
-          </View.Container>
-        </FlexColumn>
-        <StyledFooter
-          $flexDirection="column"
-          $show={allowInteraction}
-          $padding={{ horizontal: 'large', bottom: 'large', top: 'medium' }}>
-          {this.createFooter()}
-        </StyledFooter>
+            {this.createFooter()}
+          </FlexColumn>
+        </View.Container>
       </View>
     );
   }
@@ -361,8 +371,8 @@ class Login extends React.Component<IProps, IState> {
 
     return (
       <>
-        <Flex $flexDirection="column" $gap="small">
-          <Label htmlFor={inputId} data-testid="subtitle">
+        <Flex $flexDirection="column" $gap="tiny">
+          <Label htmlFor={inputId} variant="labelTiny" color="whiteAlpha60" data-testid="subtitle">
             {this.formSubtitle()}
           </Label>
           <form onSubmit={this.onSubmit}>
@@ -429,13 +439,15 @@ class Login extends React.Component<IProps, IState> {
   private createFooter() {
     return (
       <>
-        <Flex $flexDirection="column" $gap="small">
-          <LabelTiny color="whiteAlpha60">
-            {messages.pgettext('login-view', 'Don’t have an account number?')}
-          </LabelTiny>
-          <Button onClick={this.onCreateNewAccount} disabled={!this.allowCreateAccount()}>
-            <Button.Text>{messages.pgettext('login-view', 'Create account')}</Button.Text>
-          </Button>
+        <Flex $flexDirection="column" $gap="small" $alignItems="center">
+          <Link as="button" onClick={this.onCreateNewAccount} disabled={!this.allowCreateAccount()}>
+            <Link.Text>
+              {
+                // TRANSLATORS: Text in button that allows user to create a new account.
+                messages.pgettext('login-view', 'Create a new account')
+              }
+            </Link.Text>
+          </Link>
         </Flex>
         <CreateAccountDialog
           visible={this.state.createAccountDialogVisible}

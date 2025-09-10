@@ -1,7 +1,7 @@
 import { Page } from 'playwright';
 
 export const createSelectors = (page: Page) => ({
-  createNewAccountButton: () => page.getByRole('button', { name: 'Create account' }),
+  createNewAccountButton: () => page.getByRole('button', { name: 'Create a new account' }),
   createNewAccountMessage: () => page.getByText('Do you want to create a new account?'),
   confirmCreateNewAccountButton: () => page.getByRole('button', { name: 'Create new account' }),
 

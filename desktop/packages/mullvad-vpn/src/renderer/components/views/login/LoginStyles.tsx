@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Flex, Icon } from '../../../lib/components';
+import { Icon, Layout } from '../../../lib/components';
 import { colors, spacings } from '../../../lib/foundations';
 import { hugeText, largeText, smallText, tinyText } from '../../common-styles';
 import FormattableTextInput from '../../FormattableTextInput';
@@ -45,35 +45,14 @@ export const StyledAccountDropdownItemIconButton = styled.button({
   justifyContent: 'center',
 });
 
-export const StyledTopInfo = styled.div({
-  display: 'flex',
-  justifyContent: 'center',
-  flex: 1,
-});
-
-export const StyledFooter = styled(Flex)<{ $show: boolean }>((props) => ({
-  position: 'absolute',
-  width: '100%',
-  bottom: 0,
-  transform: `translateY(${props.$show ? 0 : 100}%)`,
-  backgroundColor: colors.darkBlue,
-  transition: 'transform 250ms ease-in-out',
-}));
-
 export const StyledStatusIcon = styled.div({
   display: 'flex',
   alignSelf: 'end',
   flex: 0,
   justifyContent: 'center',
+  marginTop: spacings.large,
   height: '48px',
   minHeight: '48px',
-});
-
-export const StyledLoginForm = styled.div({
-  display: 'flex',
-  flex: '0 1 225px',
-  flexDirection: 'column',
-  overflow: 'visible',
 });
 
 interface IStyledAccountInputGroupProps {
@@ -141,3 +120,9 @@ export const StyledBlockMessage = styled.div(tinyText, {
   color: colors.white,
   marginBottom: '10px',
 });
+
+export const StyledLine = styled(Layout)`
+  height: 1px;
+  width: 100%;
+  background-color: ${colors.whiteAlpha20};
+`;
