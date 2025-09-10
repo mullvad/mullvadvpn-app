@@ -12,6 +12,7 @@ import { RedeemVoucherRouteObjectModel } from './redeem-voucher';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SelectLocationRouteObjectModel } from './select-location';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
+import { SetupFinishedRouteObjectModel } from './setup-finished';
 import { TimeAddedRouteObjectModel } from './time-added';
 import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
@@ -27,6 +28,7 @@ export class RoutesObjectModel {
   readonly redeemVoucher: RedeemVoucherRouteObjectModel;
   readonly voucherSuccess: VoucherSuccessRouteObjectModel;
   readonly timeAdded: TimeAddedRouteObjectModel;
+  readonly setupFinished: SetupFinishedRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
@@ -47,6 +49,7 @@ export class RoutesObjectModel {
     this.redeemVoucher = new RedeemVoucherRouteObjectModel(page, utils);
     this.voucherSuccess = new VoucherSuccessRouteObjectModel(page, utils);
     this.timeAdded = new TimeAddedRouteObjectModel(page, utils);
+    this.setupFinished = new SetupFinishedRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
     this.userInterfaceSettings = new UserInterfaceSettingsRouteObjectModel(page, utils);
     this.filter = new FilterRouteObjectModel(page, utils);
