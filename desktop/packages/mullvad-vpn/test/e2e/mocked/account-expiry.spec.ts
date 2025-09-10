@@ -48,6 +48,17 @@ test.describe('Account expiry', () => {
     await routes.expired.waitForRoute();
   });
 
+  test('Should move clock back', async () => {
+    await page.clock.setSystemTime('2025-04-03T14:00:00');
+    await util.ipc.account[''].notify({
+      expiry: new Date('2025-04-03T13:00:00').toISOString(),
+    });
+
+    await routes.expired.waitForRoute();
+    await page.clock.setSystemTime('2025-01-01T12:00');
+    await routes.main.waitForRoute();
+  });
+
   function addTimeTests(newAccount: boolean) {
     test('Should respond to time added', async () => {
       await page.clock.fastForward('02:00');
