@@ -8,6 +8,7 @@ import { LaunchRouteObjectModel } from './launch';
 import { LoginRouteObjectModel } from './login';
 import { MainRouteObjectModel } from './main';
 import { MultihopSettingsRouteObjectModel } from './multihop-settings';
+import { RedeemVoucherRouteObjectModel } from './redeem-voucher';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SelectLocationRouteObjectModel } from './select-location';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
@@ -22,6 +23,7 @@ export class RoutesObjectModel {
   readonly launch: LaunchRouteObjectModel;
   readonly login: LoginRouteObjectModel;
   readonly expired: ExpiredRouteObjectModel;
+  readonly redeemVoucher: RedeemVoucherRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
@@ -40,6 +42,7 @@ export class RoutesObjectModel {
     this.launch = new LaunchRouteObjectModel(page, utils);
     this.login = new LoginRouteObjectModel(page, utils);
     this.expired = new ExpiredRouteObjectModel(page, utils);
+    this.redeemVoucher = new RedeemVoucherRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
     this.userInterfaceSettings = new UserInterfaceSettingsRouteObjectModel(page, utils);
     this.filter = new FilterRouteObjectModel(page, utils);
