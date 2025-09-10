@@ -14,6 +14,7 @@ import { SelectLocationRouteObjectModel } from './select-location';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
 import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
+import { VoucherSuccessRouteObjectModel } from './voucher-success';
 import { VpnSettingsRouteObjectModel } from './vpn-settings';
 import { WireguardSettingsRouteObjectModel } from './wireguard-settings';
 
@@ -23,6 +24,7 @@ export class RoutesObjectModel {
   readonly login: LoginRouteObjectModel;
   readonly expired: ExpiredRouteObjectModel;
   readonly redeemVoucher: RedeemVoucherRouteObjectModel;
+  readonly voucherSuccess: VoucherSuccessRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
@@ -41,6 +43,7 @@ export class RoutesObjectModel {
     this.login = new LoginRouteObjectModel(page, utils);
     this.expired = new ExpiredRouteObjectModel(page, utils);
     this.redeemVoucher = new RedeemVoucherRouteObjectModel(page, utils);
+    this.voucherSuccess = new VoucherSuccessRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
     this.userInterfaceSettings = new UserInterfaceSettingsRouteObjectModel(page, utils);
     this.filter = new FilterRouteObjectModel(page, utils);
