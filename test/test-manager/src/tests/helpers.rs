@@ -88,12 +88,17 @@ pub async fn install_app(
 
     // Set the log level to trace
     rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
-        .await?;
+        .await
+        .context("Failed to set log level")?;
 
-    replace_openvpn_certificate(rpc).await?;
+    replace_openvpn_certificate(rpc)
+        .await
+        .context("Replace OpenVPN certs")?;
 
     // Override env vars
-    rpc.set_daemon_environment(get_app_env().await?).await?;
+    rpc.set_daemon_environment(get_app_env().await?)
+        .await
+        .context("Failed to set daemon environment")?;
 
     // Wait for the relay list to be updated
     let mut mullvad_client = rpc_provider.new_client().await;
