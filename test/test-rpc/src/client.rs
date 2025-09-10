@@ -114,7 +114,7 @@ impl ServiceClient {
     }
 
     /// Wait for the Mullvad service to enter a specified state. The state is inferred from the
-    /// presence of a named pipe or UDS, not the actual system service state.
+    /// presence of a named pipe or UDS, and sometimes the system service state.
     pub async fn mullvad_daemon_wait_for_state(
         &self,
         accept_state_fn: impl Fn(ServiceStatus) -> bool,

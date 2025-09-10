@@ -3,7 +3,7 @@ use logging::LOGGER;
 use std::{
     collections::{BTreeMap, HashMap},
     net::{IpAddr, SocketAddr},
-    path::{Path, PathBuf},
+    path::PathBuf,
     process::Stdio,
     sync::Arc,
     time::{Duration, SystemTime},
@@ -12,12 +12,8 @@ use util::OnDrop;
 
 use tarpc::{context, server::Channel};
 use test_rpc::{
-    AppTrace, Service, SpawnOpts, UNPRIVILEGED_USER,
-    meta::OsVersion,
-    mullvad_daemon::{SOCKET_PATH, ServiceStatus},
-    net::SockHandleId,
-    package::Package,
-    transport::GrpcForwarder,
+    AppTrace, Service, SpawnOpts, UNPRIVILEGED_USER, meta::OsVersion, mullvad_daemon::SOCKET_PATH,
+    net::SockHandleId, package::Package, transport::GrpcForwarder,
 };
 use tokio::{
     io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader},
@@ -133,7 +129,7 @@ impl Service for TestServer {
         self,
         _: context::Context,
     ) -> test_rpc::mullvad_daemon::ServiceStatus {
-        get_pipe_status()
+        sys::get_daemon_status()
     }
 
     /// Get the installed app version
@@ -634,13 +630,6 @@ impl Service for TestServer {
             .await
             .map_err(|e| format!("{e:#}"))
             .map_err(test_rpc::Error::Other)
-    }
-}
-
-fn get_pipe_status() -> ServiceStatus {
-    match Path::new(SOCKET_PATH).exists() {
-        true => ServiceStatus::Running,
-        false => ServiceStatus::NotRunning,
     }
 }
 

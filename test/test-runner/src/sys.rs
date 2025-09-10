@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 #[cfg(target_os = "windows")]
 use std::io;
+use std::path::Path;
+use test_rpc::mullvad_daemon::ServiceStatus;
 use test_rpc::{meta::OsVersion, mullvad_daemon::Verbosity};
 
 #[cfg(target_os = "windows")]
-use std::{ffi::OsString, path::Path};
+use std::ffi::OsString;
+use test_rpc::mullvad_daemon::SOCKET_PATH;
 #[cfg(target_os = "windows")]
 use windows_service::{
-    service::{ServiceAccess, ServiceInfo},
+    service::{Service, ServiceAccess, ServiceInfo, ServiceState},
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
 
@@ -357,6 +360,34 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
     set_launch_daemon_state(true).await?;
     tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     Ok(())
+}
+
+#[cfg(target_os = "windows")]
+pub fn get_daemon_system_service_status() -> Result<ServiceStatus, test_rpc::Error> {
+    let manager = ServiceManager::local_computer(None::<&str>, ServiceManagerAccess::CONNECT)
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
+    let service = manager
+        .open_service("mullvadvpn", ServiceAccess::QUERY_STATUS)
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
+
+    get_daemon_system_service_status_inner(&service)
+}
+
+#[cfg(target_os = "windows")]
+fn get_daemon_system_service_status_inner(
+    service: &Service,
+) -> Result<ServiceStatus, test_rpc::Error> {
+    let status = service
+        .query_status()
+        .map_err(|e| test_rpc::Error::Other(e.to_string()))?;
+
+    let status = match status.current_state {
+        ServiceState::Running => ServiceStatus::Running,
+        // NOTE: not counting pending start as running, since we cannot set log level then
+        _ => ServiceStatus::NotRunning,
+    };
+
+    Ok(status)
 }
 
 #[cfg(target_os = "windows")]
@@ -822,6 +853,25 @@ pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
 #[cfg(target_os = "linux")]
 pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
     Ok(OsVersion::Linux)
+}
+
+pub fn get_daemon_status() -> ServiceStatus {
+    let rpc_socket_exists = Path::new(SOCKET_PATH).exists();
+
+    // On Windows, we must also make sure service isn't in a pending state, since interacting with
+    // the service may fail even if there is a working named pipe.
+    #[cfg(target_os = "windows")]
+    let service_is_started =
+        get_daemon_system_service_status().unwrap_or(ServiceStatus::NotRunning);
+
+    // NOTE: May not be necessary on non-Windows
+    #[cfg(not(target_os = "windows"))]
+    let service_is_started = ServiceStatus::Running;
+
+    match (rpc_socket_exists, service_is_started) {
+        (true, ServiceStatus::Running) => ServiceStatus::Running,
+        _ => ServiceStatus::NotRunning,
+    }
 }
 
 #[cfg(test)]
