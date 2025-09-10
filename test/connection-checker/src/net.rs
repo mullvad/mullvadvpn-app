@@ -1,4 +1,4 @@
-use eyre::{Context, eyre};
+use anyhow::{Context, anyhow};
 use std::{
     io::Write,
     net::{IpAddr, Ipv4Addr, SocketAddr},
@@ -7,7 +7,7 @@ use std::{
 
 use crate::cli::Opt;
 
-pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> eyre::Result<()> {
+pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> anyhow::Result<()> {
     let bind_addr: SocketAddr = SocketAddr::new(Ipv4Addr::new(0, 0, 0, 0).into(), 0);
 
     let family = match &destination {
@@ -15,29 +15,29 @@ pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> eyre::Result<()> {
         SocketAddr::V6(_) => socket2::Domain::IPV6,
     };
     let sock = socket2::Socket::new(family, socket2::Type::STREAM, Some(socket2::Protocol::TCP))
-        .wrap_err(eyre!("Failed to create TCP socket"))?;
+        .context(anyhow!("Failed to create TCP socket"))?;
 
     eprintln!("Leaking TCP packets to {destination}");
 
     sock.bind(&socket2::SockAddr::from(bind_addr))
-        .wrap_err(eyre!("Failed to bind TCP socket to {bind_addr}"))?;
+        .context(anyhow!("Failed to bind TCP socket to {bind_addr}"))?;
 
     let timeout = Duration::from_secs(opt.leak_timeout);
     sock.set_write_timeout(Some(timeout))?;
     sock.set_read_timeout(Some(timeout))?;
 
     sock.connect_timeout(&socket2::SockAddr::from(destination), timeout)
-        .wrap_err(eyre!("Failed to connect to {destination}"))?;
+        .context(anyhow!("Failed to connect to {destination}"))?;
 
     let mut stream = std::net::TcpStream::from(sock);
     stream
         .write_all(opt.payload.as_bytes())
-        .wrap_err(eyre!("Failed to send message to {destination}"))?;
+        .context(anyhow!("Failed to send message to {destination}"))?;
 
     Ok(())
 }
 
-pub fn send_udp(opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> {
+pub fn send_udp(opt: &Opt, destination: SocketAddr) -> Result<(), anyhow::Error> {
     let bind_addr: SocketAddr = SocketAddr::new(Ipv4Addr::new(0, 0, 0, 0).into(), 0);
 
     eprintln!("Leaking UDP packets to {destination}");
@@ -47,21 +47,21 @@ pub fn send_udp(opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> {
         SocketAddr::V6(_) => socket2::Domain::IPV6,
     };
     let sock = socket2::Socket::new(family, socket2::Type::DGRAM, Some(socket2::Protocol::UDP))
-        .wrap_err("Failed to create UDP socket")?;
+        .context("Failed to create UDP socket")?;
 
     sock.bind(&socket2::SockAddr::from(bind_addr))
-        .wrap_err(eyre!("Failed to bind UDP socket to {bind_addr}"))?;
+        .context(anyhow!("Failed to bind UDP socket to {bind_addr}"))?;
 
     let std_socket = std::net::UdpSocket::from(sock);
     std_socket
         .send_to(opt.payload.as_bytes(), destination)
-        .wrap_err(eyre!("Failed to send message to {destination}"))?;
+        .context(anyhow!("Failed to send message to {destination}"))?;
 
     Ok(())
 }
 
 #[cfg(target_os = "windows")]
-pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
+pub fn send_ping(opt: &Opt, destination: IpAddr) -> anyhow::Result<()> {
     eprintln!("Leaking ICMP packets to {destination}");
 
     ping::ping(
@@ -77,7 +77,7 @@ pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
 }
 
 #[cfg(target_os = "macos")]
-pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
+pub fn send_ping(opt: &Opt, destination: IpAddr) -> anyhow::Result<()> {
     eprintln!("Leaking ICMP packets to {destination}");
 
     // On macOS, use dgramsock (SOCK_DGRAM) instead of the default sock type (SOCK_RAW),
@@ -98,7 +98,7 @@ pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
 // SOCK_DGRAM sockets. We use the ping command (which has capabilities/setuid set) to get around
 // that.
 #[cfg(target_os = "linux")]
-pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
+pub fn send_ping(opt: &Opt, destination: IpAddr) -> anyhow::Result<()> {
     eprintln!("Leaking ICMP packets to {destination}");
 
     let mut cmd = std::process::Command::new("ping");
@@ -107,7 +107,7 @@ pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
 
     cmd.args(["-c", "1", "-W", &timeout_sec, &destination.to_string()]);
 
-    let output = cmd.output().wrap_err(eyre!(
+    let output = cmd.output().context(anyhow!(
         "Failed to execute ping for destination {destination}"
     ))?;
 
@@ -121,7 +121,7 @@ pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
             std::str::from_utf8(&output.stderr).unwrap_or("invalid utf8")
         );
 
-        return Err(eyre!("ping for destination {destination} failed"));
+        return Err(anyhow!("ping for destination {destination} failed"));
     }
 
     Ok(())
