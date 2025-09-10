@@ -39,7 +39,7 @@ export function ApplicationList<T extends IApplication>({
 
     return (
       <Flex $flexDirection="column" data-testid={props['data-testid']}>
-        <List data-testid={props['data-testid']} items={items} getKey={applicationGetKey}>
+        <List items={items} getKey={applicationGetKey}>
           {rowRenderer}
         </List>
       </Flex>
