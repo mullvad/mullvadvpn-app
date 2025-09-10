@@ -1,14 +1,14 @@
 import { Colors } from '../../../foundations';
 
 const colorMap: Record<
-  Extract<Colors, 'white' | 'whiteAlpha60'>,
+  Extract<Colors, 'chalk'> | 'default',
   {
     hover: Colors;
     active: Colors;
   }
 > = {
-  whiteAlpha60: { hover: 'chalk', active: 'white' },
-  white: { hover: 'chalk', active: 'whiteAlpha60' },
+  chalk: { hover: 'whiteAlpha60', active: 'whiteAlpha20' },
+  default: { hover: 'whiteAlpha60', active: 'whiteAlpha20' },
 } as const;
 
 export const useStateColors = (
@@ -17,8 +17,8 @@ export const useStateColors = (
   hover: Colors;
   active: Colors;
 } => {
-  if (color === 'white' || color === 'whiteAlpha60') {
+  if (color === 'chalk') {
     return colorMap[color];
   }
-  return colorMap.white;
+  return colorMap.default;
 };

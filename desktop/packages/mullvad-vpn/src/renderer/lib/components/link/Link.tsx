@@ -53,7 +53,7 @@ const StyledLink = styled.a<{
 });
 
 function Link<T extends React.ElementType = 'a'>({
-  color,
+  color = 'chalk',
   variant,
   children,
   ...props

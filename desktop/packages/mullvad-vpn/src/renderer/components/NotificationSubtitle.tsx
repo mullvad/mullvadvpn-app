@@ -32,11 +32,7 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
         );
       case 'run-function':
         return (
-          <StyledLink
-            forwardedAs="button"
-            color="white"
-            variant="labelTiny"
-            {...subtitle.action.button}>
+          <StyledLink forwardedAs="button" variant="labelTiny" {...subtitle.action.button}>
             <StyledLink.Text>{content}</StyledLink.Text>
           </StyledLink>
         );
