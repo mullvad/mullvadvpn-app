@@ -43,7 +43,7 @@
     "@types/react-router": "^5.1.19",
     "@types/sprintf-js": "^1.1.2",
     "@types/topojson-specification": "^1.0.2",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.0.2",
     "cross-env": "^7.0.3",
     "electron": "39.2.6",
     "electron-builder": "26.6.0",
