@@ -586,51 +586,34 @@ impl RelaySelector {
                 Ok(GetRelay::Custom(custom_config.clone()))
             }
             SpecializedSelectorConfig::Normal(normal_config) => {
-                let relay_list = self.parsed_relays.lock().unwrap().parsed_list().clone();
+                let parsed_relays = self.parsed_relays.lock().unwrap().parsed_list().clone();
                 // Merge user preferences with the relay selector's default preferences.
-                let query = Self::pick_and_merge_query(
-                    retry_attempt,
-                    retry_order,
-                    runtime_ip_availability,
-                    &normal_config,
-                    &relay_list,
-                )?;
-                Self::get_relay_inner(&query, &relay_list, normal_config.custom_lists)
+                let custom_lists = normal_config.custom_lists;
+                let mut user_query = RelayQuery::try_from(normal_config)?;
+                // Runtime parameters may affect which of the default queries that are considered.
+                // For example, queries which rely on IPv6 will not be considered if
+                // working IPv6 is not available at runtime.
+                apply_ip_availability(runtime_ip_availability, &mut user_query)?;
+                log::trace!("Merging user preferences {user_query:?} with default retry strategy");
+                // Select a relay using the user's preferences merged with the nth compatible query
+                // in `retry_order`, looping back to the start of `retry_order` if
+                // necessary.
+                retry_order
+                    .iter()
+                    .filter_map(|query| query.clone().intersection(user_query.clone()))
+                    .filter_map(|query| {
+                        Self::get_relay_inner(&query, &parsed_relays, custom_lists).ok()
+                    })
+                    .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
+                    .nth(retry_attempt)
+                    // If none of the queries in `retry_order` merged with `user_preferences` yield any relays,
+                    // attempt to only consider the user's preferences.
+                    .or_else(|| {
+                        Self::get_relay_inner(&user_query, &parsed_relays, custom_lists).ok()
+                    })
+                    .ok_or_else(|| Error::NoRelay(Box::new(user_query)))
             }
         }
-    }
-
-    /// This function defines the merge between a set of pre-defined queries and `user_preferences`
-    /// for the given `retry_attempt`.
-    ///
-    /// This algorithm will loop back to the start of `retry_order` if `retry_attempt <
-    /// retry_order.len()`. If `user_preferences` is not compatible with any of the pre-defined
-    /// queries in `retry_order`, `user_preferences` is returned.
-    ///
-    /// Runtime parameters may affect which of the default queries that are considered. For example,
-    /// queries which rely on IPv6 will not be considered if working IPv6 is not available at
-    /// runtime.
-    ///
-    /// Returns an error iff the intersection between the user's preferences and every default retry
-    /// attempt-query yields queries with no matching relays. I.e., no retry attempt could ever
-    /// resolve to a relay.
-    fn pick_and_merge_query(
-        retry_attempt: usize,
-        retry_order: &[RelayQuery],
-        runtime_ip_availability: IpAvailability,
-        user_config: &NormalSelectorConfig<'_>,
-        parsed_relays: &RelayList,
-    ) -> Result<RelayQuery, Error> {
-        let mut user_query = RelayQuery::try_from(user_config.clone())?;
-        apply_ip_availability(runtime_ip_availability, &mut user_query)?;
-        log::trace!("Merging user preferences {user_query:?} with default retry strategy");
-        retry_order
-            .iter()
-            .filter_map(|query| query.clone().intersection(user_query.clone()))
-            .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
-            .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
-            .nth(retry_attempt)
-            .ok_or(Error::NoRelay)
     }
 
     /// "Execute" the given query, yielding a final set of relays and/or bridges which the VPN
@@ -735,7 +718,7 @@ impl RelaySelector {
                         )?;
                         WireguardConfig::from(multihop)
                     } else {
-                        return Err(Error::NoRelay);
+                        return Err(Error::NoRelay(Box::new(query.clone())));
                     }
                 }
             }
@@ -791,7 +774,8 @@ impl RelaySelector {
 
         let exit_candidates =
             filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
-        let exit = helpers::pick_random_relay(&exit_candidates).ok_or(Error::NoRelay)?;
+        let exit = helpers::pick_random_relay(&exit_candidates)
+            .ok_or_else(|| Error::NoRelay(Box::new(exit_relay_query)))?;
 
         // generate a list of potential entry relays, disregarding any location constraint
         let mut entry_query = query.clone();
@@ -815,8 +799,8 @@ impl RelaySelector {
             .take_while(|relay| relay.distance <= smallest_distance)
             .map(|relay_with_distance| relay_with_distance.relay)
             .collect_vec();
-        let entry =
-            helpers::pick_random_relay_excluding(&entry_candidates, exit).ok_or(Error::NoRelay)?;
+        let entry = helpers::pick_random_relay_excluding(&entry_candidates, exit)
+            .ok_or_else(|| Error::NoRelay(Box::new(entry_query)))?;
 
         Ok(Multihop::new(entry.clone(), exit.clone()))
     }
@@ -880,7 +864,7 @@ impl RelaySelector {
                     exit_candidates.as_slice(),
                     entry_candidates.as_slice(),
                 )
-                .ok_or(Error::NoRelay)?;
+                .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
                 Ok(Multihop::new(entry.clone(), exit.clone()))
             }
         }
@@ -987,8 +971,8 @@ impl RelaySelector {
         parsed_relays: &RelayList,
     ) -> Result<GetRelay, Error> {
         assert_eq!(query.tunnel_protocol(), TunnelType::OpenVpn);
-        let exit =
-            Self::choose_openvpn_relay(query, custom_lists, parsed_relays).ok_or(Error::NoRelay)?;
+        let exit = Self::choose_openvpn_relay(query, custom_lists, parsed_relays)
+            .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
         let endpoint = Self::get_openvpn_endpoint(query, &exit, parsed_relays)?;
         let bridge = Self::get_openvpn_bridge(
             query,
@@ -1116,7 +1100,7 @@ impl RelaySelector {
             Some(location) => Self::get_proximate_bridge(bridges, location),
             None => helpers::pick_random_relay(&bridges)
                 .cloned()
-                .ok_or(Error::NoRelay),
+                .ok_or(Error::NoBridge),
         }?;
         let endpoint = detailer::bridge_endpoint(bridge_data, &bridge).ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
