@@ -9,6 +9,7 @@
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import SwiftUI
 import UIKit
 
 protocol LocationViewControllerWrapperDelegate: AnyObject {
@@ -36,8 +37,9 @@ final class LocationViewControllerWrapper: UIViewController {
 
     private var entryLocationViewController: LocationViewController?
     private let exitLocationViewController: LocationViewController
-    private let segmentedControl = ScaledSegmentedControl()
+    private var segmentedControlView: UIView!
     private let locationViewContainer = UIView()
+    private var segmentedViewModel = SegmentedControlViewModel()
     private var settings: LatestTunnelSettings
     private var relaySelectorWrapper: RelaySelectorWrapper
 
@@ -127,7 +129,7 @@ final class LocationViewControllerWrapper: UIViewController {
             entryLocationViewController?.setDaitaChip(isDirectOnly)
             entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: isAutomaticRouting)
         } else {
-            segmentedControl.isHidden = true
+            segmentedControlView?.isHidden = true
             exitLocationViewController.setObfuscationChip(isObfuscation)
             exitLocationViewController.setDaitaChip(isDirectOnly)
         }
@@ -182,33 +184,29 @@ final class LocationViewControllerWrapper: UIViewController {
     }
 
     private func setUpSegmentedControl() {
-        segmentedControl.backgroundColor = .SegmentedControl.backgroundColor
-        segmentedControl.selectedSegmentTintColor = .SegmentedControl.selectedColor
-
-        segmentedControl.insertSegment(
-            withTitle: MultihopContext.entry.description,
-            at: MultihopContext.entry.rawValue,
-            animated: false
-        )
-        segmentedControl.insertSegment(
-            withTitle: MultihopContext.exit.description,
-            at: MultihopContext.exit.rawValue,
-            animated: false
+        let swiftUISegmentedControl = SegmentedControl(
+            segments: MultihopContext.allCases.map { $0.description },
+            viewModel: segmentedViewModel,
+            onSelectedSegment: segmentedControlDidChange
         )
 
-        segmentedControl.selectedSegmentIndex = multihopContext.rawValue
-        segmentedControl.addTarget(self, action: #selector(segmentedControlDidChange), for: .valueChanged)
+        let host = UIHostingController(rootView: swiftUISegmentedControl)
+        addChild(host)
+        host.didMove(toParent: self)
+        segmentedControlView = host.view!
+        segmentedViewModel.selectedSegmentIndex = multihopContext.rawValue
+        host.view.backgroundColor = .clear
     }
 
     private func addSubviews() {
-        view.addConstrainedSubviews([segmentedControl, locationViewContainer]) {
-            segmentedControl.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
-            segmentedControl.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .leading(8), .trailing(8)]))
+        view.addConstrainedSubviews([segmentedControlView, locationViewContainer]) {
+            segmentedControlView.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
+            segmentedControlView.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .leading(8), .trailing(8)]))
 
             locationViewContainer.pinEdgesToSuperview(.all().excluding(.top))
 
             if settings.tunnelMultihopState.isEnabled {
-                locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 4)
+                locationViewContainer.topAnchor.constraint(equalTo: segmentedControlView.bottomAnchor, constant: 4)
             } else {
                 locationViewContainer.pinEdgeToSuperviewMargin(.top(0))
             }
@@ -224,9 +222,8 @@ final class LocationViewControllerWrapper: UIViewController {
         }
     }
 
-    @objc
-    private func segmentedControlDidChange(sender: UISegmentedControl) {
-        multihopContext = .allCases[segmentedControl.selectedSegmentIndex]
+    private func segmentedControlDidChange(selectedIndex: Int) {
+        multihopContext = .allCases[selectedIndex]
         swapViewController()
     }
 
@@ -281,10 +278,8 @@ extension LocationViewControllerWrapper: @preconcurrency LocationViewControllerD
         case .entry:
             selectedEntry = relays
             delegate?.didSelectEntryRelays(relays)
-
-            // Trigger change in segmented control, which in turn triggers view controller swap.
-            segmentedControl.selectedSegmentIndex = MultihopContext.exit.rawValue
-            segmentedControl.sendActions(for: .valueChanged)
+            segmentedViewModel.selectedSegmentIndex = MultihopContext.exit.rawValue
+            segmentedControlDidChange(selectedIndex: MultihopContext.exit.rawValue)
         case .exit:
             delegate?.didSelectExitRelays(relays)
             didFinish?()
