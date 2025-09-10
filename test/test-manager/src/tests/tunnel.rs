@@ -5,7 +5,9 @@ use super::{
 };
 use crate::{
     network_monitor::{MonitorOptions, start_packet_monitor},
-    tests::helpers::{geoip_lookup_with_retries, login_with_retries, update_relay_constraints},
+    tests::helpers::{
+        ConnChecker, geoip_lookup_with_retries, login_with_retries, update_relay_constraints,
+    },
 };
 
 use anyhow::{Context, ensure};
@@ -19,7 +21,10 @@ use mullvad_types::{
     },
     wireguard,
 };
-use std::net::SocketAddr;
+use std::{
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    str::FromStr,
+};
 use talpid_types::net::{
     IpVersion, TransportProtocol, TunnelType,
     proxy::{CustomProxy, Socks5Local, Socks5Remote},
@@ -127,6 +132,67 @@ pub async fn test_wireguard_tunnel_ipvx(
 
         disconnect_and_wait(&mut mullvad_client).await?;
     }
+
+    Ok(())
+}
+
+/// Set up a WireGuard tunnel and check whether in-tunnel IPv6 works.
+/// WARNING: This test will fail if host has something bound to port 53 such as a connected Mullvad
+#[duplicate_item(
+      VX     test_wireguard_ipv6_in_ipvx;
+    [ V4 ] [ test_wireguard_ipv6_in_ipv4 ];
+    [ V6 ] [ test_wireguard_ipv6_in_ipv6 ];
+)]
+#[test_function]
+pub async fn test_wireguard_ipv6_in_ipvx(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    let ip_version = IpVersion::VX;
+
+    let mut conn_checker_v4 = ConnChecker::new(
+        rpc.clone(),
+        mullvad_client.clone(),
+        (Ipv4Addr::new(1, 1, 1, 1), 53),
+    );
+
+    let mut conn_checker_v6 = ConnChecker::new(
+        rpc.clone(),
+        mullvad_client.clone(),
+        (Ipv6Addr::from_str("2606:4700:4700::1111").unwrap(), 53),
+    );
+
+    let mut conn_checker_v4 = conn_checker_v4.spawn().await?;
+    let mut conn_checker_v6 = conn_checker_v6.spawn().await?;
+
+    conn_checker_v4.assert_insecure().await?;
+    conn_checker_v6.assert_insecure().await?;
+
+    log::info!("Connect to WireGuard endpoint");
+
+    let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
+        .build();
+    apply_settings_from_relay_query(&mut mullvad_client, query)
+        .await
+        .unwrap();
+
+    // Test with in-tunnel IPv6 enabled
+    mullvad_client.set_enable_ipv6(true).await?;
+    let connection_result = connect_and_wait(&mut mullvad_client).await;
+    assert!(connection_result.is_ok());
+    conn_checker_v4.assert_secure().await?;
+    conn_checker_v6.assert_secure().await?;
+
+    // Test with in-tunnel IPv6 disabled
+    mullvad_client.set_enable_ipv6(false).await?;
+    let connection_result = connect_and_wait(&mut mullvad_client).await;
+    assert!(connection_result.is_ok());
+    conn_checker_v4.assert_secure().await?;
+    conn_checker_v6.assert_blocked().await?; // ipv6 mustnt leak
+
+    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }
