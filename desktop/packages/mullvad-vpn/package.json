@@ -31,7 +31,7 @@
     "windows-utils": "0.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.41.1",
+    "@playwright/test": "^1.55.0",
     "@types/chai": "^4.3.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/chai-spies": "^1.0.3",
@@ -60,7 +60,7 @@
     "gettext-extractor": "^3.5.4",
     "globals": "^15.9.0",
     "mocha": "^10.8.2",
-    "playwright": "^1.41.1",
+    "playwright": "^1.55.0",
     "postject": "^1.0.0-alpha.6",
     "sinon": "^14.0.1",
     "vite": "6.3.5",
