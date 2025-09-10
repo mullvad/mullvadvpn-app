@@ -12,16 +12,6 @@ namespace
 
 using ObjectDeleter = std::function<void(wfp::FilterEngine &, const GUID &)>;
 
-template<typename TRange>
-void RemoveRange(wfp::FilterEngine &engine, ObjectDeleter deleter, TRange range)
-{
-	std::for_each(range.first, range.second, [&](const auto &record)
-	{
-		const GUID &objectId = record.second;
-		deleter(engine, objectId);
-	});
-}
-
 template<typename T>
 bool HasMullvadProvider(T obj)
 {
