@@ -25,15 +25,13 @@ void RemoveRange(wfp::FilterEngine &engine, ObjectDeleter deleter, TRange range)
 template<typename T>
 bool HasMullvadProvider(T obj)
 {
-	return nullptr != obj.providerKey
-		&& 0 == memcmp(obj.providerKey, &MullvadGuids::Provider(), sizeof(*obj.providerKey));
+	return nullptr != obj.providerKey && *obj.providerKey == MullvadGuids::Provider();
 }
 
 template<typename T>
 bool HasPersistentMullvadProvider(const T &obj)
 {
-	return nullptr != obj.providerKey
-		&& 0 == memcmp(obj.providerKey, &MullvadGuids::ProviderPersistent(), sizeof(*obj.providerKey));
+	return nullptr != obj.providerKey && *obj.providerKey == MullvadGuids::ProviderPersistent();
 }
 
 } // anonymous namespace
