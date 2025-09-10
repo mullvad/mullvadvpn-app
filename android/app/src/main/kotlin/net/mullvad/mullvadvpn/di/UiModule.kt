@@ -27,7 +27,6 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.service.DaemonConfig
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -130,7 +129,7 @@ val uiModule = module {
     single {
         MullvadProblemReport(
             context = androidContext(),
-            apiEndpointOverride = get<DaemonConfig>().apiEndpointOverride,
+            apiEndpointOverride = getOrNull(),
             apiEndpointFromIntentHolder = get(),
         )
     }

@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -85,6 +86,14 @@ val appModule = module {
     } bind NotificationProvider::class
     single { AccountExpiryNotificationProvider(get<NotificationChannel.AccountUpdates>().id) } bind
         NotificationProvider::class
+    if (net.mullvad.mullvadvpn.service.BuildConfig.FLAVOR_infrastructure != "prod") {
+        single<ApiEndpointOverride> {
+            ApiEndpointOverride(
+                net.mullvad.mullvadvpn.service.BuildConfig.API_ENDPOINT,
+                net.mullvad.mullvadvpn.service.BuildConfig.API_IP,
+            )
+        }
+    }
 }
 
 private val Context.userPreferencesStore: DataStore<UserPreferences> by
