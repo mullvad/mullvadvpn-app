@@ -5,6 +5,7 @@
 #include "libwfp/objectdeleter.h"
 #include "libwfp/transaction.h"
 #include "libwfp/objectenumerator.h"
+#include <set>
 #include <algorithm>
 
 namespace
@@ -55,35 +56,37 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{
-		std::vector<GUID> filtersToRemove;
+		std::set<GUID> filtersToRemove;
 		wfp::ObjectEnumerator::Filters(engine, [&](const auto &filter) -> bool
 		{
 			// Delete both non-persistent and persistent filters
 			if (HasMullvadProvider(filter) || HasPersistentMullvadProvider(filter))
 			{
-				filtersToRemove.push_back(filter.filterKey);
+				filtersToRemove.insert(filter.filterKey);
 			}
 			return true;
 		});
 
-		std::vector<GUID> sublayersToRemove;
+		std::set<GUID> sublayersToRemove;
 		wfp::ObjectEnumerator::Sublayers(engine, [&](const auto &sublayer) -> bool
 		{
 			// Delete both non-persistent and persistent sublayers
 			if (HasMullvadProvider(sublayer) || HasPersistentMullvadProvider(sublayer))
 			{
-				sublayersToRemove.push_back(sublayer.subLayerKey);
+				sublayersToRemove.insert(sublayer.subLayerKey);
 			}
 			return true;
 		});
 
-		std::for_each(filtersToRemove.begin(), filtersToRemove.end(), [&](GUID &filterKey) {
-			wfp::ObjectDeleter::DeleteFilter(engine, filterKey);
-		});
+		for (const auto &filter : filtersToRemove)
+		{
+			wfp::ObjectDeleter::DeleteFilter(engine, filter);
+		}
 
-		std::for_each(sublayersToRemove.begin(), sublayersToRemove.end(), [&](GUID &sublayerKey) {
-			wfp::ObjectDeleter::DeleteSublayer(engine, sublayerKey);
-		});
+		for (const auto &sublayer : sublayersToRemove)
+		{
+			wfp::ObjectDeleter::DeleteSublayer(engine, sublayer);
+		}
 
 		wfp::ObjectDeleter::DeleteProvider(engine, MullvadGuids::Provider());
 		wfp::ObjectDeleter::DeleteProvider(engine, MullvadGuids::ProviderPersistent());
@@ -95,35 +98,37 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveNonPersistentFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{
-		std::vector<GUID> filtersToRemove;
+		std::set<GUID> filtersToRemove;
 		wfp::ObjectEnumerator::Filters(engine, [&](const auto &filter) -> bool
 		{
 			// Delete only non-persistent filters
 			if (HasMullvadProvider(filter))
 			{
-				filtersToRemove.push_back(filter.filterKey);
+				filtersToRemove.insert(filter.filterKey);
 			}
 			return true;
 		});
 
-		std::vector<GUID> sublayersToRemove;
+		std::set<GUID> sublayersToRemove;
 		wfp::ObjectEnumerator::Sublayers(engine, [&](const auto &sublayer) -> bool
 		{
 			// Delete only non-persistent sublayers
 			if (HasMullvadProvider(sublayer))
 			{
-				sublayersToRemove.push_back(sublayer.subLayerKey);
+				sublayersToRemove.insert(sublayer.subLayerKey);
 			}
 			return true;
 		});
 
-		std::for_each(filtersToRemove.begin(), filtersToRemove.end(), [&](GUID &filterKey) {
-			wfp::ObjectDeleter::DeleteFilter(engine, filterKey);
-		});
+		for (const auto &filter : filtersToRemove)
+		{
+			wfp::ObjectDeleter::DeleteFilter(engine, filter);
+		}
 
-		std::for_each(sublayersToRemove.begin(), sublayersToRemove.end(), [&](GUID &sublayerKey) {
-			wfp::ObjectDeleter::DeleteSublayer(engine, sublayerKey);
-		});
+		for (const auto &sublayer : sublayersToRemove)
+		{
+			wfp::ObjectDeleter::DeleteSublayer(engine, sublayer);
+		}
 
 		wfp::ObjectDeleter::DeleteProvider(engine, MullvadGuids::Provider());
 	};
