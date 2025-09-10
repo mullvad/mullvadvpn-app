@@ -47,7 +47,7 @@
     "@types/sinon": "^10.0.13",
     "@types/sprintf-js": "^1.1.2",
     "@types/topojson-specification": "^1.0.2",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.0.2",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
