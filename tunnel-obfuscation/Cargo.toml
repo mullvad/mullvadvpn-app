@@ -29,4 +29,5 @@ features = ["device", "tun"]
 nix = { workspace = true }
 
 [dev-dependencies]
+clap = { workspace = true }
 env_logger = { workspace = true }
