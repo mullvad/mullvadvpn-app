@@ -1034,7 +1034,7 @@ pub struct ConnCheckerHandle<'a> {
 
 pub struct ConnectionStatus {
     /// True if <https://am.i.mullvad.net/> reported we are connected.
-    am_i_mullvad: bool,
+    am_i_mullvad: anyhow::Result<bool>,
 
     /// True if we sniffed TCP packets going outside the tunnel.
     leaked_tcp: bool,
@@ -1050,7 +1050,7 @@ impl ConnChecker {
     pub fn new(
         rpc: ServiceClient,
         mullvad_client: MullvadProxyClient,
-        leak_destination: SocketAddr,
+        leak_destination: impl Into<SocketAddr>,
     ) -> Self {
         let artifacts_dir = &TEST_CONFIG.artifacts_dir;
         let executable_path = match TEST_CONFIG.os {
@@ -1061,7 +1061,7 @@ impl ConnChecker {
         Self {
             rpc,
             mullvad_client,
-            leak_destination,
+            leak_destination: leak_destination.into(),
             split: false,
             executable_path,
             payload: None,
@@ -1187,11 +1187,23 @@ impl ConnCheckerHandle<'_> {
         self.checker.unsplit().await
     }
 
+    /// Assert that traffic is blocked and that no packets are leaked.
+    pub async fn assert_blocked(&mut self) -> anyhow::Result<()> {
+        log::info!("checking that connection is blocked");
+        let status = self.check_connection().await?;
+        ensure!(status.am_i_mullvad.is_err());
+        ensure!(!status.leaked_tcp);
+        ensure!(!status.leaked_udp);
+        ensure!(!status.leaked_icmp);
+
+        Ok(())
+    }
+
     /// Assert that traffic is flowing through the Mullvad tunnel and that no packets are leaked.
     pub async fn assert_secure(&mut self) -> anyhow::Result<()> {
         log::info!("checking that connection is secure");
         let status = self.check_connection().await?;
-        ensure!(status.am_i_mullvad);
+        ensure!(status.am_i_mullvad?);
         ensure!(!status.leaked_tcp);
         ensure!(!status.leaked_udp);
         ensure!(!status.leaked_icmp);
@@ -1203,7 +1215,7 @@ impl ConnCheckerHandle<'_> {
     pub async fn assert_insecure(&mut self) -> anyhow::Result<()> {
         log::info!("checking that connection is not secure");
         let status = self.check_connection().await?;
-        ensure!(!status.am_i_mullvad);
+        ensure!(!status.am_i_mullvad?);
         ensure!(status.leaked_tcp);
         ensure!(status.leaked_udp);
         ensure!(status.leaked_icmp);
@@ -1238,7 +1250,7 @@ impl ConnCheckerHandle<'_> {
             .map_err(|_e| anyhow!("Packet monitor unexpectedly stopped"))?;
 
         Ok(ConnectionStatus {
-            am_i_mullvad: parse_am_i_mullvad(line)?,
+            am_i_mullvad: parse_am_i_mullvad(line),
 
             leaked_tcp: (monitor_result.packets.iter())
                 .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Tcp),
