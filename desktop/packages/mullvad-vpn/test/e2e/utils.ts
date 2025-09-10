@@ -66,6 +66,8 @@ const waitForRouteFactory = (app: ElectronApplication) => {
     const currentRoute = await getCurrentRoute();
 
     if (currentRoute !== route) {
+      // Add a 50 ms delay to match Playwrights polling interval for assertions.
+      await new Promise((resolve) => setTimeout(resolve, 50));
       return waitForRoute(route);
     }
   };
