@@ -1,7 +1,7 @@
 use anyhow::{Context, anyhow};
 use boringtun::{
     packet::Packet,
-    udp::{UdpRecv, UdpSend, UdpTransport, UdpTransportFactory},
+    udp::{UdpRecv, UdpSend, UdpTransportFactory},
 };
 use bytes::{Buf, Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
@@ -753,8 +753,6 @@ impl UdpSend for SimpleChannelTx {
         Ok(())
     }
 }
-
-impl UdpTransport for SimpleChannelTx {}
 
 /// An implementation of [`UdpRecv`] using tokio channels. Create using
 /// [`get_packet_channels`].
