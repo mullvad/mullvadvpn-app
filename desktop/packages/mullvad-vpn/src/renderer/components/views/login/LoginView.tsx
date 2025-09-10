@@ -49,7 +49,7 @@ import {
   StyledTopInfo,
 } from './LoginStyles';
 
-export default function LoginContainer() {
+export function LoginView() {
   const { openUrl, login, clearAccountHistory, createNewAccount } = useAppContext();
   const { resetLoginError, updateAccountNumber } = useActions(accountActions);
 
