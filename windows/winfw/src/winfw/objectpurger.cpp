@@ -28,30 +28,6 @@ bool HasPersistentMullvadProvider(const T &obj)
 } // anonymous namespace
 
 //static
-ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveFiltersFunctor()
-{
-	return [](wfp::FilterEngine &engine)
-	{
-		std::vector<GUID> filtersToRemove;
-		wfp::ObjectEnumerator::Filters(engine, [&](const auto &filter) -> bool
-		{
-			// Delete both non-persistent and persistent filters
-			if (HasMullvadProvider(filter) || HasPersistentMullvadProvider(filter))
-			{
-				filtersToRemove.push_back(filter.filterKey);
-			}
-			return true;
-		});
-
-		std::for_each(filtersToRemove.begin(), filtersToRemove.end(), [&](GUID &filterKey) {
-			wfp::ObjectDeleter::DeleteFilter(engine, filterKey);
-		});
-	};
-}
-
-
-
-//static
 ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
 {
 	return [](wfp::FilterEngine &engine)
