@@ -1072,6 +1072,11 @@ impl ConnChecker {
         log::debug!("spawning connection checker");
 
         let opts = {
+            let ipvx = match self.leak_destination {
+                SocketAddr::V4(..) => "ipv4",
+                SocketAddr::V6(..) => "ipv6",
+            };
+
             let mut args = [
                 "--interactive",
                 "--timeout",
@@ -1085,7 +1090,7 @@ impl ConnChecker {
                 "--leak-udp",
                 "--leak-icmp",
                 "--url",
-                &format!("https://am.i.{}/json", TEST_CONFIG.mullvad_host),
+                &format!("https://{ipvx}.am.i.{}/json", TEST_CONFIG.mullvad_host),
             ]
             .map(String::from)
             .to_vec();
@@ -1181,37 +1186,61 @@ impl ConnCheckerHandle<'_> {
     /// Assert that traffic is blocked and that no packets are leaked.
     pub async fn assert_blocked(&mut self) -> anyhow::Result<()> {
         log::info!("checking that connection is blocked");
-        let status = self.check_connection().await?;
-        ensure!(status.am_i_mullvad.is_err());
-        ensure!(!status.leaked_tcp);
-        ensure!(!status.leaked_udp);
-        ensure!(!status.leaked_icmp);
-
-        Ok(())
+        async {
+            let status = self.check_connection().await?;
+            ensure!(status.am_i_mullvad.is_err());
+            ensure!(!status.leaked_tcp);
+            ensure!(!status.leaked_udp);
+            ensure!(!status.leaked_icmp);
+            Ok(())
+        }
+        .await
+        .with_context(|| {
+            anyhow!(
+                "assert_secure failed (leak_destination={})",
+                self.checker.leak_destination,
+            )
+        })
     }
 
     /// Assert that traffic is flowing through the Mullvad tunnel and that no packets are leaked.
     pub async fn assert_secure(&mut self) -> anyhow::Result<()> {
         log::info!("checking that connection is secure");
-        let status = self.check_connection().await?;
-        ensure!(status.am_i_mullvad?);
-        ensure!(!status.leaked_tcp);
-        ensure!(!status.leaked_udp);
-        ensure!(!status.leaked_icmp);
-
-        Ok(())
+        async {
+            let status = self.check_connection().await?;
+            ensure!(status.am_i_mullvad?);
+            ensure!(!status.leaked_tcp);
+            ensure!(!status.leaked_udp);
+            ensure!(!status.leaked_icmp);
+            Ok(())
+        }
+        .await
+        .with_context(|| {
+            anyhow!(
+                "assert_secure failed (leak_destination={})",
+                self.checker.leak_destination,
+            )
+        })
     }
 
     /// Assert that traffic is NOT flowing through the Mullvad tunnel and that packets ARE leaked.
     pub async fn assert_insecure(&mut self) -> anyhow::Result<()> {
         log::info!("checking that connection is not secure");
-        let status = self.check_connection().await?;
-        ensure!(!status.am_i_mullvad?);
-        ensure!(status.leaked_tcp);
-        ensure!(status.leaked_udp);
-        ensure!(status.leaked_icmp);
-
-        Ok(())
+        async {
+            let status = self.check_connection().await?;
+            ensure!(!status.am_i_mullvad?);
+            ensure!(status.leaked_tcp);
+            ensure!(status.leaked_udp);
+            ensure!(status.leaked_icmp);
+            Ok(())
+        }
+        .await
+        .with_context(|| {
+            anyhow!(
+                "assert_secure failed (leak_destination={})",
+                self.checker.leak_destination,
+            )
+        })
     }
 
     pub async fn check_connection(&mut self) -> anyhow::Result<ConnectionStatus> {
@@ -1240,6 +1269,8 @@ impl ConnCheckerHandle<'_> {
             .await
             .map_err(|_e| anyhow!("Packet monitor unexpectedly stopped"))?;
 
+        let leak_destination = self.checker.leak_destination;
+
         Ok(ConnectionStatus {
             am_i_mullvad: parse_am_i_mullvad(line),
 
@@ -1249,8 +1280,10 @@ impl ConnCheckerHandle<'_> {
             leaked_udp: (monitor_result.packets.iter())
                 .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Udp),
 
-            leaked_icmp: (monitor_result.packets.iter())
-                .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Icmp),
+            leaked_icmp: (monitor_result.packets.iter()).any(|pkt| match leak_destination {
+                SocketAddr::V4(..) => pkt.protocol == IpNextHeaderProtocols::Icmp,
+                SocketAddr::V6(..) => pkt.protocol == IpNextHeaderProtocols::Icmpv6,
+            }),
         })
     }
 
