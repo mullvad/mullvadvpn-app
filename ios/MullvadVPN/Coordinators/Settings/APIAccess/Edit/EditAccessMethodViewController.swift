@@ -64,7 +64,7 @@ class EditAccessMethodViewController: UIViewController {
             tableView.pinEdgesToSuperview(.all().excluding(.top))
             tableView.topAnchor.constraint(
                 equalTo: title.bottomAnchor,
-                constant: 0
+                constant: UIMetrics.SettingsCell.layoutMargins.top
             )
         }
 
