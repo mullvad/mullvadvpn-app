@@ -10,21 +10,17 @@ import {
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { useSelector } from '../../../../../redux/store';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 export function BridgeModeSetting() {
   const { setBridgeState: setBridgeStateImpl } = useAppContext();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
   const bridgeState = useSelector((state) => state.settings.bridgeState);
-
-  const { ref, animation } = useScrollToListItem('bridge-mode-setting');
 
   const tunnelProtocol = useMemo(() => {
     const protocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any';
@@ -58,15 +54,18 @@ export function BridgeModeSetting() {
   const footerText = bridgeModeFooterText(bridgeState === 'on', tunnelProtocol, transportProtocol);
 
   return (
-    <Listbox value={bridgeState} onValueChange={onSelectBridgeState} animation={animation}>
-      <Listbox.Item ref={ref}>
-        <Listbox.Content>
-          <Listbox.Label>
+    <SettingsListbox
+      anchorId="bridge-mode-setting"
+      value={bridgeState}
+      onValueChange={onSelectBridgeState}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the shadowsocks bridge selector section.
               messages.pgettext('openvpn-settings-view', 'Bridge mode')
             }
-          </Listbox.Label>
+          </SettingsListbox.Label>
           <InfoButton>
             <>
               <ModalMessage>
@@ -87,23 +86,27 @@ export function BridgeModeSetting() {
               </ModalMessage>
             </>
           </InfoButton>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={'auto'}>{messages.gettext('Automatic')}</DefaultListboxOption>
-        <DefaultListboxOption
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={'auto'}>
+          {messages.gettext('Automatic')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption
           value={'on'}
           disabled={tunnelProtocol !== 'openvpn' || transportProtocol === 'udp'}>
           {messages.gettext('On')}
-        </DefaultListboxOption>
-        <DefaultListboxOption value={'off'}>{messages.gettext('Off')}</DefaultListboxOption>
-      </Listbox.Options>
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={'off'}>
+          {messages.gettext('Off')}
+        </SettingsListbox.BaseOption>
+      </SettingsListbox.Options>
       {footerText !== undefined && (
-        <Listbox.Footer>
-          <Listbox.Text>{footerText}</Listbox.Text>
-        </Listbox.Footer>
+        <SettingsListbox.Footer>
+          <SettingsListbox.Text>{footerText}</SettingsListbox.Text>
+        </SettingsListbox.Footer>
       )}
-    </Listbox>
+    </SettingsListbox>
   );
 }
 

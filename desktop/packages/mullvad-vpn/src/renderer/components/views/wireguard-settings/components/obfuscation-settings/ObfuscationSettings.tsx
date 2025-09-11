@@ -5,15 +5,12 @@ import { Constraint, ObfuscationType } from '../../../../../../shared/daemon-rpc
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
 import { Text } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useSelector } from '../../../../../redux/store';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
-import { SplitListboxOption } from '../../../../split-listbox-option';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 export function formatPortForSubLabel(port: Constraint<number>): string {
   return port === 'any' ? messages.gettext('Automatic') : `${port.only}`;
@@ -22,8 +19,6 @@ export function formatPortForSubLabel(port: Constraint<number>): string {
 export function ObfuscationSettings() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
-
-  const { ref, animation } = useScrollToListItem('obfuscation-setting');
 
   // TRANSLATORS: Text showing currently selected port.
   // TRANSLATORS: Available placeholders:
@@ -43,15 +38,18 @@ export function ObfuscationSettings() {
   );
 
   return (
-    <Listbox onValueChange={selectObfuscationType} value={obfuscationType} animation={animation}>
-      <Listbox.Item ref={ref}>
-        <Listbox.Content>
-          <Listbox.Label>
+    <SettingsListbox
+      anchorId="obfuscation-setting"
+      onValueChange={selectObfuscationType}
+      value={obfuscationType}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the WireGuard obfuscation selector.
               messages.pgettext('wireguard-settings-view', 'Obfuscation')
             }
-          </Listbox.Label>
+          </SettingsListbox.Label>
           <InfoButton>
             <ModalMessage>
               {
@@ -64,55 +62,55 @@ export function ObfuscationSettings() {
               }
             </ModalMessage>
           </InfoButton>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={ObfuscationType.auto}>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={ObfuscationType.auto}>
           {messages.gettext('Automatic')}
-        </DefaultListboxOption>
-        <SplitListboxOption value={ObfuscationType.shadowsocks}>
-          <SplitListboxOption.Item>
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.SplitOption value={ObfuscationType.shadowsocks}>
+          <SettingsListbox.SplitOption.Item>
             <FlexColumn>
-              <Listbox.Option.Label>
+              <SettingsListbox.SplitOption.Label>
                 {messages.pgettext('wireguard-settings-view', 'Shadowsocks')}
-              </Listbox.Option.Label>
+              </SettingsListbox.SplitOption.Label>
               <Text variant="labelTiny" color="whiteAlpha60">
                 {sprintf(subLabelTemplate, {
                   port: formatPortForSubLabel(obfuscationSettings.shadowsocksSettings.port),
                 })}
               </Text>
             </FlexColumn>
-          </SplitListboxOption.Item>
-          <SplitListboxOption.NavigateButton
+          </SettingsListbox.SplitOption.Item>
+          <SettingsListbox.SplitOption.NavigateButton
             to={RoutePath.shadowsocks}
             aria-description={messages.pgettext('accessibility', 'Shadowsocks settings')}
           />
-        </SplitListboxOption>
-        <SplitListboxOption value={ObfuscationType.udp2tcp}>
-          <SplitListboxOption.Item>
+        </SettingsListbox.SplitOption>
+        <SettingsListbox.SplitOption value={ObfuscationType.udp2tcp}>
+          <SettingsListbox.SplitOption.Item>
             <FlexColumn>
-              <Listbox.Option.Label>
+              <SettingsListbox.SplitOption.Label>
                 {messages.pgettext('wireguard-settings-view', 'UDP-over-TCP')}
-              </Listbox.Option.Label>
+              </SettingsListbox.SplitOption.Label>
               <Text variant="labelTiny" color="whiteAlpha60">
                 {sprintf(subLabelTemplate, {
                   port: formatPortForSubLabel(obfuscationSettings.udp2tcpSettings.port),
                 })}
               </Text>
             </FlexColumn>
-          </SplitListboxOption.Item>
-          <SplitListboxOption.NavigateButton
+          </SettingsListbox.SplitOption.Item>
+          <SettingsListbox.SplitOption.NavigateButton
             to={RoutePath.udpOverTcp}
             aria-description={messages.pgettext('accessibility', 'UDP-over-TCP settings')}
           />
-        </SplitListboxOption>
-        <DefaultListboxOption value={ObfuscationType.quic}>
+        </SettingsListbox.SplitOption>
+        <SettingsListbox.BaseOption value={ObfuscationType.quic}>
           {messages.pgettext('wireguard-settings-view', 'QUIC')}
-        </DefaultListboxOption>
-        <DefaultListboxOption value={ObfuscationType.off}>
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={ObfuscationType.off}>
           {messages.gettext('Off')}
-        </DefaultListboxOption>
-      </Listbox.Options>
-    </Listbox>
+        </SettingsListbox.BaseOption>
+      </SettingsListbox.Options>
+    </SettingsListbox>
   );
 }
