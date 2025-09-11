@@ -1,33 +1,33 @@
 import React from 'react';
 
 import { RoutePath } from '../../shared/routes';
-import { ListItem, ListItemProps } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
+import { SettingsListItem, SettingsListItemProps } from './settings-list-item';
 
-export type NavigationListItemProps = ListItemProps & {
+export type NavigationListItemProps = {
   to: RoutePath;
-};
+} & SettingsListItemProps;
 
 function NavigationListItem({ to, children, ...props }: NavigationListItemProps) {
   const history = useHistory();
   const navigate = React.useCallback(() => history.push(to), [history, to]);
 
   return (
-    <ListItem {...props}>
-      <ListItem.Trigger onClick={navigate}>
-        <ListItem.Item>
-          <ListItem.Content>{children}</ListItem.Content>
-        </ListItem.Item>
-      </ListItem.Trigger>
-    </ListItem>
+    <SettingsListItem {...props}>
+      <SettingsListItem.Trigger onClick={navigate}>
+        <SettingsListItem.Item>
+          <SettingsListItem.Content>{children}</SettingsListItem.Content>
+        </SettingsListItem.Item>
+      </SettingsListItem.Trigger>
+    </SettingsListItem>
   );
 }
 const NavigationListItemNamespace = Object.assign(NavigationListItem, {
-  Label: ListItem.Label,
-  Group: ListItem.Group,
-  Text: ListItem.Text,
-  Footer: ListItem.Footer,
-  Icon: ListItem.Icon,
+  Label: SettingsListItem.Label,
+  Group: SettingsListItem.Group,
+  Text: SettingsListItem.Text,
+  Footer: SettingsListItem.Footer,
+  Icon: SettingsListItem.Icon,
 });
 
 export { NavigationListItemNamespace as NavigationListItem };

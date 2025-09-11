@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
 import { Button } from '../../../../../lib/components';
 import { useBoolean } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
@@ -14,7 +13,6 @@ import { ToggleListItem } from '../../../../toggle-list-item';
 export function LockdownModeSetting() {
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
   const { setBlockWhenDisconnected: setBlockWhenDisconnectedImpl } = useAppContext();
-  const { ref, animation } = useScrollToListItem('lockdown-mode-setting');
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
     useBoolean(false);
@@ -49,8 +47,7 @@ export function LockdownModeSetting() {
 
   return (
     <ToggleListItem
-      ref={ref}
-      animation={animation}
+      anchorId="lockdown-mode-setting"
       checked={blockWhenDisconnected}
       onCheckedChange={setLockDownMode}>
       <ToggleListItem.Label>
