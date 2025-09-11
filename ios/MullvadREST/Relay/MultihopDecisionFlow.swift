@@ -55,7 +55,12 @@ struct OneToOne: MultihopDecisionFlow {
             useObfuscatedPortIfAvailable: true
         )
 
-        return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
+        return SelectedRelays(
+            entry: entryMatch,
+            exit: exitMatch,
+            retryAttempt: relayPicker.connectionAttemptCount,
+            obfuscation: relayPicker.obfuscation.method
+        )
     }
 
     func canHandle(entryCandidates: [RelayCandidate], exitCandidates: [RelayCandidate]) -> Bool {
@@ -99,7 +104,12 @@ struct OneToMany: MultihopDecisionFlow {
             useObfuscatedPortIfAvailable: false
         )
 
-        return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
+        return SelectedRelays(
+            entry: entryMatch,
+            exit: exitMatch,
+            retryAttempt: relayPicker.connectionAttemptCount,
+            obfuscation: relayPicker.obfuscation.method
+        )
     }
 
     func canHandle(entryCandidates: [RelayCandidate], exitCandidates: [RelayCandidate]) -> Bool {
@@ -144,7 +154,12 @@ struct ManyToOne: MultihopDecisionFlow {
             useObfuscatedPortIfAvailable: true
         )
 
-        return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
+        return SelectedRelays(
+            entry: entryMatch,
+            exit: exitMatch,
+            retryAttempt: relayPicker.connectionAttemptCount,
+            obfuscation: relayPicker.obfuscation.method
+        )
     }
 
     func canHandle(entryCandidates: [RelayCandidate], exitCandidates: [RelayCandidate]) -> Bool {
@@ -189,7 +204,12 @@ struct ManyToMany: MultihopDecisionFlow {
             useObfuscatedPortIfAvailable: true
         )
 
-        return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
+        return SelectedRelays(
+            entry: entryMatch,
+            exit: exitMatch,
+            retryAttempt: relayPicker.connectionAttemptCount,
+            obfuscation: relayPicker.obfuscation.method
+        )
     }
 
     func canHandle(entryCandidates: [RelayCandidate], exitCandidates: [RelayCandidate]) -> Bool {
