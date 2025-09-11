@@ -5,11 +5,9 @@ import { strings } from '../../../../../../shared/constants';
 import { IpVersion, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
-import { useScrollToListItem } from '../../../../../hooks';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 export function IpVersionSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
@@ -18,8 +16,6 @@ export function IpVersionSetting() {
     const ipVersion = 'normal' in relaySettings ? relaySettings.normal.wireguard.ipVersion : 'any';
     return ipVersion === 'any' ? null : ipVersion;
   }, [relaySettings]);
-
-  const { animation } = useScrollToListItem();
 
   const setIpVersion = useCallback(
     async (ipVersion: IpVersion | null) => {
@@ -37,24 +33,30 @@ export function IpVersionSetting() {
   );
 
   return (
-    <Listbox value={ipVersion} onValueChange={setIpVersion} animation={animation}>
-      <Listbox.Item>
-        <Listbox.Content>
-          <Listbox.Label>
+    <SettingsListbox value={ipVersion} onValueChange={setIpVersion}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the WireGuard IP version selector.
               messages.pgettext('wireguard-settings-view', 'IP version')
             }
-          </Listbox.Label>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
-        <DefaultListboxOption value={'ipv4'}>{messages.gettext('IPv4')}</DefaultListboxOption>
-        <DefaultListboxOption value={'ipv6'}>{messages.gettext('IPv6')}</DefaultListboxOption>
-      </Listbox.Options>
-      <Listbox.Footer>
-        <Listbox.Text>
+          </SettingsListbox.Label>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={null}>
+          {messages.gettext('Automatic')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={'ipv4'}>
+          {messages.gettext('IPv4')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={'ipv6'}>
+          {messages.gettext('IPv6')}
+        </SettingsListbox.BaseOption>
+      </SettingsListbox.Options>
+      <SettingsListbox.Footer>
+        <SettingsListbox.Text>
           {sprintf(
             // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
             // TRANSLATORS: Available placeholders:
@@ -65,8 +67,8 @@ export function IpVersionSetting() {
             ),
             { wireguard: strings.wireguard },
           )}
-        </Listbox.Text>
-      </Listbox.Footer>
-    </Listbox>
+        </SettingsListbox.Text>
+      </SettingsListbox.Footer>
+    </SettingsListbox>
   );
 }
