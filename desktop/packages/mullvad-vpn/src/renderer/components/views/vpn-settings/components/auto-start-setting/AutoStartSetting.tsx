@@ -4,7 +4,7 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
-import { ToggleListItem } from '../../../../toggle-list-item';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function AutoStartSetting() {
   const autoStart = useSelector((state) => state.settings.autoStart);
@@ -23,11 +23,11 @@ export function AutoStartSetting() {
   );
 
   return (
-    <ToggleListItem checked={autoStart} onCheckedChange={setAutoStart}>
-      <ToggleListItem.Label>
+    <SettingsToggleListItem checked={autoStart} onCheckedChange={setAutoStart}>
+      <SettingsToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
-      </ToggleListItem.Label>
-      <ToggleListItem.Switch />
-    </ToggleListItem>
+      </SettingsToggleListItem.Label>
+      <SettingsToggleListItem.Switch />
+    </SettingsToggleListItem>
   );
 }
