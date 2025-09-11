@@ -23,7 +23,8 @@ class RelayPickingTests: XCTestCase {
         obfuscation = try RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: LatestTunnelSettings(),
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0,
+            bias: UnbiasedObfuscationBypass()
         ).obfuscate()
     }
 
