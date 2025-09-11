@@ -1,14 +1,14 @@
 import { Switch, SwitchProps } from '../../lib/components/switch';
 import { SettingsListItem, SettingsListItemProps } from '../settings-list-item';
-import { ToggleListItemLabel, ToggleListItemSwitch } from './components';
+import { SettingsToggleListItemLabel, SettingsToggleListItemSwitch } from './components';
 
-export type ToggleListItemProps = {
+export type SettingsToggleListItemProps = {
   footer?: string;
   checked?: SwitchProps['checked'];
   onCheckedChange?: SwitchProps['onCheckedChange'];
 } & SettingsListItemProps;
 
-function ToggleListItem({
+function SettingsToggleListItem({
   ref,
   children,
   footer,
@@ -16,7 +16,7 @@ function ToggleListItem({
   onCheckedChange,
   disabled,
   ...props
-}: ToggleListItemProps) {
+}: SettingsToggleListItemProps) {
   return (
     <SettingsListItem disabled={disabled} {...props}>
       <SettingsListItem.Item>
@@ -34,12 +34,12 @@ function ToggleListItem({
     </SettingsListItem>
   );
 }
-const ToggleListItemNamespace = Object.assign(ToggleListItem, {
-  Label: ToggleListItemLabel,
+const SettingsToggleListItemNamespace = Object.assign(SettingsToggleListItem, {
+  Label: SettingsToggleListItemLabel,
   Text: SettingsListItem.Text,
   Group: SettingsListItem.Group,
   Footer: SettingsListItem.Footer,
-  Switch: ToggleListItemSwitch,
+  Switch: SettingsToggleListItemSwitch,
 });
 
-export { ToggleListItemNamespace as ToggleListItem };
+export { SettingsToggleListItemNamespace as SettingsToggleListItem };

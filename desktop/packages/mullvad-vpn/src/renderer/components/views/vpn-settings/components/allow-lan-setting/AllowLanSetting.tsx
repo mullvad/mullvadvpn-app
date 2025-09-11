@@ -6,7 +6,7 @@ import { spacings } from '../../../../../lib/foundations';
 import { useSelector } from '../../../../../redux/store';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
-import { ToggleListItem } from '../../../../toggle-list-item';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 const LanIpRanges = styled.ul({
   listStyle: 'disc outside',
@@ -18,11 +18,14 @@ export function AllowLanSetting() {
   const { setAllowLan } = useAppContext();
 
   return (
-    <ToggleListItem anchorId="allow-lan-setting" checked={allowLan} onCheckedChange={setAllowLan}>
-      <ToggleListItem.Label>
+    <SettingsToggleListItem
+      anchorId="allow-lan-setting"
+      checked={allowLan}
+      onCheckedChange={setAllowLan}>
+      <SettingsToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Local network sharing')}
-      </ToggleListItem.Label>
-      <ToggleListItem.Group>
+      </SettingsToggleListItem.Label>
+      <SettingsToggleListItem.Group>
         <InfoButton>
           <ModalMessage>
             {messages.pgettext(
@@ -45,8 +48,8 @@ export function AllowLanSetting() {
             </LanIpRanges>
           </ModalMessage>
         </InfoButton>
-        <ToggleListItem.Switch />
-      </ToggleListItem.Group>
-    </ToggleListItem>
+        <SettingsToggleListItem.Switch />
+      </SettingsToggleListItem.Group>
+    </SettingsToggleListItem>
   );
 }
