@@ -4,7 +4,7 @@ import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { useTunnelProtocol } from '../../../../../lib/relay-settings-hooks';
-import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
 export function OpenVpnSettings() {
   const tunnelProtocol = useTunnelProtocol();

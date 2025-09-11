@@ -5,7 +5,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { RelaySettingsRedux } from '../../../../../redux/settings/reducers';
 import { useSelector } from '../../../../../redux/store';
-import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
 function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
   if ('normal' in relaySettings) {
