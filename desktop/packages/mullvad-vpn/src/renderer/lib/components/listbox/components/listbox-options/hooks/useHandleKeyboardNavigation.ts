@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useListboxContext } from '../../listbox-context';
+import { useListboxContext } from '../../../';
 
 export const useHandleKeyboardNavigation = <T>(options: T[]) => {
   const { value: selectedValue, focusedValue, setFocusedValue } = useListboxContext<T>();

@@ -1,4 +1,4 @@
-import { Listbox } from '../../../../../../lib/components/listbox/Listbox';
+import { Listbox } from '../../../../../../lib/components/listbox';
 import { useInputOption } from '../input-option-context';
 
 export type InputOptionLabelProps = {

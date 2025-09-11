@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { SwitchProvider, SwitchThumb, SwitchTrigger } from './components';
+import { SwitchThumb, SwitchTrigger } from './components';
 import { SwitchLabel } from './components/switch-label';
+import { SwitchProvider } from './SwitchContext';
 
 export interface SwitchProps {
   checked?: boolean;

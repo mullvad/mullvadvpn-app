@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useListboxContext } from '../../../../../../lib/components/listbox/components';
+import { useListboxContext } from '../../../../../../lib/components/listbox/';
+import { useListboxOptionContext } from '../../../../../../lib/components/listbox/components/listbox-option/';
 import {
   ListboxOptionTriggerProps,
   StyledListItemOptionItem,
-  useListboxOptionContext,
 } from '../../../../../../lib/components/listbox/components/listbox-option/components';
 import { colors } from '../../../../../../lib/foundations';
 import { useInputOption } from '../input-option-context';

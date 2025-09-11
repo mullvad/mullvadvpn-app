@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { ListItem } from '../../../../../../lib/components/list-item';
-import { ListItemTextFieldInputProps } from '../../../../../../lib/components/list-item/components/list-item-text-field/list-item-text-field-input';
-import { useListboxContext } from '../../../../../../lib/components/listbox/components';
+import { ListItemTextFieldInputProps } from '../../../../../../lib/components/list-item/components';
+import { useListboxContext } from '../../../../../../lib/components/listbox';
 import { useTextField } from '../../../../../../lib/components/text-field';
 import { useInputOption } from '../input-option-context';
 
