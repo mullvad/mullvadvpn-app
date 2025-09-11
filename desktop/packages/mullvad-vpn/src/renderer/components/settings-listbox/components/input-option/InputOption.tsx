@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { Listbox } from '../../../../lib/components/listbox';
 import { ListboxOptionProps } from '../../../../lib/components/listbox/components';
-import { Listbox } from '../../../../lib/components/listbox/Listbox';
 import {
   InputOptionInput,
   InputOptionLabel,

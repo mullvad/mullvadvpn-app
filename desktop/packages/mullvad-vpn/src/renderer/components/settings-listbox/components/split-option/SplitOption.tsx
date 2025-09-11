@@ -1,6 +1,6 @@
 import { Flex } from '../../../../lib/components';
+import { Listbox } from '../../../../lib/components/listbox';
 import { ListboxOptionProps } from '../../../../lib/components/listbox/components';
-import { Listbox } from '../../../../lib/components/listbox/Listbox';
 import { SplitOptionItem, SplitOptionNavigateButton } from './components';
 
 export type SplitOptionProps<T> = ListboxOptionProps<T>;

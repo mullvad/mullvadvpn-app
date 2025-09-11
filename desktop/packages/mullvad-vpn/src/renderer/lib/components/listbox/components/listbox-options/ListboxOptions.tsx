@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useListboxContext } from '../listbox-context';
+import { useListboxContext } from '../../';
 import { useChildrenValues, useHandleKeyboardNavigation } from './hooks';
 
 export type ListboxOptionsProps = {

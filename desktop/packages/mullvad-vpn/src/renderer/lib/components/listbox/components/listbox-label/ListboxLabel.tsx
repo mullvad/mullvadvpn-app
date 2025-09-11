@@ -1,5 +1,5 @@
 import { ListItemLabel, ListItemLabelProps } from '../../../list-item/components';
-import { useListboxContext } from '../listbox-context';
+import { useListboxContext } from '../../';
 
 export type ListboxLabelProps = ListItemLabelProps;
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ListboxOptionProps } from '../../ListboxOption';
+import { ListboxOptionProps } from './ListboxOption';
 
 type ListboxOptionContext<T> = Pick<ListboxOptionProps<T>, 'value'>;
 
