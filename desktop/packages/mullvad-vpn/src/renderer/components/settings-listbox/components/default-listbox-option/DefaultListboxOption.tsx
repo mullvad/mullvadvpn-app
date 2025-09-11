@@ -1,5 +1,5 @@
-import { ListboxOptionProps } from '../../lib/components/listbox/components';
-import { Listbox } from '../../lib/components/listbox/Listbox';
+import { ListboxOptionProps } from '../../../../lib/components/listbox/components';
+import { Listbox } from '../../../../lib/components/listbox/Listbox';
 
 export type DefaultListboxOptionProps<T> = ListboxOptionProps<T>;
 
