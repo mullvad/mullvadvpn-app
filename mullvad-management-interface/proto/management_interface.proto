@@ -43,7 +43,7 @@ service ManagementService {
   rpc ResetSettings(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetShowBetaReleases(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetBlockWhenDisconnected(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetLockdownMode(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetAutoConnect(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
   rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
@@ -531,7 +531,7 @@ message Settings {
   BridgeSettings bridge_settings = 2;
   BridgeState bridge_state = 3;
   bool allow_lan = 4;
-  bool block_when_disconnected = 5;
+  bool lockdown_mode = 5;
   bool auto_connect = 6;
   TunnelOptions tunnel_options = 7;
   bool show_beta_releases = 8;
