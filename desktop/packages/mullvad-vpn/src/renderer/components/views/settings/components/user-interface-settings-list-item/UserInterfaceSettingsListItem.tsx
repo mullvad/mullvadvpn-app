@@ -1,17 +1,17 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { NavigationListItem } from '../../../../NavigationListItem';
+import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
 
 export function UserInterfaceSettingsListItem() {
   return (
-    <NavigationListItem to={RoutePath.userInterfaceSettings}>
-      <NavigationListItem.Label>
+    <SettingsNavigationListItem to={RoutePath.userInterfaceSettings}>
+      <SettingsNavigationListItem.Label>
         {
           // TRANSLATORS: Navigation button to the 'User interface settings' view
           messages.pgettext('settings-view', 'User interface settings')
         }
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+      </SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }
