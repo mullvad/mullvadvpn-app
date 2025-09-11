@@ -6,15 +6,12 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { isInRanges } from '../../../../../../shared/utils';
-import { useScrollToListItem } from '../../../../../hooks';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
 import InfoButton from '../../../../InfoButton';
-import { InputListboxOption } from '../../../../input-listbox-option';
 import { ModalMessage } from '../../../../Modal';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 const WIREUGARD_UDP_PORTS = [51820, 53];
 
@@ -25,8 +22,6 @@ export function PortSetting() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
-
-  const { ref, animation } = useScrollToListItem('port-setting');
 
   const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
     () => WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
@@ -87,15 +82,18 @@ export function PortSetting() {
     .join(', ');
 
   return (
-    <Listbox value={selectedOption.value} onValueChange={setWireguardPort} animation={animation}>
-      <Listbox.Item ref={ref}>
-        <Listbox.Content>
-          <Listbox.Label>
+    <SettingsListbox
+      anchorId="port-setting"
+      value={selectedOption.value}
+      onValueChange={setWireguardPort}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the WireGuard port selector.
               messages.pgettext('wireguard-settings-view', 'Port')
             }
-          </Listbox.Label>
+          </SettingsListbox.Label>
           <InfoButton>
             <>
               <ModalMessage>
@@ -115,18 +113,22 @@ export function PortSetting() {
               </ModalMessage>
             </>
           </InfoButton>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={null}>
+          {messages.gettext('Automatic')}
+        </SettingsListbox.BaseOption>
         {wireguardPortItems.map((item) => (
-          <DefaultListboxOption key={item.value} value={item.value}>
+          <SettingsListbox.BaseOption key={item.value} value={item.value}>
             {item.label}
-          </DefaultListboxOption>
+          </SettingsListbox.BaseOption>
         ))}
-        <InputListboxOption value="custom">
-          <InputListboxOption.Label>{messages.gettext('Custom')}</InputListboxOption.Label>
-          <InputListboxOption.Input
+        <SettingsListbox.InputOption value="custom">
+          <SettingsListbox.InputOption.Label>
+            {messages.gettext('Custom')}
+          </SettingsListbox.InputOption.Label>
+          <SettingsListbox.InputOption.Input
             initialValue={
               selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
             }
@@ -137,8 +139,8 @@ export function PortSetting() {
             validate={validateStringValue}
             format={removeNonNumericCharacters}
           />
-        </InputListboxOption>
-      </Listbox.Options>
-    </Listbox>
+        </SettingsListbox.InputOption>
+      </SettingsListbox.Options>
+    </SettingsListbox>
   );
 }

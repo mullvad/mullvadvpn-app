@@ -1,11 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useListboxContext } from '../../../../lib/components/listbox/components';
-import { ListboxOptionTriggerProps } from '../../../../lib/components/listbox/components/listbox-option/components';
-import { useListboxOptionContext } from '../../../../lib/components/listbox/components/listbox-option/components/listbox-option-context/ListboxOptionContext';
-import { StyledListItemOptionItem } from '../../../../lib/components/listbox/components/listbox-option/components/listbox-option-item/ListboxOptionItem';
-import { colors } from '../../../../lib/foundations';
+import { useListboxContext } from '../../../../../../lib/components/listbox/components';
+import {
+  ListboxOptionTriggerProps,
+  StyledListItemOptionItem,
+  useListboxOptionContext,
+} from '../../../../../../lib/components/listbox/components/listbox-option/components';
+import { colors } from '../../../../../../lib/foundations';
 import { useInputListboxOption } from '../input-listbox-option-context';
 
 export type InputListboxOptionTriggerProps = ListboxOptionTriggerProps;
