@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
 import { Button, IconButton } from '../../../../../lib/components';
 import { Accordion } from '../../../../../lib/components/accordion';
 import { formatHtml } from '../../../../../lib/html-formatter';
@@ -36,7 +35,6 @@ export function CustomDnsSettings() {
   const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
 
-  const { ref, animation } = useScrollToListItem('custom-dns-settings');
   const descriptionId = React.useId();
 
   const featureAvailable = useMemo(
@@ -191,10 +189,9 @@ export function CustomDnsSettings() {
   return (
     <>
       <ToggleListItem
-        ref={ref}
+        anchorId="custom-dns-settings"
         checked={dns.state === 'custom' || inputVisible}
         onCheckedChange={setCustomDnsEnabled}
-        animation={animation}
         disabled={!featureAvailable}>
         <ToggleListItem.Label>
           {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}

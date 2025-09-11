@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
 import { spacings } from '../../../../../lib/foundations';
 import { useSelector } from '../../../../../redux/store';
 import InfoButton from '../../../../InfoButton';
@@ -17,14 +16,9 @@ const LanIpRanges = styled.ul({
 export function AllowLanSetting() {
   const allowLan = useSelector((state) => state.settings.allowLan);
   const { setAllowLan } = useAppContext();
-  const { ref, animation } = useScrollToListItem('allow-lan-setting');
 
   return (
-    <ToggleListItem
-      ref={ref}
-      animation={animation}
-      checked={allowLan}
-      onCheckedChange={setAllowLan}>
+    <ToggleListItem anchorId="allow-lan-setting" checked={allowLan} onCheckedChange={setAllowLan}>
       <ToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Local network sharing')}
       </ToggleListItem.Label>
