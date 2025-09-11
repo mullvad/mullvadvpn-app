@@ -4,11 +4,11 @@ import { RoutePath } from '../../shared/routes';
 import { useHistory } from '../lib/history';
 import { SettingsListItem, SettingsListItemProps } from './settings-list-item';
 
-export type NavigationListItemProps = {
+export type SettingsNavigationListItemProps = {
   to: RoutePath;
 } & SettingsListItemProps;
 
-function NavigationListItem({ to, children, ...props }: NavigationListItemProps) {
+function SettingsNavigationListItem({ to, children, ...props }: SettingsNavigationListItemProps) {
   const history = useHistory();
   const navigate = React.useCallback(() => history.push(to), [history, to]);
 
@@ -22,7 +22,7 @@ function NavigationListItem({ to, children, ...props }: NavigationListItemProps)
     </SettingsListItem>
   );
 }
-const NavigationListItemNamespace = Object.assign(NavigationListItem, {
+const SettingsNavigationListItemNamespace = Object.assign(SettingsNavigationListItem, {
   Label: SettingsListItem.Label,
   Group: SettingsListItem.Group,
   Text: SettingsListItem.Text,
@@ -30,4 +30,4 @@ const NavigationListItemNamespace = Object.assign(NavigationListItem, {
   Icon: SettingsListItem.Icon,
 });
 
-export { NavigationListItemNamespace as NavigationListItem };
+export { SettingsNavigationListItemNamespace as SettingsNavigationListItem };
