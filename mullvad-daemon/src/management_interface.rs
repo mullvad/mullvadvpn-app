@@ -285,22 +285,19 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(target_os = "android"))]
-    async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
-        let block_when_disconnected = request.into_inner();
-        log::debug!("set_block_when_disconnected({})", block_when_disconnected);
+    async fn set_lockdown_mode(&self, request: Request<bool>) -> ServiceResult<()> {
+        let lockdown_mode = request.into_inner();
+        log::debug!("set_lockdown_mode({})", lockdown_mode);
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetBlockWhenDisconnected(
-            tx,
-            block_when_disconnected,
-        ))?;
+        self.send_command_to_daemon(DaemonCommand::SetLockdownMode(tx, lockdown_mode))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }
 
     #[cfg(target_os = "android")]
-    async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
-        let block_when_disconnected = request.into_inner();
-        log::debug!("set_block_when_disconnected({})", block_when_disconnected);
+    async fn set_lockdown_mode(&self, request: Request<bool>) -> ServiceResult<()> {
+        let lockdown_mode = request.into_inner();
+        log::debug!("set_lockdown_mode({})", lockdown_mode);
         Err(Status::unimplemented(
             "Setting Lockdown mode on Android is not supported - this is handled by the OS, not the daemon",
         ))

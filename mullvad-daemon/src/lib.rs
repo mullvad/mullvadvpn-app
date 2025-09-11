@@ -88,7 +88,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_core::connectivity_listener::ConnectivityListener;
 #[cfg(not(target_os = "android"))]
-use talpid_core::tunnel_state_machine::BlockWhenDisconnected;
+use talpid_core::tunnel_state_machine::LockdownMode;
 use talpid_core::{
     mpsc::Sender,
     split_tunnel,
@@ -271,9 +271,9 @@ pub enum DaemonCommand {
     SetAllowLan(ResponseTx<(), settings::Error>, bool),
     /// Set the beta program setting.
     SetShowBetaReleases(ResponseTx<(), settings::Error>, bool),
-    /// Set the block_when_disconnected setting.
+    /// Set the lockdown_mode setting.
     #[cfg(not(target_os = "android"))]
-    SetBlockWhenDisconnected(ResponseTx<(), settings::Error>, bool),
+    SetLockdownMode(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
     /// Set the mssfix argument for OpenVPN
@@ -883,9 +883,7 @@ impl Daemon {
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 #[cfg(not(target_os = "android"))]
-                block_when_disconnected: BlockWhenDisconnected::from(
-                    settings.block_when_disconnected,
-                ),
+                lockdown_mode: LockdownMode::from(settings.lockdown_mode),
                 dns_config: dns::addresses_from_options(&settings.tunnel_options.dns_options),
                 allowed_endpoint: access_mode_handler
                     .get_current()
@@ -973,7 +971,7 @@ impl Daemon {
             tunnel_state: TunnelState::Disconnected {
                 location: None,
                 #[cfg(not(target_os = "android"))]
-                locked_down: settings.block_when_disconnected,
+                locked_down: settings.lockdown_mode,
             },
             target_state,
             #[cfg(target_os = "linux")]
@@ -1432,9 +1430,8 @@ impl Daemon {
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan).await,
             SetShowBetaReleases(tx, enabled) => self.on_set_show_beta_releases(tx, enabled).await,
             #[cfg(not(target_os = "android"))]
-            SetBlockWhenDisconnected(tx, block_when_disconnected) => {
-                self.on_set_block_when_disconnected(tx, block_when_disconnected)
-                    .await
+            SetLockdownMode(tx, lockdown_mode) => {
+                self.on_set_lockdown_mode(tx, lockdown_mode).await
             }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect).await,
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg).await,
@@ -2456,31 +2453,31 @@ impl Daemon {
     }
 
     #[cfg(not(target_os = "android"))]
-    async fn on_set_block_when_disconnected(
+    async fn on_set_lockdown_mode(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
-        block_when_disconnected: bool,
+        lockdown_mode: bool,
     ) {
         match self
             .settings
-            .update(move |settings| settings.block_when_disconnected = block_when_disconnected)
+            .update(move |settings| settings.lockdown_mode = lockdown_mode)
             .await
         {
             Ok(settings_changed) => {
                 if settings_changed {
-                    self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
-                        BlockWhenDisconnected::from(block_when_disconnected),
+                    self.send_tunnel_command(TunnelCommand::LockdownMode(
+                        LockdownMode::from(lockdown_mode),
                         oneshot_map(tx, |tx, ()| {
-                            Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
+                            Self::oneshot_send(tx, Ok(()), "set_lockdown_mode response");
                         }),
                     ));
                 } else {
-                    Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
+                    Self::oneshot_send(tx, Ok(()), "set_lockdown_mode response");
                 }
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_block_when_disconnected response");
+                Self::oneshot_send(tx, Err(e), "set_lockdown_mode response");
             }
         }
     }
@@ -3197,8 +3194,8 @@ impl Daemon {
         #[cfg(not(target_os = "android"))]
         {
             let (tx, _rx) = oneshot::channel();
-            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
-                BlockWhenDisconnected::from(self.settings.block_when_disconnected),
+            self.send_tunnel_command(TunnelCommand::LockdownMode(
+                LockdownMode::from(self.settings.lockdown_mode),
                 tx,
             ));
         }
@@ -3260,10 +3257,7 @@ impl Daemon {
         {
             log::debug!("Blocking firewall during shutdown");
             let (tx, _rx) = oneshot::channel();
-            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
-                BlockWhenDisconnected::yes(),
-                tx,
-            ));
+            self.send_tunnel_command(TunnelCommand::LockdownMode(LockdownMode::yes(), tx));
         }
 
         self.disconnect_tunnel();
@@ -3283,14 +3277,13 @@ impl Daemon {
                 // non-persistent. If the installation of the new version fails and
                 // the user is left in blocked state with no app, they can reboot
                 // to regain internet access.
-                self.settings.settings().block_when_disconnected
-                    || self.settings.settings().auto_connect
+                self.settings.settings().lockdown_mode || self.settings.settings().auto_connect
             } else {
                 true
             };
             let (tx, _rx) = oneshot::channel();
-            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
-                BlockWhenDisconnected::yes().persist(persist),
+            self.send_tunnel_command(TunnelCommand::LockdownMode(
+                LockdownMode::yes().persist(persist),
                 tx,
             ));
         }
