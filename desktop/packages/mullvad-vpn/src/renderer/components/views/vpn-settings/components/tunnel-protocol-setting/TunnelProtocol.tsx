@@ -5,13 +5,11 @@ import { strings, urls } from '../../../../../../shared/constants';
 import { TunnelProtocol } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
-import { useScrollToListItem } from '../../../../../hooks';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useTunnelProtocol } from '../../../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../../../redux/store';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
 import { ExternalLink } from '../../../../ExternalLink';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 export function TunnelProtocolSetting() {
   const tunnelProtocol = useTunnelProtocol();
@@ -23,8 +21,6 @@ export function TunnelProtocolSetting() {
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
   const openVpnDisabled = daita || multihop || quantumResistant;
-
-  const { animation } = useScrollToListItem();
 
   const featuresToDisableForOpenVpn = [];
   if (daita) {
@@ -63,31 +59,34 @@ export function TunnelProtocolSetting() {
   );
 
   return (
-    <Listbox
+    <SettingsListbox
       onValueChange={setTunnelProtocol}
       value={tunnelProtocol}
-      animation={animation}
       aria-description={openVpnDisabled ? openVpnDisabledFooter : undefined}>
-      <Listbox.Item>
-        <Listbox.Content>
-          <Listbox.Label>{messages.pgettext('vpn-settings-view', 'Tunnel protocol')}</Listbox.Label>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={'wireguard'}>{strings.wireguard}</DefaultListboxOption>
-        <DefaultListboxOption value={'openvpn'} disabled={openVpnDisabled}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
+            {messages.pgettext('vpn-settings-view', 'Tunnel protocol')}
+          </SettingsListbox.Label>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={'wireguard'}>
+          {strings.wireguard}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={'openvpn'} disabled={openVpnDisabled}>
           {strings.openvpn}
-        </DefaultListboxOption>
-      </Listbox.Options>
+        </SettingsListbox.BaseOption>
+      </SettingsListbox.Options>
       {openVpnDisabled && (
-        <Listbox.Footer>
-          <Listbox.Text>{openVpnDisabledFooter}</Listbox.Text>
-        </Listbox.Footer>
+        <SettingsListbox.Footer>
+          <SettingsListbox.Text>{openVpnDisabledFooter}</SettingsListbox.Text>
+        </SettingsListbox.Footer>
       )}
       {tunnelProtocol === 'openvpn' && (
-        <Listbox.Footer>
+        <SettingsListbox.Footer>
           <div>
-            <Listbox.Text>
+            <SettingsListbox.Text>
               {sprintf(
                 // TRANSLATORS: Footer text for tunnel protocol selector when OpenVPN is selected.
                 // TRANSLATORS: Available placeholders:
@@ -98,7 +97,7 @@ export function TunnelProtocolSetting() {
                 ),
                 { openVpn: strings.openvpn },
               )}{' '}
-            </Listbox.Text>
+            </SettingsListbox.Text>
             <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
               <ExternalLink.Text>
                 {sprintf(
@@ -110,8 +109,8 @@ export function TunnelProtocolSetting() {
               <ExternalLink.Icon icon="external" size="small" />
             </ExternalLink>
           </div>
-        </Listbox.Footer>
+        </SettingsListbox.Footer>
       )}
-    </Listbox>
+    </SettingsListbox>
   );
 }

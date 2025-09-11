@@ -2,18 +2,14 @@ import { useCallback } from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useSelector } from '../../../../../redux/store';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 export function QuantumResistantSetting() {
   const { setWireguardQuantumResistant } = useAppContext();
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
-
-  const { ref, animation } = useScrollToListItem('quantum-resistant-setting');
 
   const selectQuantumResistant = useCallback(
     async (quantumResistant: boolean | null) => {
@@ -23,20 +19,20 @@ export function QuantumResistantSetting() {
   );
 
   return (
-    <Listbox
-      animation={animation}
+    <SettingsListbox
+      anchorId="quantum-resistant-setting"
       value={quantumResistant ?? null}
       onValueChange={selectQuantumResistant}>
-      <Listbox.Item ref={ref}>
-        <Listbox.Content>
-          <Listbox.Label>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the WireGuard quantum resistance selector. This setting
               // TRANSLATORS: makes the cryptography resistant to the future abilities of quantum
               // TRANSLATORS: computers.
               messages.pgettext('wireguard-settings-view', 'Quantum-resistant tunnel')
             }
-          </Listbox.Label>
+          </SettingsListbox.Label>
           <InfoButton>
             <>
               <ModalMessage>
@@ -53,13 +49,19 @@ export function QuantumResistantSetting() {
               </ModalMessage>
             </>
           </InfoButton>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
-        <DefaultListboxOption value={true}>{messages.gettext('On')}</DefaultListboxOption>
-        <DefaultListboxOption value={false}>{messages.gettext('Off')}</DefaultListboxOption>
-      </Listbox.Options>
-    </Listbox>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={null}>
+          {messages.gettext('Automatic')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={true}>
+          {messages.gettext('On')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={false}>
+          {messages.gettext('Off')}
+        </SettingsListbox.BaseOption>
+      </SettingsListbox.Options>
+    </SettingsListbox>
   );
 }

@@ -5,10 +5,8 @@ import { wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useSelector } from '../../../../../redux/store';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
-import { InputListboxOption } from '../../../../input-listbox-option';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 const ALLOWED_RANGE = [1, 65535];
 
@@ -49,22 +47,26 @@ export function ShadowsocksPortSetting() {
   }, []);
 
   return (
-    <Listbox value={selectedOption.value} onValueChange={setShadowsocksPort}>
-      <Listbox.Item>
-        <Listbox.Content>
-          <Listbox.Label>
+    <SettingsListbox value={selectedOption.value} onValueChange={setShadowsocksPort}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the WireGuard port selector.
               messages.pgettext('wireguard-settings-view', 'Port')
             }
-          </Listbox.Label>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
-        <InputListboxOption value="custom">
-          <InputListboxOption.Label>{messages.gettext('Custom')}</InputListboxOption.Label>
-          <InputListboxOption.Input
+          </SettingsListbox.Label>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={null}>
+          {messages.gettext('Automatic')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.InputOption value="custom">
+          <SettingsListbox.InputOption.Label>
+            {messages.gettext('Custom')}
+          </SettingsListbox.InputOption.Label>
+          <SettingsListbox.InputOption.Input
             aria-describedby={descriptionId}
             type="text"
             placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
@@ -75,17 +77,17 @@ export function ShadowsocksPortSetting() {
             format={removeNonNumericCharacters}
             maxLength={`${ALLOWED_RANGE[1]}`.length}
           />
-        </InputListboxOption>
-      </Listbox.Options>
-      <Listbox.Footer>
-        <Listbox.Text id={descriptionId}>
+        </SettingsListbox.InputOption>
+      </SettingsListbox.Options>
+      <SettingsListbox.Footer>
+        <SettingsListbox.Text id={descriptionId}>
           {sprintf(
             // TRANSLATORS: Text describing the valid port range for a port selector.
             messages.pgettext('wireguard-settings-view', 'Valid range: %(min)s - %(max)s'),
             { min: ALLOWED_RANGE[0], max: ALLOWED_RANGE[1] },
           )}
-        </Listbox.Text>
-      </Listbox.Footer>
-    </Listbox>
+        </SettingsListbox.Text>
+      </SettingsListbox.Footer>
+    </SettingsListbox>
   );
 }
