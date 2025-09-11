@@ -4,25 +4,25 @@ import { ListItem } from '../../../../../../lib/components/list-item';
 import { ListItemTextFieldInputProps } from '../../../../../../lib/components/list-item/components/list-item-text-field/list-item-text-field-input';
 import { useListboxContext } from '../../../../../../lib/components/listbox/components';
 import { useTextField } from '../../../../../../lib/components/text-field';
-import { useInputListboxOption } from '../input-listbox-option-context';
+import { useInputOption } from '../input-option-context';
 
-type InputListboxOptionInputProps = {
+type InputOptionInputProps = {
   initialValue?: string;
   validate?: (value: string) => boolean;
   format?: (value: string) => string;
 } & ListItemTextFieldInputProps;
 
-export function InputListboxOptionInput({
+export function InputOptionInput({
   initialValue,
   validate,
   format,
   ...props
-}: InputListboxOptionInputProps) {
+}: InputOptionInputProps) {
   const { onValueChange: listBoxOnValueChange, value: listBoxValue } = useListboxContext<
     string | undefined
   >();
 
-  const { inputRef, labelId } = useInputListboxOption();
+  const { inputRef, labelId } = useInputOption();
 
   const { value, invalid, dirty, blur, handleChange, reset } = useTextField({
     inputRef,
