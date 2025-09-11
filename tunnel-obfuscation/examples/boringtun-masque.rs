@@ -9,7 +9,7 @@ use boringtun::device::{DeviceConfig, DeviceHandle};
 use boringtun::tun::tun_async_device::AsyncDevice;
 use clap::Parser;
 use tunnel_obfuscation::quic::Quic;
-use tunnel_obfuscation::{PacketChannelSimple, SimpleChannelRx, SimpleChannelTx};
+use tunnel_obfuscation::{Obfuscator, PacketChannelSimple, SimpleChannelRx, SimpleChannelTx};
 
 pub const TUN_NAME: &str = "mullvadtun";
 
@@ -36,17 +36,17 @@ async fn main() -> io::Result<()> {
     log::info!("Boringtun + Masque = <3");
     let quic = create_quic_obfuscator(obfuscator_io, obfuscator_settings).await;
     log::info!("Masque proxy client started successfully");
-    let boringtun: DeviceHandle<DeviceTransports> =
+    let _boringtun: DeviceHandle<DeviceTransports> =
         create_boringtun(boringtun_io, boringtun_settings).await;
     log::info!("BoringTun started successfully");
 
     // TODO: run
-    let pending = std::future::pending::<()>();
-    pending.await;
-    //tokio::time::sleep(std::time::Duration::from_secs(60)).await;
-
-    //drop(quic);
-    //drop(boringtun);
+    let obfuscator = Box::new(quic);
+    tokio::select! {
+        _x = obfuscator.run() => {
+            log::info!("Exiting obfuscator");
+        }
+    }
 
     Ok(())
 }
