@@ -8,11 +8,11 @@ import {
   useListboxOptionContext,
 } from '../../../../../../lib/components/listbox/components/listbox-option/components';
 import { colors } from '../../../../../../lib/foundations';
-import { useInputListboxOption } from '../input-listbox-option-context';
+import { useInputOptionContext } from '../../InputOptionContext';
 
-export type InputListboxOptionTriggerProps = ListboxOptionTriggerProps;
+export type InputOptionTriggerProps = ListboxOptionTriggerProps;
 
-export const StyledListItemOptionTrigger = styled.li`
+export const StyledInputOptionTrigger = styled.li`
   &&[aria-selected='true'] {
     &:hover {
       ${StyledListItemOptionItem} {
@@ -27,12 +27,9 @@ export const StyledListItemOptionTrigger = styled.li`
   }
 `;
 
-export const InputListboxOptionTrigger = ({
-  children,
-  ...props
-}: InputListboxOptionTriggerProps) => {
+export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerProps) => {
   const { value } = useListboxOptionContext();
-  const { inputRef } = useInputListboxOption();
+  const { inputRef } = useInputOptionContext();
 
   const { value: selectedValue, focusedValue, setFocusedValue } = useListboxContext();
   const selected = value === selectedValue;
@@ -54,13 +51,13 @@ export const InputListboxOptionTrigger = ({
   }, [focused, inputRef, setFocusedValue, value]);
 
   return (
-    <StyledListItemOptionTrigger
+    <StyledInputOptionTrigger
       role="option"
       aria-selected={selected}
       tabIndex={tabIndex}
       onFocus={handleFocus}
       {...props}>
       {children}
-    </StyledListItemOptionTrigger>
+    </StyledInputOptionTrigger>
   );
 };

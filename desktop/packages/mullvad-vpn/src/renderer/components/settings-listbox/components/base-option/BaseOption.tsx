@@ -1,7 +1,7 @@
 import { ListboxOptionProps } from '../../../../lib/components/listbox/components';
 import { Listbox } from '../../../../lib/components/listbox/Listbox';
 
-export type DefaultListboxOptionProps<T> = ListboxOptionProps<T>;
+export type BaseOptionProps<T> = ListboxOptionProps<T>;
 
 export function BaseOption<T>({
   value,
@@ -9,7 +9,7 @@ export function BaseOption<T>({
   disabled,
   children,
   ...props
-}: DefaultListboxOptionProps<T>) {
+}: BaseOptionProps<T>) {
   return (
     <Listbox.Option level={1} value={value} animation={animation} disabled={disabled} {...props}>
       <Listbox.Option.Trigger>
