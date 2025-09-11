@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../foundations';
 import { Dot } from '../../../dot';
-import { useSwitchContext } from '../switch-context';
+import { useSwitchContext } from '../../';
 import { useBackgroundColor, useBorderColor } from './hooks';
 
 export type SwitchThumbProps = React.HtmlHTMLAttributes<HTMLDivElement>;
