@@ -1,14 +1,14 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { NavigationListItem } from '../../../../NavigationListItem';
+import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
 
 export function IpOverrideSettings() {
   return (
-    <NavigationListItem to={RoutePath.settingsImport}>
-      <NavigationListItem.Label>
+    <SettingsNavigationListItem to={RoutePath.settingsImport}>
+      <SettingsNavigationListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Server IP override')}
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+      </SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }
