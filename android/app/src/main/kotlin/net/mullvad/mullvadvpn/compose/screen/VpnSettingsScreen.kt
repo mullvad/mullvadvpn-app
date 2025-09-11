@@ -242,10 +242,12 @@ fun SharedTransitionScope.VpnSettings(
         state = state,
         initialScrollToFeature = navArgs.scrollToFeature,
         modifier =
-            Modifier.sharedBounds(
-                rememberSharedContentState(key = navArgs.scrollToFeature ?: ""),
-                animatedVisibilityScope = animatedVisibilityScope,
-            ),
+            if (navArgs.scrollToFeature != null) {
+                Modifier.sharedBounds(
+                    rememberSharedContentState(key = navArgs.scrollToFeature),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                )
+            } else Modifier,
         snackbarHostState = snackbarHostState,
         navigateToContentBlockersInfo =
             dropUnlessResumed { navigator.navigate(ContentBlockersInfoDestination) },
