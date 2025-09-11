@@ -1,10 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { FeatureIndicator, ILocation, ITunnelEndpoint } from '../../../src/shared/daemon-rpc-types';
-import { RoutePath } from '../../../src/shared/routes';
-import { expectConnected } from '../shared/tunnel-state';
-import { MockedTestUtils, startMockedApp } from './mocked-utils';
+import {
+  FeatureIndicator,
+  ILocation,
+  ITunnelEndpoint,
+} from '../../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../../src/shared/routes';
+import { expectConnected } from '../../shared/tunnel-state';
+import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 
 const endpoint: ITunnelEndpoint = {
   address: 'wg10:80',
