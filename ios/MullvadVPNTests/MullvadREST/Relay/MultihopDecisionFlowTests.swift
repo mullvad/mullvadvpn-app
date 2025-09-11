@@ -172,7 +172,7 @@ extension MultihopDecisionFlowTests {
         let obfuscation = try? RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: LatestTunnelSettings(),
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, bias: IdentityObfuscationProvider()
         ).obfuscate()
 
         var tunnelSettings = LatestTunnelSettings()

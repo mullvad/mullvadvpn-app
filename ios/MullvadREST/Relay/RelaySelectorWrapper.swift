@@ -23,24 +23,30 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         let relays = try relayCache.read().relays
         try validateWireguardCustomPort(tunnelSettings, relays: relays)
 
+        // Filter for obfuscation
         let obfuscation = try RelayObfuscator(
             relays: relays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount
+            connectionAttemptCount: connectionAttemptCount,
+            bias: IdentityObfuscationProvider()
         ).obfuscate()
+
+        let debugMessage =
+            "Found \(obfuscation.obfuscatedRelays.wireguard.relays.count) relays that support \(obfuscation.method):\(obfuscation.port)"
+        print(debugMessage)
 
         return switch tunnelSettings.tunnelMultihopState {
         case .off:
             try SinglehopPicker(
                 obfuscation: obfuscation,
                 tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
+                connectionAttemptCount: connectionAttemptCount,
             ).pick()
         case .on:
             try MultihopPicker(
                 obfuscation: obfuscation,
                 tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
+                connectionAttemptCount: connectionAttemptCount,
             ).pick()
         }
     }
@@ -51,7 +57,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         let obfuscation = try RelayObfuscator(
             relays: relays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0,
+            bias: IdentityObfuscationProvider()
         ).obfuscate()
 
         let findCandidates: (REST.ServerRelaysResponse, Bool) throws
