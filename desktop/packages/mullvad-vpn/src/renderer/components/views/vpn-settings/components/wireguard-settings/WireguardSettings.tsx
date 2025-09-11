@@ -5,7 +5,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { RelaySettingsRedux } from '../../../../../redux/settings/reducers';
 import { useSelector } from '../../../../../redux/store';
-import { NavigationListItem } from '../../../../NavigationListItem';
+import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
 
 function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
   if ('normal' in relaySettings) {
@@ -26,15 +26,17 @@ export function WireguardSettings() {
   );
 
   return (
-    <NavigationListItem to={RoutePath.wireguardSettings} disabled={tunnelProtocol === 'openvpn'}>
-      <NavigationListItem.Label>
+    <SettingsNavigationListItem
+      to={RoutePath.wireguardSettings}
+      disabled={tunnelProtocol === 'openvpn'}>
+      <SettingsNavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(wireguard)s will be replaced with the string "WireGuard"
           messages.pgettext('vpn-settings-view', '%(wireguard)s settings'),
           { wireguard: strings.wireguard },
         )}
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+      </SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }
