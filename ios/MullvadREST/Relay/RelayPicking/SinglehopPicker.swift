@@ -24,7 +24,7 @@ struct SinglehopPicker: RelayPicking {
                 return try MultihopPicker(
                     obfuscation: obfuscation,
                     tunnelSettings: tunnelSettings,
-                    connectionAttemptCount: connectionAttemptCount
+                    connectionAttemptCount: connectionAttemptCount,
                 ).pick()
             } else {
                 throw error
@@ -41,6 +41,11 @@ struct SinglehopPicker: RelayPicking {
         )
 
         let match = try findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: true)
-        return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
+        return SelectedRelays(
+            entry: nil,
+            exit: match,
+            retryAttempt: connectionAttemptCount,
+            obfuscation: obfuscation.method
+        )
     }
 }

@@ -76,6 +76,10 @@ extension PacketTunnelActor {
         case let .reconnecting(connState):
             return mapConnectionState(connState, reason: reason, priorState: .reconnecting)
 
+        // It used to be the case that ephemeral peer couldn't enter the blocked state, it is not the case anymore
+//        case let .negotiatingEphemeralPeer(connState, _):
+//            return mapConnectionState(connState, reason: reason, priorState: .connecting)
+
         case var .error(blockedState):
             if blockedState.reason != reason {
                 blockedState.reason = reason
@@ -84,7 +88,6 @@ extension PacketTunnelActor {
                 return nil
             }
 
-        // Ephemeral peer exchange cannot enter the blocked state
         case .disconnecting, .disconnected, .negotiatingEphemeralPeer:
             return nil
         }

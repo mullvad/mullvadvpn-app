@@ -20,9 +20,8 @@ public struct ProtocolObfuscationResult {
 public protocol ProtocolObfuscation {
     func obfuscate(
         _ endpoint: MullvadEndpoint,
-        settings: LatestTunnelSettings,
-        retryAttempts: UInt,
-        relayFeatures: REST.ServerRelay.Features?
+        relayFeatures: REST.ServerRelay.Features?,
+        obfuscationMethod: WireGuardObfuscationState
     ) -> ProtocolObfuscationResult
     var transportLayer: TransportLayer? { get }
     var remotePort: UInt16 { get }
@@ -46,15 +45,9 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
 
     public func obfuscate(
         _ endpoint: MullvadEndpoint,
-        settings: LatestTunnelSettings,
-        retryAttempts: UInt = 0,
-        relayFeatures: REST.ServerRelay.Features?
+        relayFeatures: REST.ServerRelay.Features?,
+        obfuscationMethod: WireGuardObfuscationState
     ) -> ProtocolObfuscationResult {
-        let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
-            connectionAttemptCount: retryAttempts,
-            tunnelSettings: settings
-        )
-
         remotePort = endpoint.ipv4Relay.port
 
         let obfuscationProtocol: TunnelObfuscationProtocol? = switch obfuscationMethod {
@@ -69,8 +62,6 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
                 nil
             }
         default:
-            // This is fine, since ObfuscationMethodSelector.obfuscationMethodBy` above should never
-            // return .automatic.
             nil
         }
 

@@ -70,7 +70,8 @@ extension RelaySelectorStub {
             return SelectedRelays(
                 entry: cityRelay,
                 exit: cityRelay,
-                retryAttempt: 0
+                retryAttempt: 0,
+                obfuscation: .off
             )
         }, candidatesResult: nil)
     }
