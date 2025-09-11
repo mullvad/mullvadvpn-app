@@ -1,7 +1,7 @@
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
-import { ToggleListItem } from '../../../../toggle-list-item';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function AutoConnectSetting() {
   const autoConnect = useSelector((state) => state.settings.guiSettings.autoConnect);
@@ -13,11 +13,11 @@ export function AutoConnectSetting() {
   );
 
   return (
-    <ToggleListItem checked={autoConnect} onCheckedChange={setAutoConnect} footer={footer}>
-      <ToggleListItem.Label>
+    <SettingsToggleListItem checked={autoConnect} onCheckedChange={setAutoConnect} footer={footer}>
+      <SettingsToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Auto-connect')}
-      </ToggleListItem.Label>
-      <ToggleListItem.Switch aria-description={footer} />
-    </ToggleListItem>
+      </SettingsToggleListItem.Label>
+      <SettingsToggleListItem.Switch aria-description={footer} />
+    </SettingsToggleListItem>
   );
 }

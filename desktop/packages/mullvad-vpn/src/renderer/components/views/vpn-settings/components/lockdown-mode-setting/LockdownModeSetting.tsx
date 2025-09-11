@@ -8,7 +8,7 @@ import { useBoolean } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
 import InfoButton from '../../../../InfoButton';
 import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../Modal';
-import { ToggleListItem } from '../../../../toggle-list-item';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function LockdownModeSetting() {
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
@@ -46,14 +46,14 @@ export function LockdownModeSetting() {
   }, [hideConfirmationDialog, setBlockWhenDisconnected]);
 
   return (
-    <ToggleListItem
+    <SettingsToggleListItem
       anchorId="lockdown-mode-setting"
       checked={blockWhenDisconnected}
       onCheckedChange={setLockDownMode}>
-      <ToggleListItem.Label>
+      <SettingsToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
-      </ToggleListItem.Label>
-      <ToggleListItem.Group>
+      </SettingsToggleListItem.Label>
+      <SettingsToggleListItem.Group>
         <InfoButton>
           <ModalMessage>
             {messages.pgettext(
@@ -94,8 +94,8 @@ export function LockdownModeSetting() {
             )}
           </ModalMessage>
         </ModalAlert>
-        <ToggleListItem.Switch />
-      </ToggleListItem.Group>
-    </ToggleListItem>
+        <SettingsToggleListItem.Switch />
+      </SettingsToggleListItem.Group>
+    </SettingsToggleListItem>
   );
 }

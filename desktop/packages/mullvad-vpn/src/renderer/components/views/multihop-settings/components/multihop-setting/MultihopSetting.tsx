@@ -8,7 +8,7 @@ import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
 import { AriaDescription } from '../../../../AriaGroup';
 import * as Cell from '../../../../cell';
-import { ToggleListItem } from '../../../../toggle-list-item';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function MultihopSetting() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
@@ -35,14 +35,14 @@ export function MultihopSetting() {
 
   return (
     <>
-      <ToggleListItem
+      <SettingsToggleListItem
         anchorId="multihop-setting"
         disabled={unavailable}
         checked={multihop && !unavailable}
         onCheckedChange={setMultihop}>
-        <ToggleListItem.Label>{messages.gettext('Enable')}</ToggleListItem.Label>
-        <ToggleListItem.Switch />
-      </ToggleListItem>
+        <SettingsToggleListItem.Label>{messages.gettext('Enable')}</SettingsToggleListItem.Label>
+        <SettingsToggleListItem.Switch />
+      </SettingsToggleListItem>
       {unavailable ? (
         <Cell.CellFooter>
           <AriaDescription>
