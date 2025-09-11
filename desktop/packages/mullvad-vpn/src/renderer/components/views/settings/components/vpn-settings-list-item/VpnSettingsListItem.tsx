@@ -1,17 +1,17 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { NavigationListItem } from '../../../../NavigationListItem';
+import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
 
 export function VpnSettingsListItem() {
   return (
-    <NavigationListItem to={RoutePath.vpnSettings}>
-      <NavigationListItem.Label>
+    <SettingsNavigationListItem to={RoutePath.vpnSettings}>
+      <SettingsNavigationListItem.Label>
         {
           // TRANSLATORS: Navigation button to the 'VPN settings' view
           messages.pgettext('settings-view', 'VPN settings')
         }
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+      </SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }
