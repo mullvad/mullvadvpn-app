@@ -18,6 +18,18 @@ export class LoginRouteObjectModel {
     await this.utils.waitForRoute(RoutePath.login);
   }
 
+  fillAccountNumber(accountNumber: string) {
+    return this.selectors.loginInput().fill(accountNumber);
+  }
+
+  async loginByPressingEnter() {
+    await this.selectors.loginInput().press('Enter');
+  }
+
+  async loginByClickingLoginButton() {
+    await this.selectors.loginButton().click();
+  }
+
   async createNewAccount() {
     await this.selectors.createNewAccountButton().click();
   }

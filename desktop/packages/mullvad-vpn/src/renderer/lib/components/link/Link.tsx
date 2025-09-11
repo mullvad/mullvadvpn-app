@@ -1,26 +1,25 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { Colors, colors, Radius, Typography } from '../../foundations';
-import { TransientProps } from '../../types';
+import { Colors, colors, Typography } from '../../foundations';
+import { PolymorphicProps } from '../../types';
 import { LinkIcon, LinkText, StyledIcon as StyledLinkIcon, StyledLinkText } from './components';
-import { useHoverColor } from './hooks';
+import { useStateColors } from './hooks';
 import { LinkProvider } from './LinkContext';
 
 type LinkBaseProps = {
   variant?: Typography;
   color?: Colors;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
 
-export type LinkProps = LinkBaseProps &
-  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkBaseProps>;
+export type LinkProps<T extends React.ElementType = 'a'> = PolymorphicProps<T, LinkBaseProps>;
 
-const StyledLink = styled.a<
-  TransientProps<LinkProps> & {
-    $hoverColor?: Colors;
-  }
->(({ $hoverColor }) => {
+const StyledLink = styled.a<{
+  $hoverColor: Colors;
+  $activeColor: Colors;
+}>(({ $hoverColor, $activeColor }) => {
+  const hoverColor = colors[$hoverColor];
+  const activeColor = colors[$activeColor];
   return css`
     cursor: default;
     text-decoration: none;
@@ -28,15 +27,20 @@ const StyledLink = styled.a<
     width: fit-content;
 
     &&:hover > ${StyledLinkText} {
-      text-decoration-line: underline;
-      text-underline-offset: 2px;
-      color: ${$hoverColor};
+      color: ${hoverColor};
+    }
+
+    &&:active > ${StyledLinkText} {
+      color: ${activeColor};
     }
 
     &&:focus-visible > ${StyledLinkText} {
-      border-radius: ${Radius.radius4};
       outline: 2px solid ${colors.white};
       outline-offset: 2px;
+    }
+
+    &&:disabled > ${StyledLinkText} {
+      color: ${colors.whiteAlpha40};
     }
 
     > ${StyledLinkIcon}:first-child:not(:only-child) {
@@ -48,11 +52,16 @@ const StyledLink = styled.a<
   `;
 });
 
-function Link({ color, variant, children, ...props }: LinkProps) {
-  const hoverColor = useHoverColor(color);
+function Link<T extends React.ElementType = 'a'>({
+  color = 'chalk',
+  variant,
+  children,
+  ...props
+}: LinkProps<T>) {
+  const { hover, active } = useStateColors(color);
   return (
     <LinkProvider variant={variant} color={color}>
-      <StyledLink $hoverColor={hoverColor} {...props}>
+      <StyledLink $hoverColor={hover} $activeColor={active} draggable={false} {...props}>
         {children}
       </StyledLink>
     </LinkProvider>

@@ -3,7 +3,6 @@ import { Route, Switch } from 'react-router';
 
 import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
-import LoginPage from '../components/views/login/Login';
 import { useViewTransitions } from '../lib/transition-hooks';
 import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
@@ -34,7 +33,14 @@ import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
-import { AppInfoView, AppUpgradeView, ChangelogView, LaunchView, SettingsView } from './views';
+import {
+  AppInfoView,
+  AppUpgradeView,
+  ChangelogView,
+  LaunchView,
+  LoginView,
+  SettingsView,
+} from './views';
 import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
@@ -50,7 +56,7 @@ export default function AppRouter() {
     <Focus ref={focusRef}>
       <Switch key={currentLocation.key} location={currentLocation}>
         <Route exact path={RoutePath.launch} component={LaunchView} />
-        <Route exact path={RoutePath.login} component={LoginPage} />
+        <Route exact path={RoutePath.login} component={LoginView} />
         <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
         <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
         <Route exact path={RoutePath.main} component={MainView} />

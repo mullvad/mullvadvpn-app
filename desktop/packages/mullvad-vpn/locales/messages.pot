@@ -1484,8 +1484,9 @@ msgctxt "login-view"
 msgid "Checking account number"
 msgstr ""
 
+#. Text in button that allows user to create a new account.
 msgctxt "login-view"
-msgid "Create account"
+msgid "Create a new account"
 msgstr ""
 
 #. Button which confirms the action to create a new account.
@@ -1505,10 +1506,6 @@ msgstr ""
 #. Text that asks the user if they really want to remove the saved account.
 msgctxt "login-view"
 msgid "Do you want to remove the saved account number?"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Don’t have an account number?"
 msgstr ""
 
 msgctxt "login-view"
@@ -1547,12 +1544,20 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr ""
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr ""
 
 msgctxt "login-view"
 msgid "Login failed"
+msgstr ""
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
 msgstr ""
 
 #. This is a warning message shown when the app is blocking the users
@@ -2965,6 +2970,9 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
+msgid "Create account"
+msgstr ""
+
 msgid "Create new list"
 msgstr ""
 
@@ -3017,6 +3025,9 @@ msgid "Disconnecting..."
 msgstr ""
 
 msgid "Dismiss"
+msgstr ""
+
+msgid "Don’t have an account number?"
 msgstr ""
 
 msgid "Edit custom lists"

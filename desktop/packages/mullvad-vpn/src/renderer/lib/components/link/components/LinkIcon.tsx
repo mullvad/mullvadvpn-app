@@ -11,5 +11,5 @@ export const StyledIcon = styled(Icon)`
 `;
 
 export function LinkIcon({ ...props }: LinkIconProps) {
-  return <StyledIcon size="small" {...props} />;
+  return <StyledIcon size="small" color="chalk" {...props} />;
 }

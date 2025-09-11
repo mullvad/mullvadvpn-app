@@ -1,10 +1,9 @@
 import styled from 'styled-components';
 
-import { Icon } from '../../../lib/components';
+import { Icon, Layout } from '../../../lib/components';
 import { colors, spacings } from '../../../lib/foundations';
-import { hugeText, largeText, measurements, smallText, tinyText } from '../../common-styles';
+import { hugeText, largeText, smallText, tinyText } from '../../common-styles';
 import FormattableTextInput from '../../FormattableTextInput';
-import { Footer } from '../../Layout';
 
 export const StyledAccountDropdownContainer = styled.ul({
   display: 'flex',
@@ -46,37 +45,14 @@ export const StyledAccountDropdownItemIconButton = styled.button({
   justifyContent: 'center',
 });
 
-export const StyledTopInfo = styled.div({
-  display: 'flex',
-  justifyContent: 'center',
-  flex: 1,
-});
-
-export const StyledFooter = styled(Footer)<{ $show: boolean }>((props) => ({
-  position: 'relative',
-  width: '100%',
-  bottom: 0,
-  transform: `translateY(${props.$show ? 0 : 100}%)`,
-  backgroundColor: colors.darkBlue,
-  transition: 'transform 250ms ease-in-out',
-}));
-
 export const StyledStatusIcon = styled.div({
   display: 'flex',
   alignSelf: 'end',
   flex: 0,
-  marginBottom: '30px',
   justifyContent: 'center',
+  marginTop: spacings.large,
   height: '48px',
   minHeight: '48px',
-});
-
-export const StyledLoginForm = styled.div({
-  display: 'flex',
-  flex: '0 1 225px',
-  flexDirection: 'column',
-  overflow: 'visible',
-  padding: `0 ${measurements.horizontalViewMargin}`,
 });
 
 interface IStyledAccountInputGroupProps {
@@ -85,7 +61,7 @@ interface IStyledAccountInputGroupProps {
   $error: boolean;
 }
 
-export const StyledAccountInputGroup = styled.form<IStyledAccountInputGroupProps>((props) => ({
+export const StyledAccountInputGroup = styled.div<IStyledAccountInputGroupProps>((props) => ({
   borderWidth: '2px',
   borderStyle: 'solid',
   borderRadius: '8px',
@@ -99,17 +75,6 @@ export const StyledAccountInputBackdrop = styled.div({
   backgroundColor: colors.white,
   borderColor: colors.darkBlue,
 });
-
-export const StyledInputButton = styled.button<{ $visible: boolean }>((props) => ({
-  display: 'flex',
-  borderWidth: 0,
-  width: '48px',
-  alignItems: 'center',
-  justifyContent: 'center',
-  opacity: props.$visible ? 1 : 0,
-  transition: 'opacity 250ms ease-in-out',
-  backgroundColor: colors.green,
-}));
 
 export const StyledDropdownSpacer = styled.div({
   height: 1,
@@ -142,7 +107,6 @@ export const StyledBlockMessageContainer = styled.div({
   alignSelf: 'start',
   backgroundColor: colors.darkBlue,
   borderRadius: '8px',
-  margin: '5px 16px 10px',
   padding: '16px',
 });
 
@@ -156,3 +120,9 @@ export const StyledBlockMessage = styled.div(tinyText, {
   color: colors.white,
   marginBottom: '10px',
 });
+
+export const StyledLine = styled(Layout)`
+  height: 1px;
+  width: 100%;
+  background-color: ${colors.whiteAlpha20};
+`;

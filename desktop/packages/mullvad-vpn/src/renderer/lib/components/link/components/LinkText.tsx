@@ -5,7 +5,10 @@ import { useLinkContext } from '../LinkContext';
 
 export type LinkTextProps = TextProps;
 
-export const StyledLinkText = styled(Text)``;
+export const StyledLinkText = styled(Text)`
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+`;
 
 export function LinkText(props: LinkTextProps) {
   const { variant, color } = useLinkContext();
