@@ -7,12 +7,11 @@ import {
 } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 const UDP2TCP_PORTS = [80, 5001];
 
@@ -44,15 +43,15 @@ export function UdpOverTcpPortSetting() {
   );
 
   return (
-    <Listbox value={port} onValueChange={selectPort}>
-      <Listbox.Item>
-        <Listbox.Content>
-          <Listbox.Label>
+    <SettingsListbox value={port} onValueChange={selectPort}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the WireGuard port selector.
               messages.pgettext('wireguard-settings-view', 'Port')
             }
-          </Listbox.Label>
+          </SettingsListbox.Label>
           <InfoButton>
             <ModalMessage>
               {messages.pgettext(
@@ -61,18 +60,20 @@ export function UdpOverTcpPortSetting() {
               )}
             </ModalMessage>
           </InfoButton>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={'any'}>{messages.gettext('Automatic')}</DefaultListboxOption>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={'any'}>
+          {messages.gettext('Automatic')}
+        </SettingsListbox.BaseOption>
         {portItems.map((item) => {
           return (
-            <DefaultListboxOption key={item.value} value={item.value}>
+            <SettingsListbox.BaseOption key={item.value} value={item.value}>
               {item.label}
-            </DefaultListboxOption>
+            </SettingsListbox.BaseOption>
           );
         })}
-      </Listbox.Options>
-    </Listbox>
+      </SettingsListbox.Options>
+    </SettingsListbox>
   );
 }

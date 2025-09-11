@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { RoutePath } from '../../../../../shared/routes';
-import { Flex, Icon } from '../../../../lib/components';
-import { colors } from '../../../../lib/foundations';
-import { useHistory } from '../../../../lib/history';
+import { RoutePath } from '../../../../../../../shared/routes';
+import { Flex, Icon } from '../../../../../../lib/components';
+import { colors } from '../../../../../../lib/foundations';
+import { useHistory } from '../../../../../../lib/history';
 
 export type NavigationListboxOptionNavigateProps = {
   to: RoutePath;

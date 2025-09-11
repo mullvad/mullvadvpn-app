@@ -2,18 +2,15 @@ import React, { useCallback, useMemo } from 'react';
 
 import { RelayProtocol, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { useScrollToListItem } from '../../../../../hooks';
-import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { useSelector } from '../../../../../redux/store';
-import { DefaultListboxOption } from '../../../../default-listbox-option';
+import { SettingsListbox } from '../../../../settings-listbox';
 
 export function TransportProtocolSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const bridgeState = useSelector((state) => state.settings.bridgeState);
-  const { animation } = useScrollToListItem();
 
   const descriptionId = React.useId();
 
@@ -34,27 +31,31 @@ export function TransportProtocolSetting() {
   );
 
   return (
-    <Listbox animation={animation} value={protocol} onValueChange={onSelect}>
-      <Listbox.Item>
-        <Listbox.Content>
-          <Listbox.Label>
+    <SettingsListbox value={protocol} onValueChange={onSelect}>
+      <SettingsListbox.Item>
+        <SettingsListbox.Content>
+          <SettingsListbox.Label>
             {messages.pgettext('openvpn-settings-view', 'Transport protocol')}
-          </Listbox.Label>
-        </Listbox.Content>
-      </Listbox.Item>
-      <Listbox.Options>
-        <DefaultListboxOption value={null}>{messages.gettext('Automatic')}</DefaultListboxOption>
-        <DefaultListboxOption value={'tcp'}>{messages.gettext('TCP')}</DefaultListboxOption>
-        <DefaultListboxOption
+          </SettingsListbox.Label>
+        </SettingsListbox.Content>
+      </SettingsListbox.Item>
+      <SettingsListbox.Options>
+        <SettingsListbox.BaseOption value={null}>
+          {messages.gettext('Automatic')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={'tcp'}>
+          {messages.gettext('TCP')}
+        </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption
           value={'udp'}
           disabled={bridgeState === 'on'}
           aria-describedby={bridgeState === 'on' ? descriptionId : undefined}>
           {messages.gettext('UDP')}
-        </DefaultListboxOption>
-      </Listbox.Options>
+        </SettingsListbox.BaseOption>
+      </SettingsListbox.Options>
       {bridgeState === 'on' && (
-        <Listbox.Footer>
-          <Listbox.Text id={descriptionId}>
+        <SettingsListbox.Footer>
+          <SettingsListbox.Text id={descriptionId}>
             {formatHtml(
               // TRANSLATORS: This is used to instruct users how to make UDP mode
               // TRANSLATORS: available.
@@ -63,9 +64,9 @@ export function TransportProtocolSetting() {
                 'To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>.',
               ),
             )}
-          </Listbox.Text>
-        </Listbox.Footer>
+          </SettingsListbox.Text>
+        </SettingsListbox.Footer>
       )}
-    </Listbox>
+    </SettingsListbox>
   );
 }
