@@ -1,4 +1,3 @@
-import org.gradle.internal.extensions.stdlib.capitalized
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -93,14 +92,7 @@ android {
 
 androidComponents {
     beforeVariants { variantBuilder ->
-        variantBuilder.enable =
-            variantBuilder.let { currentVariant ->
-                val enabledVariants =
-                    enabledE2eVariantTriples.map { (billing, infra, buildType) ->
-                        billing + infra.capitalized() + buildType.capitalized()
-                    }
-                enabledVariants.contains(currentVariant.name)
-            }
+        variantBuilder.enable = variantBuilder.matchesAny(ossProdDebug, playStagemoleDebug)
     }
 }
 

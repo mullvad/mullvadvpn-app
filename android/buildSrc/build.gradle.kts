@@ -4,7 +4,10 @@ plugins {
     alias(libs.plugins.detekt) apply true
 }
 
-repositories { maven("https://plugins.gradle.org/m2/") }
+repositories {
+    google()
+    maven("https://plugins.gradle.org/m2/")
+}
 
 kotlin { jvmToolchain(17) }
 
@@ -13,4 +16,8 @@ ktfmt {
     kotlinLangStyle()
     maxWidth.set(100)
     removeUnusedImports.set(true)
+}
+
+dependencies {
+    implementation(libs.android.gradle.api)
 }

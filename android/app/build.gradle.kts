@@ -309,28 +309,11 @@ baselineProfile { warnings { disabledVariants = false } }
 androidComponents {
     beforeVariants { variantBuilder ->
         variantBuilder.enable =
-            variantBuilder.let { currentVariant ->
-                val buildType = currentVariant.buildType ?: ""
-
-                val billing =
-                    currentVariant.productFlavors
-                        .find { it.first == FlavorDimensions.BILLING }
-                        ?.second
-
-                val infra =
-                    currentVariant.productFlavors
-                        .find { it.first == FlavorDimensions.INFRASTRUCTURE }
-                        ?.second
-
-                enabledAppVariantTriples.any { (enabledBilling, enabledInfra, enabledBuildType) ->
-                    billing == enabledBilling &&
-                        infra == enabledInfra &&
-                        // For e.g. the baseline profile generation build types with names like
-                        // "benchmarkRelease" and "nonMinifiedRelease" are created and must not be
-                        // filtered out.
-                        buildType.contains(enabledBuildType, ignoreCase = true)
-                }
-            }
+            variantBuilder.matchesAny(
+                allPlayDebugReleaseVariants,
+                ossProdAnyBuildType,
+                baselineFilter,
+            )
     }
 }
 

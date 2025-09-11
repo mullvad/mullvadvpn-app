@@ -101,6 +101,7 @@ profileinstaller = "1.4.1"
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
 android-gradle-aapt = { module = "com.android.tools.build:aapt2", version.ref = "android-gradle-aapt" }
+android-gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "android-gradle-plugin" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }

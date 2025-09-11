@@ -1,18 +1,14 @@
-import BuildTypes.DEBUG
-import BuildTypes.FDROID
-import BuildTypes.LEAK_CANARY
-import BuildTypes.RELEASE
-import Flavors.DEVMOLE
-import Flavors.OSS
-import Flavors.PLAY
-import Flavors.PROD
-import Flavors.STAGEMOLE
+import com.android.build.api.variant.ComponentIdentity
 
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
     const val FDROID = "fdroid"
     const val LEAK_CANARY = "leakCanary"
+
+    const val NON_MINIFIED = "nonMinified"
+
+    const val BENCHMARK = "benchmark"
 }
 
 object SigningConfigs {
@@ -33,18 +29,19 @@ object Flavors {
     const val STAGEMOLE = "stagemole"
 }
 
-val enabledAppVariantTriples =
-    listOf(
-        Triple(OSS, PROD, DEBUG),
-        Triple(OSS, PROD, RELEASE),
-        Triple(OSS, PROD, FDROID),
-        Triple(OSS, PROD, LEAK_CANARY),
-        Triple(PLAY, PROD, DEBUG),
-        Triple(PLAY, PROD, RELEASE),
-        Triple(PLAY, DEVMOLE, DEBUG),
-        Triple(PLAY, DEVMOLE, RELEASE),
-        Triple(PLAY, STAGEMOLE, DEBUG),
-        Triple(PLAY, STAGEMOLE, RELEASE),
-    )
+data class VariantFilter(
+    val billingPredicate: (billing: String?) -> Boolean = { true },
+    val infrastructurePredicate: (infrastructure: String?) -> Boolean = { true },
+    val buildTypePredicate: (buildType: String?) -> Boolean = { true },
+)
 
-val enabledE2eVariantTriples = listOf(Triple(OSS, PROD, DEBUG), Triple(PLAY, STAGEMOLE, DEBUG))
+fun ComponentIdentity.matches(filter: VariantFilter): Boolean =
+    with(filter) {
+        val flavors = productFlavors.toMap()
+        buildTypePredicate(buildType) &&
+            infrastructurePredicate(flavors[FlavorDimensions.INFRASTRUCTURE]) &&
+            billingPredicate(flavors[FlavorDimensions.BILLING])
+    }
+
+fun ComponentIdentity.matchesAny(vararg filters: VariantFilter): Boolean =
+    filters.any { matches(it) }
