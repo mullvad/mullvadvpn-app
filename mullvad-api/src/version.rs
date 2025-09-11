@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::future::Future;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -78,8 +79,14 @@ impl AppVersionProxy {
         async move {
             let request = request?
                 .expected_status(&[StatusCode::OK])
-                .header("M-App-Version", mullvad_version::VERSION)?
-                .header("M-Platform-Version", &platform_version)?;
+                .header(
+                    "M-App-Version",
+                    &sanitize_header_value(&mullvad_version::VERSION),
+                )?
+                .header(
+                    "M-Platform-Version",
+                    &sanitize_header_value(&platform_version),
+                )?;
             let response = service.request(request).await?;
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
@@ -110,5 +117,39 @@ impl AppVersionProxy {
                 current_version_supported,
             })
         }
+    }
+}
+
+fn sanitize_header_value(value: &str) -> String {
+    let space_regex = Regex::new(r"\s").unwrap();
+    let other_regex = Regex::new(r"[A-Za-z0-9_\.-]").unwrap();
+
+    let mut corrected_string = other_regex
+        .find_iter(&space_regex.replace_all(value, "_"))
+        .map(|my_match| my_match.as_str().to_owned())
+        .collect::<Vec<String>>()
+        .join("");
+
+    corrected_string.truncate(64);
+
+    corrected_string
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_sanitize_header_value() {
+        assert_eq!(sanitize_header_value("2025.5"), "2025.5");
+        assert_eq!(sanitize_header_value("Fedora Linux"), "Fedora_Linux");
+        assert_eq!(sanitize_header_value("macOS 26.1"), "macOS_26.1");
+        assert_eq!(sanitize_header_value("Déjà vu OS"), "Dj_vu_OS");
+
+        let long_value =
+            "abcdefghijklmnopqrstuvxyzabcdefghijklmnopqrstuvxyzabcdefghijklmnopqrstuvxyz";
+        let mut truncated_long_value = long_value.to_owned();
+        truncated_long_value.truncate(64);
+        assert_eq!(sanitize_header_value(long_value), truncated_long_value);
     }
 }
