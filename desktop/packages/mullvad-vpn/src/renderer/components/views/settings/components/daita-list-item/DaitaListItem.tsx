@@ -1,7 +1,7 @@
 import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 import { useIsOn } from './hooks';
 
 export function DaitaListItem() {
