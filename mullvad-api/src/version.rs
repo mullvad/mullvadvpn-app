@@ -78,8 +78,14 @@ impl AppVersionProxy {
         async move {
             let request = request?
                 .expected_status(&[StatusCode::OK])
-                .header("M-App-Version", mullvad_version::VERSION)?
-                .header("M-Platform-Version", &platform_version)?;
+                .header(
+                    "M-App-Version",
+                    &sanitize_header_value(mullvad_version::VERSION),
+                )?
+                .header(
+                    "M-Platform-Version",
+                    &sanitize_header_value(&platform_version),
+                )?;
             let response = service.request(request).await?;
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
@@ -110,5 +116,35 @@ impl AppVersionProxy {
                 current_version_supported,
             })
         }
+    }
+}
+
+// This function makes a string conform to the allowed characters and length of header values.
+// Here's the rule it needs to implement: [A-Za-z0-9_.-]{1,64}
+fn sanitize_header_value(value: &str) -> String {
+    value
+        .chars()
+        .map(|c| if c.is_whitespace() { '_' } else { c })
+        .filter(|&c| c.is_ascii_alphanumeric() || "_.-".contains(c))
+        .take(64)
+        .collect()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_sanitize_header_value() {
+        assert_eq!(sanitize_header_value("2025.5"), "2025.5");
+        assert_eq!(sanitize_header_value("Fedora Linux"), "Fedora_Linux");
+        assert_eq!(sanitize_header_value("macOS 26.1"), "macOS_26.1");
+        assert_eq!(sanitize_header_value("Déjà vu OS"), "Dj_vu_OS");
+
+        let long_value =
+            "abcdefghijklmnopqrstuvxyzabcdefghijklmnopqrstuvxyzabcdefghijklmnopqrstuvxyz";
+        let mut truncated_long_value = long_value.to_owned();
+        truncated_long_value.truncate(64);
+        assert_eq!(sanitize_header_value(long_value), truncated_long_value);
     }
 }
