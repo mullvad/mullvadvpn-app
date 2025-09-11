@@ -1,26 +1,26 @@
 use anyhow::{Context, anyhow};
 use std::{
     io::Write,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     time::Duration,
 };
 
 use crate::cli::Opt;
 
 pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> anyhow::Result<()> {
-    let bind_addr: SocketAddr = SocketAddr::new(Ipv4Addr::new(0, 0, 0, 0).into(), 0);
+    eprintln!("Leaking TCP packets to {destination}");
 
-    let family = match &destination {
-        SocketAddr::V4(_) => socket2::Domain::IPV4,
-        SocketAddr::V6(_) => socket2::Domain::IPV6,
+    let (family, bind_address) = match &destination {
+        SocketAddr::V4(_) => (socket2::Domain::IPV4, IpAddr::from(Ipv4Addr::UNSPECIFIED)),
+        SocketAddr::V6(_) => (socket2::Domain::IPV6, IpAddr::from(Ipv6Addr::UNSPECIFIED)),
     };
+    let bind_address: SocketAddr = SocketAddr::new(bind_address, 0);
+
     let sock = socket2::Socket::new(family, socket2::Type::STREAM, Some(socket2::Protocol::TCP))
         .context(anyhow!("Failed to create TCP socket"))?;
 
-    eprintln!("Leaking TCP packets to {destination}");
-
-    sock.bind(&socket2::SockAddr::from(bind_addr))
-        .context(anyhow!("Failed to bind TCP socket to {bind_addr}"))?;
+    sock.bind(&socket2::SockAddr::from(bind_address))
+        .context(anyhow!("Failed to bind TCP socket to {bind_address}"))?;
 
     let timeout = Duration::from_secs(opt.leak_timeout);
     sock.set_write_timeout(Some(timeout))?;
@@ -38,19 +38,19 @@ pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> anyhow::Result<()> {
 }
 
 pub fn send_udp(opt: &Opt, destination: SocketAddr) -> Result<(), anyhow::Error> {
-    let bind_addr: SocketAddr = SocketAddr::new(Ipv4Addr::new(0, 0, 0, 0).into(), 0);
-
     eprintln!("Leaking UDP packets to {destination}");
 
-    let family = match &destination {
-        SocketAddr::V4(_) => socket2::Domain::IPV4,
-        SocketAddr::V6(_) => socket2::Domain::IPV6,
+    let (family, bind_address) = match &destination {
+        SocketAddr::V4(_) => (socket2::Domain::IPV4, IpAddr::from(Ipv4Addr::UNSPECIFIED)),
+        SocketAddr::V6(_) => (socket2::Domain::IPV6, IpAddr::from(Ipv6Addr::UNSPECIFIED)),
     };
+    let bind_address: SocketAddr = SocketAddr::new(bind_address, 0);
+
     let sock = socket2::Socket::new(family, socket2::Type::DGRAM, Some(socket2::Protocol::UDP))
         .context("Failed to create UDP socket")?;
 
-    sock.bind(&socket2::SockAddr::from(bind_addr))
-        .context(anyhow!("Failed to bind UDP socket to {bind_addr}"))?;
+    sock.bind(&socket2::SockAddr::from(bind_address))
+        .context(anyhow!("Failed to bind UDP socket to {bind_address}"))?;
 
     let std_socket = std::net::UdpSocket::from(sock);
     std_socket
