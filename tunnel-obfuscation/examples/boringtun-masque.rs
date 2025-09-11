@@ -37,17 +37,18 @@ async fn main() -> io::Result<()> {
     let obfuscator_settings = args.quic_settings();
 
     let (mut boringtun_io, obfuscator_io) = create_in_process_communication_channels();
-    log::info!("Boringtun + Masque = <3");
-    let quic = create_quic_obfuscator(obfuscator_io, obfuscator_settings).await;
-    let obfuscator = Box::new(quic);
-    let obfs = tokio::spawn(obfuscator.run());
-    log::info!("Masque proxy client started successfully");
 
     log::info!("Starting BoringTun ..");
     // TODO: Something with boringtun is not working .. Masque is working :+1:
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let boringtun: BoringtunDevice = create_boringtun(boringtun_io, boringtun_settings).await;
     log::info!("BoringTun started successfully");
+
+    log::info!("Boringtun + Masque = <3");
+    let quic = create_quic_obfuscator(obfuscator_io, obfuscator_settings).await;
+    let obfuscator = Box::new(quic);
+    let obfs = tokio::spawn(obfuscator.run());
+    log::info!("Masque proxy client started successfully");
 
     // HACK: v
     /*
