@@ -18,8 +18,8 @@ import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import PageSlider from '../../PageSlider';
+import { SettingsToggleListItem } from '../../settings-toggle-list-item';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
-import { ToggleListItem } from '../../toggle-list-item';
 import { useShowDaitaMultihopInfo } from './hooks';
 
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
@@ -197,26 +197,26 @@ function DaitaToggle() {
 
   return (
     <>
-      <ToggleListItem
+      <SettingsToggleListItem
         anchorId="daita-enable-setting"
         disabled={unavailable}
         checked={daita && !unavailable}
         onCheckedChange={setDaita}>
-        <ToggleListItem.Label>{messages.gettext('Enable')}</ToggleListItem.Label>
-        <ToggleListItem.Switch />
-      </ToggleListItem>
-      <ToggleListItem
+        <SettingsToggleListItem.Label>{messages.gettext('Enable')}</SettingsToggleListItem.Label>
+        <SettingsToggleListItem.Switch />
+      </SettingsToggleListItem>
+      <SettingsToggleListItem
         disabled={!daita || unavailable}
         checked={directOnly && !unavailable}
         onCheckedChange={setDirectOnly}>
-        <ToggleListItem.Label>{directOnlyString}</ToggleListItem.Label>
-        <ToggleListItem.Group>
+        <SettingsToggleListItem.Label>{directOnlyString}</SettingsToggleListItem.Label>
+        <SettingsToggleListItem.Group>
           <InfoButton>
             <DirectOnlyModalMessage />
           </InfoButton>
-          <ToggleListItem.Switch />
-        </ToggleListItem.Group>
-      </ToggleListItem>
+          <SettingsToggleListItem.Switch />
+        </SettingsToggleListItem.Group>
+      </SettingsToggleListItem>
       {unavailable ? (
         <Cell.CellFooter>
           <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
