@@ -4,7 +4,6 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
-import { useScrollToListItem } from '../../../../../hooks';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
 import { AriaDescription } from '../../../../AriaGroup';
@@ -14,8 +13,6 @@ import { ToggleListItem } from '../../../../toggle-list-item';
 export function MultihopSetting() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relaySettingsUpdater = useRelaySettingsUpdater();
-
-  const { ref, animation } = useScrollToListItem('multihop-setting');
 
   const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
   const unavailable =
@@ -39,8 +36,7 @@ export function MultihopSetting() {
   return (
     <>
       <ToggleListItem
-        ref={ref}
-        animation={animation}
+        anchorId="multihop-setting"
         disabled={unavailable}
         checked={multihop && !unavailable}
         onCheckedChange={setMultihop}>

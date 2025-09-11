@@ -3,7 +3,6 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { useScrollToListItem } from '../../../../../hooks';
 import { RelaySettingsRedux } from '../../../../../redux/settings/reducers';
 import { useSelector } from '../../../../../redux/store';
 import { NavigationListItem } from '../../../../NavigationListItem';
@@ -22,16 +21,12 @@ function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
 }
 
 export function WireguardSettings() {
-  const { animation } = useScrollToListItem();
   const tunnelProtocol = useSelector((state) =>
     mapRelaySettingsToProtocol(state.settings.relaySettings),
   );
 
   return (
-    <NavigationListItem
-      to={RoutePath.wireguardSettings}
-      disabled={tunnelProtocol === 'openvpn'}
-      animation={animation}>
+    <NavigationListItem to={RoutePath.wireguardSettings} disabled={tunnelProtocol === 'openvpn'}>
       <NavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(wireguard)s will be replaced with the string "WireGuard"
