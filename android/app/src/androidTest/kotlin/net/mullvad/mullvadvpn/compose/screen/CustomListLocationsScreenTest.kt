@@ -161,7 +161,6 @@ class CustomListLocationsScreenTest {
         }
 
     @Test
-    @Disabled("Text input is flaky see DROID-2140 for more details")
     fun whenSearchInputIsUpdatedShouldCallOnSearchTermInput() =
         composeExtension.use {
             // Arrange
