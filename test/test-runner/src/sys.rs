@@ -406,6 +406,7 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .open_service(
             "mullvadvpn",
             ServiceAccess::QUERY_CONFIG
+                | ServiceAccess::QUERY_STATUS
                 | ServiceAccess::CHANGE_CONFIG
                 | ServiceAccess::START
                 | ServiceAccess::STOP,
@@ -413,15 +414,16 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     // Stop the service
-    // TODO: Extract to separate function.
     service
         .stop()
         .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
-    tokio::process::Command::new("net")
-        .args(["stop", "mullvadvpn"])
-        .status()
-        .await
-        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
+
+    for _ in 0..5 {
+        if get_daemon_system_service_status_inner(&service)? != ServiceStatus::Running {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    }
 
     // Get the current service configuration
     let config = service
@@ -454,7 +456,6 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     // Start the service
-    // TODO: Extract to separate function.
     service
         .start::<String>(&[])
         .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
