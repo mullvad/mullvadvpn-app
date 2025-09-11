@@ -17,5 +17,11 @@ export function LinuxApplicationList() {
 
   const filteredApplications = useFilteredApplications();
 
-  return <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />;
+  return (
+    <ApplicationList
+      data-testid="linux-applications"
+      applications={filteredApplications}
+      rowRenderer={rowRenderer}
+    />
+  );
 }
