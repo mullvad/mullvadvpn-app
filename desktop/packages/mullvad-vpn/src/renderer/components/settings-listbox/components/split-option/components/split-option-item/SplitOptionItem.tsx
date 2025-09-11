@@ -2,7 +2,7 @@ import { Listbox } from '../../../../../../lib/components/listbox/Listbox';
 
 export type ListBoxOptionWithNavigationProps = React.ComponentPropsWithRef<'li'>;
 
-export function SplitListboxOptionItem({ children, ...props }: ListBoxOptionWithNavigationProps) {
+export function SplitOptionItem({ children, ...props }: ListBoxOptionWithNavigationProps) {
   return (
     <Listbox.Option.Trigger {...props}>
       <Listbox.Option.Item>

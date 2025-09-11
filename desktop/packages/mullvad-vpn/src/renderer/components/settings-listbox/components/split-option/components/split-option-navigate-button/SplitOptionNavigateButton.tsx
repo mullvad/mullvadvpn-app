@@ -6,7 +6,7 @@ import { Flex, Icon } from '../../../../../../lib/components';
 import { colors } from '../../../../../../lib/foundations';
 import { useHistory } from '../../../../../../lib/history';
 
-export type NavigationListboxOptionNavigateProps = {
+export type NavigationOptionNavigateProps = {
   to: RoutePath;
 } & React.ComponentPropsWithRef<'button'>;
 
@@ -15,7 +15,7 @@ const StyledFlex = styled(Flex)`
   height: 100%;
 `;
 
-const StyledSplitListboxOptionNavigateButton = styled.button`
+const StyledSplitOptionNavigateButton = styled.button`
   position: relative;
   &&::before {
     content: '';
@@ -43,21 +43,21 @@ const StyledSplitListboxOptionNavigateButton = styled.button`
   }
 `;
 
-export function SplitListboxOptionNavigateButton({
+export function SplitOptionNavigateButton({
   to,
   children,
   ...props
-}: NavigationListboxOptionNavigateProps) {
+}: NavigationOptionNavigateProps) {
   const history = useHistory();
   const navigate = useCallback(() => {
     return history.push(to);
   }, [history, to]);
 
   return (
-    <StyledSplitListboxOptionNavigateButton onClick={navigate} {...props}>
+    <StyledSplitOptionNavigateButton onClick={navigate} {...props}>
       <StyledFlex $justifyContent="center" $alignItems="center" $padding={{ horizontal: 'medium' }}>
         <Icon icon={'chevron-right'} aria-hidden="true" />
       </StyledFlex>
-    </StyledSplitListboxOptionNavigateButton>
+    </StyledSplitOptionNavigateButton>
   );
 }
