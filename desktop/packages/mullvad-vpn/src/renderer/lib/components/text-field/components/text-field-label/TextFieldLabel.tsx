@@ -1,5 +1,5 @@
 import { Text, TextProps } from '../../../typography';
-import { useTextFieldContext } from '../text-field-context';
+import { useTextFieldContext } from '../../';
 
 export type TextFieldLabelProps = TextProps;
 

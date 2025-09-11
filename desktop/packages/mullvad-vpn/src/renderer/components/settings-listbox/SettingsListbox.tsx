@@ -1,6 +1,6 @@
 import { ScrollToAnchorId } from '../../../shared/ipc-types';
 import { useScrollToListItem } from '../../hooks';
-import { Listbox, ListboxProps } from '../../lib/components/listbox/Listbox';
+import { Listbox, ListboxProps } from '../../lib/components/listbox';
 import { BaseOption, InputOption, SplitOption } from './components';
 
 export type SettingsListboxProps<T> = Omit<ListboxProps<T>, 'animation'> & {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ListboxProps } from '../../Listbox';
+import { ListboxProps } from './Listbox';
 
 type ListboxContext<T> = Pick<ListboxProps<T>, 'value' | 'onValueChange'> & {
   labelId: string;

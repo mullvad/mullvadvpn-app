@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
-import { useTextFieldContext } from '../text-field-context/TextFieldContext';
+import { useTextFieldContext } from '../../';
 
 export type TextFieldInputProps = React.ComponentPropsWithRef<'input'>;
 

@@ -2,8 +2,8 @@ import styled from 'styled-components';
 
 import { ListItem } from '../../../../../list-item';
 import { ListItemIconProps } from '../../../../../list-item/components';
-import { useListboxContext } from '../../../listbox-context';
-import { useListboxOptionContext } from '../listbox-option-context/ListboxOptionContext';
+import { useListboxContext } from '../../../../';
+import { useListboxOptionContext } from '../../';
 
 export type ListboxOptionIconProps = ListItemIconProps;
 
