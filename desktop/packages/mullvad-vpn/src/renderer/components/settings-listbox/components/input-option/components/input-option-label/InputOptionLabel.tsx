@@ -1,12 +1,12 @@
 import { Listbox } from '../../../../../../lib/components/listbox/Listbox';
-import { useInputListboxOption } from '../input-listbox-option-context';
+import { useInputOptionContext } from '../../InputOptionContext';
 
-export type InputListboxOptionLabelProps = {
+export type InputOptionLabelProps = {
   children: React.ReactNode;
 };
 
-export function InputListboxOptionLabel({ children }: InputListboxOptionLabelProps) {
-  const { labelId } = useInputListboxOption();
+export function InputOptionLabel({ children }: InputOptionLabelProps) {
+  const { labelId } = useInputOptionContext();
   return (
     <Listbox.Option.Group>
       <Listbox.Option.Icon icon="checkmark" aria-hidden="true" />
