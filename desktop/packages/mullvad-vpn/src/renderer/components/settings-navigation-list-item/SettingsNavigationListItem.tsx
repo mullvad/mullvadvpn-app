@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { RoutePath } from '../../shared/routes';
-import { useHistory } from '../lib/history';
-import { SettingsListItem, SettingsListItemProps } from './settings-list-item';
+import { RoutePath } from '../../../shared/routes';
+import { useHistory } from '../../lib/history';
+import { SettingsListItem, SettingsListItemProps } from '../settings-list-item';
 
 export type SettingsNavigationListItemProps = {
   to: RoutePath;
@@ -22,6 +22,7 @@ function SettingsNavigationListItem({ to, children, ...props }: SettingsNavigati
     </SettingsListItem>
   );
 }
+
 const SettingsNavigationListItemNamespace = Object.assign(SettingsNavigationListItem, {
   Label: SettingsListItem.Label,
   Group: SettingsListItem.Group,
