@@ -3,7 +3,7 @@ import { Listbox } from '../../../../lib/components/listbox/Listbox';
 
 export type DefaultListboxOptionProps<T> = ListboxOptionProps<T>;
 
-export function DefaultListboxOption<T>({
+export function BaseOption<T>({
   value,
   animation,
   disabled,
