@@ -27,13 +27,17 @@ struct RelayObfuscator: RelayObfuscating {
     let relays: REST.ServerRelaysResponse
     let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
+    let obfuscationBypass: any ObfuscationProviding
 
     func obfuscate() throws -> RelayObfuscation {
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
             connectionAttemptCount: connectionAttemptCount,
-            tunnelSettings: tunnelSettings
+            tunnelSettings: tunnelSettings,
+            obfuscationBypass: obfuscationBypass
         )
 
+        let debugMessage = "Trying to find relays for \(obfuscationMethod) for the \(connectionAttemptCount)th attempt"
+        print(debugMessage)
         return switch obfuscationMethod {
         case .udpOverTcp:
             UdpOverTcpObfuscator(
