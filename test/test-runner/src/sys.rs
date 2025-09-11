@@ -391,7 +391,39 @@ fn get_daemon_system_service_status_inner(
 }
 
 #[cfg(target_os = "windows")]
+async fn wait_for_service_status(
+    service: &Service,
+    accept_fn: impl Fn(&windows_service::service::ServiceStatus) -> bool,
+) -> Result<(), test_rpc::Error> {
+    const MAX_ATTEMPTS: usize = 10;
+    const POLL_INTERVAL: std::time::Duration = std::time::Duration::from_secs(3);
+
+    for _ in 0..MAX_ATTEMPTS {
+        let status = service
+            .query_status()
+            .map_err(|e| test_rpc::Error::Other(e.to_string()))?;
+        if accept_fn(&status) {
+            return Ok(());
+        }
+        tokio::time::sleep(POLL_INTERVAL).await;
+    }
+    Err(test_rpc::Error::ServiceStart(
+        "Awaiting new service state timed out".to_string(),
+    ))
+}
+
+#[cfg(target_os = "windows")]
 pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test_rpc::Error> {
+    use std::error::Error;
+
+    fn error_with_source(e: &impl Error) -> String {
+        if let Some(source) = e.source() {
+            format!("{e}: {source}")
+        } else {
+            e.to_string()
+        }
+    }
+
     log::debug!("Setting log level");
 
     let verbosity = match verbosity_level {
@@ -406,27 +438,38 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .open_service(
             "mullvadvpn",
             ServiceAccess::QUERY_CONFIG
+                | ServiceAccess::QUERY_STATUS
                 | ServiceAccess::CHANGE_CONFIG
                 | ServiceAccess::START
                 | ServiceAccess::STOP,
         )
-        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
+        .map_err(|e| {
+            test_rpc::Error::ServiceNotFound(format!(
+                "Failed to open service: {}",
+                error_with_source(&e)
+            ))
+        })?;
+
+    log::info!("Stopping service");
 
     // Stop the service
-    // TODO: Extract to separate function.
     service
         .stop()
         .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
-    tokio::process::Command::new("net")
-        .args(["stop", "mullvadvpn"])
-        .status()
-        .await
-        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
+
+    // Wait until the service is fully stopped
+    wait_for_service_status(&service, |status| {
+        status.current_state == ServiceState::Stopped
+    })
+    .await?;
 
     // Get the current service configuration
-    let config = service
-        .query_config()
-        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
+    let config = service.query_config().map_err(|e| {
+        test_rpc::Error::ServiceNotFound(format!(
+            "Failed to query service config: {}",
+            error_with_source(&e)
+        ))
+    })?;
 
     let executable_path = "C:\\Program Files\\Mullvad VPN\\resources\\mullvad-daemon.exe";
     let launch_arguments = vec![
@@ -449,15 +492,23 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
     };
 
     // Apply the updated configuration
-    service
-        .change_config(&updated_config)
-        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
+    service.change_config(&updated_config).map_err(|e| {
+        test_rpc::Error::ServiceChange(format!("Update service config: {}", error_with_source(&e)))
+    })?;
 
     // Start the service
-    // TODO: Extract to separate function.
-    service
-        .start::<String>(&[])
-        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
+    service.start::<String>(&[]).map_err(|e| {
+        test_rpc::Error::ServiceNotFound(format!(
+            "Failed to start service: {}",
+            error_with_source(&e)
+        ))
+    })?;
+
+    // Wait until the service is fully started
+    wait_for_service_status(&service, |status| {
+        status.current_state == ServiceState::Running
+    })
+    .await?;
 
     Ok(())
 }

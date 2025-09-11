@@ -348,9 +348,6 @@ impl ServiceClient {
             .set_daemon_log_level(ctx, verbosity_level)
             .await??;
 
-        self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
-            .await?;
-
         Ok(())
     }
 
