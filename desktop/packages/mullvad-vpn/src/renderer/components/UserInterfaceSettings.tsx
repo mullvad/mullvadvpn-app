@@ -13,8 +13,8 @@ import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
+import { SettingsNavigationListItem } from './settings-navigation-list-item';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { SettingsNavigationListItem } from './SettingsNavigationListItem';
 
 const StyledAnimateMapCellGroup = styled(SettingsGroup)({
   '@media (prefers-reduced-motion: reduce)': {

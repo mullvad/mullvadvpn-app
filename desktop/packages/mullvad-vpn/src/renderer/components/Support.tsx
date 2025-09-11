@@ -14,8 +14,8 @@ import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
+import { SettingsNavigationListItem } from './settings-navigation-list-item';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { SettingsNavigationListItem } from './SettingsNavigationListItem';
 
 const StyledContent = styled.div({
   display: 'flex',
