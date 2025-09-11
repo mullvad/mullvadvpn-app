@@ -21,6 +21,8 @@ type MasqueClientIO = (SimpleChannelTx, SimpleChannelRx);
 //
 // Boringtun <- ends up in BoringtunIO <- writes to MasqueClientIO.tx <- Masque client
 
+type BoringtunDevice = DeviceHandle<DeviceTransports>;
+
 #[tokio::main]
 async fn main() -> io::Result<()> {
     env_logger::builder()
@@ -35,15 +37,17 @@ async fn main() -> io::Result<()> {
     let (boringtun_io, obfuscator_io) = create_in_process_communication_channels();
     log::info!("Boringtun + Masque = <3");
     let quic = create_quic_obfuscator(obfuscator_io, obfuscator_settings).await;
+    let obfuscator = Box::new(quic);
+    let obfs = tokio::spawn(obfuscator.run());
+
     log::info!("Masque proxy client started successfully");
-    let _boringtun: DeviceHandle<DeviceTransports> =
-        create_boringtun(boringtun_io, boringtun_settings).await;
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    let boringtun: BoringtunDevice = create_boringtun(boringtun_io, boringtun_settings).await;
     log::info!("BoringTun started successfully");
 
     // TODO: run
-    let obfuscator = Box::new(quic);
     tokio::select! {
-        _x = obfuscator.run() => {
+        _x = obfs => {
             log::info!("Exiting obfuscator");
         }
     }
@@ -77,8 +81,9 @@ async fn create_boringtun(
     settings: BoringtunSettings,
 ) -> DeviceHandle<DeviceTransports> {
     let tun = settings.tun;
-    let api = boringtun::device::api::ApiServer::default_unix_socket(&tun).unwrap();
-    let config = DeviceConfig { api: Some(api) };
+    //let api = boringtun::device::api::ApiServer::default_unix_socket(&tun).unwrap();
+    //let config = DeviceConfig { api: Some(api) };
+    let config = DeviceConfig { api: None };
     let boringtun: DeviceHandle<_> =
         DeviceHandle::from_tun_name(obfuscator_socket_isch, &tun, config)
             .await
