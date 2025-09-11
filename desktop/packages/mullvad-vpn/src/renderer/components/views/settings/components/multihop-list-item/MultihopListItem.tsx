@@ -1,7 +1,7 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { Icon } from '../../../../../lib/components';
-import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 import { useIsOn } from './hooks';
 
 export function MultihopListItem() {

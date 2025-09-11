@@ -5,7 +5,7 @@ import { RoutePath } from '../../../../../../shared/routes';
 import { Flex } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { useVersionCurrent, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
-import { SettingsNavigationListItem } from '../../../../SettingsNavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
 const StyledText = styled(SettingsNavigationListItem.Text)`
   margin-top: -4px;
