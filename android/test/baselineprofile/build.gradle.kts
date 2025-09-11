@@ -86,6 +86,7 @@ dependencies {
 }
 
 androidComponents {
+    beforeVariants { it.enable = Variant(it.buildType, it.productFlavors).matches(baselineFilter) }
     onVariants { v ->
         val artifactsLoader = v.artifacts.getBuiltArtifactsLoader()
         v.instrumentationRunnerArguments.put(
