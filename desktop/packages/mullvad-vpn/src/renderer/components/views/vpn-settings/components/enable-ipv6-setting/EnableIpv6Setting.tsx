@@ -6,7 +6,7 @@ import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
-import { ToggleListItem } from '../../../../toggle-list-item';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function EnableIpv6Setting() {
   const enableIpv6 = useSelector((state) => state.settings.enableIpv6);
@@ -25,11 +25,11 @@ export function EnableIpv6Setting() {
   );
 
   return (
-    <ToggleListItem checked={enableIpv6} onCheckedChange={setEnableIpv6}>
-      <ToggleListItem.Label>
+    <SettingsToggleListItem checked={enableIpv6} onCheckedChange={setEnableIpv6}>
+      <SettingsToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Enable IPv6')}
-      </ToggleListItem.Label>
-      <ToggleListItem.Group>
+      </SettingsToggleListItem.Label>
+      <SettingsToggleListItem.Group>
         <InfoButton>
           <ModalMessage>
             {messages.pgettext(
@@ -44,8 +44,8 @@ export function EnableIpv6Setting() {
             )}
           </ModalMessage>
         </InfoButton>
-        <ToggleListItem.Switch />
-      </ToggleListItem.Group>
-    </ToggleListItem>
+        <SettingsToggleListItem.Switch />
+      </SettingsToggleListItem.Group>
+    </SettingsToggleListItem>
   );
 }
