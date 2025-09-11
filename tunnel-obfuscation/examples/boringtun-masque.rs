@@ -29,24 +29,28 @@ async fn main() -> io::Result<()> {
         .init();
 
     let args = ClientArgs::parse();
+    let boringtun_settings = args.boringtun_settings();
     let obfuscator_settings = args.quic_settings();
 
     let (boringtun_io, obfuscator_io) = create_in_process_communication_channels();
     log::info!("Boringtun + Masque = <3");
     let quic = create_quic_obfuscator(obfuscator_io, obfuscator_settings).await;
     log::info!("Masque proxy client started successfully");
-    let boringtun: DeviceHandle<DeviceTransports> = create_boringtun(boringtun_io).await;
+    let boringtun: DeviceHandle<DeviceTransports> =
+        create_boringtun(boringtun_io, boringtun_settings).await;
     log::info!("BoringTun started successfully");
 
     // TODO: run
-    drop(quic);
-    drop(boringtun);
+    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+
+    //drop(quic);
+    //drop(boringtun);
 
     Ok(())
 }
 
 /// Create bi-directional channels where Boringtun and Masque proxy can talk to each other.
-pub fn create_in_process_communication_channels() -> (BoringtunIO, MasqueClientIO) {
+fn create_in_process_communication_channels() -> (BoringtunIO, MasqueClientIO) {
     // god, forgive me
     let (obfs_tx, obfs_rx, boringtun_io) = {
         let capacity = 100;
@@ -56,7 +60,7 @@ pub fn create_in_process_communication_channels() -> (BoringtunIO, MasqueClientI
     (boringtun_io, (obfs_tx, obfs_rx))
 }
 
-pub async fn create_quic_obfuscator(
+async fn create_quic_obfuscator(
     channels: MasqueClientIO,
     settings: tunnel_obfuscation::Settings,
 ) -> Quic {
@@ -66,13 +70,15 @@ pub async fn create_quic_obfuscator(
     obfuscator.unwrap()
 }
 
-pub async fn create_boringtun(
+async fn create_boringtun(
     obfuscator_socket_isch: BoringtunIO,
+    settings: BoringtunSettings,
 ) -> DeviceHandle<DeviceTransports> {
-    let api = boringtun::device::api::ApiServer::default_unix_socket(TUN_NAME).unwrap();
+    let tun = settings.tun;
+    let api = boringtun::device::api::ApiServer::default_unix_socket(&tun).unwrap();
     let config = DeviceConfig { api: Some(api) };
     let boringtun: DeviceHandle<_> =
-        DeviceHandle::from_tun_name(obfuscator_socket_isch, TUN_NAME, config)
+        DeviceHandle::from_tun_name(obfuscator_socket_isch, &tun, config)
             .await
             .unwrap();
     boringtun
@@ -80,6 +86,9 @@ pub async fn create_boringtun(
 
 #[derive(Parser, Debug)]
 pub struct ClientArgs {
+    /// Tun device for Boringtun
+    #[arg(long)]
+    tun: String,
     /// Destination to forward to
     #[arg(long, short = 't')]
     target_addr: SocketAddr,
@@ -109,7 +118,17 @@ pub struct ClientArgs {
     auth: Option<String>,
 }
 
+struct BoringtunSettings {
+    tun: String,
+}
+
 impl ClientArgs {
+    fn boringtun_settings(&self) -> BoringtunSettings {
+        BoringtunSettings {
+            tun: self.tun.clone(),
+        }
+    }
+
     /// Destination to forward to
     fn quic_settings(&self) -> tunnel_obfuscation::Settings {
         use tunnel_obfuscation::{Settings, quic};
