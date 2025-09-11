@@ -120,6 +120,7 @@ impl Server {
 
     pub async fn run(self) -> Result<()> {
         while let Some(new_connection) = self.endpoint.accept().await {
+            log::info!("Accepting new connection: {new_connection:#?}");
             tokio::spawn(Self::handle_incoming_connection(
                 new_connection,
                 Arc::clone(&self.params),

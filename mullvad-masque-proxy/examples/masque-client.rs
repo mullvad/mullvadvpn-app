@@ -89,8 +89,8 @@ async fn main() {
     let endpoint_socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).await.unwrap();
 
     let config = ClientConfig::builder()
-        .client_socket(local_socket)
-        .quinn_socket(endpoint_socket)
+        .quinn_socket(local_socket)
+        //.quinn_socket(endpoint_socket)
         .server_addr(server_addr)
         .server_host(server_hostname)
         .target_addr(target_addr)
