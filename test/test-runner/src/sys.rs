@@ -7,9 +7,12 @@ use test_rpc::{meta::OsVersion, mullvad_daemon::Verbosity};
 use std::{ffi::OsString, path::Path};
 #[cfg(target_os = "windows")]
 use windows_service::{
-    service::{ServiceAccess, ServiceInfo},
+    service::{Service, ServiceAccess, ServiceInfo, ServiceState},
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
+
+#[cfg(target_os = "windows")]
+use test_rpc::mullvad_daemon::ServiceStatus;
 
 #[cfg(target_os = "linux")]
 const SYSTEMD_OVERRIDE_FILE: &str = "/etc/systemd/system/mullvad-daemon.service.d/override.conf";
@@ -375,6 +378,7 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .open_service(
             "mullvadvpn",
             ServiceAccess::QUERY_CONFIG
+                | ServiceAccess::QUERY_STATUS
                 | ServiceAccess::CHANGE_CONFIG
                 | ServiceAccess::START
                 | ServiceAccess::STOP,
@@ -382,15 +386,16 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     // Stop the service
-    // TODO: Extract to separate function.
     service
         .stop()
         .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
-    tokio::process::Command::new("net")
-        .args(["stop", "mullvadvpn"])
-        .status()
-        .await
-        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
+
+    for _ in 0..5 {
+        if get_daemon_system_service_status_inner(&service)? != ServiceStatus::Running {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    }
 
     // Get the current service configuration
     let config = service
@@ -423,7 +428,6 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     // Start the service
-    // TODO: Extract to separate function.
     service
         .start::<String>(&[])
         .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
@@ -822,6 +826,23 @@ pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
 #[cfg(target_os = "linux")]
 pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
     Ok(OsVersion::Linux)
+}
+
+#[cfg(target_os = "windows")]
+fn get_daemon_system_service_status_inner(
+    service: &Service,
+) -> Result<ServiceStatus, test_rpc::Error> {
+    let status = service
+        .query_status()
+        .map_err(|e| test_rpc::Error::Other(e.to_string()))?;
+
+    let status = match status.current_state {
+        ServiceState::Running => ServiceStatus::Running,
+        // NOTE: not counting pending start as running, since we cannot set log level then
+        _ => ServiceStatus::NotRunning,
+    };
+
+    Ok(status)
 }
 
 #[cfg(test)]
