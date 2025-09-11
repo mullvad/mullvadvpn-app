@@ -41,7 +41,9 @@ async fn main() -> io::Result<()> {
     log::info!("BoringTun started successfully");
 
     // TODO: run
-    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+    let pending = std::future::pending::<()>();
+    pending.await;
+    //tokio::time::sleep(std::time::Duration::from_secs(60)).await;
 
     //drop(quic);
     //drop(boringtun);
@@ -114,7 +116,7 @@ pub struct ClientArgs {
     mtu: u16,
 
     /// Authorization header value to set
-    #[arg(long, default_value = "Bearer test")]
+    #[arg(long, default_value = "test")]
     auth: Option<String>,
 }
 
@@ -141,7 +143,7 @@ impl ClientArgs {
         } = self;
         let server_addr = *server_addr;
         let server_hostname = server_hostname.clone();
-        let token = auth.clone().unwrap_or("Bearer Test".to_string());
+        let token = auth.clone().unwrap_or("Test".to_string());
         let target_addr = *target_addr;
 
         Settings::Quic(quic::Settings::new(
