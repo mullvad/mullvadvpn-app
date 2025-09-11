@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
-import { useScrollToListItem } from '../../../hooks';
 import { Button, Flex, Icon, Text } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
@@ -166,9 +165,6 @@ function DaitaToggle() {
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
-  const { ref, animation: enableAnimation } = useScrollToListItem('daita-enable-setting');
-  const { animation: directOnlyAnimation } = useScrollToListItem();
-
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
   const unavailable =
@@ -202,19 +198,17 @@ function DaitaToggle() {
   return (
     <>
       <ToggleListItem
-        ref={ref}
+        anchorId="daita-enable-setting"
         disabled={unavailable}
         checked={daita && !unavailable}
-        onCheckedChange={setDaita}
-        animation={enableAnimation}>
+        onCheckedChange={setDaita}>
         <ToggleListItem.Label>{messages.gettext('Enable')}</ToggleListItem.Label>
         <ToggleListItem.Switch />
       </ToggleListItem>
       <ToggleListItem
         disabled={!daita || unavailable}
         checked={directOnly && !unavailable}
-        onCheckedChange={setDirectOnly}
-        animation={directOnlyAnimation}>
+        onCheckedChange={setDirectOnly}>
         <ToggleListItem.Label>{directOnlyString}</ToggleListItem.Label>
         <ToggleListItem.Group>
           <InfoButton>

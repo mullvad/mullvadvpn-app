@@ -6,10 +6,9 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
-import { ListItem } from '../../../../../lib/components/list-item';
 import { useTextField } from '../../../../../lib/components/text-field';
 import { useSelector } from '../../../../../redux/store';
+import { SettingsListItem } from '../../../../settings-list-item';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
@@ -25,8 +24,6 @@ function mtuIsValid(mtu: string): boolean {
 export function MtuSetting() {
   const { setWireguardMtu: setWireguardMtuImpl } = useAppContext();
   const mtu = useSelector((state) => state.settings.wireguard.mtu);
-
-  const { ref, animation } = useScrollToListItem('mtu-setting');
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const labelId = React.useId();
@@ -82,19 +79,19 @@ export function MtuSetting() {
   );
 
   return (
-    <ListItem animation={animation}>
-      <ListItem.Item ref={ref}>
-        <ListItem.Content>
-          <ListItem.Label id={labelId}>
+    <SettingsListItem anchorId="mtu-setting">
+      <SettingsListItem.Item>
+        <SettingsListItem.Content>
+          <SettingsListItem.Label id={labelId}>
             {
               // TRANSLATORS: The title for the WireGuard MTU setting. MTU stands for Maximum
               // TRANSLATORS: Transmission Unit and controls the maximum size of packets sent over
               // TRANSLATORS: the VPN tunnel.
               messages.pgettext('wireguard-settings-view', 'MTU')
             }
-          </ListItem.Label>
-          <ListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
-            <ListItem.TextField.Input
+          </SettingsListItem.Label>
+          <SettingsListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
+            <SettingsListItem.TextField.Input
               ref={inputRef}
               value={value}
               placeholder={messages.gettext('Default')}
@@ -105,11 +102,11 @@ export function MtuSetting() {
               onBlur={handleBlur}
               onChange={handleChange}
             />
-          </ListItem.TextField>
-        </ListItem.Content>
-      </ListItem.Item>
-      <ListItem.Footer>
-        <ListItem.Text id={descriptionId}>
+          </SettingsListItem.TextField>
+        </SettingsListItem.Content>
+      </SettingsListItem.Item>
+      <SettingsListItem.Footer>
+        <SettingsListItem.Text id={descriptionId}>
           {sprintf(
             // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
             // TRANSLATORS: Available placeholders:
@@ -126,8 +123,8 @@ export function MtuSetting() {
               max: MAX_WIREGUARD_MTU_VALUE,
             },
           )}
-        </ListItem.Text>
-      </ListItem.Footer>
-    </ListItem>
+        </SettingsListItem.Text>
+      </SettingsListItem.Footer>
+    </SettingsListItem>
   );
 }

@@ -1,19 +1,18 @@
 import { messages } from '../../../../../../shared/gettext';
-import { useScrollToListItem } from '../../../../../hooks';
-import { ListItem } from '../../../../../lib/components/list-item';
 import { Switch } from '../../../../../lib/components/switch';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
+import { SettingsListItem } from '../../../../settings-list-item';
 
 export function KillSwitchSetting() {
-  const { animation } = useScrollToListItem();
-
   return (
-    <ListItem animation={animation}>
-      <ListItem.Item>
-        <ListItem.Content>
-          <ListItem.Label>{messages.pgettext('vpn-settings-view', 'Kill switch')}</ListItem.Label>
-          <ListItem.Group $gap="medium">
+    <SettingsListItem>
+      <SettingsListItem.Item>
+        <SettingsListItem.Content>
+          <SettingsListItem.Label>
+            {messages.pgettext('vpn-settings-view', 'Kill switch')}
+          </SettingsListItem.Label>
+          <SettingsListItem.Group $gap="medium">
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(
@@ -31,9 +30,9 @@ export function KillSwitchSetting() {
             <Switch checked disabled>
               <Switch.Thumb />
             </Switch>
-          </ListItem.Group>
-        </ListItem.Content>
-      </ListItem.Item>
-    </ListItem>
+          </SettingsListItem.Group>
+        </SettingsListItem.Content>
+      </SettingsListItem.Item>
+    </SettingsListItem>
   );
 }

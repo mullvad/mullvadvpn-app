@@ -9,6 +9,7 @@ export function BlockTrackersSetting() {
   return (
     <ToggleListItem
       level={1}
+      animation={undefined}
       disabled={dns.state === 'custom'}
       checked={dns.state === 'default' && dns.defaultOptions.blockTrackers}
       onCheckedChange={setBlockTrackers}>
