@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../../foundations';
-import { useSwitchContext } from '../switch-context';
+import { useSwitchContext } from '../../';
 
 export type SwitchTriggerProps = React.ComponentPropsWithRef<'button'>;
 

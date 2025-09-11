@@ -3,8 +3,8 @@ import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../../../foundations';
 import { useListItemContext } from '../../../../../list-item/ListItemContext';
-import { useListboxContext } from '../../../listbox-context';
-import { useListboxOptionContext } from '../';
+import { useListboxContext } from '../../../../';
+import { useListboxOptionContext } from '../../';
 import { StyledListItemOptionItem } from '../';
 
 export type ListboxOptionTriggerProps = React.ComponentPropsWithRef<'li'>;

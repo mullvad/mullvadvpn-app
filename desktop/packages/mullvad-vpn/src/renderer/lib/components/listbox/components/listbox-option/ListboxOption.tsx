@@ -3,9 +3,9 @@ import {
   ListboxOptionIcon,
   ListboxOptionItem,
   ListboxOptionLabel,
-  ListboxOptionProvider,
   ListboxOptionTrigger,
 } from './components';
+import { ListboxOptionProvider } from './ListboxOptionContext';
 
 export type ListboxOptionProps<T> = ListItemProps & {
   value: T;

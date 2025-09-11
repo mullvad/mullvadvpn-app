@@ -1,5 +1,5 @@
 import { Colors } from '../../../../../foundations';
-import { useSwitchContext } from '../../switch-context';
+import { useSwitchContext } from '../../../SwitchContext';
 
 export const useBorderColor = (): Colors => {
   const { disabled } = useSwitchContext();
