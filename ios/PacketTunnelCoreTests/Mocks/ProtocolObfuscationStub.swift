@@ -16,9 +16,8 @@ struct ProtocolObfuscationStub: ProtocolObfuscation {
 
     func obfuscate(
         _ endpoint: MullvadEndpoint,
-        settings: LatestTunnelSettings,
-        retryAttempts: UInt,
-        relayFeatures: REST.ServerRelay.Features?
+        relayFeatures: REST.ServerRelay.Features?,
+        obfuscationMethod: WireGuardObfuscationState
     ) -> ProtocolObfuscationResult {
         .init(endpoint: endpoint, method: .off)
     }

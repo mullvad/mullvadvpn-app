@@ -32,15 +32,38 @@ struct SinglehopPicker: RelayPicking {
         }
     }
 
-    private func pick(from exitRelays: REST.ServerRelaysResponse) throws -> SelectedRelays {
+    private func pick(from obfuscatedRelays: REST.ServerRelaysResponse) throws -> SelectedRelays {
+        let constraints = tunnelSettings.relayConstraints
+        let daitaSettings = tunnelSettings.daita
+
+        // Guarantee that the chosen relay supports selected obfuscation
+        let obfuscationBypass = UnsupportedObfuscationProvider(
+            relayConstraint: constraints.exitLocations,
+            relays: obfuscatedRelays,
+            filterConstraint: constraints.filter,
+            daitaEnabled: daitaSettings.daitaState.isEnabled
+        )
+
+        let supportedObfuscation = RelayObfuscator(
+            relays: obfuscation.allRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: connectionAttemptCount,
+            obfuscationBypass: obfuscationBypass
+        ).obfuscate()
+
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: tunnelSettings.relayConstraints.exitLocations,
-            in: exitRelays,
-            filterConstraint: tunnelSettings.relayConstraints.filter,
-            daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
+            in: supportedObfuscation.obfuscatedRelays,
+            filterConstraint: constraints.filter,
+            daitaEnabled: daitaSettings.daitaState.isEnabled
         )
 
         let match = try findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: true)
-        return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
+        return SelectedRelays(
+            entry: nil,
+            exit: match,
+            retryAttempt: connectionAttemptCount,
+            obfuscation: supportedObfuscation.method
+        )
     }
 }

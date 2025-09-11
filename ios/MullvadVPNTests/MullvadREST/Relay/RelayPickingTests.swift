@@ -20,10 +20,11 @@ class RelayPickingTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Default obfuscation settings to satisfy picker constructors for the tests below.
-        obfuscation = try RelayObfuscator(
+        obfuscation = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: LatestTunnelSettings(),
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
     }
 
@@ -254,5 +255,76 @@ class RelayPickingTests: XCTestCase {
         )
 
         XCTAssertThrowsError(try picker.pick())
+    }
+
+    // DAITA - ON, Direct only - ON, Entry supports DAITA - TRUE, Entry does not support QUIC
+    // Shadowsocks obfuscation should be picked instead of QUIC since entry does not support it
+    func testMultihopCannotPickAutomaticallyInvalidObfuscation() throws {
+        let constraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.hostname("us", "dal", "us-dal-wg-001")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = constraints
+        settings.daita = DAITASettings(daitaState: .on, directOnlyState: .on)
+
+        // Mimic the obfuscator ran by the relay selector wrapper prior to invoking the `MultihopPicker`
+        obfuscation = RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: LatestTunnelSettings(),
+            connectionAttemptCount: 2,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        // It will already have pre-filtered relays to select obfuscation via QUIC because it's the 2nd connection attempt
+        XCTAssertEqual(obfuscation.method, .quic)
+
+        // The `MultihopPicker` will re-roll an obfuscator to find out that QUIC is not supported for the selected entry
+        // It will then fallback to picking shadowsocks obfuscation instead
+        let picker = MultihopPicker(
+            obfuscation: obfuscation,
+            tunnelSettings: settings,
+            connectionAttemptCount: 2
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertEqual(selectedRelays.obfuscation, .udpOverTcp)
+        XCTAssertEqual(selectedRelays.entry?.hostname, "us-dal-wg-001")
+        XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
+    }
+
+    // DAITA - OFF, Entry does not support QUIC
+    // Shadowsocks obfuscation should be picked instead of QUIC since entry does not support it
+    func testSinglehopCannotPickAutomaticallyInvalidObfuscation() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("us", "dal", "us-dal-wg-001")]))
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = constraints
+
+        // Mimic the obfuscator ran by the relay selector wrapper prior to invoking the `SinglehopPicker`
+        obfuscation = RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: LatestTunnelSettings(),
+            connectionAttemptCount: 2,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        // It will already have pre-filtered relays to select obfuscation via QUIC because it's the 2nd connection attempt
+        XCTAssertEqual(obfuscation.method, .quic)
+
+        let picker = SinglehopPicker(
+            obfuscation: obfuscation,
+            tunnelSettings: settings,
+            connectionAttemptCount: 2
+        )
+
+        let selectedRelays = try picker.pick()
+        XCTAssertEqual(selectedRelays.obfuscation, .udpOverTcp)
+        XCTAssertEqual(selectedRelays.entry?.hostname, nil)
+        XCTAssertEqual(selectedRelays.exit.hostname, "us-dal-wg-001")
     }
 }
