@@ -6,10 +6,9 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { useAppContext } from '../../../../../context';
-import { useScrollToListItem } from '../../../../../hooks';
-import { ListItem } from '../../../../../lib/components/list-item';
 import { useTextField } from '../../../../../lib/components/text-field';
 import { useSelector } from '../../../../../redux/store';
+import { SettingsListItem } from '../../../../settings-list-item';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -17,8 +16,6 @@ const MAX_MSSFIX_VALUE = 1450;
 export function MssFixSetting() {
   const { setOpenVpnMssfix: setOpenVpnMssfixImpl } = useAppContext();
   const mssfix = useSelector((state) => state.settings.openVpn.mssfix);
-
-  const { ref, animation } = useScrollToListItem('mss-fix-setting');
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const labelId = React.useId();
@@ -74,14 +71,14 @@ export function MssFixSetting() {
   );
 
   return (
-    <ListItem animation={animation}>
-      <ListItem.Item ref={ref}>
-        <ListItem.Content>
-          <ListItem.Label id={labelId}>
+    <SettingsListItem anchorId="mss-fix-setting">
+      <SettingsListItem.Item>
+        <SettingsListItem.Content>
+          <SettingsListItem.Label id={labelId}>
             {messages.pgettext('openvpn-settings-view', 'Mssfix')}
-          </ListItem.Label>
-          <ListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
-            <ListItem.TextField.Input
+          </SettingsListItem.Label>
+          <SettingsListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
+            <SettingsListItem.TextField.Input
               ref={inputRef}
               value={value}
               placeholder={messages.gettext('Default')}
@@ -92,11 +89,11 @@ export function MssFixSetting() {
               onBlur={handleBlur}
               onChange={handleChange}
             />
-          </ListItem.TextField>
-        </ListItem.Content>
-      </ListItem.Item>
-      <ListItem.Footer>
-        <ListItem.Text id={descriptionId}>
+          </SettingsListItem.TextField>
+        </SettingsListItem.Content>
+      </SettingsListItem.Item>
+      <SettingsListItem.Footer>
+        <SettingsListItem.Text id={descriptionId}>
           {sprintf(
             // TRANSLATORS: The hint displayed below the Mssfix input field.
             // TRANSLATORS: Available placeholders:
@@ -113,9 +110,9 @@ export function MssFixSetting() {
               max: MAX_MSSFIX_VALUE,
             },
           )}
-        </ListItem.Text>
-      </ListItem.Footer>
-    </ListItem>
+        </SettingsListItem.Text>
+      </SettingsListItem.Footer>
+    </SettingsListItem>
   );
 }
 

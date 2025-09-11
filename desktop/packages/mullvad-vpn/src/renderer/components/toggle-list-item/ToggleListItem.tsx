@@ -1,13 +1,12 @@
-import { ListItem, ListItemProps } from '../../lib/components/list-item';
-import { ListItemItemProps } from '../../lib/components/list-item/components';
 import { Switch, SwitchProps } from '../../lib/components/switch';
+import { SettingsListItem, SettingsListItemProps } from '../settings-list-item';
 import { ToggleListItemLabel, ToggleListItemSwitch } from './components';
 
-export type ToggleListItemProps = ListItemProps & {
+export type ToggleListItemProps = {
   footer?: string;
   checked?: SwitchProps['checked'];
   onCheckedChange?: SwitchProps['onCheckedChange'];
-} & Pick<ListItemItemProps, 'ref'>;
+} & SettingsListItemProps;
 
 function ToggleListItem({
   ref,
@@ -19,27 +18,27 @@ function ToggleListItem({
   ...props
 }: ToggleListItemProps) {
   return (
-    <ListItem disabled={disabled} {...props}>
-      <ListItem.Item ref={ref}>
-        <ListItem.Content>
+    <SettingsListItem disabled={disabled} {...props}>
+      <SettingsListItem.Item>
+        <SettingsListItem.Content>
           <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled}>
             {children}
           </Switch>
-        </ListItem.Content>
-      </ListItem.Item>
+        </SettingsListItem.Content>
+      </SettingsListItem.Item>
       {footer && (
-        <ListItem.Footer>
-          <ListItem.Text>{footer}</ListItem.Text>
-        </ListItem.Footer>
+        <SettingsListItem.Footer>
+          <SettingsListItem.Text>{footer}</SettingsListItem.Text>
+        </SettingsListItem.Footer>
       )}
-    </ListItem>
+    </SettingsListItem>
   );
 }
 const ToggleListItemNamespace = Object.assign(ToggleListItem, {
   Label: ToggleListItemLabel,
-  Text: ListItem.Text,
-  Group: ListItem.Group,
-  Footer: ListItem.Footer,
+  Text: SettingsListItem.Text,
+  Group: SettingsListItem.Group,
+  Footer: SettingsListItem.Footer,
   Switch: ToggleListItemSwitch,
 });
 
