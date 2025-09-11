@@ -190,7 +190,12 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         enableDaita: Bool
     ) -> ObservedConnectionState {
         ObservedConnectionState(
-            selectedRelays: SelectedRelays(entry: enableMultiHop ? entryRelay : nil, exit: exitRelay, retryAttempt: 0),
+            selectedRelays: SelectedRelays(
+                entry: enableMultiHop ? entryRelay : nil,
+                exit: exitRelay,
+                retryAttempt: 0,
+                obfuscation: .off
+            ),
             relayConstraints: relayConstraints,
             networkReachability: NetworkReachability.reachable,
             connectionAttemptCount: 0,

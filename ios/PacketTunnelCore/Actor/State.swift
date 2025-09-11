@@ -156,7 +156,7 @@ extension State {
         public let isDaitaEnabled: Bool
 
         /// The obfuscation method in force on the connection
-        public let obfuscationMethod: WireGuardObfuscationState
+        public var obfuscationMethod: WireGuardObfuscationState
     }
 
     /// Data associated with error state.

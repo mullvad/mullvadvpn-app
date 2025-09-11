@@ -141,7 +141,8 @@ final class AppMessageHandlerTests: XCTestCase {
                 location: match.location,
                 features: nil
             ),
-            retryAttempt: 0
+            retryAttempt: 0,
+            obfuscation: .off
         )
 
         _ = try? await appMessageHandler.handleAppMessage(
