@@ -29,6 +29,11 @@ Line wrap the file at 100 chars.                                              Th
 - Enable quantum-resistant tunnels by default (when set to `Automatic`).
 
 
+## [android/2025.7] - 2025-09-08
+### Fixed
+- Fix an issue with recents containing ineligible items if DAITA is turned on.
+
+
 ## [android/2025.7-beta2] - 2025-09-04
 ### Fixed
 - Fix a rare case of not being able to change exit location 
