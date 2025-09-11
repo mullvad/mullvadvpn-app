@@ -12,7 +12,7 @@ import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../.
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
 import { ModalAlert, ModalAlertType } from '../../../../Modal';
-import { ToggleListItem } from '../../../../toggle-list-item';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 import {
   AddServerContainer,
   StyledAddCustomDnsLabel,
@@ -188,16 +188,16 @@ export function CustomDnsSettings() {
 
   return (
     <>
-      <ToggleListItem
+      <SettingsToggleListItem
         anchorId="custom-dns-settings"
         checked={dns.state === 'custom' || inputVisible}
         onCheckedChange={setCustomDnsEnabled}
         disabled={!featureAvailable}>
-        <ToggleListItem.Label>
+        <SettingsToggleListItem.Label>
           {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
-        </ToggleListItem.Label>
-        <ToggleListItem.Switch ref={switchRef} aria-describedby={descriptionId} />
-      </ToggleListItem>
+        </SettingsToggleListItem.Label>
+        <SettingsToggleListItem.Switch ref={switchRef} aria-describedby={descriptionId} />
+      </SettingsToggleListItem>
       <Accordion expanded={listExpanded} disabled={!featureAvailable}>
         <Accordion.Content>
           <Cell.Section role="listbox">
