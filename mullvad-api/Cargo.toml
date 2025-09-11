@@ -28,6 +28,7 @@ http-body-util = "0.1.2"
 tower = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
+regex = "1.0"
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = [
