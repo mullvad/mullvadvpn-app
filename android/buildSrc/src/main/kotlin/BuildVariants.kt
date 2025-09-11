@@ -48,3 +48,5 @@ val enabledAppVariantTriples =
     )
 
 val enabledE2eVariantTriples = listOf(Triple(OSS, PROD, DEBUG), Triple(PLAY, STAGEMOLE, DEBUG))
+
+val baselineVariantTriples = listOf(Triple(PLAY, PROD, RELEASE))
