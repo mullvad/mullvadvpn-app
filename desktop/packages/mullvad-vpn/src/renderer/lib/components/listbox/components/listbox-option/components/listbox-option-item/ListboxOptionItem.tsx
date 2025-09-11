@@ -3,8 +3,8 @@ import styled, { css } from 'styled-components';
 import { colors } from '../../../../../../foundations';
 import { ListItem } from '../../../../../list-item';
 import { ListItemItemProps } from '../../../../../list-item/components';
-import { useListboxContext } from '../../../listbox-context';
-import { useListboxOptionContext } from '../listbox-option-context';
+import { useListboxContext } from '../../../../';
+import { useListboxOptionContext } from '../../';
 
 export type ListItemOptionItemProps = ListItemItemProps;
 
