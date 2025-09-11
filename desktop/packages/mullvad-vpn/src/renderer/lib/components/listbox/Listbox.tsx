@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { ListItem, ListItemProps } from '../list-item';
-import { ListboxLabel, ListboxOption, ListboxOptions, ListboxProvider } from './components';
+import { ListboxLabel, ListboxOption, ListboxOptions } from './components';
+import { ListboxProvider } from './ListboxContext';
 
 export type ListboxProps<T> = ListItemProps & {
   onValueChange?: (value: T) => Promise<void>;

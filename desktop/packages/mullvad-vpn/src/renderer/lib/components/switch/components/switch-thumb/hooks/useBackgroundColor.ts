@@ -1,5 +1,5 @@
 import { Colors } from '../../../../../foundations';
-import { useSwitchContext } from '../../switch-context';
+import { useSwitchContext } from '../../../SwitchContext';
 
 export const useBackgroundColor = (): Colors => {
   const { disabled, checked } = useSwitchContext();

@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext } from 'react';
 
-import { TextFieldProps } from '../../TextField';
+import { TextFieldProps } from './TextField';
 
 type TextFieldContextType = TextFieldProps & {
   labelId: string;

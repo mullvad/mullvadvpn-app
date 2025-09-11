@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SwitchProps } from '../../Switch';
+import { SwitchProps } from './Switch';
 
 interface SwitchContextProps {
   labelId: string;
