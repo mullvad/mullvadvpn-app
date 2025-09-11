@@ -1278,6 +1278,8 @@ impl ConnCheckerHandle<'_> {
             .await
             .map_err(|_e| anyhow!("Packet monitor unexpectedly stopped"))?;
 
+        let leak_destination = self.checker.leak_destination;
+
         Ok(ConnectionStatus {
             am_i_mullvad: parse_am_i_mullvad(line),
 
@@ -1287,8 +1289,10 @@ impl ConnCheckerHandle<'_> {
             leaked_udp: (monitor_result.packets.iter())
                 .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Udp),
 
-            leaked_icmp: (monitor_result.packets.iter())
-                .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Icmp),
+            leaked_icmp: (monitor_result.packets.iter()).any(|pkt| match leak_destination {
+                SocketAddr::V4(..) => pkt.protocol == IpNextHeaderProtocols::Icmp,
+                SocketAddr::V6(..) => pkt.protocol == IpNextHeaderProtocols::Icmpv6,
+            }),
         })
     }
 
