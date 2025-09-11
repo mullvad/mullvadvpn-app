@@ -14,13 +14,13 @@ import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.compose.util.DisableSoftKeyboard
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -40,17 +40,19 @@ class CustomListLocationsScreenTest {
         onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
         onExpand: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
         onBackClick: () -> Unit = {},
+        disableKeyboard: Boolean = false,
     ) {
-
         setContentWithTheme {
-            CustomListLocationsScreen(
-                state = state,
-                onSearchTermInput = onSearchTermInput,
-                onSaveClick = onSaveClick,
-                onRelaySelectionClick = onRelaySelectionClick,
-                onExpand = onExpand,
-                onBackClick = onBackClick,
-            )
+            DisableSoftKeyboard(disable = disableKeyboard) {
+                CustomListLocationsScreen(
+                    state = state,
+                    onSearchTermInput = onSearchTermInput,
+                    onSaveClick = onSaveClick,
+                    onRelaySelectionClick = onRelaySelectionClick,
+                    onExpand = onExpand,
+                    onBackClick = onBackClick,
+                )
+            }
         }
     }
 
@@ -161,7 +163,6 @@ class CustomListLocationsScreenTest {
         }
 
     @Test
-    @Disabled("Text input is flaky see DROID-2140 for more details")
     fun whenSearchInputIsUpdatedShouldCallOnSearchTermInput() =
         composeExtension.use {
             // Arrange
@@ -181,6 +182,9 @@ class CustomListLocationsScreenTest {
                             ),
                     ),
                 onSearchTermInput = mockedSearchTermInput,
+                // This is required to avoid a crash due to the keyboard trying to open at the same
+                // time as the test makes input
+                disableKeyboard = true,
             )
             val mockSearchString = "SEARCH"
 
