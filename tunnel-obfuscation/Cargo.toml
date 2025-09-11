@@ -22,4 +22,4 @@ mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 socket2 = { workspace = true, features = ["all"] }
 
 [target.'cfg(target_os="linux")'.dependencies]
-nix = { workspace = true }
+nix = { workspace = true, features = ["socket"] }
