@@ -1,7 +1,7 @@
 import { ScrollToAnchorId } from '../../../shared/ipc-types';
 import { useScrollToListItem } from '../../hooks';
 import { Listbox, ListboxProps } from '../../lib/components/listbox/Listbox';
-import { DefaultListboxOption, InputListboxOption, SplitListboxOption } from './components';
+import { BaseOption, InputListboxOption, SplitListboxOption } from './components';
 
 export type SettingsListboxProps<T> = Omit<ListboxProps<T>, 'animation'> & {
   anchorId?: ScrollToAnchorId;
@@ -23,7 +23,7 @@ const SettingsListboxNamespace = Object.assign(SettingsListbox, {
   Icon: Listbox.Icon,
   Option: Listbox.Option,
   Options: Listbox.Options,
-  BaseOption: DefaultListboxOption,
+  BaseOption: BaseOption,
   InputOption: InputListboxOption,
   SplitOption: SplitListboxOption,
 });
