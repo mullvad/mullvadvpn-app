@@ -45,7 +45,12 @@ impl ServiceClient {
         self.client
             .install_app(ctx, package_path)
             .await
-            .map_err(Error::Tarpc)?
+            .map_err(Error::Tarpc)??;
+
+        self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
+            .await?;
+
+        Ok(())
     }
 
     /// Remove app package.
