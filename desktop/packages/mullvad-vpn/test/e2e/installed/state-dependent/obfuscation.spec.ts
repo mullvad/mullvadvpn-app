@@ -35,8 +35,13 @@ test('App should have automatic obfuscation', async () => {
   await page.getByText('WireGuard settings').click();
   await util.waitForRoute(RoutePath.wireguardSettings);
 
-  const automatic = page.getByTestId('automatic-obfuscation');
-  await expect(automatic).toHaveCSS('background-color', colorTokens.green);
+  const obfuscationListbox = page.getByRole('listbox', { name: 'Obfuscation' });
+  await obfuscationListbox.highlight();
+  const automaticOption = obfuscationListbox.getByRole('option', {
+    name: 'Automatic',
+    exact: true,
+  });
+  await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
 
   const cliObfuscation = execSync('mullvad obfuscation get').toString().split('\n');
   expect(cliObfuscation[0]).toEqual('Obfuscation mode: auto');

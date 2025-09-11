@@ -13,8 +13,8 @@ import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
-import { NavigationListItem } from './NavigationListItem';
 import { NavigationScrollbars } from './NavigationScrollbars';
+import { SettingsNavigationListItem } from './settings-navigation-list-item';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledContent = styled.div({
@@ -63,10 +63,10 @@ function ProblemReportButton() {
   const label = messages.pgettext('support-view', 'Report a problem');
 
   return (
-    <NavigationListItem to={RoutePath.problemReport}>
-      <NavigationListItem.Label>{label}</NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+    <SettingsNavigationListItem to={RoutePath.problemReport}>
+      <SettingsNavigationListItem.Label>{label}</SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }
 

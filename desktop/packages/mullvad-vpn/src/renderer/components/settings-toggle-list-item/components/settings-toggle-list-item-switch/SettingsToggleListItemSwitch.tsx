@@ -1,0 +1,19 @@
+import styled from 'styled-components';
+
+import { Switch } from '../../../../lib/components/switch';
+import { SwitchTriggerProps } from '../../../../lib/components/switch/components';
+import { spacings } from '../../../../lib/foundations';
+
+export type SettingsToggleListItemSwitchProps = SwitchTriggerProps;
+
+export const StyledSettingsToggleListItemSwitch = styled(Switch.Trigger)`
+  margin-left: ${spacings.small};
+`;
+
+export function SettingsToggleListItemSwitch(props: SettingsToggleListItemSwitchProps) {
+  return (
+    <StyledSettingsToggleListItemSwitch {...props}>
+      <Switch.Thumb />
+    </StyledSettingsToggleListItemSwitch>
+  );
+}
