@@ -4,7 +4,9 @@ plugins {
     alias(libs.plugins.detekt) apply true
 }
 
-repositories { maven("https://plugins.gradle.org/m2/") }
+repositories {
+    maven("https://plugins.gradle.org/m2/")
+}
 
 kotlin { jvmToolchain(17) }
 
