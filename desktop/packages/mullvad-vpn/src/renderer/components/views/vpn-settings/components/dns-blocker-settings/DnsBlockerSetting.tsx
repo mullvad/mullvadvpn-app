@@ -1,15 +1,12 @@
-import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useScrollToListItem } from '../../../../../hooks';
-import { Accordion } from '../../../../../lib/components/accordion';
 import { FlexRow } from '../../../../../lib/components/flex-row';
-import { useHistory } from '../../../../../lib/history';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { useSelector } from '../../../../../redux/store';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
+import { SettingsAccordion } from '../../../../settings-accordion';
 import {
   BlockAdsSetting,
   BlockAdultContentSetting,
@@ -22,24 +19,18 @@ import {
 
 export function DnsBlockerSettings() {
   const dns = useSelector((state) => state.settings.dns);
-  const { location } = useHistory();
-  const initialExpanded = location.state.expandedSections['dns-blocker-setting'];
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
-  const [expanded, setExpanded] = React.useState(initialExpanded);
-  const { ref, animation } = useScrollToListItem('dns-blocker-setting');
 
   return (
     <>
-      <Accordion
-        ref={ref}
-        expanded={expanded}
-        onExpandedChange={setExpanded}
-        disabled={dns.state === 'custom'}
-        animation={animation}>
-        <Accordion.Header>
-          <Accordion.Title>
+      <SettingsAccordion
+        accordionId="dns-blocker-setting"
+        anchorId="dns-blocker-setting"
+        disabled={dns.state === 'custom'}>
+        <SettingsAccordion.Header>
+          <SettingsAccordion.Title>
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
-          </Accordion.Title>
+          </SettingsAccordion.Title>
           <FlexRow $gap="medium">
             <InfoButton>
               <ModalMessage>
@@ -66,20 +57,20 @@ export function DnsBlockerSettings() {
                 )}
               </ModalMessage>
             </InfoButton>
-            <Accordion.Trigger>
-              <Accordion.Icon />
-            </Accordion.Trigger>
+            <SettingsAccordion.Trigger>
+              <SettingsAccordion.Icon />
+            </SettingsAccordion.Trigger>
           </FlexRow>
-        </Accordion.Header>
-        <Accordion.Content>
+        </SettingsAccordion.Header>
+        <SettingsAccordion.Content>
           <BlockAdsSetting />
           <BlockTrackersSetting />
           <BlockMalwareSetting />
           <BlockGamblingSetting />
           <BlockAdultContentSetting />
           <BlockSocialMediaSetting />
-        </Accordion.Content>
-      </Accordion>
+        </SettingsAccordion.Content>
+      </SettingsAccordion>
       {dns.state === 'custom' && <CustomDnsEnabledFooter />}
     </>
   );
