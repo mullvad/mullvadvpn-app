@@ -51,10 +51,10 @@ val baselineFilter =
     )
 
 val ossProdDebug =
-    VariantFilter(billingPredicate = { it == OSS }, infrastructurePredicate = { it == PROD },
-        buildTypePredicate = {
-            it == DEBUG
-        }
+    VariantFilter(
+        billingPredicate = { it == OSS },
+        infrastructurePredicate = { it == PROD },
+        buildTypePredicate = { it == DEBUG },
     )
 val playStagemoleDebug =
     VariantFilter(
