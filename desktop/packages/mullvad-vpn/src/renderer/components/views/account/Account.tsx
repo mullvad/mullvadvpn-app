@@ -1,31 +1,21 @@
 import { useCallback, useEffect } from 'react';
 
-import { formatDate, hasExpired } from '../../../../shared/account-expiry';
 import { urls } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
-import { Button, Flex } from '../../../lib/components';
+import { Button } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { useHistory } from '../../../lib/history';
 import { useExclusiveTask } from '../../../lib/hooks/use-exclusive-task';
 import { useEffectEvent } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import AccountNumberLabel from '../../AccountNumberLabel';
-import DeviceInfoButton from '../../DeviceInfoButton';
 import { BackAction } from '../../KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from '../../Layout';
 import { RedeemVoucherButton } from '../../RedeemVoucher';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import {
-  AccountContainer,
-  AccountOutOfTime,
-  AccountRow,
-  AccountRowLabel,
-  AccountRows,
-  AccountRowValue,
-  DeviceRowValue,
-} from './AccountStyles';
+import { AccountContainer, AccountRow, AccountRowLabel, AccountRows } from './AccountStyles';
+import { AccountExpiryRow, AccountNumberRow, DeviceNameRow } from './components';
 
 export function Account() {
   const history = useHistory();
@@ -115,43 +105,4 @@ export function Account() {
       </Layout>
     </BackAction>
   );
-}
-
-function DeviceNameRow() {
-  const deviceName = useSelector((state) => state.account.deviceName);
-  return (
-    <Flex $gap="small" $alignItems="center">
-      <DeviceRowValue>{deviceName}</DeviceRowValue>
-      <DeviceInfoButton />
-    </Flex>
-  );
-}
-
-function AccountNumberRow() {
-  const accountNumber = useSelector((state) => state.account.accountNumber);
-  return <AccountRowValue as={AccountNumberLabel} accountNumber={accountNumber || ''} />;
-}
-
-function AccountExpiryRow() {
-  const accountExpiry = useSelector((state) => state.account.expiry);
-  const expiryLocale = useSelector((state) => state.userInterface.locale);
-  return <FormattedAccountExpiry expiry={accountExpiry} locale={expiryLocale} />;
-}
-
-function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
-  if (props.expiry) {
-    if (hasExpired(props.expiry)) {
-      return (
-        <AccountOutOfTime>{messages.pgettext('account-view', 'OUT OF TIME')}</AccountOutOfTime>
-      );
-    } else {
-      return <AccountRowValue>{formatDate(props.expiry, props.locale)}</AccountRowValue>;
-    }
-  } else {
-    return (
-      <AccountRowValue>
-        {messages.pgettext('account-view', 'Currently unavailable')}
-      </AccountRowValue>
-    );
-  }
 }
