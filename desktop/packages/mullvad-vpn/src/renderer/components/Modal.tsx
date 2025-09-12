@@ -159,7 +159,7 @@ const ModalAlertButtonContainer = styled.div({
   marginRight: '16px',
 });
 
-interface IModalAlertProps {
+interface IModalAlertBaseProps {
   type?: ModalAlertType;
   iconColor?: string;
   title?: string;
@@ -168,6 +168,10 @@ interface IModalAlertProps {
   gridButtons?: React.ReactNode[];
   children?: React.ReactNode;
   close?: () => void;
+}
+
+export interface IModalAlertProps extends IModalAlertBaseProps {
+  isOpen: boolean;
 }
 
 interface OpenState {
@@ -218,7 +222,7 @@ interface IModalAlertState {
   visible: boolean;
 }
 
-interface IModalAlertImplProps extends IModalAlertProps, IModalContext {
+interface IModalAlertImplProps extends IModalAlertBaseProps, IModalContext {
   closing: boolean;
   onTransitionEnd: () => void;
 }
