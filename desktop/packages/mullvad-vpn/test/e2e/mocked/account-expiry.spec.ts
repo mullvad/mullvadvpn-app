@@ -83,7 +83,6 @@ test.describe('Account expiry', () => {
 
       const secondsAdded = FUTURE_EXPIRY_DIFF / 1000;
 
-      // @ts-expect-error Temporarily ignore until Tobias submits the PR with the type fixes for `handle`.
       await util.ipc.account.submitVoucher.handle({
         type: 'success',
         newExpiry: FUTURE_EXPIRY.expiry,
@@ -128,7 +127,6 @@ test.describe('Account expiry', () => {
 
     test.beforeEach(async () => {
       await logout();
-      // @ts-expect-error Temporarily ignore until Tobias submits the PR with the type fixes for `handle`.
       await util.ipc.account.create.handle('1234213412341234');
       await routes.login.createNewAccount();
       await util.ipc.account[''].notify({ expiry: START_DATE.toISOString() });
