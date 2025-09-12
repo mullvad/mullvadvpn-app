@@ -1,17 +1,22 @@
 import { useCallback, useEffect } from 'react';
 
-import { formatDate, hasExpired } from '../../shared/account-expiry';
-import { urls } from '../../shared/constants';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { Button, Flex } from '../lib/components';
-import { FlexColumn } from '../lib/components/flex-column';
-import { useHistory } from '../lib/history';
-import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
-import { useEffectEvent } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import AccountNumberLabel from './AccountNumberLabel';
+import { formatDate, hasExpired } from '../../../../shared/account-expiry';
+import { urls } from '../../../../shared/constants';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { Button, Flex } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { useHistory } from '../../../lib/history';
+import { useExclusiveTask } from '../../../lib/hooks/use-exclusive-task';
+import { useEffectEvent } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import AccountNumberLabel from '../../AccountNumberLabel';
+import DeviceInfoButton from '../../DeviceInfoButton';
+import { BackAction } from '../../KeyboardNavigation';
+import { Footer, Layout, SettingsContainer } from '../../Layout';
+import { RedeemVoucherButton } from '../../RedeemVoucher';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
   AccountContainer,
   AccountOutOfTime,
@@ -21,13 +26,8 @@ import {
   AccountRowValue,
   DeviceRowValue,
 } from './AccountStyles';
-import DeviceInfoButton from './DeviceInfoButton';
-import { BackAction } from './KeyboardNavigation';
-import { Footer, Layout, SettingsContainer } from './Layout';
-import { RedeemVoucherButton } from './RedeemVoucher';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-export default function Account() {
+export function Account() {
   const history = useHistory();
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const { updateAccountData, openUrlWithAuth, logout } = useAppContext();

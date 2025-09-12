@@ -1,3 +1,4 @@
+export * from './account';
 export * from './app-info';
 export * from './app-upgrade';
 export * from './daita-settings';
