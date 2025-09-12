@@ -100,7 +100,7 @@ strum = { version = "0.27" }
 
 # Networking
 pnet_packet = "0.35.0"
-ipnetwork = "0.20"
+ipnetwork = "0.21.1"
 tun = { version = "0.5.5", features = ["async"] }
 socket2 = "0.5.7"
 reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
