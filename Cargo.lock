@@ -1983,12 +1983,12 @@ dependencies = [
 
 [[package]]
 name = "htmlize"
-version = "1.0.5"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e81e415f6d22240930e82ae0f541b2dd494ca37daaf10c1d7b32546f3b1159f"
+checksum = "d347c0de239be20ba0982e4822de3124404281e119ae3e11f5d7425a414e1935"
 dependencies = [
  "memchr",
- "paste",
+ "pastey",
  "phf",
  "phf_codegen",
  "serde_json",
@@ -4043,6 +4043,12 @@ name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
+
+[[package]]
+name = "pastey"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35fb2e5f958ec131621fdd531e9fc186ed768cbe395337403ae56c17a74c68ec"
 
 [[package]]
 name = "pcap"
