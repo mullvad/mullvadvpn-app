@@ -1,1 +1,1 @@
-export * from './TooManyDevices';
+export * from './TooManyDevicesView';
