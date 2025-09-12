@@ -101,8 +101,8 @@ pub async fn test_wireguard_tunnel_ipvx(
 ) -> Result<(), Error> {
     // TODO: observe UDP traffic on the expected destination/port (only)
 
-    const PORTS: [(u16, bool); 3] = [(53, true), (51820, true), (1, false)];
     let ip_version = IpVersion::VX;
+    const PORTS: [(u16, bool); 3] = [(53, true), (51820, true), (1, false)];
 
     for (port, should_succeed) in PORTS {
         log::info!("Connect to WireGuard endpoint on port {port}");
@@ -277,14 +277,24 @@ pub async fn test_wireguard_over_shadowsocks(
 /// Use QUIC obfuscation. This tests whether the daemon can establish a QUIC connection.
 /// Note that this doesn't verify that the outgoing traffic looks like http traffic (even though it
 /// doesn't sound too difficult to do?).
+#[duplicate_item(
+      VX     test_wireguard_over_quic_ipvx;
+    [ V4 ] [ test_wireguard_over_quic_ipv4 ];
+    [ V6 ] [ test_wireguard_over_quic_ipv6 ];
+)]
 #[test_function]
-pub async fn test_wireguard_over_quic(
+pub async fn test_wireguard_over_quic_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let ip_version = IpVersion::VX;
+
     log::info!("Enable QUIC as obfuscation method");
-    let query = RelayQueryBuilder::wireguard().quic().build();
+    let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
+        .quic()
+        .build();
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     log::info!("Connect to WireGuard via QUIC endpoint");
@@ -628,18 +638,26 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
 ///
 /// This is not testing any of the individual components, just whether the daemon can connect when
 /// all of these features are combined.
+#[duplicate_item(
+      VX     test_quantum_resistant_multihop_shadowsocks_tunnel_ipvx;
+    [ V4 ] [ test_quantum_resistant_multihop_shadowsocks_tunnel_ipv4 ];
+    [ V6 ] [ test_quantum_resistant_multihop_shadowsocks_tunnel_ipv6 ];
+)]
 #[test_function]
-pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
+pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let ip_version = IpVersion::VX;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
         .context("Failed to enable PQ tunnels")?;
 
     let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
         .multihop()
         .shadowsocks()
         .build();
@@ -662,12 +680,19 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
 ///
 /// This is not testing any of the individual components, just whether the daemon can connect when
 /// all of these features are combined.
+#[duplicate_item(
+      VX     test_quantum_resistant_multihop_quic_tunnel_ipvx;
+    [ V4 ] [ test_quantum_resistant_multihop_quic_tunnel_ipv4 ];
+    [ V6 ] [ test_quantum_resistant_multihop_quic_tunnel_ipv6 ];
+)]
 #[test_function]
-pub async fn test_quantum_resistant_multihop_quic_tunnel(
+pub async fn test_quantum_resistant_multihop_quic_tunnel_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let ip_version = IpVersion::VX;
+
     mullvad_client
         // TODO: Why is this needed, exactly?
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
@@ -675,6 +700,7 @@ pub async fn test_quantum_resistant_multihop_quic_tunnel(
         .context("Failed to enable PQ tunnels")?;
 
     let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
         .quantum_resistant()
         .multihop()
         .quic()
