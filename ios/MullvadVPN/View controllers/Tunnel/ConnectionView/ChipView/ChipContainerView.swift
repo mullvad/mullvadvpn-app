@@ -118,7 +118,8 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                         ),
                         features: nil
                     ),
-                    retryAttempt: 0
+                    retryAttempt: 0,
+                    obfuscation: .off
                 ),
                 isPostQuantum: false,
                 isDaita: false

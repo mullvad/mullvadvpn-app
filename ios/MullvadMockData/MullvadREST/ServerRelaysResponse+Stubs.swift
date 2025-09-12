@@ -150,7 +150,7 @@ public enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: false,
+                    daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
                     features: nil
                 ),

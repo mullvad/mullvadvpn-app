@@ -44,3 +44,9 @@ public struct TunnelPeer {
     public var publicKey: PublicKey
     public var preSharedKey: PreSharedKey?
 }
+
+extension TunnelAdapterConfiguration: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        "interfaceAddresses: \(interfaceAddresses) peerEndpoint: \(peer?.endpoint) allowedIPs: \(allowedIPs)"
+    }
+}
