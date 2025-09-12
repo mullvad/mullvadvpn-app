@@ -20,7 +20,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -161,7 +160,6 @@ class CustomListLocationsScreenTest {
         }
 
     @Test
-    @Disabled("Text input is flaky see DROID-2140 for more details")
     fun whenSearchInputIsUpdatedShouldCallOnSearchTermInput() =
         composeExtension.use {
             // Arrange
