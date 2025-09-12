@@ -45,7 +45,12 @@ impl ServiceClient {
         self.client
             .install_app(ctx, package_path)
             .await
-            .map_err(Error::Tarpc)?
+            .map_err(Error::Tarpc)??;
+
+        self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
+            .await?;
+
+        Ok(())
     }
 
     /// Remove app package.
@@ -114,7 +119,7 @@ impl ServiceClient {
     }
 
     /// Wait for the Mullvad service to enter a specified state. The state is inferred from the
-    /// presence of a named pipe or UDS, not the actual system service state.
+    /// presence of a named pipe or UDS, and sometimes the system service state.
     pub async fn mullvad_daemon_wait_for_state(
         &self,
         accept_state_fn: impl Fn(ServiceStatus) -> bool,
@@ -342,9 +347,6 @@ impl ServiceClient {
         self.client
             .set_daemon_log_level(ctx, verbosity_level)
             .await??;
-
-        self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
-            .await?;
 
         Ok(())
     }
