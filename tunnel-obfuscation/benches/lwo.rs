@@ -11,7 +11,7 @@ fn obfuscate(c: &mut Criterion) {
     group.throughput(criterion::Throughput::Bytes(fake_packet().len() as u64));
     group.bench_function(BenchmarkId::new("obfuscate", fake_packet().len()), |b| {
         b.iter_batched(
-            || fake_packet(),
+            fake_packet,
             |mut packet| {
                 tunnel_obfuscation::lwo::obfuscate(&mut rng, &mut packet, pubkey.as_bytes())
             },
