@@ -1,21 +1,23 @@
 import { formatDate, hasExpired } from '../../../../../../shared/account-expiry';
 import { messages } from '../../../../../../shared/gettext';
-import { AccountOutOfTime, AccountRowValue } from '../../AccountStyles';
+import { Text } from '../../../../../lib/components';
 
 export function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
   if (props.expiry) {
     if (hasExpired(props.expiry)) {
       return (
-        <AccountOutOfTime>{messages.pgettext('account-view', 'OUT OF TIME')}</AccountOutOfTime>
+        <Text variant="bodySmallSemibold" color="red">
+          {messages.pgettext('account-view', 'OUT OF TIME')}
+        </Text>
       );
     } else {
-      return <AccountRowValue>{formatDate(props.expiry, props.locale)}</AccountRowValue>;
+      return <Text variant="bodySmallSemibold">{formatDate(props.expiry, props.locale)}</Text>;
     }
   } else {
     return (
-      <AccountRowValue>
+      <Text variant="bodySmallSemibold">
         {messages.pgettext('account-view', 'Currently unavailable')}
-      </AccountRowValue>
+      </Text>
     );
   }
 }
