@@ -4,7 +4,6 @@ import { Route, Switch } from 'react-router';
 import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
-import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
@@ -27,6 +26,7 @@ import StateTriggeredNavigation from './StateTriggeredNavigation';
 import Support from './Support';
 import UserInterfaceSettings from './UserInterfaceSettings';
 import {
+  Account,
   AppInfoView,
   AppUpgradeView,
   ChangelogView,
