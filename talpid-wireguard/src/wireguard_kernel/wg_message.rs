@@ -1,13 +1,15 @@
+use crate::wireguard_kernel::parsers::{parse_cstring, parse_inet_sockaddr, parse_ip_addr};
+
 use super::{super::config::Config, Error, parsers};
 use byteorder::{ByteOrder, NativeEndian};
 use ipnetwork::IpNetwork;
 use netlink_packet_core::{
-    NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
+    DecodeError, NLA_F_NESTED, Nla, NlaBuffer, NlasIterator, parse_u8, parse_u16, parse_u32,
+    parse_u64,
 };
-use netlink_packet_utils::{
-    DecodeError,
-    nla::{NLA_F_NESTED, Nla, NlaBuffer, NlasIterator},
-    traits::{Emitable, Parseable},
+use netlink_packet_core::{Emitable, Parseable};
+use netlink_packet_core::{
+    NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
 };
 use nix::sys::{
     socket::{SockaddrIn, SockaddrIn6},
@@ -269,13 +271,13 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized + core::fmt::Debug> Parseable<NlaBuffer<&'
         let value = buf.value();
         let kind = buf.kind();
         let nla = match kind {
-            WGDEVICE_A_IFINDEX => IfIndex(parsers::parse_u32(value)?),
-            WGDEVICE_A_IFNAME => IfName(parsers::parse_cstring(value)?),
+            WGDEVICE_A_IFINDEX => IfIndex(parse_u32(value)?),
+            WGDEVICE_A_IFNAME => IfName(parse_cstring(value)?),
             WGDEVICE_A_PRIVATE_KEY => PrivateKey(parsers::parse_wg_key(value)?),
             WGDEVICE_A_PUBLIC_KEY => PublicKey(parsers::parse_wg_key(value)?),
-            WGDEVICE_A_FLAGS => Flags(parsers::parse_u32(value)?),
-            WGDEVICE_A_LISTEN_PORT => ListenPort(parsers::parse_u16(value)?),
-            WGDEVICE_A_FWMARK => Fwmark(parsers::parse_u32(value)?),
+            WGDEVICE_A_FLAGS => Flags(parse_u32(value)?),
+            WGDEVICE_A_LISTEN_PORT => ListenPort(parse_u16(value)?),
+            WGDEVICE_A_FWMARK => Fwmark(parse_u32(value)?),
             WGDEVICE_A_PEERS => {
                 let peers = NlasIterator::new(value)
                     .map(|nla_bytes| {
@@ -437,15 +439,15 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized> Parseable<NlaBuffer<&'a T>> for PeerNla {
         let nla = match buf.kind() {
             WGPEER_A_PUBLIC_KEY => PublicKey(parsers::parse_wg_key(value)?),
             WGPEER_A_PRESHARED_KEY => PresharedKey(parsers::parse_wg_key(value)?),
-            WGPEER_A_FLAGS => Flags(parsers::parse_u32(value)?),
-            WGPEER_A_ENDPOINT => Endpoint(parsers::parse_inet_sockaddr(value)?),
+            WGPEER_A_FLAGS => Flags(parse_u32(value)?),
+            WGPEER_A_ENDPOINT => Endpoint(parse_inet_sockaddr(value)?),
             WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL => {
-                PersistentKeepaliveInterval(parsers::parse_u16(value)?)
+                PersistentKeepaliveInterval(parse_u16(value)?)
             }
 
             WGPEER_A_LAST_HANDSHAKE_TIME => LastHandshakeTime(parsers::parse_timespec(value)?),
-            WGPEER_A_RX_BYTES => RxBytes(parsers::parse_u64(value)?),
-            WGPEER_A_TX_BYTES => TxBytes(parsers::parse_u64(value)?),
+            WGPEER_A_RX_BYTES => RxBytes(parse_u64(value)?),
+            WGPEER_A_TX_BYTES => TxBytes(parse_u64(value)?),
             WGPEER_A_ALLOWEDIPS => {
                 let nlas = NlasIterator::new(value)
                     .map(|nla_buffer| AllowedIpMessage::parse(&nla_buffer?))
@@ -453,7 +455,7 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized> Parseable<NlaBuffer<&'a T>> for PeerNla {
 
                 AllowedIps(nlas)
             }
-            WGPEER_A_PROTOCOL_VERSION => ProtocolVersion(parsers::parse_u32(value)?),
+            WGPEER_A_PROTOCOL_VERSION => ProtocolVersion(parse_u32(value)?),
             WGPEER_A_UNSPEC => Unspec(value.to_vec()),
             _ => {
                 return Err(format!("Unexpected peer attribute kind: {}", buf.kind()).into());
@@ -561,9 +563,9 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized> Parseable<NlaBuffer<&'a T>> for AllowedIp
         use AllowedIpNla::*;
         let value = buf.value();
         let nla = match buf.kind() {
-            WGALLOWEDIP_A_FAMILY => AddressFamily(parsers::parse_u16(value)?),
-            WGALLOWEDIP_A_IPADDR => IpAddr(parsers::parse_ip_addr(value)?),
-            WGALLOWEDIP_A_CIDR_MASK => CidrMask(parsers::parse_u8(value)?),
+            WGALLOWEDIP_A_FAMILY => AddressFamily(parse_u16(value)?),
+            WGALLOWEDIP_A_IPADDR => IpAddr(parse_ip_addr(value)?),
+            WGALLOWEDIP_A_CIDR_MASK => CidrMask(parse_u8(value)?),
             WGALLOWEDIP_A_UNSPEC => Unspec(value.to_vec()),
             _ => Err(format!(
                 "Unexpected allowed IP attribute kind: {}",

@@ -56,10 +56,9 @@ libc = "0.2.150"
 talpid-net = { path = "../talpid-net" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-rtnetlink = "0.11"
+rtnetlink = { workspace = true }
 netlink-packet-core = { workspace = true }
 netlink-packet-route = { workspace = true }
-netlink-packet-utils = { workspace = true }
 netlink-proto = { workspace = true }
 talpid-dbus = { path = "../talpid-dbus" }
 
