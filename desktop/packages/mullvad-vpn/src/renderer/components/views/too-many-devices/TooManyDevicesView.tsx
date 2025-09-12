@@ -77,7 +77,7 @@ const StyledDeviceDate = styled.span(tinyText, {
   color: colors.whiteAlpha60,
 });
 
-export function TooManyDevices() {
+export function TooManyDevicesView() {
   const { reset } = useHistory();
   const { removeDevice, login, cancelLogin } = useAppContext();
   const accountNumber = useSelector((state) => state.account.accountNumber)!;
