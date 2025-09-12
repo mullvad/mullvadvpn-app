@@ -2,27 +2,27 @@ import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { IDevice } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import log from '../../shared/logging';
-import { RoutePath } from '../../shared/routes';
-import { capitalizeEveryWord } from '../../shared/string-helpers';
-import { useAppContext } from '../context';
-import { Button, Flex, IconButton, Spinner } from '../lib/components';
-import { FlexColumn } from '../lib/components/flex-column';
-import { colors } from '../lib/foundations';
-import { TransitionType, useHistory } from '../lib/history';
-import { formatHtml } from '../lib/html-formatter';
-import { IconBadge, IconBadgeProps } from '../lib/icon-badge';
-import { useBoolean } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import { AppMainHeader } from './app-main-header';
-import * as Cell from './cell';
-import { bigText, measurements, normalText, tinyText } from './common-styles';
-import CustomScrollbars from './CustomScrollbars';
-import { Footer, Layout, SettingsContainer } from './Layout';
-import List from './List';
-import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
+import { IDevice } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { RoutePath } from '../../../../shared/routes';
+import { capitalizeEveryWord } from '../../../../shared/string-helpers';
+import { useAppContext } from '../../../context';
+import { Button, Flex, IconButton, Spinner } from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { colors } from '../../../lib/foundations';
+import { TransitionType, useHistory } from '../../../lib/history';
+import { formatHtml } from '../../../lib/html-formatter';
+import { IconBadge, IconBadgeProps } from '../../../lib/icon-badge';
+import { useBoolean } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import { AppMainHeader } from '../../app-main-header';
+import * as Cell from '../../cell';
+import { bigText, measurements, normalText, tinyText } from '../../common-styles';
+import CustomScrollbars from '../../CustomScrollbars';
+import { Footer, Layout, SettingsContainer } from '../../Layout';
+import List from '../../List';
+import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from '../../Modal';
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
@@ -77,7 +77,7 @@ const StyledDeviceDate = styled.span(tinyText, {
   color: colors.whiteAlpha60,
 });
 
-export default function TooManyDevices() {
+export function TooManyDevices() {
   const { reset } = useHistory();
   const { removeDevice, login, cancelLogin } = useAppContext();
   const accountNumber = useSelector((state) => state.account.accountNumber)!;
