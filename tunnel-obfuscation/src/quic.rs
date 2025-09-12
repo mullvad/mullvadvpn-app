@@ -127,8 +127,12 @@ impl Quic {
         // of the endpoint we're connecting to. The address itself is not important to consumers wanting
         // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
         // obfuscator is running.
-        let quic_socket =
-            create_remote_socket(settings.quic_endpoint.is_ipv4(), settings.fwmark).await?;
+        let quic_socket = create_remote_socket(
+            settings.quic_endpoint.is_ipv4(),
+            #[cfg(target_os = "linux")]
+            settings.fwmark,
+        )
+        .await?;
 
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
