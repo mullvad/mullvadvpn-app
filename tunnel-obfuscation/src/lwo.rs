@@ -142,8 +142,30 @@ async fn run_obfuscation(
     read_socket: Arc<UdpSocket>,
     write_socket: Arc<UdpSocket>,
 ) {
+    if sending {
+        let mut rng = new_rng();
+        run_obfuscation_inner(
+            move |buf| obfuscate(&mut rng, buf, key.as_bytes()),
+            read_socket,
+            write_socket,
+        )
+        .await
+    } else {
+        run_obfuscation_inner(
+            move |buf| deobfuscate(buf, key.as_bytes()),
+            read_socket,
+            write_socket,
+        )
+        .await
+    }
+}
+
+async fn run_obfuscation_inner(
+    mut action: impl FnMut(&mut [u8]),
+    read_socket: Arc<UdpSocket>,
+    write_socket: Arc<UdpSocket>,
+) {
     let mut buf = vec![0u8; MAX_UDP_SIZE];
-    let mut rng = new_rng();
 
     loop {
         let read_n = match read_socket.recv(&mut buf).await {
@@ -155,11 +177,7 @@ async fn run_obfuscation(
         };
 
         // TODO: recv and send concurrently
-        if sending {
-            obfuscate(&mut rng, &mut buf[..read_n], key.as_bytes());
-        } else {
-            deobfuscate(&mut buf[..read_n], key.as_bytes());
-        }
+        action(&mut buf[..read_n]);
 
         if let Err(err) = write_socket.send(&buf[..read_n]).await {
             log::debug!("write_socket.send_to failed: {err}");
