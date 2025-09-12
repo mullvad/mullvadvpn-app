@@ -195,6 +195,9 @@ extension UIMetrics {
     /// Common layout margins for location cell presentation
     static let locationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 12)
 
+    /// Padding for the large navigation title
+    static let largeNavigationTitlePadding = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+
     /// Layout margins used by content heading displayed below the large navigation title.
     static let contentHeadingLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 24, bottom: 24, trailing: 24)
 }
