@@ -38,7 +38,7 @@ import {
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingSettingsView,
-  TooManyDevices,
+  TooManyDevicesView,
   UdpOverTcpSettingsView,
   VpnSettingsView,
   WireguardSettingsView,
@@ -57,7 +57,7 @@ export default function AppRouter() {
       <Switch key={currentLocation.key} location={currentLocation}>
         <Route exact path={RoutePath.launch} component={LaunchView} />
         <Route exact path={RoutePath.login} component={LoginView} />
-        <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
+        <Route exact path={RoutePath.tooManyDevices} component={TooManyDevicesView} />
         <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
         <Route exact path={RoutePath.main} component={MainView} />
         <Route exact path={RoutePath.expired} component={ExpiredAccountErrorView} />
