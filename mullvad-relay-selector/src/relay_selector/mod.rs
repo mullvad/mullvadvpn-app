@@ -948,6 +948,7 @@ impl RelaySelector {
                 let ip_version = resolve_ip_version(query.wireguard_constraints().ip_version);
                 Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version))
             }
+            ObfuscationQuery::Lwo => Ok(helpers::get_lwo_obfuscator(obfuscator_relay, endpoint)),
         }
     }
 

@@ -1,8 +1,11 @@
 use async_trait::async_trait;
 use std::net::SocketAddr;
+use tokio::io;
 
+pub mod lwo;
 pub mod quic;
 pub mod shadowsocks;
+pub mod socket;
 pub mod udp2tcp;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -26,6 +29,19 @@ pub enum Error {
 
     #[error("Failed to run Quic")]
     RunQuicObfuscator(#[source] quic::Error),
+
+    #[error("Failed to initialize LWO")]
+    CreateLwoObfuscator(#[source] lwo::Error),
+
+    #[error("Failed to run LWO")]
+    RunLwoObfuscator(#[source] lwo::Error),
+
+    #[error("Failed to bind socket")]
+    BindRemoteUdp(#[source] io::Error),
+
+    #[cfg(target_os = "linux")]
+    #[error("Failed to set fwmark on remote socket")]
+    SetFwmark(#[source] nix::Error),
 }
 
 #[async_trait]
@@ -50,6 +66,7 @@ pub enum Settings {
     Udp2Tcp(udp2tcp::Settings),
     Shadowsocks(shadowsocks::Settings),
     Quic(quic::Settings),
+    Lwo(lwo::Settings),
 }
 
 pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
@@ -58,14 +75,9 @@ pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator
             .await
             .map(box_obfuscator)
             .map_err(Error::CreateUdp2TcpObfuscator),
-        Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(s)
-            .await
-            .map(box_obfuscator)
-            .map_err(Error::CreateShadowsocksObfuscator),
-        Settings::Quic(s) => quic::Quic::new(s)
-            .await
-            .map(box_obfuscator)
-            .map_err(Error::CreateQuicObfuscator),
+        Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(s).await.map(box_obfuscator),
+        Settings::Quic(s) => quic::Quic::new(s).await.map(box_obfuscator),
+        Settings::Lwo(s) => lwo::Lwo::new(s).await.map(box_obfuscator),
     }
 }
 

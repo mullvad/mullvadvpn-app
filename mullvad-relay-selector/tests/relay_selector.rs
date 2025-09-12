@@ -433,7 +433,8 @@ fn test_wireguard_retry_order() {
                     ObfuscationQuery::Off => obfuscator.is_none(),
                     ObfuscationQuery::Quic
                     | ObfuscationQuery::Udp2tcp(_)
-                    | ObfuscationQuery::Shadowsocks(_) => obfuscator.is_some(),
+                    | ObfuscationQuery::Shadowsocks(_)
+                    | ObfuscationQuery::Lwo => obfuscator.is_some(),
                 });
             }
             _ => unreachable!(),

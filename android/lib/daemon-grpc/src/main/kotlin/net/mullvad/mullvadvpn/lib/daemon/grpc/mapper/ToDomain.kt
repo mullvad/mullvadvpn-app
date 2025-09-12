@@ -223,6 +223,8 @@ internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain():
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
             ObfuscationType.Shadowsocks
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC -> ObfuscationType.Quic
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.LWO ->
+            throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
     }
@@ -429,6 +431,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO ->
+            throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }

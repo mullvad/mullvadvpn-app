@@ -42,6 +42,9 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
                         net::ObfuscationType::Quic => {
                             i32::from(proto::obfuscation_endpoint::ObfuscationType::Quic)
                         }
+                        net::ObfuscationType::Lwo => {
+                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Lwo)
+                        }
                     },
                 }
             }),
@@ -128,6 +131,9 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                                 }
                                 Ok(proto::obfuscation_endpoint::ObfuscationType::Quic) => {
                                     talpid_net::ObfuscationType::Quic
+                                }
+                                Ok(proto::obfuscation_endpoint::ObfuscationType::Lwo) => {
+                                    talpid_net::ObfuscationType::Lwo
                                 }
                                 Err(_) => {
                                     return Err(FromProtobufTypeError::InvalidArgument(

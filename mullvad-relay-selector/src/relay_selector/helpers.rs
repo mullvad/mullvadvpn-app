@@ -162,6 +162,27 @@ pub fn get_quic_obfuscator(relay: Relay, ip_version: IpVersion) -> Option<Select
     Some(obfuscator)
 }
 
+pub fn get_lwo_obfuscator(
+    relay: Relay,
+    endpoint: &MullvadWireguardEndpoint,
+) -> Option<SelectedObfuscator> {
+    let _wg = relay.wireguard()?;
+
+    // TODO: check if LWO is supported on this relay
+
+    let ip = match endpoint.peer.endpoint {
+        SocketAddr::V4(_) => IpAddr::V4(relay.ipv4_addr_in),
+        SocketAddr::V6(_) => IpAddr::V6(relay.ipv6_addr_in?),
+    };
+    let port = endpoint.peer.endpoint.port();
+    let endpoint = SocketAddr::new(ip, port);
+
+    let config = ObfuscatorConfig::Lwo { endpoint };
+
+    let obfuscator = SelectedObfuscator { config, relay };
+    Some(obfuscator)
+}
+
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`
 /// (unless empty). `wg_in_addr_port_ranges` contains all valid ports for `wg_in_addr`, and
 /// `SHADOWSOCKS_EXTRA_PORT_RANGES` contains valid ports for `extra_in_addrs`.

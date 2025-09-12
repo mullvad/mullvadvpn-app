@@ -13,7 +13,7 @@ use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
 
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
+    Settings as ObfuscationSettings, create_obfuscator, lwo, quic, shadowsocks, udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -33,6 +33,7 @@ pub async fn apply_obfuscation_config(
     };
 
     let settings = settings_from_config(
+        config,
         obfuscator_config,
         obfuscation_mtu,
         #[cfg(target_os = "linux")]
@@ -81,11 +82,12 @@ fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
 }
 
 fn settings_from_config(
-    config: &ObfuscatorConfig,
+    config: &Config,
+    obfuscation_config: &ObfuscatorConfig,
     mtu: u16,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> ObfuscationSettings {
-    match config {
+    match obfuscation_config {
         ObfuscatorConfig::Udp2Tcp { endpoint } => ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
             peer: *endpoint,
             #[cfg(target_os = "linux")]
@@ -122,6 +124,13 @@ fn settings_from_config(
             }
             ObfuscationSettings::Quic(settings)
         }
+        ObfuscatorConfig::Lwo { endpoint } => ObfuscationSettings::Lwo(lwo::Settings {
+            server_addr: *endpoint,
+            client_public_key: config.tunnel.private_key.public_key(),
+            server_public_key: config.entry_peer.public_key.clone(),
+            #[cfg(target_os = "linux")]
+            fwmark,
+        }),
     }
 }
 

@@ -16,6 +16,9 @@ pub enum ObfuscatorConfig {
         endpoint: SocketAddr,
         auth_token: String,
     },
+    Lwo {
+        endpoint: SocketAddr,
+    },
 }
 
 impl ObfuscatorConfig {
@@ -30,6 +33,10 @@ impl ObfuscatorConfig {
                 protocol: TransportProtocol::Udp,
             },
             ObfuscatorConfig::Quic { endpoint, .. } => Endpoint {
+                address: *endpoint,
+                protocol: TransportProtocol::Udp,
+            },
+            ObfuscatorConfig::Lwo { endpoint, .. } => Endpoint {
                 address: *endpoint,
                 protocol: TransportProtocol::Udp,
             },
