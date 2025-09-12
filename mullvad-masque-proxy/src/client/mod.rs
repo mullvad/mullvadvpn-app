@@ -14,6 +14,7 @@ use tokio::{
     net::UdpSocket,
     select,
     sync::{broadcast, mpsc},
+    time::interval,
 };
 use typed_builder::TypedBuilder;
 
@@ -26,7 +27,7 @@ use quinn::{
 };
 
 use crate::{
-    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
+    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU,
     compute_udp_payload_size,
     fragment::{self, DefragReceived, Fragments},
     stats::Stats,
@@ -396,7 +397,7 @@ impl Client {
 
 async fn server_socket_task(
     stream_id: StreamId,
-    max_udp_payload_size: u16,
+    _max_udp_payload_size: u16,
     quinn_conn: quinn::Connection,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
     server_tx: mpsc::Sender<Datagram>,
@@ -406,8 +407,42 @@ async fn server_socket_task(
     let mut fragment_id = 0u16;
     let stream_id_size = VarInt::from(stream_id).size() as u16;
 
+    // Maximum size of a datagram passed to send_datagram.
+    // Based on quinns path MTU detection, and updated throughout the lifetime of the connection.
+    let mut max_datagram_size: u16 = 1500;
+
+    let mut max_datagram_size_timer = interval(Duration::from_secs(1));
+
+    let update_max_datagram_size = |max_datagram_size: &mut u16| -> bool {
+        let mut value_changed = false;
+        if let Some(new) = quinn_conn.max_datagram_size() {
+            let new = u16::try_from(new).expect("max_datagram_size fits in a u16");
+
+            // quinn will prepend the stream id to the datagram, we must account for this.
+            let new = new.saturating_sub(stream_id_size);
+
+            debug_assert!(new > 0);
+
+            value_changed = new != *max_datagram_size;
+
+            if cfg!(debug_assertions) && value_changed {
+                log::debug!("new path mtu, max_datagram_size {max_datagram_size}->{new}");
+            }
+
+            *max_datagram_size = new;
+        }
+
+        value_changed
+    };
+
     loop {
         let packet = select! {
+            _ = max_datagram_size_timer.tick() => {
+                if update_max_datagram_size(&mut max_datagram_size) {
+                    log::warn!("mtu updated from timer")
+                };
+                continue;
+            }
             datagram = connection.read_datagram() => {
                 match datagram {
                     Ok(Some(response)) => {
@@ -424,35 +459,53 @@ async fn server_socket_task(
             packet = client_rx.recv() => packet,
         };
 
-        let Some(mut packet) = packet else { break };
+        let Some(packet) = packet else { break };
+        let packet_len = packet.len();
 
-        // Maximum QUIC payload (including fragmentation headers)
-        let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
-            max_datagram_size as u16 - stream_id_size
-        } else {
-            max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
-        };
+        // loop, because we want to try to re-send the packet if path mtu has changed.
+        'retry: loop {
+            let mut packet = packet.clone(); // cheap clone
 
-        if packet.len() <= usize::from(maximum_packet_size) {
-            stats.tx(packet.len(), false);
-            connection
-                .send_datagram(stream_id, packet)
-                .map_err(Error::SendDatagram)?;
-        } else {
-            // drop the added context ID, since packet will have to be fragmented.
-            let _ = VarInt::decode(&mut packet);
+            if packet_len <= usize::from(max_datagram_size) {
+                if let Err(e) = connection.send_datagram(stream_id, packet) {
+                    // TODO: if possible, check that error is TooLarge
+                    log::error!("send_datagram err: {e}"); // TODO: remove me
+                    if update_max_datagram_size(&mut max_datagram_size) {
+                        log::error!("Failed to send packet that was too large, retrying");
+                        continue 'retry;
+                    } else {
+                        return Err(Error::SendDatagram(e));
+                    }
+                }
+                stats.tx(packet_len, false);
+            } else {
+                // drop the added context ID, since packet will have to be fragmented.
+                let _ = VarInt::decode(&mut packet);
 
-            for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
-                .map_err(Error::PacketTooLarge)?
-            {
-                debug_assert!(fragment.len() <= maximum_packet_size as usize);
+                for fragment in
+                    fragment::fragment_packet(max_datagram_size, &mut packet, fragment_id)
+                        .map_err(Error::PacketTooLarge)?
+                {
+                    let fragment_len = fragment.len();
+                    debug_assert!(fragment_len <= usize::from(max_datagram_size));
 
-                stats.tx(fragment.len(), true);
-                connection
-                    .send_datagram(stream_id, fragment)
-                    .map_err(Error::SendDatagram)?;
+                    if let Err(e) = connection.send_datagram(stream_id, fragment) {
+                        // TODO: if possible, check that error is TooLarge
+                        log::error!("send_datagram err: {e}"); // TODO: remove me
+                        if update_max_datagram_size(&mut max_datagram_size) {
+                            fragment_id = fragment_id.wrapping_add(1);
+                            log::error!("Failed to send packet that was too large, retrying");
+                            continue 'retry;
+                        } else {
+                            return Err(Error::SendDatagram(e));
+                        }
+                    }
+
+                    stats.tx(fragment_len, true);
+                }
+                fragment_id = fragment_id.wrapping_add(1);
             }
-            fragment_id = fragment_id.wrapping_add(1);
+            break;
         }
     }
 
