@@ -61,6 +61,7 @@ final class WelcomeContentView: UIView, Sendable {
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return button
     }()
 
@@ -150,6 +151,12 @@ final class WelcomeContentView: UIView, Sendable {
         return stackView
     }()
 
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+
     weak var delegate: WelcomeContentViewDelegate?
     var viewModel: WelcomeViewModel? {
         didSet {
@@ -200,21 +207,44 @@ final class WelcomeContentView: UIView, Sendable {
 
         buttonsStackView.addArrangedSubview(purchaseButton)
 
-        addSubview(textsStackView)
-        addSubview(buttonsStackView)
         addConstraints()
 
         showCheckmark(false)
     }
 
     private func addConstraints() {
-        addConstrainedSubviews([textsStackView, buttonsStackView]) {
-            textsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-
+        scrollView.addConstrainedSubviews([textsStackView]) {
+            textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(24), .trailing(24),
+            ]))
+            textsStackView.topAnchor.constraint(greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor)
+            textsStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
+        }
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperview(.init([.top(0), .leading(0), .trailing(0)]))
+            scrollView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+        }
+        addConstrainedSubviews([buttonsStackView]) {
             buttonsStackView
                 .pinEdgesToSuperviewMargins(.all().excluding(.top))
         }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateScrollViewContentInset()
+    }
+
+    private func updateScrollViewContentInset() {
+        /// For some reason, the top inset is automatically adjusted when we are using an accessibility content size.
+        let topInsetIsPreadjusted = UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory
+        let topContentInset = topInsetIsPreadjusted ? 0 : safeAreaInsets.top
+        scrollView.contentInset = .init(
+            top: topContentInset,
+            left: 0,
+            bottom: buttonsStackView.frame.height,
+            right: 0
+        )
     }
 
     private func addActions() {
