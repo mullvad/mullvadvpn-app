@@ -1,0 +1,78 @@
+import { useEffect, useMemo } from 'react';
+
+import { RoutePath } from '../../shared/routes';
+import { getNavigationBase } from '../lib/functions/navigation-base';
+import { TransitionType, useHistory } from '../lib/history';
+import { useEffectEvent } from '../lib/utility-hooks';
+import { useSelector } from '../redux/store';
+
+export default function StateTriggeredNavigation() {
+  const { location, reset } = useHistory();
+
+  const connectedToDaemon = useSelector((state) => state.userInterface.connectedToDaemon);
+  const loginState = useSelector((state) => state.account.status);
+
+  const nextPath = useMemo(
+    () => getNavigationBase(connectedToDaemon, loginState),
+    [connectedToDaemon, loginState],
+  );
+
+  const updatePath = useEffectEvent((nextPath: RoutePath) => {
+    const currentPath = location.pathname as RoutePath;
+
+    if (currentPath !== nextPath) {
+      const transition = getNavigationTransition(currentPath, nextPath);
+      reset(nextPath, { transition });
+    }
+  });
+
+  useEffect(() => {
+    updatePath(nextPath);
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextPath]);
+
+  return null;
+}
+
+function getNavigationTransition(currentPath: RoutePath, nextPath: RoutePath) {
+  // First level contains the possible next locations and the second level contains the
+  // possible current locations.
+  const navigationTransitions: Partial<
+    Record<RoutePath, Partial<Record<RoutePath | '*', TransitionType>>>
+  > = {
+    [RoutePath.launch]: {
+      [RoutePath.login]: TransitionType.pop,
+      [RoutePath.main]: TransitionType.pop,
+      '*': TransitionType.dismiss,
+    },
+    [RoutePath.login]: {
+      [RoutePath.launch]: TransitionType.push,
+      [RoutePath.main]: TransitionType.pop,
+      [RoutePath.deviceRevoked]: TransitionType.pop,
+      '*': TransitionType.dismiss,
+    },
+    [RoutePath.main]: {
+      [RoutePath.launch]: TransitionType.push,
+      [RoutePath.login]: TransitionType.push,
+      [RoutePath.tooManyDevices]: TransitionType.push,
+      '*': TransitionType.dismiss,
+    },
+    [RoutePath.expired]: {
+      [RoutePath.launch]: TransitionType.push,
+      [RoutePath.login]: TransitionType.push,
+      [RoutePath.tooManyDevices]: TransitionType.push,
+      '*': TransitionType.dismiss,
+    },
+    [RoutePath.timeAdded]: {
+      [RoutePath.expired]: TransitionType.push,
+      [RoutePath.redeemVoucher]: TransitionType.push,
+      '*': TransitionType.dismiss,
+    },
+    [RoutePath.deviceRevoked]: {
+      '*': TransitionType.pop,
+    },
+  };
+
+  return navigationTransitions[nextPath]?.[currentPath] ?? navigationTransitions[nextPath]?.['*'];
+}
