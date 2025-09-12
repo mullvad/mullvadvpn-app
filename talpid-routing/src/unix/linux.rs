@@ -700,7 +700,8 @@ impl RouteManagerImpl {
 
                 // Set route MTU
                 if let Some(mtu) = route.mtu {
-                    // TODO: Submit PR upstream for doing this on the builder instead.
+                    // TODO: This can be done before calling `add_message.build()` if
+                    // https://github.com/rust-netlink/rtnetlink/pull/126 is merged & released.
                     let mtu = RouteMetric::Mtu(mtu);
                     msg.attributes.push(RouteAttribute::Metrics(vec![mtu]));
                 }
@@ -872,7 +873,8 @@ impl RouteManagerImpl {
 
             let mut request = builder.build();
             if let Some(mark) = fwmark {
-                // TODO: Upstream setting fwmark directly on the builder
+                // TODO: This can be done before calling `builder.build()` if
+                // https://github.com/rust-netlink/rtnetlink/pull/127 is merged & released.
                 let fwmark = RouteAttribute::Mark(mark);
                 request.attributes.push(fwmark);
             }
