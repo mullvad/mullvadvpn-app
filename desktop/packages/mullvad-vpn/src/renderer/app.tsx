@@ -17,7 +17,6 @@ import {
   BridgeState,
   CustomProxy,
   DeviceEvent,
-  DeviceState,
   IAccountData,
   IAppVersionInfo,
   ICustomList,
@@ -54,6 +53,7 @@ import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';
 import { AppContext } from './context';
 import { Theme } from './lib/components';
+import { getNavigationBase } from './lib/functions/navigation-base';
 import History, { TransitionType } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
@@ -113,9 +113,7 @@ export default class AppRenderer {
   private relayList?: IRelayListWithEndpointData;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
-  private deviceState?: DeviceState;
   private loginState: LoginState = 'none';
-  private previousLoginState: LoginState = 'none';
   private connectedToDaemon = false;
 
   private loginScheduler = new Scheduler();
@@ -282,10 +280,7 @@ export default class AppRenderer {
 
     if (initialState.deviceState) {
       const deviceState = initialState.deviceState;
-      this.handleDeviceEvent(
-        { type: deviceState.type, deviceState } as DeviceEvent,
-        initialState.navigationHistory !== undefined,
-      );
+      this.handleDeviceEvent({ type: deviceState.type, deviceState } as DeviceEvent);
     }
     // Login state and account needs to be set before expiry.
     this.setAccountExpiry(initialState.accountData?.expiry);
@@ -331,7 +326,8 @@ export default class AppRenderer {
       initialState.navigationHistory.lastAction = 'POP';
       this.history = History.fromSavedHistory(initialState.navigationHistory);
     } else {
-      const navigationBase = this.getNavigationBase();
+      const loginState = this.reduxStore.getState().account.status;
+      const navigationBase = getNavigationBase(this.connectedToDaemon, loginState);
       this.history = new History(navigationBase);
     }
 
@@ -493,7 +489,6 @@ export default class AppRenderer {
 
     log.info('Logging in');
 
-    this.previousLoginState = this.loginState;
     this.loginState = 'logging in';
 
     const response = await IpcRendererEventChannel.account.login(accountNumber);
@@ -546,7 +541,6 @@ export default class AppRenderer {
 
     try {
       await IpcRendererEventChannel.account.create();
-      this.redirectToConnect();
     } catch (e) {
       const error = e as Error;
       actions.account.createAccountFailed(error);
@@ -727,10 +721,6 @@ export default class AppRenderer {
     }
   }
 
-  private isLoggedIn(): boolean {
-    return this.deviceState?.type === 'logged in';
-  }
-
   // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
   // purposes since there's a bug in Electron that causes the app height to be another value than
   // the one we have set.
@@ -744,11 +734,6 @@ export default class AppRenderer {
         `Wrong content height: ${contentHeight}, expected ${expectedContentHeight}`,
       );
     }
-  }
-
-  private redirectToConnect() {
-    // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-    this.loginScheduler.schedule(() => this.resetNavigation(), 1000);
   }
 
   private setLocale(locale: string) {
@@ -823,93 +808,12 @@ export default class AppRenderer {
     this.reduxActions.userInterface.setConnectedToDaemon(true);
     this.reduxActions.userInterface.setDaemonAllowed(true);
     this.reduxActions.userInterface.setDaemonStatus('running');
-    this.resetNavigation();
   }
 
   private onDaemonDisconnected() {
     this.connectedToDaemon = false;
     this.reduxActions.userInterface.setConnectedToDaemon(false);
     this.reduxActions.userInterface.setDaemonStatus('stopped');
-    this.resetNavigation();
-  }
-
-  private resetNavigation(replaceRoot?: boolean) {
-    if (this.history) {
-      const pathname = this.history.location.pathname as RoutePath;
-      const nextPath = this.getNavigationBase() as RoutePath;
-
-      if (pathname !== nextPath) {
-        const transition = this.getNavigationTransition(pathname, nextPath);
-        if (replaceRoot) {
-          this.history.replaceRoot(nextPath, { transition });
-        } else {
-          this.history.reset(nextPath, { transition });
-        }
-      }
-    }
-  }
-
-  private getNavigationTransition(prevPath: RoutePath, nextPath: RoutePath) {
-    // First level contains the possible next locations and the second level contains the
-    // possible current locations.
-    const navigationTransitions: Partial<
-      Record<RoutePath, Partial<Record<RoutePath | '*', TransitionType>>>
-    > = {
-      [RoutePath.launch]: {
-        [RoutePath.login]: TransitionType.pop,
-        [RoutePath.main]: TransitionType.pop,
-        '*': TransitionType.dismiss,
-      },
-      [RoutePath.login]: {
-        [RoutePath.launch]: TransitionType.push,
-        [RoutePath.main]: TransitionType.pop,
-        [RoutePath.deviceRevoked]: TransitionType.pop,
-        '*': TransitionType.dismiss,
-      },
-      [RoutePath.main]: {
-        [RoutePath.launch]: TransitionType.push,
-        [RoutePath.login]: TransitionType.push,
-        [RoutePath.tooManyDevices]: TransitionType.push,
-        '*': TransitionType.dismiss,
-      },
-      [RoutePath.expired]: {
-        [RoutePath.launch]: TransitionType.push,
-        [RoutePath.login]: TransitionType.push,
-        [RoutePath.tooManyDevices]: TransitionType.push,
-        '*': TransitionType.dismiss,
-      },
-      [RoutePath.timeAdded]: {
-        [RoutePath.expired]: TransitionType.push,
-        [RoutePath.redeemVoucher]: TransitionType.push,
-        '*': TransitionType.dismiss,
-      },
-      [RoutePath.deviceRevoked]: {
-        '*': TransitionType.pop,
-      },
-    };
-
-    return navigationTransitions[nextPath]?.[prevPath] ?? navigationTransitions[nextPath]?.['*'];
-  }
-
-  private getNavigationBase(): RoutePath {
-    if (this.connectedToDaemon && this.deviceState !== undefined) {
-      const loginState = this.reduxStore.getState().account.status;
-      const deviceRevoked = loginState.type === 'none' && loginState.deviceRevoked;
-
-      if (deviceRevoked) {
-        return RoutePath.deviceRevoked;
-      } else if (!this.isLoggedIn()) {
-        return RoutePath.login;
-      } else if (loginState.type === 'ok' && loginState.expiredState === 'expired') {
-        return RoutePath.expired;
-      } else if (loginState.type === 'ok' && loginState.expiredState === 'time_added') {
-        return RoutePath.timeAdded;
-      } else {
-        return RoutePath.main;
-      }
-    } else {
-      return RoutePath.launch;
-    }
   }
 
   private setAccountHistory(accountHistory?: AccountNumber) {
@@ -1005,10 +909,8 @@ export default class AppRenderer {
     }
   }
 
-  private handleDeviceEvent(deviceEvent: DeviceEvent, preventRedirectToConnect?: boolean) {
+  private handleDeviceEvent(deviceEvent: DeviceEvent) {
     const reduxAccount = this.reduxActions.account;
-
-    this.deviceState = deviceEvent.deviceState;
 
     switch (deviceEvent.type) {
       case 'logged in': {
@@ -1018,16 +920,9 @@ export default class AppRenderer {
         switch (this.loginState) {
           case 'none':
             reduxAccount.loggedIn(accountNumber, device);
-            this.resetNavigation();
             break;
           case 'logging in':
             reduxAccount.loggedIn(accountNumber, device);
-
-            if (this.previousLoginState === 'too many devices') {
-              this.resetNavigation();
-            } else if (!preventRedirectToConnect) {
-              this.redirectToConnect();
-            }
             break;
           case 'creating account':
             reduxAccount.accountCreated(accountNumber, device, new Date().toISOString());
@@ -1038,17 +933,14 @@ export default class AppRenderer {
       case 'logged out':
         this.loginScheduler.cancel();
         reduxAccount.loggedOut();
-        this.resetNavigation();
         break;
       case 'revoked': {
         this.loginScheduler.cancel();
         reduxAccount.deviceRevoked();
-        this.resetNavigation();
         break;
       }
     }
 
-    this.previousLoginState = this.loginState;
     this.loginState = 'none';
   }
 
@@ -1092,9 +984,6 @@ export default class AppRenderer {
   }
 
   private setAccountExpiry(expiry?: string) {
-    const state = this.reduxStore.getState();
-    const previousExpiry = state.account.expiry;
-
     this.expiryScheduler.cancel();
 
     if (expiry !== undefined) {
@@ -1103,31 +992,17 @@ export default class AppRenderer {
       // Set state to expired when expiry date passes.
       if (!expired && closeToExpiry(expiry)) {
         const delay = new Date(expiry).getTime() - Date.now() + 1;
-        this.expiryScheduler.schedule(() => this.handleExpiry(expiry, true), delay);
+        this.expiryScheduler.schedule(() => this.handleExpiry(expiry), delay);
       }
 
-      if (expiry !== previousExpiry) {
-        this.handleExpiry(expiry, expired);
-      }
+      this.handleExpiry(expiry);
     } else {
       this.handleExpiry(expiry);
     }
   }
 
-  private handleExpiry(expiry?: string, expired?: boolean) {
-    const state = this.reduxStore.getState();
+  private handleExpiry(expiry?: string) {
     this.reduxActions.account.updateAccountExpiry(expiry);
-
-    if (
-      expiry !== undefined &&
-      state.account.status.type === 'ok' &&
-      ((state.account.status.expiredState === undefined && expired) ||
-        (state.account.status.expiredState === 'expired' && !expired)) &&
-      // If the login navigation is already scheduled no navigation is needed
-      !this.loginScheduler.isRunning
-    ) {
-      this.resetNavigation(true);
-    }
   }
 
   private storeAutoStart(autoStart: boolean) {
