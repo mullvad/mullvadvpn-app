@@ -58,10 +58,10 @@ enum CustomDNSPrecondition {
 
         case .conflictsWithOtherSettings:
             return NSAttributedString(
-                string: NSLocalizedString(
-                    "Disable all content blockers to activate this setting.",
+                string: String(format: NSLocalizedString(
+                    "Disable all \"%@\" above to activate this setting.",
                     comment: ""
-                ),
+                ), "DNS content blockers"),
                 attributes: [.font: preferredFont]
             )
         }

@@ -232,14 +232,16 @@ class LoginViewController: UIViewController, RootContainment {
     @objc private func createNewAccount() {
         if interactor.hasLastAccountNumber {
             let message = NSMutableAttributedString(
-                markdownString: NSLocalizedString("""
-                You already have a saved account number, by creating a new account the saved account number \
-                will be removed from this device. This cannot be undone.
-                Do you want to create a new account?
-                """, comment: ""),
+                markdownString: [
+                    NSLocalizedString(
+                        "You already have a saved account number, by creating a new account the " +
+                            "saved account number will be removed from this device. This cannot be undone.",
+                        comment: ""
+                    ),
+                    NSLocalizedString("Do you want to create a new account?", comment: ""),
+                ].joinedParagraphs(lineBreaks: 1),
                 options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
             )
-
             let presentation = AlertPresentation(
                 id: "create-account-confirmation-dialog",
                 icon: .info,

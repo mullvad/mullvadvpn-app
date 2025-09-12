@@ -316,7 +316,7 @@ class MethodSettingsViewController: UITableViewController {
                 id: "api-access-methods-testing-status-failed-alert",
                 accessibilityIdentifier: .accessMethodUnreachableAlert,
                 icon: .warning,
-                message: NSLocalizedString("API could not be reached, save anyway?", comment: ""),
+                message: NSLocalizedString("API unreachable, save anyway?", comment: ""),
                 buttons: [
                     AlertAction(
                         title: NSLocalizedString("Save anyway", comment: ""),

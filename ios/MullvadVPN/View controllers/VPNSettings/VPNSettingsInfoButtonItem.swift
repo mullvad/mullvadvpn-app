@@ -21,52 +21,59 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
     var description: String {
         switch self {
         case .localNetworkSharing:
-            NSLocalizedString(
-                """
-                This feature allows access to other devices on the local network, such as for sharing, printing, \
-                streaming, etc.
-                Attention: toggling “Local network sharing” requires restarting the VPN connection.
-                """,
+            [NSLocalizedString(
+                "This feature allows access to other devices on the local network, " +
+                    "such as for sharing, printing, streaming, etc.",
                 comment: ""
-            )
+            ), NSLocalizedString(
+                "Attention: toggling “Local network sharing” requires restarting the VPN connection.",
+                comment: ""
+            )].joinedParagraphs(lineBreaks: 1)
         case .contentBlockers:
-            NSLocalizedString(
-                """
-                When this feature is enabled it stops the device from contacting certain \
-                domains or websites known for distributing ads, malware, trackers and more. \
-
-                This might cause issues on certain websites, services, and apps.
-                Attention: this setting cannot be used in combination with **Use custom DNS server**.
-                """,
-                comment: ""
-            )
+            [
+                NSLocalizedString(
+                    "When this feature is enabled it stops the device from contacting certain " +
+                        "domains or websites known for distributing ads, malware, trackers and more.",
+                    comment: ""
+                ),
+                NSLocalizedString(
+                    "This might cause issues on certain websites, services, and apps.",
+                    comment: ""
+                ),
+                String(
+                    format: NSLocalizedString(
+                        "Attention: this setting cannot be used in combination with **“%@“**.",
+                        comment: ""
+                    ),
+                    NSLocalizedString("Use custom DNS server", comment: "")
+                ),
+            ]
+            .joinedParagraphs(lineBreaks: 1)
         case .blockMalware:
             NSLocalizedString(
-                """
-                Warning: The malware blocker is not an anti-virus and should not \
-                be treated as such, this is just an extra layer of protection.
-                """,
+                "Warning: The malware blocker is not an anti-virus and should not be treated as such," +
+                    " this is just an extra layer of protection.",
                 comment: ""
             )
         case let .wireGuardPorts(portsString):
-            String(
-                format: NSLocalizedString(
-                    """
-                    The automatic setting will randomly choose from the valid port ranges shown below.
-                    The custom port can be any value inside the valid ranges:
-                    %@
-                    """,
+            [
+                NSLocalizedString(
+                    "The automatic setting will randomly choose from the valid port ranges shown below.",
                     comment: ""
                 ),
-                portsString
-            )
+                String(
+                    format: NSLocalizedString(
+                        "The custom port can be any value inside the valid ranges: %@.",
+                        comment: ""
+                    ),
+                    portsString
+                ),
+            ].joinedParagraphs(lineBreaks: 1)
         case .wireGuardObfuscation:
             NSLocalizedString(
-                """
-                Obfuscation hides the WireGuard traffic inside another protocol. \
-                It can be used to help circumvent censorship and other types of filtering, \
-                where a plain WireGuard connection would be blocked.
-                """,
+                "Obfuscation hides the WireGuard traffic inside another protocol. " +
+                    "It can be used to help circumvent censorship and other types of " +
+                    "filtering, where a plain WireGuard connection would be blocked.",
                 comment: ""
             )
         case .wireGuardObfuscationPort:
@@ -75,21 +82,21 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 comment: ""
             )
         case .quantumResistance:
-            NSLocalizedString(
-                """
-                This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
-                It does this by performing an extra key exchange using a quantum safe algorithm and mixing \
-                the result into WireGuard’s regular encryption.
-                This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.
-                """,
+            [NSLocalizedString(
+                "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.",
                 comment: ""
-            )
+            ), NSLocalizedString(
+                "It does this by performing an extra key exchange using a quantum safe algorithm and mixing " +
+                    "the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB " +
+                    "of traffic every time a new tunnel is established.",
+                comment: ""
+            )].joinedParagraphs(lineBreaks: 1)
+
         case .multihop:
             NSLocalizedString(
-                """
-                Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.
-                This results in increased latency but increases anonymity online.
-                """,
+                "Multihop routes your traffic into one WireGuard server and out another, " +
+                    "making it harder to trace. This results in increased latency but " +
+                    "increases anonymity online.",
                 comment: ""
             )
         }

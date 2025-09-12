@@ -393,7 +393,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         let presentation = AlertPresentation(
             id: "api-access-methods-delete-method-alert",
             icon: .alert,
-            message: NSLocalizedString("Delete \(methodName)?", comment: ""),
+            message: String(format: NSLocalizedString("Delete %@?", comment: ""), methodName),
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Delete", comment: ""),

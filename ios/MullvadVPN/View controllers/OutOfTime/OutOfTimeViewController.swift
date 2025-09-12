@@ -105,28 +105,29 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
     private func applyViewState() {
         let tunnelState = interactor.tunnelStatus.state
+        let baseMessage = NSLocalizedString("You have no more VPN time left on this account. ", comment: "")
         contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
         contentView.enablePurchaseButton(!tunnelState.isSecured)
 
         if tunnelState.isSecured {
-            contentView.setBodyLabelText(
+            contentView.setBodyLabelText([
+                baseMessage,
                 NSLocalizedString(
-                    """
-                    You have no more VPN time left on this account. To add more, you will need to \
-                    disconnect and access the Internet with an unsecure connection.
-                    """,
+                    "To add more, you will need to " +
+                        "disconnect and access the Internet with an unsecure connection.",
                     comment: ""
-                )
+                ),
+            ].joined()
             )
         } else {
-            contentView.setBodyLabelText(
+            contentView.setBodyLabelText([
+                baseMessage,
                 NSLocalizedString(
-                    """
-                    You have no more VPN time left on this account. Either buy credit on our website \
-                    or make an in-app purchase via the **Add time** button below.
-                    """,
+                    "Either buy credit on our website " +
+                        "or make an in-app purchase via the **Add time** button below.",
                     comment: ""
-                )
+                ),
+            ].joined()
             )
         }
     }

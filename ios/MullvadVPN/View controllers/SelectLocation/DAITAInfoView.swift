@@ -19,10 +19,17 @@ class DAITAInfoView: UIView {
 
         label.attributedText = NSAttributedString(
             string: NSLocalizedString(
-                """
-                The entry server for multihop is currently overridden by DAITA. \
-                To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings.
-                """,
+                String(
+                    format: NSLocalizedString(
+                        "The entry server for %@ is currently overridden by %@. To select an entry server, " +
+                            "please first enable “%@” or disable “%@“ in the settings.",
+                        comment: ""
+                    ),
+                    NSLocalizedString("multihop", comment: ""),
+                    NSLocalizedString("DAITA", comment: ""),
+                    NSLocalizedString("Direct only", comment: ""),
+                    NSLocalizedString("DAITA", comment: "")
+                ),
                 comment: ""
             ),
             attributes: [
@@ -38,7 +45,11 @@ class DAITAInfoView: UIView {
 
     let settingsButton: UIButton = {
         let settingsButton = AppButton(style: .default)
-        settingsButton.setTitle(NSLocalizedString("Open DAITA settings", comment: ""), for: .normal)
+
+        settingsButton.setTitle(
+            String(format: NSLocalizedString("Open %@ settings", comment: ""), NSLocalizedString("DAITA", comment: "")),
+            for: .normal
+        )
 
         return settingsButton
     }()

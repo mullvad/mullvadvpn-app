@@ -32,7 +32,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             },
             customLabel: NSLocalizedString("Custom", comment: ""),
             customPrompt: NSLocalizedString("Port", comment: ""),
-            customLegend: NSLocalizedString("Valid range: 1 - 65535", comment: ""),
+            customLegend: String(format: NSLocalizedString("Valid range: %d - %d", comment: ""), arguments: [1, 65535]),
             customInputMinWidth: 100,
             customInputMaxLength: 5,
             customFieldMode: .numericText

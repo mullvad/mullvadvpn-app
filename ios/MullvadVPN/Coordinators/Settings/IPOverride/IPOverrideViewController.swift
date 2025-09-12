@@ -102,7 +102,7 @@ class IPOverrideViewController: UIViewController {
 
     private func addHeaderView() {
         let body = NSLocalizedString(
-            "Import files or text with the new IP addresses for the servers in the Select location view.",
+            "Import files or text with new IP addresses for the servers in the Select location view.",
             comment: ""
         )
         let link = NSLocalizedString("About Server IP override...", comment: "")
@@ -143,10 +143,7 @@ class IPOverrideViewController: UIViewController {
             icon: .alert,
             title: NSLocalizedString("Clear all overrides?", comment: ""),
             message: NSLocalizedString(
-                """
-                Clearing the imported overrides changes the server IPs, in the Select location view, \
-                back to default.
-                """,
+                "Clearing the imported overrides changes the server IPs, in the Select location view, back to default.",
                 comment: ""
             ),
             buttons: [

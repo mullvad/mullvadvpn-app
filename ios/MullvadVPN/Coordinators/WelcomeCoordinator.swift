@@ -82,12 +82,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
 
 extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
-        let message = NSLocalizedString(
-            """
-            Failed to connect to App store, please try again later.
-            """,
-            comment: ""
-        )
+        let message = NSLocalizedString("Failed to connect to App store, please try again later.", comment: "")
 
         let presentation = AlertPresentation(
             id: "welcome-failed-to-fetch-products-alert",
@@ -106,17 +101,19 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     }
 
     func didRequestToShowInfo(controller: WelcomeViewController) {
-        let message = NSLocalizedString(
-            """
-            This is the name assigned to the device. Each device logged in on a \
-            Mullvad account gets a unique name that helps \
-            you identify it when you manage your devices in the app or on the website.
-            You can have up to 5 devices logged in on one Mullvad account.
-            If you log out, the device and the device name is removed. \
-            When you log back in again, the device will get a new name.
-            """,
+        let message = [NSLocalizedString(
+            "This is the name assigned to the device. Each device logged in on a " +
+                "Mullvad account gets a unique name that helps " +
+                "you identify it when you manage your devices in the app or on the website.",
             comment: ""
-        )
+        ), NSLocalizedString(
+            "You can have up to 5 devices logged in on one Mullvad account.",
+            comment: ""
+        ), NSLocalizedString(
+            "If you log out, the device and the device name is removed. " +
+                "When you log back in again, the device will get a new name.",
+            comment: ""
+        )].joinedParagraphs(lineBreaks: 1)
 
         let presentation = AlertPresentation(
             id: "welcome-device-name-alert",

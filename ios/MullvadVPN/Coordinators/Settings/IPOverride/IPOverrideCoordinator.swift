@@ -78,16 +78,13 @@ extension IPOverrideCoordinator: @preconcurrency IPOverrideViewControllerDelegat
                 comment: ""
             ),
             NSLocalizedString(
-                """
-                To circumvent this you can import a file or a text, provided by our support team, \
-                with new IP addresses that override the default addresses of the servers in the Select location view.
-                """,
+                "To circumvent this you can import a file or a text, provided by our support team, " +
+                    "with new IP addresses that override the default addresses of the servers " +
+                    "in the Select location view.",
                 comment: ""
             ),
             NSLocalizedString(
-                """
-                If you are having issues connecting to VPN servers, please contact support.
-                """,
+                "If you are having issues connecting to VPN servers, please contact support.",
                 comment: ""
             ),
         ]
