@@ -13,7 +13,7 @@ use tokio::{
 };
 
 /// (Contained) IPv4 subnet for the test runner: 172.29.1.1/24
-pub static TEST_SUBNET_IPV4: Ipv4Network =
+pub const TEST_SUBNET_IPV4: Ipv4Network =
     Ipv4Network::new_checked(Ipv4Addr::new(172, 29, 1, 1), 24).unwrap();
 
 /// IPv4 range returned by the DHCP server.
@@ -21,7 +21,7 @@ pub const TEST_SUBNET_IPV4_DHCP: RangeInclusive<Ipv4Addr> =
     Ipv4Addr::new(172, 29, 1, 2)..=Ipv4Addr::new(172, 29, 1, 128);
 
 /// IPv6 subnet for the test runner. "0xfd multest"
-pub static TEST_SUBNET_IPV6: Ipv6Network = Ipv6Network::new_checked(
+pub const TEST_SUBNET_IPV6: Ipv6Network = Ipv6Network::new_checked(
     Ipv6Addr::new(0xfd6d, 0x756c, 0x7465, 0x7374, 0, 0, 0, 1),
     64,
 )
