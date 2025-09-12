@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add helpful warnings when clearing account history. This helps users not lose their account
   numbers.
+### Changed
+- Add validation for API access methods to only allow unique names. Access methods with
+  duplicated names will continue to work as previously, however to make changes to the API
+  access method, including enabling or disabling it, the name must be changed.
 
 #### Windows
 - Add additional logging for tunnel devices and split tunneling to problem reports.

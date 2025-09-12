@@ -29,6 +29,7 @@ use std::sync::LazyLock;
 static MULLVAD_MANAGEMENT_SOCKET_GROUP: LazyLock<Option<String>> =
     LazyLock::new(|| env::var("MULLVAD_MANAGEMENT_SOCKET_GROUP").ok());
 
+pub const API_ACCESS_METHOD_EXISTS_DETAILS: &[u8] = b"api_access_method_exists";
 pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
 pub const CUSTOM_LIST_LIST_EXISTS_DETAILS: &[u8] = b"custom_list_list_exists";
 pub const CUSTOM_LIST_LIST_NAME_TOO_LONG_DETAILS: &[u8] = b"custom_list_list_name_too_long";
@@ -114,6 +115,9 @@ pub enum Error {
 
     #[error("An access method with that id does not exist")]
     ApiAccessMethodNotFound,
+
+    #[error("An access method with that name already exists")]
+    ApiAccessMethodExists,
 }
 
 impl From<tonic::Status> for Error {
