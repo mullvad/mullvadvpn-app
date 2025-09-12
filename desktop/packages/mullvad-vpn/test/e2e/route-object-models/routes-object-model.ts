@@ -1,6 +1,7 @@
 import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
+import { AccountRouteObjectModel } from './account';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
@@ -31,6 +32,7 @@ export class RoutesObjectModel {
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
   readonly splitTunnelingSettings: SplitTunnelingSettingsRouteObjectModel;
+  readonly account: AccountRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -47,5 +49,6 @@ export class RoutesObjectModel {
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
     this.splitTunnelingSettings = new SplitTunnelingSettingsRouteObjectModel(page, utils);
+    this.account = new AccountRouteObjectModel(page, utils);
   }
 }
