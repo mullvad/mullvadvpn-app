@@ -1,21 +1,27 @@
 import { useCallback, useEffect } from 'react';
+import styled from 'styled-components';
 
 import { urls } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
-import { Button } from '../../../lib/components';
+import { Button, Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { useExclusiveTask } from '../../../lib/hooks/use-exclusive-task';
 import { useEffectEvent } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { Footer, Layout, SettingsContainer } from '../../Layout';
+import { SettingsContainer } from '../../Layout';
 import { RedeemVoucherButton } from '../../RedeemVoucher';
-import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { AccountContainer, AccountRow, AccountRowLabel, AccountRows } from './AccountStyles';
-import { AccountExpiryRow, AccountNumberRow, DeviceNameRow } from './components';
+import { HeaderTitle } from '../../SettingsHeader';
+import { AccountExpiryRow, AccountNumberRow, DeviceNameRow, LabelledRow } from './components';
+
+const StyledViewContainer = styled(View.Container)`
+  height: 100%;
+  justify-content: space-between;
+`;
 
 export function Account() {
   const history = useHistory();
@@ -42,7 +48,7 @@ export function Account() {
 
   return (
     <BackAction action={history.pop}>
-      <Layout>
+      <View>
         <SettingsContainer>
           <AppNavigationHeader
             title={
@@ -51,58 +57,51 @@ export function Account() {
             }
           />
 
-          <AccountContainer>
-            <SettingsHeader>
-              <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
-            </SettingsHeader>
+          <StyledViewContainer>
+            <FlexColumn $gap="medium">
+              <Text variant="titleBig">
+                <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
+              </Text>
 
-            <AccountRows>
-              <AccountRow>
-                <AccountRowLabel>
-                  {messages.pgettext('device-management', 'Device name')}
-                </AccountRowLabel>
-                <DeviceNameRow />
-              </AccountRow>
+              <FlexColumn $gap="large">
+                <LabelledRow label={messages.pgettext('device-management', 'Device name')}>
+                  <DeviceNameRow />
+                </LabelledRow>
 
-              <AccountRow>
-                <AccountRowLabel>
-                  {messages.pgettext('account-view', 'Account number')}
-                </AccountRowLabel>
-                <AccountNumberRow />
-              </AccountRow>
+                <LabelledRow label={messages.pgettext('account-view', 'Account number')}>
+                  <AccountNumberRow />
+                </LabelledRow>
 
-              <AccountRow>
-                <AccountRowLabel>{messages.pgettext('account-view', 'Paid until')}</AccountRowLabel>
-                <AccountExpiryRow />
-              </AccountRow>
-            </AccountRows>
-
-            <Footer>
-              <FlexColumn $gap="medium">
-                <Button
-                  variant="success"
-                  disabled={isOffline}
-                  onClick={buyMore}
-                  aria-description={messages.pgettext('accessibility', 'Opens externally')}>
-                  <Button.Text>{messages.gettext('Buy more credit')}</Button.Text>
-                  <Button.Icon icon="external" />
-                </Button>
-
-                <RedeemVoucherButton />
-
-                <Button variant="destructive" onClick={doLogout}>
-                  <Button.Text>
-                    {
-                      // TRANSLATORS: Button label for logging out.
-                      messages.pgettext('account-view', 'Log out')
-                    }
-                  </Button.Text>
-                </Button>
+                <LabelledRow $gap="tiny" label={messages.pgettext('account-view', 'Paid until')}>
+                  <AccountExpiryRow />
+                </LabelledRow>
               </FlexColumn>
-            </Footer>
-          </AccountContainer>
+            </FlexColumn>
+
+            <FlexColumn $gap="medium" $padding={{ bottom: 'large' }}>
+              <Button
+                variant="success"
+                disabled={isOffline}
+                onClick={buyMore}
+                aria-description={messages.pgettext('accessibility', 'Opens externally')}>
+                <Button.Text>{messages.gettext('Buy more credit')}</Button.Text>
+                <Button.Icon icon="external" />
+              </Button>
+
+              <RedeemVoucherButton />
+
+              <Button variant="destructive" onClick={doLogout}>
+                <Button.Text>
+                  {
+                    // TRANSLATORS: Button label for logging out.
+                    messages.pgettext('account-view', 'Log out')
+                  }
+                </Button.Text>
+              </Button>
+            </FlexColumn>
+          </StyledViewContainer>
         </SettingsContainer>
-      </Layout>
+      </View>
     </BackAction>
   );
 }
