@@ -1,6 +1,7 @@
 import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
+import { AccountRouteObjectModel } from './account';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { DeviceRevokedRouteObjectModel } from './device-revoked';
 import { ExpiredRouteObjectModel } from './expired';
@@ -47,6 +48,7 @@ export class RoutesObjectModel {
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
   readonly splitTunnelingSettings: SplitTunnelingSettingsRouteObjectModel;
   readonly shadowsocksSettings: ShadowsocksSettingsRouteObjectModel;
+  readonly account: AccountRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -71,5 +73,6 @@ export class RoutesObjectModel {
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
     this.splitTunnelingSettings = new SplitTunnelingSettingsRouteObjectModel(page, utils);
     this.shadowsocksSettings = new ShadowsocksSettingsRouteObjectModel(page, utils);
+    this.account = new AccountRouteObjectModel(page, utils);
   }
 }
