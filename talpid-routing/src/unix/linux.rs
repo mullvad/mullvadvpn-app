@@ -874,7 +874,8 @@ impl RouteManagerImpl {
 
             let mut request = builder.build();
             if let Some(mark) = fwmark {
-                // TODO: Upstream setting fwmark directly on the builder
+                // TODO: This can be done before calling `builder.build()` if
+                // https://github.com/rust-netlink/rtnetlink/pull/127 is merged & released.
                 let fwmark = RouteAttribute::Mark(mark);
                 request.attributes.push(fwmark);
             }
