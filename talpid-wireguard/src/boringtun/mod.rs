@@ -11,9 +11,10 @@ use boringtun::{
         api::{ApiClient, ApiServer, command::*},
         peer::AllowedIP,
     },
+    tun::channel::{TunChannelRx, TunChannelTx},
     udp::{
-        UdpSocketFactory,
-        channel::{PacketChannelUdp, TunChannelRx, TunChannelTx, get_packet_channels},
+        channel::{UdpChannelFactory, new_udp_tun_channel},
+        socket::UdpSocketFactory,
     },
 };
 #[cfg(not(target_os = "android"))]
@@ -46,7 +47,7 @@ type Obfuscator = DeviceHandle<(
 )>;
 
 type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
-type ExitDevice = DeviceHandle<(PacketChannelUdp, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
+type ExitDevice = DeviceHandle<(UdpChannelFactory, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
 
 // Boringtun -Channel-> Masque-client -UdpSocket-> Network -> Masque-sever (entry) -> WG Relay (exit)
 
@@ -263,7 +264,7 @@ async fn create_devices(
             .unwrap_or(Ipv6Addr::UNSPECIFIED);
 
         let (tun_tx, tun_rx, udp_channels) =
-            get_packet_channels(PACKET_CHANNEL_CAPACITY, source_v4, source_v6);
+            new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6);
 
         let (exit_api, exit_api_server) = ApiServer::new();
         // NOTE: Boringtun will be equiv to ExitDevice here. So this code will look the same, but

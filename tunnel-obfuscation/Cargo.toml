@@ -20,6 +20,7 @@ udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "87936ac
 shadowsocks = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 socket2 = { workspace = true, features = ["all"] }
+tun = { version = "0.7.13", features = ["async"] }
 
 [dependencies.boringtun]
 workspace = true

@@ -7,9 +7,9 @@ use std::sync::Arc;
 
 use boringtun::device::{DeviceConfig, DeviceHandle};
 use boringtun::packet::{Packet, PacketBufPool};
-use boringtun::tun::tun_async_device::AsyncDevice;
 use boringtun::udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams};
 use clap::Parser;
+use tun::AsyncDevice;
 use tunnel_obfuscation::quic::Quic;
 use tunnel_obfuscation::{Obfuscator, PacketChannelSimple, SimpleChannelRx, SimpleChannelTx};
 
@@ -92,7 +92,7 @@ fn create_in_process_communication_channels() -> (BoringtunIO, MasqueClientIO) {
     // god, forgive me
     let (obfs_tx, obfs_rx, boringtun_io) = {
         let capacity = 100;
-        let source_v4 = SocketAddr::from((Ipv4Addr::new(10, 0, 0, 1), 0)); // TODO: Is this correct? No.
+        let source_v4 = SocketAddr::from((Ipv4Addr::new(10, 0, 1, 2), 0)); // TODO: Is this correct? No.
         tunnel_obfuscation::new_packet_channels(capacity, source_v4)
     };
     (boringtun_io, (obfs_tx, obfs_rx))

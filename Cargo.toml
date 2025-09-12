@@ -137,7 +137,7 @@ shadowsocks-service = "1.20.3"
 itertools = "0.14"
 
 # WireGuard
-boringtun = { path = "../boringtun/boringtun" }
+boringtun = { git = "https://github.com/mullvad/boringtun", rev = "b01a163de8c592b94b60b5769c002aad008c560f" }
 
 # Test dependencies
 proptest = "1.4"

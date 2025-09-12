@@ -470,6 +470,7 @@ dependencies = [
 [[package]]
 name = "boringtun"
 version = "0.6.0"
+source = "git+https://github.com/mullvad/boringtun?rev=b01a163de8c592b94b60b5769c002aad008c560f#b01a163de8c592b94b60b5769c002aad008c560f"
 dependencies = [
  "aead",
  "async-trait",
@@ -6471,6 +6472,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "tokio-util 0.7.10",
+ "tun 0.7.13",
  "udp-over-tcp",
 ]
 
