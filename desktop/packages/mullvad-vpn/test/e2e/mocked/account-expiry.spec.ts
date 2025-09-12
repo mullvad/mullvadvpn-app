@@ -48,15 +48,37 @@ test.describe('Account expiry', () => {
     await routes.expired.waitForRoute();
   });
 
-  test('Should move clock back', async () => {
-    await page.clock.setSystemTime('2025-04-03T14:00:00');
-    await util.ipc.account[''].notify({
-      expiry: new Date('2025-04-03T13:00:00').toISOString(),
+  // These tests verify that the renderer process will handle receiving the same expiry as
+  // previously but at different system times, where for one system time the expiry is passed but
+  // not for the other. This can happen if the system clock is changed.
+  test.describe('Handle system clock changes', () => {
+    test('Should move clock back', async () => {
+      const expiry = {
+        expiry: new Date('2025-04-03T13:00:00').toISOString(),
+      };
+
+      await page.clock.setSystemTime('2025-04-03T14:00:00');
+      await util.ipc.account[''].notify(expiry);
+
+      await routes.expired.waitForRoute();
+      await page.clock.setSystemTime('2025-01-01T12:00');
+      await util.ipc.account[''].notify(expiry);
+      await routes.main.waitForRoute();
     });
 
-    await routes.expired.waitForRoute();
-    await page.clock.setSystemTime('2025-01-01T12:00');
-    await routes.main.waitForRoute();
+    test('Should move clock forward', async () => {
+      const expiry = {
+        expiry: new Date('2025-04-03T13:00:00').toISOString(),
+      };
+
+      await page.clock.setSystemTime('2025-04-03T12:00:00');
+      await util.ipc.account[''].notify(expiry);
+
+      await routes.main.waitForRoute();
+      await page.clock.setSystemTime('2025-04-04T12:00');
+      await util.ipc.account[''].notify(expiry);
+      await routes.expired.waitForRoute();
+    });
   });
 
   function addTimeTests(newAccount: boolean) {
