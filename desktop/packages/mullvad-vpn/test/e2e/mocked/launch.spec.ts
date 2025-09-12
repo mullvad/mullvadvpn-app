@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { RoutePath } from '../../../src/shared/routes';
 import { RoutesObjectModel } from '../route-object-models';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
@@ -13,7 +12,7 @@ test.describe('Launch', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
-    await util.waitForRoute(RoutePath.main);
+    await routes.main.waitForRoute();
 
     await util.ipc.daemon.disconnected.notify();
     await routes.launch.waitForRoute();
@@ -55,5 +54,10 @@ test.describe('Launch', () => {
       const gotoSystemSettingsButton = routes.launch.selectors.gotoSystemSettingsButton();
       await expect(gotoSystemSettingsButton).toBeVisible();
     });
+  });
+
+  test('Should navigate to main after establishing connection to daemon', async () => {
+    await util.ipc.daemon.connected.notify();
+    await routes.main.waitForRoute();
   });
 });
