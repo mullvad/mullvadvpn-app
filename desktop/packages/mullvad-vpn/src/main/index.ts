@@ -848,6 +848,10 @@ class ApplicationMain
       return Promise.resolve(this.translations);
     });
 
+    IpcMainEventChannel.linuxSplitTunneling.handleIsSplitTunnelingSupported(() => {
+      return this.daemonRpc.linuxSplitTunnelIsSupported();
+    });
+
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
       return this.linuxSplitTunneling!.getApplications(this.locale);
     });

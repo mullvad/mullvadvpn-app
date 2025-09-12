@@ -29,6 +29,12 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
     color: colors.blue,
     backgroundColor: colors.white,
   },
+  '&&:disabled': {
+    backgroundColor: colors.whiteOnDarkBlue5,
+    '&&::placeholder': {
+      color: colors.whiteAlpha20,
+    },
+  },
 });
 
 export const StyledClearButton = styled(IconButton)({
@@ -53,17 +59,21 @@ export const StyledSearchIcon = styled(Icon)({
   [`${StyledSearchInput}:focus ~ &&`]: {
     backgroundColor: colors.blue,
   },
+  [`${StyledSearchInput}:disabled ~ &&`]: {
+    backgroundColor: colors.whiteAlpha20,
+  },
 });
 
 export interface ISearchBarProps {
   searchTerm: string;
+  disabled?: boolean;
   onSearch: (searchTerm: string) => void;
   className?: string;
   disableAutoFocus?: boolean;
 }
 
 export default function SearchBar(props: ISearchBarProps) {
-  const { onSearch } = props;
+  const { disabled, onSearch } = props;
 
   const inputRef = useStyledRef<HTMLInputElement>();
 
@@ -96,6 +106,7 @@ export default function SearchBar(props: ISearchBarProps) {
   return (
     <StyledSearchContainer className={props.className}>
       <StyledSearchInput
+        disabled={disabled}
         ref={inputRef}
         value={props.searchTerm}
         onInput={onInput}

@@ -34,4 +34,9 @@ export class SettingsRouteObjectModel {
     await this.selectors.daitaSettingsButton().click();
     await this.utils.waitForRoute(RoutePath.daitaSettings);
   }
+
+  async gotoSplitTunnelingSettings() {
+    await this.selectors.splitTunnelingSettingsButton().click();
+    await this.utils.waitForRoute(RoutePath.splitTunneling);
+  }
 }
