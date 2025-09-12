@@ -284,29 +284,26 @@ async fn start_packet_monitor_for_interface(
                      break Ok(monitor_result);
                 }
                 maybe_next_packet = next_packet => {
-                    match maybe_next_packet {
-                        Some(Ok(packet))=> {
-                            if let Some(packet) = packet {
-                                if !filter_fn(&packet) {
-                                    log::trace!("{interface} \"{packet:?}\" does not match closure conditions");
-                                    monitor_result.discarded_packets =
-                                        monitor_result.discarded_packets.saturating_add(1);
-                                } else {
-                                    log::trace!("{interface} \"{packet:?}\" matches closure conditions");
+                    let Some(Ok(packet)) = maybe_next_packet else {
+                        log::error!("lost packet stream");
+                        break Err(MonitorUnexpectedlyStopped);
+                    };
 
-                                    let should_continue = should_continue_fn(&packet);
+                    let Some(packet) = packet else { continue };
 
-                                    monitor_result.packets.push(packet);
+                    if !filter_fn(&packet) {
+                        log::trace!("{interface} \"{packet:?}\" does not match closure conditions");
+                        monitor_result.discarded_packets =
+                            monitor_result.discarded_packets.saturating_add(1);
+                    } else {
+                        log::trace!("{interface} \"{packet:?}\" matches closure conditions");
 
-                                    if !should_continue {
-                                        break Ok(monitor_result);
-                                    }
-                                }
-                            }
-                        }
-                        _ => {
-                            log::error!("lost packet stream");
-                            break Err(MonitorUnexpectedlyStopped);
+                        let should_continue = should_continue_fn(&packet);
+
+                        monitor_result.packets.push(packet);
+
+                        if !should_continue {
+                            break Ok(monitor_result);
                         }
                     }
                 }

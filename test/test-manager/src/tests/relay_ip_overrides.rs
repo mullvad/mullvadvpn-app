@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{
     tests::config::TEST_CONFIG,
-    vm::{self, network::linux::TEST_SUBNET},
+    vm::{self, network::linux::TEST_SUBNET_IPV4},
 };
 use anyhow::{Context, anyhow, bail, ensure};
 use futures::FutureExt;
@@ -330,9 +330,10 @@ async fn pick_a_relay(
 
 /// Spawn a TCP socket that forwards packets between `destination` and anyone that connects to it.
 ///
+/// The proxy socket will be bound to [TEST_SUBNET_V4].
 /// Returns a handle that will stop the proxy when dropped.
 async fn spawn_tcp_proxy(destination: SocketAddr, port: u16) -> anyhow::Result<AbortOnDrop<()>> {
-    let socket = TcpListener::bind((TEST_SUBNET.ip(), port)).await?;
+    let socket = TcpListener::bind((TEST_SUBNET_IPV4.ip(), port)).await?;
     log::info!("started TCP proxy to {destination} on port {port}");
 
     async fn client_task(destination: SocketAddr, mut client: TcpStream) -> anyhow::Result<()> {
@@ -383,9 +384,10 @@ async fn spawn_tcp_proxy(destination: SocketAddr, port: u16) -> anyhow::Result<A
 ///
 /// NOTE: Doesn't work with multiple concurrent clients.
 ///
+/// The proxy socket will be bound to [TEST_SUBNET_V4].
 /// Returns a handle that will stop the proxy when dropped.
 async fn spawn_udp_proxy(destination: SocketAddr, port: u16) -> anyhow::Result<AbortOnDrop<()>> {
-    let socket = UdpSocket::bind((TEST_SUBNET.ip(), port)).await?;
+    let socket = UdpSocket::bind((TEST_SUBNET_IPV4.ip(), port)).await?;
     log::info!("started UDP proxy to {destination} on port {port}");
 
     async fn proxy_task(destination: SocketAddr, socket: UdpSocket) -> anyhow::Result<()> {

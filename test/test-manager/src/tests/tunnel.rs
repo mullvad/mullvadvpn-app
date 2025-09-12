@@ -5,10 +5,13 @@ use super::{
 };
 use crate::{
     network_monitor::{MonitorOptions, start_packet_monitor},
-    tests::helpers::{geoip_lookup_with_retries, login_with_retries, update_relay_constraints},
+    tests::helpers::{
+        ConnChecker, geoip_lookup_with_retries, login_with_retries, update_relay_constraints,
+    },
 };
 
 use anyhow::{Context, ensure};
+use duplicate::duplicate_item;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
@@ -18,9 +21,12 @@ use mullvad_types::{
     },
     wireguard,
 };
-use std::net::SocketAddr;
+use std::{
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    str::FromStr,
+};
 use talpid_types::net::{
-    TransportProtocol, TunnelType,
+    IpVersion, TransportProtocol, TunnelType,
     proxy::{CustomProxy, Socks5Local, Socks5Remote},
 };
 use test_macro::test_function;
@@ -82,21 +88,29 @@ pub async fn test_openvpn_tunnel(
 /// Set up a WireGuard tunnel.
 /// This test fails if a working tunnel cannot be set up.
 /// WARNING: This test will fail if host has something bound to port 53 such as a connected Mullvad
+#[duplicate_item(
+      VX     test_wireguard_tunnel_ipvx;
+    [ V4 ] [ test_wireguard_tunnel_ipv4 ];
+    [ V6 ] [ test_wireguard_tunnel_ipv6 ];
+)]
 #[test_function]
-pub async fn test_wireguard_tunnel(
+pub async fn test_wireguard_tunnel_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     // TODO: observe UDP traffic on the expected destination/port (only)
-    // TODO: IPv6
 
+    let ip_version = IpVersion::VX;
     const PORTS: [(u16, bool); 3] = [(53, true), (51820, true), (1, false)];
 
     for (port, should_succeed) in PORTS {
         log::info!("Connect to WireGuard endpoint on port {port}");
 
-        let query = RelayQueryBuilder::wireguard().port(port).build();
+        let query = RelayQueryBuilder::wireguard()
+            .port(port)
+            .ip_version(ip_version)
+            .build();
 
         apply_settings_from_relay_query(&mut mullvad_client, query)
             .await
@@ -118,6 +132,67 @@ pub async fn test_wireguard_tunnel(
 
         disconnect_and_wait(&mut mullvad_client).await?;
     }
+
+    Ok(())
+}
+
+/// Set up a WireGuard tunnel and check whether in-tunnel IPv6 works.
+/// WARNING: This test will fail if host has something bound to port 53 such as a connected Mullvad
+#[duplicate_item(
+      VX     test_wireguard_ipv6_in_ipvx;
+    [ V4 ] [ test_wireguard_ipv6_in_ipv4 ];
+    [ V6 ] [ test_wireguard_ipv6_in_ipv6 ];
+)]
+#[test_function]
+pub async fn test_wireguard_ipv6_in_ipvx(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    let ip_version = IpVersion::VX;
+
+    let mut conn_checker_v4 = ConnChecker::new(
+        rpc.clone(),
+        mullvad_client.clone(),
+        (Ipv4Addr::new(1, 1, 1, 1), 53),
+    );
+
+    let mut conn_checker_v6 = ConnChecker::new(
+        rpc.clone(),
+        mullvad_client.clone(),
+        (Ipv6Addr::from_str("2606:4700:4700::1111").unwrap(), 53),
+    );
+
+    let mut conn_checker_v4 = conn_checker_v4.spawn().await?;
+    let mut conn_checker_v6 = conn_checker_v6.spawn().await?;
+
+    conn_checker_v4.assert_insecure().await?;
+    conn_checker_v6.assert_insecure().await?;
+
+    log::info!("Connect to WireGuard endpoint");
+
+    let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
+        .build();
+    apply_settings_from_relay_query(&mut mullvad_client, query)
+        .await
+        .unwrap();
+
+    // Test with in-tunnel IPv6 enabled
+    mullvad_client.set_enable_ipv6(true).await?;
+    let connection_result = connect_and_wait(&mut mullvad_client).await;
+    assert!(connection_result.is_ok());
+    conn_checker_v4.assert_secure().await?;
+    conn_checker_v6.assert_secure().await?;
+
+    // Test with in-tunnel IPv6 disabled
+    mullvad_client.set_enable_ipv6(false).await?;
+    let connection_result = connect_and_wait(&mut mullvad_client).await;
+    assert!(connection_result.is_ok());
+    conn_checker_v4.assert_secure().await?;
+    conn_checker_v6.assert_blocked().await?; // ipv6 mustnt leak
+
+    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }
@@ -202,14 +277,24 @@ pub async fn test_wireguard_over_shadowsocks(
 /// Use QUIC obfuscation. This tests whether the daemon can establish a QUIC connection.
 /// Note that this doesn't verify that the outgoing traffic looks like http traffic (even though it
 /// doesn't sound too difficult to do?).
+#[duplicate_item(
+      VX     test_wireguard_over_quic_ipvx;
+    [ V4 ] [ test_wireguard_over_quic_ipv4 ];
+    [ V6 ] [ test_wireguard_over_quic_ipv6 ];
+)]
 #[test_function]
-pub async fn test_wireguard_over_quic(
+pub async fn test_wireguard_over_quic_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let ip_version = IpVersion::VX;
+
     log::info!("Enable QUIC as obfuscation method");
-    let query = RelayQueryBuilder::wireguard().quic().build();
+    let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
+        .quic()
+        .build();
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     log::info!("Connect to WireGuard via QUIC endpoint");
@@ -553,18 +638,26 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
 ///
 /// This is not testing any of the individual components, just whether the daemon can connect when
 /// all of these features are combined.
+#[duplicate_item(
+      VX     test_quantum_resistant_multihop_shadowsocks_tunnel_ipvx;
+    [ V4 ] [ test_quantum_resistant_multihop_shadowsocks_tunnel_ipv4 ];
+    [ V6 ] [ test_quantum_resistant_multihop_shadowsocks_tunnel_ipv6 ];
+)]
 #[test_function]
-pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
+pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let ip_version = IpVersion::VX;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
         .context("Failed to enable PQ tunnels")?;
 
     let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
         .multihop()
         .shadowsocks()
         .build();
@@ -587,12 +680,19 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
 ///
 /// This is not testing any of the individual components, just whether the daemon can connect when
 /// all of these features are combined.
+#[duplicate_item(
+      VX     test_quantum_resistant_multihop_quic_tunnel_ipvx;
+    [ V4 ] [ test_quantum_resistant_multihop_quic_tunnel_ipv4 ];
+    [ V6 ] [ test_quantum_resistant_multihop_quic_tunnel_ipv6 ];
+)]
 #[test_function]
-pub async fn test_quantum_resistant_multihop_quic_tunnel(
+pub async fn test_quantum_resistant_multihop_quic_tunnel_ipvx(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let ip_version = IpVersion::VX;
+
     mullvad_client
         // TODO: Why is this needed, exactly?
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
@@ -600,6 +700,7 @@ pub async fn test_quantum_resistant_multihop_quic_tunnel(
         .context("Failed to enable PQ tunnels")?;
 
     let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
         .quantum_resistant()
         .multihop()
         .quic()

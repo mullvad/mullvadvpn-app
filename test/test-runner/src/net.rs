@@ -308,7 +308,7 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
 
     // TODO: define SIOCGIFMTU for macos
     // SAFETY: SIOCGIFMTU expects an ifreq, and the socket is valid
-    if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCGIFMTU, &mut ifr) } < 0 {
+    if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCGIFMTU as libc::Ioctl, &mut ifr) } < 0 {
         let e = std::io::Error::last_os_error();
 
         log::error!("{}", e);
