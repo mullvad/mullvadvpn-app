@@ -2,6 +2,7 @@ import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
+import { DeviceRevokedRouteObjectModel } from './device-revoked';
 import { ExpiredRouteObjectModel } from './expired';
 import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
@@ -30,6 +31,7 @@ export class RoutesObjectModel {
   readonly voucherSuccess: VoucherSuccessRouteObjectModel;
   readonly timeAdded: TimeAddedRouteObjectModel;
   readonly setupFinished: SetupFinishedRouteObjectModel;
+  readonly deviceRevoked: DeviceRevokedRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
@@ -52,6 +54,7 @@ export class RoutesObjectModel {
     this.voucherSuccess = new VoucherSuccessRouteObjectModel(page, utils);
     this.timeAdded = new TimeAddedRouteObjectModel(page, utils);
     this.setupFinished = new SetupFinishedRouteObjectModel(page, utils);
+    this.deviceRevoked = new DeviceRevokedRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
     this.userInterfaceSettings = new UserInterfaceSettingsRouteObjectModel(page, utils);
     this.filter = new FilterRouteObjectModel(page, utils);
