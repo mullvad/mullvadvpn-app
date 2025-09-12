@@ -24,7 +24,6 @@ import SelectLanguage from './SelectLanguage';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import Support from './Support';
-import TooManyDevices from './TooManyDevices';
 import UserInterfaceSettings from './UserInterfaceSettings';
 import {
   AppInfoView,
@@ -39,6 +38,7 @@ import {
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingView,
+  TooManyDevices,
   UdpOverTcpSettingsView,
   VpnSettingsView,
   WireguardSettingsView,
