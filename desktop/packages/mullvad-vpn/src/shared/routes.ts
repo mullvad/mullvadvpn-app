@@ -34,4 +34,5 @@ export enum RoutePath {
   appInfo = '/settings/app-info',
   changelog = '/settings/changelog',
   appUpgrade = '/settings/app-upgrade',
+  manageDevices = '/settings/manage-devices',
 }

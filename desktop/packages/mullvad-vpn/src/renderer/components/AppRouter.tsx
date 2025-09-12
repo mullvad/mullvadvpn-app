@@ -34,6 +34,7 @@ import {
   LaunchView,
   LoginView,
   MainView,
+  ManageDevicesView,
   MultihopSettingsView,
   OpenVpnSettingsView,
   SettingsView,
@@ -93,6 +94,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.appInfo} component={AppInfoView} />
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
+          <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
         </Switch>
       </Focus>
     </>
