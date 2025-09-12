@@ -482,16 +482,11 @@ impl RouteManagerImpl {
                 }
 
                 RouteAttribute::Via(addr) => {
-                    let mut bytes = Vec::new();
-                    addr.emit(&mut bytes);
-                    let ip = Self::parse_ip(&bytes)?;
-                    node_addr = Some(ip);
+                    node_addr = Some(Self::parse_ip_from_via(addr)?);
                 }
 
                 RouteAttribute::Destination(addr) => {
-                    let mut bytes = Vec::new();
-                    addr.emit(&mut bytes);
-                    let ip = Self::parse_ip(&bytes)?;
+                    let ip = Self::parse_ip_from_route_address(addr)?;
                     let network = ipnetwork::IpNetwork::new(ip, destination_length)
                         .map_err(Error::InvalidNetworkPrefix)?;
                     prefix = network;
@@ -499,10 +494,7 @@ impl RouteManagerImpl {
 
                 // gateway NLAs indicate that this is actually a default route
                 RouteAttribute::Gateway(gateway_ip) => {
-                    let mut bytes = Vec::new();
-                    gateway_ip.emit(&mut bytes);
-                    let gateway_ip = Self::parse_ip(&bytes)?;
-                    gateway = Some(gateway_ip)
+                    gateway = Some(Self::parse_ip_from_route_address(gateway_ip)?)
                 }
 
                 RouteAttribute::Priority(priority) => {
@@ -559,6 +551,18 @@ impl RouteManagerImpl {
         }
 
         None
+    }
+
+    fn parse_ip_from_via(via: &RouteVia) -> Result<IpAddr> {
+        let mut bytes = vec![0; via.buffer_len()];
+        via.emit(&mut bytes);
+        Self::parse_ip(&bytes)
+    }
+
+    fn parse_ip_from_route_address(route_address: &RouteAddress) -> Result<IpAddr> {
+        let mut bytes = vec![0; route_address.buffer_len()];
+        route_address.emit(&mut bytes);
+        Self::parse_ip(&bytes)
     }
 
     fn parse_ip(bytes: &[u8]) -> Result<IpAddr> {
