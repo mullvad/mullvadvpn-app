@@ -1,4 +1,4 @@
-import { closeToExpiry } from '../shared/account-expiry';
+import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import {
   AccountDataError,
   AccountNumber,
@@ -35,16 +35,14 @@ export default class Account {
   private expiryNotificationFrequencyScheduler = new Scheduler();
   private firstExpiryNotificationScheduler = new Scheduler();
 
+  private hasExpired = false;
+
   private accountDataCache = new AccountDataCache(
     (accountNumber) => {
       return this.daemonRpc.getAccountData(accountNumber);
     },
     (accountData) => {
-      this.accountDataValue = accountData;
-
-      IpcMainEventChannel.account.notify?.(this.accountData);
-
-      this.handleAccountExpiry();
+      this.handleAccountData(accountData);
     },
   );
 
@@ -53,7 +51,9 @@ export default class Account {
   public constructor(
     private delegate: AccountDelegate & TunnelStateProvider & LocaleProvider & NotificationSender,
     private daemonRpc: DaemonRpc,
-  ) {}
+  ) {
+    this.monitorExpiryChange();
+  }
 
   public get accountData() {
     return this.accountDataValue;
@@ -110,10 +110,10 @@ export default class Account {
   };
 
   public detectStaleAccountExpiry(tunnelState: TunnelState) {
-    const hasExpired = !this.accountData || new Date() >= new Date(this.accountData.expiry);
+    const expired = !this.accountData || hasExpired(this.accountData.expiry);
 
     // It's likely that the account expiry is stale if the daemon managed to establish the tunnel.
-    if (tunnelState.state === 'connected' && hasExpired) {
+    if (tunnelState.state === 'connected' && expired) {
       log.info('Detected the stale account expiry.');
       this.accountDataCache.invalidate();
     }
@@ -144,6 +144,19 @@ export default class Account {
     this.accountHistoryValue = accountHistory;
 
     IpcMainEventChannel.accountHistory.notify?.(accountHistory);
+  }
+
+  private monitorExpiryChange() {
+    let prevDate = Date.now();
+    setInterval(() => {
+      if (Math.abs(Date.now() - prevDate) > 5000) {
+        const expired = this.accountData && hasExpired(this.accountData.expiry);
+        if (expired !== this.hasExpired) {
+          this.handleAccountData(this.accountData);
+        }
+      }
+      prevDate = Date.now();
+    }, 1000);
   }
 
   private async createNewAccount(): Promise<string> {
@@ -180,7 +193,14 @@ export default class Account {
     }
   }
 
-  private handleAccountExpiry() {
+  private handleAccountData(accountData?: IAccountData) {
+    this.accountDataValue = accountData;
+    this.hasExpired = this.accountData !== undefined && hasExpired(this.accountData?.expiry);
+    IpcMainEventChannel.account.notify?.(this.accountData);
+    this.showNotifications();
+  }
+
+  private showNotifications() {
     if (this.accountData) {
       const expiredNotification = new AccountExpiredNotificationProvider({
         accountExpiry: this.accountData.expiry,
@@ -205,7 +225,7 @@ export default class Account {
         const twelveHours = 12 * 60 * 60 * 1000;
         const remainingMilliseconds = new Date(this.accountData.expiry).getTime() - Date.now();
         const delay = Math.min(twelveHours, remainingMilliseconds);
-        this.expiryNotificationFrequencyScheduler.schedule(() => this.handleAccountExpiry(), delay);
+        this.expiryNotificationFrequencyScheduler.schedule(() => this.showNotifications(), delay);
       } else if (!closeToExpiry(this.accountData.expiry)) {
         this.expiryNotificationFrequencyScheduler.cancel();
         // If no longer close to expiry, all previous notifications should be closed
@@ -217,7 +237,7 @@ export default class Account {
         // Add 10 seconds to be on the safe side. Never make it longer than a 24 days since
         // the timeout needs to fit into a signed 32-bit integer.
         const timeout = Math.min(expiry - now - threeDays + 10_000, 24 * 24 * 60 * 60 * 1000);
-        this.firstExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), timeout);
+        this.firstExpiryNotificationScheduler.schedule(() => this.showNotifications(), timeout);
       }
     }
   }
