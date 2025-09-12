@@ -16,8 +16,13 @@ import { LinuxSettingsContextProvider, useLinuxSettingsContext } from './LinuxSe
 
 function LinuxSettingsInner() {
   const { getLinuxSplitTunnelingSupported, getLinuxSplitTunnelingApplications } = useAppContext();
-  const { searchTerm, setApplications, setSearchTerm, setSplitTunnelingSupported } =
-    useLinuxSettingsContext();
+  const {
+    splitTunnelingSupported,
+    searchTerm,
+    setApplications,
+    setSearchTerm,
+    setSplitTunnelingSupported,
+  } = useLinuxSettingsContext();
   const runAfterTransition = useAfterTransition();
   const showLinuxApplicationList = useShowLinuxApplicationList();
   const showNoSearchResult = useShowNoSearchResult();
@@ -53,7 +58,11 @@ function LinuxSettingsInner() {
           )}
         </HeaderSubTitle>
       </SettingsHeader>
-      <ApplicationSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <ApplicationSearchBar
+        disabled={!splitTunnelingSupported}
+        searchTerm={searchTerm}
+        onSearch={setSearchTerm}
+      />
       {showNoSearchResult && <ApplicationSearchNoResult searchTerm={searchTerm} />}
       <FlexColumn $gap="medium">
         {showLinuxApplicationList && <LinuxApplicationList />}
