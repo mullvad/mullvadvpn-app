@@ -105,6 +105,11 @@ tun = { version = "0.5.5", features = ["async"] }
 socket2 = "0.5.7"
 reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
 
+netlink-packet-core = "0.4.2"
+netlink-packet-route = "0.13"
+netlink-packet-utils = "0.5.1"
+netlink-proto = "0.10"
+
 # Hickory & DNS
 hickory-proto = "0.24.3"
 hickory-resolver = "0.24.3"
