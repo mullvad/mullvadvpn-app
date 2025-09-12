@@ -1,20 +1,26 @@
 use super::{Config, Tunnel, TunnelError};
 use futures::future::{AbortHandle, abortable};
-use netlink_packet_core::{NetlinkDeserializable, constants::*};
-use netlink_packet_route::{
-    NetlinkMessage, NetlinkPayload,
-    rtnl::{
-        AddressMessage, LinkMessage, RT_SCOPE_UNIVERSE, RtnlMessage,
-        address::nlas::Nla as AddressNla,
-        link::nlas::{Info, InfoKind, Nla as LinkNla},
-    },
-};
-use netlink_packet_utils::DecodeError;
-use netlink_proto::{
-    ConnectionHandle, Error as NetlinkError,
-    sys::{SocketAddr, protocols::NETLINK_GENERIC},
-};
-use std::{ffi::CString, net::IpAddr};
+use netlink_packet_core::DecodeError;
+use netlink_packet_core::NLM_F_ACK;
+use netlink_packet_core::NLM_F_CREATE;
+use netlink_packet_core::NLM_F_DUMP;
+use netlink_packet_core::NLM_F_MATCH;
+use netlink_packet_core::NLM_F_REPLACE;
+use netlink_packet_core::NLM_F_REQUEST;
+use netlink_packet_core::NetlinkDeserializable;
+use netlink_packet_core::NetlinkMessage;
+use netlink_packet_core::NetlinkPayload;
+use netlink_packet_route::RouteNetlinkMessage;
+use netlink_packet_route::address::AddressMessage;
+use netlink_packet_route::link::LinkMessage;
+use netlink_proto::sys::{SocketAddr, protocols::NETLINK_GENERIC};
+use netlink_proto::{ConnectionHandle, Error as NetlinkError};
+use rtnetlink::AddressMessageBuilder;
+use rtnetlink::LinkMessageBuilder;
+use rtnetlink::LinkWireguard;
+use std::net::IpAddr;
+use std::net::Ipv4Addr;
+use std::net::Ipv6Addr;
 use tokio_stream::StreamExt;
 
 mod parsers;
@@ -60,10 +66,10 @@ pub enum Error {
     NoDevice,
 
     #[error("Failed to get config: {0}")]
-    WgGetConf(netlink_packet_core::error::ErrorMessage),
+    WgGetConf(netlink_packet_core::ErrorMessage),
 
     #[error("Failed to apply config: {0}")]
-    WgSetConf(netlink_packet_core::error::ErrorMessage),
+    WgSetConf(netlink_packet_core::ErrorMessage),
 
     #[error("Interface name too long")]
     InterfaceName,
@@ -117,14 +123,14 @@ impl Handle {
     }
 
     async fn get_wireguard_message_type() -> Result<u16, Error> {
-        let (conn, mut handle, _messages) =
+        let (conn, handle, _messages) =
             netlink_proto::new_connection(NETLINK_GENERIC).map_err(Error::NetlinkSocket)?;
         let (conn, abort_handle) = abortable(conn);
         tokio::spawn(conn);
 
         let result = async move {
             let mut message: NetlinkMessage<NetlinkControlMessage> =
-                NetlinkControlMessage::get_netlink_family_id(CString::new("wireguard").unwrap())
+                NetlinkControlMessage::get_netlink_family_id(c"wireguard".to_owned())
                     .map_err(Error::NetlinkControlMessage)?
                     .into();
 
@@ -154,54 +160,45 @@ impl Handle {
 
     // create a wireguard device with the given name.
     pub async fn create_device(&mut self, name: String, mtu: u32) -> Result<u32, Error> {
-        let mut message = LinkMessage::default();
+        let message_builder = LinkMessageBuilder::<LinkWireguard>::new(&name)
+            // set link to be up
+            .up() // IFF_UP
+            // set link MTU
+            .mtu(mtu);
+        let message = message_builder.build();
 
-        // set link to be up
-        message.header.flags = netlink_packet_route::IFF_UP;
-        // message.header.change_mask = netlink_packet_route::IFF_UP;
-        // set link name
-        message.nlas.push(LinkNla::IfName(name.clone()));
-        // set link MTU
-        message.nlas.push(LinkNla::Mtu(mtu));
-        // set link type
-        message
-            .nlas
-            .push(LinkNla::Info(vec![Info::Kind(InfoKind::Other(
-                "wireguard".to_string(),
-            ))]));
-
-        let mut add_request = NetlinkMessage::from(RtnlMessage::NewLink(message));
-        add_request.header.flags =
-            NLM_F_REQUEST | NLM_F_ACK | NLM_F_REPLACE | NLM_F_CREATE | NLM_F_MATCH;
-        let mut response = self
+        let reply = self
             .route_handle
-            .request(add_request)
-            .map_err(Error::NetlinkCreateDevice)?;
-        while let Some(response_message) = response.next().await {
-            if let NetlinkPayload::Error(err) = response_message.payload {
-                // if the device exists, verify that it's a wireguard device
-                if -err.code != libc::EEXIST {
-                    return Err(Error::NetlinkCreateDevice(rtnetlink::Error::NetlinkError(
-                        err,
-                    )));
-                }
-            }
-        }
+            .link()
+            .add(message)
+            .set_flags(NLM_F_REQUEST | NLM_F_ACK | NLM_F_REPLACE | NLM_F_CREATE | NLM_F_MATCH)
+            .execute()
+            .await;
+
+        if let Err(rtnetlink::Error::NetlinkError(err)) = reply
+            && -err.raw_code() != libc::EEXIST
+        {
+            return Err(Error::NetlinkCreateDevice(rtnetlink::Error::NetlinkError(
+                err,
+            )));
+        };
 
         // fetch interface index of new device
-        let new_device = self.wg_handle.get_by_name(name).await?;
-        for nla in new_device.nlas {
-            if let DeviceNla::IfIndex(index) = nla {
-                return Ok(index);
-            }
-        }
-
-        Err(Error::NoDevice)
+        self.wg_handle
+            .get_by_name(name)
+            .await?
+            .nlas
+            .into_iter()
+            .find_map(|nla| match nla {
+                DeviceNla::IfIndex(index) => Some(index),
+                _ => None,
+            })
+            .ok_or(Error::NoDevice)
     }
 
     pub async fn set_ip_address(&mut self, index: u32, addr: IpAddr) -> Result<(), Error> {
         let address_message = add_ip_addr_message(index, addr);
-        let mut request = NetlinkMessage::from(RtnlMessage::NewAddress(address_message));
+        let mut request = NetlinkMessage::from(RouteNetlinkMessage::NewAddress(address_message));
         request.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
         let mut response = self
@@ -219,7 +216,7 @@ impl Handle {
         let mut link_message = LinkMessage::default();
         link_message.header.index = index;
 
-        let mut request = NetlinkMessage::from(RtnlMessage::DelLink(link_message));
+        let mut request = NetlinkMessage::from(RouteNetlinkMessage::DelLink(link_message));
         request.header.flags = NLM_F_REQUEST | NLM_F_ACK;
 
         let mut response = self
@@ -273,7 +270,7 @@ impl WireguardConnection {
             Some(received_message) => match received_message.payload {
                 NetlinkPayload::InnerMessage(inner) => Ok(inner),
                 NetlinkPayload::Error(err) => {
-                    if err.code == -libc::ENODEV {
+                    if err.raw_code() == -libc::ENODEV {
                         Err(Error::NoDevice)
                     } else {
                         Err(Error::WgGetConf(err))
@@ -323,27 +320,15 @@ fn consume_netlink_error<
 // the built-in support for adding addresses is too helpful, so a simple AddressMessage with a
 // single Address nla is created
 fn add_ip_addr_message(if_index: u32, addr: IpAddr) -> AddressMessage {
-    let prefix_len = if addr.is_ipv4() { 32 } else { 128 };
-    let mut message = AddressMessage::default();
-    message.header.prefix_len = prefix_len;
-    message.header.index = if_index;
-    message.header.scope = RT_SCOPE_UNIVERSE;
-
+    // Note: Default scope is RT_SCOPE_UNIVERSE;
     match addr {
-        IpAddr::V4(ipv4) => {
-            message.header.family = libc::AF_INET as u8;
-            let ip_bytes = ipv4.octets().to_vec();
-
-            message.nlas.push(AddressNla::Address(ip_bytes.clone()));
-            message.nlas.push(AddressNla::Local(ip_bytes));
-        }
-        IpAddr::V6(ipv6) => {
-            message.header.family = libc::AF_INET6 as u8;
-            message
-                .nlas
-                .push(AddressNla::Address(ipv6.octets().to_vec()));
-        }
-    };
-
-    message
+        IpAddr::V4(ipv4_addr) => AddressMessageBuilder::<Ipv4Addr>::new()
+            .address(ipv4_addr, 32)
+            .index(if_index)
+            .build(),
+        IpAddr::V6(ipv6_addr) => AddressMessageBuilder::<Ipv6Addr>::new()
+            .address(ipv6_addr, 128)
+            .index(if_index)
+            .build(),
+    }
 }
