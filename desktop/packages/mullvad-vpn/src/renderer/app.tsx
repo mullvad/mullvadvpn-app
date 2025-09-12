@@ -446,7 +446,6 @@ export default class AppRenderer {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
   public getLinuxSplitTunnelingSupported = () => {
-    return Promise.resolve(false);
     return IpcRendererEventChannel.linuxSplitTunneling.isSplitTunnelingSupported();
   };
   public getAppUpgradeCacheDir = () => IpcRendererEventChannel.app.getUpgradeCacheDir();
