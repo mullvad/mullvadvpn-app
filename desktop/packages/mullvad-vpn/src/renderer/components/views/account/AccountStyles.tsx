@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { colors } from '../lib/foundations';
-import { measurements, normalText, tinyText } from './common-styles';
+import { colors } from '../../../lib/foundations';
+import { measurements, normalText, tinyText } from '../../common-styles';
 
 export const AccountContainer = styled.div({
   display: 'flex',
