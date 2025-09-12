@@ -696,13 +696,12 @@ mod test {
                                     // 8 bytes of WGALLOWEDIP_A_IPADDR 192.168.40.2
                                     0x08, 0x00, 0x02, 0x00, 0xc0, 0xa8, 0x27, 0x02,
         ];
-        let header = NetlinkHeader {
-            length: payload.len() as u32,
-            message_type: 0,
-            flags: 0,
-            sequence_number: 0,
-            port_number: 0,
+        let header = {
+            let mut header = NetlinkHeader::default();
+            header.length = payload.len() as u32;
+            header
         };
+
         let message = DeviceMessage::deserialize(&header, &payload).unwrap();
 
         let mut serialized_message = vec![0u8; payload.len()];
@@ -864,12 +863,10 @@ mod test {
 
         let mut payload_buffer = vec![0u8; message.buffer_len()];
         message.serialize(&mut payload_buffer);
-        let header = NetlinkHeader {
-            length: payload_buffer.len() as u32,
-            message_type: 0,
-            flags: 0,
-            sequence_number: 0,
-            port_number: 0,
+        let header = {
+            let mut header = NetlinkHeader::default();
+            header.length = payload_buffer.len() as u32;
+            header
         };
         let deserialized_device = DeviceMessage::deserialize(&header, &payload_buffer).unwrap();
 
