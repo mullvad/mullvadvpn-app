@@ -23,9 +23,10 @@ jnix = { version = "0.5.2", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
-rtnetlink = "0.11"
-netlink-packet-route = { version = "0.13", features = ["rich_nlas"] }
-netlink-sys = "0.8.3"
+rtnetlink = { workspace = true }
+netlink-packet-core = { workspace = true }
+netlink-packet-route = { workspace = true, features = ["rich_nlas"] }
+netlink-sys = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 nix = { workspace = true, features = ["socket", "fs", "net"] }

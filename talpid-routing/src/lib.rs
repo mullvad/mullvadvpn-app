@@ -20,9 +20,6 @@ pub use imp::{CallbackHandle, EventType, InterfaceAndGateway, get_best_default_r
 #[path = "unix/mod.rs"]
 mod imp;
 
-#[cfg(target_os = "linux")]
-use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
-
 #[cfg(target_os = "macos")]
 pub use imp::{
     PlatformError,
@@ -99,7 +96,7 @@ impl Route {
             prefix,
             metric: None,
             #[cfg(target_os = "linux")]
-            table_id: u32::from(RT_TABLE_MAIN),
+            table_id: u32::from(libc::RT_TABLE_MAIN),
             #[cfg(any(target_os = "linux", target_os = "macos"))]
             mtu: None,
         }

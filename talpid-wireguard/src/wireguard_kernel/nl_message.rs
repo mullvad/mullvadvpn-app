@@ -1,12 +1,10 @@
 use super::parsers;
 use byteorder::{ByteOrder, NativeEndian};
 use netlink_packet_core::{
-    NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
+    DecodeError, Emitable, Nla, NlaBuffer, NlasIterator, Parseable, parse_u16,
 };
-use netlink_packet_utils::{
-    DecodeError,
-    nla::{Nla, NlaBuffer, NlasIterator},
-    traits::{Emitable, Parseable},
+use netlink_packet_core::{
+    NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
 };
 use std::{ffi::CString, io::Write, mem};
 
@@ -125,7 +123,7 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized + std::fmt::Debug> Parseable<NlaBuffer<&'a
             libc::CTRL_ATTR_FAMILY_NAME => {
                 ControlNla::FamilyName(parsers::parse_cstring(buf.value())?)
             }
-            libc::CTRL_ATTR_FAMILY_ID => ControlNla::FamilyId(parsers::parse_u16(buf.value())?),
+            libc::CTRL_ATTR_FAMILY_ID => ControlNla::FamilyId(parse_u16(buf.value())?),
             _unknown_kind => ControlNla::Unknown(buf.kind(), buf.value().to_vec()),
         };
         Ok(nla)
