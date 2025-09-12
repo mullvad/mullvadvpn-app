@@ -4,6 +4,7 @@ export * from './app-upgrade';
 export * from './daita-settings';
 export * from './launch';
 export * from './main';
+export * from './manage-devices';
 export * from './multihop-settings';
 export * from './login';
 export * from './open-vpn-settings';
