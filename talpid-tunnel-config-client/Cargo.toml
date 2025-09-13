@@ -12,6 +12,7 @@ workspace = true
 
 [dependencies]
 log = { workspace = true }
+# Upgrading to rand 0.9 is blocked on ml-kem dropping their dependency on rand_core 0.6 (as of ml-kem 0.21)
 rand = "0.8"
 talpid-types = { path = "../talpid-types" }
 tonic = { workspace = true }
