@@ -74,7 +74,7 @@ async fn test_server_and_client_fragmentation() -> anyhow::Result<()> {
         // Proxy client -> destination
         // Send a random packet, large enough to be fragmented
         let mut fragment_me = vec![0u8; send_packet_size];
-        rand::thread_rng().fill_bytes(&mut fragment_me);
+        rand::rng().fill_bytes(&mut fragment_me);
 
         client.send(&fragment_me).await?;
 
@@ -92,7 +92,7 @@ async fn test_server_and_client_fragmentation() -> anyhow::Result<()> {
         // Destination -> proxy client
         // Send a random packet, large enough to be fragmented
         let mut fragment_me = vec![0u8; send_packet_size];
-        rand::thread_rng().fill_bytes(&mut fragment_me);
+        rand::rng().fill_bytes(&mut fragment_me);
 
         server.send_to(&fragment_me, proxy_addr).await?;
 
