@@ -7,6 +7,7 @@ import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
 import { LoginRouteObjectModel } from './login';
 import { MainRouteObjectModel } from './main';
+import { ManageDevicesRouteObjectModel } from './manage-devices';
 import { MultihopSettingsRouteObjectModel } from './multihop-settings';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SelectLocationRouteObjectModel } from './select-location';
@@ -33,6 +34,7 @@ export class RoutesObjectModel {
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
   readonly splitTunnelingSettings: SplitTunnelingSettingsRouteObjectModel;
   readonly account: AccountRouteObjectModel;
+  readonly manageDevices: ManageDevicesRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -50,5 +52,6 @@ export class RoutesObjectModel {
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
     this.splitTunnelingSettings = new SplitTunnelingSettingsRouteObjectModel(page, utils);
     this.account = new AccountRouteObjectModel(page, utils);
+    this.manageDevices = new ManageDevicesRouteObjectModel(page, utils);
   }
 }
