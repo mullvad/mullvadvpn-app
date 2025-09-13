@@ -200,7 +200,7 @@ pub fn fragment_packet(
 mod test {
     use std::collections::HashSet;
 
-    use rand::{seq::SliceRandom, thread_rng};
+    use rand::{rng, seq::SliceRandom};
 
     use super::*;
 
@@ -217,7 +217,7 @@ mod test {
                 .unwrap()
                 .collect::<Vec<_>>();
 
-            fragment_buf.shuffle(&mut thread_rng());
+            fragment_buf.shuffle(&mut rng());
 
             for fragment in fragment_buf {
                 if let DefragReceived::Reassembled(reconstructed_packet) =
@@ -250,7 +250,7 @@ mod test {
             fragment_buf
                 .extend(&mut fragment_packet(max_payload_size, &mut payload, packet_id).unwrap());
         }
-        fragment_buf.shuffle(&mut thread_rng());
+        fragment_buf.shuffle(&mut rng());
 
         for fragment in fragment_buf {
             if let DefragReceived::Reassembled(reconstructed_packet) =
@@ -284,7 +284,7 @@ mod test {
                 .unwrap()
                 .collect::<Vec<_>>();
 
-            fragment_buf.shuffle(&mut thread_rng());
+            fragment_buf.shuffle(&mut rng());
 
             // send one fragment
             let packet = fragments
