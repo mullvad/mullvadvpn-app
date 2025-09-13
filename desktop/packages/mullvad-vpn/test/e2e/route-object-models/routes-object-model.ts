@@ -9,6 +9,7 @@ import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
 import { LoginRouteObjectModel } from './login';
 import { MainRouteObjectModel } from './main';
+import { ManageDevicesRouteObjectModel } from './manage-devices';
 import { MultihopSettingsRouteObjectModel } from './multihop-settings';
 import { RedeemVoucherRouteObjectModel } from './redeem-voucher';
 import { SelectLanguageRouteObjectModel } from './select-language';
@@ -49,6 +50,7 @@ export class RoutesObjectModel {
   readonly splitTunnelingSettings: SplitTunnelingSettingsRouteObjectModel;
   readonly shadowsocksSettings: ShadowsocksSettingsRouteObjectModel;
   readonly account: AccountRouteObjectModel;
+  readonly manageDevices: ManageDevicesRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -74,5 +76,6 @@ export class RoutesObjectModel {
     this.splitTunnelingSettings = new SplitTunnelingSettingsRouteObjectModel(page, utils);
     this.shadowsocksSettings = new ShadowsocksSettingsRouteObjectModel(page, utils);
     this.account = new AccountRouteObjectModel(page, utils);
+    this.manageDevices = new ManageDevicesRouteObjectModel(page, utils);
   }
 }

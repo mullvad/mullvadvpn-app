@@ -1,0 +1,8 @@
+import { Page } from 'playwright';
+
+export const createSelectors = (page: Page) => ({
+  deviceListItems: () => page.getByTestId('device-list-item'),
+  deviceListItem: (name: string) => page.getByTestId('device-list-item').filter({ hasText: name }),
+  removeDeviceButton: (name: string) => page.getByLabel(`Remove device named ${name}`),
+  confirmRemoveDeviceButton: () => page.getByRole('button', { name: 'Remove', exact: true }),
+});
