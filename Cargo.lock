@@ -3198,8 +3198,6 @@ dependencies = [
 name = "mullvad-jni"
 version = "0.0.0"
 dependencies = [
- "futures",
- "ipnetwork",
  "jnix",
  "log",
  "log-panics",
