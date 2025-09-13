@@ -24,7 +24,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 tokio-serde = { workspace = true }
 surge-ping = { workspace = true }
-rand = "0.8"
+rand = { workspace = true }
 
 libc = "0.2"
 chrono = { workspace = true, features = ["serde"] }
