@@ -1,10 +1,7 @@
 use super::WIREGUARD_KEY_LENGTH;
 use maybenot::{MachineId, Timer};
 use once_cell::sync::OnceCell;
-use rand::{
-    SeedableRng,
-    rngs::{OsRng, adapter::ReseedingRng},
-};
+use rand::rngs::{OsRng, ReseedingRng};
 use std::{
     collections::HashMap, fs, io, os::windows::prelude::RawHandle, path::Path, sync::Arc,
     time::Duration,
@@ -36,6 +33,9 @@ pub enum Error {
     /// Failed to initialize maybenot framework
     #[error("Failed to initialize maybenot framework: {0}")]
     InitializeMaybenot(String),
+    /// Failed to initialize RNG
+    #[error("Failed to initialize rng: {0}")]
+    InitializeRng(#[from] rand::rand_core::OsError),
 }
 
 // See DAITA_EVENT_TYPE:
@@ -262,11 +262,7 @@ impl Machinist {
             MAX_PADDING_BYTES,
             MAX_BLOCKING_BYTES,
             std::time::Instant::now(),
-            Rng::new(
-                rand_chacha::ChaCha12Core::from_entropy(),
-                RNG_RESEED_THRESHOLD,
-                OsRng,
-            ),
+            Rng::new(RNG_RESEED_THRESHOLD, OsRng)?,
         )
         .map_err(|error| Error::InitializeMaybenot(error.to_string()))?;
 
