@@ -444,6 +444,11 @@ msgctxt "account-view"
 msgid "Log out"
 msgstr ""
 
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr ""
+
 msgctxt "account-view"
 msgid "OUT OF TIME"
 msgstr ""
@@ -998,14 +1003,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr ""
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr ""
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1016,6 +1013,11 @@ msgstr ""
 #. %(createdDate)s - The creation date of the device.
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
+msgstr ""
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
 msgstr ""
 
 msgctxt "device-management"
@@ -1051,8 +1053,26 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr ""
 
+#. Title label in navigation bar for the manage devices view.
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr ""
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr ""
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr ""
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <b>%(deviceName)s?</b> The device will be removed from the list and logged out."
 msgstr ""
 
 #. Page title informing user that enough devices has been removed to continue
@@ -1075,9 +1095,10 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr ""
 
-#. Button label for confirming logout of another device.
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
 msgctxt "device-management"
-msgid "Yes, log out device"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr ""
 
 msgctxt "device-management"
@@ -2916,6 +2937,9 @@ msgstr ""
 msgid "Always-on VPN assigned to other VPN"
 msgstr ""
 
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr ""
+
 msgid "At least one method needs to be enabled"
 msgstr ""
 
@@ -2983,9 +3007,6 @@ msgid "Create new list"
 msgstr ""
 
 msgid "Critical error (your attention is required)"
-msgstr ""
-
-msgid "Current device"
 msgstr ""
 
 msgid "Current: %s"
@@ -3154,9 +3175,6 @@ msgid "Locations were changed for \"%s\""
 msgstr ""
 
 msgid "Makes sure the device is always on the VPN tunnel."
-msgstr ""
-
-msgid "Manage devices"
 msgstr ""
 
 msgid "More actions"
@@ -3411,9 +3429,6 @@ msgstr ""
 msgid "Verifying voucher…"
 msgstr ""
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr ""
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr ""
 
@@ -3433,6 +3448,9 @@ msgid "WireGuard obfuscation"
 msgstr ""
 
 msgid "WireGuard port"
+msgstr ""
+
+msgid "Yes, log out device"
 msgstr ""
 
 msgid "\"%s\" was created"
