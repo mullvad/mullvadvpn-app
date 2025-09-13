@@ -15,7 +15,6 @@ anyhow = "1.0"
 chrono = { workspace = true, features = ["serde", "now"] }
 clap = { workspace = true }
 hex = { version = "0.4" }
-rand = { version = "0.8.5" }
 reqwest = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
