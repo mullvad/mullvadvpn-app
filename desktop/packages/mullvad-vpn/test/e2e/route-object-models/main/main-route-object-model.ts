@@ -29,6 +29,11 @@ export class MainRouteObjectModel {
     await this.utils.waitForRoute(RoutePath.selectLocation);
   }
 
+  async gotoAccount() {
+    await this.selectors.accountButton().click();
+    await this.utils.waitForRoute(RoutePath.account);
+  }
+
   async expandConnectionPanel() {
     await this.selectors.connectionPanelChevronButton().click();
   }
