@@ -3207,7 +3207,6 @@ dependencies = [
  "mullvad-daemon",
  "mullvad-problem-report",
  "mullvad-types",
- "rand 0.8.5",
  "talpid-platform-metadata",
  "talpid-tunnel",
  "talpid-types",
