@@ -4,7 +4,7 @@ use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpg
 use mullvad_update::app::{
     AppDownloader, AppDownloaderParameters, DownloadError, DownloadedInstaller, bin_path,
 };
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 use std::io;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
@@ -230,7 +230,7 @@ fn estimate_time_left(
 /// Select a mirror to download from
 /// Currently, the selection is random
 fn select_cdn_url(urls: &[String]) -> Option<&str> {
-    urls.choose(&mut rand::thread_rng()).map(String::as_str)
+    urls.choose(&mut rand::rng()).map(String::as_str)
 }
 
 /// Extract domain name from a URL

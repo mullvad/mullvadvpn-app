@@ -35,7 +35,7 @@ features = ["Win32", "Win32_Foundation", "Win32_Networking", "Win32_Networking_W
 env_logger = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "io-util", "rt-multi-thread"] }
 clap = { workspace = true }
-rand = "0.8.5"
+rand = { workspace = true }
 criterion = { version = "0.7.0", features = ["html_reports"] }
 talpid-tunnel = { path = "../talpid-tunnel" }
 
