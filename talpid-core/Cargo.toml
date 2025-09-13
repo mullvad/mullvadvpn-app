@@ -22,7 +22,7 @@ ipnetwork = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 parking_lot = "0.12.0"
-rand = "0.9.0"
+rand = { workspace = true }
 talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
