@@ -3351,7 +3351,6 @@ dependencies = [
  "hex",
  "mullvad-update",
  "mullvad-version",
- "rand 0.8.5",
  "reqwest",
  "serde",
  "serde_json",
