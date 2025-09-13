@@ -1,5 +1,5 @@
 //! This library provides utility functions and types for retrying futures.
-use rand::{Rng, distributions::OpenClosed01};
+use rand::{Rng, distr::OpenClosed01};
 use std::{future::Future, ops::Deref, time::Duration};
 use talpid_time::sleep;
 
@@ -143,7 +143,7 @@ impl<I> Deref for Jittered<I> {
 
 /// Apply a jitter to a duration.
 fn jitter(dur: Duration) -> Duration {
-    apply_jitter(dur, rand::thread_rng().sample(OpenClosed01))
+    apply_jitter(dur, rand::rng().sample(OpenClosed01))
 }
 
 fn apply_jitter(duration: Duration, jitter: f64) -> Duration {
