@@ -38,6 +38,8 @@ mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries
 clap = { workspace = true, optional = true }
+# Upgrading to rand 0.9 is blocked on ed25519-dalek dropping their dependency on rand_core 0.6 (as
+# of ed25519-dalek 2.2.0)
 rand = { version = "0.8.5", optional = true }
 
 thiserror = { workspace = true, optional = true }
@@ -46,7 +48,7 @@ thiserror = { workspace = true, optional = true }
 async-tempfile = "0.6"
 insta = { workspace = true }
 mockito = "1.6.1"
-rand = "0.8.5"
+rand = { workspace = true }
 tokio = { workspace = true, features = ["fs", "test-util", "time", "macros"] }
 
 [[bin]]
