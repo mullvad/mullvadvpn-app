@@ -25,7 +25,7 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
 
   return (
     <>
-      <ListItem disabled={deleting} {...props}>
+      <ListItem data-testid={'device-list-item'} disabled={deleting} {...props}>
         <ListItem.Item>
           <ListItem.Content>
             <FlexColumn>
