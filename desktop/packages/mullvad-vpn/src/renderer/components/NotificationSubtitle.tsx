@@ -19,20 +19,20 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
     switch (subtitle.action.type) {
       case 'navigate-internal':
         return (
-          <InternalLink variant="labelTiny" {...subtitle.action.link}>
+          <InternalLink variant="labelTinySemiBold" {...subtitle.action.link}>
             <InternalLink.Text>{content}</InternalLink.Text>
           </InternalLink>
         );
       case 'navigate-external':
         return (
-          <ExternalLink variant="labelTiny" {...subtitle.action.link}>
+          <ExternalLink variant="labelTinySemiBold" {...subtitle.action.link}>
             <ExternalLink.Text>{content}</ExternalLink.Text>
             <ExternalLink.Icon icon="external" />
           </ExternalLink>
         );
       case 'run-function':
         return (
-          <StyledLink forwardedAs="button" variant="labelTiny" {...subtitle.action.button}>
+          <StyledLink forwardedAs="button" variant="labelTinySemiBold" {...subtitle.action.button}>
             <StyledLink.Text>{content}</StyledLink.Text>
           </StyledLink>
         );
