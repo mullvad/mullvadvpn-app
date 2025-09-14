@@ -27,8 +27,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout wireguard-go submodule
-        run: git submodule update --init --depth=1 wireguard-go-rs
+      - uses: ./.github/actions/mullvad-build-env
 
       - name: Setup node
         uses: actions/setup-node@v4

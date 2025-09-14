@@ -25,14 +25,10 @@ jobs:
   unicop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init --depth=1 windows
-          git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
+      - uses: ./.github/actions/mullvad-build-env
 
       - name: Install Rust toolchain
         run: rustup override set stable
