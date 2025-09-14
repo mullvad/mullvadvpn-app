@@ -11,18 +11,10 @@ permissions: {}
 
 jobs:
   prepare:
-    name: Prepare
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Resolve container image
-        run: |
-          echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
-    outputs:
-      container_image: ${{ env.inner_container_image }}
+    uses: ./.github/workflows/resolve-container-image.yml
+    with:
+      image_file: ./building/android-container-image.txt
+      override_container_image: ${{ inputs.override_container_image }}
 
   check-formatting:
     name: Lint XML using tidy

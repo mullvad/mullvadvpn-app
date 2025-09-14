@@ -64,6 +64,12 @@ env:
   SCHEDULE_E2E_REPEAT: 10
 
 jobs:
+  prepare-container:
+    uses: ./.github/workflows/resolve-container-image.yml
+    with:
+      image_file: ./building/android-container-image.txt
+      override_container_image: ${{ inputs.override_container_image }}
+
   prepare:
     name: Prepare
     runs-on: ubuntu-latest
@@ -72,16 +78,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Use custom container image if specified
-        if: ${{ github.event.inputs.override_container_image != '' }}
-        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
-          >> $GITHUB_ENV
-
-      - name: Use default container image and resolve digest
-        if: ${{ github.event.inputs.override_container_image == '' }}
-        run: |
-          echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
 
       # Preparing variables this way instead of using `env.*` due to:
       # https://github.com/orgs/community/discussions/26388
@@ -94,16 +90,15 @@ jobs:
           env.DEFAULT_E2E_REPEAT }}" \
           >> $GITHUB_ENV
     outputs:
-      container_image: ${{ env.inner_container_image }}
       E2E_TEST_INFRA_FLAVOR: ${{ env.INNER_E2E_TEST_INFRA_FLAVOR }}
       E2E_TEST_REPEAT: ${{ env.INNER_E2E_TEST_REPEAT }}
 
   build-native:
     name: Build native # Used by wait for jobs.
-    needs: prepare
+    needs: prepare-container
     runs-on: ubuntu-latest
     container:
-      image: "${{ needs.prepare.outputs.container_image }}"
+      image: "${{ needs.prepare-container.outputs.container_image }}"
     strategy:
       matrix:
         include:
@@ -175,10 +170,10 @@ jobs:
 
   run-lint-and-tests:
     name: Run lint and test tasks
-    needs: [prepare]
+    needs: prepare-container
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.prepare.outputs.container_image }}
+      image: "${{ needs.prepare-container.outputs.container_image }}"
     strategy:
       fail-fast: false
       matrix:
@@ -218,10 +213,10 @@ jobs:
 
   build-app:
     name: Build app
-    needs: [prepare]
+    needs: [prepare-container, prepare]
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.prepare.outputs.container_image }}
+      image: "${{ needs.prepare-container.outputs.container_image }}"
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -314,10 +309,10 @@ jobs:
 
   build-instrumented-tests:
     name: Build instrumented test packages
-    needs: [prepare]
+    needs: prepare-container
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.prepare.outputs.container_image }}
+      image: "${{ needs.prepare-container.outputs.container_image }}"
     strategy:
       matrix:
         include:

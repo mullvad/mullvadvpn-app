@@ -1,0 +1,37 @@
+---
+name: Resolve container images
+
+on:
+  workflow_call:
+    inputs:
+      override_container_image:
+        type: string
+        default: ""
+        description: "If set, use this image"
+      image_file:
+        description: "Path to a file containing the default image ref"
+        required: true
+    outputs:
+      container_image:
+        description: "Resolved image reference"
+        value: ${{ jobs.prepare-container.outputs.container_image }}
+
+permissions: {}
+
+jobs:
+  prepare-container:
+    runs-on: ubuntu-latest
+    outputs:
+      container_image: ${{ steps.resolve.outputs.image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use custom container image if specified
+        if: ${{ inputs.linux_override_container_image != '' }}
+        run: echo "image=${{ github.event.inputs.linux_override_container_image }}"
+          >> $GITHUB_OUTPUT
+
+      - name: Use default container image and resolve digest
+        if: ${{ inputs.linux_override_container_image == '' }}
+        run: echo "image=$(cat ${{ github.event.inputs.image_file }})" >> $GITHUB_OUTPUT
