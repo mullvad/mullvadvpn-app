@@ -97,20 +97,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout wireguard-go submodule
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
-
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.21.3
+      - uses: ./.github/actions/mullvad-build-env
 
       - name: Build and test crates
         run: ./ci/check-rust.sh
@@ -133,79 +120,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout submodules
-        run: |
-          git submodule update --init --depth=1
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
-
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Calculate Windows libraries cache hash
-        id: windows-modules-hash
-        shell: bash
-        run: |
-          hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' \
-            | grep -v '\.exe$\|\.md$' \
-            | xargs sha1sum \
-            | sha1sum \
-            | cut -d" " -f1)"
-          echo "hash=$hash" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Windows libraries
-        uses: actions/cache@v4
-        id: cache-windows-modules
-        with:
-          path: |
-            ./windows/*/bin/${{ matrix.config.arch }}-*/*.dll
-            ./windows/*/bin/${{ matrix.config.arch }}-*/*.lib
-            !./windows/*/bin/${{ matrix.config.arch }}-*/libcommon.lib
-            !./windows/*/bin/${{ matrix.config.arch }}-*/libshared.lib
-            !./windows/*/bin/${{ matrix.config.arch }}-*/libwfp.lib
-          key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
-
-      # The x64 toolchain is needed to build talpid-openvpn-plugin
-      # TODO: Remove once fixed
-      - name: Install Rust x64 target
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        if: ${{ matrix.config.arch == 'arm64' }}
-        with:
-          target: x86_64-pc-windows-msvc
-
-      - name: Install Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          target: i686-pc-windows-msvc
-
-      - name: Install msbuild
-        uses: microsoft/setup-msbuild@v1.0.2
-        with:
-          vs-version: 16
-
-      - name: Install latest zig
-        uses: mlugg/setup-zig@v2
-
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.21.3
+      - uses: ./.github/actions/mullvad-build-env
 
       - name: Build Windows modules (x86_64)
-        if: ${{ (steps.cache-windows-modules.outputs.cache-hit != 'true') && (matrix.config.arch == 'x64') }}
+        if: ${{ matrix.config.arch == 'x64' }}
         shell: bash
-        run: ./build-windows-modules.sh
+        run: ./build-windows-modules.sh build winfw
 
       - name: Build Windows modules (ARM64)
-        if: ${{ (steps.cache-windows-modules.outputs.cache-hit != 'true') && (matrix.config.arch == 'arm64') }}
+        if: ${{ matrix.config.arch == 'arm64' }}
         shell: bash
         # By default, ./build-windows-modules.sh will use 4 concurrent processes during compilation
         # because the Windows 11 ARM runner has 4 cores:
         # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
         #
         # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
-        run: ./build-windows-modules.sh --max-concurrent-processes 3
+        run: ./build-windows-modules.sh --max-concurrent-processes 3 build winfw
 
       - name: Build and test crates
         shell: bash

@@ -19,8 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout wireguard-go submodule
-        run: git submodule update --init --depth=1 wireguard-go-rs
+      - uses: ./.github/actions/mullvad-build-env
 
       - name: Run cargo deny
         uses: EmbarkStudios/cargo-deny-action@v2

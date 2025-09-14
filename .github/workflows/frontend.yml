@@ -27,15 +27,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout wireguard-go submodule
-        run: git submodule update --init --depth=1 wireguard-go-rs
-
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: desktop/package.json
-          cache: 'npm'
-          cache-dependency-path: desktop/package-lock.json
+      - uses: ./.github/actions/mullvad-build-env
 
       - name: Install dependencies
         working-directory: desktop
