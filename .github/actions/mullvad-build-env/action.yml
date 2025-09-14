@@ -6,7 +6,7 @@ inputs:
     default: "stable"
     required: false
   components:
-    description: "Comma-separated components to install (e.g. rustfmt, clippy)"
+    description: "Space-separated components to install (e.g. rustfmt, clippy)"
     default: "clippy"
     required: false
   protoc-token:
@@ -25,11 +25,15 @@ runs:
           ~/.cargo/git/db/
         key: ${{ runner.os }}-cargo-${{ inputs.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        toolchain: ${{ inputs.toolchain }}
-        components: ${{ inputs.components }}
+    - name: Override Rust toolchain
+      if: inputs.toolchain != "stable"
+      shell: bash
+      run: rustup override set ${{ inputs.toolchain }}
+
+    - name: Install Rust components
+      if: inputs.components != ''
+      shell: bash
+      run: rustup component add ${{ inputs.components }}
 
     # The x64 toolchain is needed to build talpid-openvpn-plugin
     # TODO: Remove once fixed
