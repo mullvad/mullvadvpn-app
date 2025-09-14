@@ -15,21 +15,25 @@ env:
 permissions: {}
 
 jobs:
-  prepare-linux:
-    uses: ./.github/workflows/resolve-container-image.yml
-    with:
-      image_file: ./building/linux-container-image.txt
+  prepare-containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-  prepare-android:
-    uses: ./.github/workflows/resolve-container-image.yml
-    with:
-      image_file: ./building/android-container-image.txt
+      - name: Fetch container image names
+        run: |
+          echo "inner_container_image_linux=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+          echo "inner_container_image_android=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image_linux: ${{ env.inner_container_image_linux }}
+      container_image_android: ${{ env.inner_container_image_android }}
 
   cargo-udeps-linux:
-    needs: prepare-linux
+    needs: prepare-containers
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.prepare-linux.outputs.container_image }}
+      image: ${{ needs.prepare-containers.outputs.container_image_linux }}
 
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
@@ -58,10 +62,10 @@ jobs:
         run: source env.sh && cargo udeps --workspace
 
   cargo-udeps-android:
-    needs: prepare-android
+    needs: prepare-containers
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.prepare-android.outputs.container_image }}
+      image: ${{ needs.prepare-containers.outputs.container_image_android }}
 
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
