@@ -323,29 +323,7 @@ jobs:
           git config --system core.longpaths true
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: desktop/package.json
-          cache: 'npm'
-          cache-dependency-path: desktop/package-lock.json
-      - name: Install Rust
-        run: rustup target add i686-pc-windows-msvc
-      - name: Install latest zig
-        uses: mlugg/setup-zig@v2
-        with:
-          version: 0.14.0-dev.3036+7ac110ac2
-      - name: Install msbuild
-        uses: microsoft/setup-msbuild@v1.0.2
-        with:
-          vs-version: 16
+      - uses: ./.github/actions/mullvad-build-env
       - name: Build app
         shell: bash
         run: |
@@ -438,23 +416,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1
-      - name: Install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.21.3
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: desktop/package.json
-          cache: 'npm'
-          cache-dependency-path: desktop/package-lock.json
+      - uses: ./.github/actions/mullvad-build-env
       - name: Build app
         run: ./build.sh
       - name: Build test executable

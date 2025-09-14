@@ -29,13 +29,6 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
 
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: desktop/package.json
-          cache: 'npm'
-          cache-dependency-path: desktop/package-lock.json
-
       - name: Install dependencies
         working-directory: desktop
         shell: bash
