@@ -26,12 +26,12 @@ runs:
         key: ${{ runner.os }}-cargo-${{ inputs.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Override Rust toolchain
-      if: inputs.toolchain != "stable"
+      if: ${{ inputs.toolchain != 'stable' }}
       shell: bash
       run: rustup override set ${{ inputs.toolchain }}
 
     - name: Install Rust components
-      if: inputs.components != ''
+      if: ${{ inputs.components != '' }}
       shell: bash
       run: rustup component add ${{ inputs.components }}
 
