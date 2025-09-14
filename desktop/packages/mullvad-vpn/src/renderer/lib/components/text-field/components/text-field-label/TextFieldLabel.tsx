@@ -5,5 +5,5 @@ export type TextFieldLabelProps = TextProps;
 
 export const TextFieldLabel = (props: TextFieldLabelProps) => {
   const { labelId } = useTextFieldContext();
-  return <Text id={labelId} variant="labelTiny" {...props} />;
+  return <Text id={labelId} variant="labelTinySemiBold" {...props} />;
 };

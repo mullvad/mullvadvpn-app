@@ -38,7 +38,7 @@ export function HeaderDescription() {
               aria-description={message}
               as="button"
               onClick={showUnsupportedDialog}
-              variant="labelTiny">
+              variant="labelTinySemiBold">
               <Link.Text>
                 {
                   // TRANSLATORS: Link for learning more
