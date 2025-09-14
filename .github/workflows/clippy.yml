@@ -46,42 +46,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
+      - uses: ./.github/actions/mullvad-build-env
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout submodules
-        run: |
-          git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
-
-      - name: Install build dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install libdbus-1-dev
-
-      - name: Install msbuild
-        if: matrix.os == 'windows-latest'
-        uses: microsoft/setup-msbuild@v1.0.2
-        with:
-          vs-version: 16
-
-      - name: Install latest zig
-        if: matrix.os == 'windows-latest'
-        uses: mlugg/setup-zig@v2
-        with:
-          version: 0.14.1
-
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.21.3
-
-      - name: Install Rust components
-        shell: bash
-        run: rustup component add clippy
+          components: clippy
 
       - name: Clippy check
         shell: bash
