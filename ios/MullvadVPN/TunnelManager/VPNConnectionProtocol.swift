@@ -20,11 +20,11 @@ protocol VPNTunnelProviderManagerProtocol: Equatable {
 
     init()
 
-    func loadFromPreferences(completionHandler: @escaping (Error?) -> Void)
-    func saveToPreferences(completionHandler: ((Error?) -> Void)?)
-    func removeFromPreferences(completionHandler: ((Error?) -> Void)?)
+    func loadFromPreferences(completionHandler: @escaping @Sendable (Error?) -> Void)
+    func saveToPreferences(completionHandler: (@Sendable (Error?) -> Void)?)
+    func removeFromPreferences(completionHandler: (@Sendable (Error?) -> Void)?)
 
-    static func loadAllFromPreferences(completionHandler: @escaping ([SelfType]?, Error?) -> Void)
+    static func loadAllFromPreferences(completionHandler: @escaping @Sendable ([SelfType]?, Error?) -> Void)
 }
 
 protocol VPNConnectionProtocol: NSObject {

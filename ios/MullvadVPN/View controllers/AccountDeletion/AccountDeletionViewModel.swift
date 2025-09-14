@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import SwiftUICore
+import SwiftUI
 
 protocol AccountDeletionBackEnd {
     var accountNumber: String? { get }
