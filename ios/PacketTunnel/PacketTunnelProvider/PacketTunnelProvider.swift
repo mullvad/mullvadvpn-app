@@ -12,7 +12,7 @@ import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
-import NetworkExtension
+@preconcurrency import NetworkExtension
 import PacketTunnelCore
 import WireGuardKitTypes
 
@@ -154,7 +154,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
     }
 
-    override func startTunnel(options: [String: NSObject]? = nil) async throws {
+    override func startTunnel(
+        options: [String: NSObject]? = nil,
+        completionHandler: @escaping @Sendable ((any Error)?) -> Void
+    ) {
         let startOptions = parseStartOptions(options ?? [:])
 
         startObservingActorState()
@@ -165,25 +168,31 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         actor.start(options: startOptions)
 
-        for await state in await actor.observedStates {
-            switch state {
-            case .connected, .disconnected, .error:
-                return
-            case let .connecting(connectionState):
-                // Give the tunnel a few tries to connect, otherwise return immediately. This will enable VPN in
-                // device settings, but the app will still report the true state via ObservedState over IPC.
-                // In essence, this prevents the 60s tunnel timeout to trigger.
-                if connectionState.connectionAttemptCount > 1 {
+        Task {
+            for await state in await actor.observedStates {
+                switch state {
+                case .connected, .disconnected, .error:
+                    completionHandler(nil)
+                    return
+                case let .connecting(connectionState):
+                    // Give the tunnel a few tries to connect, otherwise return immediately. This will enable VPN in
+                    // device settings, but the app will still report the true state via ObservedState over IPC.
+                    // In essence, this prevents the 60s tunnel timeout to trigger.
+                    if connectionState.connectionAttemptCount > 1 {
+                        completionHandler(nil)
+                        return
+                    }
+                case .negotiatingEphemeralPeer:
+                    // When negotiating ephemeral peers, allow the connection to go through immediately.
+                    // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
+                    // any traffic through until this function returns, which would prevent negotiating ephemeral peers
+                    // from an unconnected state.
+                    completionHandler(nil)
+                    return
+                default:
+                    completionHandler(nil)
                     return
                 }
-            case .negotiatingEphemeralPeer:
-                // When negotiating ephemeral peers, allow the connection to go through immediately.
-                // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
-                // any traffic through until this function returns, which would prevent negotiating ephemeral peers
-                // from an unconnected state.
-                return
-            default:
-                break
             }
         }
     }
