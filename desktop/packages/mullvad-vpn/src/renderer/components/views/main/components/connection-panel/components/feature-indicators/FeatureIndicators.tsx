@@ -180,7 +180,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
             })}
           </StyledFeatureIndicatorsWrapper>
           <StyledEllipsisSpacer
-            variant="labelTiny"
+            variant="labelTinySemiBold"
             $display={!props.expanded}
             ref={ellipsisSpacerRef}>
             {
@@ -190,7 +190,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
             }
           </StyledEllipsisSpacer>
           <StyledEllipsis
-            variant="labelTiny"
+            variant="labelTinySemiBold"
             onClick={props.expandIsland}
             $display={!props.expanded}
             ref={ellipsisRef}

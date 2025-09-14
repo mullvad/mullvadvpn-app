@@ -158,7 +158,7 @@ class Login extends React.Component<IProps, IState> {
               </FlexColumn>
               <Flex $justifyContent="center">
                 <StyledLine $margin={{ vertical: 'small', right: 'small' }} />
-                <Text variant="labelTiny">
+                <Text variant="labelTinySemiBold">
                   {
                     // TRANSLATORS: Text shown between two horizontal lines above the "create account" button.
                     // TRANSLATORS: In this context it is used to separate the users alternative of logging in
@@ -372,7 +372,11 @@ class Login extends React.Component<IProps, IState> {
     return (
       <>
         <Flex $flexDirection="column" $gap="tiny">
-          <Label htmlFor={inputId} variant="labelTiny" color="whiteAlpha60" data-testid="subtitle">
+          <Label
+            htmlFor={inputId}
+            variant="labelTinySemiBold"
+            color="whiteAlpha60"
+            data-testid="subtitle">
             {this.formSubtitle()}
           </Label>
           <form onSubmit={this.onSubmit}>

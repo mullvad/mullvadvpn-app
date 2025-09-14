@@ -50,7 +50,7 @@ export function DaitaSettingsView() {
                 {showDaitaMultihopInfo && (
                   <Flex $gap="small" $alignItems="center">
                     <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
-                    <Text variant="labelTiny" color="whiteAlpha60">
+                    <Text variant="labelTinySemiBold" color="whiteAlpha60">
                       {messages.pgettext(
                         'wireguard-settings-view',
                         'Multihop is being used to enable DAITA for your selected location',
