@@ -140,7 +140,8 @@ export default function SelectLocation() {
                 // TRANSLATORS: Title label in navigation bar
                 messages.pgettext('select-location-nav', 'Select location')
               }
-              titleVisible>
+              titleVisible={true}
+              preventFocus={true}>
               <IconButton
                 variant="secondary"
                 onClick={onViewFilter}
