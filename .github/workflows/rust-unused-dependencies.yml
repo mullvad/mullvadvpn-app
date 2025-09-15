@@ -110,7 +110,7 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
         with:
-          toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
+          rust-toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
 
       - uses: taiki-e/install-action@v2
         with:

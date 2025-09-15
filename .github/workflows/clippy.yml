@@ -48,7 +48,7 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
         with:
-          components: clippy
+          rustup-components: clippy
 
       - name: Clippy check
         shell: bash

@@ -19,7 +19,7 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
         with:
-          components: "rustfmt"
+          rustup-components: rustfmt
 
       - name: Check formatting
         run: |-

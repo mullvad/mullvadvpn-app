@@ -1,13 +1,13 @@
 name: "Mullvad build env"
 description: "Set up build environment for Mullvad"
 inputs:
-  toolchain:
+  rust-toolchain:
     description: "Rust toolchain (stable, beta, nightly, or version)"
-    default: "stable"
+    default: stable
     required: false
-  components:
-    description: "Space-separated components to install (e.g. rustfmt, clippy)"
-    default: "clippy"
+  rustup-components:
+    description: "Space-separated Rustup components to install (e.g. rustfmt, clippy)"
+    default: clippy
     required: false
   protoc-token:
     description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
@@ -23,26 +23,26 @@ runs:
           ~/.cargo/registry/index/
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
-        key: ${{ runner.os }}-cargo-${{ inputs.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-cargo-${{ inputs.rust-toolchain }}-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Override Rust toolchain
-      if: ${{ inputs.toolchain != 'stable' }}
+      if: ${{ inputs.rust-toolchain != 'stable' }}
       shell: bash
-      run: rustup override set ${{ inputs.toolchain }}
+      run: rustup override set ${{ inputs.rust-toolchain }}
 
     - name: Install Rust components
-      if: ${{ inputs.components != '' }}
+      if: ${{ inputs.rustup-components != '' }}
       shell: bash
-      run: rustup component add ${{ inputs.components }}
+      run: rustup component add ${{ inputs.rustup-components }}
 
-    # The x64 toolchain is needed to build talpid-openvpn-plugin
+    # The x64 target is needed to build talpid-openvpn-plugin
     # TODO: Remove once fixed
     - name: Install Rust x64 target
       if: runner.os == 'Windows' && runner.arch == 'ARM64'
       shell: bash
       run: rustup target add x86_64-pc-windows-msvc
 
-    # Install 32-bit toolchain for NSIS plugins
+    # Install 32-bit target for NSIS plugins
     - name: Install Rust 32-bit x86 target
       if: runner.os == 'Windows'
       shell: bash
