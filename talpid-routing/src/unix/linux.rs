@@ -11,6 +11,7 @@ use netlink_packet_core::{
     Emitable, NLM_F_ACK, NLM_F_CREATE, NLM_F_DUMP, NLM_F_REPLACE, NLM_F_REQUEST, NetlinkMessage,
     NetlinkPayload,
 };
+use netlink_packet_route::route::RouteFlags;
 use netlink_sys::AsyncSocket;
 use talpid_types::ErrorExt;
 
