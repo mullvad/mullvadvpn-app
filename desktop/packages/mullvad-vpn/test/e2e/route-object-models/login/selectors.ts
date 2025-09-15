@@ -12,7 +12,7 @@ export const createSelectors = (page: Page) => ({
   confirmClearAccountHistoryButton: () => page.getByRole('button', { name: 'Remove' }),
 
   cancelDialogButton: () => page.getByRole('button', { name: 'Cancel' }),
-  loginInput: () => page.getByLabel('Enter your account number'),
+  loginInput: () => page.getByTestId('subtitle'),
   loginButton: () => page.getByRole('button', { name: 'Login', exact: true }),
   header: () => page.getByRole('heading', { level: 1 }),
 });
