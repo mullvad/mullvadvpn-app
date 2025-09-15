@@ -3,7 +3,7 @@
 set -eu
 
 function usage {
-    echo "usage: $0 [clean] [--max-concurrent-processes <n>] [solution...]"
+    echo "usage: $0 [clean|build] [--max-concurrent-processes <n>] [solution...]"
     echo "  --max-concurrent-processes <n>  Limit concurrent processes that msbuild can spawn to <n>. Defaults to number of processor cores."
     exit 1
 }
@@ -149,11 +149,17 @@ function clean_all {
 }
 
 function build {
-    [[ $BUILD_WINFW == "true" ]] && build_solution "./windows/winfw" "winfw.sln"
+    if [[ $BUILD_WINFW == "true" ]]; then
+        build_solution "./windows/winfw" "winfw.sln"
+    fi
 
-    [[ $BUILD_DRIVERLOGIC == "true" ]] && build_solution "./windows/driverlogic" "driverlogic.sln"
+    if [[ $BUILD_DRIVERLOGIC == "true" ]]; then
+        build_solution "./windows/driverlogic" "driverlogic.sln"
+    fi
 
-    [[ $BUILD_NSIS == "true" ]] && build_nsis_plugins
+    if [[ $BUILD_NSIS == "true" ]]; then
+        build_nsis_plugins
+    fi
 }
 
 case $ACTION in
