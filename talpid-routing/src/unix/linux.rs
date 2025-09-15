@@ -740,7 +740,8 @@ impl RouteManagerImpl {
 
                 // Set route MTU
                 if let Some(mtu) = route.mtu {
-                    // TODO: Submit PR upstream for doing this on the builder instead.
+                    // TODO: This can be done before calling `add_message.build()` if
+                    // https://github.com/rust-netlink/rtnetlink/pull/126 is merged & released.
                     let mtu = RouteMetric::Mtu(mtu);
                     msg.attributes.push(RouteAttribute::Metrics(vec![mtu]));
                 }
