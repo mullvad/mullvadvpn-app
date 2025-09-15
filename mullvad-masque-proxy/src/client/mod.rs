@@ -27,8 +27,7 @@ use quinn::{
 };
 
 use crate::{
-    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU,
-    compute_udp_payload_size,
+    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS,
     fragment::{self, DefragReceived, Fragments},
     stats::Stats,
 };
@@ -55,9 +54,6 @@ pub struct Client {
     /// Request stream for the currently open request, must not be dropped, otherwise proxy
     /// connection is terminated
     request_stream: client::RequestStream<h3_quinn::BidiStream<bytes::Bytes>, bytes::Bytes>,
-
-    /// Maximum UDP payload size (packet size including QUIC overhead)
-    max_udp_payload_size: u16,
 
     stats: Arc<Stats>,
 }
@@ -129,10 +125,6 @@ pub struct ClientConfig {
     /// Remote QUIC endpoint hostname
     pub server_host: String,
 
-    /// MTU (includes IP header)
-    #[builder(default = 1500)]
-    pub mtu: u16,
-
     /// QUIC TLS config
     #[builder(default = default_tls_config())]
     pub tls_config: Arc<rustls::ClientConfig>,
@@ -167,14 +159,8 @@ impl Client {
         // better performance.
         client_config.transport_config(Arc::new(transport_config));
 
-        Self::validate_mtu(config.mtu, config.target_addr)?;
-
-        let max_udp_payload_size = compute_udp_payload_size(config.mtu, config.server_addr);
-
-        let endpoint = Self::setup_quic_endpoint(
-            config.quinn_socket.into_std().map_err(Error::Endpoint)?,
-            max_udp_payload_size,
-        )?;
+        let endpoint =
+            Self::setup_quic_endpoint(config.quinn_socket.into_std().map_err(Error::Endpoint)?)?;
 
         let connecting =
             endpoint.connect_with(client_config, config.server_addr, &config.server_host)?;
@@ -185,7 +171,6 @@ impl Client {
             connection.clone(),
             config.target_addr,
             &config.server_host,
-            max_udp_payload_size,
             config.auth_header,
         )
         .await?;
@@ -196,36 +181,22 @@ impl Client {
             client_socket: Arc::new(config.client_socket),
             request_stream,
             _send_stream: send_stream,
-            max_udp_payload_size,
             stats: Arc::default(),
         })
     }
 
-    const fn validate_mtu(mtu: u16, target_addr: SocketAddr) -> Result<()> {
-        let min_mtu = if target_addr.is_ipv4() {
-            MIN_IPV4_MTU
-        } else {
-            MIN_IPV6_MTU
-        };
-        if mtu >= min_mtu {
-            Ok(())
-        } else {
-            Err(Error::InvalidMtu { min_mtu })
-        }
-    }
-
     // `socket` is a UDP socket which quinn will read/write from/to.
-    fn setup_quic_endpoint(
-        socket: std::net::UdpSocket,
-        max_udp_payload_size: u16,
-    ) -> Result<Endpoint> {
-        let endpoint_config = {
-            let mut endpoint_config = EndpointConfig::default();
-            endpoint_config
-                .max_udp_payload_size(max_udp_payload_size)
-                .map_err(Error::InvalidMaxUdpPayload)?;
-            endpoint_config
+    fn setup_quic_endpoint(socket: std::net::UdpSocket) -> Result<Endpoint> {
+        let mut endpoint_config = EndpointConfig::default();
+
+        // this is the default, but the server requires the field to be set.
+        let max_udp_payload_size = match socket.peer_addr() {
+            Ok(SocketAddr::V4(..)) => 1472,
+            Ok(SocketAddr::V6(..)) | Err(_) => 1452,
         };
+        endpoint_config
+            .max_udp_payload_size(max_udp_payload_size)
+            .expect("max_udp_payload_size is within bounds");
 
         Endpoint::new(endpoint_config, None, socket, Arc::new(TokioRuntime))
             .map_err(Error::Endpoint)
@@ -236,7 +207,6 @@ impl Client {
         connection: quinn::Connection,
         target: SocketAddr,
         server_host: &str,
-        mtu: u16,
         auth_header: Option<String>,
     ) -> Result<(
         client::Connection<h3_quinn::Connection, bytes::Bytes>,
@@ -251,16 +221,8 @@ impl Client {
             .await
             .map_err(Error::CreateClient)?;
 
-        Self::send_connect_request(
-            connection,
-            send_stream,
-            server_host,
-            target,
-            mtu,
-            0,
-            auth_header,
-        )
-        .await
+        Self::send_connect_request(connection, send_stream, server_host, target, 0, auth_header)
+            .await
     }
 
     /// Send an HTTP CONNECT request and set up the h3 connection for sending datagrams.
@@ -271,7 +233,6 @@ impl Client {
         mut send_stream: client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
         server_host: &str,
         target: SocketAddr,
-        mtu: u16,
         redirect_count: usize,
         auth_header: Option<String>,
     ) -> Result<(
@@ -279,7 +240,7 @@ impl Client {
         client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
         client::RequestStream<h3_quinn::BidiStream<bytes::Bytes>, bytes::Bytes>,
     )> {
-        let request = new_connect_request(target, &server_host, mtu, auth_header.as_deref())?;
+        let request = new_connect_request(target, &server_host, auth_header.as_deref())?;
 
         let request_future = async move {
             let mut request_stream = send_stream.send_request(request).await?;
@@ -332,7 +293,6 @@ impl Client {
                     send_stream,
                     &server_host,
                     target,
-                    mtu,
                     redirect_count + 1,
                     auth_header,
                 ))
@@ -371,7 +331,6 @@ impl Client {
 
         let mut server_socket_task = tokio::task::spawn(server_socket_task(
             stream_id,
-            self.max_udp_payload_size,
             self.quinn_conn,
             self.connection,
             server_tx,
@@ -397,7 +356,6 @@ impl Client {
 
 async fn server_socket_task(
     stream_id: StreamId,
-    _max_udp_payload_size: u16,
     quinn_conn: quinn::Connection,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
     server_tx: mpsc::Sender<Datagram>,
@@ -409,12 +367,14 @@ async fn server_socket_task(
 
     // Maximum size of a datagram passed to send_datagram.
     // Based on quinns path MTU detection, and updated throughout the lifetime of the connection.
-    let mut max_datagram_size: u16 = 1500;
-
+    // Start with the smallest allowed value.
+    let mut max_datagram_size: u16 = 1200;
     let mut max_datagram_size_timer = interval(Duration::from_secs(1));
 
+    // Update `max_datagram_size`, returning true if the value changed.
     let update_max_datagram_size = |max_datagram_size: &mut u16| -> bool {
         let mut value_changed = false;
+
         if let Some(new) = quinn_conn.max_datagram_size() {
             let new = u16::try_from(new).expect("max_datagram_size fits in a u16");
 
@@ -439,7 +399,7 @@ async fn server_socket_task(
         let packet = select! {
             _ = max_datagram_size_timer.tick() => {
                 if update_max_datagram_size(&mut max_datagram_size) {
-                    log::warn!("mtu updated from timer")
+                    log::warn!("mtu updated from timer") // todo: remove me
                 };
                 continue;
             }
@@ -758,7 +718,6 @@ async fn fragment_reassembly_task(
 fn new_connect_request(
     socket_addr: SocketAddr,
     authority: &dyn AsRef<str>,
-    mtu: u16,
     authorization: Option<&str>,
 ) -> Result<http::Request<()>> {
     let host = socket_addr.ip();
@@ -781,15 +740,7 @@ fn new_connect_request(
         builder = builder.header(header::AUTHORIZATION, auth);
     }
 
-    let mut request = builder
-        // TODO: Not needed since we set the max_udp_payload_size transport param
-        .header(
-            b"X-Mullvad-Uplink-Mtu".as_slice(),
-            format!("{mtu}"),
-        )
-        .body(())
-        .expect("failed to construct a body");
-
+    let mut request = builder.body(()).expect("failed to construct a body");
     request.extensions_mut().insert(Protocol::CONNECT_UDP);
     Ok(request)
 }
