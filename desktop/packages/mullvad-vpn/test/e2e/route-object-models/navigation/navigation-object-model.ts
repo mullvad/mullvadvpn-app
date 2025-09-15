@@ -1,5 +1,6 @@
 import { Page } from 'playwright';
 
+import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
 
@@ -14,11 +15,16 @@ export class NavigationObjectModel {
   }
 
   async goBack() {
-    await this.navigationSelectors.backButton().click();
-    await this.utils.waitForNextRoute();
+    await Promise.all([
+      this.utils.waitForNextRoute(),
+      this.navigationSelectors.backButton().click(),
+    ]);
   }
 
-  async gotoRoot() {
-    await this.page.press('body', 'Shift+Escape');
+  async goBackToRoute(route: RoutePath) {
+    if (await this.navigationSelectors.backButton().isVisible()) {
+      await this.goBack();
+      await this.utils.waitForRoute(route);
+    }
   }
 }

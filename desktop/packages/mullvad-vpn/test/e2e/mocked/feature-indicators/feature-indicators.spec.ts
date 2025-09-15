@@ -156,8 +156,6 @@ test.describe('Feature indicators', () => {
 
   test.afterEach(async () => {
     await helpers.disconnect();
-    await routes.wireguardSettings.gotoRoot();
-    await util.waitForRoute(RoutePath.main);
   });
 
   async function expectFeatureIndicators(expectedIndicators: Array<string>, only = true) {
@@ -248,6 +246,9 @@ test.describe('Feature indicators', () => {
 
         const currentRoute = await util.currentRoute();
         expect(currentRoute).toBe(route);
+
+        await routes.wireguardSettings.goBack();
+        await routes.main.waitForRoute();
       });
     },
   );
@@ -273,6 +274,9 @@ test.describe('Feature indicators', () => {
 
         const currentRoute = await util.currentRoute();
         expect(currentRoute).toBe(route);
+
+        await routes.wireguardSettings.goBack();
+        await routes.main.waitForRoute();
       });
     },
   );
