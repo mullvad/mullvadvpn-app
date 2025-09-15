@@ -158,8 +158,7 @@ test.describe('Feature indicators', () => {
 
   test.afterEach(async () => {
     await helpers.disconnect();
-    await routes.wireguardSettings.gotoRoot();
-    await util.expectRoute(RoutePath.main);
+    await routes.wireguardSettings.goBackToRoute(RoutePath.main);
   });
 
   async function expectFeatureIndicators(expectedIndicators: Array<string>, only = true) {
