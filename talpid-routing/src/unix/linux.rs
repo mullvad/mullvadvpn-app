@@ -886,8 +886,6 @@ impl RouteManagerImpl {
             request
         };
 
-        // TODO: How important is this?
-        // message.header.flags = RouteFlags::RTM_F_FIB_MATCH;
         let mut stream = self.handle.route().get(request).execute();
         match stream.try_next().await {
             Ok(Some(route_msg)) => self.parse_route_message(route_msg),
