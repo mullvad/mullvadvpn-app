@@ -58,11 +58,7 @@ class OutOfTimeContentView: UIView {
         return button
     }()
 
-    private lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
+    private let scrollView = UIScrollView()
 
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])

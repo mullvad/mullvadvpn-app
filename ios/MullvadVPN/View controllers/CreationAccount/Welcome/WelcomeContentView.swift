@@ -151,11 +151,7 @@ final class WelcomeContentView: UIView, Sendable {
         return stackView
     }()
 
-    private lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
+    private let scrollView = UIScrollView()
 
     weak var delegate: WelcomeContentViewDelegate?
     var viewModel: WelcomeViewModel? {
@@ -215,7 +211,8 @@ final class WelcomeContentView: UIView, Sendable {
     private func addConstraints() {
         scrollView.addConstrainedSubviews([textsStackView]) {
             textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .leading(24), .trailing(24),
+                .leading(UIMetrics.contentLayoutMargins.leading),
+                .trailing(UIMetrics.contentLayoutMargins.trailing),
             ]))
             textsStackView.topAnchor.constraint(greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor)
             textsStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)

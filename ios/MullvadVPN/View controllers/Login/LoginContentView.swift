@@ -91,11 +91,7 @@ class LoginContentView: UIView {
         return button
     }()
 
-    private lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
+    private let scrollView = UIScrollView()
 
     private var isStatusImageVisible = false
     private var contentContainerBottomConstraint: NSLayoutConstraint?
