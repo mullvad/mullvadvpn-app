@@ -160,28 +160,19 @@ impl Handle {
 
     // create a wireguard device with the given name.
     pub async fn create_device(&mut self, name: String, mtu: u32) -> Result<u32, Error> {
-        let mut message = LinkMessage::default();
+        let message_builder = LinkMessageBuilder::<LinkWireguard>::new(&name)
+            // set link to be up
+            .up() // IFF_UP
+            // set link MTU
+            .mtu(mtu);
+        let message = message_builder.build();
 
-        // set link to be up
-        message.header.flags = LinkFlags::Up; // IFF_UP;
-        // message.header.change_mask = netlink_packet_route::IFF_UP;
-        // set link name
-        message.attributes.push(LinkAttribute::IfName(name.clone()));
-        // set link MTU
-        message.attributes.push(LinkAttribute::Mtu(mtu));
-        // set link type
-        message
-            .attributes
-            .push(LinkAttribute::LinkInfo(vec![LinkInfo::Kind(
-                InfoKind::Wireguard,
-            )]));
-
-        let mut add_request = NetlinkMessage::from(RouteNetlinkMessage::NewLink(message));
-        add_request.header.flags =
-            NLM_F_REQUEST | NLM_F_ACK | NLM_F_REPLACE | NLM_F_CREATE | NLM_F_MATCH;
-        let mut response = self
-            .route_handle
-            .request(add_request)
+        self.route_handle
+            .link()
+            .add(message)
+            .set_flags(NLM_F_REQUEST | NLM_F_ACK | NLM_F_REPLACE | NLM_F_CREATE | NLM_F_MATCH)
+            .execute()
+            .await
             .map_err(Error::NetlinkCreateDevice)?;
         while let Some(response_message) = response.next().await {
             if let NetlinkPayload::Error(err) = response_message.payload {
