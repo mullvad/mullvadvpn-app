@@ -16,7 +16,8 @@ const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
 
 pub struct Multiplexer {
     client_socket: Arc<UdpSocket>,
-    proxy_socket: Arc<UdpSocket>,
+    proxy_socket_v4: Arc<UdpSocket>,
+    proxy_socket_v6: Arc<UdpSocket>,
     client_socket_addr: SocketAddr,
     running_endpoints: BTreeMap<SocketAddr, Transport>,
     transports: VecDeque<Transport>,
@@ -34,9 +35,14 @@ impl Multiplexer {
             .local_addr()
             .map_err(crate::Error::CreateMultiplexerObfuscator)?;
 
-        // TODO: Support IPv6
-        let proxy_socket = create_remote_socket(
+        let proxy_socket_v4 = create_remote_socket(
             true,
+            #[cfg(target_os = "linux")]
+            settings.fwmark,
+        )
+        .await?;
+        let proxy_socket_v6 = create_remote_socket(
+            false,
             #[cfg(target_os = "linux")]
             settings.fwmark,
         )
@@ -44,7 +50,8 @@ impl Multiplexer {
 
         Ok(Self {
             client_socket: Arc::new(client_socket),
-            proxy_socket: Arc::new(proxy_socket),
+            proxy_socket_v4: Arc::new(proxy_socket_v4),
+            proxy_socket_v6: Arc::new(proxy_socket_v6),
             client_socket_addr,
             running_endpoints: BTreeMap::new(),
             transports: VecDeque::from(settings.transports.clone()),
@@ -53,80 +60,140 @@ impl Multiplexer {
         })
     }
 
+    fn proxy_for_addr(&self, addr: SocketAddr) -> &Arc<UdpSocket> {
+        if addr.is_ipv4() {
+            &self.proxy_socket_v4
+        } else {
+            &self.proxy_socket_v6
+        }
+    }
+
     async fn start(mut self) -> io::Result<()> {
         log::debug!("Running multiplexer obfuscation");
 
         let mut wg_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
-        let mut obfuscator_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
+        let mut obfs_recv_v4_buf = vec![0u8; MAX_DATAGRAM_SIZE];
+        let mut obfs_recv_v6_buf = vec![0u8; MAX_DATAGRAM_SIZE];
 
-        // let mut last_wg_packet: Option<Vec<u8>> = None;
         let delay = tokio::time::interval_at(Instant::now(), Duration::from_secs(1));
-        let mut wg_addr = None;
         tokio::pin!(delay);
+
+        // Address of WG endpoint socket
+        let mut wg_addr = None;
+
+        // Helper to fan out a packet to all currently running endpoints
+        async fn send_to_all<'a>(
+            endpoints: &BTreeMap<SocketAddr, Transport>,
+            get_socket: impl Fn(SocketAddr) -> &'a Arc<UdpSocket>,
+            packet: &[u8],
+        ) {
+            for (addr, _obfs) in endpoints {
+                let udp = get_socket(*addr);
+                log::info!("Sending received packet to proxy {addr}");
+                if let Err(err) = udp.send_to(packet, addr).await {
+                    log::error!("Failed to send received packet to proxy {addr}: {err}");
+                } else {
+                    log::info!("Successfully sent traffic to obfuscator {addr}");
+                }
+            }
+        }
+
+        // Handler for packets received from any proxy.
+        // This returns true if we forwarded received bytes from an obfuscator
+        // back to wireguard
+        async fn process_obfuscator_recv(
+            wg_addr: SocketAddr,
+            client_socket: &UdpSocket,
+            running_endpoints: &BTreeMap<SocketAddr, Transport>,
+            obfuscator_addr: SocketAddr,
+            received: &[u8],
+        ) -> bool {
+            if let Some(transport_config) = running_endpoints.get(&obfuscator_addr) {
+                log::debug!(
+                    "Selecting {:?} as valid transport configuration via {obfuscator_addr}",
+                    transport_config
+                );
+            } else {
+                log::trace!("Ignoring data from unexpected address {obfuscator_addr}");
+                return false;
+            }
+
+            let _ = client_socket.send_to(&received, wg_addr).await;
+            true
+        }
+
         loop {
             tokio::select! {
+                // From local WG
                 socket_recv = self.client_socket.recv_from(&mut wg_recv_buf) => {
-
                     match socket_recv {
                         Ok((bytes_received, from_addr)) => {
                             wg_addr = Some(from_addr);
-                            let received_packet = &wg_recv_buf[..bytes_received];
-                            self.initial_packets_to_send.push(received_packet.to_vec());
+                            let pkt = &wg_recv_buf[..bytes_received];
+                            self.initial_packets_to_send.push(pkt.to_vec());
 
-                            // last_wg_packet = Some(received_packet.clone());
-                            for (addr, obfs) in &self.running_endpoints {
-                                log::info!("Sending received packet to proxy {obfs:?}");
-                               if let Err(err) = self.proxy_socket.send_to(received_packet, addr).await{
-                                log::error!("Failed to send received packet to proxy {addr}: {err}");
-                               } else {
-                                log::info!("Successfully sent traffic to obfuscator {addr}");
-                               }
-                            }
+                            // Fan out latest WG packet to all currently spawned endpoints.
+                            send_to_all(
+                                &self.running_endpoints,
+                                |addr| self.proxy_for_addr(addr),
+                                pkt
+                            ).await;
                         },
                         Err(err) => {
                             log::error!("Failed to receive traffic from local WireGuard instance: {err}");
                             return Ok(());
                         }
-                    };
-
+                    }
                 },
-                obfuscator_recv = self.proxy_socket.recv_from(&mut obfuscator_recv_buf) => {
-                    log::info!("Did receive local socket: {obfuscator_recv:?}");
 
+                // From any IPv4 proxy
+                obfuscator_recv = self.proxy_socket_v4.recv_from(&mut obfs_recv_v4_buf) => {
                     match obfuscator_recv {
-                        Ok((bytes_received, obfuscator_addr)) => {
-                            let Some(wg_addr) = wg_addr else {
-                                log::error!("Received from proxy before ever receiving any traffic from local WireGuard");
-                                return Ok(());
-                            };
-
-                            log::info!("Did receive bytes from obfuscator: °{obfuscator_addr:?}");
-
-                            let _ = self.client_socket.send_to(&obfuscator_recv_buf[..bytes_received], wg_addr).await;
-                            if let Some(transport_config) = self.running_endpoints.get(&obfuscator_addr) {
-                                log::debug!("Selecting {:?} as valid transport configuration, via {}",  transport_config, obfuscator_addr);
+                        Ok((n, obfuscator_addr)) => {
+                            if let Some(wg_addr) = wg_addr && process_obfuscator_recv(
+                                wg_addr,
+                                &self.client_socket,
+                                &self.running_endpoints,
+                                obfuscator_addr,
+                                &obfs_recv_v4_buf[..n]
+                            ).await {
+                                return self.run_connected(wg_addr, obfuscator_addr).await;
                             }
-
-                            // run proxy in _connected_ mode
-                            self.run_connected(wg_addr, obfuscator_addr).await?;
-                            return Ok(())
                         },
                         Err(err) => {
                             log::error!("Failed to receive traffic from obfuscators: {err}");
                             return Err(err);
                         }
                     }
-
                 },
-               _ = delay.tick() => {
-                let Some(transport) = self.transports.pop_front() else {
-                    continue;
-                };
 
-                if let Err(err) = self.spawn_new_transport(transport).await {
-                    log::error!("Failed to spawn new transport: {err}");
-                }
+                // From any IPv6 proxy
+                obfuscator_recv = self.proxy_socket_v6.recv_from(&mut obfs_recv_v6_buf) => {
+                    match obfuscator_recv {
+                        Ok((n, obfuscator_addr)) => {
+                            if let Some(wg_addr) = wg_addr && process_obfuscator_recv(
+                                wg_addr,
+                                &self.client_socket,
+                                &self.running_endpoints,
+                                obfuscator_addr,
+                                &obfs_recv_v6_buf[..n]
+                            ).await {
+                                return self.run_connected(wg_addr, obfuscator_addr).await;
+                            }
+                        },
+                        Err(err) => {
+                            log::error!("Failed to receive traffic from obfuscators: {err}");
+                            return Err(err);
+                        }
+                    }
+                },
 
+                // Spawning the next transport
+                _ = delay.tick() => {
+                    let Some(transport) = self.transports.pop_front() else { continue; };
+                    if let Err(err) = self.spawn_new_transport(transport).await {
+                        log::error!("Failed to spawn new transport: {err}");
+                    }
                 }
             }
         }
@@ -137,8 +204,8 @@ impl Multiplexer {
         local_address: SocketAddr,
         proxy_address: SocketAddr,
     ) -> io::Result<()> {
-        let mut wg_recv_buf: Vec<u8> = vec![0u8; MAX_DATAGRAM_SIZE];
-        let mut obfuscator_recv_buf: Vec<u8> = vec![0u8; MAX_DATAGRAM_SIZE];
+        let mut wg_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
+        let mut obfuscator_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
 
         self.client_socket
             .connect(local_address)
@@ -147,8 +214,10 @@ impl Multiplexer {
                 log::error!("Failed to connect client socket: {err}");
             })?;
 
+        let proxy_socket = self.proxy_for_addr(proxy_address).clone();
+
         let tx_client_socket = self.client_socket.clone();
-        let tx_proxy_socket = self.proxy_socket.clone();
+        let tx_proxy_socket = proxy_socket.clone();
 
         let tx_task: JoinHandle<io::Result<()>> = tokio::spawn(async move {
             loop {
@@ -162,10 +231,7 @@ impl Multiplexer {
 
         let rx_task: JoinHandle<io::Result<()>> = tokio::spawn(async move {
             loop {
-                let (n, _src) = self
-                    .proxy_socket
-                    .recv_from(&mut obfuscator_recv_buf)
-                    .await?;
+                let (n, _src) = proxy_socket.recv_from(&mut obfuscator_recv_buf).await?;
                 self.client_socket.send(&obfuscator_recv_buf[..n]).await?;
             }
         });
@@ -179,9 +245,9 @@ impl Multiplexer {
     }
 
     async fn spawn_new_transport(&mut self, transport: Transport) -> crate::Result<()> {
-        let endpoint = match transport {
-            settings @ Transport::Direct(addr) => {
-                self.running_endpoints.insert(addr, settings);
+        let endpoint = match transport.clone() {
+            Transport::Direct(addr) => {
+                self.running_endpoints.insert(addr, transport);
                 log::info!("Spawning direct forwarder");
                 Ok(addr)
             }
@@ -198,14 +264,18 @@ impl Multiplexer {
             }
         }?;
 
-        // Send initial packets
-        for packet in &self.initial_packets_to_send {
-            if let Err(err) = self.proxy_socket.send_to(packet, endpoint).await {
-                log::error!("Failed to forward packet to new obfuscator: {err}");
-            }
-        }
+        self.send_initial_packets_to(endpoint).await;
 
         Ok(())
+    }
+
+    async fn send_initial_packets_to(&self, endpoint: SocketAddr) {
+        let udp = self.proxy_for_addr(endpoint);
+        for packet in &self.initial_packets_to_send {
+            if let Err(err) = udp.send_to(packet, endpoint).await {
+                log::error!("Failed to forward packet to new obfuscator {endpoint}: {err}");
+            }
+        }
     }
 }
 
@@ -229,12 +299,6 @@ pub struct Settings {
 pub enum Transport {
     Direct(SocketAddr),
     Obfuscated(crate::Settings),
-}
-
-#[tokio::test]
-async fn test_multi_sleep() {
-    let sleep = tokio::time::sleep(Duration::from_secs(0));
-    sleep.await;
 }
 
 #[async_trait]
