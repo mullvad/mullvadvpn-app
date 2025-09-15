@@ -1,5 +1,14 @@
 This is a folder with gettext translations for Mullvad VPN app.
 
+## Prerequisites
+
+The scripts used to manage translations depend on `node` and some JavaScript dependencies.
+- See [BuildInstructions.md](../../../../BuildInstructions.md#all-platforms) for how to install `node`.
+- Install required JavaScript dependencies by running `npm i` from `mullvad-vpn` node workspace
+```bash
+npm i -w packages/mullvad-vpn/
+```
+
 ## Adding new translations
 
 1. Create a new sub-folder under `../locales`, use the locale identifier for the folder name.
