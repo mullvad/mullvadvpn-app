@@ -4,6 +4,15 @@ use std::net::SocketAddr;
 use super::{Endpoint, TransportProtocol};
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
+pub enum Obfuscators {
+    Single(ObfuscatorConfig),
+    Multiplexer {
+        direct: Option<SocketAddr>,
+        configs: (ObfuscatorConfig, Vec<ObfuscatorConfig>),
+    },
+}
+
+#[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
 pub enum ObfuscatorConfig {
     Udp2Tcp {
         endpoint: SocketAddr,
@@ -21,8 +30,52 @@ pub enum ObfuscatorConfig {
     },
 }
 
+impl Obfuscators {
+    /// Return a [Obfuscators::Multiplexer]. If `obfuscators` contains zero values,
+    /// this returns `None`.
+    pub fn multiplexer(
+        direct: Option<SocketAddr>,
+        obfuscators: &[ObfuscatorConfig],
+    ) -> Option<Self> {
+        let [first, remaining @ ..] = obfuscators else {
+            return None;
+        };
+        Some(Obfuscators::Multiplexer {
+            direct,
+            configs: (first.clone(), remaining.to_vec()),
+        })
+    }
+
+    /// Return all potential obfuscation endpoints
+    pub fn endpoints(&self) -> Vec<Endpoint> {
+        match self {
+            Obfuscators::Single(config) => vec![config.endpoint()],
+            Obfuscators::Multiplexer {
+                direct,
+                configs: (first_config, remaining_configs),
+            } => {
+                let mut endpoints = vec![];
+                if let Some(direct) = direct {
+                    endpoints.push(Endpoint {
+                        address: *direct,
+                        protocol: TransportProtocol::Udp,
+                    });
+                }
+                endpoints.push(first_config.endpoint());
+                endpoints.extend(remaining_configs.iter().map(|cfg| cfg.endpoint()));
+
+                endpoints.sort();
+                endpoints.dedup();
+
+                endpoints
+            }
+        }
+    }
+}
+
 impl ObfuscatorConfig {
-    pub fn get_obfuscator_endpoint(&self) -> Endpoint {
+    /// Return obfuscation endpoint
+    pub fn endpoint(&self) -> Endpoint {
         match self {
             ObfuscatorConfig::Udp2Tcp { endpoint } => Endpoint {
                 address: *endpoint,

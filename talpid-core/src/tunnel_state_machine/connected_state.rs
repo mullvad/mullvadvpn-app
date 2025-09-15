@@ -104,7 +104,7 @@ impl ConnectedState {
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
-        let endpoint = self.tunnel_parameters.get_next_hop_endpoint();
+        let endpoints = self.tunnel_parameters.get_next_hop_endpoints();
 
         #[cfg(target_os = "windows")]
         let clients = AllowedClients::from(
@@ -130,10 +130,13 @@ impl ConnectedState {
             .get_exit_hop_endpoint()
             .map(|ep| ep.address.ip());
 
-        #[cfg(target_os = "windows")]
-        debug_assert_ne!(exit_endpoint_ip, Some(endpoint.address.ip()));
-
-        let peer_endpoint = AllowedEndpoint { endpoint, clients };
+        let peer_endpoints = endpoints
+            .into_iter()
+            .map(|endpoint| AllowedEndpoint {
+                endpoint,
+                clients: clients.clone(),
+            })
+            .collect();
 
         #[cfg(target_os = "macos")]
         let redirect_interface = shared_values
@@ -141,7 +144,7 @@ impl ConnectedState {
             .block_on(shared_values.split_tunnel.interface());
 
         FirewallPolicy::Connected {
-            peer_endpoint,
+            peer_endpoints,
             #[cfg(target_os = "windows")]
             exit_endpoint_ip,
             tunnel: self.metadata.clone(),

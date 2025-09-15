@@ -5,15 +5,20 @@ use crate::{CloseMsg, config::Config};
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
 use std::{
+    iter,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::mpsc as sync_mpsc,
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
+use talpid_types::{
+    ErrorExt,
+    net::obfuscation::{ObfuscatorConfig, Obfuscators},
+};
 
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, lwo, quic, shadowsocks, udp2tcp,
+    Settings as ObfuscationSettings, create_obfuscator, lwo, multiplexer, quic, shadowsocks,
+    udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -82,6 +87,47 @@ fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
 }
 
 fn settings_from_config(
+    config: &Config,
+    obfuscation_config: &Obfuscators,
+    mtu: u16,
+    #[cfg(target_os = "linux")] fwmark: Option<u32>,
+) -> ObfuscationSettings {
+    match obfuscation_config {
+        Obfuscators::Single(obfuscation_config) => settings_from_single_config(
+            config,
+            obfuscation_config,
+            mtu,
+            #[cfg(target_os = "linux")]
+            fwmark,
+        ),
+        Obfuscators::Multiplexer {
+            direct,
+            configs: (first_obfs, remaining_obfs),
+        } => {
+            let mut transports = vec![];
+            if let Some(direct) = direct {
+                transports.push(multiplexer::Transport::Direct(*direct));
+            }
+            for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
+                let settings = settings_from_single_config(
+                    config,
+                    obfs_config,
+                    mtu,
+                    #[cfg(target_os = "linux")]
+                    fwmark,
+                );
+                transports.push(multiplexer::Transport::Obfuscated(settings));
+            }
+            ObfuscationSettings::Multiplexer(multiplexer::Settings {
+                transports,
+                #[cfg(target_os = "linux")]
+                fwmark,
+            })
+        }
+    }
+}
+
+fn settings_from_single_config(
     config: &Config,
     obfuscation_config: &ObfuscatorConfig,
     mtu: u16,

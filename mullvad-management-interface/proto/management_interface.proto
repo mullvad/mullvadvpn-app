@@ -305,7 +305,7 @@ message TunnelEndpoint {
   TunnelType tunnel_type = 3;
   bool quantum_resistant = 4;
   ProxyEndpoint proxy = 5;
-  ObfuscationEndpoint obfuscation = 6;
+  ObfuscationInfo obfuscation = 6;
   Endpoint entry_endpoint = 7;
   TunnelMetadata tunnel_metadata = 8;
   bool daita = 9;
@@ -332,6 +332,19 @@ enum FeatureIndicator {
   DAITA_MULTIHOP = 15;
 }
 
+message ObfuscationInfo {
+  oneof type {
+    ObfuscationEndpoint single = 1;
+    MultiplexObfuscation multiple = 2;
+  }
+}
+
+message MultiplexObfuscation {
+  // optional direct endpoint
+  Endpoint direct = 1;
+  repeated ObfuscationEndpoint obfuscators = 2;
+}
+
 message ObfuscationEndpoint {
   enum ObfuscationType {
     UDP2TCP = 0;
@@ -340,10 +353,8 @@ message ObfuscationEndpoint {
     LWO = 3;
   }
 
-  string address = 1;
-  uint32 port = 2;
-  TransportProtocol protocol = 3;
-  ObfuscationType obfuscation_type = 4;
+  Endpoint endpoint = 1;
+  ObfuscationType obfuscation_type = 2;
 }
 
 message Endpoint {

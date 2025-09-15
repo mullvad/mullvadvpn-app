@@ -167,7 +167,7 @@ impl ConnectingState {
         #[cfg(target_os = "linux")]
         shared_values.disable_connectivity_check();
 
-        let endpoint = params.get_next_hop_endpoint();
+        let endpoints = params.get_next_hop_endpoints();
 
         #[cfg(target_os = "windows")]
         let clients = AllowedClients::from(
@@ -186,10 +186,13 @@ impl ConnectingState {
         #[cfg(target_os = "windows")]
         let exit_endpoint_ip = params.get_exit_hop_endpoint().map(|ep| ep.address.ip());
 
-        #[cfg(target_os = "windows")]
-        debug_assert_ne!(exit_endpoint_ip, Some(endpoint.address.ip()));
-
-        let peer_endpoint = AllowedEndpoint { endpoint, clients };
+        let peer_endpoints = endpoints
+            .into_iter()
+            .map(|endpoint| AllowedEndpoint {
+                endpoint,
+                clients: clients.clone(),
+            })
+            .collect();
 
         #[cfg(target_os = "macos")]
         let redirect_interface = shared_values
@@ -197,7 +200,7 @@ impl ConnectingState {
             .block_on(shared_values.split_tunnel.interface());
 
         let policy = FirewallPolicy::Connecting {
-            peer_endpoint,
+            peer_endpoints,
             #[cfg(target_os = "windows")]
             exit_endpoint_ip,
             tunnel: tunnel_metadata.clone(),

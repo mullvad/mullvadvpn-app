@@ -224,12 +224,12 @@ fn format_relay_connection(
     verbose: bool,
 ) -> String {
     let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
-        let endpoint = format_endpoint(
+        let endpoint = format_endpoints(
             location.and_then(|l| l.entry_hostname.as_deref()),
             // Check if we *actually* want to print an obfuscator endpoint ..
             match endpoint.obfuscation {
-                Some(ref obfuscation) => &obfuscation.endpoint,
-                _ => entry,
+                Some(ref info) => info.get_endpoints(),
+                _ => vec![*entry],
             },
             verbose,
         );
@@ -246,13 +246,13 @@ fn format_relay_connection(
         format!(" via {proxy_endpoint}")
     });
 
-    let exit_endpoint = format_endpoint(
+    let exit_endpoint = format_endpoints(
         location.and_then(|l| l.hostname.as_deref()),
         // Check if we *actually* want to print an obfuscator endpoint ..
         // The obfuscator information should be printed for the exit relay if multihop is disabled
-        match (endpoint.obfuscation, &first_hop) {
-            (Some(ref obfuscation), None) => &obfuscation.endpoint,
-            _ => &endpoint.endpoint,
+        match (&endpoint.obfuscation, &first_hop) {
+            (Some(obfuscation), None) => obfuscation.get_endpoints(),
+            _ => vec![endpoint.endpoint],
         },
         verbose,
     );
@@ -262,6 +262,31 @@ fn format_relay_connection(
         first_hop = first_hop.unwrap_or_default(),
         bridge = bridge.unwrap_or_default(),
     )
+}
+
+fn format_endpoints(
+    hostname: Option<&str>,
+    endpoints: impl AsRef<[Endpoint]>,
+    verbose: bool,
+) -> String {
+    let endpoints = endpoints.as_ref();
+    if endpoints.len() == 1 {
+        return format_endpoint(hostname, &endpoints[0], verbose);
+    }
+
+    let mut endpoints_str = String::new();
+    for (i, endpoint) in endpoints.iter().enumerate() {
+        if i > 0 {
+            endpoints_str.push_str(" | ");
+        }
+        endpoints_str.push_str(&endpoint.to_string());
+    }
+
+    match (hostname, verbose) {
+        (Some(hostname), true) => format!("{hostname} ({endpoints_str})"),
+        (None, _) => endpoints_str,
+        (Some(hostname), false) => hostname.to_string(),
+    }
 }
 
 fn format_endpoint(hostname: Option<&str>, endpoint: &Endpoint, verbose: bool) -> String {

@@ -9,7 +9,7 @@ use talpid_types::net::{
     Endpoint, IpVersion,
     TransportProtocol::{Tcp, Udp},
     TunnelType,
-    obfuscation::ObfuscatorConfig,
+    obfuscation::{ObfuscatorConfig, Obfuscators},
     wireguard::PublicKey,
 };
 
@@ -842,7 +842,7 @@ fn test_selecting_wireguard_over_shadowsocks() {
         } => {
             assert!(obfuscator.is_some_and(|obfuscator| matches!(
                 obfuscator.config,
-                ObfuscatorConfig::Shadowsocks { .. }
+                Obfuscators::Single(ObfuscatorConfig::Shadowsocks { .. })
             )))
         }
         wrong_relay => panic!(
@@ -867,7 +867,7 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
         GetRelay::Wireguard {
             obfuscator:
                 Some(SelectedObfuscator {
-                    config: ObfuscatorConfig::Shadowsocks { endpoint },
+                    config: Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint }),
                     ..
                 }),
             inner: WireguardConfig::Singlehop { exit },
@@ -903,7 +903,7 @@ fn test_selecting_wireguard_over_quic() {
         } => {
             assert!(obfuscator.is_some_and(|obfuscator| matches!(
                 obfuscator.config,
-                ObfuscatorConfig::Quic { .. },
+                Obfuscators::Single(ObfuscatorConfig::Quic { .. }),
             )))
         }
         wrong_relay => panic!(
@@ -956,7 +956,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
         GetRelay::Wireguard {
             obfuscator:
                 Some(SelectedObfuscator {
-                    config: ObfuscatorConfig::Shadowsocks { endpoint },
+                    config: Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint }),
                     ..
                 }),
             inner: WireguardConfig::Singlehop { exit },
@@ -1003,7 +1003,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
         GetRelay::Wireguard {
             obfuscator:
                 Some(SelectedObfuscator {
-                    config: ObfuscatorConfig::Shadowsocks { endpoint },
+                    config: Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint }),
                     ..
                 }),
             inner: WireguardConfig::Singlehop { exit },
@@ -1037,7 +1037,7 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
         } => {
             assert!(obfuscator.is_some_and(|obfuscator| matches!(
                 obfuscator.config,
-                ObfuscatorConfig::Udp2Tcp { .. }
+                Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { .. })
             )))
         }
         wrong_relay => panic!(
@@ -1051,6 +1051,7 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
 /// obfuscator config.
 ///
 /// [`RelaySelector::get_relay`] may still enable obfuscation if it is present in [`RETRY_ORDER`].
+#[cfg(not(feature = "staggered-obfuscation"))]
 #[test]
 fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     let relay_selector = default_relay_selector();
@@ -1095,7 +1096,7 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
                     panic!("Relay selector should have picked an obfuscator")
                 };
                 assert!(matches!(obfuscator.config,
-                    ObfuscatorConfig::Udp2Tcp { endpoint } if
+                    Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { endpoint }) if
                         TCP2UDP_PORTS.contains(&endpoint.port()),
                 ))
             }
@@ -1705,10 +1706,10 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
     assert!(
         matches!(user_result, GetRelay::Wireguard {
         obfuscator: Some(SelectedObfuscator {
-            config: ObfuscatorConfig::Shadowsocks {
+            config: Obfuscators::Single(ObfuscatorConfig::Shadowsocks {
                 endpoint,
                 ..
-            },
+            }),
             ..
         }),
         ..

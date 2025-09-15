@@ -354,7 +354,13 @@ function convertFromTunnelStateRelayInfo(
         proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
         obfuscationEndpoint:
           state.tunnelEndpoint.obfuscation &&
-          convertFromObfuscationEndpoint(state.tunnelEndpoint.obfuscation),
+          state.tunnelEndpoint.obfuscation.single &&
+          state.tunnelEndpoint.obfuscation.single.endpoint &&
+          // TODO: Handle multiplexer?
+          convertFromObfuscationEndpoint(
+            state.tunnelEndpoint.obfuscation.single.obfuscationType,
+            state.tunnelEndpoint.obfuscation.single.endpoint,
+          ),
         entryEndpoint:
           state.tunnelEndpoint.entryEndpoint &&
           convertFromEntryEndpoint(state.tunnelEndpoint.entryEndpoint),
@@ -432,18 +438,19 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
 }
 
 function convertFromObfuscationEndpoint(
-  obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
+  obfuscationType: grpcTypes.ObfuscationEndpoint.ObfuscationType,
+  obfuscationEndpoint: grpcTypes.Endpoint.AsObject,
 ): IObfuscationEndpoint {
-  let obfuscationType: EndpointObfuscationType;
-  switch (obfuscationEndpoint.obfuscationType) {
+  let translatedType: EndpointObfuscationType;
+  switch (obfuscationType) {
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.UDP2TCP:
-      obfuscationType = 'udp2tcp';
+      translatedType = 'udp2tcp';
       break;
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS:
-      obfuscationType = 'shadowsocks';
+      translatedType = 'shadowsocks';
       break;
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.QUIC:
-      obfuscationType = 'quic';
+      translatedType = 'quic';
       break;
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.LWO:
       obfuscationType = 'lwo';
@@ -453,9 +460,9 @@ function convertFromObfuscationEndpoint(
   }
 
   return {
-    ...obfuscationEndpoint,
+    address: obfuscationEndpoint.address,
     protocol: convertFromTransportProtocol(obfuscationEndpoint.protocol),
-    obfuscationType: obfuscationType,
+    obfuscationType: translatedType,
   };
 }
 

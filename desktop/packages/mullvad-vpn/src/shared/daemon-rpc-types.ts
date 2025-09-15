@@ -157,7 +157,6 @@ export interface IEndpoint {
 
 export interface IObfuscationEndpoint {
   address: string;
-  port: number;
   protocol: RelayProtocol;
   obfuscationType: EndpointObfuscationType;
 }

@@ -5,7 +5,7 @@ use std::{
 
 use crate::settings::{DnsState, Settings};
 use serde::{Deserialize, Serialize};
-use talpid_types::net::{ObfuscationType, TunnelEndpoint, TunnelType};
+use talpid_types::net::{ObfuscationInfo, ObfuscationType, TunnelEndpoint, TunnelType};
 
 /// Feature indicators are active settings that should be shown to the user to make them aware of
 /// what is affecting their connection at any given time.
@@ -171,11 +171,12 @@ pub fn compute_feature_indicators(
         TunnelType::Wireguard => {
             let quantum_resistant = endpoint.quantum_resistant;
 
-            let has_obfuscation = |obfs| {
-                endpoint
-                    .obfuscation
+            let has_obfuscation = |obfs| match &endpoint.obfuscation {
+                Some(ObfuscationInfo::Single(endpoint)) => endpoint.obfuscation_type == obfs,
+                Some(ObfuscationInfo::Multiplexer { obfuscators, .. }) => obfuscators
                     .iter()
-                    .any(|obfuscation| obfuscation.obfuscation_type == obfs)
+                    .any(|single| single.obfuscation_type == obfs),
+                None => false,
             };
             let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
             let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
@@ -359,19 +360,22 @@ mod tests {
             expected_indicators
         );
 
-        endpoint.obfuscation = Some(ObfuscationEndpoint {
+        endpoint.obfuscation = Some(ObfuscationInfo::Single(ObfuscationEndpoint {
             endpoint: Endpoint {
                 address: SocketAddr::from(([1, 2, 3, 4], 443)),
                 protocol: TransportProtocol::Tcp,
             },
             obfuscation_type: ObfuscationType::Udp2Tcp,
-        });
+        }));
         expected_indicators.0.insert(FeatureIndicator::Udp2Tcp);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
-        endpoint.obfuscation.as_mut().unwrap().obfuscation_type = ObfuscationType::Shadowsocks;
+        let Some(ObfuscationInfo::Single(ref mut obfs)) = endpoint.obfuscation else {
+            unreachable!()
+        };
+        obfs.obfuscation_type = ObfuscationType::Shadowsocks;
         expected_indicators.0.remove(&FeatureIndicator::Udp2Tcp);
         expected_indicators.0.insert(FeatureIndicator::Shadowsocks);
         assert_eq!(

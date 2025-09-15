@@ -81,8 +81,8 @@ pub fn is_local_address(address: &IpAddr) -> bool {
 pub enum FirewallPolicy {
     /// Allow traffic only to server
     Connecting {
-        /// The peer endpoint that should be allowed.
-        peer_endpoint: AllowedEndpoint,
+        /// The peer endpoints that should be allowed.
+        peer_endpoints: Vec<AllowedEndpoint>,
         /// IP of the exit endpoint, iff it differs from `peer_endpoint`
         #[cfg(target_os = "windows")]
         exit_endpoint_ip: Option<IpAddr>,
@@ -101,8 +101,8 @@ pub enum FirewallPolicy {
 
     /// Allow traffic only to server and over tunnel interface
     Connected {
-        /// The peer endpoint that should be allowed.
-        peer_endpoint: AllowedEndpoint,
+        /// The peer endpoints that should be allowed.
+        peer_endpoints: Vec<AllowedEndpoint>,
         /// IP of the exit endpoint, iff it differs from `peer_endpoint`
         #[cfg(target_os = "windows")]
         exit_endpoint_ip: Option<IpAddr>,
@@ -129,10 +129,10 @@ pub enum FirewallPolicy {
 
 impl FirewallPolicy {
     /// Return the tunnel peer endpoint, if available
-    pub fn peer_endpoint(&self) -> Option<&AllowedEndpoint> {
+    pub fn peer_endpoints(&self) -> Option<&[AllowedEndpoint]> {
         match self {
-            FirewallPolicy::Connecting { peer_endpoint, .. }
-            | FirewallPolicy::Connected { peer_endpoint, .. } => Some(peer_endpoint),
+            FirewallPolicy::Connecting { peer_endpoints, .. }
+            | FirewallPolicy::Connected { peer_endpoints, .. } => Some(peer_endpoints),
             _ => None,
         }
     }
@@ -201,9 +201,25 @@ impl FirewallPolicy {
 
 impl fmt::Display for FirewallPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fn print_peer_endpoints(
+            f: &mut fmt::Formatter<'_>,
+            endpoints: &[AllowedEndpoint],
+        ) -> fmt::Result {
+            if let Some((first, remaining)) = endpoints.split_first() {
+                write!(f, "{{ {first} ")?;
+                for endpoint in remaining {
+                    write!(f, "| {endpoint} ")?;
+                }
+                write!(f, "}}")?;
+            } else {
+                write!(f, "unknown")?;
+            }
+            Ok(())
+        }
+
         match self {
             FirewallPolicy::Connecting {
-                peer_endpoint,
+                peer_endpoints,
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
@@ -211,10 +227,12 @@ impl fmt::Display for FirewallPolicy {
                 ..
             } => {
                 if let Some(tunnel) = tunnel {
+                    write!(f, "Connecting to ")?;
+                    print_peer_endpoints(f, peer_endpoints)?;
+
                     write!(
                         f,
-                        "Connecting to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}, allowed in-tunnel traffic: {}), {} LAN. Allowing endpoint {}",
-                        peer_endpoint,
+                        " over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}, allowed in-tunnel traffic: {}), {} LAN. Allowing endpoint {}",
                         tunnel.interface,
                         tunnel
                             .ips
@@ -229,35 +247,39 @@ impl fmt::Display for FirewallPolicy {
                         allowed_endpoint,
                     )
                 } else {
+                    write!(f, "Connecting to ")?;
+                    print_peer_endpoints(f, peer_endpoints)?;
                     write!(
                         f,
-                        "Connecting to {}, {} LAN, interface: none. Allowing endpoint {}",
-                        peer_endpoint,
+                        ", {} LAN, interface: none. Allowing endpoint {}",
                         if *allow_lan { "Allowing" } else { "Blocking" },
                         allowed_endpoint,
                     )
                 }
             }
             FirewallPolicy::Connected {
-                peer_endpoint,
+                peer_endpoints,
                 tunnel,
                 allow_lan,
                 ..
-            } => write!(
-                f,
-                "Connected to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN",
-                peer_endpoint,
-                tunnel.interface,
-                tunnel
-                    .ips
-                    .iter()
-                    .map(|ip| ip.to_string())
-                    .collect::<Vec<_>>()
-                    .join(","),
-                tunnel.ipv4_gateway,
-                tunnel.ipv6_gateway,
-                if *allow_lan { "Allowing" } else { "Blocking" }
-            ),
+            } => {
+                write!(f, "Connected to ")?;
+                print_peer_endpoints(f, peer_endpoints)?;
+                write!(
+                    f,
+                    " over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN",
+                    tunnel.interface,
+                    tunnel
+                        .ips
+                        .iter()
+                        .map(|ip| ip.to_string())
+                        .collect::<Vec<_>>()
+                        .join(","),
+                    tunnel.ipv4_gateway,
+                    tunnel.ipv6_gateway,
+                    if *allow_lan { "Allowing" } else { "Blocking" }
+                )
+            }
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
