@@ -290,7 +290,7 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.obfuscation, .shadowsocks)
+        XCTAssertEqual(selectedRelays.obfuscation, .udpOverTcp)
         XCTAssertEqual(selectedRelays.entry?.hostname, "us-dal-wg-001")
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
@@ -299,7 +299,7 @@ class RelayPickingTests: XCTestCase {
     // Shadowsocks obfuscation should be picked instead of QUIC since entry does not support it
     func testSinglehopCannotPickAutomaticallyInvalidObfuscation() throws {
         let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.hostname("us", "dal", "us-dal-wg-001")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("us", "dal", "us-dal-wg-001")]))
         )
 
         var settings = LatestTunnelSettings()
@@ -323,7 +323,7 @@ class RelayPickingTests: XCTestCase {
         )
 
         let selectedRelays = try picker.pick()
-        XCTAssertEqual(selectedRelays.obfuscation, .shadowsocks)
+        XCTAssertEqual(selectedRelays.obfuscation, .udpOverTcp)
         XCTAssertEqual(selectedRelays.entry?.hostname, nil)
         XCTAssertEqual(selectedRelays.exit.hostname, "us-dal-wg-001")
     }
