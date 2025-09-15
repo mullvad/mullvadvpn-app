@@ -54,6 +54,7 @@ pub struct ServerParams {
     pub hostname: Option<String>,
 
     /// Maximum transfer unit
+    // TODO: remove this
     #[builder(default = 1500)]
     pub mtu: u16,
 
