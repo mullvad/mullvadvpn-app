@@ -445,13 +445,19 @@ function convertFromObfuscationEndpoint(
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.QUIC:
       obfuscationType = 'quic';
       break;
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.MULTIPLEXER:
+      obfuscationType = 'multiplexer';
+      break;
     default:
       throw new Error('unsupported obfuscation protocol');
   }
 
+  // TODO: Handle more than one endpoint here
+  const firstEndpoint = obfuscationEndpoint.endpointsList[0];
+
   return {
-    ...obfuscationEndpoint,
-    protocol: convertFromTransportProtocol(obfuscationEndpoint.protocol),
+    ...firstEndpoint,
+    protocol: convertFromTransportProtocol(firstEndpoint.protocol),
     obfuscationType: obfuscationType,
   };
 }

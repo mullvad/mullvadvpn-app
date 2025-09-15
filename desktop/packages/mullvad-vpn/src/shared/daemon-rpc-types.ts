@@ -114,7 +114,7 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 }
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic';
+export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic' | 'multiplexer';
 
 export type Constraint<T> = 'any' | { only: T };
 export type LiftedConstraint<T> = 'any' | T;
@@ -157,7 +157,6 @@ export interface IEndpoint {
 
 export interface IObfuscationEndpoint {
   address: string;
-  port: number;
   protocol: RelayProtocol;
   obfuscationType: EndpointObfuscationType;
 }
