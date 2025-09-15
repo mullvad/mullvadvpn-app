@@ -21,7 +21,7 @@ public struct ObfuscationMethodSelector {
     public static func obfuscationMethodBy(
         connectionAttemptCount: UInt,
         tunnelSettings: LatestTunnelSettings,
-        obfuscationBypass: any ObfuscationProviding,
+        obfuscationBypass: any ObfuscationProviding
     ) -> WireGuardObfuscationState {
         let selectedObfuscation: WireGuardObfuscationState =
             if tunnelSettings.wireGuardObfuscation.state == .automatic {
@@ -68,9 +68,9 @@ public struct UnsupportedObfuscationProvider: ObfuscationProviding {
                 filterConstraint: filterConstraint,
                 daitaEnabled: daitaEnabled
             )
-            return candidates.isEmpty ? .shadowsocks : obfuscation
+            return candidates.isEmpty ? .udpOverTcp : obfuscation
         } catch {
-            return .shadowsocks
+            return .udpOverTcp
         }
     }
 }

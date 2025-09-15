@@ -24,7 +24,7 @@ struct SinglehopPicker: RelayPicking {
                 return try MultihopPicker(
                     obfuscation: obfuscation,
                     tunnelSettings: tunnelSettings,
-                    connectionAttemptCount: connectionAttemptCount,
+                    connectionAttemptCount: connectionAttemptCount
                 ).pick()
             } else {
                 throw error

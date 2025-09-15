@@ -36,13 +36,13 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
             try SinglehopPicker(
                 obfuscation: obfuscation,
                 tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount,
+                connectionAttemptCount: connectionAttemptCount
             ).pick()
         case .on:
             try MultihopPicker(
                 obfuscation: obfuscation,
                 tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount,
+                connectionAttemptCount: connectionAttemptCount
             ).pick()
         }
     }
