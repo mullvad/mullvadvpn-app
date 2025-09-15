@@ -4,18 +4,6 @@ import { RoutePath } from '../../shared/routes';
 
 export type GeneratedRoutePath = { routePath: string };
 
-export const disableDismissForRoutes = [
-  RoutePath.launch,
-  RoutePath.login,
-  RoutePath.tooManyDevices,
-  RoutePath.deviceRevoked,
-  RoutePath.main,
-  RoutePath.redeemVoucher,
-  RoutePath.voucherSuccess,
-  RoutePath.timeAdded,
-  RoutePath.setupFinished,
-];
-
 export function generateRoutePath(
   routePath: RoutePath,
   parameters: Parameters<typeof generatePath>[1],
