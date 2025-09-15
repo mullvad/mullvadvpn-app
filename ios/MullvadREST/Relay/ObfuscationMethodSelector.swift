@@ -60,6 +60,7 @@ public struct UnsupportedObfuscationProvider: ObfuscationProviding {
     }
 
     public func bypassUnsupportedObfuscation(_ obfuscation: WireGuardObfuscationState) -> WireGuardObfuscationState {
+        guard obfuscation != .off else { return .off }
         do {
             let candidates = try RelaySelector.WireGuard.findCandidates(
                 by: relayConstraint,
