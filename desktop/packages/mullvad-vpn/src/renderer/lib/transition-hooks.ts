@@ -1,6 +1,5 @@
 import { Location } from 'history';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
 
 import { ViewTransition } from '../../../types/global';
 import { LocationState } from '../../shared/ipc-types';
@@ -47,24 +46,22 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
         return;
       }
 
-      flushSync(() => {
-        viewTransitionRef.current = document.startViewTransition(() => {
-          updateView(location);
-        });
+      viewTransitionRef.current = document.startViewTransition(() => {
+        updateView(location);
+      });
 
-        void viewTransitionRef.current.ready.then(() => animateNavigation(transition));
-        void viewTransitionRef.current.finished.then(() => {
-          const queueLocation = queuedLocationRef.current;
+      void viewTransitionRef.current.ready.then(() => animateNavigation(transition));
+      void viewTransitionRef.current.finished.then(() => {
+        const queueLocation = queuedLocationRef.current;
 
-          delete viewTransitionRef.current;
-          delete queuedLocationRef.current;
+        delete viewTransitionRef.current;
+        delete queuedLocationRef.current;
 
-          if (queueLocation) {
-            transitionToView(queueLocation.location, queueLocation.transition);
-          } else {
-            onTransition?.();
-          }
-        });
+        if (queueLocation) {
+          transitionToView(queueLocation.location, queueLocation.transition);
+        } else {
+          onTransition?.();
+        }
       });
     },
   );
