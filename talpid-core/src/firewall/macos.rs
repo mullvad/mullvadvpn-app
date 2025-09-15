@@ -172,7 +172,7 @@ impl Firewall {
             }
         }
 
-        let Some(peer) = policy.peer_endpoint().map(|endpoint| endpoint.endpoint) else {
+        let Some(peers) = policy.peer_endpoints() else {
             // If there's no peer, there's also no tunnel. We have no states to preserve
             return Ok(true);
         };
@@ -192,9 +192,20 @@ impl Firewall {
                     }
                 }
             } else {
-                // Clear all states except traffic destined for the VPN endpoint.
-                // Ephemeral peer exchange becomes unreliable otherwise.
-                peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto
+                let mut should_delete = true;
+                for peer in peers {
+                    let peer = peer.endpoint;
+
+                    // Clear all states except traffic destined for some VPN endpoint.
+                    // Ephemeral peer exchange becomes unreliable otherwise.
+                    should_delete &=
+                        peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto;
+
+                    if !should_delete {
+                        break;
+                    }
+                }
+                should_delete
             };
 
         Ok(should_delete)
@@ -274,12 +285,12 @@ impl Firewall {
     /// bit too clever.
     fn get_nat_rules(&mut self, policy: &FirewallPolicy) -> Result<Vec<pfctl::NatRule>> {
         let (FirewallPolicy::Connected {
-            peer_endpoint,
+            peer_endpoints,
             tunnel,
             ..
         }
         | FirewallPolicy::Connecting {
-            peer_endpoint,
+            peer_endpoints,
             tunnel: Some(tunnel),
             ..
         }) = policy
@@ -309,11 +320,13 @@ impl Firewall {
         }
 
         // no nat to [vpn ip]
-        let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
-            .action(pfctl::NatRuleAction::NoNat)
-            .to(peer_endpoint.endpoint.address)
-            .build()?;
-        rules.push(no_nat_to_vpn_server);
+        for peer_endpoint in peer_endpoints {
+            let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
+                .action(pfctl::NatRuleAction::NoNat)
+                .to(peer_endpoint.endpoint.address)
+                .build()?;
+            rules.push(no_nat_to_vpn_server);
+        }
 
         // no nat on [tun interface]
         let no_nat_on_tun = pfctl::NatRuleBuilder::default()
@@ -346,14 +359,17 @@ impl Firewall {
     ) -> Result<Vec<pfctl::FilterRule>> {
         match policy {
             FirewallPolicy::Connecting {
-                peer_endpoint,
+                peer_endpoints,
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
                 redirect_interface,
             } => {
-                let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
+                let mut rules = vec![];
+                for peer in peer_endpoints {
+                    rules.push(self.get_allow_relay_rule(peer)?);
+                }
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -393,7 +409,7 @@ impl Firewall {
                 Ok(rules)
             }
             FirewallPolicy::Connected {
-                peer_endpoint,
+                peer_endpoints,
                 tunnel,
                 allow_lan,
                 dns_config,
@@ -412,7 +428,9 @@ impl Firewall {
                     );
                 }
 
-                rules.push(self.get_allow_relay_rule(peer_endpoint)?);
+                for peer in peer_endpoints {
+                    rules.push(self.get_allow_relay_rule(peer)?);
+                }
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.

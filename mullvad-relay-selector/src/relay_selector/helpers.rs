@@ -18,6 +18,7 @@ use rand::{
 };
 use talpid_types::net::{IpVersion, obfuscation::ObfuscatorConfig};
 
+#[cfg(feature = "staggered-obfuscation")]
 use crate::SelectedObfuscator;
 
 /// Port ranges available for WireGuard relays that have extra IPs for Shadowsocks.
@@ -84,19 +85,67 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
     }
 }
 
+#[cfg(feature = "staggered-obfuscation")]
+pub fn get_multiplexer_obfuscator(
+    udp2tcp_ports: &[u16],
+    shadowsocks_ports: &[RangeInclusive<u16>],
+    obfuscator_relay: Relay,
+    endpoint: &MullvadWireguardEndpoint,
+) -> Result<SelectedObfuscator, Error> {
+    use talpid_types::net::obfuscation::Obfuscators;
+
+    // Direct (no obfuscation) method
+    let direct = Some(endpoint.peer.endpoint);
+
+    // Add obfuscation methods
+    let mut configs = vec![];
+
+    let udp2tcp = get_udp2tcp_obfuscator(
+        &Udp2TcpObfuscationSettings::default(),
+        udp2tcp_ports,
+        obfuscator_relay.clone(),
+        endpoint,
+    )?;
+    configs.push(udp2tcp.0);
+
+    let shadowsocks = get_shadowsocks_obfuscator(
+        &ShadowsocksSettings::default(),
+        shadowsocks_ports,
+        obfuscator_relay.clone(),
+        endpoint,
+    )?;
+    configs.push(shadowsocks.0);
+
+    let ip_version = match endpoint.peer.endpoint {
+        SocketAddr::V4(_) => IpVersion::V4,
+        SocketAddr::V6(_) => IpVersion::V6,
+    };
+    if let Some(quic) = get_quic_obfuscator(obfuscator_relay.clone(), ip_version) {
+        configs.push(quic.0);
+    }
+
+    let config =
+        Obfuscators::multiplexer(direct, &configs).expect("non-zero number of obfuscators");
+
+    Ok(SelectedObfuscator {
+        config,
+        relay: obfuscator_relay,
+    })
+}
+
 pub fn get_udp2tcp_obfuscator(
     obfuscation_settings_constraint: &Udp2TcpObfuscationSettings,
     udp2tcp_ports: &[u16],
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
-) -> Result<SelectedObfuscator, Error> {
+) -> Result<(ObfuscatorConfig, Relay), Error> {
     let udp2tcp_endpoint_port =
         get_udp2tcp_obfuscator_port(obfuscation_settings_constraint, udp2tcp_ports)?;
     let config = ObfuscatorConfig::Udp2Tcp {
         endpoint: SocketAddr::new(endpoint.peer.endpoint.ip(), udp2tcp_endpoint_port),
     };
 
-    Ok(SelectedObfuscator { config, relay })
+    Ok((config, relay))
 }
 
 fn get_udp2tcp_obfuscator_port(
@@ -120,7 +169,7 @@ pub fn get_shadowsocks_obfuscator(
     non_extra_port_ranges: &[RangeInclusive<u16>],
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
-) -> Result<SelectedObfuscator, Error> {
+) -> Result<(ObfuscatorConfig, Relay), Error> {
     let port = settings.port;
     let extra_addrs = match &relay.endpoint_data {
         mullvad_types::relay_list::RelayEndpointData::Wireguard(wg) => {
@@ -136,13 +185,13 @@ pub fn get_shadowsocks_obfuscator(
         port,
     )?;
 
-    Ok(SelectedObfuscator {
-        config: ObfuscatorConfig::Shadowsocks { endpoint },
-        relay,
-    })
+    Ok((ObfuscatorConfig::Shadowsocks { endpoint }, relay))
 }
 
-pub fn get_quic_obfuscator(relay: Relay, ip_version: IpVersion) -> Option<SelectedObfuscator> {
+pub fn get_quic_obfuscator(
+    relay: Relay,
+    ip_version: IpVersion,
+) -> Option<(ObfuscatorConfig, Relay)> {
     let quic = relay.wireguard()?.quic()?;
     let config = {
         let hostname = quic.hostname().to_string();
@@ -158,14 +207,13 @@ pub fn get_quic_obfuscator(relay: Relay, ip_version: IpVersion) -> Option<Select
         }
     };
 
-    let obfuscator = SelectedObfuscator { config, relay };
-    Some(obfuscator)
+    Some((config, relay))
 }
 
 pub fn get_lwo_obfuscator(
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
-) -> Option<SelectedObfuscator> {
+) -> Option<(ObfuscatorConfig, Relay)> {
     let _wg = relay.wireguard()?;
 
     // TODO: check if LWO is supported on this relay
@@ -179,8 +227,7 @@ pub fn get_lwo_obfuscator(
 
     let config = ObfuscatorConfig::Lwo { endpoint };
 
-    let obfuscator = SelectedObfuscator { config, relay };
-    Some(obfuscator)
+    Some((config, relay))
 }
 
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`

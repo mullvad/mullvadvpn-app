@@ -10,11 +10,10 @@ use mullvad_types::{
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::{
-    Endpoint, TunnelParameters, obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy,
-    wireguard,
+    Endpoint, TunnelParameters, obfuscation::Obfuscators, openvpn, proxy::CustomProxy, wireguard,
 };
 #[cfg(target_os = "android")]
-use talpid_types::net::{TunnelParameters, obfuscation::ObfuscatorConfig, wireguard};
+use talpid_types::net::{TunnelParameters, obfuscation::Obfuscators, wireguard};
 
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
@@ -233,7 +232,7 @@ impl InnerParametersGenerator {
         &self,
         endpoint: MullvadWireguardEndpoint,
         data: PrivateAccountAndDevice,
-        obfuscator_config: Option<ObfuscatorConfig>,
+        obfuscator_config: Option<Obfuscators>,
     ) -> TunnelParameters {
         let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
         let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();

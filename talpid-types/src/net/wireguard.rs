@@ -16,16 +16,16 @@ pub struct TunnelParameters {
     pub connection: ConnectionConfig,
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
-    pub obfuscation: Option<super::obfuscation::ObfuscatorConfig>,
+    pub obfuscation: Option<super::obfuscation::Obfuscators>,
 }
 
 impl TunnelParameters {
     /// Returns the endpoint that will be connected to
-    pub fn get_next_hop_endpoint(&self) -> Endpoint {
+    pub fn get_next_hop_endpoints(&self) -> Vec<Endpoint> {
         self.obfuscation
             .as_ref()
-            .map(|proxy| proxy.get_obfuscator_endpoint())
-            .unwrap_or_else(|| self.connection.get_endpoint())
+            .map(|proxy| proxy.endpoints())
+            .unwrap_or_else(|| vec![self.connection.get_endpoint()])
     }
 }
 
