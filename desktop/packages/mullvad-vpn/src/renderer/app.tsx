@@ -984,6 +984,7 @@ export default class AppRenderer {
   }
 
   private setAccountExpiry(expiry?: string) {
+    log.info(`setAccountExpiry(${expiry}) called at ${new Date().toISOString()}`);
     this.expiryScheduler.cancel();
 
     if (expiry !== undefined) {
