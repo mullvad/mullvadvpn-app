@@ -21,7 +21,7 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [android/2025.8-beta1]
+## [android/2025.8-beta1] - 2025-09-15
 ### Added
 - Set default server based on the current location when the app is started for the first time.
 - Add QUIC obfuscation.
