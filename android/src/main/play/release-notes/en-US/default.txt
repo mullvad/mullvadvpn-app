@@ -1,0 +1,2 @@
+- Added QUIC obfuscation.
+- The behavior of Quantum-resistant tunnel Automatic has changed from "off" to "on".
