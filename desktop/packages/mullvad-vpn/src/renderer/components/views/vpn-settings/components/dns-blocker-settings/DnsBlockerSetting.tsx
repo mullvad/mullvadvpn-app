@@ -23,7 +23,10 @@ export function DnsBlockerSettings() {
 
   return (
     <>
-      <SettingsAccordion anchorId="dns-blocker-setting" disabled={dns.state === 'custom'}>
+      <SettingsAccordion
+        anchorId="dns-blocker-setting"
+        aria-label={messages.pgettext('vpn-settings-view', 'DNS content blockers')}
+        disabled={dns.state === 'custom'}>
         <SettingsAccordion.Header>
           <SettingsAccordion.Title>
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}

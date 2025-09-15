@@ -14,13 +14,17 @@ function SettingsAccordion({ anchorId, ...props }: SettingsAccordion) {
   const initialExpanded = location.state.expandedSections['dns-blocker-setting'];
   const [expanded, setExpanded] = React.useState(initialExpanded);
   const { ref, animation } = useScrollToListItem(anchorId);
+  const titleId = React.useId();
 
   return (
     <Accordion
       ref={ref}
+      tabIndex={-1}
       animation={animation}
       expanded={expanded}
       onExpandedChange={setExpanded}
+      titleId={titleId}
+      aria-labelledby={titleId}
       {...props}
     />
   );
