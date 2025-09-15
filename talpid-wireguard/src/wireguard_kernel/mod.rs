@@ -174,16 +174,6 @@ impl Handle {
             .execute()
             .await
             .map_err(Error::NetlinkCreateDevice)?;
-        while let Some(response_message) = response.next().await {
-            if let NetlinkPayload::Error(err) = response_message.payload {
-                // if the device exists, verify that it's a wireguard device
-                if err.raw_code() != -libc::EEXIST {
-                    return Err(Error::NetlinkCreateDevice(rtnetlink::Error::NetlinkError(
-                        err,
-                    )));
-                }
-            }
-        }
 
         // fetch interface index of new device
         let new_device = self.wg_handle.get_by_name(name).await?;
