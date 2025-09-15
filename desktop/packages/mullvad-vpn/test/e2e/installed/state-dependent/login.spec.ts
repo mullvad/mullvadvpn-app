@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { exec, execSync } from 'child_process';
-import { Locator, Page } from 'playwright';
+import { Page } from 'playwright';
 
 import { RoutePath } from '../../../../src/shared/routes';
+import { RoutesObjectModel } from '../../route-object-models';
 import { expectDisconnected } from '../../shared/tunnel-state';
 import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
@@ -13,11 +14,13 @@ import { startInstalledApp } from '../installed-utils';
 
 let page: Page;
 let util: TestUtils;
+let routes: RoutesObjectModel;
 
 let accountNumber: string;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
+  routes = new RoutesObjectModel(page, util);
 });
 
 test.afterAll(async () => {
@@ -29,24 +32,23 @@ test('App should fail to login', async () => {
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
-  const loginInput = getInput(page);
 
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
 
-  await loginInput.fill('1234 1234 1324 1234');
-  await loginInput.press('Enter');
+  await routes.login.fillAccountNumber('1234 1234 1324 1234');
+  await routes.login.loginByPressingEnter();
 
   await expect(title).toHaveText('Login failed');
   await expect(subtitle).toHaveText('Invalid account number');
 
-  await loginInput.fill('');
+  await routes.login.fillAccountNumber('');
 });
 
 test('App should create account', async () => {
   await util.waitForRoute(RoutePath.login);
 
-  await page.getByText('Create account').click();
+  await routes.login.createNewAccount();
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -74,13 +76,12 @@ test('App should log in', async () => {
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
-  const loginInput = getInput(page);
 
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
 
-  await loginInput.fill(process.env.ACCOUNT_NUMBER!);
-  await loginInput.press('Enter');
+  await routes.login.fillAccountNumber(process.env.ACCOUNT_NUMBER!);
+  await routes.login.loginByClickingLoginButton();
 
   await expect(title).toHaveText('Logged in');
   await expect(subtitle).toHaveText('Valid account number');
@@ -109,14 +110,13 @@ test('App should log in to expired account', async () => {
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
-  const loginInput = getInput(page);
 
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
 
-  await loginInput.fill(accountNumber);
+  await routes.login.fillAccountNumber(accountNumber);
 
-  await loginInput.press('Enter');
+  await routes.login.loginByPressingEnter();
   await util.waitForRoute(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
@@ -124,7 +124,3 @@ test('App should log in to expired account', async () => {
 
   execSync('mullvad account logout');
 });
-
-function getInput(page: Page): Locator {
-  return page.getByPlaceholder('0000 0000 0000 0000');
-}
