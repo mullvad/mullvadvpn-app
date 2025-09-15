@@ -16,7 +16,7 @@ use rand::{
     seq::{IteratorRandom, SliceRandom},
     thread_rng,
 };
-use talpid_types::net::{Endpoint, IpVersion, obfuscation::ObfuscatorConfig};
+use talpid_types::net::{IpVersion, obfuscation::ObfuscatorConfig};
 
 use crate::SelectedObfuscator;
 
@@ -84,12 +84,15 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
     }
 }
 
+#[cfg(feature = "staggered-obfuscation")]
 pub fn get_multiplexer_obfuscator(
     udp2tcp_ports: &[u16],
     shadowsocks_ports: &[RangeInclusive<u16>],
     obfuscator_relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
 ) -> Result<SelectedObfuscator, Error> {
+    use talpid_types::net::Endpoint;
+
     // Add direct (no obfuscation) method
     let direct = Some(Endpoint::from_socket_address(
         endpoint.peer.endpoint,

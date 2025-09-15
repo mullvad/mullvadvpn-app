@@ -925,7 +925,9 @@ impl RelaySelector {
 
         match &query.wireguard_constraints().obfuscation {
             ObfuscationQuery::Off => Ok(None),
-            // TODO: Hide behind flag
+            #[cfg(not(feature = "staggered-obfuscation"))]
+            ObfuscationQuery::Auto => Ok(None),
+            #[cfg(feature = "staggered-obfuscation")]
             ObfuscationQuery::Auto => {
                 // TODO: do not use multiplexer on first attempt
                 let shadowsocks_ports = &parsed_relays.wireguard.shadowsocks_port_ranges;
