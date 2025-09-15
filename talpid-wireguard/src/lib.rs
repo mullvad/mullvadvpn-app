@@ -9,6 +9,7 @@ use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
 #[cfg(windows)]
 use std::io;
+#[cfg(not(target_os = "android"))]
 use std::net::IpAddr;
 use std::{
     convert::Infallible,
