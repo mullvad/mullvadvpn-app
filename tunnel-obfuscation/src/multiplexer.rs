@@ -87,7 +87,7 @@ impl Multiplexer {
             get_socket: impl Fn(SocketAddr) -> &'a Arc<UdpSocket>,
             packet: &[u8],
         ) {
-            for (addr, _obfs) in endpoints {
+            for addr in endpoints.keys() {
                 let udp = get_socket(*addr);
                 log::info!("Sending received packet to proxy {addr}");
                 if let Err(err) = udp.send_to(packet, addr).await {
@@ -118,7 +118,7 @@ impl Multiplexer {
                 return false;
             }
 
-            let _ = client_socket.send_to(&received, wg_addr).await;
+            let _ = client_socket.send_to(received, wg_addr).await;
             true
         }
 
