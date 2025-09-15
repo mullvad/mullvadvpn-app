@@ -640,6 +640,8 @@ pub enum SelectedObfuscation {
     Udp2Tcp,
     Shadowsocks,
     Quic,
+    #[cfg_attr(all(feature = "clap", not(feature = "lwo")), clap(skip))]
+    Lwo,
 }
 
 impl Intersection for SelectedObfuscation {
@@ -665,6 +667,7 @@ impl fmt::Display for SelectedObfuscation {
             SelectedObfuscation::Udp2Tcp => "udp2tcp".fmt(f),
             SelectedObfuscation::Shadowsocks => "shadowsocks".fmt(f),
             SelectedObfuscation::Quic => "quic".fmt(f),
+            SelectedObfuscation::Lwo => "lwo".fmt(f),
         }
     }
 }

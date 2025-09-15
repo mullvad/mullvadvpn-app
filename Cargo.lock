@@ -902,6 +902,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tinytemplate",
+ "tokio",
  "walkdir",
 ]
 
@@ -4532,7 +4533,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9552f850d5f0964a4e4d0bf306459ac29323ddfbae05e35a7c0d35cb0803cc5"
 dependencies = [
  "anyhow",
- "itertools 0.12.1",
+ "itertools 0.13.0",
  "proc-macro2",
  "quote",
  "syn 2.0.100",
@@ -6441,11 +6442,14 @@ name = "tunnel-obfuscation"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "criterion",
  "log",
  "mullvad-masque-proxy",
  "nix 0.30.1",
+ "rand 0.8.5",
  "shadowsocks",
  "socket2 0.5.8",
+ "talpid-types",
  "thiserror 2.0.9",
  "tokio",
  "tokio-util 0.7.10",

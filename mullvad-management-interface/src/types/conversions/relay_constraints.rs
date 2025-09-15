@@ -164,6 +164,7 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
                 proto::obfuscation_settings::SelectedObfuscation::Shadowsocks
             }
             SelectedObfuscation::Quic => proto::obfuscation_settings::SelectedObfuscation::Quic,
+            SelectedObfuscation::Lwo => proto::obfuscation_settings::SelectedObfuscation::Lwo,
         });
         Self {
             selected_obfuscation,
@@ -459,6 +460,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 Ok(IpcSelectedObfuscation::Udp2tcp) => SelectedObfuscation::Udp2Tcp,
                 Ok(IpcSelectedObfuscation::Shadowsocks) => SelectedObfuscation::Shadowsocks,
                 Ok(IpcSelectedObfuscation::Quic) => SelectedObfuscation::Quic,
+                Ok(IpcSelectedObfuscation::Lwo) => SelectedObfuscation::Lwo,
                 Err(_) => {
                     return Err(FromProtobufTypeError::InvalidArgument(
                         "invalid obfuscation settings",

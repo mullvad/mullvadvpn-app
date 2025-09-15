@@ -209,6 +209,7 @@ pub enum ObfuscationType {
     Udp2Tcp,
     Shadowsocks,
     Quic,
+    Lwo,
 }
 
 impl fmt::Display for ObfuscationType {
@@ -217,6 +218,7 @@ impl fmt::Display for ObfuscationType {
             ObfuscationType::Udp2Tcp => "Udp2Tcp".fmt(f),
             ObfuscationType::Shadowsocks => "Shadowsocks".fmt(f),
             ObfuscationType::Quic => "QUIC".fmt(f),
+            ObfuscationType::Lwo => "LWO".fmt(f),
         }
     }
 }
@@ -235,6 +237,7 @@ impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
             ObfuscatorConfig::Udp2Tcp { .. } => ObfuscationType::Udp2Tcp,
             ObfuscatorConfig::Shadowsocks { .. } => ObfuscationType::Shadowsocks,
             ObfuscatorConfig::Quic { .. } => ObfuscationType::Quic,
+            ObfuscatorConfig::Lwo { .. } => ObfuscationType::Lwo,
         };
 
         ObfuscationEndpoint {
