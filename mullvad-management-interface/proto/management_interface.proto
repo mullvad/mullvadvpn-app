@@ -338,12 +338,11 @@ message ObfuscationEndpoint {
     SHADOWSOCKS = 1;
     QUIC = 2;
     LWO = 3;
+    MULTIPLEXER = 4;
   }
 
-  string address = 1;
-  uint32 port = 2;
-  TransportProtocol protocol = 3;
-  ObfuscationType obfuscation_type = 4;
+  repeated Endpoint endpoints = 1;
+  ObfuscationType obfuscation_type = 2;
 }
 
 message Endpoint {

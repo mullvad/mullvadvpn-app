@@ -9,6 +9,7 @@ use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
 #[cfg(windows)]
 use std::io;
+use std::net::IpAddr;
 use std::{
     convert::Infallible,
     path::Path,
@@ -167,7 +168,11 @@ impl WireguardMonitor {
         let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
 
-        let endpoint_addrs = [params.get_next_hop_endpoint().address.ip()];
+        let endpoint_addrs: Vec<IpAddr> = params
+            .get_next_hop_endpoints()
+            .iter()
+            .map(|ep| ep.address.ip())
+            .collect();
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.

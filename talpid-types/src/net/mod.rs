@@ -67,14 +67,14 @@ impl TunnelParameters {
     }
 
     /// Returns the endpoint that will be connected to
-    pub fn get_next_hop_endpoint(&self) -> Endpoint {
+    pub fn get_next_hop_endpoints(&self) -> Vec<Endpoint> {
         match self {
             TunnelParameters::OpenVpn(params) => params
                 .proxy
                 .as_ref()
-                .map(|proxy| proxy.get_remote_endpoint().endpoint)
-                .unwrap_or(params.config.endpoint),
-            TunnelParameters::Wireguard(params) => params.get_next_hop_endpoint(),
+                .map(|proxy| vec![proxy.get_remote_endpoint().endpoint])
+                .unwrap_or_else(|| vec![params.config.endpoint]),
+            TunnelParameters::Wireguard(params) => params.get_next_hop_endpoints(),
         }
     }
 
@@ -210,6 +210,7 @@ pub enum ObfuscationType {
     Shadowsocks,
     Quic,
     Lwo,
+    Multiplexer,
 }
 
 impl fmt::Display for ObfuscationType {
@@ -219,29 +220,31 @@ impl fmt::Display for ObfuscationType {
             ObfuscationType::Shadowsocks => "Shadowsocks".fmt(f),
             ObfuscationType::Quic => "QUIC".fmt(f),
             ObfuscationType::Lwo => "LWO".fmt(f),
+            ObfuscationType::Multiplexer => "Multiplexer".fmt(f),
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_endpoint")]
 pub struct ObfuscationEndpoint {
-    pub endpoint: Endpoint,
+    pub endpoints: Vec<Endpoint>,
     pub obfuscation_type: ObfuscationType,
 }
 
 impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
     fn from(config: &ObfuscatorConfig) -> ObfuscationEndpoint {
-        let endpoint = config.get_obfuscator_endpoint();
+        let endpoints = config.get_obfuscator_endpoint();
         let obfuscation_type = match config {
             ObfuscatorConfig::Udp2Tcp { .. } => ObfuscationType::Udp2Tcp,
             ObfuscatorConfig::Shadowsocks { .. } => ObfuscationType::Shadowsocks,
             ObfuscatorConfig::Quic { .. } => ObfuscationType::Quic,
             ObfuscatorConfig::Lwo { .. } => ObfuscationType::Lwo,
+            ObfuscatorConfig::Multiplexer { .. } => ObfuscationType::Multiplexer,
         };
 
         ObfuscationEndpoint {
-            endpoint,
+            endpoints,
             obfuscation_type,
         }
     }
@@ -249,12 +252,21 @@ impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
 
 impl fmt::Display for ObfuscationEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{} {}", self.obfuscation_type, self.endpoint)
+        write!(f, "{} ", self.obfuscation_type)?;
+
+        write!(f, "{{ ")?;
+        if let Some((first, remaining)) = self.endpoints.split_first() {
+            write!(f, "{first}")?;
+            for endpoint in remaining {
+                write!(f, " | {endpoint}")?;
+            }
+        }
+        write!(f, " }}")
     }
 }
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
 pub struct Endpoint {
     /// The socket address for the endpoint
     pub address: SocketAddr,
@@ -470,7 +482,7 @@ impl FromStr for IpVersion {
 pub struct IpVersionParseError;
 
 /// Representation of a transport protocol, either UDP or TCP.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
 #[serde(rename_all = "snake_case")]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.

@@ -13,7 +13,8 @@ use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
 
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, lwo, quic, shadowsocks, udp2tcp,
+    Settings as ObfuscationSettings, create_obfuscator, lwo, multiplexer, quic, shadowsocks,
+    udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -131,6 +132,27 @@ fn settings_from_config(
             #[cfg(target_os = "linux")]
             fwmark,
         }),
+        ObfuscatorConfig::Multiplexer { direct, configs } => {
+            let mut transports = vec![];
+            if let Some(direct) = direct {
+                transports.push(multiplexer::Transport::Direct(direct.address));
+            }
+            for obfs_config in configs {
+                let settings = settings_from_config(
+                    config,
+                    obfs_config,
+                    mtu,
+                    #[cfg(target_os = "linux")]
+                    fwmark,
+                );
+                transports.push(multiplexer::Transport::Obfuscated(settings));
+            }
+            ObfuscationSettings::Multiplexer(multiplexer::Settings {
+                transports,
+                #[cfg(target_os = "linux")]
+                fwmark,
+            })
+        }
     }
 }
 

@@ -924,7 +924,21 @@ impl RelaySelector {
         let box_obfsucation_error = |error: helpers::Error| Error::NoObfuscator(Box::new(error));
 
         match &query.wireguard_constraints().obfuscation {
-            ObfuscationQuery::Off | ObfuscationQuery::Auto => Ok(None),
+            ObfuscationQuery::Off => Ok(None),
+            // TODO: Hide behind flag
+            ObfuscationQuery::Auto => {
+                // TODO: do not use multiplexer on first attempt
+                let shadowsocks_ports = &parsed_relays.wireguard.shadowsocks_port_ranges;
+                let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
+                helpers::get_multiplexer_obfuscator(
+                    udp2tcp_ports,
+                    shadowsocks_ports,
+                    obfuscator_relay,
+                    endpoint,
+                )
+                .map(Some)
+                .map_err(box_obfsucation_error)
+            }
             ObfuscationQuery::Udp2tcp(settings) => {
                 let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
 

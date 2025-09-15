@@ -124,7 +124,7 @@ impl Firewall {
 
         let apply_result = match policy {
             FirewallPolicy::Connecting {
-                peer_endpoint,
+                peer_endpoints,
                 exit_endpoint_ip,
                 tunnel,
                 allow_lan,
@@ -133,7 +133,7 @@ impl Firewall {
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connecting_state(
-                    &peer_endpoint,
+                    &peer_endpoints,
                     exit_endpoint_ip,
                     cfg,
                     tunnel.as_ref(),
@@ -142,7 +142,7 @@ impl Firewall {
                 )
             }
             FirewallPolicy::Connected {
-                peer_endpoint,
+                peer_endpoints,
                 exit_endpoint_ip,
                 tunnel,
                 allow_lan,
@@ -150,7 +150,7 @@ impl Firewall {
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connected_state(
-                    &peer_endpoint,
+                    &peer_endpoints,
                     exit_endpoint_ip,
                     cfg,
                     &tunnel,
@@ -199,7 +199,7 @@ impl Firewall {
 
     fn set_connecting_state(
         &mut self,
-        peer_endpoint: &AllowedEndpoint,
+        peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: Option<&TunnelMetadata>,
@@ -209,7 +209,7 @@ impl Firewall {
         log::trace!("Applying 'connecting' firewall policy");
         let tunnel_interface = tunnel_metadata.map(|metadata| metadata.interface.as_ref());
         winfw::apply_policy_connecting(
-            peer_endpoint,
+            peer_endpoints,
             exit_endpoint_ip,
             winfw_settings,
             tunnel_interface,
@@ -221,7 +221,7 @@ impl Firewall {
 
     fn set_connected_state(
         &mut self,
-        endpoint: &AllowedEndpoint,
+        peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &TunnelMetadata,
@@ -230,7 +230,7 @@ impl Firewall {
         log::trace!("Applying 'connected' firewall policy");
         let tunnel_interface = &tunnel_metadata.interface;
         winfw::apply_policy_connected(
-            endpoint,
+            peer_endpoints,
             exit_endpoint_ip,
             winfw_settings,
             tunnel_interface,

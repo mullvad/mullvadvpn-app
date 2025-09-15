@@ -561,13 +561,15 @@ impl<'a> PolicyBatch<'a> {
     fn add_policy_specific_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         let allow_lan = match policy {
             FirewallPolicy::Connecting {
-                peer_endpoint,
+                peer_endpoints,
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
+                for endpoint in peer_endpoints {
+                    self.add_allow_tunnel_endpoint_rules(endpoint, fwmark);
+                }
                 self.add_allow_endpoint_rules(allowed_endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -595,12 +597,14 @@ impl<'a> PolicyBatch<'a> {
                 *allow_lan
             }
             FirewallPolicy::Connected {
-                peer_endpoint,
+                peer_endpoints,
                 tunnel,
                 allow_lan,
                 dns_config,
             } => {
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
+                for endpoint in peer_endpoints {
+                    self.add_allow_tunnel_endpoint_rules(endpoint, fwmark);
+                }
 
                 for server in dns_config.tunnel_config() {
                     self.add_allow_tunnel_dns_rule(

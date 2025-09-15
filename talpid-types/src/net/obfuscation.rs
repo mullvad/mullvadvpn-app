@@ -19,27 +19,46 @@ pub enum ObfuscatorConfig {
     Lwo {
         endpoint: SocketAddr,
     },
+    Multiplexer {
+        direct: Option<Endpoint>,
+        // TODO: prevent recursion
+        configs: Vec<ObfuscatorConfig>,
+    },
 }
 
 impl ObfuscatorConfig {
-    pub fn get_obfuscator_endpoint(&self) -> Endpoint {
+    pub fn get_obfuscator_endpoint(&self) -> Vec<Endpoint> {
         match self {
-            ObfuscatorConfig::Udp2Tcp { endpoint } => Endpoint {
+            ObfuscatorConfig::Udp2Tcp { endpoint } => vec![Endpoint {
                 address: *endpoint,
                 protocol: TransportProtocol::Tcp,
-            },
-            ObfuscatorConfig::Shadowsocks { endpoint } => Endpoint {
+            }],
+            ObfuscatorConfig::Shadowsocks { endpoint } => vec![Endpoint {
                 address: *endpoint,
                 protocol: TransportProtocol::Udp,
-            },
-            ObfuscatorConfig::Quic { endpoint, .. } => Endpoint {
+            }],
+            ObfuscatorConfig::Quic { endpoint, .. } => vec![Endpoint {
                 address: *endpoint,
                 protocol: TransportProtocol::Udp,
-            },
-            ObfuscatorConfig::Lwo { endpoint, .. } => Endpoint {
+            }],
+            ObfuscatorConfig::Lwo { endpoint, .. } => vec![Endpoint {
                 address: *endpoint,
                 protocol: TransportProtocol::Udp,
-            },
+            }],
+            ObfuscatorConfig::Multiplexer { direct, configs } => {
+                let mut endpoints = vec![];
+                if let Some(direct) = direct {
+                    endpoints.push(*direct);
+                }
+                for config in configs {
+                    endpoints.extend(config.get_obfuscator_endpoint());
+                }
+
+                endpoints.sort();
+                endpoints.dedup();
+
+                endpoints
+            }
         }
     }
 }

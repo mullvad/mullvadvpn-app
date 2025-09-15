@@ -360,10 +360,10 @@ mod tests {
         );
 
         endpoint.obfuscation = Some(ObfuscationEndpoint {
-            endpoint: Endpoint {
+            endpoints: vec![Endpoint {
                 address: SocketAddr::from(([1, 2, 3, 4], 443)),
                 protocol: TransportProtocol::Tcp,
-            },
+            }],
             obfuscation_type: ObfuscationType::Udp2Tcp,
         });
         expected_indicators.0.insert(FeatureIndicator::Udp2Tcp);

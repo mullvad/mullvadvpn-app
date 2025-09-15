@@ -21,11 +21,11 @@ pub struct TunnelParameters {
 
 impl TunnelParameters {
     /// Returns the endpoint that will be connected to
-    pub fn get_next_hop_endpoint(&self) -> Endpoint {
+    pub fn get_next_hop_endpoints(&self) -> Vec<Endpoint> {
         self.obfuscation
             .as_ref()
             .map(|proxy| proxy.get_obfuscator_endpoint())
-            .unwrap_or_else(|| self.connection.get_endpoint())
+            .unwrap_or_else(|| vec![self.connection.get_endpoint()])
     }
 }
 

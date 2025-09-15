@@ -16,7 +16,7 @@ use rand::{
     seq::{IteratorRandom, SliceRandom},
     thread_rng,
 };
-use talpid_types::net::{IpVersion, obfuscation::ObfuscatorConfig};
+use talpid_types::net::{Endpoint, IpVersion, obfuscation::ObfuscatorConfig};
 
 use crate::SelectedObfuscator;
 
@@ -82,6 +82,53 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
                 .expect("At least one relay must've had a weight above 0"),
         )
     }
+}
+
+pub fn get_multiplexer_obfuscator(
+    udp2tcp_ports: &[u16],
+    shadowsocks_ports: &[RangeInclusive<u16>],
+    obfuscator_relay: Relay,
+    endpoint: &MullvadWireguardEndpoint,
+) -> Result<SelectedObfuscator, Error> {
+    // Add direct (no obfuscation) method
+    let direct = Some(Endpoint::from_socket_address(
+        endpoint.peer.endpoint,
+        talpid_types::net::TransportProtocol::Udp,
+    ));
+
+    // Add obfuscation methods
+    let mut configs = vec![];
+
+    let udp2tcp = get_udp2tcp_obfuscator(
+        &Udp2TcpObfuscationSettings::default(),
+        udp2tcp_ports,
+        obfuscator_relay.clone(),
+        endpoint,
+    )?;
+    configs.push(udp2tcp.config);
+
+    let shadowsocks = get_shadowsocks_obfuscator(
+        &ShadowsocksSettings::default(),
+        shadowsocks_ports,
+        obfuscator_relay.clone(),
+        endpoint,
+    )?;
+    configs.push(shadowsocks.config);
+
+    let ip_version = match endpoint.peer.endpoint {
+        SocketAddr::V4(_) => IpVersion::V4,
+        SocketAddr::V6(_) => IpVersion::V6,
+    };
+    if let Some(quic) = get_quic_obfuscator(obfuscator_relay.clone(), ip_version) {
+        configs.push(quic.config);
+    }
+
+    let config = ObfuscatorConfig::Multiplexer { direct, configs };
+
+    Ok(SelectedObfuscator {
+        config,
+        relay: obfuscator_relay,
+    })
 }
 
 pub fn get_udp2tcp_obfuscator(
