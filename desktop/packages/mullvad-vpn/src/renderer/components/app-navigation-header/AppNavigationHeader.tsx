@@ -1,20 +1,24 @@
 import { useContext } from 'react';
 
 import { NavigationHeader, NavigationHeaderProps } from '../../lib/components';
+import { InitialFocus } from '../initial-focus';
 import { NavigationScrollContext } from '../NavigationContainer';
 import { AppNavigationHeaderBackButton, AppNavigationHeaderInfoButton } from './components';
 
 export interface NavigationBarProps extends NavigationHeaderProps {
-  title?: string;
+  title: string;
+  preventFocus?: boolean;
   children?: React.ReactNode;
 }
 
-const AppNavigationHeader = ({ title, children, ...props }: NavigationBarProps) => {
+const AppNavigationHeader = ({ title, preventFocus, children, ...props }: NavigationBarProps) => {
   const { showsBarTitle } = useContext(NavigationScrollContext);
   return (
     <NavigationHeader titleVisible={showsBarTitle} {...props}>
       <AppNavigationHeaderBackButton />
-      {title && <NavigationHeader.Title>{title}</NavigationHeader.Title>}
+      <InitialFocus preventFocus={preventFocus}>
+        <NavigationHeader.Title>{title}</NavigationHeader.Title>
+      </InitialFocus>
       <NavigationHeader.ButtonGroup $justifyContent="flex-end">
         {children}
       </NavigationHeader.ButtonGroup>
