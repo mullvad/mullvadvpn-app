@@ -16,6 +16,8 @@ use netlink_packet_route::link::LinkMessage;
 use netlink_proto::sys::{SocketAddr, protocols::NETLINK_GENERIC};
 use netlink_proto::{ConnectionHandle, Error as NetlinkError};
 use rtnetlink::AddressMessageBuilder;
+use rtnetlink::LinkMessageBuilder;
+use rtnetlink::LinkWireguard;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::net::Ipv6Addr;
