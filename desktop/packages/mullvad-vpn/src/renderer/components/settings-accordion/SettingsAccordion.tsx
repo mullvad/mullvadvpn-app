@@ -17,6 +17,7 @@ function SettingsAccordion({ accordionId, anchorId, ...props }: SettingsAccordio
   const initialExpanded = location.state.expandedSections[accordionId];
   const [expanded, setExpanded] = React.useState(initialExpanded);
   const { ref, animation } = useScrollToListItem(anchorId);
+  const titleId = React.useId();
 
   const handleOnExpandedChange = React.useCallback(
     (value: boolean) => {
@@ -35,9 +36,12 @@ function SettingsAccordion({ accordionId, anchorId, ...props }: SettingsAccordio
   return (
     <Accordion
       ref={ref}
+      tabIndex={-1}
       animation={animation}
       expanded={expanded}
       onExpandedChange={handleOnExpandedChange}
+      titleId={titleId}
+      aria-labelledby={titleId}
       {...props}
     />
   );

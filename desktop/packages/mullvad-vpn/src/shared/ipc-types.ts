@@ -35,6 +35,7 @@ export type ScrollToAnchorId =
 export type ScrollToAnchorOption = {
   type: 'scroll-to-anchor';
   id: ScrollToAnchorId;
+  triggered?: boolean;
 };
 
 export type LocationStateOptions = SuppressOutdatedVersionOption | ScrollToAnchorOption;

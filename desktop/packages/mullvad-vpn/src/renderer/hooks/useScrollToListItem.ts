@@ -3,9 +3,10 @@ import React from 'react';
 import { ScrollToAnchorId } from '../../shared/ipc-types';
 import { ListItemAnimation } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
-import { useScrollToReference } from '.';
+import { useFocusReference } from './useFocusReference';
+import { useScrollToReference } from './useScrollToReference';
 
-export const useScrollToListItem = <T extends Element = HTMLDivElement>(
+export const useScrollToListItem = <T extends HTMLElement = HTMLDivElement>(
   id?: ScrollToAnchorId,
 ): {
   ref?: React.RefObject<T | null>;
@@ -16,26 +17,44 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
   const { location } = history;
   const { state } = location;
 
-  const anchorId = state?.options?.find((option) => option.type === 'scroll-to-anchor')?.id;
-  const scroll = id === anchorId && anchorId !== undefined;
+  const option = state?.options?.find((option) => option.type === 'scroll-to-anchor');
+
+  const triggered = option?.triggered;
+  const isMatchingId = option?.id === id;
+  const scrollToReference = !triggered && isMatchingId;
 
   const handleOnScrolled = React.useCallback(() => {
+    const newOptions = state?.options?.map((option) => {
+      if (option.type === 'scroll-to-anchor') {
+        return { ...option, triggered: true };
+      }
+      return option;
+    });
+
     history.replace(location, {
       ...state,
-      options: state?.options?.filter((option) => option.type !== 'scroll-to-anchor'),
+      options: newOptions,
     });
   }, [history, location, state]);
 
-  useScrollToReference(ref, scroll, handleOnScrolled);
+  useFocusReference(ref, scrollToReference);
+  useScrollToReference(ref, scrollToReference, handleOnScrolled);
 
-  if (anchorId === undefined) {
+  if (option === undefined) {
     return {
       ref: undefined,
       animation: undefined,
     };
   }
+
+  const animation: ListItemAnimation | undefined = triggered
+    ? undefined
+    : isMatchingId
+      ? 'flash'
+      : 'dim';
+
   return {
     ref,
-    animation: scroll ? 'flash' : 'dim',
+    animation,
   };
 };
