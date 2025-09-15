@@ -1,9 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router';
 
-import { RoutePath } from '../../shared/routes';
 import { useHistory } from '../lib/history';
-import { disableDismissForRoutes } from '../lib/routeHelpers';
 import { useEffectEvent } from '../lib/utility-hooks';
 
 interface IKeyboardNavigationProps {
@@ -14,7 +11,6 @@ interface IKeyboardNavigationProps {
 export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
   const { pop } = useHistory();
   const [backAction, setBackActionImpl] = useState<BackActionFn>();
-  const location = useLocation();
 
   // Since the backaction is now a function we need to make sure it's not called when setting the
   // state.
@@ -25,15 +21,14 @@ export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        const path = location.pathname as RoutePath;
-        if (event.shiftKey && !disableDismissForRoutes.includes(path)) {
+        if (event.shiftKey && window.env.development) {
           pop(true);
         } else {
           backAction?.();
         }
       }
     },
-    [pop, backAction, location.pathname],
+    [pop, backAction],
   );
 
   useEffect(() => {
