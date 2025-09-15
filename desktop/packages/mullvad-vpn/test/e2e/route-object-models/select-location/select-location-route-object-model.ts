@@ -28,6 +28,10 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.exitButton();
   }
 
+  getSearchInput() {
+    return this.selectors.searchInput();
+  }
+
   getRelaysMatching(relayNames: string[]) {
     return this.selectors.relaysMatching(relayNames);
   }
