@@ -91,6 +91,7 @@ impl Resolvconf {
             let mut resolveconf = Command::new(&self.resolvconf);
             let mut child = resolveconf
                 .stdin(Stdio::piped())
+                .stderr(Stdio::piped())
                 .args(["-a", &record_name])
                 .spawn()?;
             let mut stdin = child.stdin.take().expect("stdin to be present");
