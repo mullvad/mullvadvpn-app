@@ -45,7 +45,7 @@ test.describe('Login view', () => {
   test('Should try to login when clicking login button', async () => {
     await routes.login.fillAccountNumber('1234 1234 1234 1234');
 
-    await Promise.all([util.ipc.account.login.expect(), routes.login.loginByPressingEnter()]);
+    await Promise.all([util.ipc.account.login.expect(), routes.login.loginByClickingLoginButton()]);
     const header = routes.login.selectors.header();
     await expect(header).toHaveText('Logging in...');
     await expect(routes.login.selectors.loginButton()).toBeDisabled();
