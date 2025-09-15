@@ -881,6 +881,8 @@ impl RouteManagerImpl {
                 let fwmark = RouteAttribute::Mark(mark);
                 request.attributes.push(fwmark);
             }
+
+            request.header.flags = RouteFlags::FibMatch; // RTM_F_FIB_MATCH;
             request
         };
 
