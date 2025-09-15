@@ -40,11 +40,11 @@ impl AbstractIpNetwork for Ipv4Network {
     }
 
     fn mask(self) -> Self::Representation {
-        Ipv4Network::mask(self).into()
+        Ipv4Network::mask(&self).into()
     }
 
     fn network(self) -> Self::Representation {
-        Ipv4Network::network(self).into()
+        Ipv4Network::network(&self).into()
     }
 
     fn prefix(self) -> u8 {
