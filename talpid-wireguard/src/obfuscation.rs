@@ -93,9 +93,13 @@ fn settings_from_config(
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> ObfuscationSettings {
     match obfuscation_config {
-        Obfuscators::Single(obfuscation_config) => {
-            settings_from_single_config(config, obfuscation_config, mtu, fwmark)
-        }
+        Obfuscators::Single(obfuscation_config) => settings_from_single_config(
+            config,
+            obfuscation_config,
+            mtu,
+            #[cfg(target_os = "linux")]
+            fwmark,
+        ),
         Obfuscators::Multiplexer {
             direct,
             configs: (first_obfs, remaining_obfs),
