@@ -1051,6 +1051,7 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
 /// obfuscator config.
 ///
 /// [`RelaySelector::get_relay`] may still enable obfuscation if it is present in [`RETRY_ORDER`].
+#[cfg(not(feature = "staggered-obfuscation"))]
 #[test]
 fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     let relay_selector = default_relay_selector();
