@@ -16,7 +16,7 @@ pub struct TunnelParameters {
     pub connection: ConnectionConfig,
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
-    pub obfuscation: Option<super::obfuscation::ObfuscatorConfig>,
+    pub obfuscation: Option<super::obfuscation::Obfuscators>,
 }
 
 impl TunnelParameters {
@@ -24,7 +24,7 @@ impl TunnelParameters {
     pub fn get_next_hop_endpoints(&self) -> Vec<Endpoint> {
         self.obfuscation
             .as_ref()
-            .map(|proxy| proxy.get_obfuscator_endpoint())
+            .map(|proxy| proxy.endpoints())
             .unwrap_or_else(|| vec![self.connection.get_endpoint()])
     }
 }

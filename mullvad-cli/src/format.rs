@@ -228,8 +228,8 @@ fn format_relay_connection(
             location.and_then(|l| l.entry_hostname.as_deref()),
             // Check if we *actually* want to print an obfuscator endpoint ..
             match endpoint.obfuscation {
-                Some(ref obfuscation) => &obfuscation.endpoints,
-                _ => std::slice::from_ref(entry),
+                Some(ref info) => info.get_endpoints(),
+                _ => vec![*entry],
             },
             verbose,
         );
@@ -251,8 +251,8 @@ fn format_relay_connection(
         // Check if we *actually* want to print an obfuscator endpoint ..
         // The obfuscator information should be printed for the exit relay if multihop is disabled
         match (&endpoint.obfuscation, &first_hop) {
-            (Some(obfuscation), None) => &obfuscation.endpoints,
-            _ => std::slice::from_ref(&endpoint.endpoint),
+            (Some(obfuscation), None) => obfuscation.get_endpoints(),
+            _ => vec![endpoint.endpoint],
         },
         verbose,
     );
@@ -264,7 +264,12 @@ fn format_relay_connection(
     )
 }
 
-fn format_endpoints(hostname: Option<&str>, endpoints: &[Endpoint], verbose: bool) -> String {
+fn format_endpoints(
+    hostname: Option<&str>,
+    endpoints: impl AsRef<[Endpoint]>,
+    verbose: bool,
+) -> String {
+    let endpoints = endpoints.as_ref();
     if endpoints.len() == 1 {
         return format_endpoint(hostname, &endpoints[0], verbose);
     }

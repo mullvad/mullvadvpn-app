@@ -24,41 +24,8 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
                     }
                 },
             }),
-            obfuscation: endpoint.obfuscation.map(|obfuscation_endpoint| {
-                let endpoints: Vec<_> = obfuscation_endpoint
-                    .endpoints
-                    .iter()
-                    .map(|endpoint| proto::Endpoint {
-                        address: endpoint.address.to_string(),
-                        protocol: i32::from(proto::TransportProtocol::from(endpoint.protocol)),
-                    })
-                    .collect();
-
-                proto::ObfuscationEndpoint {
-                    endpoints,
-                    obfuscation_type: match obfuscation_endpoint.obfuscation_type {
-                        net::ObfuscationType::Udp2Tcp => {
-                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Udp2tcp)
-                        }
-                        net::ObfuscationType::Shadowsocks => {
-                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks)
-                        }
-                        net::ObfuscationType::Quic => {
-                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Quic)
-                        }
-                        net::ObfuscationType::Lwo => {
-                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Lwo)
-                        }
-                        net::ObfuscationType::Multiplexer => {
-                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Multiplexer)
-                        }
-                    },
-                }
-            }),
-            entry_endpoint: endpoint.entry_endpoint.map(|entry| proto::Endpoint {
-                address: entry.address.to_string(),
-                protocol: i32::from(proto::TransportProtocol::from(entry.protocol)),
-            }),
+            obfuscation: endpoint.obfuscation.map(proto::ObfuscationInfo::from),
+            entry_endpoint: endpoint.entry_endpoint.map(proto::Endpoint::from),
             tunnel_metadata: endpoint
                 .tunnel_interface
                 .map(|tunnel_interface| proto::TunnelMetadata { tunnel_interface }),
@@ -67,6 +34,110 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
             #[cfg(not(daita))]
             daita: false,
         }
+    }
+}
+
+impl From<talpid_types::net::Endpoint> for proto::Endpoint {
+    fn from(value: talpid_types::net::Endpoint) -> Self {
+        proto::Endpoint {
+            address: value.address.to_string(),
+            protocol: i32::from(proto::TransportProtocol::from(value.protocol)),
+        }
+    }
+}
+
+impl TryFrom<proto::Endpoint> for talpid_types::net::Endpoint {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(endpoint: proto::Endpoint) -> Result<Self, FromProtobufTypeError> {
+        Ok(talpid_types::net::Endpoint {
+            address: arg_from_str(&endpoint.address, "invalid endpoint address")?,
+            protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
+        })
+    }
+}
+
+impl From<talpid_types::net::ObfuscationInfo> for proto::ObfuscationInfo {
+    fn from(info: talpid_types::net::ObfuscationInfo) -> Self {
+        match info {
+            talpid_types::net::ObfuscationInfo::Single(endpoint) => proto::ObfuscationInfo {
+                r#type: Some(proto::obfuscation_info::Type::Single(
+                    proto::ObfuscationEndpoint::from(endpoint),
+                )),
+            },
+            talpid_types::net::ObfuscationInfo::Multiplexer {
+                direct,
+                obfuscators,
+            } => proto::ObfuscationInfo {
+                r#type: Some(proto::obfuscation_info::Type::Multiple(
+                    proto::MultiplexObfuscation {
+                        direct: direct.map(proto::Endpoint::from),
+                        obfuscators: obfuscators
+                            .iter()
+                            .cloned()
+                            .map(proto::ObfuscationEndpoint::from)
+                            .collect(),
+                    },
+                )),
+            },
+        }
+    }
+}
+
+impl From<talpid_types::net::ObfuscationEndpoint> for proto::ObfuscationEndpoint {
+    fn from(endpoint: talpid_types::net::ObfuscationEndpoint) -> Self {
+        proto::ObfuscationEndpoint {
+            endpoint: Some(proto::Endpoint::from(endpoint.endpoint)),
+            obfuscation_type: match endpoint.obfuscation_type {
+                talpid_types::net::ObfuscationType::Udp2Tcp => {
+                    i32::from(proto::obfuscation_endpoint::ObfuscationType::Udp2tcp)
+                }
+                talpid_types::net::ObfuscationType::Shadowsocks => {
+                    i32::from(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks)
+                }
+                talpid_types::net::ObfuscationType::Quic => {
+                    i32::from(proto::obfuscation_endpoint::ObfuscationType::Quic)
+                }
+                talpid_types::net::ObfuscationType::Lwo => {
+                    i32::from(proto::obfuscation_endpoint::ObfuscationType::Lwo)
+                }
+            },
+        }
+    }
+}
+
+impl TryFrom<proto::ObfuscationEndpoint> for talpid_types::net::ObfuscationEndpoint {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(endpoint: proto::ObfuscationEndpoint) -> Result<Self, Self::Error> {
+        use talpid_types::net as talpid_net;
+
+        Ok(talpid_net::ObfuscationEndpoint {
+            endpoint: talpid_net::Endpoint::try_from(endpoint.endpoint.ok_or(
+                FromProtobufTypeError::InvalidArgument("missing obfuscation endpoint"),
+            )?)?,
+            obfuscation_type: match proto::obfuscation_endpoint::ObfuscationType::try_from(
+                endpoint.obfuscation_type,
+            ) {
+                Ok(proto::obfuscation_endpoint::ObfuscationType::Udp2tcp) => {
+                    talpid_net::ObfuscationType::Udp2Tcp
+                }
+                Ok(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks) => {
+                    talpid_net::ObfuscationType::Shadowsocks
+                }
+                Ok(proto::obfuscation_endpoint::ObfuscationType::Quic) => {
+                    talpid_net::ObfuscationType::Quic
+                }
+                Ok(proto::obfuscation_endpoint::ObfuscationType::Lwo) => {
+                    talpid_net::ObfuscationType::Lwo
+                }
+                Err(_) => {
+                    return Err(FromProtobufTypeError::InvalidArgument(
+                        "unknown obfuscation type",
+                    ));
+                }
+            },
+        })
     }
 }
 
@@ -114,49 +185,30 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 .transpose()?,
             obfuscation: endpoint
                 .obfuscation
-                .map(|obfs_ep| {
-                    let endpoints = obfs_ep
-                        .endpoints
-                        .iter()
-                        .map(|endpoint| {
-                            Ok(talpid_net::Endpoint {
-                                address: arg_from_str(
-                                    &endpoint.address,
-                                    "invalid endpoint address",
-                                )?,
-                                protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
-                            })
+                .map(|info| match info.r#type {
+                    Some(proto::obfuscation_info::Type::Single(endpoint)) => {
+                        Ok(talpid_types::net::ObfuscationInfo::Single(
+                            talpid_net::ObfuscationEndpoint::try_from(endpoint)?,
+                        ))
+                    }
+                    Some(proto::obfuscation_info::Type::Multiple(multiple)) => {
+                        let direct = multiple
+                            .direct
+                            .map(talpid_net::Endpoint::try_from)
+                            .transpose()?;
+                        let obfuscators = multiple
+                            .obfuscators
+                            .into_iter()
+                            .map(talpid_net::ObfuscationEndpoint::try_from)
+                            .collect::<Result<Vec<_>, _>>()?;
+                        Ok(talpid_types::net::ObfuscationInfo::Multiplexer {
+                            direct,
+                            obfuscators,
                         })
-                        .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
-
-                    Ok(talpid_net::ObfuscationEndpoint {
-                        endpoints,
-                        obfuscation_type:
-                            match proto::obfuscation_endpoint::ObfuscationType::try_from(
-                                obfs_ep.obfuscation_type,
-                            ) {
-                                Ok(proto::obfuscation_endpoint::ObfuscationType::Udp2tcp) => {
-                                    talpid_net::ObfuscationType::Udp2Tcp
-                                }
-                                Ok(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks) => {
-                                    talpid_net::ObfuscationType::Shadowsocks
-                                }
-                                Ok(proto::obfuscation_endpoint::ObfuscationType::Quic) => {
-                                    talpid_net::ObfuscationType::Quic
-                                }
-                                Ok(proto::obfuscation_endpoint::ObfuscationType::Lwo) => {
-                                    talpid_net::ObfuscationType::Lwo
-                                }
-                                Ok(proto::obfuscation_endpoint::ObfuscationType::Multiplexer) => {
-                                    talpid_net::ObfuscationType::Multiplexer
-                                }
-                                Err(_) => {
-                                    return Err(FromProtobufTypeError::InvalidArgument(
-                                        "unknown obfuscation type",
-                                    ));
-                                }
-                            },
-                    })
+                    }
+                    None => Err(FromProtobufTypeError::InvalidArgument(
+                        "unknown obfuscation info type",
+                    )),
                 })
                 .transpose()?,
             entry_endpoint: endpoint
