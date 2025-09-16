@@ -193,22 +193,21 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
             },
         quantumResistant = quantumResistant,
         obfuscation =
-            if (hasObfuscation()) {
-                obfuscation.toDomain()
+            if (hasObfuscation() && obfuscation.hasSingle()) {
+                obfuscation.single.toDomain()
             } else {
+                // TODO: handle multiplexer
                 null
             },
         daita = daita,
     )
 
-internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint {
-    // FIXME: more than one endpoint
+internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
     ObfuscationEndpoint(
         endpoint =
-            Endpoint(address = endpointsList[0].address.toInetSocketAddress(), protocol = endpointsList[0].protocol.toDomain()),
+            Endpoint(address = endpoint.address.toInetSocketAddress(), protocol = endpoint.protocol.toDomain()),
         obfuscationType = obfuscationType.toDomain(),
     )
-}
 
 private fun String.toInetAddress(): InetAddress = InetAddress.getByName(this)
 
@@ -226,8 +225,6 @@ internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain():
             ObfuscationType.Shadowsocks
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC -> ObfuscationType.Quic
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.LWO ->
-            throw IllegalArgumentException("Unsupported obfuscation type")
-        ManagementInterface.ObfuscationEndpoint.ObfuscationType.MULTIPLEXER ->
             throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
