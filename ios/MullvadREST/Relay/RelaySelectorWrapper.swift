@@ -24,7 +24,7 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         try validateWireguardCustomPort(tunnelSettings, relays: relays)
 
         // Filter for obfuscation
-        let obfuscation = try RelayObfuscator(
+        let obfuscation = RelayObfuscator(
             relays: relays,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount,
@@ -50,7 +50,7 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
     public func findCandidates(tunnelSettings: LatestTunnelSettings) throws -> RelayCandidates {
         let relays = try relayCache.read().relays
 
-        let obfuscation = try RelayObfuscator(
+        let obfuscation = RelayObfuscator(
             relays: relays,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: 0,
