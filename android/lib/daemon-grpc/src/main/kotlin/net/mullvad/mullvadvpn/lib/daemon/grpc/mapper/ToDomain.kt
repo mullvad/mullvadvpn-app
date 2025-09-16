@@ -201,12 +201,14 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
         daita = daita,
     )
 
-internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
+internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint {
+    // FIXME: more than one endpoint
     ObfuscationEndpoint(
         endpoint =
-            Endpoint(address = InetSocketAddress(address, port), protocol = protocol.toDomain()),
+            Endpoint(address = endpoints[0].address.toInetSocketAddress(), protocol = endpoints[0].protocol.toDomain()),
         obfuscationType = obfuscationType.toDomain(),
     )
+}
 
 private fun String.toInetAddress(): InetAddress = InetAddress.getByName(this)
 
@@ -224,6 +226,8 @@ internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain():
             ObfuscationType.Shadowsocks
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC -> ObfuscationType.Quic
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.LWO ->
+            throw IllegalArgumentException("Unsupported obfuscation type")
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.MULTIPLEXER ->
             throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
