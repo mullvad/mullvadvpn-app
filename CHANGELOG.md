@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 - Log WFP sessions when transaction lock timeout occurs.
 
 ### Changed
+- Move placement of login button from inside the account number input to under account number.
+
 #### Windows
 - Implement UDP GSO for QUIC on client socket. This improves download speeds slightly.
 
