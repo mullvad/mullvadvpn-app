@@ -23,21 +23,22 @@ public struct ObfuscationMethodSelector {
         tunnelSettings: LatestTunnelSettings,
         obfuscationBypass: any ObfuscationProviding
     ) -> WireGuardObfuscationState {
-        let selectedObfuscation: WireGuardObfuscationState =
-            if tunnelSettings.wireGuardObfuscation.state == .automatic {
-                if connectionAttemptCount.isOrdered(nth: 2, forEverySetOf: 4) {
-                    .shadowsocks
-                } else if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 4) {
-                    .quic
-                } else if connectionAttemptCount.isOrdered(nth: 4, forEverySetOf: 4) {
-                    .udpOverTcp
-                } else {
-                    .off
-                }
+        if tunnelSettings.wireGuardObfuscation.state == .automatic {
+            let selectedObfuscation: WireGuardObfuscationState = if connectionAttemptCount.isOrdered(
+                nth: 2,
+                forEverySetOf: 4
+            ) {
+                .shadowsocks
+            } else if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 4) {
+                .quic
+            } else if connectionAttemptCount.isOrdered(nth: 4, forEverySetOf: 4) {
+                .udpOverTcp
             } else {
-                tunnelSettings.wireGuardObfuscation.state
+                .off
             }
-        return obfuscationBypass.bypassUnsupportedObfuscation(selectedObfuscation)
+            return obfuscationBypass.bypassUnsupportedObfuscation(selectedObfuscation)
+        }
+        return tunnelSettings.wireGuardObfuscation.state
     }
 }
 
