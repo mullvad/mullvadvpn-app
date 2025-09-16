@@ -205,7 +205,7 @@ internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndp
     // FIXME: more than one endpoint
     ObfuscationEndpoint(
         endpoint =
-            Endpoint(address = endpoints[0].address.toInetSocketAddress(), protocol = endpoints[0].protocol.toDomain()),
+            Endpoint(address = endpointsList[0].address.toInetSocketAddress(), protocol = endpointsList[0].protocol.toDomain()),
         obfuscationType = obfuscationType.toDomain(),
     )
 }
