@@ -22,7 +22,7 @@ use mullvad_types::{
     wireguard,
 };
 use std::{
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     str::FromStr,
 };
 use talpid_types::net::{
@@ -117,16 +117,24 @@ pub async fn test_wireguard_tunnel_ipvx(
             .unwrap();
 
         let connection_result = connect_and_wait(&mut mullvad_client).await;
-        assert_eq!(
-            connection_result.is_ok(),
-            should_succeed,
-            "unexpected result for port {port}: {connection_result:?}",
-        );
 
         if should_succeed {
+            let Ok(connection_result) = &connection_result else {
+                panic!("connection must succeed for port {port}: {connection_result:?}");
+            };
+
+            let endpoint = connection_result.endpoint().expect("must have endpoint");
+            let endpoint = endpoint.entry_endpoint.unwrap_or(endpoint.endpoint);
+            assert!(matches!(endpoint.address.ip(), IpAddr::VX(..)));
+
             assert!(
                 helpers::using_mullvad_exit(&rpc).await,
                 "expected Mullvad exit IP"
+            );
+        } else {
+            assert!(
+                connection_result.is_err(),
+                "connection must fail for port {port}: {connection_result:?}",
             );
         }
 
