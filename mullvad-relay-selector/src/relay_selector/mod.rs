@@ -938,7 +938,6 @@ impl RelaySelector {
             ObfuscationQuery::Auto => Ok(None),
             #[cfg(feature = "staggered-obfuscation")]
             ObfuscationQuery::Auto => {
-                // TODO: do not use multiplexer on first attempt
                 let shadowsocks_ports = &parsed_relays.wireguard.shadowsocks_port_ranges;
                 let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
                 helpers::get_multiplexer_obfuscator(
