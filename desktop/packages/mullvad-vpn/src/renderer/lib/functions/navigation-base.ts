@@ -5,7 +5,16 @@ export function getNavigationBase(connectedToDaemon: boolean, loginState: LoginS
   if (connectedToDaemon) {
     if (loginState.type === 'none' && loginState.deviceRevoked) {
       return RoutePath.deviceRevoked;
-    } else if (loginState.type === 'none' || loginState.type === 'logging in') {
+    } else if (
+      loginState.type === 'too many devices' ||
+      (loginState.type === 'failed' && loginState.error === 'too-many-devices')
+    ) {
+      return RoutePath.tooManyDevices;
+    } else if (
+      loginState.type === 'none' ||
+      loginState.type === 'logging in' ||
+      loginState.type === 'failed'
+    ) {
       return RoutePath.login;
     } else if (loginState.type === 'ok' && loginState.expiredState === 'expired') {
       return RoutePath.expired;
