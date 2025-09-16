@@ -1847,6 +1847,7 @@
       }
     },
     "Delete Account" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1913,6 +1914,7 @@
       }
     },
     "Deleting account..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
