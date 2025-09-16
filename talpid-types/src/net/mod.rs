@@ -290,7 +290,10 @@ impl From<&Obfuscators> for ObfuscationInfo {
                 direct,
                 configs: (first_obfs, remaining_obfs),
             } => ObfuscationInfo::Multiplexer {
-                direct: *direct,
+                direct: direct.map(|direct| Endpoint {
+                    address: direct,
+                    protocol: TransportProtocol::Udp,
+                }),
                 obfuscators: iter::once(first_obfs)
                     .chain(remaining_obfs)
                     .map(ObfuscationEndpoint::from)

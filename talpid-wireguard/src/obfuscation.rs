@@ -106,7 +106,7 @@ fn settings_from_config(
         } => {
             let mut transports = vec![];
             if let Some(direct) = direct {
-                transports.push(multiplexer::Transport::Direct(direct.address));
+                transports.push(multiplexer::Transport::Direct(*direct));
             }
             for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
                 let settings = settings_from_single_config(

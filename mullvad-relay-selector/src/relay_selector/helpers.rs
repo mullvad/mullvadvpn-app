@@ -92,13 +92,10 @@ pub fn get_multiplexer_obfuscator(
     obfuscator_relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
 ) -> Result<SelectedObfuscator, Error> {
-    use talpid_types::net::{Endpoint, obfuscation::Obfuscators};
+    use talpid_types::net::obfuscation::Obfuscators;
 
-    // Add direct (no obfuscation) method
-    let direct = Some(Endpoint::from_socket_address(
-        endpoint.peer.endpoint,
-        talpid_types::net::TransportProtocol::Udp,
-    ));
+    // Direct (no obfuscation) method
+    let direct = Some(endpoint.peer.endpoint);
 
     // Add obfuscation methods
     let mut configs = vec![];

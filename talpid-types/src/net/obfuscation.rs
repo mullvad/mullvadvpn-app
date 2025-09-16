@@ -7,8 +7,7 @@ use super::{Endpoint, TransportProtocol};
 pub enum Obfuscators {
     Single(ObfuscatorConfig),
     Multiplexer {
-        // TODO: Replace with socket address
-        direct: Option<Endpoint>,
+        direct: Option<SocketAddr>,
         configs: (ObfuscatorConfig, Vec<ObfuscatorConfig>),
     },
 }
@@ -34,7 +33,10 @@ pub enum ObfuscatorConfig {
 impl Obfuscators {
     /// Return a [Obfuscators::Multiplexer]. If `obfuscators` contains zero values,
     /// this returns `None`.
-    pub fn multiplexer(direct: Option<Endpoint>, obfuscators: &[ObfuscatorConfig]) -> Option<Self> {
+    pub fn multiplexer(
+        direct: Option<SocketAddr>,
+        obfuscators: &[ObfuscatorConfig],
+    ) -> Option<Self> {
         let [first, remaining @ ..] = obfuscators else {
             return None;
         };
@@ -54,7 +56,10 @@ impl Obfuscators {
             } => {
                 let mut endpoints = vec![];
                 if let Some(direct) = direct {
-                    endpoints.push(*direct);
+                    endpoints.push(Endpoint {
+                        address: *direct,
+                        protocol: TransportProtocol::Udp,
+                    });
                 }
                 endpoints.push(first_config.endpoint());
                 endpoints.extend(remaining_configs.iter().map(|cfg| cfg.endpoint()));
