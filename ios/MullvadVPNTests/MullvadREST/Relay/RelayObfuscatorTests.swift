@@ -244,7 +244,7 @@ final class RelayObfuscatorTests: XCTestCase {
     // MARK: Obfuscation Bypass
 
     func testObfuscatorBypass() throws {
-        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .automatic)
 
         let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
