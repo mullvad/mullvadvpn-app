@@ -74,6 +74,7 @@ function getNavigationTransition(currentPath: RoutePath, nextPath: RoutePath) {
       [RoutePath.launch]: TransitionType.push,
       [RoutePath.main]: TransitionType.pop,
       [RoutePath.deviceRevoked]: TransitionType.pop,
+      [RoutePath.tooManyDevices]: TransitionType.pop,
       '*': TransitionType.dismiss,
     },
     [RoutePath.main]: {
@@ -95,6 +96,9 @@ function getNavigationTransition(currentPath: RoutePath, nextPath: RoutePath) {
     },
     [RoutePath.deviceRevoked]: {
       '*': TransitionType.pop,
+    },
+    [RoutePath.tooManyDevices]: {
+      [RoutePath.login]: TransitionType.push,
     },
   };
 
