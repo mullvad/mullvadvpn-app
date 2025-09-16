@@ -167,23 +167,33 @@ impl Handle {
             .mtu(mtu);
         let message = message_builder.build();
 
-        self.route_handle
+        let reply = self
+            .route_handle
             .link()
             .add(message)
             .set_flags(NLM_F_REQUEST | NLM_F_ACK | NLM_F_REPLACE | NLM_F_CREATE | NLM_F_MATCH)
             .execute()
-            .await
-            .map_err(Error::NetlinkCreateDevice)?;
+            .await;
+
+        if let Err(rtnetlink::Error::NetlinkError(err)) = reply
+            && -err.raw_code() != libc::EEXIST
+        {
+            return Err(Error::NetlinkCreateDevice(rtnetlink::Error::NetlinkError(
+                err,
+            )));
+        };
 
         // fetch interface index of new device
-        let new_device = self.wg_handle.get_by_name(name).await?;
-        for nla in new_device.nlas {
-            if let DeviceNla::IfIndex(index) = nla {
-                return Ok(index);
-            }
-        }
-
-        Err(Error::NoDevice)
+        self.wg_handle
+            .get_by_name(name)
+            .await?
+            .nlas
+            .into_iter()
+            .find_map(|nla| match nla {
+                DeviceNla::IfIndex(index) => Some(index),
+                _ => None,
+            })
+            .ok_or(Error::NoDevice)
     }
 
     pub async fn set_ip_address(&mut self, index: u32, addr: IpAddr) -> Result<(), Error> {
