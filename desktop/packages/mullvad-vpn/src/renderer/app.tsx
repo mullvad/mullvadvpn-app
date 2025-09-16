@@ -54,7 +54,7 @@ import { ModalContainer } from './components/Modal';
 import { AppContext } from './context';
 import { Theme } from './lib/components';
 import { getNavigationBase } from './lib/functions/navigation-base';
-import History, { TransitionType } from './lib/history';
+import History from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
 import accountActions from './redux/account/actions';
@@ -499,8 +499,6 @@ export default class AppRenderer {
 
           actions.account.loginTooManyDevices();
           this.loginState = 'too many devices';
-
-          this.history.reset(RoutePath.tooManyDevices, { transition: TransitionType.push });
         } catch {
           log.error('Failed to fetch device list');
           actions.account.loginFailed('list-devices');
@@ -517,9 +515,8 @@ export default class AppRenderer {
     this.loginState = 'none';
   };
 
-  public logout = async (transition = TransitionType.dismiss) => {
+  public logout = async () => {
     try {
-      this.history.reset(RoutePath.login, { transition });
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
       const error = e as Error;
@@ -528,7 +525,7 @@ export default class AppRenderer {
   };
 
   public leaveRevokedDevice = async () => {
-    await this.logout(TransitionType.pop);
+    await this.logout();
     await this.disconnectTunnel();
   };
 
