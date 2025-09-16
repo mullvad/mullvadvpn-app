@@ -26,10 +26,10 @@ final class RelayObfuscatorTests: XCTestCase {
     func testObfuscateOffDoesNotChangeEndpoint() throws {
         tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .off)
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         XCTAssertEqual(obfuscationResult.port, defaultWireguardPort)
@@ -45,10 +45,10 @@ final class RelayObfuscatorTests: XCTestCase {
             )
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: settings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         let picker = SinglehopPicker(
@@ -73,10 +73,10 @@ final class RelayObfuscatorTests: XCTestCase {
             )
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: settings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         let picker = MultihopPicker(
@@ -99,10 +99,10 @@ final class RelayObfuscatorTests: XCTestCase {
             udpOverTcpPort: .port80
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         XCTAssertEqual(obfuscationResult.port, .only(80))
@@ -114,10 +114,10 @@ final class RelayObfuscatorTests: XCTestCase {
             udpOverTcpPort: .port5001
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         XCTAssertEqual(obfuscationResult.port, .only(5001))
@@ -130,10 +130,10 @@ final class RelayObfuscatorTests: XCTestCase {
         )
 
         try (0 ... 10).filter { $0.isMultiple(of: 2) }.forEach { attempt in
-            let obfuscationResult = try RelayObfuscator(
+            let obfuscationResult = RelayObfuscator(
                 relays: sampleRelays,
                 tunnelSettings: tunnelSettings,
-                connectionAttemptCount: UInt(attempt)
+                connectionAttemptCount: UInt(attempt), obfuscationBypass: IdentityObfuscationProvider()
             ).obfuscate()
 
             let validPorts: [RelayConstraint<UInt16>] = [.only(80), .only(5001)]
@@ -149,10 +149,10 @@ final class RelayObfuscatorTests: XCTestCase {
             shadowsocksPort: .custom(5500)
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         XCTAssertEqual(obfuscationResult.port, .only(5500))
@@ -164,10 +164,10 @@ final class RelayObfuscatorTests: XCTestCase {
             shadowsocksPort: .automatic
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         let portRanges = RelaySelector.parseRawPortRanges(sampleRelays.wireguard.shadowsocksPortRanges)
@@ -194,10 +194,10 @@ final class RelayObfuscatorTests: XCTestCase {
             shadowsocksPort: .custom(port)
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         let relaysWithExtraAddresses = sampleRelays.wireguard.relays.filter { relay in
@@ -216,10 +216,10 @@ final class RelayObfuscatorTests: XCTestCase {
             shadowsocksPort: .custom(port)
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         XCTAssertEqual(obfuscationResult.obfuscatedRelays.wireguard.relays.count, sampleRelays.wireguard.relays.count)
@@ -232,12 +232,32 @@ final class RelayObfuscatorTests: XCTestCase {
             state: .quic
         )
 
-        let obfuscationResult = try RelayObfuscator(
+        let obfuscationResult = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         XCTAssertEqual(obfuscationResult.port, defaultQuicPort)
+    }
+
+    // MARK: Obfuscation Bypass
+
+    func testObfuscatorBypass() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
+
+        let obfuscationResult = RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0, obfuscationBypass: ForceShadowsocksObfuscationBypassStub()
+        ).obfuscate()
+
+        XCTAssertEqual(obfuscationResult.method, .shadowsocks)
+    }
+}
+
+struct ForceShadowsocksObfuscationBypassStub: ObfuscationProviding {
+    func bypassUnsupportedObfuscation(_: WireGuardObfuscationState) -> WireGuardObfuscationState {
+        .shadowsocks
     }
 }

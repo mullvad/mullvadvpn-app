@@ -75,10 +75,7 @@ struct ShadowsocksObfuscator: RelayObfuscating {
             }
         }
 
-        guard
-            wireGuardObfuscation.state == .shadowsocks,
-            let port = shadowsockPort()
-        else {
+        guard let port = shadowsockPort() else {
             return tunnelSettings.relayConstraints.port
         }
 
