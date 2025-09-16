@@ -35,7 +35,7 @@ impl Obfuscators {
     /// Return a [Obfuscators::Multiplexer]. If `obfuscators` contains zero values,
     /// this returns `None`.
     pub fn multiplexer(direct: Option<Endpoint>, obfuscators: &[ObfuscatorConfig]) -> Option<Self> {
-        let [first, remaining @ ..] = &obfuscators[..] else {
+        let [first, remaining @ ..] = obfuscators else {
             return None;
         };
         Some(Obfuscators::Multiplexer {
