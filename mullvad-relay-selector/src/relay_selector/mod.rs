@@ -946,7 +946,7 @@ impl RelaySelector {
                     obfuscator_relay,
                     endpoint,
                 )
-                .map(|obfs| Some(obfs.into()))
+                .map(Some)
                 .map_err(box_obfsucation_error)
             }
             ObfuscationQuery::Udp2tcp(settings) => {
