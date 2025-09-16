@@ -16,6 +16,7 @@ import { SettingsRouteObjectModel } from './settings/settings-route-object-model
 import { SetupFinishedRouteObjectModel } from './setup-finished';
 import { SplitTunnelingSettingsRouteObjectModel } from './split-tunneling-settings';
 import { TimeAddedRouteObjectModel } from './time-added';
+import { TooManyDevicesRouteObjectModel } from './too-many-devices';
 import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
 import { VoucherSuccessRouteObjectModel } from './voucher-success';
@@ -32,6 +33,7 @@ export class RoutesObjectModel {
   readonly timeAdded: TimeAddedRouteObjectModel;
   readonly setupFinished: SetupFinishedRouteObjectModel;
   readonly deviceRevoked: DeviceRevokedRouteObjectModel;
+  readonly tooManyDevices: TooManyDevicesRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
@@ -55,6 +57,7 @@ export class RoutesObjectModel {
     this.timeAdded = new TimeAddedRouteObjectModel(page, utils);
     this.setupFinished = new SetupFinishedRouteObjectModel(page, utils);
     this.deviceRevoked = new DeviceRevokedRouteObjectModel(page, utils);
+    this.tooManyDevices = new TooManyDevicesRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
     this.userInterfaceSettings = new UserInterfaceSettingsRouteObjectModel(page, utils);
     this.filter = new FilterRouteObjectModel(page, utils);
