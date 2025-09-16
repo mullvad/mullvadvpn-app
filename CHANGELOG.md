@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.10-beta1] - 2025-09-16
 ### Added
 - Add helpful warnings when clearing account history. This helps users not lose their account
   numbers.
