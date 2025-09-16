@@ -55,21 +55,28 @@ public struct SelectedRelays: Equatable, Codable, Sendable {
     public let entry: SelectedRelay?
     public let exit: SelectedRelay
     public let retryAttempt: UInt
+    public let obfuscation: WireGuardObfuscationState
 
     public var ingress: SelectedRelay {
         entry ?? exit
     }
 
-    public init(entry: SelectedRelay?, exit: SelectedRelay, retryAttempt: UInt) {
+    public init(
+        entry: SelectedRelay?,
+        exit: SelectedRelay,
+        retryAttempt: UInt,
+        obfuscation: WireGuardObfuscationState
+    ) {
         self.entry = entry
         self.exit = exit
         self.retryAttempt = retryAttempt
+        self.obfuscation = obfuscation
     }
 }
 
 extension SelectedRelays: CustomDebugStringConvertible {
     public var debugDescription: String {
         "Entry: \(entry?.hostname ?? "-") -> \(entry?.endpoint.ipv4Relay.description ?? "-"), " +
-            "Exit: \(exit.hostname) -> \(exit.endpoint.ipv4Relay.description)"
+            "Exit: \(exit.hostname) -> \(exit.endpoint.ipv4Relay.description), obfuscation: \(obfuscation)"
     }
 }

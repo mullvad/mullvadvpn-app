@@ -169,10 +169,10 @@ class MultihopDecisionFlowTests: XCTestCase {
 
 extension MultihopDecisionFlowTests {
     var picker: MultihopPicker {
-        let obfuscation = try? RelayObfuscator(
+        let obfuscation = RelayObfuscator(
             relays: sampleRelays,
             tunnelSettings: LatestTunnelSettings(),
-            connectionAttemptCount: 0
+            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
         var tunnelSettings = LatestTunnelSettings()
@@ -182,7 +182,7 @@ extension MultihopDecisionFlowTests {
         )
 
         return MultihopPicker(
-            obfuscation: obfuscation.unsafelyUnwrapped,
+            obfuscation: obfuscation,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: 0
         )

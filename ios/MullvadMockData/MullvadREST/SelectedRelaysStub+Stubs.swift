@@ -32,6 +32,6 @@ public struct SelectedRelaysStub {
             ),
             features: nil
         ),
-        retryAttempt: 0
+        retryAttempt: 0, obfuscation: .off
     )
 }

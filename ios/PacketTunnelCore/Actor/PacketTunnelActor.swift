@@ -266,10 +266,13 @@ extension PacketTunnelActor {
             startDefaultPathObserver()
         }
 
+        let entryConfiguration = configuration.entryConfiguration
+        let exitConfiguration = configuration.exitConfiguration
+
         // Daita parameters are gotten from an ephemeral peer
         try await tunnelAdapter.startMultihop(
-            entryConfiguration: configuration.entryConfiguration,
-            exitConfiguration: configuration.exitConfiguration,
+            entryConfiguration: entryConfiguration,
+            exitConfiguration: exitConfiguration,
             daita: nil
         )
 
@@ -329,6 +332,7 @@ extension PacketTunnelActor {
             connectionState.relayConstraints = settings.relayConstraints
             connectionState.connectedEndpoint = connectedRelay.endpoint
             connectionState.remotePort = connectedRelay.endpoint.ipv4Relay.port
+            connectionState.obfuscationMethod = selectedRelays.obfuscation
 
             return connectionState
         case var .connecting(connectionState), var .reconnecting(connectionState):
@@ -347,6 +351,7 @@ extension PacketTunnelActor {
             connectionState.currentKey = settings.privateKey
             connectionState.connectedEndpoint = connectedRelay.endpoint
             connectionState.remotePort = connectedRelay.endpoint.ipv4Relay.port
+            connectionState.obfuscationMethod = selectedRelays.obfuscation
             return connectionState
         case let .error(blockedState):
             keyPolicy = blockedState.keyPolicy
@@ -369,7 +374,7 @@ extension PacketTunnelActor {
                 remotePort: connectedRelay.endpoint.ipv4Relay.port,
                 isPostQuantum: settings.quantumResistance.isEnabled,
                 isDaitaEnabled: settings.daita.daitaState.isEnabled,
-                obfuscationMethod: .off
+                obfuscationMethod: selectedRelays.obfuscation
             )
         case .disconnecting, .disconnected:
             return nil
@@ -395,10 +400,8 @@ extension PacketTunnelActor {
 
         let obfuscated = protocolObfuscator.obfuscate(
             connectionState.connectedEndpoint,
-            settings: settings.tunnelSettings,
-            retryAttempts: connectionState.selectedRelays.retryAttempt,
             relayFeatures: connectionState.selectedRelays.entry?.features ?? connectionState.selectedRelays.exit
-                .features
+                .features, obfuscationMethod: connectionState.obfuscationMethod
         )
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
 
