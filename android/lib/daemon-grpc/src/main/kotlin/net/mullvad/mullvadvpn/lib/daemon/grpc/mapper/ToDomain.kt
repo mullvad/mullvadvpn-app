@@ -205,7 +205,10 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
 internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
     ObfuscationEndpoint(
         endpoint =
-            Endpoint(address = endpoint.address.toInetSocketAddress(), protocol = endpoint.protocol.toDomain()),
+            Endpoint(
+                address = endpoint.address.toInetSocketAddress(),
+                protocol = endpoint.protocol.toDomain(),
+            ),
         obfuscationType = obfuscationType.toDomain(),
     )
 
