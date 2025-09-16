@@ -751,9 +751,6 @@ impl RouteManagerImpl {
             }
         };
 
-        // Need to modify the request in place to set the correct flags to be able to replace any
-        // existing routes - self.handle.route().add_v4().execute() sets the NLM_F_EXCL flag which
-        // will make the request fail if a route with the same destination already exists.
         add_message
             .replace()
             .execute()
