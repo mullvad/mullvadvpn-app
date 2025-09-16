@@ -110,7 +110,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         }
 
         // First get relay info
-        let relayInfo = getDefaultRelayInfo()
+        let relayInfo = getQuicRelayInfo()
 
         // Run actual test
         try FirewallClient().createRule(
@@ -121,7 +121,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCityName)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
             .tapLocationCell(withName: relayInfo.name)
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
@@ -406,7 +406,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         }
 
         // First get relay info
-        let relayInfo = getDefaultRelayInfo()
+        let relayInfo = getQuicRelayInfo()
 
         // Run actual test
         try FirewallClient().createRule(
@@ -431,7 +431,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCityName)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
             .tapLocationCell(withName: relayInfo.name)
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
@@ -493,7 +493,10 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDoneButton()
 
         TunnelControlPage(app)
-            .tapConnectButton()
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapLocationCell(withName: BaseUITestCase.testsNonDAITACountryName)
 
         allowAddVPNConfigurationsIfAsked()
 
@@ -680,6 +683,28 @@ extension RelayTests {
                 .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
         }
 
+        return getRelay()
+    }
+
+    /// Connect to a relay in the default country and city, get name and IP address of the relay the app successfully connects to. Assumes user is logged on and at tunnel control page.
+    private func getQuicRelayInfo() -> RelayInfo {
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        if SelectLocationPage(app).locationCellIsExpanded(BaseUITestCase.testsDefaultQuicCountryName) {
+            // Already expanded - just make sure the correct city cell is selected
+            SelectLocationPage(app)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCityName)
+        } else {
+            SelectLocationPage(app)
+                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCountryName)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCityName)
+        }
+
+        return getRelay()
+    }
+
+    private func getRelay() -> RelayInfo {
         allowAddVPNConfigurationsIfAsked()
 
         let (relayIPAddress, _) = TunnelControlPage(app)

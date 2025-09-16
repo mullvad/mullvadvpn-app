@@ -35,6 +35,7 @@ final class AccountDeletionCoordinator: Coordinator, Presentable {
             onConclusion: self.onConclusion(_:)
         )
         let viewController = UIHostingController(rootView: AccountDeletionView(viewModel: viewModel))
+        viewController.view.setAccessibilityIdentifier(.deleteAccountView)
         navigationController.pushViewController(viewController, animated: true)
     }
 
