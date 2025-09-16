@@ -43,6 +43,7 @@ struct AccountDeletionView: View {
                     label: "Last 4 digits", placeholder: "XXXX", text: $viewModel.enteredAccountNumberSuffix,
                     keyboardType: .numberPad
                 )
+                .accessibilityIdentifier(.deleteAccountTextField)
                 .padding(.bottom, 4)
 
                 // Status information
@@ -64,6 +65,7 @@ struct AccountDeletionView: View {
                 MainButton(text: "Delete Account", style: .danger) {
                     viewModel.deleteButtonTapped()
                 }
+                .accessibilityIdentifier(.deleteButton)
                 .disabled(!viewModel.canDelete)
 
                 MainButton(text: "Cancel", style: .default) {
