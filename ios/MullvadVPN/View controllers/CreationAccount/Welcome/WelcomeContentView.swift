@@ -214,7 +214,7 @@ final class WelcomeContentView: UIView, Sendable {
                 .leading(UIMetrics.contentLayoutMargins.leading),
                 .trailing(UIMetrics.contentLayoutMargins.trailing),
             ]))
-            textsStackView.topAnchor.constraint(greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor)
+            textsStackView.topAnchor.constraint(greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor, constant: UIMetrics.contentLayoutMargins.top)
             textsStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
         }
         addConstrainedSubviews([scrollView]) {
