@@ -1,3 +1,4 @@
+import eslintReact from '@eslint-react/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import perfectionist from 'eslint-plugin-perfectionist';
 import react from 'eslint-plugin-react';
@@ -12,6 +13,7 @@ export default [
   react.configs.flat.recommended,
   importPlugin.flatConfigs.typescript,
   perfectionist.configs['recommended-alphabetical'],
+  eslintReact.configs['recommended-typescript'],
   { ignores: ['build/', 'build-standalone/'] },
   {
     files: ['**/*'],
@@ -64,6 +66,24 @@ export default [
       'react/jsx-sort-props': 'error',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
+    },
+  },
+  {
+    files: ['src/**/*.{tsx}'],
+    rules: {
+      '@eslint-react/naming-convention/filename': ['warn', { rule: 'PascalCase' }],
+    },
+  },
+  {
+    files: ['src/**/hooks/use*.{ts}'],
+    rules: {
+      '@eslint-react/naming-convention/filename': ['warn', { rule: 'kebab-case' }],
+    },
+  },
+  {
+    files: ['**/*.tsx'],
+    rules: {
+      '@eslint-react/naming-convention/filename-extension': ['warn', 'as-needed'],
     },
   },
   {
