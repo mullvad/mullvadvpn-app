@@ -55,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var encryptedDNSTransport: EncryptedDNSTransport!
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
+    private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
 
     // MARK: - Application lifecycle
 
@@ -102,6 +103,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             shadowsocksLoader: shadowsocksLoader
         )
 
+        shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
+
         // swiftlint:disable:next force_try
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
@@ -109,7 +112,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
-            addressCacheProvider: addressCache
+            addressCacheProvider: addressCache,
+            accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
 
         accessMethodReceiver = MullvadAccessMethodReceiver(
@@ -117,7 +121,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
-        apiContext.accessMethodChangeListener = accessMethodRepository
 
         setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(

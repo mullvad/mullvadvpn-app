@@ -267,7 +267,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
-            addressCacheProvider: addressCache
+            addressCacheProvider: addressCache,
+            accessMethodChangeListeners: [accessMethodRepository]
         )
 
         accessMethodReceiver = MullvadAccessMethodReceiver(
