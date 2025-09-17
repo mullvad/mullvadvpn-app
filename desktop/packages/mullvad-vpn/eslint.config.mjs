@@ -61,6 +61,7 @@ export default [
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react/jsx-no-bind': 'error',
+      'react/jsx-sort-props': 'error',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
     },
