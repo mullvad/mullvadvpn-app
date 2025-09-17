@@ -56,6 +56,7 @@
     "electron-devtools-installer": "^3.2.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-perfectionist": "^4.15.0",
     "eslint-plugin-react": "^7.36.1",
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
     "eslint-plugin-react-hooks": "^5.2.0",

@@ -1,4 +1,5 @@
 import importPlugin from 'eslint-plugin-import';
+import perfectionist from 'eslint-plugin-perfectionist';
 import react from 'eslint-plugin-react';
 import reactcompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -10,6 +11,7 @@ export default [
   ...workspaceConfig,
   react.configs.flat.recommended,
   importPlugin.flatConfigs.typescript,
+  perfectionist.configs['recommended-alphabetical'],
   { ignores: ['build/', 'build-standalone/'] },
   {
     files: ['**/*'],
@@ -48,6 +50,13 @@ export default [
         },
       ],
       'import/no-cycle': 'error',
+      'perfectionist/sort-exports': [
+        'error',
+        {
+          type: 'alphabetical',
+          order: 'asc',
+        },
+      ],
       'react-compiler/react-compiler': 'error',
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/rules-of-hooks': 'error',
