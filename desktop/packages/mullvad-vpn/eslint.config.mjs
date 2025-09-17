@@ -38,10 +38,10 @@ export default [
       'react-compiler': reactcompiler,
     },
     rules: {
-      'react/jsx-no-bind': 'error',
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'error',
       'react-compiler/react-compiler': 'error',
+      'react-hooks/exhaustive-deps': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react/jsx-no-bind': 'error',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
     },
