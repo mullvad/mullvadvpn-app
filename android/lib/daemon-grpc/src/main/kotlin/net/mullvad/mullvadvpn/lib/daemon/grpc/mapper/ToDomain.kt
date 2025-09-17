@@ -196,7 +196,6 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
             if (hasObfuscation() && obfuscation.hasSingle()) {
                 obfuscation.single.toDomain()
             } else {
-                // TODO: handle multiplexer
                 null
             },
         daita = daita,
