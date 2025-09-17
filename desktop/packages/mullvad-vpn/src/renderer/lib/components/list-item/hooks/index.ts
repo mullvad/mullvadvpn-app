@@ -1,1 +1,1 @@
-export * from './useListItemAnimation';
+export * from './use-list-item-animation';
