@@ -206,7 +206,7 @@ extension AccessMethodRepository: MullvadAccessMethodChangeListening {
         }
 
         Task {
-            print("Mullvad API changed access method to \(method.name)")
+            logger.debug("Mullvad API changed access method to \(method.name)")
             currentAccessMethodSubject.send(method)
         }
     }

@@ -14,7 +14,7 @@ func onAccessChangeCallback(selfPtr: UnsafeRawPointer?, bytes: UnsafePointer<UIn
     let context = Unmanaged<MullvadApiContext>.fromOpaque(selfPtr).takeUnretainedValue()
 
     let uuid = NSUUID(uuidBytes: bytes) as UUID
-    context.accessMethodChangeListener?.accessMethodChangedTo(uuid)
+    context.accessMethodChangeListeners.forEach { $0.accessMethodChangedTo(uuid) }
 }
 
 public class MullvadApiContext: @unchecked Sendable {
@@ -27,7 +27,7 @@ public class MullvadApiContext: @unchecked Sendable {
     private let shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
     private let addressCacheWrapper: SwiftAddressCacheWrapper!
     private let addressCacheProvider: AddressCacheProviding!
-    public var accessMethodChangeListener: MullvadAccessMethodChangeListening?
+    public let accessMethodChangeListeners: [MullvadAccessMethodChangeListening]
 
     public init(
         host: String,
@@ -36,7 +36,8 @@ public class MullvadApiContext: @unchecked Sendable {
         disableTls: Bool = false,
         shadowsocksProvider: SwiftShadowsocksBridgeProviding,
         accessMethodWrapper: SwiftAccessMethodSettingsWrapper,
-        addressCacheProvider: AddressCacheProviding
+        addressCacheProvider: AddressCacheProviding,
+        accessMethodChangeListeners: [MullvadAccessMethodChangeListening]
     ) throws {
         let bridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksProvider)
         self.shadowsocksBridgeProvider = bridgeProvider
@@ -45,6 +46,7 @@ public class MullvadApiContext: @unchecked Sendable {
         let defaultAddressCache = DefaultAddressCacheProvider(provider: addressCacheProvider)
         self.addressCacheProvider = defaultAddressCache
         self.addressCacheWrapper = iniSwiftAddressCacheWrapper(provider: defaultAddressCache)
+        self.accessMethodChangeListeners = accessMethodChangeListeners
 
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
         context = switch disableTls {

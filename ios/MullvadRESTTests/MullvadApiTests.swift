@@ -40,7 +40,8 @@ class MullvadApiTests: XCTestCase {
                 methods: accessMethodsRepository
                     .fetchAll()
             ),
-            addressCacheProvider: addressCache
+            addressCacheProvider: addressCache,
+            accessMethodChangeListeners: []
         )
 
         let proxy = REST.MullvadAPIProxy(

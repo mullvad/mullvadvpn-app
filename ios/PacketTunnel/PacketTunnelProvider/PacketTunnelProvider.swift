@@ -39,6 +39,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
+    private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
 
     // swiftlint:disable:next function_body_length
     override init() {
@@ -254,6 +255,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         let accessMethodRepository = AccessMethodRepository()
+        shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
 
         let transportStrategy = TransportStrategy(
             datasource: accessMethodRepository,
@@ -267,7 +269,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
-            addressCacheProvider: addressCache
+            addressCacheProvider: addressCache,
+            accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
 
         accessMethodReceiver = MullvadAccessMethodReceiver(
