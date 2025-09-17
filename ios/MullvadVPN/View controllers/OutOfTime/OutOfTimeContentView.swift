@@ -107,9 +107,13 @@ class OutOfTimeContentView: UIView {
     func setUpSubviews() {
         scrollView.addConstrainedSubviews([topStackView]) {
             topStackView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .leading(24), .trailing(24),
+                .leading(UIMetrics.contentLayoutMargins.leading),
+                .trailing(UIMetrics.contentLayoutMargins.trailing),
             ]))
-            topStackView.topAnchor.constraint(greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor)
+            topStackView.topAnchor.constraint(
+                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
             topStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
         }
         addConstrainedSubviews([scrollView]) {
