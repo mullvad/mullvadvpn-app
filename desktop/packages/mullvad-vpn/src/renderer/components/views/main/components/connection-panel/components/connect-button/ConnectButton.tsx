@@ -3,9 +3,9 @@ import { useCallback } from 'react';
 import { messages } from '../../../../../../../../shared/gettext';
 import log from '../../../../../../../../shared/logging';
 import { useAppContext } from '../../../../../../../context';
-import { Button } from '../../../../../../../lib/components';
+import { Button, ButtonProps } from '../../../../../../../lib/components';
 
-export function ConnectButton(props: Partial<Parameters<typeof Button>[0]>) {
+export function ConnectButton(props: ButtonProps) {
   const { connectTunnel } = useAppContext();
 
   const onConnect = useCallback(async () => {
