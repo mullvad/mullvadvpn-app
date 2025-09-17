@@ -1,3 +1,4 @@
+import importPlugin from 'eslint-plugin-import';
 import react from 'eslint-plugin-react';
 import reactcompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -8,6 +9,7 @@ import workspaceConfig from '../../eslint.config.mjs';
 export default [
   ...workspaceConfig,
   react.configs.flat.recommended,
+  importPlugin.flatConfigs.typescript,
   { ignores: ['build/', 'build-standalone/'] },
   {
     files: ['**/*'],
@@ -45,6 +47,7 @@ export default [
           prefer: 'type-imports',
         },
       ],
+      'import/no-cycle': 'error',
       'react-compiler/react-compiler': 'error',
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/rules-of-hooks': 'error',
