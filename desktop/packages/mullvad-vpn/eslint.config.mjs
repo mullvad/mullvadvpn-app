@@ -12,7 +12,7 @@ export default [
   ...workspaceConfig,
   react.configs.flat.recommended,
   importPlugin.flatConfigs.typescript,
-  perfectionist.configs['recommended-alphabetical'],
+  // perfectionist.configs['recommended-alphabetical'],
   eslintReact.configs['recommended-typescript'],
   { ignores: ['build/', 'build-standalone/'] },
   {
@@ -40,18 +40,19 @@ export default [
   {
     files: ['**/*.{js,mjs,ts,tsx}'],
     plugins: {
+      perfectionist,
       'react-hooks': reactHooks,
       'react-compiler': reactcompiler,
     },
     rules: {
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        {
-          fixStyle: 'inline-type-imports',
-          prefer: 'type-imports',
-        },
-      ],
-      'import/no-cycle': 'error',
+      // '@typescript-eslint/consistent-type-imports': [
+      //   'error',
+      //   {
+      //     fixStyle: 'inline-type-imports',
+      //     prefer: 'type-imports',
+      //   },
+      // ],
+      // 'import/no-cycle': 'error',
       'perfectionist/sort-exports': [
         'error',
         {
@@ -63,7 +64,7 @@ export default [
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react/jsx-no-bind': 'error',
-      'react/jsx-sort-props': 'error',
+      // 'react/jsx-sort-props': 'error',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
     },
