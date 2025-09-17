@@ -114,7 +114,7 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 }
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic';
+export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic' | 'lwo';
 
 export type Constraint<T> = 'any' | { only: T };
 export type LiftedConstraint<T> = 'any' | T;

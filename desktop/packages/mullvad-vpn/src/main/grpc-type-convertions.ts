@@ -445,6 +445,9 @@ function convertFromObfuscationEndpoint(
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.QUIC:
       obfuscationType = 'quic';
       break;
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.LWO:
+      obfuscationType = 'lwo';
+      break;
     default:
       throw new Error('unsupported obfuscation protocol');
   }
