@@ -113,28 +113,10 @@ class OutOfTimeContentView: UIView {
             topStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
         }
         addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperview(.all().excluding(.bottom))
-            scrollView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
         }
         addSubview(bottomStackView)
         configureConstraints()
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        updateScrollViewContentInset()
-    }
-
-    private func updateScrollViewContentInset() {
-        /// For some reason, the top inset is automatically adjusted when we are using an accessibility content size.
-        let topInsetIsPreadjusted = UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory
-        let topContentInset = topInsetIsPreadjusted ? 0 : safeAreaInsets.top
-        scrollView.contentInset = .init(
-            top: topContentInset,
-            left: 0,
-            bottom: bottomStackView.frame.height,
-            right: 0
-        )
     }
 
     func configureConstraints() {
@@ -147,6 +129,9 @@ class OutOfTimeContentView: UIView {
             ),
             bottomStackView.bottomAnchor.constraint(
                 equalTo: layoutMarginsGuide.bottomAnchor
+            ),
+            scrollView.bottomAnchor.constraint(
+                equalTo: bottomStackView.topAnchor
             ),
         ])
     }
