@@ -90,3 +90,9 @@ reason = "We do not use netty decoders"
 id = "CVE-2025-58056" #  GHSA-fghv-69vj-qj49
 ignoreUntil = 2025-11-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
+
+# XML External Entity (XXE) Injection in JDOM
+[[IgnoredVulns]]
+id = "CVE-2021-33813" #  GHSA-2363-cqg2-863c
+ignoreUntil = 2025-11-01
+reason = "JDOM is used by AGP and not the app directly"
