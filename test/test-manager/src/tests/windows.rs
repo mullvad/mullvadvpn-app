@@ -22,7 +22,7 @@ async fn test_clearing_blocked_state_on_failed_upgrade(
     {
         let settings = mullvad_client.get_settings().await?;
         ensure!(
-            !settings.block_when_disconnected,
+            !settings.lockdown_mode,
             "Block when disconnected should be disabled"
         );
         ensure!(!settings.auto_connect, "Auto connect should be disabled");
@@ -88,10 +88,10 @@ async fn test_not_clearing_blocked_state_on_failed_upgrade_with_lockdown_mode(
     // Make sure that lockdown mode is enabled.
     // If it is not, then blocking firewall rules *will not* persist after a reboot.
     {
-        mullvad_client.set_block_when_disconnected(true).await?;
+        mullvad_client.set_lockdown_mode(true).await?;
         let settings = mullvad_client.get_settings().await?;
         ensure!(
-            settings.block_when_disconnected,
+            settings.lockdown_mode,
             "Block when disconnected should be enabled"
         );
         ensure!(!settings.auto_connect, "Auto connect should be disabled");
