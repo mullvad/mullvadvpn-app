@@ -83,6 +83,7 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
     }
 
     private func addSubviews() {
+        switchContainer.setContentCompressionResistancePriority(.required, for: .horizontal)
         addConstrainedSubviews([textLabel, switchContainer]) {
             textLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
             switchContainer.centerYAnchor.constraint(equalTo: centerYAnchor)
