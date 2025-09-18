@@ -925,6 +925,37 @@ fn test_selecting_openvpn_and_quic() {
         .expect("OpenVPN should not be affected by QUIC");
 }
 
+/// Selecting WG IPv6 should not affect OpenVPN
+#[test]
+fn test_selecting_openvpn_and_wg_ipv6() {
+    // Simulate a scenario where a user configured their WireGuard settings and set the IPVersion
+    // explicitly to IPv6. Sometime later, they switched to OpenVPN as the tunnel protocol.
+    let relay_constraints = {
+        let (mut relay_constraints, ..) = RelayQueryBuilder::wireguard()
+            .ip_version(IpVersion::V6)
+            .build()
+            .into_settings();
+        relay_constraints.tunnel_protocol = TunnelType::OpenVpn;
+        relay_constraints
+    };
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = talpid_types::net::IpAvailability::Ipv4;
+
+    let _relay = relay_selector
+        .get_relay_by_query(RelayQueryBuilder::openvpn().build())
+        .expect("OpenVPN should not be affected by WG IPv6");
+
+    let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    assert!(
+        matches!(user_result, GetRelay::OpenVpn { .. }),
+        "should match openvpn"
+    );
+}
+
 /// Ignore extra IPv4 addresses when overrides are set
 #[test]
 fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
