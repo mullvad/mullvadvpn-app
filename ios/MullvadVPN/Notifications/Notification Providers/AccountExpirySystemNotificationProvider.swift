@@ -149,10 +149,8 @@ extension AccountExpirySystemNotificationProvider {
 
     private var expiredText: String {
         NSLocalizedString(
-            """
-            Blocking internet: Your time on this account has expired. To continue using the internet, \
-            please add more time or disconnect the VPN.
-            """,
+            "Blocking internet: Your time on this account has expired. " +
+                "To continue using the internet, please add more time or disconnect the VPN.",
             comment: ""
         )
     }

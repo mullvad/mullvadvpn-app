@@ -51,7 +51,7 @@ class LatestChangesNotificationProvider: NotificationProvider, InAppNotification
 
     private func createNotificationBody() -> NSAttributedString {
         NSAttributedString(
-            markdownString: NSLocalizedString("**Tap here** to see what’s new.", comment: ""),
+            markdownString: NSLocalizedString("**Tap here** to see what’s new", comment: ""),
             options: MarkdownStylingOptions(
                 font: .preferredFont(forTextStyle: .body)
             )

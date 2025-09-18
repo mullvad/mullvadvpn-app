@@ -132,7 +132,7 @@ import_localizations() {
     [ -e "$xliff_file" ] || continue
 
     # Remove unwanted attributes from the XLIFF file
-    sed -i '' -E 's/ state="needs-review-translation"//g' "$xliff_file"
+    # sed -i '' -E 's/ state="needs-review-translation"//g' "$xliff_file"
 
     # Extract language code from filename, e.g., fr.xliff → fr
     language_code=$(basename "$xliff_file" .xliff)

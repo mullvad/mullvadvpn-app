@@ -158,7 +158,10 @@ class CustomListViewController: UIViewController {
 
     private func onDelete() {
         let message = NSMutableAttributedString(
-            markdownString: NSLocalizedString("Do you want to delete the list **\(subject.value.name)**?", comment: ""),
+            markdownString: String(
+                format: NSLocalizedString("Do you want to delete the list **%@**?", comment: ""),
+                subject.value.name
+            ),
             options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
         )
 

@@ -258,8 +258,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private func makeChild(for route: SettingsNavigationRoute) -> SettingsViewControllerFactory.MakeChildResult {
         if route == .root {
             let controller = SettingsViewController(
-                interactor: interactorFactory.makeSettingsInteractor(),
-                alertPresenter: AlertPresenter(context: self)
+                interactor: interactorFactory.makeSettingsInteractor()
             )
             controller.delegate = self
             return .viewController(controller)
