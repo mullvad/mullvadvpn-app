@@ -180,6 +180,11 @@ impl Multiplexer {
                 socket_recv = self.client_socket.recv_from(&mut wg_recv_buf) => {
                     match socket_recv {
                         Ok((bytes_received, from_addr)) => {
+                            if let Some(prev_addr) = wg_addr && prev_addr != from_addr {
+                                log::debug!(
+                                    "WireGuard endpoint address changed from {prev_addr} to {from_addr}"
+                                );
+                            }
                             wg_addr = Some(from_addr);
                             let pkt = &wg_recv_buf[..bytes_received];
 
