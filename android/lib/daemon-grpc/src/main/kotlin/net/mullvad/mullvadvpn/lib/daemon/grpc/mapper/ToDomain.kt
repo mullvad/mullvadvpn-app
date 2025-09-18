@@ -193,8 +193,8 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
             },
         quantumResistant = quantumResistant,
         obfuscation =
-            if (hasObfuscation()) {
-                obfuscation.toDomain()
+            if (hasObfuscation() && obfuscation.hasSingle()) {
+                obfuscation.single.toDomain()
             } else {
                 null
             },
@@ -204,7 +204,10 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
 internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
     ObfuscationEndpoint(
         endpoint =
-            Endpoint(address = InetSocketAddress(address, port), protocol = protocol.toDomain()),
+            Endpoint(
+                address = endpoint.address.toInetSocketAddress(),
+                protocol = endpoint.protocol.toDomain(),
+            ),
         obfuscationType = obfuscationType.toDomain(),
     )
 

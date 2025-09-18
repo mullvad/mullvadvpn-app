@@ -49,7 +49,7 @@ use talpid_types::{
     ErrorExt,
     net::{
         Endpoint, IpAvailability, IpVersion, TransportProtocol, TunnelType,
-        obfuscation::ObfuscatorConfig,
+        obfuscation::{ObfuscatorConfig, Obfuscators},
         proxy::{CustomProxy, Shadowsocks},
     },
 };
@@ -269,8 +269,17 @@ impl SelectedBridge {
 
 #[derive(Clone, Debug)]
 pub struct SelectedObfuscator {
-    pub config: ObfuscatorConfig,
+    pub config: Obfuscators,
     pub relay: Relay,
+}
+
+impl From<(ObfuscatorConfig, Relay)> for SelectedObfuscator {
+    fn from((config, relay): (ObfuscatorConfig, Relay)) -> Self {
+        SelectedObfuscator {
+            config: Obfuscators::Single(config),
+            relay,
+        }
+    }
 }
 
 impl Default for SelectorConfig {
@@ -924,12 +933,27 @@ impl RelaySelector {
         let box_obfsucation_error = |error: helpers::Error| Error::NoObfuscator(Box::new(error));
 
         match &query.wireguard_constraints().obfuscation {
-            ObfuscationQuery::Off | ObfuscationQuery::Auto => Ok(None),
+            ObfuscationQuery::Off => Ok(None),
+            #[cfg(not(feature = "staggered-obfuscation"))]
+            ObfuscationQuery::Auto => Ok(None),
+            #[cfg(feature = "staggered-obfuscation")]
+            ObfuscationQuery::Auto => {
+                let shadowsocks_ports = &parsed_relays.wireguard.shadowsocks_port_ranges;
+                let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
+                helpers::get_multiplexer_obfuscator(
+                    udp2tcp_ports,
+                    shadowsocks_ports,
+                    obfuscator_relay,
+                    endpoint,
+                )
+                .map(Some)
+                .map_err(box_obfsucation_error)
+            }
             ObfuscationQuery::Udp2tcp(settings) => {
                 let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
 
                 helpers::get_udp2tcp_obfuscator(settings, udp2tcp_ports, obfuscator_relay, endpoint)
-                    .map(Some)
+                    .map(|obfs| Some(obfs.into()))
                     .map_err(box_obfsucation_error)
             }
             ObfuscationQuery::Shadowsocks(settings) => {
@@ -940,15 +964,18 @@ impl RelaySelector {
                     obfuscator_relay,
                     endpoint,
                 )
+                .map(|obfs| obfs.into())
                 .map_err(box_obfsucation_error)?;
 
                 Ok(Some(obfuscation))
             }
             ObfuscationQuery::Quic => {
                 let ip_version = resolve_ip_version(query.wireguard_constraints().ip_version);
-                Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version))
+                Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version).map(Into::into))
             }
-            ObfuscationQuery::Lwo => Ok(helpers::get_lwo_obfuscator(obfuscator_relay, endpoint)),
+            ObfuscationQuery::Lwo => {
+                Ok(helpers::get_lwo_obfuscator(obfuscator_relay, endpoint).map(Into::into))
+            }
         }
     }
 

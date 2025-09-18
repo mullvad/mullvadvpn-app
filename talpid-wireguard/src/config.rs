@@ -4,7 +4,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey};
-use talpid_types::net::{GenericTunnelOptions, obfuscation::ObfuscatorConfig, wireguard};
+use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
 /// Name to use for the tunnel device
 #[cfg(target_os = "linux")]
@@ -32,7 +32,7 @@ pub struct Config {
     #[cfg(target_os = "linux")]
     pub enable_ipv6: bool,
     /// Obfuscator config to be used for reaching the relay.
-    pub obfuscator_config: Option<ObfuscatorConfig>,
+    pub obfuscator_config: Option<Obfuscators>,
     /// Enable quantum-resistant PSK exchange
     pub quantum_resistant: bool,
     /// Enable DAITA
@@ -71,7 +71,7 @@ impl Config {
         connection: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
-        obfuscator_config: &Option<ObfuscatorConfig>,
+        obfuscator_config: &Option<Obfuscators>,
         default_mtu: u16,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();

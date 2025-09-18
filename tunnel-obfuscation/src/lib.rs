@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 use tokio::io;
 
 pub mod lwo;
+pub mod multiplexer;
 pub mod quic;
 pub mod shadowsocks;
 pub mod socket;
@@ -42,6 +43,12 @@ pub enum Error {
     #[cfg(target_os = "linux")]
     #[error("Failed to set fwmark on remote socket")]
     SetFwmark(#[source] nix::Error),
+
+    #[error("Failed to initialize multiplexer")]
+    CreateMultiplexerObfuscator(#[source] io::Error),
+
+    #[error("Failed to run multiplexer")]
+    RunMultiplexerObfuscator(#[source] io::Error),
 }
 
 #[async_trait]
@@ -61,12 +68,13 @@ pub trait Obfuscator: Send {
     fn packet_overhead(&self) -> u16;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Settings {
     Udp2Tcp(udp2tcp::Settings),
     Shadowsocks(shadowsocks::Settings),
     Quic(quic::Settings),
     Lwo(lwo::Settings),
+    Multiplexer(multiplexer::Settings),
 }
 
 pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
@@ -78,6 +86,7 @@ pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator
         Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(s).await.map(box_obfuscator),
         Settings::Quic(s) => quic::Quic::new(s).await.map(box_obfuscator),
         Settings::Lwo(s) => lwo::Lwo::new(s).await.map(box_obfuscator),
+        Settings::Multiplexer(s) => multiplexer::Multiplexer::new(s).await.map(box_obfuscator),
     }
 }
 

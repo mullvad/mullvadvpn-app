@@ -11,11 +11,12 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
+futures = { workspace = true }
 log = { workspace = true }
 async-trait = "0.1"
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util"] }
-tokio-util = { workspace = true }
+tokio-util = { workspace = true, features = ["rt"] }
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "87936ac29b68b902565955f138ab02294bcc8593" }
 shadowsocks = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
@@ -28,6 +29,7 @@ nix = { workspace = true, features = ["socket"]}
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["html_reports", "async_tokio"] }
+tokio = { workspace = true, features =  ["test-util"] }
 
 [[bench]]
 name = "lwo"

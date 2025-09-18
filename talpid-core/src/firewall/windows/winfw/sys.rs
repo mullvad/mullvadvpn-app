@@ -131,7 +131,8 @@ unsafe extern "system" {
     #[link_name = "WinFw_ApplyPolicyConnecting"]
     pub fn WinFw_ApplyPolicyConnecting(
         settings: &WinFwSettings,
-        relay: &WinFwEndpoint,
+        numRelays: usize,
+        relays: *const WinFwEndpoint,
         exitEndpointIp: *const libc::wchar_t,
         relayClient: *const *const libc::wchar_t,
         relayClientLen: usize,
@@ -143,7 +144,8 @@ unsafe extern "system" {
     #[link_name = "WinFw_ApplyPolicyConnected"]
     pub fn WinFw_ApplyPolicyConnected(
         settings: &WinFwSettings,
-        relay: &WinFwEndpoint,
+        numRelays: usize,
+        relays: *const WinFwEndpoint,
         exitEndpointIp: *const libc::wchar_t,
         relayClient: *const *const libc::wchar_t,
         relayClientLen: usize,

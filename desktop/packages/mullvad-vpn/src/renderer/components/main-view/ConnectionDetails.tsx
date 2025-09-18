@@ -193,9 +193,11 @@ function tunnelEndpointToObfuscationEndpoint(
     return undefined;
   }
 
+  const socketAddr = parseSocketAddress(endpoint.obfuscationEndpoint.address);
+
   return {
-    ip: endpoint.obfuscationEndpoint.address,
-    port: endpoint.obfuscationEndpoint.port,
+    ip: socketAddr.host,
+    port: socketAddr.port,
     protocol: endpoint.obfuscationEndpoint.protocol,
     obfuscationType: endpoint.obfuscationEndpoint.obfuscationType,
   };

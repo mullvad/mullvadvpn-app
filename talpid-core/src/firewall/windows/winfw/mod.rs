@@ -85,22 +85,42 @@ pub(super) fn apply_policy_blocked(
 }
 
 pub(super) fn apply_policy_connecting(
-    peer_endpoint: &AllowedEndpoint,
+    peer_endpoints: &[AllowedEndpoint],
     exit_endpoint_ip: Option<IpAddr>,
     winfw_settings: &WinFwSettings,
     tunnel_interface: Option<&str>,
     allowed_endpoint: AllowedEndpoint,
     allowed_tunnel_traffic: &AllowedTunnelTraffic,
 ) -> Result<(), FirewallPolicyError> {
-    let ip_str = widestring_ip(peer_endpoint.endpoint.address.ip());
-    let winfw_relay = WinFwEndpoint {
-        ip: ip_str.as_ptr(),
-        port: peer_endpoint.endpoint.address.port(),
-        protocol: WinFwProt::from(peer_endpoint.endpoint.protocol),
-    };
+    let mut winfw_relays = vec![];
+    let mut ip_strs = vec![];
+    let mut clients = None;
 
-    let relay_client_wstrs: Vec<_> = peer_endpoint
-        .clients
+    for peer in peer_endpoints {
+        if clients.is_none() {
+            clients = Some(peer.clients.clone());
+        } else if clients.as_ref() != Some(&peer.clients) {
+            log::error!("Relay endpoints must have same allowed clients");
+            return Err(FirewallPolicyError::Generic);
+        }
+
+        let ip_str = widestring_ip(peer.endpoint.address.ip());
+        let ip_str_ptr = ip_str.as_ptr();
+        // Keep pointer valid for the duration of this function
+        ip_strs.push(ip_str);
+
+        winfw_relays.push(WinFwEndpoint {
+            ip: ip_str_ptr,
+            port: peer.endpoint.address.port(),
+            protocol: WinFwProt::from(peer.endpoint.protocol),
+        });
+    }
+
+    let relay_client_wstrs: Vec<_> = clients
+        .ok_or_else(|| {
+            log::error!("Allowed clients missing. Zero peer endpoints?");
+            FirewallPolicyError::Generic
+        })?
         .iter()
         .map(WideCString::from_os_str_truncate)
         .collect();
@@ -175,7 +195,8 @@ pub(super) fn apply_policy_connecting(
     let res = unsafe {
         WinFw_ApplyPolicyConnecting(
             winfw_settings,
-            &winfw_relay,
+            winfw_relays.len(),
+            winfw_relays.as_ptr(),
             exit_endpoint_ip_ptr,
             relay_client_wstr_ptrs.as_ptr(),
             relay_client_wstr_ptrs_len,
@@ -193,31 +214,51 @@ pub(super) fn apply_policy_connecting(
     drop(endpoint2);
     drop(relay_client_wstrs);
     drop(exit_endpoint_ip_wstr);
+    drop(winfw_relays);
+    drop(ip_strs);
     res.into_result()
 }
 
 pub(super) fn apply_policy_connected(
-    endpoint: &AllowedEndpoint,
+    peer_endpoints: &[AllowedEndpoint],
     exit_endpoint_ip: Option<IpAddr>,
     winfw_settings: &WinFwSettings,
     tunnel_interface: &str,
     dns_config: &crate::dns::ResolvedDnsConfig,
 ) -> Result<(), FirewallPolicyError> {
-    let ip_str = widestring_ip(endpoint.endpoint.address.ip());
+    let mut winfw_relays = vec![];
+    let mut ip_strs = vec![];
+    let mut clients = None;
+
+    for peer in peer_endpoints {
+        if clients.is_none() {
+            clients = Some(peer.clients.clone());
+        } else if clients.as_ref() != Some(&peer.clients) {
+            log::error!("Relay endpoints must have same allowed clients");
+            return Err(FirewallPolicyError::Generic);
+        }
+
+        let ip_str = widestring_ip(peer.endpoint.address.ip());
+        let ip_str_ptr = ip_str.as_ptr();
+        // Keep pointer valid for the duration of this function
+        ip_strs.push(ip_str);
+
+        winfw_relays.push(WinFwEndpoint {
+            ip: ip_str_ptr,
+            port: peer.endpoint.address.port(),
+            protocol: WinFwProt::from(peer.endpoint.protocol),
+        });
+    }
 
     let tunnel_alias = WideCString::from_str_truncate(tunnel_interface);
 
-    // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
-    let winfw_relay = WinFwEndpoint {
-        ip: ip_str.as_ptr(),
-        port: endpoint.endpoint.address.port(),
-        protocol: WinFwProt::from(endpoint.endpoint.protocol),
-    };
-
     // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has
     // returned.
-    let relay_client_wstrs: Vec<_> = endpoint
-        .clients
+    let relay_client_wstrs: Vec<_> = clients
+        .ok_or_else(|| {
+            log::error!("Allowed clients missing. Zero peer endpoints?");
+            FirewallPolicyError::Generic
+        })?
         .iter()
         .map(WideCString::from_os_str_truncate)
         .collect();
@@ -255,7 +296,8 @@ pub(super) fn apply_policy_connected(
     let result = unsafe {
         WinFw_ApplyPolicyConnected(
             winfw_settings,
-            &winfw_relay,
+            winfw_relays.len(),
+            winfw_relays.as_ptr(),
             exit_endpoint_ip_ptr,
             relay_client_wstr_ptrs.as_ptr(),
             relay_client_wstr_ptrs_len,
@@ -269,7 +311,8 @@ pub(super) fn apply_policy_connected(
 
     // SAFETY: All of these must remain allocated until `WinFw_ApplyPolicyConnected` has returned.
     drop(exit_endpoint_ip_wstr);
-    drop(ip_str);
+    drop(ip_strs);
+    drop(winfw_relays);
     drop(relay_client_wstrs);
     result.into_result()
 }

@@ -1,12 +1,14 @@
+use crate::net::obfuscation::ObfuscatorConfig;
+
 use self::proxy::{CustomProxy, Socks5Local};
 #[cfg(target_os = "android")]
 use jnix::FromJava;
-use obfuscation::ObfuscatorConfig;
+use obfuscation::Obfuscators;
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
-    fmt,
+    fmt, iter,
     net::{IpAddr, SocketAddr},
     str::FromStr,
 };
@@ -54,7 +56,7 @@ impl TunnelParameters {
                     .get_exit_endpoint()
                     .unwrap_or_else(|| params.connection.get_endpoint()),
                 proxy: None,
-                obfuscation: params.obfuscation.as_ref().map(ObfuscationEndpoint::from),
+                obfuscation: params.obfuscation.as_ref().map(ObfuscationInfo::from),
                 entry_endpoint: params
                     .connection
                     .get_exit_endpoint()
@@ -67,14 +69,14 @@ impl TunnelParameters {
     }
 
     /// Returns the endpoint that will be connected to
-    pub fn get_next_hop_endpoint(&self) -> Endpoint {
+    pub fn get_next_hop_endpoints(&self) -> Vec<Endpoint> {
         match self {
             TunnelParameters::OpenVpn(params) => params
                 .proxy
                 .as_ref()
-                .map(|proxy| proxy.get_remote_endpoint().endpoint)
-                .unwrap_or(params.config.endpoint),
-            TunnelParameters::Wireguard(params) => params.get_next_hop_endpoint(),
+                .map(|proxy| vec![proxy.get_remote_endpoint().endpoint])
+                .unwrap_or_else(|| vec![params.config.endpoint]),
+            TunnelParameters::Wireguard(params) => params.get_next_hop_endpoints(),
         }
     }
 
@@ -169,7 +171,7 @@ pub struct TunnelEndpoint {
     pub tunnel_type: TunnelType,
     pub quantum_resistant: bool,
     pub proxy: Option<proxy::ProxyEndpoint>,
-    pub obfuscation: Option<ObfuscationEndpoint>,
+    pub obfuscation: Option<ObfuscationInfo>,
     pub entry_endpoint: Option<Endpoint>,
     pub tunnel_interface: Option<String>,
     #[cfg(daita)]
@@ -223,7 +225,86 @@ impl fmt::Display for ObfuscationType {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename = "obfuscation_info")]
+pub enum ObfuscationInfo {
+    /// Single obfuscator
+    Single(ObfuscationEndpoint),
+    /// Multiplexer obfuscator
+    Multiplexer {
+        /// Direct endpoint, without obfuscation, if set
+        direct: Option<Endpoint>,
+        /// All other obfuscators
+        obfuscators: Vec<ObfuscationEndpoint>,
+    },
+}
+
+impl ObfuscationInfo {
+    pub fn get_endpoints(&self) -> Vec<Endpoint> {
+        match self {
+            ObfuscationInfo::Single(ep) => vec![ep.endpoint],
+            ObfuscationInfo::Multiplexer {
+                direct,
+                obfuscators,
+            } => {
+                let mut v = vec![];
+                if let Some(direct) = direct {
+                    v.push(*direct);
+                }
+                obfuscators.iter().for_each(|obfs| v.push(obfs.endpoint));
+                v
+            }
+        }
+    }
+}
+
+impl fmt::Display for ObfuscationInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            ObfuscationInfo::Single(obfs) => obfs.fmt(f),
+            ObfuscationInfo::Multiplexer {
+                direct,
+                obfuscators,
+            } => {
+                write!(f, "multiplex ")?;
+
+                write!(f, "{{ ")?;
+                if let Some(direct) = direct {
+                    write!(f, "direct {direct}")?;
+                } else {
+                    write!(f, "no direct")?;
+                }
+                for obfuscator in obfuscators {
+                    write!(f, " | {obfuscator}")?;
+                }
+                write!(f, " }}")
+            }
+        }
+    }
+}
+
+impl From<&Obfuscators> for ObfuscationInfo {
+    fn from(config: &Obfuscators) -> Self {
+        match config {
+            Obfuscators::Multiplexer {
+                direct,
+                configs: (first_obfs, remaining_obfs),
+            } => ObfuscationInfo::Multiplexer {
+                direct: direct.map(|direct| Endpoint {
+                    address: direct,
+                    protocol: TransportProtocol::Udp,
+                }),
+                obfuscators: iter::once(first_obfs)
+                    .chain(remaining_obfs)
+                    .map(ObfuscationEndpoint::from)
+                    .collect(),
+            },
+            Obfuscators::Single(obfs) => ObfuscationInfo::Single(ObfuscationEndpoint::from(obfs)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_endpoint")]
 pub struct ObfuscationEndpoint {
     pub endpoint: Endpoint,
@@ -232,7 +313,6 @@ pub struct ObfuscationEndpoint {
 
 impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
     fn from(config: &ObfuscatorConfig) -> ObfuscationEndpoint {
-        let endpoint = config.get_obfuscator_endpoint();
         let obfuscation_type = match config {
             ObfuscatorConfig::Udp2Tcp { .. } => ObfuscationType::Udp2Tcp,
             ObfuscatorConfig::Shadowsocks { .. } => ObfuscationType::Shadowsocks,
@@ -241,7 +321,7 @@ impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
         };
 
         ObfuscationEndpoint {
-            endpoint,
+            endpoint: config.endpoint(),
             obfuscation_type,
         }
     }
@@ -254,7 +334,7 @@ impl fmt::Display for ObfuscationEndpoint {
 }
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
 pub struct Endpoint {
     /// The socket address for the endpoint
     pub address: SocketAddr,
@@ -470,7 +550,7 @@ impl FromStr for IpVersion {
 pub struct IpVersionParseError;
 
 /// Representation of a transport protocol, either UDP or TCP.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
 #[serde(rename_all = "snake_case")]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.
