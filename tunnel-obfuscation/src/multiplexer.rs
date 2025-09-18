@@ -131,7 +131,7 @@ impl Multiplexer {
         // Address of WG endpoint socket
         let mut wg_addr = None;
 
-        // Helper to fan out a packet to all currently running endpoints
+        /// Helper to fan out a packet to all currently running endpoints
         async fn send_to_all<'a>(
             endpoints: &BTreeMap<SocketAddr, Transport>,
             get_socket: impl Fn(SocketAddr) -> &'a Arc<UdpSocket>,
@@ -148,9 +148,11 @@ impl Multiplexer {
             }
         }
 
-        // Handler for packets received from any proxy.
-        // This returns true if we forwarded received bytes from an obfuscator
-        // back to wireguard
+        /// Handler for packets received from any proxy.
+        ///
+        /// This returns true if received bytes were forwarded from an obfuscator
+        /// back to wireguard, indicating that a handshake response was received (hopefully) and
+        /// that we should switch to connected mode.
         async fn process_obfuscator_recv(
             wg_addr: SocketAddr,
             client_socket: &UdpSocket,
@@ -158,15 +160,15 @@ impl Multiplexer {
             obfuscator_addr: SocketAddr,
             received: &[u8],
         ) -> bool {
-            if let Some(transport_config) = running_endpoints.get(&obfuscator_addr) {
-                log::debug!(
-                    "Selecting {:?} as valid transport configuration via {obfuscator_addr}",
-                    transport_config
-                );
-            } else {
+            let Some(transport_config) = running_endpoints.get(&obfuscator_addr) else {
                 log::trace!("Ignoring data from unexpected address {obfuscator_addr}");
                 return false;
-            }
+            };
+
+            log::debug!(
+                "Selecting {:?} as valid transport configuration via {obfuscator_addr}",
+                transport_config
+            );
 
             let _ = client_socket.send_to(received, wg_addr).await;
             true
