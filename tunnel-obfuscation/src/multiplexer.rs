@@ -59,7 +59,7 @@ pub struct Multiplexer {
     /// Buffer of initial packets received from WireGuard to replay to new transports
     initial_packets_to_send: Vec<Vec<u8>>,
     /// Handles to spawned obfuscation tasks
-    tasks: Vec<JoinHandle<()>>,
+    tasks: Vec<AbortOnDropHandle<()>>,
 }
 
 impl Multiplexer {
@@ -330,10 +330,11 @@ impl Multiplexer {
                 let endpoint = obfuscator.endpoint();
                 self.running_endpoints
                     .insert(endpoint, Transport::Obfuscated(obfuscator_settings));
-                self.tasks.push(tokio::spawn(async move {
-                    log::info!("Spawning new obfuscator");
-                    let _ = obfuscator.run().await;
-                }));
+                self.tasks
+                    .push(AbortOnDropHandle::new(tokio::spawn(async move {
+                        log::info!("Spawning new obfuscator");
+                        let _ = obfuscator.run().await;
+                    })));
                 Ok(endpoint)
             }
         }?;
@@ -349,14 +350,6 @@ impl Multiplexer {
             if let Err(err) = udp.send_to(packet, endpoint).await {
                 log::error!("Failed to forward packet to new obfuscator {endpoint}: {err}");
             }
-        }
-    }
-}
-
-impl Drop for Multiplexer {
-    fn drop(&mut self) {
-        for task in &self.tasks {
-            task.abort();
         }
     }
 }
