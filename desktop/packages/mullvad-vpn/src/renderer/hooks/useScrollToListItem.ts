@@ -12,15 +12,23 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
   animation?: ListItemAnimation;
 } => {
   const ref = React.useRef<T>(null);
-  const { location, action } = useHistory();
+  const history = useHistory();
+  const { location } = history;
   const { state } = location;
 
-  const isPop = action === 'POP';
   const anchorId = state?.options?.find((option) => option.type === 'scroll-to-anchor')?.id;
-  const scroll = id === anchorId && !isPop;
-  useScrollToReference(ref, scroll);
+  const scroll = id === anchorId && anchorId !== undefined;
 
-  if (anchorId === undefined || isPop) {
+  const handleOnScrolled = React.useCallback(() => {
+    history.replace(location, {
+      ...state,
+      options: state?.options?.filter((option) => option.type !== 'scroll-to-anchor'),
+    });
+  }, [history, location, state]);
+
+  useScrollToReference(ref, scroll, handleOnScrolled);
+
+  if (anchorId === undefined) {
     return {
       ref: undefined,
       animation: undefined,
