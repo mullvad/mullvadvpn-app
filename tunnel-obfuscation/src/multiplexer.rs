@@ -34,12 +34,12 @@ use crate::socket::create_remote_socket;
 
 const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
 
-/// The main multiplexer that manages multiple obfuscation transports and automatically
+/// An obfuscator that manages multiple other obfuscators and automatically
 /// selects the first one that successfully establishes a connection.
 ///
 /// The multiplexer operates in two phases:
 /// 1. **Discovery Phase**: Spawns transports progressively and fans out traffic to all of them
-/// 2. **Connected Phase**: Once a transport responds, switches to direct forwarding mode
+/// 2. **Connected Phase**: Once a transport responds, switches to forwarding to that transport only
 pub struct Multiplexer {
     /// Local UDP socket that WireGuard connects to
     client_socket: Arc<UdpSocket>,
