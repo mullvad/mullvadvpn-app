@@ -2,16 +2,34 @@ import React from 'react';
 
 import { Listbox } from '../../../../lib/components/listbox';
 import { ListboxOptionProps } from '../../../../lib/components/listbox/components';
+import { useTextField } from '../../../../lib/components/text-field';
 import { InputOptionInput, InputOptionLabel, InputOptionTrigger } from './components';
 import { InputOptionProvider } from './InputOptionContext';
 
-export type InputOptionProps<T> = ListboxOptionProps<T>;
+export type InputOptionProps<T> = ListboxOptionProps<T> & {
+  defaultValue?: string;
+  validate?: (value: string) => boolean;
+  format?: (value: string) => string;
+};
 
-function InputOption<T>({ children, ...props }: InputOptionProps<T>) {
+function InputOption<T>({
+  defaultValue,
+  validate,
+  format,
+  children,
+  ...props
+}: InputOptionProps<T>) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const labelId = React.useId();
+  const inputState = useTextField({
+    inputRef,
+    defaultValue,
+    validate,
+    format,
+  });
+
   return (
-    <InputOptionProvider inputRef={inputRef} labelId={labelId}>
+    <InputOptionProvider inputRef={inputRef} labelId={labelId} inputState={inputState}>
       <Listbox.Option level={1} {...props}>
         <InputOptionTrigger>
           <Listbox.Option.Item>
