@@ -27,6 +27,7 @@ use std::{
 };
 
 use async_trait::async_trait;
+use futures::{StreamExt, stream::FuturesUnordered};
 use tokio::{net::UdpSocket, task::JoinHandle, time::Instant};
 use tokio_util::task::AbortOnDropHandle;
 
@@ -137,15 +138,19 @@ impl Multiplexer {
             get_socket: impl Fn(SocketAddr) -> &'a Arc<UdpSocket>,
             packet: &[u8],
         ) {
-            for addr in endpoints.keys() {
-                let udp = get_socket(*addr);
-                log::info!("Sending received packet to proxy {addr}");
-                if let Err(err) = udp.send_to(packet, addr).await {
-                    log::error!("Failed to send received packet to proxy {addr}: {err}");
-                } else {
-                    log::info!("Successfully sent traffic to obfuscator {addr}");
-                }
+            let mut futs = vec![];
+            for &addr in endpoints.keys() {
+                let udp = get_socket(addr);
+                futs.push(async move {
+                    log::info!("Sending received packet to proxy {addr}");
+                    if let Err(err) = udp.send_to(packet, addr).await {
+                        log::error!("Failed to send received packet to proxy {addr}: {err}");
+                    } else {
+                        log::info!("Successfully sent traffic to obfuscator {addr}");
+                    }
+                });
             }
+            futures::future::join_all(futs).await;
         }
 
         /// Handler for packets received from any proxy.

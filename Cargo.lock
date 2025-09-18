@@ -6416,6 +6416,7 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "criterion",
+ "futures",
  "log",
  "mullvad-masque-proxy",
  "nix 0.30.1",
