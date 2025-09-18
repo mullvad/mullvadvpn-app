@@ -492,7 +492,7 @@ export type AccessMethodExistsError = { type: 'name already exists' };
 export interface ISettings {
   allowLan: boolean;
   autoConnect: boolean;
-  blockWhenDisconnected: boolean;
+  lockdownMode: boolean;
   showBetaReleases: boolean;
   relaySettings: RelaySettings;
   tunnelOptions: ITunnelOptions;

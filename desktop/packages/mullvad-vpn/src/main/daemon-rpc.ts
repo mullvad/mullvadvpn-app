@@ -297,8 +297,8 @@ export class DaemonRpc extends GrpcClient {
     await this.callBool(this.client.setEnableIpv6, enableIpv6);
   }
 
-  public async setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
-    await this.callBool(this.client.setBlockWhenDisconnected, blockWhenDisconnected);
+  public async setLockdownMode(lockdownMode: boolean): Promise<void> {
+    await this.callBool(this.client.setLockdownMode, lockdownMode);
   }
 
   public async setBridgeState(bridgeState: BridgeState): Promise<void> {
