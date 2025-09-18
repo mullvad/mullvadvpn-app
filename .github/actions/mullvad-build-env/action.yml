@@ -1,0 +1,112 @@
+name: "Mullvad build env"
+description: "Set up build environment for Mullvad"
+inputs:
+  rust-toolchain:
+    description: "Rust toolchain (stable, beta, nightly, or version)"
+    default: stable
+    required: false
+  rustup-components:
+    description: "Space-separated Rustup components to install (e.g. rustfmt, clippy)"
+    default: clippy
+    required: false
+  protoc-token:
+    description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
+    default: "${{ github.token }}"
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Cache cargo cache and index
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+        key: ${{ runner.os }}-cargo-${{ inputs.rust-toolchain }}-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Override Rust toolchain
+      if: ${{ inputs.rust-toolchain != 'stable' }}
+      shell: bash
+      run: rustup override set ${{ inputs.rust-toolchain }}
+
+    - name: Install Rust components
+      if: ${{ inputs.rustup-components != '' }}
+      shell: bash
+      run: rustup component add ${{ inputs.rustup-components }}
+
+    # The x64 target is needed to build talpid-openvpn-plugin
+    # TODO: Remove once fixed
+    - name: Install Rust x64 target
+      if: runner.os == 'Windows' && runner.arch == 'ARM64'
+      shell: bash
+      run: rustup target add x86_64-pc-windows-msvc
+
+    # Install 32-bit target for NSIS plugins
+    - name: Install Rust 32-bit x86 target
+      if: runner.os == 'Windows'
+      shell: bash
+      run: rustup target add i686-pc-windows-msvc
+
+    - name: Install Protoc
+      uses: arduino/setup-protoc@v3
+      with:
+        repo-token: ${{ inputs.protoc-token }}
+
+    - name: Checkout submodules
+      shell: bash
+      run: |
+        git config --global --add safe.directory '*'
+        git submodule update --init --depth=1 dist-assets/binaries
+        git submodule update --init --depth=1 windows
+        git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
+    - name: Calculate Windows libraries cache hash
+      if: runner.os == 'Windows'
+      id: windows-modules-hash
+      shell: bash
+      run: |
+        hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' \
+          | grep -v '\.exe$\|\.md$' \
+          | xargs sha1sum \
+          | sha1sum \
+          | cut -d" " -f1)"
+        echo "hash=$hash" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Windows libraries
+      if: runner.os == 'Windows'
+      uses: actions/cache@v4
+      with:
+        path: ./windows/*/bin/
+        key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
+
+    - name: Install msbuild
+      if: runner.os == 'Windows'
+      uses: microsoft/setup-msbuild@v1.0.2
+      with:
+        vs-version: 16
+
+    - name: Install latest zig
+      if: runner.os == 'Windows'
+      uses: mlugg/setup-zig@v2
+      with:
+        version: 0.14.1
+
+    - name: Install build dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install libdbus-1-dev
+
+    - name: Install Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.21.3
+
+    - name: Setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: desktop/package.json
+        cache: 'npm'
+        cache-dependency-path: desktop/package-lock.json

@@ -3,7 +3,7 @@
 set -eu
 
 function usage {
-    echo "usage: $0 [clean] [--max-concurrent-processes <n>]"
+    echo "usage: $0 [clean|build] [--max-concurrent-processes <n>] [solution...]"
     echo "  --max-concurrent-processes <n>  Limit concurrent processes that msbuild can spawn to <n>. Defaults to number of processor cores."
     exit 1
 }
@@ -24,10 +24,15 @@ case $HOST in
 esac
 
 ACTION=build
+SOLUTIONS=()
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         clean) ACTION="clean";;
+        build) ACTION="build";;
+        winfw) SOLUTIONS+=(winfw);;
+        driverlogic) SOLUTIONS+=(driverlogic);;
+        nsis-plugins) SOLUTIONS+=(nsis-plugins);;
         --max-concurrent-processes)
             MAX_CPUS="$2"
             shift
@@ -39,6 +44,22 @@ while [[ "$#" -gt 0 ]]; do
             ;;
     esac
     shift
+done
+
+if [[ -z "${SOLUTIONS[*]}" ]]; then
+    SOLUTIONS=(winfw driverlogic nsis-plugins)
+fi
+
+BUILD_WINFW=false
+BUILD_NSIS=false
+BUILD_DRIVERLOGIC=false
+
+for sln in "${SOLUTIONS[@]}"; do
+    case $sln in
+        winfw) BUILD_WINFW=true;;
+        nsis-plugins) BUILD_NSIS=true;;
+        driverlogic) BUILD_DRIVERLOGIC=true;;
+    esac
 done
 
 # List of solution configurations to build.
@@ -127,16 +148,22 @@ function clean_all {
     clean_solution "./windows/libwfp"
 }
 
-function build_all {
-    build_solution "./windows/winfw" "winfw.sln"
+function build {
+    if [[ $BUILD_WINFW == "true" ]]; then
+        build_solution "./windows/winfw" "winfw.sln"
+    fi
 
-    build_solution "./windows/driverlogic" "driverlogic.sln"
+    if [[ $BUILD_DRIVERLOGIC == "true" ]]; then
+        build_solution "./windows/driverlogic" "driverlogic.sln"
+    fi
 
-    build_nsis_plugins
+    if [[ $BUILD_NSIS == "true" ]]; then
+        build_nsis_plugins
+    fi
 }
 
 case $ACTION in
-    "build") build_all;;
+    "build") build;;
     "clean") clean_all;;
     *)
         echo "Unknown build action: $ACTION"
