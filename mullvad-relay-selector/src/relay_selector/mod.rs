@@ -1185,6 +1185,9 @@ fn apply_ip_availability(
     runtime_ip_availability: IpAvailability,
     user_query: &mut RelayQuery,
 ) -> Result<(), Error> {
+    if user_query.tunnel_protocol() == TunnelType::OpenVpn {
+        return Ok(());
+    }
     let ip_version = match runtime_ip_availability {
         IpAvailability::Ipv4 => Constraint::Only(IpVersion::V4),
         IpAvailability::Ipv6 => Constraint::Only(IpVersion::V6),
