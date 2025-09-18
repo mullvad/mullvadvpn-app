@@ -61,6 +61,8 @@ pub struct Multiplexer {
     initial_packets_to_send: Vec<Vec<u8>>,
     /// Handles to spawned obfuscation tasks
     tasks: Vec<AbortOnDropHandle<()>>,
+    // Address of WG endpoint socket
+    wg_addr: Option<SocketAddr>,
 }
 
 impl Multiplexer {
@@ -102,6 +104,7 @@ impl Multiplexer {
             transports: VecDeque::from(settings.transports.clone()),
             tasks: vec![],
             initial_packets_to_send: vec![],
+            wg_addr: None,
         })
     }
 
@@ -129,9 +132,6 @@ impl Multiplexer {
 
         let mut delay = tokio::time::interval(Duration::from_secs(1));
 
-        // Address of WG endpoint socket
-        let mut wg_addr = None;
-
         /// Helper to fan out a packet to all currently running endpoints
         async fn send_to_all<'a>(
             endpoints: &BTreeMap<SocketAddr, Transport>,
@@ -153,44 +153,18 @@ impl Multiplexer {
             futures::future::join_all(futs).await;
         }
 
-        /// Handler for packets received from any proxy.
-        ///
-        /// This returns true if received bytes were forwarded from an obfuscator
-        /// back to wireguard, indicating that a handshake response was received (hopefully) and
-        /// that we should switch to connected mode.
-        async fn process_obfuscator_recv(
-            wg_addr: SocketAddr,
-            client_socket: &UdpSocket,
-            running_endpoints: &BTreeMap<SocketAddr, Transport>,
-            obfuscator_addr: SocketAddr,
-            received: &[u8],
-        ) -> bool {
-            let Some(transport_config) = running_endpoints.get(&obfuscator_addr) else {
-                log::trace!("Ignoring data from unexpected address {obfuscator_addr}");
-                return false;
-            };
-
-            log::debug!(
-                "Selecting {:?} as valid transport configuration via {obfuscator_addr}",
-                transport_config
-            );
-
-            let _ = client_socket.send_to(received, wg_addr).await;
-            true
-        }
-
         loop {
             tokio::select! {
                 // From local WG
                 socket_recv = self.client_socket.recv_from(&mut wg_recv_buf) => {
                     match socket_recv {
                         Ok((bytes_received, from_addr)) => {
-                            if let Some(prev_addr) = wg_addr && prev_addr != from_addr {
+                            if let Some(prev_addr) = self.wg_addr && prev_addr != from_addr {
                                 log::debug!(
                                     "WireGuard endpoint address changed from {prev_addr} to {from_addr}"
                                 );
                             }
-                            wg_addr = Some(from_addr);
+                            self.wg_addr = Some(from_addr);
                             let pkt = &wg_recv_buf[..bytes_received];
 
                             if self.initial_packets_to_send.len() >= MAX_INITIAL_PACKETS {
@@ -218,44 +192,12 @@ impl Multiplexer {
 
                 // From any IPv4 proxy
                 obfuscator_recv = self.proxy_socket_v4.recv_from(&mut obfs_recv_v4_buf) => {
-                    match obfuscator_recv {
-                        Ok((n, obfuscator_addr)) => {
-                            if let Some(wg_addr) = wg_addr && process_obfuscator_recv(
-                                wg_addr,
-                                &self.client_socket,
-                                &self.running_endpoints,
-                                obfuscator_addr,
-                                &obfs_recv_v4_buf[..n]
-                            ).await {
-                                return self.run_connected(wg_addr, obfuscator_addr).await;
-                            }
-                        },
-                        Err(err) => {
-                            log::error!("Failed to receive traffic from obfuscators: {err}");
-                            return Err(err);
-                        }
-                    }
+                    self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v4_buf[..n], addr))).await?;
                 },
 
                 // From any IPv6 proxy
                 obfuscator_recv = self.proxy_socket_v6.recv_from(&mut obfs_recv_v6_buf) => {
-                    match obfuscator_recv {
-                        Ok((n, obfuscator_addr)) => {
-                            if let Some(wg_addr) = wg_addr && process_obfuscator_recv(
-                                wg_addr,
-                                &self.client_socket,
-                                &self.running_endpoints,
-                                obfuscator_addr,
-                                &obfs_recv_v6_buf[..n]
-                            ).await {
-                                return self.run_connected(wg_addr, obfuscator_addr).await;
-                            }
-                        },
-                        Err(err) => {
-                            log::error!("Failed to receive traffic from obfuscators: {err}");
-                            return Err(err);
-                        }
-                    }
+                    self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v6_buf[..n], addr))).await?;
                 },
 
                 // Spawning the next transport
@@ -269,6 +211,42 @@ impl Multiplexer {
         }
     }
 
+    /// Handler for packets received from any proxy.
+    ///
+    /// If received bytes were forwarded from an obfuscator back to wireguard, this indicates that
+    /// a handshake response was received (hopefully) and that we should switch to connected mode.
+    ///
+    /// If a packet was received, this continues running until `run_connected` returns.
+    async fn process_obfuscator_recv(
+        &self,
+        obfuscator_recv: io::Result<(&[u8], SocketAddr)>,
+    ) -> io::Result<()> {
+        match obfuscator_recv {
+            Ok((received, obfuscator_addr)) => {
+                let Some(transport_config) = self.running_endpoints.get(&obfuscator_addr) else {
+                    log::trace!("Ignoring data from unexpected address {obfuscator_addr}");
+                    return Ok(());
+                };
+                let Some(wg_addr) = self.wg_addr else {
+                    log::trace!(
+                        "Received data from {obfuscator_addr} before receiving any data from WireGuard"
+                    );
+                    return Ok(());
+                };
+                log::debug!(
+                    "Selecting {:?} as valid transport configuration via {obfuscator_addr}",
+                    transport_config
+                );
+                let _ = self.client_socket.send_to(received, wg_addr).await;
+                self.run_connected(wg_addr, obfuscator_addr).await
+            }
+            Err(err) => {
+                log::error!("Failed to receive traffic from obfuscators: {err}");
+                Err(err)
+            }
+        }
+    }
+
     /// Switch to connected mode after a transport has been successfully selected.
     ///
     /// In this mode, the multiplexer acts as a simple UDP proxy between WireGuard
@@ -278,7 +256,7 @@ impl Multiplexer {
     /// * `local_address` - Address of the local WireGuard instance
     /// * `proxy_address` - Address of the selected obfuscation proxy
     async fn run_connected(
-        self,
+        &self,
         local_address: SocketAddr,
         proxy_address: SocketAddr,
     ) -> io::Result<()> {
@@ -306,11 +284,12 @@ impl Multiplexer {
             }
         });
         let mut tx_task = AbortOnDropHandle::new(tx_task);
+        let client_socket = self.client_socket.clone();
 
         let rx_task: JoinHandle<io::Result<()>> = tokio::spawn(async move {
             loop {
                 let (n, _src) = proxy_socket.recv_from(&mut obfuscator_recv_buf).await?;
-                self.client_socket.send(&obfuscator_recv_buf[..n]).await?;
+                client_socket.send(&obfuscator_recv_buf[..n]).await?;
             }
         });
         let mut rx_task = AbortOnDropHandle::new(rx_task);
