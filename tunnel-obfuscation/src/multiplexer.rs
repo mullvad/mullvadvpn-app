@@ -46,12 +46,12 @@ const MAX_INITIAL_PACKETS: usize = 100;
 pub struct Multiplexer {
     /// Local UDP socket that WireGuard connects to
     client_socket: Arc<UdpSocket>,
+    /// Address of the client socket that WireGuard should connect to
+    client_socket_addr: SocketAddr,
     /// IPv4 socket for communicating with obfuscation proxies
     proxy_socket_v4: Arc<UdpSocket>,
     /// IPv6 socket for communicating with obfuscation proxies
     proxy_socket_v6: Arc<UdpSocket>,
-    /// Address of the client socket that WireGuard should connect to
-    client_socket_addr: SocketAddr,
     /// Map of currently active transport endpoints and their configurations
     running_endpoints: BTreeMap<SocketAddr, Transport>,
     /// Queue of transports to spawn (in priority order)
@@ -94,9 +94,9 @@ impl Multiplexer {
 
         Ok(Self {
             client_socket: Arc::new(client_socket),
+            client_socket_addr,
             proxy_socket_v4: Arc::new(proxy_socket_v4),
             proxy_socket_v6: Arc::new(proxy_socket_v6),
-            client_socket_addr,
             running_endpoints: BTreeMap::new(),
             transports: VecDeque::from(settings.transports.clone()),
             tasks: vec![],
