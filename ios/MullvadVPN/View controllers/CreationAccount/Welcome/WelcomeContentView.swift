@@ -211,37 +211,24 @@ final class WelcomeContentView: UIView, Sendable {
     private func addConstraints() {
         scrollView.addConstrainedSubviews([textsStackView]) {
             textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .leading(UIMetrics.contentLayoutMargins.leading),
-                .trailing(UIMetrics.contentLayoutMargins.trailing),
+                .leading(0),
+                .trailing(0),
             ]))
-            textsStackView.topAnchor.constraint(greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor, constant: UIMetrics.contentLayoutMargins.top)
+            textsStackView.topAnchor.constraint(
+                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
             textsStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
         }
         addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperview(.init([.top(0), .leading(0), .trailing(0)]))
-            scrollView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
         }
         addConstrainedSubviews([buttonsStackView]) {
             buttonsStackView
                 .pinEdgesToSuperviewMargins(.all().excluding(.top))
+            scrollView.bottomAnchor.constraint(equalTo: buttonsStackView.topAnchor)
+
         }
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        updateScrollViewContentInset()
-    }
-
-    private func updateScrollViewContentInset() {
-        /// For some reason, the top inset is automatically adjusted when we are using an accessibility content size.
-        let topInsetIsPreadjusted = UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory
-        let topContentInset = topInsetIsPreadjusted ? 0 : safeAreaInsets.top
-        scrollView.contentInset = .init(
-            top: topContentInset,
-            left: 0,
-            bottom: buttonsStackView.frame.height,
-            right: 0
-        )
     }
 
     private func addActions() {
