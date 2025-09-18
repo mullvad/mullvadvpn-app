@@ -62,8 +62,6 @@ pub struct Multiplexer {
     tasks: Vec<AbortOnDropHandle<()>>,
     /// Address of WG endpoint socket
     wg_addr: Option<SocketAddr>,
-    /// Packet overhead of the currently selected transport
-    packet_overhead: u16,
 }
 
 impl Multiplexer {
@@ -106,7 +104,6 @@ impl Multiplexer {
             tasks: vec![],
             initial_packets_to_send: vec![],
             wg_addr: None,
-            packet_overhead: 0,
         })
     }
 
@@ -320,7 +317,6 @@ impl Multiplexer {
             Transport::Obfuscated(obfuscator_settings) => {
                 let obfuscator = crate::create_obfuscator(&obfuscator_settings).await?;
                 let endpoint = obfuscator.endpoint();
-                self.packet_overhead = self.packet_overhead.max(obfuscator.packet_overhead());
                 self.running_endpoints
                     .insert(endpoint, Transport::Obfuscated(obfuscator_settings));
                 self.tasks
@@ -374,9 +370,8 @@ impl crate::Obfuscator for Multiplexer {
         self.client_socket_addr
     }
 
-    // NOTE: This changes over time as new transports are spawned
     fn packet_overhead(&self) -> u16 {
-        self.packet_overhead
+        60
     }
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
