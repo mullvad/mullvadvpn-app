@@ -60,7 +60,7 @@ pub struct Multiplexer {
     initial_packets_to_send: Vec<Vec<u8>>,
     /// Handles to spawned obfuscation tasks
     tasks: Vec<AbortOnDropHandle<()>>,
-    // Address of WG endpoint socket
+    /// Address of WG endpoint socket
     wg_addr: Option<SocketAddr>,
 }
 
