@@ -27,8 +27,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-use futures::{StreamExt, stream::FuturesUnordered};
-use tokio::{net::UdpSocket, task::JoinHandle, time::Instant};
+use tokio::{net::UdpSocket, task::JoinHandle};
 use tokio_util::task::AbortOnDropHandle;
 
 use crate::socket::create_remote_socket;
