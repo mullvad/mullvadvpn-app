@@ -1,8 +1,11 @@
 import React, { createContext, ReactNode, useContext } from 'react';
 
+import { UseTextFieldState } from '../../../../lib/components/text-field';
+
 type InputOptionContextType = {
   inputRef: React.RefObject<HTMLInputElement | null>;
   labelId: string | undefined;
+  inputState: UseTextFieldState;
 };
 
 const InputOptionContextContext = createContext<InputOptionContextType | undefined>(undefined);

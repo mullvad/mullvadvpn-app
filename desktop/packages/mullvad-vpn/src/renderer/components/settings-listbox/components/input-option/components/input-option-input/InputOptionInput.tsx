@@ -3,48 +3,21 @@ import React from 'react';
 import { ListItem } from '../../../../../../lib/components/list-item';
 import { ListItemTextFieldInputProps } from '../../../../../../lib/components/list-item/components/list-item-text-field/components';
 import { useListboxContext } from '../../../../../../lib/components/listbox';
-import { useTextField } from '../../../../../../lib/components/text-field';
 import { useInputOptionContext } from '../../InputOptionContext';
 
-type InputOptionInputProps = {
-  initialValue?: string;
-  validate?: (value: string) => boolean;
-  format?: (value: string) => string;
-} & ListItemTextFieldInputProps;
+type InputOptionInputProps = ListItemTextFieldInputProps;
 
-export function InputOptionInput({
-  initialValue,
-  validate,
-  format,
-  ...props
-}: InputOptionInputProps) {
-  const { onValueChange: listBoxOnValueChange, value: listBoxValue } = useListboxContext<
-    string | undefined
-  >();
+export function InputOptionInput(props: InputOptionInputProps) {
+  const { onValueChange: listBoxOnValueChange } = useListboxContext<string | undefined>();
 
-  const { inputRef, labelId } = useInputOptionContext();
+  const { inputRef, labelId, inputState } = useInputOptionContext();
+  const { value, invalid, dirty, blur, handleChange, reset } = inputState;
 
-  const { value, invalid, dirty, blur, handleChange, reset } = useTextField({
-    inputRef,
-    defaultValue: initialValue,
-    validate,
-    format,
-  });
-
-  React.useEffect(() => {
-    if (listBoxValue !== 'custom') {
-      reset();
-    }
-  }, [listBoxValue, reset]);
-
-  const handleBlur = React.useCallback(async () => {
-    if (listBoxOnValueChange && !invalid && dirty) {
-      await listBoxOnValueChange(value);
-    }
+  const handleBlur = React.useCallback(() => {
     if (invalid) {
       reset();
     }
-  }, [dirty, invalid, listBoxOnValueChange, reset, value]);
+  }, [invalid, reset]);
 
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent) => {
@@ -58,7 +31,7 @@ export function InputOptionInput({
   );
 
   return (
-    <ListItem.TextField invalid={invalid} onSubmit={handleSubmit}>
+    <ListItem.TextField invalid={invalid && dirty} onSubmit={handleSubmit}>
       <ListItem.TextField.Input
         ref={inputRef}
         value={value}
