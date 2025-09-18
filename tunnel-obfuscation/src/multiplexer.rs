@@ -34,6 +34,9 @@ use crate::socket::create_remote_socket;
 
 const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
 
+/// Max number of initial outgoing packets to buffer for replaying to new transports
+const MAX_INITIAL_PACKETS: usize = 100;
+
 /// An obfuscator that manages multiple other obfuscators and automatically
 /// selects the first one that successfully establishes a connection.
 ///
@@ -178,6 +181,14 @@ impl Multiplexer {
                         Ok((bytes_received, from_addr)) => {
                             wg_addr = Some(from_addr);
                             let pkt = &wg_recv_buf[..bytes_received];
+
+                            if self.initial_packets_to_send.len() >= MAX_INITIAL_PACKETS {
+                                // Initial packets should be handshake initiation packets, so we
+                                // should not end up here if there's some reasonable timeout.
+                                // If we do, fail so we don't use excessive memory.
+                                return Err(io::Error::other("Too many initial packets"));
+                            }
+
                             self.initial_packets_to_send.push(pkt.to_vec());
 
                             // Fan out latest WG packet to all currently spawned endpoints.
