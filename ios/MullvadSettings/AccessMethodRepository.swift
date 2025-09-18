@@ -69,8 +69,11 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
         addDefaultsMethods()
 
+        let lastReachable = fetchLastReachable()
         accessMethodsSubject.send(fetchAll())
-        requestAccessMethodSubject.send(fetchLastReachable())
+        requestAccessMethodSubject.send(lastReachable)
+        // Set the correct access method, as opposed to the default value "direct" above.
+        currentAccessMethodSubject.value = lastReachable
 
         currentAccessMethodPublisher
             .removeDuplicates()
