@@ -3,11 +3,19 @@ use std::net::SocketAddr;
 
 use super::{Endpoint, TransportProtocol};
 
+/// Available obfuscation configuration types.
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
 pub enum Obfuscators {
+    /// A single obfuscation method
     Single(ObfuscatorConfig),
+    /// Try multiple obfuscation methods (using `multiplexer` obfuscation).
+    ///
+    /// They are tested in the following order: `direct`, `config.0`, then
+    /// the remaining configs in `configs.1` in order.
     Multiplexer {
+        /// Optional direct connection (no obfuscation) to try along with `configs`.
         direct: Option<SocketAddr>,
+        /// Obfuscation configurations to try.
         configs: (ObfuscatorConfig, Vec<ObfuscatorConfig>),
     },
 }
@@ -31,8 +39,17 @@ pub enum ObfuscatorConfig {
 }
 
 impl Obfuscators {
-    /// Return a [Obfuscators::Multiplexer]. If `obfuscators` contains zero values,
-    /// this returns `None`.
+    /// Creates a multiplexer obfuscator configuration.
+    ///
+    /// See [Obfuscators::Multiplexer] for more details.
+    ///
+    /// # Arguments
+    /// * `direct` - Optional direct connection endpoint (no obfuscation)
+    /// * `obfuscators` - List of obfuscation methods to try, at least one.
+    ///
+    /// # Returns
+    /// * `Some(Obfuscators::Multiplexer)` if at least one obfuscation method is provided
+    /// * `None` if the obfuscators list is empty
     pub fn multiplexer(
         direct: Option<SocketAddr>,
         obfuscators: &[ObfuscatorConfig],
@@ -46,7 +63,11 @@ impl Obfuscators {
         })
     }
 
-    /// Return all potential obfuscation endpoints
+    /// Returns all potential endpoints that this obfuscation configuration might connect to.
+    ///
+    /// For single obfuscators, this returns one endpoint. For `Obfuscators::Multiplexer`, this
+    /// returns all possible endpoints (direct + all obfuscated methods) that the multiplexer
+    /// might use, with duplicates removed.
     pub fn endpoints(&self) -> Vec<Endpoint> {
         match self {
             Obfuscators::Single(config) => vec![config.endpoint()],
@@ -74,7 +95,7 @@ impl Obfuscators {
 }
 
 impl ObfuscatorConfig {
-    /// Return obfuscation endpoint
+    /// Return obfuscation endpoint, i.e. the first remote hop that will be connected to
     pub fn endpoint(&self) -> Endpoint {
         match self {
             ObfuscatorConfig::Udp2Tcp { endpoint } => Endpoint {

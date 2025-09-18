@@ -85,6 +85,13 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
     }
 }
 
+/// Create a multiplexer obfuscator config
+///
+/// # Arguments
+/// * `udp2tcp_ports` - Available ports for UDP2TCP obfuscation
+/// * `shadowsocks_ports` - Available port ranges for Shadowsocks obfuscation
+/// * `obfuscator_relay` - The relay that will host the obfuscation services
+/// * `endpoint` - Selected endpoint
 #[cfg(feature = "staggered-obfuscation")]
 pub fn get_multiplexer_obfuscator(
     udp2tcp_ports: &[u16],

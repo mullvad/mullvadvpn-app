@@ -1,3 +1,23 @@
+//! # Multiplexer Obfuscation
+//!
+//! This obfuscation module attempts to establish a connection through multiple obfuscation methods
+//! simultaneously. It acts as a UDP proxy that forwards WireGuard traffic through other
+//! obfuscation transports (UDP2TCP, Shadowsocks, QUIC, etc.)
+//! and automatically selects the first one that successfully establishes a connection.
+//!
+//! ## How it works
+//!
+//! 1. **Initial Setup**: The multiplexer creates a local UDP socket that WireGuard connects to
+//! 2. **Transport Spawning**: It progressively spawns different obfuscation transports at timed intervals
+//! 3. **Traffic Fanout**: All incoming WireGuard packets are fanned out to all active transports
+//! 4. **First Response Wins**: The first transport to receive a response from the server is selected
+//! 5. **Connection Establishment**: Once a transport is selected, the multiplexer switches to a
+//!    direct forwarding mode between WireGuard and the selected transport
+//!
+//! ## Transport Types
+//!
+//! See the [Transport] enum.
+
 use std::{
     collections::{BTreeMap, VecDeque},
     io,
@@ -14,18 +34,39 @@ use crate::socket::create_remote_socket;
 
 const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
 
+/// The main multiplexer that manages multiple obfuscation transports and automatically
+/// selects the first one that successfully establishes a connection.
+///
+/// The multiplexer operates in two phases:
+/// 1. **Discovery Phase**: Spawns transports progressively and fans out traffic to all of them
+/// 2. **Connected Phase**: Once a transport responds, switches to direct forwarding mode
 pub struct Multiplexer {
+    /// Local UDP socket that WireGuard connects to
     client_socket: Arc<UdpSocket>,
+    /// IPv4 socket for communicating with obfuscation proxies
     proxy_socket_v4: Arc<UdpSocket>,
+    /// IPv6 socket for communicating with obfuscation proxies
     proxy_socket_v6: Arc<UdpSocket>,
+    /// Address of the client socket that WireGuard should connect to
     client_socket_addr: SocketAddr,
+    /// Map of currently active transport endpoints and their configurations
     running_endpoints: BTreeMap<SocketAddr, Transport>,
+    /// Queue of transports to spawn (in priority order)
     transports: VecDeque<Transport>,
+    /// Buffer of initial packets received from WireGuard to replay to new transports
     initial_packets_to_send: Vec<Vec<u8>>,
+    /// Handles to spawned obfuscation tasks
     tasks: Vec<JoinHandle<()>>,
 }
 
 impl Multiplexer {
+    /// Creates a new multiplexer with the specified transports (obfuscators) and settings.
+    ///
+    /// # Arguments
+    /// * `settings` - Configuration containing the list of transports to try and network settings
+    ///
+    /// # Returns
+    /// A new multiplexer instance ready to start obfuscation discovery
     pub async fn new(settings: &Settings) -> crate::Result<Self> {
         let client_socket = UdpSocket::bind((Ipv4Addr::LOCALHOST, 0))
             .await
@@ -68,6 +109,13 @@ impl Multiplexer {
         }
     }
 
+    /// Starts the multiplexer in discovery mode.
+    ///
+    /// This method runs the main event loop that:
+    /// 1. Receives packets from WireGuard and fans them out to all active transports
+    /// 2. Receives responses from obfuscation proxies
+    /// 3. Spawns new transports at timed intervals
+    /// 4. Switches to connected mode when the first transport responds successfully
     async fn start(mut self) -> io::Result<()> {
         log::debug!("Running multiplexer obfuscation");
 
@@ -199,6 +247,14 @@ impl Multiplexer {
         }
     }
 
+    /// Switches to connected mode after a transport has been successfully selected.
+    ///
+    /// In this mode, the multiplexer acts as a simple UDP proxy between WireGuard
+    /// and the selected obfuscation transport.
+    ///
+    /// # Arguments
+    /// * `local_address` - Address of the local WireGuard instance
+    /// * `proxy_address` - Address of the selected obfuscation proxy
     async fn run_connected(
         self,
         local_address: SocketAddr,
@@ -244,6 +300,13 @@ impl Multiplexer {
         }
     }
 
+    /// Spawns a new obfuscation transport and adds it to the active set.
+    ///
+    /// For direct transports, this simply registers the endpoint. For obfuscated
+    /// transports, this starts the obfuscation process in a background task.
+    ///
+    /// # Arguments
+    /// * `transport` - The obfuscation type to spawn
     async fn spawn_new_transport(&mut self, transport: Transport) -> crate::Result<()> {
         let endpoint = match transport.clone() {
             Transport::Direct(addr) => {
@@ -287,17 +350,24 @@ impl Drop for Multiplexer {
     }
 }
 
+/// Configuration settings for multiplexer obfuscation
 #[derive(Debug, Clone)]
 pub struct Settings {
-    /// Transports to use, ordered by highest to lowest priority
+    /// List of transports to try, ordered by priority (highest to lowest).
+    /// The multiplexer will spawn these transports progressively and select
+    /// the first one that successfully establishes a connection.
     pub transports: Vec<Transport>,
+    /// Linux-specific firewall mark for outgoing connections
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
 }
 
+/// Represents a transport method that the multiplexer can use.
 #[derive(Clone, Debug)]
 pub enum Transport {
+    /// Direct UDP forwarding without any obfuscation
     Direct(SocketAddr),
+    /// An obfuscated transport (UDP2TCP, Shadowsocks, QUIC, etc.)
     Obfuscated(crate::Settings),
 }
 
