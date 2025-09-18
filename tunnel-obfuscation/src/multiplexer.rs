@@ -371,6 +371,8 @@ impl crate::Obfuscator for Multiplexer {
     }
 
     fn packet_overhead(&self) -> u16 {
+        // FIXME: This should ideally be the max overhead of all transports,
+        // and be lowered when a transport is selected.
         60
     }
 
