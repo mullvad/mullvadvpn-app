@@ -445,6 +445,9 @@ export default class AppRenderer {
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
+  public getLinuxSplitTunnelingSupported = () => {
+    return IpcRendererEventChannel.linuxSplitTunneling.isSplitTunnelingSupported();
+  };
   public getAppUpgradeCacheDir = () => IpcRendererEventChannel.app.getUpgradeCacheDir();
 
   public tryStartDaemon = () => {
