@@ -124,20 +124,21 @@ export function PortSetting() {
             {item.label}
           </SettingsListbox.BaseOption>
         ))}
-        <SettingsListbox.InputOption value="custom">
+        <SettingsListbox.InputOption
+          defaultValue={
+            selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
+          }
+          value="custom"
+          validate={validateStringValue}
+          format={removeNonNumericCharacters}>
           <SettingsListbox.InputOption.Label>
             {messages.gettext('Custom')}
           </SettingsListbox.InputOption.Label>
           <SettingsListbox.InputOption.Input
-            initialValue={
-              selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
-            }
             placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
             maxLength={5}
             type="text"
             inputMode="numeric"
-            validate={validateStringValue}
-            format={removeNonNumericCharacters}
           />
         </SettingsListbox.InputOption>
       </SettingsListbox.Options>
