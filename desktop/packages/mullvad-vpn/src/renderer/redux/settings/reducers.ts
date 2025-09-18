@@ -105,7 +105,7 @@ export interface ISettingsReduxState {
   enableIpv6: boolean;
   bridgeSettings: BridgeSettingsRedux;
   bridgeState: BridgeState;
-  blockWhenDisconnected: boolean;
+  lockdownMode: boolean;
   showBetaReleases: boolean;
   openVpn: {
     mssfix?: number;
@@ -166,7 +166,7 @@ const initialState: ISettingsReduxState = {
     custom: undefined,
   },
   bridgeState: 'auto',
-  blockWhenDisconnected: false,
+  lockdownMode: false,
   showBetaReleases: false,
   openVpn: {},
   wireguard: {},
@@ -242,10 +242,10 @@ export default function (
         enableIpv6: action.enableIpv6,
       };
 
-    case 'UPDATE_BLOCK_WHEN_DISCONNECTED':
+    case 'UPDATE_LOCKDOWN_MODE':
       return {
         ...state,
-        blockWhenDisconnected: action.blockWhenDisconnected,
+        lockdownMode: action.lockdownMode,
       };
 
     case 'UPDATE_SHOW_BETA_NOTIFICATIONS':

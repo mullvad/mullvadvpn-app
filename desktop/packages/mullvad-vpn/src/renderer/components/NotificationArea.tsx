@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import {
-  BlockWhenDisconnectedNotificationProvider,
+  LockdownModeNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
   ConnectingNotificationProvider,
   ErrorNotificationProvider,
@@ -69,9 +69,7 @@ export default function NotificationArea(props: IProps) {
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
-  const blockWhenDisconnectedSetting = useSelector(
-    (state: IReduxState) => state.settings.blockWhenDisconnected,
-  );
+  const lockdownModeSetting = useSelector((state: IReduxState) => state.settings.lockdownMode);
   const hasExcludedApps = useSelector(
     (state: IReduxState) =>
       state.settings.splitTunneling && state.settings.splitTunnelingApplications.length > 0,
@@ -122,9 +120,9 @@ export default function NotificationArea(props: IProps) {
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
-    new BlockWhenDisconnectedNotificationProvider({
+    new LockdownModeNotificationProvider({
       tunnelState,
-      blockWhenDisconnectedSetting,
+      lockdownModeSetting,
       hasExcludedApps,
     }),
     new AppUpgradeErrorNotificationProvider({
