@@ -925,6 +925,29 @@ fn test_selecting_openvpn_and_quic() {
         .expect("OpenVPN should not be affected by QUIC");
 }
 
+/// Selecting WG IPv6 should not affect OpenVPN
+#[test]
+fn test_selecting_openvpn_and_wg_ipv6() {
+    let (relay_constraints, ..) = RelayQueryBuilder::openvpn().build().into_settings();
+
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = talpid_types::net::IpAvailability::Ipv4;
+
+    let _relay = relay_selector
+        .get_relay_by_query(RelayQueryBuilder::openvpn().build())
+        .expect("OpenVPN should not be affected by WG IPv6");
+
+    let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    assert!(
+        matches!(user_result, GetRelay::OpenVpn { .. }),
+        "should match openvpn"
+    );
+}
+
 /// Ignore extra IPv4 addresses when overrides are set
 #[test]
 fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
