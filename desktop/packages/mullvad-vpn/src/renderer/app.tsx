@@ -594,10 +594,10 @@ export default class AppRenderer {
     actions.settings.updateBridgeState(bridgeState);
   };
 
-  public setBlockWhenDisconnected = async (blockWhenDisconnected: boolean) => {
+  public setLockdownMode = async (lockdownMode: boolean) => {
     const actions = this.reduxActions;
-    await IpcRendererEventChannel.settings.setBlockWhenDisconnected(blockWhenDisconnected);
-    actions.settings.updateBlockWhenDisconnected(blockWhenDisconnected);
+    await IpcRendererEventChannel.settings.setLockdownMode(lockdownMode);
+    actions.settings.updateLockdownMode(lockdownMode);
   };
 
   public setOpenVpnMssfix = async (mssfix?: number) => {
@@ -956,7 +956,7 @@ export default class AppRenderer {
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
-    reduxSettings.updateBlockWhenDisconnected(newSettings.blockWhenDisconnected);
+    reduxSettings.updateLockdownMode(newSettings.lockdownMode);
     reduxSettings.updateShowBetaReleases(newSettings.showBetaReleases);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);

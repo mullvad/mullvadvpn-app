@@ -43,9 +43,9 @@ export interface IUpdateEnableIpv6Action {
   enableIpv6: boolean;
 }
 
-export interface IUpdateBlockWhenDisconnectedAction {
-  type: 'UPDATE_BLOCK_WHEN_DISCONNECTED';
-  blockWhenDisconnected: boolean;
+export interface IUpdateLockdownModeAction {
+  type: 'UPDATE_LOCKDOWN_MODE';
+  lockdownMode: boolean;
 }
 
 export interface IUpdateShowBetaReleasesAction {
@@ -135,7 +135,7 @@ export type SettingsAction =
   | IUpdateWireguardEndpointData
   | IUpdateAllowLanAction
   | IUpdateEnableIpv6Action
-  | IUpdateBlockWhenDisconnectedAction
+  | IUpdateLockdownModeAction
   | IUpdateShowBetaReleasesAction
   | IUpdateBridgeSettingsAction
   | IUpdateBridgeStateAction
@@ -199,12 +199,10 @@ function updateEnableIpv6(enableIpv6: boolean): IUpdateEnableIpv6Action {
   };
 }
 
-function updateBlockWhenDisconnected(
-  blockWhenDisconnected: boolean,
-): IUpdateBlockWhenDisconnectedAction {
+function updateLockdownMode(lockdownMode: boolean): IUpdateLockdownModeAction {
   return {
-    type: 'UPDATE_BLOCK_WHEN_DISCONNECTED',
-    blockWhenDisconnected,
+    type: 'UPDATE_LOCKDOWN_MODE',
+    lockdownMode,
   };
 }
 
@@ -333,7 +331,7 @@ export default {
   updateWireguardEndpointData,
   updateAllowLan,
   updateEnableIpv6,
-  updateBlockWhenDisconnected,
+  updateLockdownMode,
   updateShowBetaReleases,
   updateBridgeSettings,
   updateBridgeState,
