@@ -27,7 +27,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-use tokio::{net::UdpSocket, task::JoinHandle};
+use tokio::net::UdpSocket;
 use tokio_util::task::AbortOnDropHandle;
 
 use crate::socket::create_remote_socket;
@@ -274,7 +274,7 @@ impl Multiplexer {
         let tx_client_socket = self.client_socket.clone();
         let tx_proxy_socket = proxy_socket.clone();
 
-        let tx_task: JoinHandle<io::Result<()>> = tokio::spawn(async move {
+        let tx_task = tokio::spawn(async move {
             loop {
                 let n = tx_client_socket.recv(&mut wg_recv_buf).await?;
                 tx_proxy_socket
@@ -285,7 +285,7 @@ impl Multiplexer {
         let mut tx_task = AbortOnDropHandle::new(tx_task);
         let client_socket = self.client_socket.clone();
 
-        let rx_task: JoinHandle<io::Result<()>> = tokio::spawn(async move {
+        let rx_task = tokio::spawn(async move {
             loop {
                 let (n, _src) = proxy_socket.recv_from(&mut obfuscator_recv_buf).await?;
                 client_socket.send(&obfuscator_recv_buf[..n]).await?;
