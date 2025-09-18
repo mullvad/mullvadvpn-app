@@ -11,17 +11,33 @@ export type SettingsAccordion = Omit<AccordionProps, 'animation'> & {
 };
 
 function SettingsAccordion({ accordionId, anchorId, ...props }: SettingsAccordion) {
-  const { location } = useHistory();
+  const history = useHistory();
+  const { location } = history;
+  const { state } = location;
   const initialExpanded = location.state.expandedSections[accordionId];
   const [expanded, setExpanded] = React.useState(initialExpanded);
   const { ref, animation } = useScrollToListItem(anchorId);
+
+  const handleOnExpandedChange = React.useCallback(
+    (value: boolean) => {
+      setExpanded(value);
+      history.replace(location, {
+        ...state,
+        expandedSections: {
+          ...state.expandedSections,
+          [accordionId]: value,
+        },
+      });
+    },
+    [accordionId, history, location, state],
+  );
 
   return (
     <Accordion
       ref={ref}
       animation={animation}
       expanded={expanded}
-      onExpandedChange={setExpanded}
+      onExpandedChange={handleOnExpandedChange}
       {...props}
     />
   );
