@@ -34,7 +34,7 @@ export function getDefaultSettings(): ISettings {
   return {
     allowLan: false,
     autoConnect: false,
-    blockWhenDisconnected: false,
+    lockdownMode: false,
     showBetaReleases: false,
     splitTunnel: {
       enableExclusions: false,
