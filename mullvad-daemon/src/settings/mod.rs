@@ -174,7 +174,7 @@ impl SettingsPersister {
                     // On android lockdown mode is handled by the OS so setting this to true
                     // has no effect.
                     #[cfg(not(target_os = "android"))]
-                    block_when_disconnected: true,
+                    lockdown_mode: true,
                     ..Self::default_settings()
                 };
 
@@ -671,7 +671,7 @@ mod test {
         );
 
         assert!(
-            !settings.block_when_disconnected,
+            !settings.lockdown_mode,
             "The daemon should not block the internet if settings are missing"
         );
     }
@@ -701,7 +701,7 @@ mod test {
         );
 
         assert!(
-            settings.block_when_disconnected,
+            settings.lockdown_mode,
             "The daemon should block the internet if settings are corrupt"
         );
     }
