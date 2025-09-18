@@ -22,14 +22,14 @@ impl LockdownMode {
 
     async fn set(policy: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_block_when_disconnected(*policy).await?;
+        rpc.set_lockdown_mode(*policy).await?;
         println!("Changed lockdown mode setting");
         Ok(())
     }
 
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let state = BooleanOption::from(rpc.get_settings().await?.block_when_disconnected);
+        let state = BooleanOption::from(rpc.get_settings().await?.lockdown_mode);
         println!("Block traffic when the VPN is disconnected: {state}");
         Ok(())
     }
