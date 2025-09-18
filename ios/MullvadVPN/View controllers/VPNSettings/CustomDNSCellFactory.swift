@@ -141,6 +141,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(for: .useCustomDNS, isOn: isOn)
             }
+            cell.backgroundView?.backgroundColor = UIColor.Cell.Background.normal
 
         case .addDNSServer:
             guard let cell = cell as? SettingsAddDNSEntryCell else { return }
