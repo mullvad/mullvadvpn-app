@@ -41,8 +41,8 @@ const MAX_INITIAL_PACKETS: usize = 100;
 /// selects the first one that successfully establishes a connection.
 ///
 /// The multiplexer operates in two phases:
-/// 1. **Discovery Phase**: Spawns transports progressively and fans out traffic to all of them
-/// 2. **Connected Phase**: Once a transport responds, switches to forwarding to that transport only
+/// 1. **Discovery Phase**: Spawn transports progressively and fan out traffic to all of them
+/// 2. **Connected Phase**: Once a transport responds, switch to forwarding to that transport only
 pub struct Multiplexer {
     /// Local UDP socket that WireGuard connects to
     client_socket: Arc<UdpSocket>,
@@ -63,7 +63,7 @@ pub struct Multiplexer {
 }
 
 impl Multiplexer {
-    /// Creates a new multiplexer with the specified transports (obfuscators) and settings.
+    /// Create a new multiplexer with the specified transports (obfuscators) and settings.
     ///
     /// # Arguments
     /// * `settings` - Configuration containing the list of transports to try and network settings
@@ -112,13 +112,13 @@ impl Multiplexer {
         }
     }
 
-    /// Starts the multiplexer in discovery mode.
+    /// Start the multiplexer in discovery mode.
     ///
-    /// This method runs the main event loop that:
-    /// 1. Receives packets from WireGuard and fans them out to all active transports
-    /// 2. Receives responses from obfuscation proxies
-    /// 3. Spawns new transports at timed intervals
-    /// 4. Switches to connected mode when the first transport responds successfully
+    /// Run the main event loop:
+    /// 1. Receive packets from WireGuard and fan them out to all active transports
+    /// 2. Receive responses from obfuscation proxies
+    /// 3. Spawn new transports at timed intervals
+    /// 4. Switch to connected mode when the first transport responds successfully
     async fn start(mut self) -> io::Result<()> {
         log::debug!("Running multiplexer obfuscation");
 
@@ -258,7 +258,7 @@ impl Multiplexer {
         }
     }
 
-    /// Switches to connected mode after a transport has been successfully selected.
+    /// Switch to connected mode after a transport has been successfully selected.
     ///
     /// In this mode, the multiplexer acts as a simple UDP proxy between WireGuard
     /// and the selected obfuscation transport.
@@ -311,10 +311,10 @@ impl Multiplexer {
         }
     }
 
-    /// Spawns a new obfuscation transport and adds it to the active set.
+    /// Spawn a new obfuscation transport and add it to the active set.
     ///
-    /// For direct transports, this simply registers the endpoint. For obfuscated
-    /// transports, this starts the obfuscation process in a background task.
+    /// For direct transports, simply register the endpoint. For obfuscated
+    /// transports, start the obfuscation process in a background task.
     ///
     /// # Arguments
     /// * `transport` - The obfuscation type to spawn
@@ -365,7 +365,7 @@ impl Drop for Multiplexer {
 #[derive(Debug, Clone)]
 pub struct Settings {
     /// List of transports to try, ordered by priority (highest to lowest).
-    /// The multiplexer will spawn these transports progressively and select
+    /// Spawn these transports progressively and select
     /// the first one that successfully establishes a connection.
     pub transports: Vec<Transport>,
     /// Linux-specific firewall mark for outgoing connections

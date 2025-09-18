@@ -39,7 +39,7 @@ pub enum ObfuscatorConfig {
 }
 
 impl Obfuscators {
-    /// Creates a multiplexer obfuscator configuration.
+    /// Create a multiplexer obfuscator configuration.
     ///
     /// See [Obfuscators::Multiplexer] for more details.
     ///
@@ -63,10 +63,10 @@ impl Obfuscators {
         })
     }
 
-    /// Returns all potential endpoints that this obfuscation configuration might connect to.
+    /// Return all potential endpoints that this obfuscation configuration might connect to.
     ///
-    /// For single obfuscators, this returns one endpoint. For `Obfuscators::Multiplexer`, this
-    /// returns all possible endpoints (direct + all obfuscated methods) that the multiplexer
+    /// For single obfuscators, return one endpoint. For `Obfuscators::Multiplexer`, return
+    /// all possible endpoints (direct + all obfuscated methods) that the multiplexer
     /// might use, with duplicates removed.
     pub fn endpoints(&self) -> Vec<Endpoint> {
         match self {

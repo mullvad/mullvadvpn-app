@@ -268,8 +268,8 @@ fn get_shadowsocks_obfuscator_inner<R: RangeBounds<u16> + Iterator<Item = u16> +
 }
 
 /// Return `desired_port` if it is specified and included in `port_ranges`.
-/// If `desired_port` isn't specified, a random port from the ranges is returned.
-/// If `desired_port` is specified but not in range, an error is returned.
+/// If `desired_port` isn't specified, return a random port from the ranges.
+/// If `desired_port` is specified but not in range, return an error.
 pub fn desired_or_random_port_from_range<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
     port_ranges: &[R],
     desired_port: Constraint<u16>,
@@ -293,7 +293,7 @@ fn port_if_in_range<R: RangeBounds<u16>>(port_ranges: &[R], port: u16) -> Result
         .ok_or(Error::NoMatchingPort)
 }
 
-/// Selects a random port number from a list of provided port ranges.
+/// Select a random port number from a list of provided port ranges.
 ///
 /// # Parameters
 /// - `port_ranges`: A slice of port numbers.
