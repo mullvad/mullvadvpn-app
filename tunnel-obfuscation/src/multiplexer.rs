@@ -126,8 +126,7 @@ impl Multiplexer {
         let mut obfs_recv_v4_buf = vec![0u8; MAX_DATAGRAM_SIZE];
         let mut obfs_recv_v6_buf = vec![0u8; MAX_DATAGRAM_SIZE];
 
-        let delay = tokio::time::interval_at(Instant::now(), Duration::from_secs(1));
-        tokio::pin!(delay);
+        let mut delay = tokio::time::interval(Duration::from_secs(1));
 
         // Address of WG endpoint socket
         let mut wg_addr = None;
