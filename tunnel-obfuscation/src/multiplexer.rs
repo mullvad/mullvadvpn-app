@@ -400,6 +400,6 @@ impl crate::Obfuscator for Multiplexer {
 
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        unimplemented!("note that we must punch a hole for all obfuscators")
+        unimplemented!("must return the socket fd of every obfuscator here")
     }
 }
