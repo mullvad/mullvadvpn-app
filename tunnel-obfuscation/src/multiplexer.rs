@@ -387,3 +387,80 @@ impl crate::Obfuscator for Multiplexer {
         unimplemented!("must return the socket fd of every obfuscator here")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Obfuscator;
+
+    /// Test whether the multiplexer works with a direct transports
+    #[tokio::test(start_paused = true)]
+    async fn test_multiplexer_direct_forwarding() {
+        let server_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let server_addr = server_socket.local_addr().unwrap();
+
+        let server_socket2 = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let server_addr2 = server_socket2.local_addr().unwrap();
+
+        // Create multiplexer pointing to a single direct transport
+        let settings = Settings {
+            transports: vec![
+                Transport::Direct(server_addr),
+                Transport::Direct(server_addr2),
+            ],
+            #[cfg(target_os = "linux")]
+            fwmark: None,
+        };
+
+        let multiplexer = Multiplexer::new(&settings).await.unwrap();
+        let multiplexer_endpoint = multiplexer.endpoint();
+
+        let client_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+
+        tokio::spawn(async move {
+            let boxed_multiplexer = Box::new(multiplexer);
+            boxed_multiplexer.run().await
+        });
+
+        // Send a test packet from client to multiplexer and verify that it is received
+        // NOTE: This may have to be an actual WireGuard handshake packet in the future
+        let test_data = b"Ping!";
+        client_socket
+            .send_to(test_data, multiplexer_endpoint)
+            .await
+            .unwrap();
+
+        let mut server_buf = vec![0u8; 1024];
+        let (bytes_received, client_addr) = server_socket.recv_from(&mut server_buf).await.unwrap();
+
+        assert_eq!(&server_buf[..bytes_received], test_data);
+
+        // Our second socket should also receive this packet
+        let (bytes_received, _) = server_socket2.recv_from(&mut server_buf).await.unwrap();
+        assert_eq!(&server_buf[..bytes_received], test_data);
+
+        // Send a response back from the first server
+        let response_data = b"Pong!";
+        server_socket
+            .send_to(response_data, client_addr)
+            .await
+            .unwrap();
+
+        // Verify that response was forwarded
+        let mut client_buf = vec![0u8; 1024];
+        let (bytes_received, _) = client_socket.recv_from(&mut client_buf).await.unwrap();
+
+        assert_eq!(&client_buf[..bytes_received], response_data);
+
+        // Test that packets are now forwarded directly (connected mode)
+        let second_test_data = b"Connected!";
+        client_socket
+            .send_to(second_test_data, multiplexer_endpoint)
+            .await
+            .unwrap();
+
+        let (bytes_received, _) = server_socket.recv_from(&mut server_buf).await.unwrap();
+
+        assert_eq!(&server_buf[..bytes_received], second_test_data);
+    }
+}
