@@ -11,22 +11,22 @@ import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../Modal';
 import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function LockdownModeSetting() {
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
-  const { setBlockWhenDisconnected: setBlockWhenDisconnectedImpl } = useAppContext();
+  const lockdownMode = useSelector((state) => state.settings.lockdownMode);
+  const { setLockdownMode: setLockdownModeImpl } = useAppContext();
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
     useBoolean(false);
 
-  const setBlockWhenDisconnected = useCallback(
-    async (blockWhenDisconnected: boolean) => {
+  const setLockdownMode = useCallback(
+    async (lockdownMode: boolean) => {
       try {
-        await setBlockWhenDisconnectedImpl(blockWhenDisconnected);
+        await setLockdownModeImpl(lockdownMode);
       } catch (e) {
         const error = e as Error;
-        log.error('Failed to update block when disconnected', error.message);
+        log.error('Failed to update lockdown mode', error.message);
       }
     },
-    [setBlockWhenDisconnectedImpl],
+    [setLockdownModeImpl],
   );
 
   const setLockDownMode = useCallback(
@@ -34,21 +34,21 @@ export function LockdownModeSetting() {
       if (newValue) {
         showConfirmationDialog();
       } else {
-        await setBlockWhenDisconnected(false);
+        await setLockdownMode(false);
       }
     },
-    [setBlockWhenDisconnected, showConfirmationDialog],
+    [setLockdownMode, showConfirmationDialog],
   );
 
   const confirmLockdownMode = useCallback(async () => {
     hideConfirmationDialog();
-    await setBlockWhenDisconnected(true);
-  }, [hideConfirmationDialog, setBlockWhenDisconnected]);
+    await setLockdownMode(true);
+  }, [hideConfirmationDialog, setLockdownMode]);
 
   return (
     <SettingsToggleListItem
       anchorId="lockdown-mode-setting"
-      checked={blockWhenDisconnected}
+      checked={lockdownMode}
       onCheckedChange={setLockDownMode}>
       <SettingsToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
