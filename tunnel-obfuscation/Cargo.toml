@@ -29,6 +29,7 @@ nix = { workspace = true, features = ["socket"]}
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["html_reports", "async_tokio"] }
+tokio = { workspace = true, features =  ["test-util"] }
 
 [[bench]]
 name = "lwo"
