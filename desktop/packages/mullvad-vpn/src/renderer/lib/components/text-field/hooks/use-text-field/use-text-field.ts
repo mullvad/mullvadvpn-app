@@ -1,13 +1,13 @@
 import React from 'react';
 
-export type UseTextFieldOptions = {
+export type UseTextFieldProps = {
   inputRef: React.RefObject<HTMLInputElement | null>;
   defaultValue?: string;
   validate?: (value: string) => boolean;
   format?: (value: string) => string;
 };
 
-export type UseTextFieldReturn = {
+export type UseTextFieldState = {
   value: string;
   invalid: boolean;
   dirty: boolean;
@@ -23,7 +23,7 @@ export function useTextField({
   defaultValue,
   format,
   validate,
-}: UseTextFieldOptions): UseTextFieldReturn {
+}: UseTextFieldProps): UseTextFieldState {
   const [value, setValue] = React.useState(defaultValue ?? '');
   const [invalid, setInvalid] = React.useState(validate ? !validate(value) : false);
   const [dirty, setDirty] = React.useState(false);

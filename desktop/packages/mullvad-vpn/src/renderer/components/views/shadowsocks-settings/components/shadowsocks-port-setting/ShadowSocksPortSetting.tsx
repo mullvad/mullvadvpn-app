@@ -62,7 +62,13 @@ export function ShadowsocksPortSetting() {
         <SettingsListbox.BaseOption value={null}>
           {messages.gettext('Automatic')}
         </SettingsListbox.BaseOption>
-        <SettingsListbox.InputOption value="custom">
+        <SettingsListbox.InputOption
+          value="custom"
+          defaultValue={
+            selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
+          }
+          validate={validateValue}
+          format={removeNonNumericCharacters}>
           <SettingsListbox.InputOption.Label>
             {messages.gettext('Custom')}
           </SettingsListbox.InputOption.Label>
@@ -70,11 +76,6 @@ export function ShadowsocksPortSetting() {
             aria-describedby={descriptionId}
             type="text"
             placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
-            initialValue={
-              selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
-            }
-            validate={validateValue}
-            format={removeNonNumericCharacters}
             maxLength={`${ALLOWED_RANGE[1]}`.length}
           />
         </SettingsListbox.InputOption>
