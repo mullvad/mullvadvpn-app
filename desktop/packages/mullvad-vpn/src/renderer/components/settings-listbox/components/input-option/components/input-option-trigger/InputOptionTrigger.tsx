@@ -13,6 +13,18 @@ import { useInputOptionContext } from '../../InputOptionContext';
 export type InputOptionTriggerProps = ListboxOptionTriggerProps;
 
 export const StyledInputOptionTrigger = styled.li`
+  &&:hover {
+    ${StyledListItemOptionItem} {
+      background-color: ${colors.whiteOnBlue10};
+    }
+  }
+
+  &&:active {
+    ${StyledListItemOptionItem} {
+      background-color: ${colors.whiteOnBlue20};
+    }
+  }
+
   &&[aria-selected='true'] {
     &:hover {
       ${StyledListItemOptionItem} {
@@ -29,9 +41,17 @@ export const StyledInputOptionTrigger = styled.li`
 
 export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerProps) => {
   const { value } = useListboxOptionContext();
-  const { inputRef } = useInputOptionContext();
+  const {
+    inputRef,
+    inputState: { value: inputValue },
+  } = useInputOptionContext();
 
-  const { value: selectedValue, focusedValue, setFocusedValue } = useListboxContext();
+  const {
+    value: selectedValue,
+    focusedValue,
+    setFocusedValue,
+    onValueChange,
+  } = useListboxContext();
   const selected = value === selectedValue;
   const focused = value === focusedValue;
 
@@ -43,12 +63,18 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
     }
   }, [value, focused, inputRef]);
 
-  const handleFocus = React.useCallback(() => {
-    if (!focused) {
-      setFocusedValue(value);
-      inputRef.current?.focus();
+  const handleClick = React.useCallback(async () => {
+    setFocusedValue(value);
+    inputRef.current?.focus();
+    if (!selected) {
+      await onValueChange?.(inputValue);
     }
-  }, [focused, inputRef, setFocusedValue, value]);
+  }, [inputRef, inputValue, onValueChange, selected, setFocusedValue, value]);
+
+  const handleFocus = React.useCallback(() => {
+    setFocusedValue(value);
+    inputRef.current?.focus();
+  }, [inputRef, setFocusedValue, value]);
 
   return (
     <StyledInputOptionTrigger
@@ -56,6 +82,7 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
       aria-selected={selected}
       tabIndex={tabIndex}
       onFocus={handleFocus}
+      onClick={handleClick}
       {...props}>
       {children}
     </StyledInputOptionTrigger>
