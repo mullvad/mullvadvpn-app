@@ -74,7 +74,7 @@ class OutOfTimeContentView: UIView {
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.TableView.sectionSpacing
+        stackView.spacing = UIMetrics.interButtonSpacing
         stackView.backgroundColor = .secondaryColor
         return stackView
     }()
@@ -110,36 +110,31 @@ class OutOfTimeContentView: UIView {
                 .leading(0),
                 .trailing(0),
             ]))
-            topStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
+
+            topStackView.pinEdgesToSuperview(PinnableEdges([
+                .top(0),
+                .bottom(0),
+            ]))
+        }
+
+        addConstrainedSubviews([scrollView, bottomStackView]) {
+            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .top(UIMetrics.contentLayoutMargins.top),
+                .leading(0),
+                .trailing(0),
+            ]))
+
+            bottomStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(UIMetrics.padding8),
+                .trailing(UIMetrics.padding8),
+                .bottom(UIMetrics.contentLayoutMargins.bottom),
+            ]))
+
+            bottomStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
                 constant: UIMetrics.contentLayoutMargins.top
             )
-            topStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
         }
-        addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-        }
-        addSubview(bottomStackView)
-        configureConstraints()
-    }
-
-    func configureConstraints() {
-        NSLayoutConstraint.activate([
-            bottomStackView.leadingAnchor.constraint(
-                equalTo: layoutMarginsGuide.leadingAnchor,
-                constant: UIMetrics.padding8
-            ),
-            bottomStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor,
-                constant: -UIMetrics.padding8
-            ),
-            bottomStackView.bottomAnchor.constraint(
-                equalTo: layoutMarginsGuide.bottomAnchor
-            ),
-            scrollView.bottomAnchor.constraint(
-                equalTo: bottomStackView.topAnchor
-            ),
-        ])
     }
 
     func setBodyLabelText(_ text: String) {

@@ -167,7 +167,6 @@ final class WelcomeContentView: UIView, Sendable {
 
         setAccessibilityIdentifier(.welcomeView)
         backgroundColor = .primaryColor
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         backgroundColor = .secondaryColor
 
         configureUI()
@@ -212,20 +211,30 @@ final class WelcomeContentView: UIView, Sendable {
                 .leading(0),
                 .trailing(0),
             ]))
-            textsStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
+
+            textsStackView.pinEdgesToSuperview(PinnableEdges([
+                .top(0),
+                .bottom(0),
+            ]))
+        }
+
+        addConstrainedSubviews([scrollView, buttonsStackView]) {
+            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .top(UIMetrics.contentLayoutMargins.top),
+                .leading(0),
+                .trailing(0),
+            ]))
+
+            buttonsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(UIMetrics.padding8),
+                .trailing(UIMetrics.padding8),
+                .bottom(UIMetrics.contentLayoutMargins.bottom),
+            ]))
+
+            buttonsStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
                 constant: UIMetrics.contentLayoutMargins.top
             )
-            textsStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
-        }
-        addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-        }
-        addConstrainedSubviews([buttonsStackView]) {
-            buttonsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.top))
-            scrollView.bottomAnchor.constraint(equalTo: buttonsStackView.topAnchor)
-
         }
     }
 

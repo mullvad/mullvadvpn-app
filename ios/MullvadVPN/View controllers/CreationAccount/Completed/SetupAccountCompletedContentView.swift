@@ -76,13 +76,14 @@ class SetupAccountCompletedContentView: UIView {
         return stackView
     }()
 
+    let scrollView = UIScrollView()
+
     weak var delegate: SetupAccountCompletedContentViewDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         backgroundColor = .primaryColor
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         backgroundColor = .secondaryColor
 
         configureUI()
@@ -102,18 +103,35 @@ class SetupAccountCompletedContentView: UIView {
         buttonsStackView.addArrangedSubview(privacyButton)
         buttonsStackView.addArrangedSubview(startButton)
 
-        addSubview(textsStackView)
-        addSubview(buttonsStackView)
-        addConstraints()
-    }
+        scrollView.addConstrainedSubviews([textsStackView]) {
+            textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(0),
+                .trailing(0),
+            ]))
 
-    private func addConstraints() {
-        addConstrainedSubviews([textsStackView, buttonsStackView]) {
-            textsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+            textsStackView.pinEdgesToSuperview(PinnableEdges([
+                .top(0),
+                .bottom(0),
+            ]))
+        }
 
-            buttonsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.top))
+        addConstrainedSubviews([scrollView, buttonsStackView]) {
+            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .top(UIMetrics.contentLayoutMargins.top),
+                .leading(0),
+                .trailing(0),
+            ]))
+
+            buttonsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .leading(UIMetrics.padding8),
+                .trailing(UIMetrics.padding8),
+                .bottom(UIMetrics.contentLayoutMargins.bottom),
+            ]))
+
+            buttonsStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
         }
     }
 
