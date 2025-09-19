@@ -7,7 +7,7 @@ export * from './useHasAppUpgradeVerifiedInstallerPath';
 export * from './useIsDefaultActiveElementAfterMount';
 export * from './useIsPlatformLinux';
 export * from './useMeasure';
-export * from './useScrollToAnchor';
+export * from './useScrollToReference';
 export * from './useScrollToListItem';
 export * from './useInitialFocus';
 export * from './useFocusReference';
