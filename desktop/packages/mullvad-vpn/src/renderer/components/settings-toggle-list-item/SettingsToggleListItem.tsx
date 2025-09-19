@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Switch, SwitchProps } from '../../lib/components/switch';
 import { SettingsListItem, SettingsListItemProps } from '../settings-list-item';
 import { SettingsToggleListItemLabel, SettingsToggleListItemSwitch } from './components';
@@ -17,11 +19,16 @@ function SettingsToggleListItem({
   disabled,
   ...props
 }: SettingsToggleListItemProps) {
+  const labelId = React.useId();
   return (
-    <SettingsListItem disabled={disabled} {...props}>
+    <SettingsListItem labelId={labelId} disabled={disabled} {...props}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
-          <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled}>
+          <Switch
+            labelId={labelId}
+            checked={checked}
+            onCheckedChange={onCheckedChange}
+            disabled={disabled}>
             {children}
           </Switch>
         </SettingsListItem.Content>

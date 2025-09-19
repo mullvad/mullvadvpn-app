@@ -3,9 +3,10 @@ import React from 'react';
 import { ScrollToAnchorId } from '../../shared/ipc-types';
 import { ListItemAnimation } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
-import { useScrollToReference } from '.';
+import { useFocusReference } from './useFocusReference';
+import { useScrollToReference } from './useScrollToReference';
 
-export const useScrollToListItem = <T extends Element = HTMLDivElement>(
+export const useScrollToListItem = <T extends HTMLElement = HTMLDivElement>(
   id?: ScrollToAnchorId,
 ): {
   ref?: React.RefObject<T | null>;
@@ -16,8 +17,8 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
   const { location } = history;
   const { state } = location;
 
-  const anchorId = state?.options?.find((option) => option.type === 'scroll-to-anchor')?.id;
-  const scroll = id === anchorId && anchorId !== undefined;
+  const scrollToAnchorOption = state?.options?.find((option) => option.type === 'scroll-to-anchor');
+  const shouldScroll = scrollToAnchorOption && scrollToAnchorOption.id === id;
 
   const handleOnScrolled = React.useCallback(() => {
     history.replace(location, {
@@ -26,9 +27,10 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
     });
   }, [history, location, state]);
 
-  useScrollToReference(ref, scroll, handleOnScrolled);
+  useScrollToReference(ref, shouldScroll, handleOnScrolled);
+  useFocusReference(ref, shouldScroll);
 
-  if (anchorId === undefined) {
+  if (scrollToAnchorOption === undefined) {
     return {
       ref: undefined,
       animation: undefined,
@@ -36,6 +38,6 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
   }
   return {
     ref,
-    animation: scroll ? 'flash' : 'dim',
+    animation: shouldScroll ? 'flash' : 'dim',
   };
 };

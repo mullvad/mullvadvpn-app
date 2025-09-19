@@ -79,7 +79,7 @@ export function MtuSetting() {
   );
 
   return (
-    <SettingsListItem anchorId="mtu-setting">
+    <SettingsListItem anchorId="mtu-setting" aria-labelledby={labelId}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <SettingsListItem.Label id={labelId}>

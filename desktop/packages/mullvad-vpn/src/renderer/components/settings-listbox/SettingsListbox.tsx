@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { ScrollToAnchorId } from '../../../shared/ipc-types';
 import { useScrollToListItem } from '../../hooks';
 import { Listbox, ListboxProps } from '../../lib/components/listbox';
@@ -9,8 +11,19 @@ export type SettingsListboxProps<T> = Omit<ListboxProps<T>, 'animation'> & {
 
 function SettingsListbox<T>({ anchorId, ...props }: SettingsListboxProps<T>) {
   const { ref, animation } = useScrollToListItem(anchorId);
+  const labelId = React.useId();
 
-  return <Listbox ref={ref} animation={animation} {...props} />;
+  return (
+    <Listbox
+      ref={ref}
+      tabIndex={-1}
+      role="region"
+      labelId={labelId}
+      aria-labelledby={labelId}
+      animation={animation}
+      {...props}
+    />
+  );
 }
 
 const SettingsListboxNamespace = Object.assign(SettingsListbox, {
