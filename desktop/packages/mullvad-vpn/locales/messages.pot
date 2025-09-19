@@ -550,6 +550,10 @@ msgid "Please enter a valid remote server port."
 msgstr ""
 
 msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr ""
+
+msgctxt "api-access-methods-view"
 msgid "Remote Server"
 msgstr ""
 
