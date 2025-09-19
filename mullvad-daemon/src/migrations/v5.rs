@@ -331,8 +331,8 @@ mod test {
 }
 "#;
 
-    #[tokio::test]
-    async fn test_v5_to_v6_migration() {
+    #[test]
+    fn test_v5_to_v6_migration() {
         let mut old_settings = serde_json::from_str(V5_SETTINGS).unwrap();
 
         assert!(version_matches(&old_settings));
