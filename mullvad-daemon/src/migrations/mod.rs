@@ -468,7 +468,7 @@ mod windows {
 mod test {
     use mullvad_types::settings::{CURRENT_SETTINGS_VERSION, Settings};
 
-    use crate::migrations::{migrate_settings, snapshot_dir};
+    use crate::migrations::migrate_settings;
 
     /// Ensure that no migration logic runs for the default settings by checking whether anything
     /// has changed after running the migration code
