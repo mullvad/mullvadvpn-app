@@ -19,6 +19,7 @@ use mullvad_types::{
         WireguardEndpointData,
     },
 };
+use rand::seq::IndexedRandom;
 use talpid_types::net::{
     Endpoint, IpVersion, TransportProtocol,
     proxy::Shadowsocks,
@@ -232,7 +233,7 @@ fn openvpn_singlehop_endpoint(
     data.ports
         .iter()
         .filter(|&endpoint| compatible_openvpn_port_combo(port_constraint, endpoint))
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .map(|endpoint| Endpoint::new(exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
         .ok_or(Error::NoOpenVpnEndpoint)
 }
@@ -252,7 +253,7 @@ fn openvpn_bridge_endpoint(
         .iter()
         .filter(|endpoint| matches!(endpoint.protocol, TransportProtocol::Tcp))
         .filter(|endpoint| compatible_openvpn_port_combo(port_constraint, endpoint))
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .map(|endpoint| Endpoint::new(exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
         .ok_or(Error::NoBridgeEndpoint)
 }
@@ -276,12 +277,11 @@ fn compatible_openvpn_port_combo(
 
 /// Picks a random bridge from a relay.
 pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &Relay) -> Option<Shadowsocks> {
-    use rand::seq::SliceRandom;
     if relay.endpoint_data != RelayEndpointData::Bridge {
         return None;
     }
     data.shadowsocks
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .inspect(|shadowsocks_endpoint| {
             log::info!(
                 "Selected Shadowsocks bridge {} at {}:{}/{}",

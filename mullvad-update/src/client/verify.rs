@@ -70,7 +70,7 @@ mod test {
     async fn test_sha256_checksum() {
         // Generate some random data
         let mut data = vec![0u8; 1024 * 1024];
-        rand::thread_rng().fill_bytes(&mut data);
+        rand::rng().fill_bytes(&mut data);
 
         // Hash it
         let mut hasher = sha2::Sha256::new();
@@ -84,7 +84,7 @@ mod test {
             .expect("expected checksum match");
 
         // Compare the hash against some random data, which should fail
-        rand::thread_rng().fill_bytes(&mut data);
+        rand::rng().fill_bytes(&mut data);
         Sha256Verifier::verify_inner(Cursor::new(&data), expected_hash)
             .await
             .expect_err("expected checksum mismatch");

@@ -22,12 +22,9 @@ crate-type = ["cdylib"]
 tokio = { workspace = true, features = ["rt"] }
 
 thiserror = { workspace = true }
-futures = { workspace = true }
-ipnetwork = { workspace = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 log-panics = "2"
-rand = "0.8.5"
 
 mullvad-api = { path = "../mullvad-api" }
 mullvad-daemon = { path = "../mullvad-daemon" }

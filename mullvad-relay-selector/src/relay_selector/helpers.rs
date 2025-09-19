@@ -13,8 +13,7 @@ use mullvad_types::{
 };
 use rand::{
     Rng,
-    seq::{IteratorRandom, SliceRandom},
-    thread_rng,
+    seq::{IndexedRandom, IteratorRandom},
 };
 use talpid_types::net::{IpVersion, obfuscation::ObfuscatorConfig};
 
@@ -55,7 +54,7 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
     weight: impl Fn(&'a RelayType) -> u64,
 ) -> Option<&'a RelayType> {
     let total_weight: u64 = relays.clone().map(&weight).sum();
-    let mut rng = thread_rng();
+    let mut rng = rand::rng();
     if total_weight == 0 {
         relays.choose(&mut rng)
     } else {
@@ -73,7 +72,7 @@ pub fn pick_random_relay_weighted<'a, RelayType>(
         //  ------------------------------------                          ------------
         //         |                  |                                         |
         //   weight(relay 0)     weight(relay 1)    ..       ..     ..    weight(relay n)
-        let mut i: u64 = rng.gen_range(1..=total_weight);
+        let mut i: u64 = rng.random_range(1..=total_weight);
         Some(
             relays
                 .find(|relay| {
@@ -166,7 +165,7 @@ fn get_udp2tcp_obfuscator_port(
             .copied()
     } else {
         // There are no specific obfuscation settings to take into consideration in this case.
-        udp2tcp_ports.choose(&mut thread_rng()).copied()
+        udp2tcp_ports.choose(&mut rand::rng()).copied()
     };
     port.ok_or(Error::NoMatchingPort)
 }
@@ -254,7 +253,7 @@ fn get_shadowsocks_obfuscator_inner<R: RangeBounds<u16> + Iterator<Item = u16> +
 
     let in_ip = extra_in_addrs
         .iter()
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .copied()
         .unwrap_or(wg_in_addr);
 
@@ -308,7 +307,7 @@ pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
         .iter()
         .cloned()
         .flatten()
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .ok_or(Error::NoMatchingPort)
 }
 

@@ -1,7 +1,7 @@
 use super::WIREGUARD_KEY_LENGTH;
 use maybenot::{MachineId, Timer};
 use once_cell::sync::OnceCell;
-use rand::{
+use rand08::{
     SeedableRng,
     rngs::{OsRng, adapter::ReseedingRng},
 };

@@ -30,9 +30,8 @@ zeroize = "1"
 chrono = { workspace = true, features = ["clock"] }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
-rand = "0.8.5"
+rand = { workspace = true }
 surge-ping = "0.8.0"
-rand_chacha = "0.3.1"
 wireguard-go-rs = { path = "../wireguard-go-rs" }
 tun07 = { package = "tun", version = "0.7.11", features = [
   "async",
@@ -67,6 +66,10 @@ bitflags = "1.2"
 talpid-windows = { path = "../talpid-windows" }
 widestring = "1.0"
 maybenot = "2.0.0"
+# TODO: rand 0.8 is a hard requirement of maybenot-ffi 2.0. May be upgraded to rand 0.9
+# when maybenot 2.2 is released.
+rand08 = { package = "rand", version = "0.8.5" }
+rand_chacha = "0.3.1"
 
 # TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]
