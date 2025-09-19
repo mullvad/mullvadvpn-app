@@ -167,7 +167,6 @@ final class WelcomeContentView: UIView, Sendable {
 
         setAccessibilityIdentifier(.welcomeView)
         backgroundColor = .primaryColor
-        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         backgroundColor = .secondaryColor
 
         configureUI()
@@ -210,22 +209,33 @@ final class WelcomeContentView: UIView, Sendable {
         scrollView.addConstrainedSubviews([textsStackView]) {
             textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
                 .leading(0),
-                .trailing(0),
+                .trailing(0)
             ]))
-            textsStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
-                constant: UIMetrics.contentLayoutMargins.top
-            )
-            textsStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
+            textsStackView.topAnchor.constraint(equalTo: scrollView.topAnchor)
+            textsStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
         }
         addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .top(UIMetrics.contentLayoutMargins.top),
+                .leading(0),
+                .trailing(0)
+            ]))
         }
         addConstrainedSubviews([buttonsStackView]) {
             buttonsStackView
-                .pinEdgesToSuperviewMargins(.all().excluding(.top))
-            scrollView.bottomAnchor.constraint(equalTo: buttonsStackView.topAnchor)
-
+                .pinEdgesToSuperviewMargins(PinnableEdges([
+                    .leading(UIMetrics.padding8),
+                    .trailing(UIMetrics.padding8)
+                ]
+            ))
+            layoutMarginsGuide.bottomAnchor.constraint(
+                equalTo: buttonsStackView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.bottom
+            )
+            buttonsStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
         }
     }
 
