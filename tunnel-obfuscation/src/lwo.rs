@@ -244,10 +244,10 @@ fn header_mut(packet: &mut [u8], key_byte: u8) -> Option<&mut [u8]> {
     }
 }
 
-fn xor_bytes(data: &mut [u8], key: &[u8]) {
-    data.iter_mut()
-        .zip(key.iter().cycle())
-        .for_each(|(byte, key_byte)| *byte ^= key_byte);
+fn xor_bytes(data: &mut [u8], key: &[u8; 32]) {
+    for (i, byte) in data.iter_mut().enumerate() {
+        *byte ^= key[i % key.len()];
+    }
 }
 
 #[async_trait]
