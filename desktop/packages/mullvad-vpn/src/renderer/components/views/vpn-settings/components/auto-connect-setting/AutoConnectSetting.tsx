@@ -13,11 +13,14 @@ export function AutoConnectSetting() {
   );
 
   return (
-    <SettingsToggleListItem checked={autoConnect} onCheckedChange={setAutoConnect} footer={footer}>
+    <SettingsToggleListItem
+      checked={autoConnect}
+      onCheckedChange={setAutoConnect}
+      description={footer}>
       <SettingsToggleListItem.Label>
         {messages.pgettext('vpn-settings-view', 'Auto-connect')}
       </SettingsToggleListItem.Label>
-      <SettingsToggleListItem.Switch aria-description={footer} />
+      <SettingsToggleListItem.Switch />
     </SettingsToggleListItem>
   );
 }

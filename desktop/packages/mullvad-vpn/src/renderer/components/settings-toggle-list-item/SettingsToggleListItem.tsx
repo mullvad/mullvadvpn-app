@@ -1,9 +1,16 @@
+import React from 'react';
+
 import { Switch, SwitchProps } from '../../lib/components/switch';
 import { SettingsListItem, SettingsListItemProps } from '../settings-list-item';
-import { SettingsToggleListItemLabel, SettingsToggleListItemSwitch } from './components';
+import {
+  SettingsToggleListItemGroup,
+  SettingsToggleListItemLabel,
+  SettingsToggleListItemSwitch,
+} from './components';
+import { SettingsToggleListItemProvider } from './SettingsToggleListItemContext';
 
 export type SettingsToggleListItemProps = {
-  footer?: string;
+  description?: string;
   checked?: SwitchProps['checked'];
   onCheckedChange?: SwitchProps['onCheckedChange'];
 } & SettingsListItemProps;
@@ -11,33 +18,40 @@ export type SettingsToggleListItemProps = {
 function SettingsToggleListItem({
   ref,
   children,
-  footer,
+  description,
   checked,
   onCheckedChange,
   disabled,
   ...props
 }: SettingsToggleListItemProps) {
+  const descriptionId = React.useId();
   return (
-    <SettingsListItem disabled={disabled} {...props}>
-      <SettingsListItem.Item>
-        <SettingsListItem.Content>
-          <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled}>
-            {children}
-          </Switch>
-        </SettingsListItem.Content>
-      </SettingsListItem.Item>
-      {footer && (
-        <SettingsListItem.Footer>
-          <SettingsListItem.Text>{footer}</SettingsListItem.Text>
-        </SettingsListItem.Footer>
-      )}
-    </SettingsListItem>
+    <SettingsToggleListItemProvider descriptionId={descriptionId}>
+      <SettingsListItem disabled={disabled} {...props}>
+        <SettingsListItem.Item>
+          <SettingsListItem.Content>
+            <Switch
+              checked={checked}
+              onCheckedChange={onCheckedChange}
+              disabled={disabled}
+              aria-describedby={description ? descriptionId : undefined}>
+              {children}
+            </Switch>
+          </SettingsListItem.Content>
+        </SettingsListItem.Item>
+        {description && (
+          <SettingsListItem.Footer>
+            <SettingsListItem.Text id={descriptionId}>{description}</SettingsListItem.Text>
+          </SettingsListItem.Footer>
+        )}
+      </SettingsListItem>
+    </SettingsToggleListItemProvider>
   );
 }
 const SettingsToggleListItemNamespace = Object.assign(SettingsToggleListItem, {
   Label: SettingsToggleListItemLabel,
   Text: SettingsListItem.Text,
-  Group: SettingsListItem.Group,
+  Group: SettingsToggleListItemGroup,
   Footer: SettingsListItem.Footer,
   Switch: SettingsToggleListItemSwitch,
 });
