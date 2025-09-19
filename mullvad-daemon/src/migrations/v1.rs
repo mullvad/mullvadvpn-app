@@ -158,6 +158,8 @@ mod test {
 
 "#;
 
+    // TODO: add a snapshot of the seed as well.
+
     #[test]
     fn v1_to_v2_migration() {
         let mut settings = load_seed("v1.json");
