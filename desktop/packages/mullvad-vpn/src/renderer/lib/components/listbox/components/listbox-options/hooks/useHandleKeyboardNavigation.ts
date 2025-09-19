@@ -1,43 +1,42 @@
 import React from 'react';
 
 import { useListboxContext } from '../../../';
+import { getOptions } from '../utils';
+import { useFocusOptionByIndex } from './useFocusOptionByIndex';
+import { useGetInitialFocusIndex } from './useGetInitialFocusIndex';
 
-export const useHandleKeyboardNavigation = <T>(options: T[]) => {
-  const { value: selectedValue, focusedValue, setFocusedValue } = useListboxContext<T>();
+export const useHandleKeyboardNavigation = () => {
+  const { optionsRef } = useListboxContext();
+  const getInitialFocusIndex = useGetInitialFocusIndex();
+  const focusOptionByIndex = useFocusOptionByIndex();
 
   return React.useCallback(
     (event: React.KeyboardEvent) => {
-      let value: T;
-      if (focusedValue !== undefined) value = focusedValue;
-      else if (selectedValue !== undefined) value = selectedValue;
-      else value = options[0];
+      const options = getOptions(optionsRef.current);
+      if (!options) return;
 
-      // Use roving tabindex to determine the next focusable option
-      let nextValue: T | undefined;
+      const initialFocusedIndex = getInitialFocusIndex();
+
       if (event.key === 'ArrowUp') {
         event.preventDefault();
-        const focusedOptionIndex = options.findIndex((option) => option === value);
-        if (focusedOptionIndex <= 0) return;
-        const nextOptionIndex = focusedOptionIndex - 1;
-        nextValue = options[nextOptionIndex];
+        if (initialFocusedIndex > 0) {
+          const newFocusedIndex = initialFocusedIndex - 1;
+          focusOptionByIndex(newFocusedIndex);
+        }
       } else if (event.key === 'ArrowDown') {
         event.preventDefault();
-        const focusedOptionIndex = options.findIndex((option) => option === value);
-        if (focusedOptionIndex >= options.length - 1) return;
-        const nextOptionIndex = focusedOptionIndex + 1;
-        if (nextOptionIndex === -1) return;
-        nextValue = options[nextOptionIndex];
+        if (initialFocusedIndex < options.length - 1) {
+          const newFocusedIndex = initialFocusedIndex + 1;
+          focusOptionByIndex(newFocusedIndex);
+        }
       } else if (event.key === 'Home') {
         event.preventDefault();
-        nextValue = options[0];
+        focusOptionByIndex(0);
       } else if (event.key === 'End') {
         event.preventDefault();
-        nextValue = options[options.length - 1];
-      }
-      if (nextValue !== undefined) {
-        setFocusedValue(nextValue);
+        focusOptionByIndex(options.length - 1);
       }
     },
-    [focusedValue, selectedValue, options, setFocusedValue],
+    [focusOptionByIndex, getInitialFocusIndex, optionsRef],
   );
 };

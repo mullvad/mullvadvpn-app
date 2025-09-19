@@ -46,41 +46,25 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
     inputState: { value: inputValue },
   } = useInputOptionContext();
 
-  const {
-    value: selectedValue,
-    focusedValue,
-    setFocusedValue,
-    onValueChange,
-  } = useListboxContext();
+  const { value: selectedValue, onValueChange } = useListboxContext();
   const selected = value === selectedValue;
-  const focused = value === focusedValue;
-
-  const tabIndex = selected && focusedValue === undefined ? 0 : -1;
-
-  React.useEffect(() => {
-    if (focused && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [value, focused, inputRef]);
 
   const handleClick = React.useCallback(async () => {
-    setFocusedValue(value);
     inputRef.current?.focus();
     if (!selected) {
       await onValueChange?.(inputValue);
     }
-  }, [inputRef, inputValue, onValueChange, selected, setFocusedValue, value]);
+  }, [inputRef, inputValue, onValueChange, selected]);
 
   const handleFocus = React.useCallback(() => {
-    setFocusedValue(value);
     inputRef.current?.focus();
-  }, [inputRef, setFocusedValue, value]);
+  }, [inputRef]);
 
   return (
     <StyledInputOptionTrigger
       role="option"
       aria-selected={selected}
-      tabIndex={tabIndex}
+      tabIndex={-1}
       onFocus={handleFocus}
       onClick={handleClick}
       {...props}>

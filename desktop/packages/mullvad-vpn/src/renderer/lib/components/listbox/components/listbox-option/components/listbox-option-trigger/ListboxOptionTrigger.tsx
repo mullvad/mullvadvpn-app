@@ -64,33 +64,14 @@ export const ListboxOptionTrigger = ({ children, ...props }: ListboxOptionTrigge
   const { disabled } = useListItemContext();
   const triggerRef = React.useRef<HTMLLIElement>(null);
 
-  const {
-    value: selectedValue,
-    onValueChange,
-    focusedValue,
-    setFocusedValue,
-  } = useListboxContext();
+  const { value: selectedValue, onValueChange } = useListboxContext();
   const selected = value === selectedValue;
-  const focused = value === focusedValue;
-
-  const tabIndex = !disabled && selected && focusedValue === undefined ? 0 : -1;
 
   const onTriggerClick = React.useCallback(async () => {
     if (onValueChange) {
       await onValueChange(value);
     }
   }, [onValueChange, value]);
-
-  React.useEffect(() => {
-    if (focused && triggerRef.current) {
-      triggerRef.current.focus();
-    }
-  }, [value, focused]);
-
-  const onFocus = React.useCallback(() => {
-    if (focused) return;
-    setFocusedValue(value);
-  }, [focused, setFocusedValue, value]);
 
   const handleKeyDown = React.useCallback(
     async (event: React.KeyboardEvent) => {
@@ -110,10 +91,9 @@ export const ListboxOptionTrigger = ({ children, ...props }: ListboxOptionTrigge
       role="option"
       aria-selected={selected}
       aria-disabled={disabled}
-      tabIndex={tabIndex}
+      tabIndex={-1}
       onClick={!disabled ? onTriggerClick : undefined}
       onKeyDown={handleKeyDown}
-      onFocus={onFocus}
       $disabled={disabled}
       {...props}>
       {children}
