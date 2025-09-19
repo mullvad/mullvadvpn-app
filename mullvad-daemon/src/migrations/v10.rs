@@ -81,9 +81,22 @@ fn migrate_tunnel_type_inner(normal: &mut serde_json::Value) -> Result<()> {
 }
 #[cfg(test)]
 mod test {
+    use super::*;
+    use crate::migrations::load_seed;
+
     use serde_json::json;
 
-    use crate::migrations::v10::migrate_tunnel_type_inner;
+    /// Parse default v10 settings as a pretty printed JSON string.
+    fn v10_settings() -> serde_json::Value {
+        load_seed("v10.json")
+    }
+
+    /// Snapshot of default V10 settings
+    #[test]
+    fn snapshot_v10_settings() {
+        let v10 = serde_json::to_string_pretty(&v10_settings()).unwrap();
+        insta::assert_snapshot!(v10);
+    }
 
     /// Tunnel protocol "any" is migrated to wireguard
     #[test]
