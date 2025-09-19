@@ -1,7 +1,7 @@
 import { TunnelState } from '../../../shared/daemon-rpc-types';
 import { Flex, HeaderProps, Logo, LogoProps, MainHeader } from '../../lib/components';
 import { useSelector } from '../../redux/store';
-import { FocusFallback } from '../Focus';
+import { InitialFocus } from '../initial-focus';
 import {
   AppMainHeaderBarAccountButton,
   AppMainHeaderDeviceInfo,
@@ -35,9 +35,9 @@ const AppMainHeader = ({
   return (
     <MainHeader variant={variant} size={size} {...props}>
       <Flex $justifyContent="space-between">
-        <FocusFallback>
+        <InitialFocus>
           {logoVariant !== 'none' ? <Logo variant={logoVariant} /> : <div />}
-        </FocusFallback>
+        </InitialFocus>
         <Flex $gap="medium" $alignItems="center">
           {children}
         </Flex>
