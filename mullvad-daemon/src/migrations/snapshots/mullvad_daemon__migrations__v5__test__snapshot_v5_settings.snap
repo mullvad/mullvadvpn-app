@@ -1,0 +1,75 @@
+---
+source: mullvad-daemon/src/migrations/v5.rs
+expression: settings
+---
+{
+  "account_token": "1234",
+  "allow_lan": true,
+  "auto_connect": false,
+  "block_when_disconnected": false,
+  "bridge_settings": {
+    "normal": {
+      "location": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": {
+            "port": {
+              "only": 1195
+            },
+            "protocol": "udp"
+          }
+        }
+      },
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "entry_location": "any",
+        "ip_version": "any",
+        "port": {
+          "only": {
+            "port": "any",
+            "protocol": "tcp"
+          }
+        }
+      }
+    }
+  },
+  "settings_version": 5,
+  "tunnel_options": {
+    "dns_options": {
+      "custom_options": {
+        "addresses": [
+          "1.1.1.1",
+          "1.2.3.4"
+        ]
+      },
+      "default_options": {
+        "block_ads": false,
+        "block_trackers": false
+      },
+      "state": "default"
+    },
+    "generic": {
+      "enable_ipv6": false
+    },
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null,
+      "rotation_interval": {
+        "nanos": 0,
+        "secs": 86400
+      }
+    }
+  }
+}
