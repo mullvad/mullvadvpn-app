@@ -1,6 +1,4 @@
-#[cfg(target_os = "android")]
 use serde_json::json;
-#[cfg(target_os = "android")]
 use std::{
     fs::{read_to_string, remove_file},
     path::Path,
@@ -16,17 +14,14 @@ use super::{Error, Result};
 type JsonSettings = serde_json::Map<String, serde_json::Value>;
 
 /// Directories which the migration may want to touch.
-#[cfg(target_os = "android")]
 pub struct Directories<'path> {
     /// The path to the directory where `settings.json` is stored.
     pub settings: &'path Path,
 }
 
-/// The file where all currently split-tunnelled apps are stored.
-#[cfg(target_os = "android")]
+/// (Android) The file where all currently split-tunnelled apps are stored.
 const SPLIT_TUNNELING_APPS: &str = "split-tunnelling.txt";
-/// The file where the split-tunnelling state (enabled / disabled) is stored.
-#[cfg(target_os = "android")]
+/// (Android) The file where the split-tunnelling state (enabled / disabled) is stored.
 const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 
 // ======================================================
@@ -45,7 +40,7 @@ const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 /// which means that we can not know ahead of time where the settings are stored.
 pub fn migrate(
     settings: &mut serde_json::Value,
-    #[cfg(target_os = "android")] directories: Option<Directories<'_>>,
+    directories: Option<Directories<'_>>,
 ) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
@@ -59,8 +54,7 @@ pub fn migrate(
     // While this is an open migration, we check to see if the split tunnel apps have been migrated
     // already. If so, we don't want to run the migration code again. The call to
     // `split_tunnel_subkey_exists` can safely be removed when closing this migration.
-    #[cfg(target_os = "android")]
-    if !android::split_tunnel_subkey_exists(json_blob) {
+    if cfg!(target_os = "android") && !android::split_tunnel_subkey_exists(json_blob) {
         if let Some(directories) = directories {
             android::migrate_split_tunnel_settings(json_blob, directories)?;
         } else {
@@ -89,7 +83,7 @@ fn to_settings_object(settings: &mut serde_json::Value) -> Result<&mut JsonSetti
         .ok_or(Error::InvalidSettingsContent)
 }
 
-#[cfg(target_os = "android")]
+// #[cfg(target_os = "android")]
 mod android {
     use super::*;
 
@@ -116,8 +110,10 @@ mod android {
             _ => (false, vec![]),
         };
 
+        let apps: Vec<_> = split_apps.iter().map(String::as_str).collect();
+
         // Write the split tunnel settings to the settings object.
-        add_split_tunneling_settings(settings, enabled, split_apps);
+        add_split_tunneling_settings(settings, enabled, apps.as_slice());
 
         // Remove the old leftover settings files.
         remove_old_split_tunneling_directories(&directories);
@@ -127,11 +123,7 @@ mod android {
 
     /// Add the "split_tunnel" subkey to the settings object while setting it's own subkeys to
     /// `enabled` and `apps`.
-    pub fn add_split_tunneling_settings(
-        settings: &mut JsonSettings,
-        enabled: bool,
-        apps: Vec<String>,
-    ) {
+    pub fn add_split_tunneling_settings(settings: &mut JsonSettings, enabled: bool, apps: &[&str]) {
         // Create the "split_tunnel" key in the settings object and store the read split tunnel
         // state in the daemon's settings
         settings.insert(
@@ -194,27 +186,41 @@ mod android {
 // TODO: Also test the case where the location is not an openvpn relay and the tunnel type is any
 #[cfg(test)]
 mod test {
+    use super::*;
+
     use crate::migrations::load_seed;
 
-    use super::migrate;
-
-    #[cfg(target_os = "android")]
+    // #[cfg(target_os = "android")]
     mod android {
+        use super::*;
+        use constants::V9_ANDROID_SETTINGS;
+
+        use crate::migrations::v9::{JsonSettings, android::add_split_tunneling_settings};
+
+        /// Parse example v9 settings as a pretty printed JSON string.
+        fn v9_settings() -> serde_json::Value {
+            load_seed("v9_android.json")
+        }
+
+        #[test]
+        fn snapshot_v9_settings() {
+            let v9 = serde_json::to_string_pretty(&v9_settings()).unwrap();
+            insta::assert_snapshot!(v9);
+        }
+
         /// Assert that split-tunneling settings has been added to the android settings post-migration.
         #[test]
         fn test_v9_to_v10_migration() {
-            use crate::migrations::v9::{
-                add_split_tunneling_settings,
-                test::android::constants::{V9_ANDROID_SETTINGS, V10_ANDROID_SETTINGS},
-            };
+            use crate::migrations::v9::test::android::constants::V10_ANDROID_SETTINGS;
+            use core::str::FromStr;
 
             let enabled = true;
             let apps = ["com.android.chrome", "net.mullvad.mullvadvpn"];
 
-            let mut settings = serde_json::from_str(V9_ANDROID_SETTINGS).unwrap();
+            let mut settings = JsonSettings::from_str(V9_ANDROID_SETTINGS).unwrap();
             // Perform the actual settings migration while skipping the I/O performed in
             // `migrate_split_tunnel_settings`.
-            add_split_tunneling_settings(settings, enabled, apps);
+            add_split_tunneling_settings(&mut settings, enabled, &apps);
             let new_settings = serde_json::from_str(V10_ANDROID_SETTINGS).unwrap();
             assert_eq!(settings, new_settings);
         }
@@ -454,7 +460,7 @@ mod test {
     fn test_v9_to_v10_migration() {
         // This settings blob contains no constraint for tunnel type
         let mut v9 = v9_settings();
-        migrate(&mut v9).unwrap();
+        migrate(&mut v9, None).unwrap();
         // This settings blob does not contain an "any" tunnel type
         let v10 = serde_json::to_string_pretty(&v9).unwrap();
         insta::assert_snapshot!(v10);
