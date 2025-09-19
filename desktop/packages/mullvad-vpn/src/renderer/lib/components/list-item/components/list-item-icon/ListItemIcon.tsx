@@ -1,9 +1,9 @@
 import { Icon, IconProps } from '../../../icon';
-import { useListItem } from '../../ListItemContext';
+import { useListItemContext } from '../../ListItemContext';
 
 export type ListItemIconProps = Omit<IconProps, 'size'>;
 
 export function ListItemIcon({ ...props }: ListItemIconProps) {
-  const { disabled } = useListItem();
+  const { disabled } = useListItemContext();
   return <Icon aria-hidden="true" color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
 }

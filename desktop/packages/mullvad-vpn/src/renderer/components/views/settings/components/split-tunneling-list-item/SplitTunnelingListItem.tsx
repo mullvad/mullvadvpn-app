@@ -1,12 +1,12 @@
 import { strings } from '../../../../../../shared/constants';
 import { RoutePath } from '../../../../../../shared/routes';
-import { NavigationListItem } from '../../../../NavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
 export function SplitTunnelingListItem() {
   return (
-    <NavigationListItem to={RoutePath.splitTunneling}>
-      <NavigationListItem.Label>{strings.splitTunneling}</NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+    <SettingsNavigationListItem to={RoutePath.splitTunneling}>
+      <SettingsNavigationListItem.Label>{strings.splitTunneling}</SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }

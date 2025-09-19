@@ -6,3 +6,4 @@ export * from './list-item-label';
 export * from './list-item-text';
 export * from './list-item-trigger';
 export * from './list-item-footer';
+export * from './list-item-text-field';

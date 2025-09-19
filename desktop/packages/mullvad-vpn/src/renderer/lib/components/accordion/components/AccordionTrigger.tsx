@@ -1,30 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
 
-import { colors } from '../../../foundations';
+import { ListItem } from '../../list-item';
 import { useAccordionContext } from '../AccordionContext';
-import { StyledAccordionHeader } from './AccordionHeader';
 
 export type AccordionTriggerProps = {
   children?: React.ReactNode;
-};
-
-const StyledAccordionTrigger = styled.button`
-  background-color: transparent;
-  &&:hover > ${StyledAccordionHeader} {
-    background-color: ${colors.blue60};
-  }
-  &&:active > ${StyledAccordionHeader} {
-    background-color: ${colors.blue40};
-  }
-  &&:focus-visible {
-    outline: 2px solid ${colors.white};
-    outline-offset: -2px;
-  }
-`;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function AccordionTrigger({ children }: AccordionTriggerProps) {
-  const { contentId, triggerId, expanded, onExpandedChange } = useAccordionContext();
+  const { contentId, triggerId, titleId, expanded, onExpandedChange } = useAccordionContext();
 
   const onClick = React.useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -35,12 +19,13 @@ export function AccordionTrigger({ children }: AccordionTriggerProps) {
   );
 
   return (
-    <StyledAccordionTrigger
+    <ListItem.Trigger
       id={triggerId}
+      aria-labelledby={titleId}
       aria-controls={contentId}
       aria-expanded={expanded ? 'true' : 'false'}
       onClick={onClick}>
       {children}
-    </StyledAccordionTrigger>
+    </ListItem.Trigger>
   );
 }
