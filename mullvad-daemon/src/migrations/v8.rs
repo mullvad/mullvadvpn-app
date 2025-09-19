@@ -44,6 +44,8 @@ fn version_matches(settings: &serde_json::Value) -> bool {
 
 #[cfg(test)]
 mod test {
+    use crate::migrations::load_seed;
+
     use super::{migrate, migrate_selected_obfuscaton, version_matches};
 
     pub const V8_SETTINGS: &str = r#"
@@ -255,6 +257,17 @@ mod test {
   "settings_version": 9
 }
 "#;
+
+    /// Parse example v8 settings as a pretty printed JSON string.
+    fn v8_settings() -> serde_json::Value {
+        load_seed("v8.json")
+    }
+
+    #[test]
+    fn snapshot_v8_settings() {
+        let v8 = serde_json::to_string_pretty(&v8_settings()).unwrap();
+        insta::assert_snapshot!(v8);
+    }
 
     #[test]
     fn test_v8_to_v9_migration() {
