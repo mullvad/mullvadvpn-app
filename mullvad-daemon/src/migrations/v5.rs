@@ -334,24 +334,21 @@ mod test {
 "#;
 
     /// Parse example v5 settings as a pretty printed JSON string.
-    fn v5_settings() -> String {
-        let settings = load_seed("v5.json");
-        serde_json::to_string_pretty(&settings).unwrap()
-    }
-
-    #[test]
-    fn test_v5_to_v6_migration() {
-        let mut old_settings = serde_json::from_str(V5_SETTINGS).unwrap();
-
-        assert!(version_matches(&old_settings));
-        migrate(&mut old_settings).unwrap();
-        let new_settings: serde_json::Value = serde_json::from_str(V6_SETTINGS).unwrap();
-
-        assert_eq!(&old_settings, &new_settings);
+    fn v5_settings() -> serde_json::Value {
+        load_seed("v5.json")
     }
 
     #[test]
     fn snapshot_v5_settings() {
-        insta::assert_snapshot!(v5_settings());
+        let v5 = serde_json::to_string_pretty(&v5_settings()).unwrap();
+        insta::assert_snapshot!(v5);
+    }
+
+    #[test]
+    fn test_v5_to_v6_migration() {
+        let mut v5 = &mut v5_settings();
+        migrate(&mut v5).unwrap();
+        let v6 = serde_json::to_string_pretty(v5).unwrap();
+        insta::assert_snapshot!(v6);
     }
 }
