@@ -267,7 +267,10 @@ fn version_matches(settings: &mut serde_json::Value) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::migrations::v7::{migrate_api_access_settings, migrate_bridge_settings};
+    use crate::migrations::{
+        load_seed,
+        v7::{migrate_api_access_settings, migrate_bridge_settings},
+    };
 
     use super::{migrate, version_matches};
 
@@ -597,6 +600,17 @@ mod test {
   "settings_version": 8
 }
 "#;
+
+    /// Parse example v7 settings as a pretty printed JSON string.
+    fn v7_settings() -> serde_json::Value {
+        load_seed("v7.json")
+    }
+
+    #[test]
+    fn snapshot_v7_settings() {
+        let v7 = serde_json::to_string_pretty(&v7_settings()).unwrap();
+        insta::assert_snapshot!(v7);
+    }
 
     #[test]
     fn test_v7_to_v8_migration() {

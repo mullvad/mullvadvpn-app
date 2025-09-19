@@ -1,0 +1,161 @@
+---
+source: mullvad-daemon/src/migrations/v7.rs
+expression: v7
+---
+{
+  "allow_lan": true,
+  "api_access_methods": {
+    "access_method_settings": [
+      {
+        "access_method": {
+          "built_in": "direct"
+        },
+        "enabled": true,
+        "id": "8cbdcfc8-fa7b-41de-8d12-26fa37439f89",
+        "name": "Direct"
+      },
+      {
+        "access_method": {
+          "built_in": "bridge"
+        },
+        "enabled": true,
+        "id": "1d0d8891-dbb3-4439-a8f7-0e7d742ddbe4",
+        "name": "Mullvad Bridges"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "socks5": {
+              "local": {
+                "local_port": 1079,
+                "remote_endpoint": {
+                  "address": "1.3.3.7:1080",
+                  "protocol": "tcp"
+                }
+              }
+            }
+          }
+        },
+        "enabled": false,
+        "id": "1aaff7ab-e09f-4c03-af02-765e41943a7b",
+        "name": "localsox"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "socks5": {
+              "remote": {
+                "authentication": null,
+                "peer": "1.3.3.7:1080"
+              }
+            }
+          }
+        },
+        "enabled": false,
+        "id": "1e377232-8a53-4414-8b8f-f487227aaedb",
+        "name": "remotesox"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "password": "mypass",
+              "peer": "1.3.3.7:1080"
+            }
+          }
+        },
+        "enabled": true,
+        "id": "74e5c659-acdd-4cad-a632-a25bf63c20e2",
+        "name": "remotess"
+      }
+    ]
+  },
+  "auto_connect": false,
+  "block_when_disconnected": false,
+  "bridge_settings": {
+    "custom": {
+      "local": {
+        "peer": "1.3.3.7:22",
+        "port": 1080
+      }
+    }
+  },
+  "bridge_state": "auto",
+  "obfuscation_settings": {
+    "selected_obfuscation": "udp2_tcp",
+    "udp2tcp": {
+      "port": "any"
+    }
+  },
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "location": {
+            "hostname": [
+              "ch",
+              "zrh",
+              "ch-zrh-ovpn-001"
+            ]
+          }
+        }
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": {
+            "port": {
+              "only": 1195
+            },
+            "protocol": "udp"
+          }
+        }
+      },
+      "ownership": "any",
+      "providers": "any",
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": "se"
+            }
+          }
+        },
+        "ip_version": "any",
+        "port": "any",
+        "use_multihop": false
+      }
+    }
+  },
+  "settings_version": 7,
+  "tunnel_options": {
+    "dns_options": {
+      "custom_options": {
+        "addresses": [
+          "1.1.1.1",
+          "1.2.3.4"
+        ]
+      },
+      "default_options": {
+        "block_ads": false,
+        "block_trackers": false
+      },
+      "state": "default"
+    },
+    "generic": {
+      "enable_ipv6": false
+    },
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null,
+      "quantum_resistant": "auto",
+      "rotation_interval": {
+        "nanos": 0,
+        "secs": 86400
+      }
+    }
+  }
+}
