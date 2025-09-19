@@ -180,7 +180,9 @@ fn version_matches(settings: &serde_json::Value) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::{migrate, version_matches};
+    use crate::migrations::load_seed;
+
+    use super::*;
 
     pub const V5_SETTINGS: &str = r#"
 {
@@ -331,6 +333,12 @@ mod test {
 }
 "#;
 
+    /// Parse example v5 settings as a pretty printed JSON string.
+    fn v5_settings() -> String {
+        let settings = load_seed("v5.json");
+        serde_json::to_string_pretty(&settings).unwrap()
+    }
+
     #[test]
     fn test_v5_to_v6_migration() {
         let mut old_settings = serde_json::from_str(V5_SETTINGS).unwrap();
@@ -340,5 +348,10 @@ mod test {
         let new_settings: serde_json::Value = serde_json::from_str(V6_SETTINGS).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
+    }
+
+    #[test]
+    fn snapshot_v5_settings() {
+        insta::assert_snapshot!(v5_settings());
     }
 }
