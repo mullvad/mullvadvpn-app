@@ -4,7 +4,7 @@ export * from './useHasAppUpgradeError';
 export * from './useHasAppUpgradeEvent';
 export * from './useHasAppUpgradeInitiated';
 export * from './useHasAppUpgradeVerifiedInstallerPath';
-export * from './useIsDefaultFocusOnLoad';
+export * from './useIsDefaultActiveElementAfterMount';
 export * from './useIsPlatformLinux';
 export * from './useMeasure';
 export * from './useScrollToReference';
