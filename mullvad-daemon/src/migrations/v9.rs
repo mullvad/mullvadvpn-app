@@ -191,8 +191,11 @@ mod android {
     }
 }
 
+// TODO: Also test the case where the location is not an openvpn relay and the tunnel type is any
 #[cfg(test)]
 mod test {
+    use crate::migrations::load_seed;
+
     use super::{migrate, version_matches};
 
     #[cfg(target_os = "android")]
@@ -435,24 +438,25 @@ mod test {
         }
     }
 
+    /// Parse example v9 settings as a pretty printed JSON string.
+    fn v9_settings() -> serde_json::Value {
+        load_seed("v9.json")
+    }
+
+    #[test]
+    fn snapshot_v9_settings() {
+        let v9 = serde_json::to_string_pretty(&v9_settings()).unwrap();
+        insta::assert_snapshot!(v9);
+    }
+
     /// Assert that tunnel type is migrated
     #[test]
     fn test_v9_to_v10_migration() {
-        // TODO: Also test the case where the location is not an openvpn relay and the tunnel type is any
         let mut old_settings = serde_json::from_str(V9_SETTINGS).unwrap();
 
         assert!(version_matches(&old_settings));
         migrate(&mut old_settings).unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V10_SETTINGS).unwrap();
-
-        eprintln!(
-            "old_settings: {}",
-            serde_json::to_string_pretty(&old_settings).unwrap()
-        );
-        eprintln!(
-            "new_settings: {}",
-            serde_json::to_string_pretty(&new_settings).unwrap()
-        );
 
         assert_eq!(&old_settings, &new_settings);
     }
