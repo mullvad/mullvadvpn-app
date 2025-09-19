@@ -31,7 +31,7 @@ export const StyledListItem = styled.div<{
 export type ListItemProps = {
   level?: keyof typeof levels;
   disabled?: boolean;
-  animation?: ListItemAnimation;
+  animation?: ListItemAnimation | false;
   children: React.ReactNode;
 } & React.ComponentPropsWithRef<'div'>;
 
