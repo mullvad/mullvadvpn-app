@@ -6,8 +6,10 @@ import { IconProps, iconSizes } from '../icon/Icon';
 import { IconButtonIcon } from './components/IconButtonIcon';
 import { IconButtonProvider } from './IconButtonContext';
 
+export type IconButtonVariant = 'primary' | 'secondary';
+
 export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary';
+  variant?: IconButtonVariant;
   size?: IconProps['size'];
 }
 

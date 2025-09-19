@@ -1,46 +1,68 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { Colors, colors } from '../../../foundations';
+import { colors } from '../../../foundations';
 import { Icon, IconProps } from '../../icon/Icon';
+import { IconButtonVariant } from '../IconButton';
 import { useIconButtonContext } from '../IconButtonContext';
 export type IconButtonIconProps = IconProps;
 
-const variants = {
+const variants: Record<
+  IconButtonVariant,
+  {
+    background: string;
+    hover: string;
+    pressed: string;
+    disabled: string;
+  }
+> = {
   primary: {
-    background: 'white',
-    hover: 'whiteAlpha60',
-    disabled: 'whiteAlpha40',
+    background: colors.white,
+    hover: colors.whiteAlpha60,
+    pressed: colors.whiteAlpha40,
+    disabled: colors.whiteAlpha40,
   },
   secondary: {
-    background: 'whiteAlpha60',
-    hover: 'whiteAlpha80',
-    disabled: 'whiteAlpha40',
+    background: colors.whiteAlpha60,
+    hover: colors.whiteAlpha80,
+    pressed: colors.white,
+    disabled: colors.whiteAlpha40,
   },
 } as const;
 
-const StyledIcon = styled(Icon)<IconButtonIconProps & { $hoverColor: Colors; $disabled?: boolean }>(
-  ({ $hoverColor, $disabled }) => {
-    const hoverColor = colors[$hoverColor];
-    return {
-      ...(!$disabled && {
-        '&&:hover': {
-          backgroundColor: hoverColor,
-        },
-      }),
-    };
-  },
-);
+const StyledIconButtonIcon = styled(Icon)<{ $variant: IconButtonVariant }>(({ $variant }) => {
+  const variant = variants[$variant];
+  return css`
+    --background: ${variant.background};
+    --hover: ${variant.hover};
+    --pressed: ${variant.pressed};
+    --disabled: ${variant.disabled};
+    --transition-duration: 0.15s;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: background-color var(--transition-duration) ease;
+    }
+
+    background-color: var(--background);
+
+    &&:not([data-disabled]):hover {
+      --transition-duration: 0s;
+      background-color: var(--hover);
+    }
+
+    &&:not([data-disabled]):active {
+      --transition-duration: 0s;
+      background-color: var(--pressed);
+    }
+
+    &[data-disabled='true'] {
+      background-color: var(--disabled);
+    }
+  `;
+});
 
 export const IconButtonIcon = (props: IconButtonIconProps) => {
   const { variant = 'primary', size, disabled } = useIconButtonContext();
-  const styles = variants[variant];
   return (
-    <StyledIcon
-      color={disabled ? styles.disabled : styles.background}
-      size={size}
-      $hoverColor={styles.hover}
-      $disabled={disabled}
-      {...props}
-    />
+    <StyledIconButtonIcon size={size} data-disabled={disabled} $variant={variant} {...props} />
   );
 };
