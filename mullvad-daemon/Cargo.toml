@@ -27,7 +27,7 @@ libc = "0.2"
 log = { workspace = true }
 regex = "1.0"
 serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
+serde_json = { workspace = true, features = ["std"] }
 tokio = { workspace = true, features =  ["fs", "io-util", "rt-multi-thread", "sync", "time"] }
 tokio-stream = { version = "0.1", features = ["sync"]}
 socket2 = { workspace = true }
@@ -55,6 +55,7 @@ log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 
 [dev-dependencies]
+insta = { workspace = true, features = ["json"] }
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features =  ["test-util"] }
 
