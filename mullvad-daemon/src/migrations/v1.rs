@@ -71,6 +71,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
 #[cfg(test)]
 mod test {
+    use super::*;
     use crate::migrations::load_seed;
 
     pub const V2_SETTINGS: &str = r#"
