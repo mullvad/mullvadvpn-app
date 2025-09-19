@@ -94,3 +94,9 @@ reason = "wireguard-go does not use crypto/x509"
 id = "CVE-2025-47907" # GO-2025-3849
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use database/sql"
+
+# Unexpected paths returned from LookPath in os/exec
+[[IgnoredVulns]]
+id = "CVE-2025-47906" # GO-2025-3956
+ignoreUntil = 2026-09-12
+reason = "wireguard-go does not use os/exec"
