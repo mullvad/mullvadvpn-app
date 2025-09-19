@@ -201,7 +201,8 @@ function DaitaToggle() {
         anchorId="daita-enable-setting"
         disabled={unavailable}
         checked={daita && !unavailable}
-        onCheckedChange={setDaita}>
+        onCheckedChange={setDaita}
+        description={unavailable ? featureUnavailableMessage() : undefined}>
         <SettingsToggleListItem.Label>{messages.gettext('Enable')}</SettingsToggleListItem.Label>
         <SettingsToggleListItem.Switch />
       </SettingsToggleListItem>
@@ -217,11 +218,6 @@ function DaitaToggle() {
           <SettingsToggleListItem.Switch />
         </SettingsToggleListItem.Group>
       </SettingsToggleListItem>
-      {unavailable ? (
-        <Cell.CellFooter>
-          <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
-        </Cell.CellFooter>
-      ) : null}
       <ModalAlert
         isOpen={confirmationDialogVisible}
         type={ModalAlertType.caution}

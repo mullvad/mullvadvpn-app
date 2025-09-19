@@ -6,8 +6,6 @@ import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
 import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function MultihopSetting() {
@@ -39,17 +37,11 @@ export function MultihopSetting() {
         anchorId="multihop-setting"
         disabled={unavailable}
         checked={multihop && !unavailable}
-        onCheckedChange={setMultihop}>
+        onCheckedChange={setMultihop}
+        description={unavailable ? featureUnavailableMessage() : undefined}>
         <SettingsToggleListItem.Label>{messages.gettext('Enable')}</SettingsToggleListItem.Label>
         <SettingsToggleListItem.Switch />
       </SettingsToggleListItem>
-      {unavailable ? (
-        <Cell.CellFooter>
-          <AriaDescription>
-            <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
-          </AriaDescription>
-        </Cell.CellFooter>
-      ) : null}
     </>
   );
 }
