@@ -36,6 +36,11 @@ test.describe('Select location', () => {
     await page.close();
   });
 
+  test('Should focus search input on load', async () => {
+    const input = routes.selectLocation.getSearchInput();
+    await expect(input).toBeFocused();
+  });
+
   test.describe('Multihop enabled', () => {
     test.beforeAll(async () => {
       await helpers.updateMockSettings({

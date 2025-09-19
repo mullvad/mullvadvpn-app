@@ -7,13 +7,20 @@ import { ListboxProvider } from './ListboxContext';
 export type ListboxProps<T> = ListItemProps & {
   onValueChange?: (value: T) => Promise<void>;
   value?: T;
+  labelId?: string;
 };
 
-function Listbox<T>({ value, onValueChange, children, ...props }: ListboxProps<T>) {
+function Listbox<T>({
+  value,
+  onValueChange,
+  labelId: labelIdProp,
+  children,
+  ...props
+}: ListboxProps<T>) {
   const labelId = React.useId();
 
   return (
-    <ListboxProvider labelId={labelId} value={value} onValueChange={onValueChange}>
+    <ListboxProvider labelId={labelIdProp ?? labelId} value={value} onValueChange={onValueChange}>
       <ListItem {...props}>{children}</ListItem>
     </ListboxProvider>
   );

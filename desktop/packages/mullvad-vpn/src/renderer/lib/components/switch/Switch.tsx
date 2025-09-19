@@ -6,15 +6,22 @@ import { SwitchProvider } from './SwitchContext';
 export interface SwitchProps {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
+  labelId?: string;
   disabled?: boolean;
   children: React.ReactNode;
 }
 
-function Switch({ checked, onCheckedChange, disabled, children }: SwitchProps) {
+function Switch({
+  labelId: labelIdProp,
+  checked,
+  onCheckedChange,
+  disabled,
+  children,
+}: SwitchProps) {
   const labelId = React.useId();
   return (
     <SwitchProvider
-      labelId={labelId}
+      labelId={labelIdProp ?? labelId}
       checked={checked}
       onCheckedChange={onCheckedChange}
       disabled={disabled}>

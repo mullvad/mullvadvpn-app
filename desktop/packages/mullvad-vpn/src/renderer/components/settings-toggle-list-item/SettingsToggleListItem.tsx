@@ -25,12 +25,14 @@ function SettingsToggleListItem({
   ...props
 }: SettingsToggleListItemProps) {
   const descriptionId = React.useId();
+  const labelId = React.useId();
   return (
     <SettingsToggleListItemProvider descriptionId={descriptionId}>
-      <SettingsListItem disabled={disabled} {...props}>
+      <SettingsListItem labelId={labelId} disabled={disabled} {...props}>
         <SettingsListItem.Item>
           <SettingsListItem.Content>
             <Switch
+              labelId={labelId}
               checked={checked}
               onCheckedChange={onCheckedChange}
               disabled={disabled}

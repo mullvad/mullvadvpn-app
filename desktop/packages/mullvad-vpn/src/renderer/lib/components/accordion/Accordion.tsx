@@ -16,6 +16,7 @@ export type AccordionProps = {
   expanded?: boolean;
   onExpandedChange?: (open: boolean) => void;
   disabled?: boolean;
+  titleId?: string;
   animation?: AccordionAnimation;
   children?: React.ReactNode;
 } & ListItemProps;
@@ -25,6 +26,7 @@ function Accordion({
   onExpandedChange: onOpenChange,
   disabled,
   animation,
+  titleId: titleIdProp,
   children,
   ...props
 }: AccordionProps) {
@@ -35,7 +37,7 @@ function Accordion({
     <AccordionProvider
       triggerId={triggerId}
       contentId={contentId}
-      titleId={titleId}
+      titleId={titleIdProp ?? titleId}
       expanded={expanded}
       onExpandedChange={onOpenChange}
       disabled={disabled}>

@@ -3,9 +3,10 @@ import React from 'react';
 import { ScrollToAnchorId } from '../../shared/ipc-types';
 import { ListItemAnimation } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
-import { useScrollToReference } from '.';
+import { useFocusReference } from './useFocusReference';
+import { useScrollToReference } from './useScrollToReference';
 
-export const useScrollToListItem = <T extends Element = HTMLDivElement>(
+export const useScrollToListItem = <T extends HTMLElement = HTMLDivElement>(
   id?: ScrollToAnchorId,
 ): {
   ref?: React.RefObject<T | null>;
@@ -16,13 +17,13 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
   const { location } = history;
   const { state } = location;
 
-  const anchorId = state?.options?.find((option) => option.type === 'scroll-to-anchor')?.id;
-  const scroll = id === anchorId && anchorId !== undefined;
+  const scrollToAnchorOption = state?.options?.find((option) => option.type === 'scroll-to-anchor');
+  const shouldScroll = scrollToAnchorOption && scrollToAnchorOption.id === id;
 
   const handleScrolled = React.useCallback(() => {
     const options = state?.options?.filter((option) => {
       if (option.type === 'scroll-to-anchor') {
-        return option.id !== anchorId;
+        return option.id !== scrollToAnchorOption?.id;
       }
 
       return true;
@@ -32,11 +33,12 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
       ...state,
       options,
     });
-  }, [anchorId, history, location, state]);
+  }, [history, location, scrollToAnchorOption?.id, state]);
 
-  useScrollToReference(ref, scroll, handleScrolled);
+  useScrollToReference(ref, shouldScroll, handleScrolled);
+  useFocusReference(ref, shouldScroll);
 
-  if (anchorId === undefined) {
+  if (scrollToAnchorOption === undefined) {
     return {
       ref: undefined,
       animation: undefined,
@@ -44,6 +46,6 @@ export const useScrollToListItem = <T extends Element = HTMLDivElement>(
   }
   return {
     ref,
-    animation: scroll ? 'flash' : 'dim',
+    animation: shouldScroll ? 'flash' : 'dim',
   };
 };

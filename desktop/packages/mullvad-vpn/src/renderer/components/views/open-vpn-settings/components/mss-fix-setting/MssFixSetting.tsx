@@ -71,7 +71,7 @@ export function MssFixSetting() {
   );
 
   return (
-    <SettingsListItem anchorId="mss-fix-setting">
+    <SettingsListItem anchorId="mss-fix-setting" aria-labelledby={labelId}>
       <SettingsListItem.Item>
         <SettingsListItem.Content>
           <SettingsListItem.Label id={labelId}>

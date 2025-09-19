@@ -30,6 +30,11 @@ test.describe('VPN settings', () => {
     await page.close();
   });
 
+  test('Should focus header heading on load', async () => {
+    const heading = routes.vpnSettings.selectors.heading();
+    await expect(heading).toBeFocused();
+  });
+
   test.describe('Launch on startup and auto-connect', () => {
     test.afterEach(async () => {
       await routes.vpnSettings.setAutoConnectSwitch(false);
