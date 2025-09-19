@@ -16,7 +16,7 @@ const dim = keyframes`
   100% { opacity: 100% }
 `;
 
-export const useListItemAnimation = (animation: ListItemAnimation | undefined) => {
+export const useListItemAnimation = (animation?: ListItemAnimation | false) => {
   const flashDuration = 200;
   const flashDelay = 450;
   const dimDuration = (flashDelay + flashDuration * 4) * 1.1;

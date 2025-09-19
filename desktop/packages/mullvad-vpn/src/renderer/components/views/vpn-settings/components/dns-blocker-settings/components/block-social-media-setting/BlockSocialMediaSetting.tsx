@@ -9,7 +9,7 @@ export function BlockSocialMediaSetting() {
   return (
     <SettingsToggleListItem
       level={1}
-      animation={undefined}
+      animation={false}
       disabled={dns.state === 'custom'}
       checked={dns.state === 'default' && dns.defaultOptions.blockSocialMedia}
       onCheckedChange={setBlockSocialMedia}>
