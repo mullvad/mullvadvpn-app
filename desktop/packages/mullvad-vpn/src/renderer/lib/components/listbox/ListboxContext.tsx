@@ -4,8 +4,9 @@ import { ListboxProps } from './Listbox';
 
 type ListboxContext<T> = Pick<ListboxProps<T>, 'value' | 'onValueChange'> & {
   labelId: string;
-  focusedValue?: T;
-  setFocusedValue: React.Dispatch<React.SetStateAction<T | undefined>>;
+  optionsRef: React.RefObject<HTMLUListElement | null>;
+  focusedIndex?: number;
+  setFocusedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
 type ListboxProviderProps<T> = Pick<ListboxContext<T>, 'value' | 'onValueChange' | 'labelId'> & {
@@ -29,15 +30,17 @@ export function ListboxProvider<T>({
   children,
 }: ListboxProviderProps<T>) {
   const TypedListboxContext = ListboxContext as React.Context<ListboxContext<T>>;
-  const [focusedValue, setFocusedValue] = React.useState<T | undefined>(undefined);
+  const [focusedIndex, setFocusedIndex] = React.useState<number | undefined>(undefined);
+  const optionsRef = React.useRef<HTMLUListElement>(null);
   return (
     <TypedListboxContext.Provider
       value={{
         value,
         onValueChange,
         labelId,
-        focusedValue,
-        setFocusedValue,
+        focusedIndex,
+        setFocusedIndex,
+        optionsRef,
       }}>
       {children}
     </TypedListboxContext.Provider>
