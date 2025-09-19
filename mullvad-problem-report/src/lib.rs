@@ -247,13 +247,20 @@ fn is_tunnel_log(path: &Path) -> bool {
 
 #[cfg(target_os = "android")]
 fn write_logcat_to_file(log_dir: &Path) -> Result<PathBuf, io::Error> {
-    let logcat_path = log_dir.join("logcat.txt");
+    use std::process::{Command, Stdio};
 
-    duct::cmd!("logcat", "-d")
-        .stderr_to_stdout()
-        .stdout_path(&logcat_path)
-        .run()
-        .map(|_| logcat_path)
+    let logcat_path = log_dir.join("logcat.txt");
+    let logcat_file = File::create(&logcat_path)?;
+    let _stderr = logcat_file.try_clone()?;
+    let stdout = Stdio::from(logcat_file);
+    let stderr = Stdio::from(_stderr);
+
+    let _output = Command::new("logcat")
+        .arg("-d")
+        .stdout(stdout)
+        .stderr(stderr)
+        .output()?;
+    Ok(logcat_path)
 }
 
 pub fn send_problem_report(

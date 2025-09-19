@@ -1,9 +1,11 @@
 use std::{
     collections::HashSet,
     ffi::OsStr,
-    fs, io,
+    fs,
+    io::{self, Write},
     net::IpAddr,
     path::{Path, PathBuf},
+    process::{Command, Stdio},
 };
 
 use which::which;
@@ -85,12 +87,20 @@ impl Resolvconf {
             record_contents.push('\n');
         }
 
-        let output = duct::cmd!(&self.resolvconf, "-a", &record_name)
-            .stdin_bytes(record_contents)
-            .stderr_capture()
-            .unchecked()
-            .run()
-            .map_err(Error::RunResolvconf)?;
+        let output = {
+            let mut resolveconf = Command::new(&self.resolvconf);
+            let mut child = resolveconf
+                .stdin(Stdio::piped())
+                .stderr(Stdio::piped())
+                .args(["-a", &record_name])
+                .spawn()?;
+            let mut stdin = child.stdin.take().expect("stdin to be present");
+            stdin
+                .write_all(record_contents.as_bytes())
+                .map_err(Error::RunResolvconf)?;
+            drop(stdin);
+            child.wait_with_output()?
+        };
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -106,10 +116,9 @@ impl Resolvconf {
         let mut result = Ok(());
 
         for record_name in self.record_names.drain() {
-            let output = duct::cmd!(&self.resolvconf, "-d", &record_name, "-f")
-                .stderr_capture()
-                .unchecked()
-                .run()
+            let output = Command::new(&self.resolvconf)
+                .args(["-d", &record_name, "-f"])
+                .output()
                 .map_err(Error::RunResolvconf)?;
 
             if !output.status.success() {
