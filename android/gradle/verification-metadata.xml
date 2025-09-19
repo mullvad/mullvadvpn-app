@@ -28,6 +28,7 @@
       <verify-signatures>false</verify-signatures>
       <trusted-artifacts>
          <trust group="com.github.burrunan.multicache"/>
+         <trust group="org.apache.groovy"/>
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust file=".*[.]pom" regex="true"/>
