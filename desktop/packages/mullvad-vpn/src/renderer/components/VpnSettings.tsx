@@ -572,22 +572,22 @@ function KillSwitchInfo() {
 }
 
 function LockdownMode() {
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
-  const { setBlockWhenDisconnected: setBlockWhenDisconnectedImpl } = useAppContext();
+  const lockdownMode = useSelector((state) => state.settings.lockdownMode);
+  const { setLockdownMode: setLockdownModeImpl } = useAppContext();
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
     useBoolean(false);
 
-  const setBlockWhenDisconnected = useCallback(
-    async (blockWhenDisconnected: boolean) => {
+  const setLockdownMode = useCallback(
+    async (lockdownMode: boolean) => {
       try {
-        await setBlockWhenDisconnectedImpl(blockWhenDisconnected);
+        await setLockdownModeImpl(lockdownMode);
       } catch (e) {
         const error = e as Error;
         log.error('Failed to update block when disconnected', error.message);
       }
     },
-    [setBlockWhenDisconnectedImpl],
+    [setLockdownModeImpl],
   );
 
   const setLockDownMode = useCallback(
@@ -595,16 +595,16 @@ function LockdownMode() {
       if (newValue) {
         showConfirmationDialog();
       } else {
-        await setBlockWhenDisconnected(false);
+        await setLockdownMode(false);
       }
     },
-    [setBlockWhenDisconnected, showConfirmationDialog],
+    [setLockdownMode, showConfirmationDialog],
   );
 
   const confirmLockdownMode = useCallback(async () => {
     hideConfirmationDialog();
-    await setBlockWhenDisconnected(true);
-  }, [hideConfirmationDialog, setBlockWhenDisconnected]);
+    await setLockdownMode(true);
+  }, [hideConfirmationDialog, setLockdownMode]);
 
   return (
     <>
@@ -632,7 +632,7 @@ function LockdownMode() {
             </StyledInfoButton>
           </AriaDetails>
           <AriaInput>
-            <Cell.Switch isOn={blockWhenDisconnected} onChange={setLockDownMode} />
+            <Cell.Switch isOn={lockdownMode} onChange={setLockDownMode} />
           </AriaInput>
         </Cell.Container>
       </AriaInputGroup>

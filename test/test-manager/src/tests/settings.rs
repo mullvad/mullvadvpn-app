@@ -112,7 +112,7 @@ pub async fn test_lockdown(
     // Enable lockdown mode
     //
     mullvad_client
-        .set_block_when_disconnected(true)
+        .set_lockdown_mode(true)
         .await
         .expect("failed to enable lockdown mode");
 

@@ -34,7 +34,7 @@ import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 enum RecoveryAction {
   openBrowser,
   disconnect,
-  disableBlockedWhenDisconnected,
+  disableLockdownMode,
 }
 
 export default function ExpiredAccountErrorView() {
@@ -103,7 +103,7 @@ function ExpiredAccountErrorViewComponent() {
             </FlexColumn>
           </Footer>
 
-          <BlockWhenDisconnectedAlert />
+          <LockdownModeAlert />
         </StyledContainer>
       </StyledCustomScrollbars>
     </Layout>
@@ -183,7 +183,7 @@ function Content() {
 }
 
 function ExternalPaymentButton() {
-  const { setShowBlockWhenDisconnectedAlert } = useExpiredAccountContext();
+  const { setShowLockdownModeAlert } = useExpiredAccountContext();
   const { recoveryAction } = useRecoveryAction();
   const { openUrlWithAuth } = useAppContext();
   const isNewAccount = useIsNewAccount();
@@ -193,8 +193,8 @@ function ExternalPaymentButton() {
     : messages.gettext('Buy more credit');
 
   const [openExternalPayment, openingExternalPayment] = useExclusiveTask(async () => {
-    if (recoveryAction === RecoveryAction.disableBlockedWhenDisconnected) {
-      setShowBlockWhenDisconnectedAlert(true);
+    if (recoveryAction === RecoveryAction.disableLockdownMode) {
+      setShowLockdownModeAlert(true);
     } else {
       await openUrlWithAuth(urls.purchase);
     }
@@ -215,38 +215,37 @@ function ExternalPaymentButton() {
   );
 }
 
-function BlockWhenDisconnectedAlert() {
-  const { showBlockWhenDisconnectedAlert, setShowBlockWhenDisconnectedAlert } =
-    useExpiredAccountContext();
-  const { setBlockWhenDisconnected } = useAppContext();
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
+function LockdownModeAlert() {
+  const { showLockdownModeAlert, setShowLockdownModeAlert } = useExpiredAccountContext();
+  const { setLockdownMode } = useAppContext();
+  const lockdownMode = useSelector((state) => state.settings.lockdownMode);
 
-  const onCloseBlockWhenDisconnectedInstructions = useCallback(() => {
-    setShowBlockWhenDisconnectedAlert(false);
-  }, [setShowBlockWhenDisconnectedAlert]);
+  const onCloseLockdownModeInstructions = useCallback(() => {
+    setShowLockdownModeAlert(false);
+  }, [setShowLockdownModeAlert]);
 
   const onChange = useCallback(
-    async (blockWhenDisconnected: boolean) => {
+    async (lockdownMode: boolean) => {
       try {
-        await setBlockWhenDisconnected(blockWhenDisconnected);
+        await setLockdownMode(lockdownMode);
       } catch (e) {
         const error = e as Error;
         log.error('Failed to update block when disconnected', error.message);
       }
     },
-    [setBlockWhenDisconnected],
+    [setLockdownMode],
   );
 
   return (
     <ModalAlert
-      isOpen={showBlockWhenDisconnectedAlert}
+      isOpen={showLockdownModeAlert}
       type={ModalAlertType.caution}
       buttons={[
-        <Button key="cancel" onClick={onCloseBlockWhenDisconnectedInstructions}>
+        <Button key="cancel" onClick={onCloseLockdownModeInstructions}>
           <Button.Text>{messages.gettext('Close')}</Button.Text>
         </Button>,
       ]}
-      close={onCloseBlockWhenDisconnectedInstructions}>
+      close={onCloseLockdownModeInstructions}>
       <ModalMessage>
         {messages.pgettext(
           'connect-view',
@@ -261,28 +260,28 @@ function BlockWhenDisconnectedAlert() {
       </ModalMessage>
       <StyledModalCellContainer>
         <Cell.Label>{messages.pgettext('vpn-settings-view', 'Lockdown mode')}</Cell.Label>
-        <Cell.Switch isOn={blockWhenDisconnected} onChange={onChange} />
+        <Cell.Switch isOn={lockdownMode} onChange={onChange} />
       </StyledModalCellContainer>
     </ModalAlert>
   );
 }
 
 type ExpiredAccountContextType = {
-  setShowBlockWhenDisconnectedAlert: (val: boolean) => void;
-  showBlockWhenDisconnectedAlert: boolean;
+  setShowLockdownModeAlert: (val: boolean) => void;
+  showLockdownModeAlert: boolean;
 };
 
 const ExpiredAccountContext = createContext<ExpiredAccountContextType | undefined>(undefined);
 
 const ExpiredAccountContextProvider = ({ children }: { children: ReactNode }) => {
-  const [showBlockWhenDisconnectedAlert, setShowBlockWhenDisconnectedAlert] = useState(false);
+  const [showLockdownModeAlert, setShowLockdownModeAlert] = useState(false);
 
   const value: ExpiredAccountContextType = useMemo(
     () => ({
-      setShowBlockWhenDisconnectedAlert,
-      showBlockWhenDisconnectedAlert,
+      setShowLockdownModeAlert,
+      showLockdownModeAlert,
     }),
-    [setShowBlockWhenDisconnectedAlert, showBlockWhenDisconnectedAlert],
+    [setShowLockdownModeAlert, showLockdownModeAlert],
   );
   return <ExpiredAccountContext.Provider value={value}>{children}</ExpiredAccountContext.Provider>;
 };
@@ -300,13 +299,13 @@ const useExpiredAccountContext = () => {
 
 const useRecoveryAction = () => {
   const isBlocked = useSelector((state) => state.connection.isBlocked);
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
+  const lockdownMode = useSelector((state) => state.settings.lockdownMode);
 
   let recoveryAction: RecoveryAction;
 
-  if (blockWhenDisconnected && isBlocked) {
-    recoveryAction = RecoveryAction.disableBlockedWhenDisconnected;
-  } else if (!blockWhenDisconnected && isBlocked) {
+  if (lockdownMode && isBlocked) {
+    recoveryAction = RecoveryAction.disableLockdownMode;
+  } else if (!lockdownMode && isBlocked) {
     recoveryAction = RecoveryAction.disconnect;
   } else {
     recoveryAction = RecoveryAction.openBrowser;
@@ -316,7 +315,7 @@ const useRecoveryAction = () => {
 
   switch (recoveryAction) {
     case RecoveryAction.openBrowser:
-    case RecoveryAction.disableBlockedWhenDisconnected:
+    case RecoveryAction.disableLockdownMode:
       recoveryMessage = messages.pgettext(
         'connect-view',
         'Either buy credit on our website or redeem a voucher.',

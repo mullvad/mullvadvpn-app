@@ -695,7 +695,7 @@ class ApplicationMain
       // update the tray icon to indicate that the computer is not secure anymore
       this.userInterface?.updateTray(false, {
         state: 'disconnected',
-        lockedDown: this.settings.blockWhenDisconnected,
+        lockedDown: this.settings.lockdownMode,
       });
 
       // notify renderer process

@@ -552,23 +552,23 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
 }
 
 function BlockMessage() {
-  const { setBlockWhenDisconnected, disconnectTunnel } = useAppContext();
+  const { setLockdownMode, disconnectTunnel } = useAppContext();
   const tunnelState = useSelector((state) => state.connection.status);
-  const blockWhenDisconnected = tunnelState.state === 'disconnected' && tunnelState.lockedDown;
+  const lockdownMode = tunnelState.state === 'disconnected' && tunnelState.lockedDown;
 
   const unlock = useCallback(() => {
-    if (blockWhenDisconnected) {
-      void setBlockWhenDisconnected(false);
+    if (lockdownMode) {
+      void setLockdownMode(false);
     }
 
     if (tunnelState.state === 'error') {
       void disconnectTunnel();
     }
-  }, [blockWhenDisconnected, tunnelState, setBlockWhenDisconnected, disconnectTunnel]);
+  }, [lockdownMode, tunnelState, setLockdownMode, disconnectTunnel]);
 
   const lockdownModeSettingName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
   const message = formatHtml(
-    blockWhenDisconnected
+    lockdownMode
       ? sprintf(
           // TRANSLATORS: This is a warning message shown when the app is blocking the users
           // TRANSLATORS: internet connection while logged out.
@@ -585,9 +585,7 @@ function BlockMessage() {
         // TRANSLATORS: internet connection while logged out.
         messages.pgettext('login-view', 'Our kill switch is currently blocking your connection.'),
   );
-  const buttonText = blockWhenDisconnected
-    ? messages.gettext('Disable')
-    : messages.gettext('Unblock');
+  const buttonText = lockdownMode ? messages.gettext('Disable') : messages.gettext('Unblock');
 
   return (
     <StyledBlockMessageContainer>

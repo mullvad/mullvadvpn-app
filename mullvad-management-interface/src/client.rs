@@ -265,8 +265,8 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn set_block_when_disconnected(&mut self, state: bool) -> Result<()> {
-        self.0.set_block_when_disconnected(state).await?;
+    pub async fn set_lockdown_mode(&mut self, state: bool) -> Result<()> {
+        self.0.set_lockdown_mode(state).await?;
         Ok(())
     }
 
