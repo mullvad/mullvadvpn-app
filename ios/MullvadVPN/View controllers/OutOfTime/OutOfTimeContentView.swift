@@ -74,7 +74,7 @@ class OutOfTimeContentView: UIView {
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.TableView.sectionSpacing
+        stackView.spacing = UIMetrics.interButtonSpacing
         stackView.backgroundColor = .secondaryColor
         return stackView
     }()
@@ -110,14 +110,15 @@ class OutOfTimeContentView: UIView {
                 .leading(0),
                 .trailing(0),
             ]))
-            topStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: scrollView.contentLayoutGuide.topAnchor,
-                constant: UIMetrics.contentLayoutMargins.top
-            )
-            topStackView.bottomAnchor.constraint(lessThanOrEqualTo: scrollView.contentLayoutGuide.bottomAnchor)
+            topStackView.topAnchor.constraint(equalTo: scrollView.topAnchor)
+            topStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
         }
         addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
+                .top(UIMetrics.contentLayoutMargins.top),
+                .leading(0),
+                .trailing(0),
+            ]))
         }
         addSubview(bottomStackView)
         configureConstraints()
@@ -129,15 +130,17 @@ class OutOfTimeContentView: UIView {
                 equalTo: layoutMarginsGuide.leadingAnchor,
                 constant: UIMetrics.padding8
             ),
-            bottomStackView.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor,
-                constant: -UIMetrics.padding8
+            layoutMarginsGuide.trailingAnchor.constraint(
+                equalTo: bottomStackView.trailingAnchor,
+                constant: UIMetrics.padding8
             ),
-            bottomStackView.bottomAnchor.constraint(
-                equalTo: layoutMarginsGuide.bottomAnchor
+            layoutMarginsGuide.bottomAnchor.constraint(
+                equalTo: bottomStackView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.bottom
             ),
-            scrollView.bottomAnchor.constraint(
-                equalTo: bottomStackView.topAnchor
+            bottomStackView.topAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
             ),
         ])
     }
