@@ -10,7 +10,7 @@ export type IconProps = {
   className?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const StyledIcon = styled.div<{ $color: string; $size: number; $src: string }>`
+export const StyledIcon = styled.div<{ $color: string; $size: number; $src: string }>`
   ${({ $size, $src, $color }) => {
     return css`
       flex-shrink: 0;
