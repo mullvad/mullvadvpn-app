@@ -138,7 +138,7 @@ pub fn compute_feature_indicators(
     let split_tunneling = false;
 
     #[cfg(not(target_os = "android"))]
-    let lockdown_mode = settings.block_when_disconnected;
+    let lockdown_mode = settings.lockdown_mode;
     let lan_sharing = settings.allow_lan;
     let dns_content_blockers = settings
         .tunnel_options
@@ -267,7 +267,7 @@ mod tests {
             If this is not true anymore, please update this test."
         );
 
-        settings.block_when_disconnected = true;
+        settings.lockdown_mode = true;
         expected_indicators.0.insert(FeatureIndicator::LockdownMode);
 
         assert_eq!(
