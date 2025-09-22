@@ -24,11 +24,11 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var locationViewControllerWrapper: LocationViewControllerWrapper? {
-        return navigationController.viewControllers.first {
-            $0 is LocationViewControllerWrapper
-        } as? LocationViewControllerWrapper
-    }
+//    var locationViewControllerWrapper: LocationViewControllerWrapper? {
+//        return navigationController.viewControllers.first {
+//            $0 is LocationViewControllerWrapper
+//        } as? LocationViewControllerWrapper
+//    }
 
     var selectLocationViewModel: (any SelectLocationViewModel)? {
         (navigationController.viewControllers.first {
@@ -51,23 +51,20 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        // If multihop is enabled, we should check if there's a DAITA related error when opening the location
-        // view. If there is, help the user by showing the entry instead of the exit view.
-        var startContext: LocationViewControllerWrapper.MultihopContext = .exit
-        if tunnelManager.settings.tunnelMultihopState.isEnabled {
-            startContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
-                .blockedState?.reason { .entry } else { .exit }
-        }
-
         let hostingController = UIHostingController(
             rootView: SelectLocationView(
                 viewModel: SelectLocationViewModelImpl(
                     tunnelManager: tunnelManager,
                     relaySelectorWrapper: relaySelectorWrapper,
                     customListRepository: customListRepository,
-                    didSelectRelayLocations: { [weak self] relays in
+                    didSelectExitRelayLocations: { [weak self] relays in
                         guard let self else { return }
                         self.didSelectExitRelays(relays)
+                        self.didFinish?(self)
+                    },
+                    didSelectEntryRelayLocations: { [weak self] relays in
+                        guard let self else { return }
+                        self.didSelectEntryRelays(relays)
                         self.didFinish?(self)
                     },
                     showFilterView: { [weak self] in
@@ -92,18 +89,18 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController.pushViewController(hostingController, animated: false)
     }
 
-    private func addTunnelObserver() {
-        let tunnelObserver =
-            TunnelBlockObserver(
-                didUpdateTunnelSettings: { [weak self] _, settings in
-                    guard let self else { return }
-                    locationViewControllerWrapper?.onNewSettings?(settings)
-                }
-            )
-
-        tunnelManager.addObserver(tunnelObserver)
-        self.tunnelObserver = tunnelObserver
-    }
+//    private func addTunnelObserver() {
+//        let tunnelObserver =
+//            TunnelBlockObserver(
+//                didUpdateTunnelSettings: { [weak self] _, settings in
+//                    guard let self else { return }
+//                    locationViewControllerWrapper?.onNewSettings?(settings)
+//                }
+//            )
+//
+//        tunnelManager.addObserver(tunnelObserver)
+//        self.tunnelObserver = tunnelObserver
+//    }
 
     private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
@@ -116,7 +113,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] addCustomListCoordinator in
             addCustomListCoordinator.dismiss(animated: true)
-            self?.locationViewControllerWrapper?.refreshCustomLists()
+//            self?.locationViewControllerWrapper?.refreshCustomLists()
             self?.selectLocationViewModel?.refreshCustomLists()
         }
 
@@ -134,7 +131,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
             listCustomListCoordinator.dismiss(animated: true)
-            self?.locationViewControllerWrapper?.refreshCustomLists()
+//            self?.locationViewControllerWrapper?.refreshCustomLists()
             self?.selectLocationViewModel?.refreshCustomLists()
         }
 
@@ -149,12 +146,12 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 // See showEditCustomLists() above.
 extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        locationViewControllerWrapper?.refreshCustomLists()
+//        locationViewControllerWrapper?.refreshCustomLists()
         selectLocationViewModel?.refreshCustomLists()
     }
 }
 
-extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDelegate {
+extension LocationCoordinator {
     func navigateToFilter() {
         let relayFilterCoordinator = RelayFilterCoordinator(
             navigationController: CustomNavigationController(),

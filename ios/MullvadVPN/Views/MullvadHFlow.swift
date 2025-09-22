@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Content: View, Data.Element: Hashable {
+struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Content: View, Data.Element: Hashable, Data.Element: Sendable {
     let spacing: CGFloat
     let alignment: HorizontalAlignment
     let items: Data
@@ -8,7 +8,7 @@ struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Con
 
     @State private var contentSize: [ItemSize] = []
 
-    struct ItemSize {
+    struct ItemSize: Sendable {
         let item: Data.Element
         let size: CGSize
     }
@@ -64,6 +64,7 @@ struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Con
             ZStack(alignment: .topLeading) {
                 let positions = calculatePositions(contentWidth: geo.size.width)
                 ForEach(items, id: \.self) { item in
+                    let safeContentSize = contentSize
                     if let position = positions.first(
                         where: { $0.item == item
                         }) {
@@ -71,15 +72,15 @@ struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Con
                             .sizeOfView { size in
                                 let currSizeIndex = contentSize.firstIndex { $0.item == item }
                                 if let currSizeIndex {
-                                    contentSize.remove(at: currSizeIndex)
+                                    self.contentSize.remove(at: currSizeIndex)
                                 }
-                                contentSize.append(.init(item: item, size: size))
+                                self.contentSize.append(.init(item: item, size: size))
                             }
                             .alignmentGuide(.leading) { _ in
                                 return -position.xOffset
                             }
                             .alignmentGuide(.top) { _ in
-                                let maxElementHeight = contentSize.map { $0.size.height }.max() ?? 0
+                                let maxElementHeight = safeContentSize.map { $0.size.height }.max() ?? 0
                                 return -CGFloat(position.row) * (maxElementHeight + spacing)
                             }
                     }

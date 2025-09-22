@@ -5,13 +5,23 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                if !viewModel.activeFilter.isEmpty {
+                if !viewModel.activeLocationContext.filter.isEmpty {
                     ActiveFilterView(
-                        activeFilter: viewModel.activeFilter) { filter in
+                        activeFilter: viewModel.activeLocationContext.filter) { filter in
                             viewModel.onFilterTapped(filter)
                         } onRemove: { filter in
                             viewModel.onFilterRemoved(filter)
                         }
+                }
+                if let multihopContext = viewModel.multihopContext {
+                    SegmentedControl(
+                        segments: MultihopContext.allCases,
+                        selectedSegment: .init(get: {
+                            multihopContext
+                        }, set: { newContext in
+                            viewModel.multihopContext = newContext
+                        })
+                    )
                 }
                 MullvadSecondaryTextField(
                     placeholder: "Search for locations or servers...",
@@ -20,15 +30,17 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 HStack {
                     ListHeader(title: "Custom lists")
                     Button {
-                        viewModel.showAddCustomListView?(viewModel.allLocations)
+                        viewModel.showAddCustomListView?(
+                            viewModel.activeLocationContext
+                                .locations)
                     } label: {
                         Image.mullvadIconAdd
                             .padding(12)
                     }
-                    if !viewModel.customLists.isEmpty {
+                    if !viewModel.activeLocationContext.customLists.isEmpty {
                         Button {
                             viewModel.showEditCustomListView?(
-                                viewModel.allLocations
+                                viewModel.activeLocationContext.locations
                             )
                         } label: {
                             Image.mullvadIconEdit
@@ -37,11 +49,11 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 }
                 LocationsListView(
-                    locations: $viewModel.customLists,
-                    selectedLocation: viewModel.selectedLocation,
-                    connectedRelayHostname: viewModel.connectedRelayHostname
+                    locations: $viewModel.activeLocationContext.customLists,
+                    selectedLocation: viewModel.activeLocationContext.selectedLocation,
+                    connectedRelayHostname: viewModel.activeLocationContext.connectedRelayHostname
                 ) { location in
-                    viewModel.onSelectLocation(location)
+                    viewModel.activeLocationContext.selectLocation(location)
                 } contextMenu: { location in
                     VStack {
                         Button("Remove") {
@@ -53,7 +65,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 }
 
-                let text: LocalizedStringKey = viewModel.customLists.isEmpty
+                let text: LocalizedStringKey = viewModel.activeLocationContext.customLists.isEmpty
                     ? """
                     Save locations by adding them to a custom list.
                     """
@@ -65,15 +77,15 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     .padding(.bottom, 16)
                 ListHeader(title: "All locations")
                 LocationsListView(
-                    locations: $viewModel.allLocations,
-                    selectedLocation: viewModel.selectedLocation,
-                    connectedRelayHostname: viewModel.connectedRelayHostname
+                    locations: $viewModel.activeLocationContext.locations,
+                    selectedLocation: viewModel.activeLocationContext.selectedLocation,
+                    connectedRelayHostname: viewModel.activeLocationContext.connectedRelayHostname
                 ) { location in
-                    viewModel.onSelectLocation(location)
+                    viewModel.activeLocationContext.selectLocation(location)
                 } contextMenu: { location in
                     Section("Add country to list") {
                         ForEach(
-                            viewModel.customLists,
+                            viewModel.activeLocationContext.customLists,
                             id: \.code
                         ) { customList in
                             Button(customList.name) {
@@ -86,7 +98,11 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 }
             }
-            .animation(.default, value: viewModel.activeFilter)
+
+            .onChange(of: viewModel.multihopContext) { newValue in
+                print("New multihop context: \(newValue)")
+            }
+            .animation(.default, value: viewModel.activeLocationContext.filter)
             // iOS 18 has a bug where the button press does not get cancelled on drag. This is a hacky fix
             // https://developer.apple.com/forums/thread/763436?answerId=829089022#829089022
 //            .modifier(FixScrollViewWithTappedButton())
@@ -209,18 +225,39 @@ enum SelectLocationFilter: Hashable {
 
 @MainActor
 protocol SelectLocationViewModel: ObservableObject {
-    var allLocations: [LocationNode] { get set }
-    var customLists: [LocationNode] { get set }
-    var selectedLocation: LocationNode? { get }
-    var connectedRelayHostname: String? { get }
-    var activeFilter: [SelectLocationFilter] { get }
+    var activeLocationContext: LocationContext { get set }
+    var multihopContext: MultihopContext? { get set }
     var searchText: String { get set }
     var showFilterView: (() -> Void)? { get }
     var showEditCustomListView: (([LocationNode]) -> Void)? { get }
     var showAddCustomListView: (([LocationNode]) -> Void)? { get }
     var didFinish: (() -> Void)? { get }
-    func onSelectLocation(_ location: LocationNode)
     func onFilterTapped(_ filter: SelectLocationFilter)
     func onFilterRemoved(_ filter: SelectLocationFilter)
     func refreshCustomLists()
+}
+
+class LocationContext {
+    var locations: [LocationNode]
+    var customLists: [LocationNode]
+    var filter: [SelectLocationFilter]
+    var selectedLocation: LocationNode?
+    var connectedRelayHostname: String?
+    let selectLocation: (LocationNode) -> Void
+
+    init(
+        locations: [LocationNode],
+        customLists: [LocationNode],
+        filter: [SelectLocationFilter],
+        selectedLocation: LocationNode?,
+        connectedRelayHostname: String?,
+        selectLocation: @escaping (LocationNode) -> Void
+    ) {
+        self.locations = locations
+        self.customLists = customLists
+        self.filter = filter
+        self.selectedLocation = selectedLocation
+        self.connectedRelayHostname = connectedRelayHostname
+        self.selectLocation = selectLocation
+    }
 }

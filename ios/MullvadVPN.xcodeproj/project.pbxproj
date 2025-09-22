@@ -1151,6 +1151,7 @@
 		F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
+		F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E32412E7AA109004A7EFE /* MultihopContext.swift */; };
 		F9BDE1192E73027E005A8AD9 /* MullvadHFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BDE1182E73027E005A8AD9 /* MullvadHFlow.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 /* End PBXBuildFile section */
@@ -2609,6 +2610,7 @@
 		F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+Assets.swift"; sourceTree = "<group>"; };
 		F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAlert.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
+		F99E32412E7AA109004A7EFE /* MultihopContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopContext.swift; sourceTree = "<group>"; };
 		F9BDE1182E73027E005A8AD9 /* MullvadHFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadHFlow.swift; sourceTree = "<group>"; };
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -4988,6 +4990,7 @@
 		F900524C2E6B04470085C80E /* New Group */ = {
 			isa = PBXGroup;
 			children = (
+				F99E32412E7AA109004A7EFE /* MultihopContext.swift */,
 				F90052512E6B06AA0085C80E /* SelectLocationView.swift */,
 				F92C658B2E7A924E00B8E107 /* MockSelectLocationViewModel.swift */,
 				F92C65892E7A922F00B8E107 /* ActiveFilterView.swift */,
@@ -6820,6 +6823,7 @@
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */,
 				F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */,
+				F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
