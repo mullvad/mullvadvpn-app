@@ -40,7 +40,6 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                     link: about,
                     onTapLink: viewModel.showAbout
                 )
-                .padding(.bottom, 16)
             }, footer: {
                 MainButton(
                     text: LocalizedStringKey("Add"),
@@ -49,7 +48,6 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                     viewModel.addNewMethod()
                 }
                 .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
-                .padding(.top, 24)
             }, content: { item in
                 let accessibilityId: AccessibilityIdentifier? = switch item.id {
                 case AccessMethodRepository.directId:

@@ -107,6 +107,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
 
         tableView.sectionFooterHeight = 0
+        tableView.tableHeaderView = UIView(frame: CGRect(
+            origin: .zero,
+            size: CGSize(width: 0, height: UIMetrics.TableView.emptyHeaderHeight)
+        ))
         tableView.delegate = self
 
         registerClasses()
@@ -138,14 +142,19 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let section = sectionIdentifier(for: section) else { return nil }
+        tableView.dequeueReusableHeaderFooterView(
+            withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue
+        )
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard let section = sectionIdentifier(for: section) else { return 0 }
+
         return switch section {
-        case .language:
-            nil
+        case .vpnSettings:
+            0
         default:
-            tableView.dequeueReusableHeaderFooterView(
-                withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue
-            )
+            UIMetrics.TableView.sectionSpacing
         }
     }
 

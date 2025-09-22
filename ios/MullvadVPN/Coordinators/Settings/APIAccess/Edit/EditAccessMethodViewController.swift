@@ -46,26 +46,17 @@ class EditAccessMethodViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
+        isModalInPresentation = true
 
         tableView.setAccessibilityIdentifier(.editAccessMethodView)
         tableView.backgroundColor = .secondaryColor
         tableView.delegate = self
         tableView.sectionFooterHeight = UITableView.automaticDimension
         tableView.estimatedSectionFooterHeight = 44
-        isModalInPresentation = true
+        tableView.directionalLayoutMargins = .init(top: 0, leading: 16, bottom: 0, trailing: 16)
 
-        let title = createTitle()
-        view.addConstrainedSubviews([title, tableView]) {
-            title.pinEdgesToSuperviewMargins(PinnableEdges([.top(0)]))
-            title.pinEdgesToSuperview(PinnableEdges([
-                .leading(UIMetrics.SettingsCell.defaultLayoutMargins.leading),
-                .trailing(UIMetrics.SettingsCell.defaultLayoutMargins.trailing),
-            ]))
-            tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(
-                equalTo: title.bottomAnchor,
-                constant: 0
-            )
+        view.addConstrainedSubviews([tableView]) {
+            tableView.pinEdgesToSuperview(.all())
         }
 
         configureDataSource()
@@ -75,18 +66,6 @@ class EditAccessMethodViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         interactor.cancelProxyConfigurationTest()
-    }
-
-    private func createTitle() -> UIView {
-        let label = UILabel()
-        label.font = .mullvadBig
-        label.adjustsFontForContentSizeCategory = true
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        label.lineBreakStrategy = []
-        label.text = subject.value.navigationItemTitle
-        label.textColor = UIColor.NavigationBar.titleColor
-        return label
     }
 }
 
@@ -121,12 +100,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                     delegate?.controllerShouldShowMethodInfo(self, config: infoModalConfig)
                 }
             }
-            headerView?.directionalLayoutMargins = NSDirectionalEdgeInsets(
-                top: 4,
-                leading: 0,
-                bottom: 16,
-                trailing: 0
-            )
+            headerView?.directionalLayoutMargins = UIMetrics.TableView.headingLayoutMargins
 
             return headerView ?? UIView()
         default:
@@ -142,7 +116,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         case .testingStatus:
             subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
         case .enableMethod:
-            UITableView.automaticDimension
+            subject.value.infoHeaderConfig == nil ? 8 : UITableView.automaticDimension
         default:
             0
         }
@@ -180,7 +154,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         case .testingStatus:
             switch subject.value.testingStatus {
             case .initial, .inProgress:
-                0
+                8
             case .succeeded, .failed:
                 defaultMargin
             }
@@ -377,8 +351,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     // MARK: - Misc
 
     private func configureNavigationItem() {
-        navigationItem.largeTitleDisplayMode = .never
-        navigationItem.title = ""
+        title = subject.value.navigationItemTitle
     }
 
     private func onSave() {
