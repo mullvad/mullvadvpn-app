@@ -138,8 +138,14 @@ export default class History {
   public block(): never {
     throw Error('Not implemented');
   }
-  public replace(): never {
-    throw Error('Not implemented');
+
+  public replace(
+    replacementLocation: LocationDescriptor,
+    replacementState?: Partial<LocationState>,
+  ) {
+    const location = this.createLocation(replacementLocation, replacementState);
+    this.lastAction = 'REPLACE';
+    this.entries.splice(this.index, 1, location);
   }
   public go(): never {
     throw Error('Not implemented');

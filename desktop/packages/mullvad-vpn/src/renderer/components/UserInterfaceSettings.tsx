@@ -12,8 +12,8 @@ import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
-import { NavigationListItem } from './NavigationListItem';
 import { NavigationScrollbars } from './NavigationScrollbars';
+import { SettingsNavigationListItem } from './settings-navigation-list-item';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledAnimateMapCellGroup = styled(SettingsGroup)({
@@ -239,20 +239,20 @@ function LanguageButton() {
   const localeDisplayName = getPreferredLocaleDisplayName(preferredLocale);
 
   return (
-    <NavigationListItem to={RoutePath.selectLanguage}>
-      <NavigationListItem.Group>
+    <SettingsNavigationListItem to={RoutePath.selectLanguage}>
+      <SettingsNavigationListItem.Group>
         <Image source="icon-language" />
-        <NavigationListItem.Label>
+        <SettingsNavigationListItem.Label>
           {
             // TRANSLATORS: Navigation button to the 'Language' settings view
             messages.pgettext('user-interface-settings-view', 'Language')
           }
-        </NavigationListItem.Label>
-      </NavigationListItem.Group>
-      <NavigationListItem.Group>
-        <NavigationListItem.Text>{localeDisplayName}</NavigationListItem.Text>
-        <NavigationListItem.Icon icon="chevron-right" />
-      </NavigationListItem.Group>
-    </NavigationListItem>
+        </SettingsNavigationListItem.Label>
+      </SettingsNavigationListItem.Group>
+      <SettingsNavigationListItem.Group>
+        <SettingsNavigationListItem.Text>{localeDisplayName}</SettingsNavigationListItem.Text>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.Group>
+    </SettingsNavigationListItem>
   );
 }

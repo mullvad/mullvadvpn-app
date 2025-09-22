@@ -1,17 +1,10 @@
-import styled from 'styled-components';
+import { ListItem } from '../../list-item';
+import { TextProps } from '../../typography';
+import { useAccordionContext } from '../AccordionContext';
 
-import { Text } from '../../typography';
-
-export type AccordionTitleProps = {
-  children?: React.ReactNode;
-};
-
-export const StyledTitleLabel = styled(Text)``;
+export type AccordionTitleProps = TextProps;
 
 export function AccordionTitle({ children }: AccordionTitleProps) {
-  return (
-    <StyledTitleLabel $padding="medium" color="white" variant="titleMedium">
-      {children}
-    </StyledTitleLabel>
-  );
+  const { titleId } = useAccordionContext();
+  return <ListItem.Label id={titleId}>{children}</ListItem.Label>;
 }

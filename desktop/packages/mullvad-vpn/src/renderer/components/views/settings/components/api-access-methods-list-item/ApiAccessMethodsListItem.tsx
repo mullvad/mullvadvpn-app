@@ -1,17 +1,17 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { NavigationListItem } from '../../../../NavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
 export function ApiAccessMethodsListItem() {
   return (
-    <NavigationListItem to={RoutePath.apiAccessMethods}>
-      <NavigationListItem.Label>
+    <SettingsNavigationListItem to={RoutePath.apiAccessMethods}>
+      <SettingsNavigationListItem.Label>
         {
           // TRANSLATORS: Navigation button to the 'API access methods' view
           messages.pgettext('settings-view', 'API access')
         }
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+      </SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }

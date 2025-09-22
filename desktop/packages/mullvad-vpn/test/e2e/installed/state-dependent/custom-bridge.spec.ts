@@ -36,7 +36,8 @@ test('App should enable bridge mode', async () => {
   await page.getByText('OpenVPN settings').click();
   await util.waitForRoute(RoutePath.openVpnSettings);
 
-  const bridgeModeOnButton = page.getByTestId('bridge-mode-on');
+  const bridgeModeListox = page.getByRole('listbox', { name: 'Bridge mode' });
+  const bridgeModeOnButton = bridgeModeListox.getByRole('option', { name: 'On', exact: true });
   await bridgeModeOnButton.click();
   await expect(bridgeModeOnButton).toHaveAttribute('aria-selected', 'true');
 

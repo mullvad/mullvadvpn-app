@@ -1,25 +1,23 @@
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 import { levels } from './levels';
+import { ListItemProps } from './ListItem';
 
-interface ListItemContextType {
+type ListItemContextType = {
   level: keyof typeof levels;
   disabled?: boolean;
-}
+  animation?: ListItemProps['animation'];
+};
 
 const ListItemContext = createContext<ListItemContextType | undefined>(undefined);
 
-interface ListItemProviderProps extends ListItemContextType {
-  children: ReactNode;
-}
+type ListItemProviderProps = React.PropsWithChildren<ListItemContextType>;
 
-export const ListItemProvider = ({ level, disabled, children }: ListItemProviderProps) => {
-  return (
-    <ListItemContext.Provider value={{ level, disabled }}>{children}</ListItemContext.Provider>
-  );
+export const ListItemProvider = ({ children, ...props }: ListItemProviderProps) => {
+  return <ListItemContext.Provider value={props}>{children}</ListItemContext.Provider>;
 };
 
-export const useListItem = (): ListItemContextType => {
+export const useListItemContext = (): ListItemContextType => {
   const context = useContext(ListItemContext);
   if (!context) {
     throw new Error('useListItem must be used within a ListItemProvider');

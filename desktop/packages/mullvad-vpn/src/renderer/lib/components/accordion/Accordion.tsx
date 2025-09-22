@@ -1,35 +1,49 @@
 import React from 'react';
-import styled from 'styled-components';
 
+import { ListItem, ListItemProps } from '../list-item';
 import { AccordionProvider } from './AccordionContext';
-import { AccordionHeader, AccordionTrigger } from './components';
-import { AccordionContent } from './components/AccordionContent';
-import { AccordionIcon } from './components/AccordionIcon';
-import { AccordionTitle } from './components/AccordionTitle';
+import {
+  AccordionContent,
+  AccordionHeader,
+  AccordionIcon,
+  AccordionTitle,
+  AccordionTrigger,
+} from './components';
+
+export type AccordionAnimation = 'flash' | 'dim';
 
 export type AccordionProps = {
   expanded?: boolean;
   onExpandedChange?: (open: boolean) => void;
+  disabled?: boolean;
+  titleId?: string;
+  animation?: AccordionAnimation;
   children?: React.ReactNode;
-};
+} & ListItemProps;
 
-const StyledAccordion = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  width: 100%;
-`;
-
-function Accordion({ expanded = false, onExpandedChange: onOpenChange, children }: AccordionProps) {
+function Accordion({
+  expanded = false,
+  onExpandedChange: onOpenChange,
+  disabled,
+  animation,
+  titleId: titleIdProp,
+  children,
+  ...props
+}: AccordionProps) {
   const triggerId = React.useId();
   const contentId = React.useId();
+  const titleId = React.useId();
   return (
     <AccordionProvider
       triggerId={triggerId}
       contentId={contentId}
+      titleId={titleIdProp ?? titleId}
       expanded={expanded}
-      onExpandedChange={onOpenChange}>
-      <StyledAccordion>{children}</StyledAccordion>
+      onExpandedChange={onOpenChange}
+      disabled={disabled}>
+      <ListItem disabled={disabled} animation={animation} {...props}>
+        {children}
+      </ListItem>
     </AccordionProvider>
   );
 }

@@ -1,6 +1,6 @@
-import styled from 'styled-components';
+import React from 'react';
+import styled, { css, RuleSet } from 'styled-components';
 
-import { Flex } from '../flex';
 import {
   ListItemContent,
   ListItemFooter,
@@ -9,27 +9,45 @@ import {
   ListItemItem,
   ListItemLabel,
   ListItemText,
+  ListItemTextField,
   ListItemTrigger,
 } from './components';
+import { useListItemAnimation } from './hooks';
 import { levels } from './levels';
 import { ListItemProvider } from './ListItemContext';
 
-export interface ListItemProps {
-  level?: keyof typeof levels;
-  disabled?: boolean;
-  children: React.ReactNode;
-}
+export type ListItemAnimation = 'flash' | 'dim';
 
-const StyledFlex = styled(Flex)`
-  margin-bottom: 1px;
+export const StyledListItem = styled.div<{
+  $animation?: RuleSet<object>;
+}>`
+  ${({ $animation }) => {
+    return css`
+      ${$animation}
+    `;
+  }}
 `;
 
-const ListItem = ({ level = 0, disabled, children }: ListItemProps) => {
+export type ListItemProps = {
+  level?: keyof typeof levels;
+  disabled?: boolean;
+  animation?: ListItemAnimation | false;
+  children: React.ReactNode;
+} & React.ComponentPropsWithRef<'div'>;
+
+const ListItem = ({
+  level = 0,
+  disabled,
+  animation: animationProp,
+  children,
+  ...props
+}: ListItemProps) => {
+  const animation = useListItemAnimation(animationProp);
   return (
-    <ListItemProvider level={level} disabled={disabled}>
-      <StyledFlex $flexDirection="column" $gap="tiny" $flex={1}>
+    <ListItemProvider level={level} disabled={disabled} animation={animationProp}>
+      <StyledListItem $animation={animationProp == 'dim' ? animation : undefined} {...props}>
         {children}
-      </StyledFlex>
+      </StyledListItem>
     </ListItemProvider>
   );
 };
@@ -43,6 +61,7 @@ const ListItemNamespace = Object.assign(ListItem, {
   Item: ListItemItem,
   Footer: ListItemFooter,
   Icon: ListItemIcon,
+  TextField: ListItemTextField,
 });
 
 export { ListItemNamespace as ListItem };

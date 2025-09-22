@@ -1,17 +1,17 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { NavigationListItem } from '../../../../NavigationListItem';
+import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
 export function SupportListItem() {
   return (
-    <NavigationListItem to={RoutePath.support}>
-      <NavigationListItem.Label>
+    <SettingsNavigationListItem to={RoutePath.support}>
+      <SettingsNavigationListItem.Label>
         {
           // TRANSLATORS: Navigation button to the 'Support' view
           messages.pgettext('settings-view', 'Support')
         }
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
+      </SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Icon icon="chevron-right" />
+    </SettingsNavigationListItem>
   );
 }

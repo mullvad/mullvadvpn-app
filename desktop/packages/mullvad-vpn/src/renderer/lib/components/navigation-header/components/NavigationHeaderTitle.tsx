@@ -1,11 +1,9 @@
 import styled from 'styled-components';
 
-import { TitleMedium } from '../../typography';
+import { TitleMedium, TitleMediumProps } from '../../typography';
 import { useNavigationHeader } from '../NavigationHeaderContext';
 
-export interface NavigationHeaderTitleProps {
-  children: React.ReactNode;
-}
+export type NavigationHeaderTitleProps = TitleMediumProps;
 
 export const StyledText = styled(TitleMedium)<{ $visible?: boolean }>(({ $visible = true }) => ({
   opacity: $visible ? 1 : 0,
