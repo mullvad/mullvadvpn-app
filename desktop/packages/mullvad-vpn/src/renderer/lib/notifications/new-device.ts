@@ -20,9 +20,12 @@ export class NewDeviceNotificationProvider implements InAppNotificationProvider 
       indicator: 'success',
       title: messages.pgettext('in-app-notifications', 'NEW DEVICE CREATED'),
       subtitle: sprintf(
+        // TRANSLATORS: Notification text when a new device has been created.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: - %(deviceName)s: Name of created device.
         messages.pgettext(
           'in-app-notifications',
-          'Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account.',
+          'This device is now named <b>%(deviceName)s</b>. See more under "Manage devices" in Account.',
         ),
         { deviceName: capitalizeEveryWord(this.context.deviceName) },
       ),
