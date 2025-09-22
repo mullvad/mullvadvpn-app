@@ -1065,16 +1065,8 @@
 		F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */; };
 		F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */; };
 		F0BC1E852E701C5A001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E862E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E872E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E882E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
 		F0BC1E892E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E8A2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E8B2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
 		F0BC1E8C2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E8D2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E8E2E701CA1001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
-		F0BC1E8F2E701D82001CA97A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0BC1E842E701C5A001CA97A /* Localizable.xcstrings */; };
 		F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */; };
 		F0C13FE42C64F7CB00BD087D /* DAITASettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */; };
 		F0C13FE62C64FB3400BD087D /* TunnelSettingsV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */; };
@@ -5671,7 +5663,6 @@
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
 				7A95B67B2D5F758300687524 /* relays.json in Resources */,
-				F0BC1E882E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5693,7 +5684,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0BC1E8B2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5722,7 +5712,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0BC1E862E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 				A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5731,7 +5720,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0BC1E872E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5747,7 +5735,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0BC1E8A2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5762,7 +5749,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0BC1E8D2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5784,7 +5770,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0BC1E8F2E701D82001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5807,7 +5792,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0BC1E8E2E701CA1001CA97A /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
