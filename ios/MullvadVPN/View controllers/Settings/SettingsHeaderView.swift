@@ -83,23 +83,23 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
             for: .touchUpInside
         )
 
-        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.defaultLayoutMargins
         contentView.backgroundColor = UIColor.Cell.Background.normal
 
         let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
             .contentLayoutMargins.trailing + buttonWidth
 
         contentView.addConstrainedSubviews([titleLabel, infoButton, collapseButton]) {
-            titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing).excluding(.bottom))
+            titleLabel.pinEdgesToSuperview(.init([.top(contentView.layoutMargins.top), .leading(16)]))
             titleLabel.bottomAnchor.constraint(
                 equalTo: contentView.bottomAnchor,
                 constant: -contentView.layoutMargins.bottom
             ).withPriority(.defaultHigh)
 
             infoButton.pinEdgesToSuperview(.init([.top(0), .bottom(0)]))
-            infoButton.leadingAnchor.constraint(
-                equalTo: titleLabel.trailingAnchor,
-                constant: -UIMetrics.interButtonSpacing
+            titleLabel.trailingAnchor.constraint(
+                equalTo: infoButton.leadingAnchor,
+                constant: UIMetrics.TableView.infoButtonSpacing
             )
             infoButton.widthAnchor.constraint(equalToConstant: buttonAreaWidth)
 
