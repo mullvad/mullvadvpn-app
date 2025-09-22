@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Colors, colors, Typography, typography } from '../../foundations';
 import { PolymorphicProps, TransientProps } from '../../types';
@@ -20,11 +20,18 @@ const StyledText = styled.span<TransientProps<TextBaseProps>>(
       --color: ${color};
 
       color: var(--color);
-      text-align: ${$textAlign || undefined};
       font-family: ${fontFamily};
       font-size: ${fontSize};
       font-weight: ${fontWeight};
       line-height: ${lineHeight};
+      ${() => {
+        if ($textAlign) {
+          return css`
+            text-align: ${$textAlign};
+          `;
+        }
+        return null;
+      }}
     `;
   },
 );
