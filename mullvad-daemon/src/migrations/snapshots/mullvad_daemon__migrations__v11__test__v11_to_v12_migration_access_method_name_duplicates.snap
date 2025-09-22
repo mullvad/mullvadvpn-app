@@ -1,0 +1,122 @@
+---
+source: mullvad-daemon/src/migrations/v11.rs
+expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
+---
+{
+  "api_access_methods": {
+    "custom": [
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": true,
+        "id": "c2871443-abbc-4fc5-a6b3-7419534a8716",
+        "name": "test_3_10"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": true,
+        "id": "c2871443-abbc-4fc5-a6b3-7419534a8716",
+        "name": "test_2_21"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": true,
+        "id": "c2871443-abbc-4fc5-a6b3-7419534a8716",
+        "name": "test_32"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": true,
+        "id": "c2871443-abbc-4fc5-a6b3-7419534a8717",
+        "name": "test_1_23"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": false,
+        "id": "3213cde4-dba6-4009-a744-144ae6ecf0bb",
+        "name": "test_2_24"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": false,
+        "id": "3213cde4-dba6-4009-a744-144ae6ecf0bb",
+        "name": "test_1_25"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": false,
+        "id": "3213cde4-dba6-4009-a744-144ae6ecf0bb",
+        "name": "test_36"
+      },
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "aes-128-cfb",
+              "endpoint": "127.0.0.1:443",
+              "password": ""
+            }
+          }
+        },
+        "enabled": true,
+        "id": "ffdf9900-e843-4298-9478-a9dfbaa63b17",
+        "name": "test_37"
+      }
+    ]
+  }
+}
