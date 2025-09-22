@@ -29,12 +29,7 @@ const VERSION_INFO_FILENAME: &str = "version-info.json";
 
 static APP_VERSION: LazyLock<Version> =
     LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
-static CHECK_ENABLED: LazyLock<bool> = LazyLock::new(|| {
-    !APP_VERSION.is_dev()
-        || std::env::var("MULLVAD_ENABLE_DEV_UPDATES")
-            .map(|v| v != "0")
-            .unwrap_or(false)
-});
+static CHECK_ENABLED: LazyLock<bool> = LazyLock::new(|| true);
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 
