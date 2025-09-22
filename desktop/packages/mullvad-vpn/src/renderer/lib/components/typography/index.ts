@@ -8,4 +8,3 @@ export * from './TitleBig';
 export * from './TitleLarge';
 export * from './TitleMedium';
 export * from '../link/Link';
-export * from './Label';
