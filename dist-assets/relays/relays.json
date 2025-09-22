@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"68c3e865-32971\"",
+  "etag": "W/\"68d0ef8d-333d3\"",
   "countries": [
     {
       "name": "Albania",
@@ -11,62 +11,6 @@
           "latitude": 41.327953,
           "longitude": 19.819025,
           "relays": [
-            {
-              "hostname": "al-tia-wg-001",
-              "ipv4_addr_in": "31.171.153.66",
-              "ipv6_addr_in": "2a04:27c0:0:3::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": true,
-              "owned": false,
-              "provider": "iRegister",
-              "weight": 1,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "bPfJDdgBXlY4w3ACs68zOMMhLUbbzktCKnLOFHqbxl4=",
-                  "daita": false,
-                  "quic": null,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "Albania",
-                "country_code": "al",
-                "city": "Tirana",
-                "city_code": "tia",
-                "latitude": 41.327953,
-                "longitude": 19.819025
-              }
-            },
-            {
-              "hostname": "al-tia-wg-002",
-              "ipv4_addr_in": "31.171.154.50",
-              "ipv6_addr_in": "2a04:27c0:0:4::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": true,
-              "owned": false,
-              "provider": "iRegister",
-              "weight": 1,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "/wPQafVa/60OIp8KqhC1xTTG+nQXZF17uo8XfdUnz2E=",
-                  "daita": false,
-                  "quic": null,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "Albania",
-                "country_code": "al",
-                "city": "Tirana",
-                "city_code": "tia",
-                "latitude": 41.327953,
-                "longitude": 19.819025
-              }
-            },
             {
               "hostname": "al-tia-wg-003",
               "ipv4_addr_in": "103.204.123.130",
@@ -990,7 +934,13 @@
                 "wireguard": {
                   "public_key": "bQIQLk9zVOZLEGJsQOMu0K3rCMc85gExkS/0b1tSVBk=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "103.120.6.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "au-syd-wg-301.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "103.120.6.13"
                   ]
@@ -1020,7 +970,13 @@
                 "wireguard": {
                   "public_key": "6tTqSMUVPhaMsFFdphijwdura5RnNOzlz33Ekp1oCmc=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "103.120.6.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "au-syd-wg-302.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "103.120.6.138"
                   ]
@@ -1050,7 +1006,13 @@
                 "wireguard": {
                   "public_key": "RK/eoKsyX4fu7iJ9F5mTf07en/WgYOMAtPGivKTntlw=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "103.141.60.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "au-syd-wg-303.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "103.141.60.13"
                   ]
@@ -1080,7 +1042,13 @@
                 "wireguard": {
                   "public_key": "gXZZhcHfOD7FtnwTw8APUnccwMTVQYDNs4bbjHGS3CI=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "103.141.60.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "au-syd-wg-304.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "103.141.60.138"
                   ]
@@ -1478,7 +1446,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Qnax",
               "weight": 30,
@@ -1603,8 +1571,8 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": [
-                    "103.139.178.135",
-                    "103.139.178.134"
+                    "103.139.178.134",
+                    "103.139.178.135"
                   ]
                 }
               },
@@ -1634,8 +1602,8 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": [
-                    "103.139.178.195",
-                    "103.139.178.194"
+                    "103.139.178.194",
+                    "103.139.178.195"
                   ]
                 }
               },
@@ -2027,8 +1995,8 @@
                   "daita": false,
                   "quic": {
                     "addr_in": [
-                      "23.234.84.12",
-                      "2607:9000:600:31::f00a"
+                      "2607:9000:600:31::f00a",
+                      "23.234.84.12"
                     ],
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-201.blockerad.eu"
@@ -2062,7 +2030,13 @@
                 "wireguard": {
                   "public_key": "vr/sAm+36c3N8jWfo14Sw6El0xJeSvu/soU/8JWSb3U=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.84.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "ca-tor-wg-202.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.84.138"
                   ]
@@ -2092,7 +2066,13 @@
                 "wireguard": {
                   "public_key": "kpXVJa66qgBFlwCmHx6siJT3R9afvtbjdDOTKkkbiUI=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.85.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "ca-tor-wg-203.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.85.13"
                   ]
@@ -2122,7 +2102,13 @@
                 "wireguard": {
                   "public_key": "APcoI2H2zdWIMdVYXslcJm4zzgePc4PESsDHgkm0UnQ=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.85.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "ca-tor-wg-204.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.85.138"
                   ]
@@ -2152,7 +2138,13 @@
                 "wireguard": {
                   "public_key": "iePZCguBaIxO/7gqQGDDYwl6YzMZj5910nK2Q9bDP14=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.86.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "ca-tor-wg-205.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.86.13"
                   ]
@@ -2182,7 +2174,13 @@
                 "wireguard": {
                   "public_key": "PGPyMyMPZ7Lue4pvFK7hlavToQ5FfBODmQBoiaUZ40I=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.86.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "ca-tor-wg-206.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.86.138"
                   ]
@@ -2212,7 +2210,13 @@
                 "wireguard": {
                   "public_key": "8VmxIxjz5W44ubaBuIt5JEngh7fKCvdmdG9WBN2oqhw=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.87.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "ca-tor-wg-207.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.87.13"
                   ]
@@ -3619,27 +3623,6 @@
               "overridden_ipv6": false,
               "include_in_country": true,
               "active": true,
-              "owned": true,
-              "provider": "31173",
-              "weight": 100,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "Germany",
-                "country_code": "de",
-                "city": "Berlin",
-                "city_code": "ber",
-                "latitude": 52.520008,
-                "longitude": 13.404954
-              }
-            },
-            {
-              "hostname": "de-ber-ovpn-002",
-              "ipv4_addr_in": "193.32.248.73",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -5423,27 +5406,6 @@
           "longitude": 24.945831,
           "relays": [
             {
-              "hostname": "fi-hel-ovpn-001",
-              "ipv4_addr_in": "185.204.1.171",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": true,
-              "provider": "Creanova",
-              "weight": 1,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "Finland",
-                "country_code": "fi",
-                "city": "Helsinki",
-                "city_code": "hel",
-                "latitude": 60.192059,
-                "longitude": 24.945831
-              }
-            },
-            {
               "hostname": "fi-hel-ovpn-002",
               "ipv4_addr_in": "185.204.1.172",
               "ipv6_addr_in": null,
@@ -6363,27 +6325,6 @@
                   ]
                 }
               },
-              "location": {
-                "country": "France",
-                "country_code": "fr",
-                "city": "Paris",
-                "city_code": "par",
-                "latitude": 48.866667,
-                "longitude": 2.333333
-              }
-            },
-            {
-              "hostname": "fr-par-br-001",
-              "ipv4_addr_in": "193.32.126.117",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": true,
-              "provider": "31173",
-              "weight": 100,
-              "endpoint_data": "bridge",
               "location": {
                 "country": "France",
                 "country_code": "fr",
@@ -8327,7 +8268,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -8355,7 +8296,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -8383,7 +8324,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -9993,27 +9934,6 @@
                 "latitude": 59.916667,
                 "longitude": 10.75
               }
-            },
-            {
-              "hostname": "no-osl-br-001",
-              "ipv4_addr_in": "91.90.44.10",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": true,
-              "provider": "Blix",
-              "weight": 100,
-              "endpoint_data": "bridge",
-              "location": {
-                "country": "Norway",
-                "country_code": "no",
-                "city": "Oslo",
-                "city_code": "osl",
-                "latitude": 59.916667,
-                "longitude": 10.75
-              }
             }
           ]
         },
@@ -10435,7 +10355,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "Zenlayer",
               "weight": 100,
@@ -11617,27 +11537,6 @@
               }
             },
             {
-              "hostname": "se-mma-ovpn-023",
-              "ipv4_addr_in": "141.98.255.93",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": true,
-              "provider": "31173",
-              "weight": 100,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "Sweden",
-                "country_code": "se",
-                "city": "Malmö",
-                "city_code": "mma",
-                "latitude": 55.607075,
-                "longitude": 13.002716
-              }
-            },
-            {
               "hostname": "se-mma-ovpn-102",
               "ipv4_addr_in": "45.83.220.92",
               "ipv6_addr_in": null,
@@ -12500,7 +12399,13 @@
                 "wireguard": {
                   "public_key": "V5RUvv8xp3xYc9b/KoGjTL6EUEb2mTv+8egxuEvUAnc=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "89.37.63.15"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-sto-wg-201.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "89.37.63.16"
                   ]
@@ -12530,7 +12435,13 @@
                 "wireguard": {
                   "public_key": "S4fVJ6wjUxrRQsDZwWvKVLtcNBJgoSshkqy3wXWG0UM=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "89.37.63.71"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-sto-wg-202.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "89.37.63.72"
                   ]
@@ -12627,7 +12538,13 @@
                 "wireguard": {
                   "public_key": "9V4G5BERZI4xHudcIf5wdDG77XZSY08lVEiXrAGXuEE=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "170.62.100.15"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-sto-wg-205.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.16"
                   ]
@@ -12657,7 +12574,13 @@
                 "wireguard": {
                   "public_key": "9KHMuwHqa1Mx2VrKX3cvqLN/ZPDjH5/z0q+IWbfrmW8=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "170.62.100.71"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-sto-wg-206.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.72"
                   ]
@@ -12687,7 +12610,13 @@
                 "wireguard": {
                   "public_key": "OatHF/w6fOg8w2415s8zPSXw6LtcYOm+90pqyJ5ZsVY=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "170.62.100.134"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-sto-wg-207.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.135"
                   ]
@@ -12717,7 +12646,13 @@
                 "wireguard": {
                   "public_key": "HozGhf1OfjFEASBzjmktB9AKkIgbC+OhSabZKwT6EHc=",
                   "daita": true,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "170.62.100.175"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-sto-wg-208.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.176"
                   ]
@@ -12747,7 +12682,13 @@
                 "wireguard": {
                   "public_key": "r3360zyxOKxUthx90sfRkLZBt1Q5alk45/H9Dkq5kFM=",
                   "daita": true,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "170.62.100.216"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-sto-wg-209.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.217"
                   ]
@@ -13935,7 +13876,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "HostRoyale",
               "weight": 100,
@@ -14020,34 +13961,6 @@
           "latitude": 41.881832,
           "longitude": -87.623177,
           "relays": [
-            {
-              "hostname": "us-chi-wg-007",
-              "ipv4_addr_in": "68.235.44.194",
-              "ipv6_addr_in": "2607:9000:0:84::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "qOy1gb7dETzbzzKABZGNmb0V53XN1DEAQBs9/0R/yzs=",
-                  "daita": false,
-                  "quic": null,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Chicago, IL",
-                "city_code": "chi",
-                "latitude": 41.881832,
-                "longitude": -87.623177
-              }
-            },
             {
               "hostname": "us-chi-wg-201",
               "ipv4_addr_in": "87.249.134.1",
@@ -17751,7 +17664,13 @@
                 "wireguard": {
                   "public_key": "3XVRp858LSMwQ6pA2Zo5LFGf4nIjLnuTkbXTJiNPcmo=",
                   "daita": true,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.100.13"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-801.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.100.14"
                   ]
@@ -17781,7 +17700,13 @@
                 "wireguard": {
                   "public_key": "SG1mcVhXNEZDZkir3GGLA7DCltIfPr71rPW6nFzW1Rc=",
                   "daita": true,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.100.138"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-802.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.100.139"
                   ]
@@ -17811,7 +17736,13 @@
                 "wireguard": {
                   "public_key": "X1ZCLofMRmOnoJiNUTokpTazaRrdtbdH8+yAFvyCMnM=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.101.13"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-803.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.101.14"
                   ]
@@ -17841,7 +17772,13 @@
                 "wireguard": {
                   "public_key": "uNKXjnTzZE0najF3fo5HiDBkg/fCF+anDkVuBNTCfhs=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.101.138"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-804.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.101.139"
                   ]
@@ -17871,7 +17808,13 @@
                 "wireguard": {
                   "public_key": "i97V7R9Fk5IrrbYw+k7H35i8frXOHvbES13AAoRHrWY=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.102.13"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-805.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.102.14"
                   ]
@@ -17901,7 +17844,13 @@
                 "wireguard": {
                   "public_key": "TJxsTwqSLYLKHFJLf7Uo87GiqVXnpYFaNbiiP9qwfBE=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.102.138"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-806.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.102.139"
                   ]
@@ -17931,7 +17880,13 @@
                 "wireguard": {
                   "public_key": "THimhBHKHZ2KeoTRURvpNIVir4nlaxx5NSYwqNuF1wk=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.103.13"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-807.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.103.14"
                   ]
@@ -17961,7 +17916,13 @@
                 "wireguard": {
                   "public_key": "tI+Ddqg8MZ3nqXLuvA5Kzryih//XLId7IM4IEgROiFk=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.103.138"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-nyc-wg-808.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.103.139"
                   ]
@@ -19197,7 +19158,13 @@
                 "wireguard": {
                   "public_key": "wRvkGNE3N2UklxKajU06gbBJ3Bg7KmhZsU7a5HIFBw8=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.80.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-401.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.80.13"
                   ]
@@ -19227,7 +19194,13 @@
                 "wireguard": {
                   "public_key": "NBnpCxDrc0tdX91KUm5cEmQv7BSMOZqd7dS/d7piQl0=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.80.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-402.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.80.138"
                   ]
@@ -19257,7 +19230,13 @@
                 "wireguard": {
                   "public_key": "cJ8317JqMtNDvxvd/8z29lWurK/3sb5nFZuOY5mw3ys=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.81.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-403.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.81.13"
                   ]
@@ -19287,7 +19266,13 @@
                 "wireguard": {
                   "public_key": "G6+A375GVmuFCAtvwgx3SWCWhrMvdQ+cboXQ8zp2ang=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.81.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-404.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.81.138"
                   ]
@@ -19317,7 +19302,13 @@
                 "wireguard": {
                   "public_key": "X+efE4ntYuAEHBHU32SBMq/U0lAFEKeX5/nl3CKtrVM=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.82.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-405.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.82.13"
                   ]
@@ -19347,7 +19338,13 @@
                 "wireguard": {
                   "public_key": "kT695K8pTGd+I6Q4a4URU2AdXN2VAtHyi7kNSRjUEiw=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.82.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-406.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.82.138"
                   ]
@@ -19377,7 +19374,13 @@
                 "wireguard": {
                   "public_key": "HrhtkMqLmKtpAHiUIw7uLHwt48mDlhyLOt4+1kpNj3Y=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.83.12"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-407.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.83.13"
                   ]
@@ -19407,7 +19410,13 @@
                 "wireguard": {
                   "public_key": "tfhYXF12+7tB6bEOhqZ7eMODDv08fDMnQSBTmlau9VI=",
                   "daita": false,
-                  "quic": null,
+                  "quic": {
+                    "addr_in": [
+                      "23.234.83.137"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "us-sea-wg-408.blockerad.eu"
+                  },
                   "shadowsocks_extra_addr_in": [
                     "23.234.83.138"
                   ]
