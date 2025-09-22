@@ -53,7 +53,6 @@
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
 		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
 		447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */; };
-		4483EC372E26A53D007E5473 /* MullvadAccessMethodChangeListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4483EC352E2693D5007E5473 /* MullvadAccessMethodChangeListening.swift */; };
 		449275422C3570CA000526DE /* ICMP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275412C3570CA000526DE /* ICMP.swift */; };
 		4495ECD12D0B170700A7358B /* UDPOverTCPObfuscationSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4495ECD02D0B16F700A7358B /* UDPOverTCPObfuscationSettingsPage.swift */; };
 		4495ECD52D131A4800A7358B /* ShadowsocksObfuscationSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4495ECD42D131A3E00A7358B /* ShadowsocksObfuscationSettingsPage.swift */; };
@@ -793,6 +792,7 @@
 		A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */; };
 		A97687C82DD60D5D000D96E8 /* AddressCacheProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */; };
 		A97687CA2DD60F36000D96E8 /* MullvadAddressCacheProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */; };
+		A977E15D2E816B8200B7ABF6 /* MullvadAccessMethodChangeListening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4483EC352E2693D5007E5473 /* MullvadAccessMethodChangeListening.swift */; };
 		A97D25AE2B0BB18100946B2D /* ProtocolObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */; };
 		A97D25B02B0BB5C400946B2D /* ProtocolObfuscationStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25AF2B0BB5C400946B2D /* ProtocolObfuscationStub.swift */; };
 		A97D25B22B0CB02D00946B2D /* ProtocolObfuscatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25B12B0CB02D00946B2D /* ProtocolObfuscatorTests.swift */; };
@@ -6252,7 +6252,6 @@
 				A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */,
 				58FE25BF2AA72311003D1918 /* MigrationManager.swift in Sources */,
 				58B2FDEF2AA720C4003EB5C6 /* ApplicationTarget.swift in Sources */,
-				4483EC372E26A53D007E5473 /* MullvadAccessMethodChangeListening.swift in Sources */,
 				A988DF272ADE86ED00D807EF /* WireGuardObfuscationSettings.swift in Sources */,
 				58B2FDDE2AA71D5C003EB5C6 /* Migration.swift in Sources */,
 				F05769BB2C6661EE00D9778B /* TunnelSettingsStrategy.swift in Sources */,
@@ -6893,6 +6892,7 @@
 				58D22412294C90210029F5F8 /* RelayConstraint.swift in Sources */,
 				7A7AD14F2BF21EF200B30B3C /* NameInputFormatter.swift in Sources */,
 				58D22413294C90210029F5F8 /* RelayConstraints.swift in Sources */,
+				A977E15D2E816B8200B7ABF6 /* MullvadAccessMethodChangeListening.swift in Sources */,
 				7AB401852DA53D5300522E17 /* NewAccountData.swift in Sources */,
 				A97687C82DD60D5D000D96E8 /* AddressCacheProviding.swift in Sources */,
 				A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */,
@@ -9283,9 +9283,10 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -9294,6 +9295,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadRustRuntimeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
