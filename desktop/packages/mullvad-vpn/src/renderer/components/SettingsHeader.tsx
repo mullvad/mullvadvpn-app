@@ -1,14 +1,14 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Flex, LabelTiny, TitleBig } from '../lib/components';
+import { Flex, LabelTinySemiBold, TitleBig } from '../lib/components';
 
 export const HeaderTitle = styled(TitleBig)({
   wordWrap: 'break-word',
   hyphens: 'auto',
 });
 
-export const HeaderSubTitle = styled(LabelTiny).attrs({
+export const HeaderSubTitle = styled(LabelTinySemiBold).attrs({
   color: 'whiteAlpha60',
 })({});
 

@@ -1,9 +1,9 @@
-import { LabelTiny, LabelTinyProps } from '../../typography';
+import { LabelTinySemiBold, LabelTinySemiBoldProps } from '../../typography';
 import { useProgress } from '../ProgressContext';
 
-export type ProgressTextProps<T extends React.ElementType = 'span'> = LabelTinyProps<T>;
+export type ProgressTextProps<T extends React.ElementType = 'span'> = LabelTinySemiBoldProps<T>;
 
 export const ProgressText = <T extends React.ElementType = 'span'>(props: ProgressTextProps<T>) => {
   const { disabled } = useProgress();
-  return <LabelTiny color={disabled ? 'whiteAlpha40' : 'whiteAlpha60'} {...props} />;
+  return <LabelTinySemiBold color={disabled ? 'whiteAlpha40' : 'whiteAlpha60'} {...props} />;
 };

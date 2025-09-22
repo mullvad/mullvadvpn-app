@@ -7,7 +7,7 @@ import { RoutePath } from '../../shared/routes';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Button, Flex, Icon, IconProps, LabelTiny } from '../lib/components';
+import { Button, Flex, Icon, IconProps, LabelTinySemiBold } from '../lib/components';
 import { colors, spacings } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
@@ -278,9 +278,9 @@ function SettingsImportStatus(props: ImportStatusProps) {
         {iconProps !== undefined && <Icon {...iconProps} size="medium" />}
       </StyledStatusTitle>
       {subtitle !== undefined && (
-        <LabelTiny data-testid="status-subtitle" color="whiteAlpha60">
+        <LabelTinySemiBold data-testid="status-subtitle" color="whiteAlpha60">
           {subtitle}
-        </LabelTiny>
+        </LabelTinySemiBold>
       )}
     </StyledStatusContainer>
   );

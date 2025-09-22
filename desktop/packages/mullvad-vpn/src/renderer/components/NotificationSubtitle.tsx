@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
-import { LabelTiny, Link } from '../lib/components';
+import { LabelTinySemiBold, Link } from '../lib/components';
 import { formatHtml } from '../lib/html-formatter';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
@@ -51,14 +51,14 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
 
   if (!Array.isArray(subtitle)) {
     return (
-      <LabelTiny color="whiteAlpha60" {...props}>
+      <LabelTinySemiBold color="whiteAlpha60" {...props}>
         {formatHtml(subtitle)}
-      </LabelTiny>
+      </LabelTinySemiBold>
     );
   }
 
   return (
-    <LabelTiny color="whiteAlpha60" {...props}>
+    <LabelTinySemiBold color="whiteAlpha60" {...props}>
       {subtitle.map((subtitle, index, arr) => {
         const content = formatSubtitle(subtitle);
 
@@ -69,6 +69,6 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
           </React.Fragment>
         );
       })}
-    </LabelTiny>
+    </LabelTinySemiBold>
   );
 };
