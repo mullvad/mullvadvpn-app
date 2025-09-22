@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
-import { LabelTinySemiBold, Link } from '../lib/components';
+import { LabelTinySemiBold } from '../lib/components';
+import { Link } from '../lib/components/link';
 import { formatHtml } from '../lib/html-formatter';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';

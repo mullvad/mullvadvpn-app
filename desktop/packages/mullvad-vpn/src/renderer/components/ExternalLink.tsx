@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { Url } from '../../shared/constants';
 import { useAppContext } from '../context';
-import { Link, LinkProps } from '../lib/components';
+import { Link, LinkProps } from '../lib/components/link';
 
 export type ExternalLinkProps = Omit<LinkProps, 'href' | 'as'> & {
   to: Url;
