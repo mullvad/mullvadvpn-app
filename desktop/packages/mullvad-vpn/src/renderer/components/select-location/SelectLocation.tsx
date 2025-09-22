@@ -5,7 +5,7 @@ import { strings } from '../../../shared/constants';
 import { ObfuscationType, Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { RoutePath } from '../../../shared/routes';
-import { Button, FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
+import { Button, FilterChip, Flex, IconButton, LabelTinySemiBold } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import {
@@ -169,9 +169,9 @@ export default function SelectLocation() {
                       $alignItems="center"
                       $flexWrap="wrap"
                       $margin={{ horizontal: 'small', bottom: 'medium' }}>
-                      <LabelTiny>
+                      <LabelTinySemiBold>
                         {messages.pgettext('select-location-view', 'Filtered:')}
-                      </LabelTiny>
+                      </LabelTinySemiBold>
 
                       {showOwnershipFilter && (
                         <FilterChip

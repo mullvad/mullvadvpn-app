@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-import { LabelTiny, LabelTinyProps } from '../../typography';
+import { LabelTinySemiBold, LabelTinySemiBoldProps } from '../../typography';
 import { useProgress } from '../ProgressContext';
 
-export type ProgressPercentProps<T extends React.ElementType = 'span'> = LabelTinyProps<T>;
+export type ProgressPercentProps<T extends React.ElementType = 'span'> = LabelTinySemiBoldProps<T>;
 
-const StyledText = styled(LabelTiny)`
+const StyledText = styled(LabelTinySemiBold)`
   min-width: 26px;
 `;
 
