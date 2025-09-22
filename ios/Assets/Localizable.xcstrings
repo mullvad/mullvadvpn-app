@@ -420,6 +420,7 @@
       }
     },
     "Account deletion" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1847,6 +1848,7 @@
       }
     },
     "Delete Account" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1913,6 +1915,7 @@
       }
     },
     "Deleting account..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3517,6 +3520,7 @@
       }
     },
     "Last four digits of the account number are incorrect" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6377,6 +6381,7 @@
       }
     },
     "This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit \"Delete account\" if you really want to delete the account:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
