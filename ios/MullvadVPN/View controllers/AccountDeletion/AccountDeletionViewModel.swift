@@ -88,13 +88,13 @@ class AccountDeletionViewModel: ObservableObject {
         )
     }
 
-    var statusText: LocalizedStringKey {
+    var statusText: LocalizedStringKey? {
         switch state {
         case let .failure(error):
-            return LocalizedStringKey(error.localizedDescription)
+            LocalizedStringKey(error.localizedDescription)
         case .working:
-            return LocalizedStringKey("Deleting account...")
-        default: return LocalizedStringKey("")
+            LocalizedStringKey("Deleting account...")
+        default: nil
         }
     }
 

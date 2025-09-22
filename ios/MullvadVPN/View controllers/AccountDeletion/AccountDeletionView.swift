@@ -52,10 +52,11 @@ struct AccountDeletionView: View {
                             .progressViewStyle(MullvadProgressViewStyle(size: spinnerSize))
                         Spacer().frame(width: spinnerStatusGap)
                     }
-
-                    Text(viewModel.statusText)
-                        .font(.mullvadSmall)
-                        .foregroundStyle(Color.white)
+                    if let statusText = viewModel.statusText {
+                        Text(statusText)
+                            .font(.mullvadSmall)
+                            .foregroundStyle(Color.white)
+                    }
                 }
 
                 Spacer()
