@@ -262,7 +262,6 @@
 
     },
     "Account deletion" : {
-
     },
     "Account number" : {
       "localizations" : {
@@ -1283,7 +1282,6 @@
 
     },
     "Delete Account" : {
-
     },
     "Delete list" : {
       "localizations" : {
@@ -1330,7 +1328,6 @@
       }
     },
     "Deleting account..." : {
-
     },
     "Device is inactive" : {
       "localizations" : {
@@ -2472,7 +2469,6 @@
       }
     },
     "Last four digits of the account number are incorrect" : {
-
     },
     "Last used account" : {
 

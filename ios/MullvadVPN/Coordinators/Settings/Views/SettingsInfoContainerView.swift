@@ -19,7 +19,7 @@ struct SettingsInfoContainerView<Content: View>: View {
         ScrollView {
             VStack {
                 content
-                    .padding(.top, UIMetrics.contentInsets.top)
+                    .padding(.top, UIMetrics.TableView.emptyHeaderHeight)
                     .padding(.bottom, UIMetrics.contentInsets.bottom)
             }
         }

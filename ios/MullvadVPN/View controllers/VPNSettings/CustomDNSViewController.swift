@@ -58,7 +58,7 @@ class CustomDNSViewController: UITableViewController {
 
         tableView.tableHeaderView = UIView(frame: CGRect(
             origin: .zero,
-            size: CGSize(width: 0, height: UIMetrics.TableView.sectionSpacing)
+            size: CGSize(width: 0, height: UIMetrics.TableView.emptyHeaderHeight)
         ))
     }
 

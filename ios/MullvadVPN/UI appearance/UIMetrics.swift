@@ -17,12 +17,15 @@ enum UIMetrics {
         /// Height for separators between cells and/or sections.
         static let separatorHeight: CGFloat = 0.33
         /// Spacing used between distinct sections of views
-        static let sectionSpacing: CGFloat = 24
-        /// Common layout margins for row views presentation
-        /// Similar to `SettingsCell.layoutMargins` however maintains equal horizontal spacing
-        static let rowViewLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+        static let sectionSpacing: CGFloat = 16
+        /// Spacing used for empty header views
+        static let emptyHeaderHeight: CGFloat = 8
         /// Common cell indentation width
         static let cellIndentationWidth: CGFloat = 16
+        /// Spacing for info button
+        static let infoButtonSpacing: CGFloat = 8
+        /// Heading margins
+        static let headingLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0)
     }
 
     enum CustomAlert {
@@ -76,15 +79,14 @@ enum UIMetrics {
     }
 
     enum SettingsCell {
-        static let textFieldContentInsets = UIEdgeInsets(top: 8, left: 24, bottom: 8, right: 24)
+        static let textFieldContentInsets = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
         static let textFieldNonEditingContentInsetLeft: CGFloat = 40
-        static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 12)
         static let inputCellTextFieldLayoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         static let selectableSettingsCellLeftViewSpacing: CGFloat = 12
         static let checkableSettingsCellLeftViewSpacing: CGFloat = 12
 
         /// Cell layout margins used in table views.
-        static let defaultLayoutMargins = NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 16)
+        static let defaultLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
 
         static let settingsValidationErrorLayoutMargins = NSDirectionalEdgeInsets(
             top: 8,
@@ -99,7 +101,7 @@ enum UIMetrics {
     }
 
     enum SettingsInfoView {
-        static let layoutMargins = EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+        static let layoutMargins = EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
     }
 
     enum SettingsRowView {
@@ -190,7 +192,7 @@ extension UIMetrics {
     static let contentLayoutMargins = contentInsets.toDirectionalInsets
 
     /// Common content margins for content presentation
-    static let contentInsets = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
+    static let contentInsets = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
 
     /// Common layout margins for location cell presentation
     static let locationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 12)
@@ -199,5 +201,8 @@ extension UIMetrics {
     static let largeNavigationTitlePadding = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
 
     /// Layout margins used by content heading displayed below the large navigation title.
-    static let contentHeadingLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 24, bottom: 24, trailing: 24)
+    static let contentHeadingLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16)
+
+    /// Layout margins used by content footer displayed below eg. a list.
+    static let contentFooterLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16)
 }

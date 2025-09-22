@@ -175,7 +175,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.attributedText = viewModel.customDNSPrecondition.attributedLocalizedDescription(
                 isEditing: isEditing,
-                preferredFont: .mullvadSmallSemiBold
+                preferredFont: .mullvadTiny
             )
         }
     }

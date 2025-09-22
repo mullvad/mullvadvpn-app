@@ -196,7 +196,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
 
             items()
         }
-        .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
+        .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
         .background(
             isSelected
                 ? Color(UIColor.Cell.Background.selected)
@@ -321,16 +321,15 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     private func subtitleRow(_ text: String) -> some View {
         HStack {
             Text(text)
-                .font(.callout)
-                .opacity(0.6)
+                .font(.mullvadTiny)
             Spacer()
         }
-        .padding(.horizontal, UIMetrics.SettingsCell.layoutMargins.leading)
-        .padding(.vertical, 4)
+        .padding(.horizontal, UIMetrics.SettingsCell.defaultLayoutMargins.leading)
+        .padding(.vertical, 16)
         .background(
             Color(.secondaryColor)
         )
-        .foregroundColor(Color(UIColor.Cell.titleTextColor))
+        .foregroundColor(Color(UIColor.TableSection.footerTextColor))
     }
 
     var body: some View {
@@ -339,7 +338,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 Text(title).fontWeight(.semibold)
                 Spacer()
             }
-            .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
+            .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
             .background(Color(UIColor.Cell.Background.normal))
             List {
                 Section {
@@ -381,7 +380,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             .environment(\.defaultMinListRowHeight, 0)
             Spacer()
         }
-        .padding(EdgeInsets(top: 24, leading: 0, bottom: 0, trailing: 0))
+        .padding(.top, 8)
         .background(Color(.secondaryColor))
         .foregroundColor(Color(.primaryTextColor))
         .onAppear {
