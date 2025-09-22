@@ -15,6 +15,7 @@ class SettingsAddDNSEntryCell: SettingsCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelZero
+        titleLabel.font = .mullvadSmall
 
         let gestureRecognizer = UITapGestureRecognizer(
             target: self,

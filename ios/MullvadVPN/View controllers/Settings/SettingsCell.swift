@@ -154,7 +154,8 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
         contentView.addConstrainedSubviews([leftContentContainer, mainContentContainer, rightContentContainer]) {
             mainContentContainer.pinEdgesToSuperviewMargins(.all().excluding([.leading, .trailing]))
 
-            leftContentContainer.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
+            leftContentContainer.pinEdgesToSuperviewMargins(.all().excluding([.leading, .trailing]))
+            leftContentContainer.pinEdgesToSuperviewMargins(.init([.leading(-4)]))
             leftContentContainer.trailingAnchor.constraint(equalTo: mainContentContainer.leadingAnchor)
 
             rightContentContainer.pinEdgesToSuperview(.all().excluding(.leading))
@@ -207,9 +208,9 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
     private func setLayoutMargins() {
         // Set layout margins for standard acceessories added into the cell (reorder control, etc..)
-        directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
+        directionalLayoutMargins = UIMetrics.SettingsCell.defaultLayoutMargins
 
         // Set layout margins for cell content
-        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.defaultLayoutMargins
     }
 }
