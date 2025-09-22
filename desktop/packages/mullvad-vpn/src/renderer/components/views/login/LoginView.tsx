@@ -8,18 +8,9 @@ import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
 import { formatAccountNumber } from '../../../lib/account';
 import useActions from '../../../lib/actionsHook';
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  Label,
-  Link,
-  Spinner,
-  Text,
-  TitleMedium,
-} from '../../../lib/components';
+import { Box, Button, Flex, Icon, Link, Spinner, Text, TitleMedium } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { Label } from '../../../lib/components/label';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { formatHtml } from '../../../lib/html-formatter';

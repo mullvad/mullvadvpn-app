@@ -1,5 +1,5 @@
-import { Text } from './Text';
-import { TextProps } from './Text';
+import { Text } from '../typography/Text';
+import { TextProps } from '../typography/Text';
 
 export type LabelProps<T extends React.ElementType = 'label'> = TextProps<T>;
 
