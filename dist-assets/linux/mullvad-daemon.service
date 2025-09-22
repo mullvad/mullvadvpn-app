@@ -11,6 +11,18 @@ StartLimitIntervalSec=20
 RequiresMountsFor=/opt/Mullvad\x20VPN/resources/
 
 [Service]
+# limit escalation
+NoNewPriviledges=yes
+
+# limit capabilities
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW
+
+# limit filesystem access
+ProtectSystem=true
+ProtectHome=true
+PrivateTmp=yes
+
 Restart=always
 RestartSec=1
 ExecStart=/usr/bin/mullvad-daemon -v --disable-stdout-timestamps
