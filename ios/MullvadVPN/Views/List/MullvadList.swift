@@ -36,28 +36,32 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
     }
 
     var body: some View {
-        List {
-            if let headerView = header?() {
-                headerView
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-            }
+        VStack(alignment: .leading) {
+            List {
+                if let headerView = header?() {
+                    headerView
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(UIMetrics.contentHeadingLayoutMargins))
+                }
 
-            ForEach(data, id: id) { item in
-                content(item)
-                    .listRowInsets(.init())
-                    .listRowSeparator(.hidden)
-            }
+                ForEach(data, id: id) { item in
+                    content(item)
+                        .listRowInsets(.init())
+                        .listRowSeparator(.hidden)
+                }
 
-            if let footerView = footer?() {
-                footerView
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
+                if let footerView = footer?() {
+                    footerView
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(UIMetrics.contentFooterLayoutMargins))
+                }
             }
+            .listStyle(.plain)
+            .listRowSpacing(UIMetrics.TableView.separatorHeight)
+            .environment(\.defaultMinListRowHeight, 0)
         }
-        .listStyle(.plain)
-        .listRowSpacing(UIMetrics.TableView.separatorHeight)
-        .environment(\.defaultMinListRowHeight, 0)
     }
 }
 

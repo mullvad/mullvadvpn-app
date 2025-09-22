@@ -73,7 +73,7 @@ class VPNSettingsViewController: UITableViewController {
         let showsSingleSection = section != nil
         tableView.tableHeaderView = UIView(frame: CGRect(
             origin: .zero,
-            size: CGSize(width: 0, height: showsSingleSection ? 0 : UIMetrics.TableView.sectionSpacing)
+            size: CGSize(width: 0, height: showsSingleSection ? 0 : UIMetrics.TableView.emptyHeaderHeight)
         ))
     }
 }
