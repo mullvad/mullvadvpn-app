@@ -1,13 +1,11 @@
 //! Boringtun + Masque = <3
 
 use std::io;
-use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::net::{Ipv4Addr, SocketAddr};
 use std::path::PathBuf;
 use std::sync::Arc;
 
 use boringtun::device::{DeviceConfig, DeviceHandle};
-use boringtun::packet::{Packet, PacketBufPool};
-use boringtun::udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams};
 use clap::Parser;
 use tun::AsyncDevice;
 use tunnel_obfuscation::quic::Quic;
