@@ -36,13 +36,11 @@ const StyledText = styled.span<TransientProps<TextBaseProps>>(
   },
 );
 
-export const Text = <T extends React.ElementType = 'span'>({
+export function Text<T extends React.ElementType = 'span'>({
   variant,
   color,
   textAlign,
   ...props
-}: TextProps<T>) => {
+}: TextProps<T>) {
   return <StyledText $variant={variant} $color={color} $textAlign={textAlign} {...props} />;
-};
-
-Text.displayName = 'Text';
+}
