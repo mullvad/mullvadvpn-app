@@ -1,7 +1,7 @@
-import { LabelTinyProps, TitleMedium } from '../../../typography';
+import { LabelTinySemiBoldProps, TitleMedium } from '../../../typography';
 import { useListItemContext } from '../../ListItemContext';
 
-export type ListItemLabelProps<E extends React.ElementType = 'span'> = LabelTinyProps<E>;
+export type ListItemLabelProps<E extends React.ElementType = 'span'> = LabelTinySemiBoldProps<E>;
 
 export const ListItemLabel = <E extends React.ElementType = 'span'>(
   props: ListItemLabelProps<E>,
