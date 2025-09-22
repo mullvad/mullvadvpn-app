@@ -2,6 +2,8 @@ import { Text, TextProps } from './Text';
 
 export type LabelTinySemiBoldProps<E extends React.ElementType = 'span'> = TextProps<E>;
 
-export const LabelTinySemiBold = <T extends React.ElementType = 'span'>(
+export function LabelTinySemiBold<T extends React.ElementType = 'span'>(
   props: LabelTinySemiBoldProps<T>,
-) => <Text variant="labelTinySemiBold" {...props} />;
+) {
+  return <Text variant="labelTinySemiBold" {...props} />;
+}
