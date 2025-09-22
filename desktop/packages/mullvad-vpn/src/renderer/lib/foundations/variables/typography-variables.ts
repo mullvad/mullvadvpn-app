@@ -71,6 +71,7 @@ export type Typography =
   | 'titleMedium'
   | 'bodySmall'
   | 'bodySmallSemibold'
+  | 'labelTiny'
   | 'labelTinySemiBold'
   | 'footnoteMini';
 
@@ -111,6 +112,12 @@ export const typography: Record<Typography, TypographyProperties> = {
     fontWeight: FontWeights.semiBold,
     fontSize: FontSizes.small,
     lineHeight: LineHeights.small,
+  },
+  labelTiny: {
+    fontFamily: Fonts.label,
+    fontWeight: FontWeights.regular,
+    fontSize: FontSizes.tiny,
+    lineHeight: LineHeights.tiny,
   },
   labelTinySemiBold: {
     fontFamily: Fonts.label,
