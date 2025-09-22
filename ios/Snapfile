@@ -1,10 +1,10 @@
-ios_version '17.2'
+ios_version '18.5'
 
 # A list of devices you want to take the screenshots from
 devices([
   "iPhone SE (3rd generation)",
-  "iPhone 15 Pro",
-  "iPhone 15 Pro Max",
+  "iPhone 16 Pro",
+  "iPhone 16 Pro Max",
   "iPad Pro 11-inch (M4)",
   "iPad Pro 13-inch (M4)"
 ])
