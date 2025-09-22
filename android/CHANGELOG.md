@@ -22,8 +22,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2025.8] - 2025-09-22
+Identical to `android/2025.8-beta1`.
+
+
+## [android/2025.8-beta1] - 2025-09-15
 ### Added
 - Set default server based on the current location when the app is started for the first time.
+- Add QUIC obfuscation.
 
 ### Changed
 - Enable quantum-resistant tunnels by default (when set to `Automatic`).
