@@ -35,6 +35,7 @@ pub enum SettingsVersion {
     V9 = 9,
     V10 = 10,
     V11 = 11,
+    V12 = 12,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -53,6 +54,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V9 as u32 => Ok(SettingsVersion::V9),
             v if v == SettingsVersion::V10 as u32 => Ok(SettingsVersion::V10),
             v if v == SettingsVersion::V11 as u32 => Ok(SettingsVersion::V11),
+            v if v == SettingsVersion::V12 as u32 => Ok(SettingsVersion::V12),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
