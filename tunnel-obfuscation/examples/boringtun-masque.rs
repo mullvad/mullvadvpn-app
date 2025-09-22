@@ -36,11 +36,10 @@ async fn main() -> io::Result<()> {
     let boringtun_settings = args.boringtun_settings();
     let obfuscator_settings = args.quic_settings();
 
-    let (mut boringtun_io, obfuscator_io) = create_in_process_communication_channels();
+    let (boringtun_io, obfuscator_io) = create_in_process_communication_channels();
 
     log::info!("Starting BoringTun ..");
     // TODO: Something with boringtun is not working .. Masque is working :+1:
-    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let boringtun: BoringtunDevice = create_boringtun(boringtun_io, boringtun_settings).await;
     log::info!("BoringTun started successfully");
 
@@ -79,6 +78,7 @@ async fn main() -> io::Result<()> {
     tokio::select! {
         _x = obfs => {
             log::info!("Exiting obfuscator");
+            drop(boringtun);
         }
     }
 
