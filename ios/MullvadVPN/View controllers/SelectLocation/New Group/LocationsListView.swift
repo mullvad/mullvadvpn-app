@@ -127,6 +127,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 }
             }
         }
+        .transformEffect(.identity)
         .contextMenu {
             contextMenu()
         }
