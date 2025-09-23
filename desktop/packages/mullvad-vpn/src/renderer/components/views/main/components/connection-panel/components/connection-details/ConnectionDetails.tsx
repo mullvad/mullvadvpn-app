@@ -110,10 +110,14 @@ export function ConnectionDetails() {
         </StyledConnectionDetailsTitle>
         <StyledIpLabelContainer>
           {connection.ipv4 && (
-            <StyledConnectionDetailsLabel>{connection.ipv4}</StyledConnectionDetailsLabel>
+            <StyledConnectionDetailsLabel data-testid="out-ip">
+              {connection.ipv4}
+            </StyledConnectionDetailsLabel>
           )}
           {connection.ipv6 && (
-            <StyledConnectionDetailsLabel>{connection.ipv6}</StyledConnectionDetailsLabel>
+            <StyledConnectionDetailsLabel data-testid="out-ip">
+              {connection.ipv6}
+            </StyledConnectionDetailsLabel>
           )}
         </StyledIpLabelContainer>
       </StyledIpTable>
