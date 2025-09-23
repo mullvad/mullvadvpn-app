@@ -1,20 +1,26 @@
 import styled from 'styled-components';
 
-import { messages } from '../../shared/gettext';
-import { RoutePath } from '../../shared/routes';
-import { useAppContext } from '../context';
-import { Image } from '../lib/components';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './cell';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import { SettingsNavigationListItem } from './settings-navigation-list-item';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
+import { useAppContext } from '../../../context';
+import { Image } from '../../../lib/components';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import { BackAction } from '../../KeyboardNavigation';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsGroup,
+  SettingsStack,
+} from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import { SettingsNavigationListItem } from '../../settings-navigation-list-item';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const StyledAnimateMapCellGroup = styled(SettingsGroup)({
   '@media (prefers-reduced-motion: reduce)': {
@@ -22,7 +28,7 @@ const StyledAnimateMapCellGroup = styled(SettingsGroup)({
   },
 });
 
-export default function UserInterfaceSettings() {
+export function UserInterfaceSettings() {
   const { pop } = useHistory();
   const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 

@@ -24,7 +24,6 @@ import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import Support from './Support';
-import UserInterfaceSettings from './UserInterfaceSettings';
 import {
   Account,
   AppInfoView,
@@ -42,6 +41,7 @@ import {
   SplitTunnelingView,
   TooManyDevicesView,
   UdpOverTcpSettingsView,
+  UserInterfaceSettings,
   VpnSettingsView,
   WireguardSettingsView,
 } from './views';
