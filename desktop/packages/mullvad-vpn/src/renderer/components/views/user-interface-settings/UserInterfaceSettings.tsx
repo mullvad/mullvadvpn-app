@@ -17,7 +17,7 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
   AnimateMapSetting,
-  LanguageButton,
+  LanguageListItem,
   MonochromaticTrayIconSetting,
   NotificationsSetting,
   StartMinimizedSetting,
@@ -63,7 +63,7 @@ export function UserInterfaceSettings() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <LanguageButton />
+                    <LanguageListItem />
                   </SettingsGroup>
 
                   {(window.env.platform === 'win32' ||
