@@ -64,7 +64,7 @@ export function TooManyDevicesView() {
                 <Text variant="labelTiny">{subtitle}</Text>
               </View.Container>
               <div>
-                <List items={devices} getKey={getDeviceKey}>
+                <List items={devices} getKey={getDeviceKey} skipAddTransition>
                   {(device) => <DeviceListItem device={device} />}
                 </List>
               </div>
