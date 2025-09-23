@@ -239,7 +239,7 @@ mod tests {
     /// see <https://docs.rs/tokio/latest/tokio/time/fn.pause.html#auto-advance> for details.
     mod timeout {
         use super::*;
-        use rand::{distributions::Uniform, thread_rng};
+        use rand::{Rng, distr::Uniform};
         use std::pin::Pin;
         use tokio::test;
 
@@ -280,11 +280,10 @@ mod tests {
         /// order.
         #[test(start_paused = true)]
         async fn all_pings_ok() {
-            let mut rng = thread_rng();
             // Random delay for each ping, but within PING_OFFSET_TIMEOUT of the first
-            let uniform = Uniform::new(Duration::ZERO, PING_OFFSET_TIMEOUT);
+            let uniform = Uniform::new(Duration::ZERO, PING_OFFSET_TIMEOUT).unwrap();
             let pings = (0..=100)
-                .map(|p| delayed_ping(Ok(p), rng.sample(uniform)))
+                .map(|p| delayed_ping(Ok(p), rand::rng().sample(uniform)))
                 .collect();
             let max = max_ping_size(pings).await.unwrap();
             assert_eq!(max, 100);
@@ -310,15 +309,15 @@ mod tests {
         /// each other in time, the largest return value is chosen as normal.
         #[test(start_paused = true)]
         async fn delay_first_ping() {
-            let mut rng = thread_rng();
             // Random delay for each ping, but within PING_OFFSET_TIMEOUT of the first and no sooner
             // than 5s
             let uniform = Uniform::new(
                 Duration::from_secs(5),
                 Duration::from_secs(5) + PING_OFFSET_TIMEOUT,
-            );
+            )
+            .unwrap();
             let pings = (0..=100)
-                .map(|p| delayed_ping(Ok(p), rng.sample(uniform)))
+                .map(|p| delayed_ping(Ok(p), rand::rng().sample(uniform)))
                 .collect();
             let max = max_ping_size(pings).await.unwrap();
             assert_eq!(max, 100);
