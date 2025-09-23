@@ -1,5 +1,5 @@
 import { ListItem } from '../../list-item';
-import { TextProps } from '../../typography';
+import { TextProps } from '../../text';
 import { useAccordionContext } from '../AccordionContext';
 
 export type AccordionTitleProps = TextProps;
