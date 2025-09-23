@@ -18,7 +18,7 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
                 if isAutomaticRoutingActive {
                     DAITAMultihopNotice()
                         .padding(EdgeInsets(
-                            top: -UIMetrics.contentInsets.top,
+                            top: -8,
                             leading: UIMetrics.contentInsets.toEdgeInsets.leading,
                             bottom: 8,
                             trailing: UIMetrics.contentInsets.toEdgeInsets.trailing
@@ -34,7 +34,7 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
                             text: NSLocalizedString("Enable", comment: ""),
                             accessibilityId: .daitaSwitch
                         )
-                        RowSeparator()
+                        RowSeparator(edgeInsets: .init(top: 0, leading: 16, bottom: 0, trailing: 16))
                         SwitchRowView(
                             isOn: directOnlyIsEnabled,
                             disabled: !daitaIsEnabled.wrappedValue,
