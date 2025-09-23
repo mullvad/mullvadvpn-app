@@ -6,7 +6,6 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadSettings
 import MullvadTypes
 
 func onAccessChangeCallback(selfPtr: UnsafeRawPointer?, bytes: UnsafePointer<UInt8>?) {
