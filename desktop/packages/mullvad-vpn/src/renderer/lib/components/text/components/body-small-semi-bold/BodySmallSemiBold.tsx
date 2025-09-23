@@ -1,4 +1,4 @@
-import { Text, TextProps } from './Text';
+import { Text, TextProps } from '../../Text';
 
 export type BodySmallSemiBoldProps<E extends React.ElementType = 'span'> = TextProps<E>;
 
