@@ -49,18 +49,19 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
         filter = try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter) ?? .any
 
         // Added in 2024.5
-        entryLocations = try container.decodeIfPresent(
-            RelayConstraint<UserSelectedRelays>.self,
-            forKey: .entryLocations
-        ) ?? .only(UserSelectedRelays(locations: [.country("se")]))
+        entryLocations =
+            try container.decodeIfPresent(
+                RelayConstraint<UserSelectedRelays>.self,
+                forKey: .entryLocations
+            ) ?? .only(UserSelectedRelays(locations: [.country("se")]))
 
-        exitLocations = try container
-            .decodeIfPresent(RelayConstraint<UserSelectedRelays>.self, forKey: .exitLocations) ??
-            container.decodeIfPresent(
+        exitLocations =
+            try container
+            .decodeIfPresent(RelayConstraint<UserSelectedRelays>.self, forKey: .exitLocations)
+            ?? container.decodeIfPresent(
                 RelayConstraint<UserSelectedRelays>.self,
                 forKey: .locations
-            ) ??
-            Self.migrateRelayLocation(decoder: decoder)
+            ) ?? Self.migrateRelayLocation(decoder: decoder)
             ?? .only(UserSelectedRelays(locations: [.country("se")]))
     }
 }

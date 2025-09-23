@@ -131,7 +131,8 @@ class LoginContentView: UIView {
         footerContainer.addSubview(footerLabel)
         footerContainer.addSubview(createAccountButton)
 
-        let contentContainerBottomConstraint = bottomAnchor
+        let contentContainerBottomConstraint =
+            bottomAnchor
             .constraint(equalTo: contentContainer.bottomAnchor)
         self.contentContainerBottomConstraint = contentContainerBottomConstraint
 

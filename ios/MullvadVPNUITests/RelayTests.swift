@@ -77,7 +77,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapConnectButton()
 
-        allowAddVPNConfigurationsIfAsked() // Allow adding VPN configurations iOS permission
+        allowAddVPNConfigurationsIfAsked()  // Allow adding VPN configurations iOS permission
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
@@ -547,14 +547,16 @@ class RelayTests: LoggedInWithTimeUITestCase {
         let (secondIpAddress, secondPort, streamWithDaita) = try generateTrafficSample()
 
         // Compare packet capture #1 and #2 mean packet size
-        let packetStreamWithoutDaita = try XCTUnwrap(streamWithoutDaita
-            .filter { $0.destinationAddress == firstIPAddress && $0.destinationPort == firstPort }
-            .first
+        let packetStreamWithoutDaita = try XCTUnwrap(
+            streamWithoutDaita
+                .filter { $0.destinationAddress == firstIPAddress && $0.destinationPort == firstPort }
+                .first
         )
 
-        let packetStreamWithDaita = try XCTUnwrap(streamWithDaita
-            .filter { $0.destinationAddress == secondIpAddress && $0.destinationPort == secondPort }
-            .first
+        let packetStreamWithDaita = try XCTUnwrap(
+            streamWithDaita
+                .filter { $0.destinationAddress == secondIpAddress && $0.destinationPort == secondPort }
+                .first
         )
 
         let computeMeanPacketSize: (Stream, Int) -> Int32 = { stream, sampleSize in
@@ -723,7 +725,6 @@ extension RelayTests {
 
     /// Starts a packet capture, connects to a relay, generates synthetic traffic,
     /// disconnects from the relay, and gets a representation of the captured traffic
-    // swiftlint:disable:next large_tuple
     private func generateTrafficSample() throws -> (String, Int, [Stream]) {
         startPacketCapture()
 
@@ -751,4 +752,4 @@ extension RelayTests {
 
         return (IPAddress, port, stream)
     }
-} // swiftlint:disable:this file_length
+}

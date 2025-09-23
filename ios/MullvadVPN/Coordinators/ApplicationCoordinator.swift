@@ -18,7 +18,8 @@ import UIKit
  */
 final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency RootContainerViewControllerDelegate,
     UISplitViewControllerDelegate, @preconcurrency ApplicationRouterDelegate,
-    @preconcurrency NotificationManagerDelegate {
+    @preconcurrency NotificationManagerDelegate
+{
     typealias RouteType = AppRoute
 
     /**
@@ -28,7 +29,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     /**
      Navigation container.
-
+    
      Used as a container for horizontal flows (TOS, Login, Revoked, Out-of-time).
      */
     private let navigationContainer = RootContainerViewController()
@@ -519,7 +520,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     private func makeLocationCoordinator(forModalPresentation isModalPresentation: Bool)
-        -> LocationCoordinator {
+        -> LocationCoordinator
+    {
         let navigationController = CustomNavigationController()
         navigationController.isNavigationBarHidden = !isModalPresentation
 
@@ -732,7 +734,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             TunnelBlockObserver(
                 didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
                     if case let .error(observedState) = tunnelStatus.observedState,
-                       observedState.reason == .accountExpired {
+                        observedState.reason == .accountExpired
+                    {
                         self?.router.present(.outOfTime)
                     }
                 },
@@ -795,11 +798,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         guard !accountData.isExpired else { return }
 
-        let timer = Timer(fire: accountData.expiry, interval: 0, repeats: false, block: { [weak self] _ in
-            Task { @MainActor in
-                self?.router.present(.outOfTime, animated: true)
-            }
-        })
+        let timer = Timer(
+            fire: accountData.expiry, interval: 0, repeats: false,
+            block: { [weak self] _ in
+                Task { @MainActor in
+                    self?.router.present(.outOfTime, animated: true)
+                }
+            })
 
         RunLoop.main.add(timer, forMode: .common)
 
@@ -840,12 +845,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     // MARK: - UISplitViewControllerDelegate
 
     func primaryViewController(forExpanding splitViewController: UISplitViewController)
-        -> UIViewController? {
+        -> UIViewController?
+    {
         splitLocationCoordinator?.navigationController
     }
 
     func primaryViewController(forCollapsing splitViewController: UISplitViewController)
-        -> UIViewController? {
+        -> UIViewController?
+    {
         splitTunnelCoordinator?.rootViewController
     }
 
@@ -886,17 +893,19 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
-        -> UIInterfaceOrientationMask {
+        -> UIInterfaceOrientationMask
+    {
         return [.portrait]
     }
 
     func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
-        -> Bool {
+        -> Bool
+    {
         guard tunnelManager.deviceState.isLoggedIn else { return false }
 
         switch tunnelManager.tunnelStatus.state {
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
-             .negotiatingEphemeralPeer:
+            .negotiatingEphemeralPeer:
             tunnelManager.reconnectTunnel(selectNewRelay: true)
 
         case .disconnecting, .disconnected:
@@ -914,7 +923,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     ) {
-        isPresentingAccountExpiryBanner = notifications
+        isPresentingAccountExpiryBanner =
+            notifications
             .contains(where: { $0.identifier == .accountExpiryInAppNotification })
         updateDeviceInfo(deviceState: tunnelManager.deviceState)
         notificationController.setNotifications(notifications, animated: true)
@@ -950,4 +960,4 @@ extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
-} // swiftlint:disable:this file_length
+}

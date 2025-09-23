@@ -90,9 +90,11 @@ extension RelaySelector {
                 }
             }
 
-            let closestRelay = rouletteSelection(relays: closetsRelayGroup, weightFunction: { relay in
-                UInt64(1 + greatestDistance - relay.distance)
-            })
+            let closestRelay = rouletteSelection(
+                relays: closetsRelayGroup,
+                weightFunction: { relay in
+                    UInt64(1 + greatestDistance - relay.distance)
+                })
 
             return closestRelay?.relay
         }

@@ -156,8 +156,9 @@ struct TunnelMonitorState {
 
         let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
         if let lastReplyDate = pingStats.lastReplyDate,
-           lastRequestDate.timeIntervalSince(lastReplyDate) >= timings.heartbeatReplyTimeout,
-           timeSinceLastPing >= timings.pingDelay, !isHeartbeatSuspended {
+            lastRequestDate.timeIntervalSince(lastReplyDate) >= timings.heartbeatReplyTimeout,
+            timeSinceLastPing >= timings.pingDelay, !isHeartbeatSuspended
+        {
             return .retryHeartbeatPing
         }
 

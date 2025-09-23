@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import MullvadREST
 import WireGuardKitTypes
+
+@testable import MullvadREST
 
 public enum ServerRelaysResponseStubs {
     public static let wireguardPortRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
@@ -187,69 +188,71 @@ public enum ServerRelaysResponseStubs {
             ],
             shadowsocksPortRanges: shadowsocksPortRanges
         ),
-        bridge: REST.ServerBridges(shadowsocks: [
-            REST.ServerShadowsocks(protocol: "tcp", port: 443, cipher: "aes-256-gcm", password: "mullvad"),
-        ], relays: [
-            REST.BridgeRelay(
-                hostname: "se-sto-br-001",
-                active: true,
-                owned: true,
-                location: "se-sto",
-                provider: "31173",
-                ipv4AddrIn: .loopback,
-                weight: 100,
-                includeInCountry: true
-            ),
-            REST.BridgeRelay(
-                hostname: "jp-tyo-br-101",
-                active: true,
-                owned: true,
-                location: "jp-tyo",
-                provider: "M247",
-                ipv4AddrIn: .loopback,
-                weight: 1,
-                includeInCountry: true
-            ),
-            REST.BridgeRelay(
-                hostname: "ca-tor-ovpn-001",
-                active: false,
-                owned: false,
-                location: "ca-tor",
-                provider: "M247",
-                ipv4AddrIn: .loopback,
-                weight: 1,
-                includeInCountry: true
-            ),
-            REST.BridgeRelay(
-                hostname: "ae-dxb-ovpn-001",
-                active: true,
-                owned: false,
-                location: "ae-dxb",
-                provider: "M247",
-                ipv4AddrIn: .loopback,
-                weight: 100,
-                includeInCountry: true
-            ),
-            REST.BridgeRelay(
-                hostname: "us-atl-br-101",
-                active: true,
-                owned: false,
-                location: "us-atl",
-                provider: "100TB",
-                ipv4AddrIn: .loopback,
-                weight: 100,
-                includeInCountry: true
-            ),
-            REST.BridgeRelay(
-                hostname: "us-dal-br-101",
-                active: true,
-                owned: false,
-                location: "us-dal",
-                provider: "100TB",
-                ipv4AddrIn: .loopback,
-                weight: 100,
-                includeInCountry: true
-            ),
-        ])
+        bridge: REST.ServerBridges(
+            shadowsocks: [
+                REST.ServerShadowsocks(protocol: "tcp", port: 443, cipher: "aes-256-gcm", password: "mullvad")
+            ],
+            relays: [
+                REST.BridgeRelay(
+                    hostname: "se-sto-br-001",
+                    active: true,
+                    owned: true,
+                    location: "se-sto",
+                    provider: "31173",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "jp-tyo-br-101",
+                    active: true,
+                    owned: true,
+                    location: "jp-tyo",
+                    provider: "M247",
+                    ipv4AddrIn: .loopback,
+                    weight: 1,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "ca-tor-ovpn-001",
+                    active: false,
+                    owned: false,
+                    location: "ca-tor",
+                    provider: "M247",
+                    ipv4AddrIn: .loopback,
+                    weight: 1,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "ae-dxb-ovpn-001",
+                    active: true,
+                    owned: false,
+                    location: "ae-dxb",
+                    provider: "M247",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "us-atl-br-101",
+                    active: true,
+                    owned: false,
+                    location: "us-atl",
+                    provider: "100TB",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+                REST.BridgeRelay(
+                    hostname: "us-dal-br-101",
+                    active: true,
+                    owned: false,
+                    location: "us-dal",
+                    provider: "100TB",
+                    ipv4AddrIn: .loopback,
+                    weight: 100,
+                    includeInCountry: true
+                ),
+            ])
     )
 }

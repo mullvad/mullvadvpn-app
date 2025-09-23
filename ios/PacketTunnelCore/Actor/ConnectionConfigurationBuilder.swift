@@ -63,20 +63,21 @@ private struct NormalConnectionConfiguration: Configuration {
     }
 
     func make() throws -> ConnectionConfiguration {
-        let entryConfiguration: TunnelAdapterConfiguration? = if connectionData.selectedRelays.entry != nil {
-            try ConfigurationBuilder(
-                privateKey: activeKey,
-                interfaceAddresses: settings.interfaceAddresses,
-                dns: settings.dnsServers,
-                endpoint: connectionData.connectedEndpoint,
-                allowedIPs: [
-                    IPAddressRange(from: "\(connectionData.selectedRelays.exit.endpoint.ipv4Relay.ip)/32")!,
-                ],
-                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
-            ).makeConfiguration()
-        } else {
-            nil
-        }
+        let entryConfiguration: TunnelAdapterConfiguration? =
+            if connectionData.selectedRelays.entry != nil {
+                try ConfigurationBuilder(
+                    privateKey: activeKey,
+                    interfaceAddresses: settings.interfaceAddresses,
+                    dns: settings.dnsServers,
+                    endpoint: connectionData.connectedEndpoint,
+                    allowedIPs: [
+                        IPAddressRange(from: "\(connectionData.selectedRelays.exit.endpoint.ipv4Relay.ip)/32")!
+                    ],
+                    pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
+                ).makeConfiguration()
+            } else {
+                nil
+            }
         let exitConfiguration = try ConfigurationBuilder(
             privateKey: activeKey,
             interfaceAddresses: settings.interfaceAddresses,

@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 struct Jittered<InnerIterator: IteratorProtocol>: IteratorProtocol
-    where InnerIterator.Element == Duration {
+where InnerIterator.Element == Duration {
     private var inner: InnerIterator
 
     init(_ inner: InnerIterator) {
@@ -20,7 +20,7 @@ struct Jittered<InnerIterator: IteratorProtocol>: IteratorProtocol
     mutating func next() -> Duration? {
         guard let interval = inner.next() else { return nil }
 
-        let jitter = Double.random(in: 0.0 ... 1.0)
+        let jitter = Double.random(in: 0.0...1.0)
         let millis = interval.milliseconds
         let millisWithJitter = millis.saturatingAddition(Int(Double(millis) * jitter))
 

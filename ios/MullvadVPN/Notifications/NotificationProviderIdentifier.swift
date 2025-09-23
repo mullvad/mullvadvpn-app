@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 enum NotificationPriority: Int, Comparable {
     case low = 1
     case medium = 2

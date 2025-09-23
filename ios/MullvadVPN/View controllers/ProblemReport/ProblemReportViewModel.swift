@@ -15,9 +15,9 @@ struct ProblemReportViewModel {
     static let navigationTitle = NSLocalizedString("Report a problem", comment: "")
 
     static let subheadLabelText = NSLocalizedString(
-        "To help you more effectively, your app’s log file will be attached to this message. " +
-            "Your data will remain secure and private, as it is anonymised before being " +
-            "sent over an encrypted channel.",
+        "To help you more effectively, your app’s log file will be attached to this message. "
+            + "Your data will remain secure and private, as it is anonymised before being "
+            + "sent over an encrypted channel.",
         comment: ""
     )
 
@@ -33,8 +33,8 @@ struct ProblemReportViewModel {
     static let sendLogsButtonTitle = NSLocalizedString("Send", comment: "")
 
     static let emptyEmailAlertWarning = NSLocalizedString(
-        "You are about to send the problem report without a way for us to get back to you. " +
-            "If you want an answer to your report you will have to enter an email address.",
+        "You are about to send the problem report without a way for us to get back to you. "
+            + "If you want an answer to your report you will have to enter an email address.",
         comment: ""
     )
 

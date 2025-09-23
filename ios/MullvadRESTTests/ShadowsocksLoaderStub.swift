@@ -7,9 +7,10 @@
 //
 
 import Foundation
-@testable import MullvadREST
 import MullvadSettings
 import MullvadTypes
+
+@testable import MullvadREST
 
 struct ShadowsocksLoaderStub: ShadowsocksLoaderProtocol, SwiftShadowsocksBridgeProviding {
     func bridge() -> ShadowsocksConfiguration? {

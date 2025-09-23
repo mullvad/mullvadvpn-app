@@ -19,7 +19,8 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, S
         }
         set {
             guard let newConfiguration = newValue as? TextCellContentConfiguration,
-                  actualConfiguration != newConfiguration else { return }
+                actualConfiguration != newConfiguration
+            else { return }
 
             let previousConfiguration = actualConfiguration
             actualConfiguration = newConfiguration
@@ -159,7 +160,8 @@ extension TextCellContentView: UITextFieldDelegate {
     ) -> Bool {
         guard
             let currentString = textField.text,
-            let stringRange = Range(range, in: currentString) else { return false }
+            let stringRange = Range(range, in: currentString)
+        else { return false }
         let updatedText = currentString.replacingCharacters(in: stringRange, with: string)
 
         if let maxLength = actualConfiguration.maxLength, maxLength < updatedText.count {

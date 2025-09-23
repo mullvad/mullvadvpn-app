@@ -38,11 +38,11 @@ extension UINavigationBar {
         let backIndicatorTransitionMask = UIImage.backTransitionMask
 
         let titleTextAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.NavigationBar.titleColor,
+            .foregroundColor: UIColor.NavigationBar.titleColor
         ]
         let backButtonTitlePositionOffset = UIOffset(horizontal: 4, vertical: 0)
         let backButtonTitleTextAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.NavigationBar.backButtonTitleColor,
+            .foregroundColor: UIColor.NavigationBar.backButtonTitleColor
         ]
 
         let navigationBarAppearance = UINavigationBarAppearance()

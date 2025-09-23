@@ -6,8 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadSettings
 import XCTest
+
+@testable import MullvadSettings
 
 final class DAITASettingsTests: XCTestCase {
     func testIsAutomaticRouting() throws {

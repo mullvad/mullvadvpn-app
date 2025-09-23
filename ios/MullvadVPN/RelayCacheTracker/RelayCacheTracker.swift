@@ -95,7 +95,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
 
         // For each relay with features in the prebundled relays, find the corresponding relay
         // in the cache by matching relay hostnames and update it.
-        for index in 0 ..< cachedRelaysWithFixedFeatures.endIndex {
+        for index in 0..<cachedRelaysWithFixedFeatures.endIndex {
             let relay = cachedRelaysWithFixedFeatures[index]
             preBundledFeatureRelays.forEach {
                 if $0.hostname == relay.hostname {
@@ -106,7 +106,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
 
         let wireguard = REST.ServerWireguardTunnels(
             ipv4Gateway:
-            cachedRelays.relays.wireguard.ipv4Gateway,
+                cachedRelays.relays.wireguard.ipv4Gateway,
             ipv6Gateway: cachedRelays.relays.wireguard.ipv6Gateway,
             portRanges: cachedRelays.relays.wireguard.portRanges,
             relays: cachedRelaysWithFixedFeatures,
@@ -164,7 +164,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil)
-        -> Cancellable {
+        -> Cancellable
+    {
         let operation = ResultBlockOperation<RelaysFetchResult> { finish in
             let cachedRelays = try? self.getCachedRelays()
 
@@ -251,7 +252,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     private func handleResponse(result: Result<REST.ServerRelaysCacheResponse, Error>)
-        -> Result<RelaysFetchResult, Error> {
+        -> Result<RelaysFetchResult, Error>
+    {
         result.tryMap { response -> RelaysFetchResult in
             switch response {
             case let .newContent(etag, rawData):

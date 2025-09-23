@@ -28,12 +28,14 @@ struct AccountsProxyStub: RESTAccountHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Account>
     ) -> Cancellable {
-        completion(.success(Account(
-            id: accountNumber,
-            expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
-            maxDevices: 1,
-            canAddDevices: true
-        )))
+        completion(
+            .success(
+                Account(
+                    id: accountNumber,
+                    expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
+                    maxDevices: 1,
+                    canAddDevices: true
+                )))
         return AnyCancellable()
     }
 

@@ -6,10 +6,11 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
 import MullvadSettings
 import Network
 import XCTest
+
+@testable import MullvadREST
 
 final class IPOverrideWrapperTests: XCTestCase {
     func testOverrideServerRelayInCache() throws {

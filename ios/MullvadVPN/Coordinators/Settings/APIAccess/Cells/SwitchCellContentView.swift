@@ -19,7 +19,8 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
         }
         set {
             guard let newConfiguration = newValue as? SwitchCellContentConfiguration,
-                  actualConfiguration != newConfiguration else { return }
+                actualConfiguration != newConfiguration
+            else { return }
 
             let previousConfiguration = actualConfiguration
             actualConfiguration = newConfiguration

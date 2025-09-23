@@ -19,9 +19,8 @@ struct FilterDescriptor {
 
         /// Closure to check if there are enough relays available for multihoping
         let hasSufficientRelays: () -> Bool = {
-            (relayFilterResult.entryRelays ?? []).count >= 1 &&
-                relayFilterResult.exitRelays.count >= 1 &&
-                numberOfServers > 1
+            (relayFilterResult.entryRelays ?? []).count >= 1 && relayFilterResult.exitRelays.count >= 1
+                && numberOfServers > 1
         }
 
         if isMultihopEnabled {

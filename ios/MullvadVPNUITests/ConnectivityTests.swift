@@ -23,7 +23,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             self.firewallAPIClient.removeRules()
         }
 
-        try Networking.verifyCanAccessAPI() // Just to make sure there's no old firewall rule still active
+        try Networking.verifyCanAccessAPI()  // Just to make sure there's no old firewall rule still active
         firewallAPIClient.createRule(try FirewallRule.makeBlockAPIAccessFirewallRule())
         try Networking.verifyCannotAccessAPI()
 
@@ -37,7 +37,8 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         // After creating firewall rule first login attempt might fail. More attempts are allowed since the app is cycling between three methods.
         repeat {
-            successIconShown = loginPage
+            successIconShown =
+                loginPage
                 .tapAccountNumberSubmitButton()
                 .getSuccessIconShown()
 
@@ -54,7 +55,6 @@ class ConnectivityTests: LoggedOutUITestCase {
     }
 
     /// Get the app into a blocked state by connecting to a relay then applying a filter which don't find this relay, then verify that app can still communicate by logging out and verifying that the device was successfully removed
-    // swiftlint:disable:next function_body_length
     func testAPIReachableWhenBlocked() throws {
         let hasTimeAccountNumber = getAccountWithTime()
         addTeardownBlock {
@@ -102,7 +102,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapCountryLocationCellExpandButton(
                 withName: BaseUITestCase
                     .testsDefaultCountryName
-            ) // Must be a little specific here in order to avoid using relay services country with experimental relays
+            )  // Must be a little specific here in order to avoid using relay services country with experimental relays
             .tapCityLocationCellExpandButton(withIndex: 0)
             .tapRelayLocationCell(withIndex: 0)
 
@@ -136,7 +136,6 @@ class ConnectivityTests: LoggedOutUITestCase {
         verifyDeviceHasBeenRemoved(deviceName: deviceName, accountNumber: hasTimeAccountNumber)
     }
 
-    // swiftlint:disable function_body_length
     /// Test that the app is functioning when API is down. To simulate API being down we create a dummy access method
     func testAppStillFunctioningWhenAPIDown() throws {
         let hasTimeAccountNumber = getAccountWithTime()
@@ -229,10 +228,10 @@ class ConnectivityTests: LoggedOutUITestCase {
 
     func testIfLocalNetworkSharingIsBlocking() throws {
         let skipReason = """
-            This test is currently skipped since there is no way to allow local network access for UI tests.
-        Since its blocked by the system, there is no way of testing the `Local network sharing` switch.
-        Non of these solutions worked: https://developer.apple.com/forums/thread/668729
-        """
+                This test is currently skipped since there is no way to allow local network access for UI tests.
+            Since its blocked by the system, there is no way of testing the `Local network sharing` switch.
+            Non of these solutions worked: https://developer.apple.com/forums/thread/668729
+            """
         try XCTSkipIf(true, skipReason)
         let hasTimeAccountNumber = getAccountWithTime()
         addTeardownBlock {
@@ -282,8 +281,6 @@ class ConnectivityTests: LoggedOutUITestCase {
             XCTFail("Failed to get devices from app API")
         }
     }
-
-    // swiftlint:enable function_body_length
 
     /// Toggle enabled switch for all existing access methods.
     /// Preconditions:

@@ -76,7 +76,7 @@ public struct SelectedRelays: Equatable, Codable, Sendable {
 
 extension SelectedRelays: CustomDebugStringConvertible {
     public var debugDescription: String {
-        "Entry: \(entry?.hostname ?? "-") -> \(entry?.endpoint.ipv4Relay.description ?? "-"), " +
-            "Exit: \(exit.hostname) -> \(exit.endpoint.ipv4Relay.description), obfuscation: \(obfuscation)"
+        "Entry: \(entry?.hostname ?? "-") -> \(entry?.endpoint.ipv4Relay.description ?? "-"), "
+            + "Exit: \(exit.hostname) -> \(exit.endpoint.ipv4Relay.description), obfuscation: \(obfuscation)"
     }
 }

@@ -6,15 +6,16 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
 import MullvadSettings
 import XCTest
+
+@testable import MullvadREST
 
 class ObfuscationMethodSelectorTests: XCTestCase {
     var tunnelSettings = LatestTunnelSettings()
 
     func testMethodSelectionIsOff() throws {
-        (UInt(0) ... 10).forEach { attempt in
+        (UInt(0)...10).forEach { attempt in
             tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .off)
 
             var method = ObfuscationMethodSelector.obfuscationMethodBy(
@@ -38,7 +39,7 @@ class ObfuscationMethodSelectorTests: XCTestCase {
     }
 
     func testMethodSelectionIsShadowsock() throws {
-        (UInt(0) ... 10).forEach { attempt in
+        (UInt(0)...10).forEach { attempt in
             tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .shadowsocks)
 
             var method = ObfuscationMethodSelector.obfuscationMethodBy(
@@ -62,7 +63,7 @@ class ObfuscationMethodSelectorTests: XCTestCase {
     }
 
     func testMethodSelectionQuic() throws {
-        (UInt(0) ... 10).forEach { attempt in
+        (UInt(0)...10).forEach { attempt in
             tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
 
             var method = ObfuscationMethodSelector.obfuscationMethodBy(
@@ -86,7 +87,7 @@ class ObfuscationMethodSelectorTests: XCTestCase {
     }
 
     func testMethodSelectionUdpOverTcp() throws {
-        (UInt(0) ... 10).forEach { attempt in
+        (UInt(0)...10).forEach { attempt in
             tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .udpOverTcp)
 
             var method = ObfuscationMethodSelector.obfuscationMethodBy(

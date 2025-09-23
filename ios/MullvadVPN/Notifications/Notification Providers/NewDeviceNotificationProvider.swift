@@ -12,7 +12,8 @@ import UIKit.UIColor
 import UIKit.UIFont
 
 final class NewDeviceNotificationProvider: NotificationProvider,
-    InAppNotificationProvider, @unchecked Sendable {
+    InAppNotificationProvider, @unchecked Sendable
+{
     // MARK: - private properties
 
     private let tunnelManager: TunnelManager
@@ -83,14 +84,16 @@ final class NewDeviceNotificationProvider: NotificationProvider,
         tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 if previousDeviceState == .loggedOut,
-                   case .loggedIn = deviceState {
+                    case .loggedIn = deviceState
+                {
                     self?.isNewDeviceRegistered = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
                         self?.invalidate()
                     }
 
                 } else if case .loggedIn = previousDeviceState,
-                          deviceState == .loggedOut || deviceState == .revoked {
+                    deviceState == .loggedOut || deviceState == .revoked
+                {
                     self?.isNewDeviceRegistered = false
                     self?.invalidate()
                 }

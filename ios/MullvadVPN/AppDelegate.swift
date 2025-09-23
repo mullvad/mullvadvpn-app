@@ -20,11 +20,12 @@ import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate,
-    @unchecked Sendable {
+    @unchecked Sendable
+{
     nonisolated(unsafe) private var logger: Logger!
 
     #if targetEnvironment(simulator)
-    private var simulatorTunnelProviderHost: SimulatorTunnelProviderHost?
+        private var simulatorTunnelProviderHost: SimulatorTunnelProviderHost?
     #endif
 
     private let operationQueue = AsyncOperationQueue.makeSerial()
@@ -59,7 +60,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - Application lifecycle
 
-    // swiftlint:disable:next function_body_length
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -105,7 +105,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
 
-        // swiftlint:disable:next force_try
+        // swift-format-ignore: NeverUseForceTry
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
@@ -257,13 +257,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         relaySelector: RelaySelectorWrapper
     ) {
         #if targetEnvironment(simulator)
-        // Configure mock tunnel provider on simulator
-        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
-            relaySelector: relaySelector,
-            transportProvider: transportProvider,
-            apiTransportProvider: apiTransportProvider
-        )
-        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
+            // Configure mock tunnel provider on simulator
+            simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
+                relaySelector: relaySelector,
+                transportProvider: transportProvider,
+                apiTransportProvider: apiTransportProvider
+            )
+            SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
     }
 
@@ -444,7 +444,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp, in: ApplicationConfiguration.containerURL)
         )
         #if DEBUG
-        loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
+            loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
         loggerBuilder.install()
 
@@ -527,41 +527,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func getMigrateSettingsOperation(application: UIApplication) -> AsyncBlockOperation {
-        AsyncBlockOperation(dispatchQueue: .main, block: { [self] (finish: @escaping @Sendable (Error?) -> Void) in
-            MainActor.assumeIsolated {
-                migrationManager
-                    .migrateSettings(store: SettingsManager.store) { [self] migrationResult in
-                        switch migrationResult {
-                        case .success:
-                            // Tell the tunnel to re-read tunnel configuration after migration.
-                            logger.debug("Successful migration from UI Process")
-                            tunnelManager.reconnectTunnel(selectNewRelay: true)
-                            fallthrough
+        AsyncBlockOperation(
+            dispatchQueue: .main,
+            block: { [self] (finish: @escaping @Sendable (Error?) -> Void) in
+                MainActor.assumeIsolated {
+                    migrationManager
+                        .migrateSettings(store: SettingsManager.store) { [self] migrationResult in
+                            switch migrationResult {
+                            case .success:
+                                // Tell the tunnel to re-read tunnel configuration after migration.
+                                logger.debug("Successful migration from UI Process")
+                                tunnelManager.reconnectTunnel(selectNewRelay: true)
+                                fallthrough
 
-                        case .nothing:
-                            logger.debug("Attempted migration from UI Process, but found nothing to do")
-                            finish(nil)
+                            case .nothing:
+                                logger.debug("Attempted migration from UI Process, but found nothing to do")
+                                finish(nil)
 
-                        case let .failure(error):
-                            logger.error("Failed migration from UI Process: \(error)")
-                            MainActor.assumeIsolated {
-                                let migrationUIHandler = application.connectedScenes
-                                    .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
+                            case let .failure(error):
+                                logger.error("Failed migration from UI Process: \(error)")
+                                MainActor.assumeIsolated {
+                                    let migrationUIHandler =
+                                        application.connectedScenes
+                                        .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
 
-                                if let migrationUIHandler {
-                                    migrationUIHandler.showMigrationError(error) {
-                                        MainActor.assumeIsolated {
-                                            finish(error)
+                                    if let migrationUIHandler {
+                                        migrationUIHandler.showMigrationError(error) {
+                                            MainActor.assumeIsolated {
+                                                finish(error)
+                                            }
                                         }
+                                    } else {
+                                        finish(error)
                                     }
-                                } else {
-                                    finish(error)
                                 }
                             }
                         }
-                    }
+                }
             }
-        })
+        )
     }
 
     private func getInitTunnelManagerOperation() -> AsyncBlockOperation {
@@ -597,8 +601,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 try? SettingsManager.writeSettings(LatestTunnelSettings())
             } else if appWasLaunchedAfterReinstall {
                 if let deviceState = try? SettingsManager.readDeviceState(),
-                   let accountData = deviceState.accountData,
-                   let deviceData = deviceState.deviceData {
+                    let accountData = deviceState.accountData,
+                    let deviceData = deviceState.deviceData
+                {
                     _ = self.devicesProxy.deleteDevice(
                         accountNumber: accountData.number,
                         identifier: deviceData.identifier,
@@ -661,6 +666,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     ) {
         completionHandler([.list, .banner, .sound])
     }
-
-    // swiftlint:disable:next file_length
 }

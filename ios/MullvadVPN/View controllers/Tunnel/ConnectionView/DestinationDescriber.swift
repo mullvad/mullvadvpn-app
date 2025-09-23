@@ -61,8 +61,12 @@ struct DestinationDescriber: DestinationDescribing {
             locations: cachedRelays.locations
         )
 
-        guard let matchingRelay = (locatedRelays.first { $0.matches(location: location)
-        }) else { return nil }
+        guard
+            let matchingRelay =
+                (locatedRelays.first {
+                    $0.matches(location: location)
+                })
+        else { return nil }
 
         return describeRelayLocation(location, usingRelayWithLocation: matchingRelay.serverLocation)
     }

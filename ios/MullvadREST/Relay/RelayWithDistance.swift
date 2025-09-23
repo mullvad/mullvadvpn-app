@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 struct RelayWithDistance<T: AnyRelay> {
     let relay: T
     let distance: Double

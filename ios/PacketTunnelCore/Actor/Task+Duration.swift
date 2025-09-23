@@ -14,9 +14,9 @@ private typealias TaskCancellationError = CancellationError
 extension Task where Success == Never, Failure == Never {
     /**
      Suspends the current task for at least the given duration.
-
+    
      Negative durations are clamped to zero.
-
+    
      - Parameter duration: duration that determines how long the task should be suspended.
      */
     @available(iOS, introduced: 15.0, obsoleted: 16.0, message: "Replace with Task.sleep(for:tolerance:clock:).")
@@ -29,9 +29,9 @@ extension Task where Success == Never, Failure == Never {
 
     /**
      Suspends the current task for the given duration.
-
+    
      Negative durations are clamped to zero.
-
+    
      - Parameter duration: duration that determines how long the task should be suspended.
      */
     @available(iOS, introduced: 15.0, obsoleted: 16.0, message: "Replace with Task.sleep(for:tolerance:clock:).")

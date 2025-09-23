@@ -46,12 +46,13 @@ extension RelaySelector {
                 relays: relaysResponse.bridge.relays,
                 locations: relaysResponse.locations
             )
-            let filteredRelays = (try? applyConstraints(
-                location,
-                filterConstraint: filter,
-                daitaEnabled: false,
-                relays: mappedBridges
-            )) ?? []
+            let filteredRelays =
+                (try? applyConstraints(
+                    location,
+                    filterConstraint: filter,
+                    daitaEnabled: false,
+                    relays: mappedBridges
+                )) ?? []
             guard filteredRelays.isEmpty == false else { return relay(from: relaysResponse) }
 
             // Compute the midpoint location from all the filtered relays
@@ -84,9 +85,11 @@ extension RelaySelector {
                 }
             }
 
-            let randomRelay = rouletteSelection(relays: Array(relaysWithDistance), weightFunction: { relay in
-                UInt64(1 + greatestDistance - relay.distance)
-            })
+            let randomRelay = rouletteSelection(
+                relays: Array(relaysWithDistance),
+                weightFunction: { relay in
+                    UInt64(1 + greatestDistance - relay.distance)
+                })
 
             return randomRelay?.relay ?? filteredRelays.randomElement()?.relay
         }

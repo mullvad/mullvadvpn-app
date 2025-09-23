@@ -67,13 +67,13 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
 
     func popFromNavigationStack(animated: Bool, completion: (() -> Void)?) {
         guard let viewController,
-              let index = navigationController.viewControllers.firstIndex(of: viewController)
+            let index = navigationController.viewControllers.firstIndex(of: viewController)
         else {
             completion?()
             return
         }
         navigationController.setViewControllers(
-            Array(navigationController.viewControllers[0 ..< index]),
+            Array(navigationController.viewControllers[0..<index]),
             animated: animated,
             completion: completion
         )
@@ -92,7 +92,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
-                ),
+                )
             ]
         )
 
@@ -101,19 +101,23 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     }
 
     func didRequestToShowInfo(controller: WelcomeViewController) {
-        let message = [NSLocalizedString(
-            "This is the name assigned to the device. Each device logged in on a " +
-                "Mullvad account gets a unique name that helps " +
-                "you identify it when you manage your devices in the app or on the website.",
-            comment: ""
-        ), NSLocalizedString(
-            "You can have up to 5 devices logged in on one Mullvad account.",
-            comment: ""
-        ), NSLocalizedString(
-            "If you log out, the device and the device name is removed. " +
-                "When you log back in again, the device will get a new name.",
-            comment: ""
-        )].joinedParagraphs(lineBreaks: 1)
+        let message = [
+            NSLocalizedString(
+                "This is the name assigned to the device. Each device logged in on a "
+                    + "Mullvad account gets a unique name that helps "
+                    + "you identify it when you manage your devices in the app or on the website.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "You can have up to 5 devices logged in on one Mullvad account.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "If you log out, the device and the device name is removed. "
+                    + "When you log back in again, the device will get a new name.",
+                comment: ""
+            ),
+        ].joinedParagraphs(lineBreaks: 1)
 
         let presentation = AlertPresentation(
             id: "welcome-device-name-alert",
@@ -123,7 +127,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
-                ),
+                )
             ]
         )
 

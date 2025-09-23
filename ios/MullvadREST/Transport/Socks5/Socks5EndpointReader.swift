@@ -91,7 +91,7 @@ struct Socks5EndpointReader: Sendable {
         guard addressData.count == addressLength + portLength else { throw Socks5Error.unexpectedEndOfStream }
 
         // Read address bytes.
-        let addressBytes = addressData[0 ..< addressLength]
+        let addressBytes = addressData[0..<addressLength]
 
         // Read port bytes.
         let port = addressData[addressLength...].withUnsafeBytes { buffer in
@@ -115,7 +115,8 @@ struct Socks5EndpointReader: Sendable {
 
         case .domainName:
             guard let hostname = String(bytes: addressBytes, encoding: .utf8),
-                  let endpoint = Socks5HostEndpoint(hostname: hostname, port: port) else {
+                let endpoint = Socks5HostEndpoint(hostname: hostname, port: port)
+            else {
                 throw Socks5Error.decodeDomainName
             }
             return .domain(endpoint)

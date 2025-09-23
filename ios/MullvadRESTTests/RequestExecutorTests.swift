@@ -6,10 +6,11 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import XCTest
+
 @testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadTypes
-import XCTest
 
 @MainActor
 final class RequestExecutorTests: XCTestCase {

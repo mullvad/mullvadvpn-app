@@ -97,12 +97,15 @@ final class WelcomeContentView: UIView, Sendable {
         label.numberOfLines = .zero
         label.lineBreakMode = .byWordWrapping
         label.lineBreakStrategy = []
-        label.text = [NSLocalizedString(
-            "To start using the app, you first need to add time to your account.",
-            comment: ""
-        ), NSLocalizedString(
-            "Either buy credit on our website or redeem a voucher.", comment: ""
-        )].joined(separator: " ")
+        label.text = [
+            NSLocalizedString(
+                "To start using the app, you first need to add time to your account.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "Either buy credit on our website or redeem a voucher.", comment: ""
+            ),
+        ].joined(separator: " ")
         return label
     }()
 
@@ -180,7 +183,7 @@ final class WelcomeContentView: UIView, Sendable {
     private func configureUI() {
         accountRowStackView.addArrangedSubview(accountNumberLabel)
         accountRowStackView.addArrangedSubview(copyButton)
-        accountRowStackView.addArrangedSubview(UIView()) // To push content to the left.
+        accountRowStackView.addArrangedSubview(UIView())  // To push content to the left.
 
         textsStackView.addArrangedSubview(titleLabel)
         textsStackView.setCustomSpacing(UIMetrics.padding8, after: titleLabel)

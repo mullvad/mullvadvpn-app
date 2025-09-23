@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 import protocol Network.IPAddress
 
 public enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible, @unchecked Sendable {

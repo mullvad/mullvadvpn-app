@@ -118,10 +118,11 @@ extension REST {
                     return REST.ServerRelaysCacheResponse.notModified
                 } else {
                     // Discarding result since we're only interested in knowing that it's parseable.
-                    let canDecodeResponse = (try? self?.responseDecoder.decode(
-                        REST.ServerRelaysResponse.self,
-                        from: data
-                    )) != nil
+                    let canDecodeResponse =
+                        (try? self?.responseDecoder.decode(
+                            REST.ServerRelaysResponse.self,
+                            from: data
+                        )) != nil
 
                     return canDecodeResponse ? REST.ServerRelaysCacheResponse.newContent(responseEtag, data) : nil
                 }
@@ -191,10 +192,12 @@ extension REST {
         ) -> Cancellable {
             let responseHandler: REST.RustResponseHandler<REST.CreateApplePaymentResponse> =
                 rustCustomResponseHandler { [weak self] data, _ in
-                    guard let serverResponse = try? self?.responseDecoder.decode(
-                        CreateApplePaymentRawResponse.self,
-                        from: data
-                    ) else {
+                    guard
+                        let serverResponse = try? self?.responseDecoder.decode(
+                            CreateApplePaymentRawResponse.self,
+                            from: data
+                        )
+                    else {
                         return nil
                     }
 
@@ -210,11 +213,11 @@ extension REST {
 
             return createNetworkOperation(
                 request:
-                .legacyStorekitPayment(
-                    retryStrategy: retryStrategy,
-                    accountNumber: accountNumber,
-                    request: request
-                ),
+                    .legacyStorekitPayment(
+                        retryStrategy: retryStrategy,
+                        accountNumber: accountNumber,
+                        request: request
+                    ),
                 responseHandler: responseHandler,
                 completionHandler: completionHandler
             )
@@ -236,7 +239,7 @@ extension REST {
 
             return createNetworkOperation(
                 request:
-                .initStorekitPayment(retryStrategy: retryStrategy, accountNumber: accountNumber),
+                    .initStorekitPayment(retryStrategy: retryStrategy, accountNumber: accountNumber),
                 responseHandler: responseHandler,
                 completionHandler: { completionHandler($0.map { $0.paymentToken }) }
             )
@@ -252,11 +255,11 @@ extension REST {
 
             return createNetworkOperation(
                 request:
-                .checkStorekitPayment(
-                    retryStrategy: retryStrategy,
-                    accountNumber: accountNumber,
-                    transaction: transaction
-                ),
+                    .checkStorekitPayment(
+                        retryStrategy: retryStrategy,
+                        accountNumber: accountNumber,
+                        transaction: transaction
+                    ),
                 responseHandler: responseHandler,
                 completionHandler: completionHandler
             )

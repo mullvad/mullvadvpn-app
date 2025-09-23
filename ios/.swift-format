@@ -39,7 +39,7 @@
     "GroupNumericLiterals": true,
     "IdentifiersMustBeASCII": true,
     "NeverForceUnwrap": false,
-    "NeverUseForceTry": false,
+    "NeverUseForceTry": true,
     "NeverUseImplicitlyUnwrappedOptionals": false,
     "NoAccessLevelOnExtensionDeclaration": false,
     "NoAssignmentInExpressions": true,

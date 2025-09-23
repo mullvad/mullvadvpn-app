@@ -81,20 +81,20 @@ public enum APIRequest: Codable, Sendable {
     var retryStrategy: REST.RetryStrategy {
         switch self {
         case let .getAddressList(strategy),
-             let .getRelayList(strategy, _),
-             let .sendProblemReport(strategy, _),
-             let .createAccount(strategy),
-             let .getAccount(strategy, _),
-             let .deleteAccount(strategy, _),
-             let .createDevice(strategy, _, _),
-             let .getDevice(strategy, _, _),
-             let .getDevices(strategy, _),
-             let .deleteDevice(strategy, _, _),
-             let .rotateDeviceKey(strategy, _, _, _),
-             let .legacyStorekitPayment(strategy, _, _),
-             let .initStorekitPayment(strategy, _),
-             let .checkStorekitPayment(strategy, _, _),
-             let .checkApiAvailability(strategy, _):
+            let .getRelayList(strategy, _),
+            let .sendProblemReport(strategy, _),
+            let .createAccount(strategy),
+            let .getAccount(strategy, _),
+            let .deleteAccount(strategy, _),
+            let .createDevice(strategy, _, _),
+            let .getDevice(strategy, _, _),
+            let .getDevices(strategy, _),
+            let .deleteDevice(strategy, _, _),
+            let .rotateDeviceKey(strategy, _, _, _),
+            let .legacyStorekitPayment(strategy, _, _),
+            let .initStorekitPayment(strategy, _),
+            let .checkStorekitPayment(strategy, _, _),
+            let .checkApiAvailability(strategy, _):
             strategy
         }
     }

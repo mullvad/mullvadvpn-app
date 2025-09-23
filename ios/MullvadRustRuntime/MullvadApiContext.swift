@@ -48,30 +48,31 @@ public class MullvadApiContext: @unchecked Sendable {
         self.accessMethodChangeListeners = accessMethodChangeListeners
 
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
-        context = switch disableTls {
-        case true:
-            mullvad_api_init_new_tls_disabled(
-                host,
-                address,
-                domain,
-                shadowsocksBridgeProviderWrapper,
-                accessMethodWrapper,
-                addressCacheWrapper,
-                onAccessChangeCallback,
-                selfPtr
-            )
-        case false:
-            mullvad_api_init_new(
-                host,
-                address,
-                domain,
-                shadowsocksBridgeProviderWrapper,
-                accessMethodWrapper,
-                addressCacheWrapper,
-                onAccessChangeCallback,
-                selfPtr
-            )
-        }
+        context =
+            switch disableTls {
+            case true:
+                mullvad_api_init_new_tls_disabled(
+                    host,
+                    address,
+                    domain,
+                    shadowsocksBridgeProviderWrapper,
+                    accessMethodWrapper,
+                    addressCacheWrapper,
+                    onAccessChangeCallback,
+                    selfPtr
+                )
+            case false:
+                mullvad_api_init_new(
+                    host,
+                    address,
+                    domain,
+                    shadowsocksBridgeProviderWrapper,
+                    accessMethodWrapper,
+                    addressCacheWrapper,
+                    onAccessChangeCallback,
+                    selfPtr
+                )
+            }
 
         if context._0 == nil {
             throw Error.failedToConstructApiClient

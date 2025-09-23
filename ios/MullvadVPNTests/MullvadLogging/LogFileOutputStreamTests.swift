@@ -7,8 +7,9 @@
 //
 
 @preconcurrency import Foundation
-@testable import MullvadLogging
 import Testing
+
+@testable import MullvadLogging
 
 @Suite("LogFileOutputStream Tests")
 actor LogFileOutputStreamTests {
@@ -34,9 +35,9 @@ actor LogFileOutputStreamTests {
     @Test func logHeaderGetsWrittenAtFileStartAfterTruncation() async throws {
         let header = "header"
         let message = """
-        old
+            old
 
-        """
+            """
         let fileSizeLimit: UInt64 = 20
         let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
         let stream = LogFileOutputStream(
@@ -46,14 +47,14 @@ actor LogFileOutputStreamTests {
             newLineChunkReadSize: 3
         )
         // Fill the file with the word "old" to force truncation in half
-        for _ in 0 ..< 3 {
+        for _ in 0..<3 {
             stream.write(message)
         }
         /* At this point, the file contains the following string (of length 19)
          "header\nold\nold\nold"
                     ^
                     Half point of the file
-
+        
          Writing the word "new" goes over the file size limit (20),
          so the file will get truncated to its half point.
          In order to keep a nice UX for reading log, the stream will move the internal file cursor to after the next "\n"
@@ -70,11 +71,11 @@ actor LogFileOutputStreamTests {
             try String(contentsOf: fileURL, encoding: .utf8)
         )
         let expectedContents = """
-        header
-        old
-        old
-        new
-        """
+            header
+            old
+            old
+            new
+            """
 
         #expect(fileContents == expectedContents)
     }
@@ -82,9 +83,9 @@ actor LogFileOutputStreamTests {
     @Test func fileSizeCounterGetsResetAfterTruncation() async throws {
         let header = "header"
         let message = """
-        old
+            old
 
-        """
+            """
         let fileSizeLimit: UInt64 = 20
         let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
         let stream = LogFileOutputStream(
@@ -93,7 +94,7 @@ actor LogFileOutputStreamTests {
             fileSizeLimit: fileSizeLimit
         )
         // Fill the file with the word "old" to force truncation in half
-        for _ in 0 ..< 3 {
+        for _ in 0..<3 {
             stream.write(message)
         }
         // File gets truncated in half here
@@ -104,11 +105,11 @@ actor LogFileOutputStreamTests {
         /// If the `partialFileSizeCounter` didn't get reset after truncating,
         /// a new write will truncate the file again instead of just appending
         let expectedContents = """
-        header
-        d
-        old
-        newa
-        """
+            header
+            d
+            old
+            newa
+            """
         let fileContents = try #require(
             try String(contentsOf: fileURL, encoding: .utf8)
         )

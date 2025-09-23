@@ -7,9 +7,10 @@
 //
 
 import Combine
+import XCTest
+
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 final class APIAccessMethodsTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
@@ -124,11 +125,12 @@ extension APIAccessMethodsTests {
             id: uuid,
             name: "Method",
             isEnabled: true,
-            proxyConfiguration: .socks5(PersistentProxyConfiguration.SocksConfiguration(
-                server: .ipv4(.any),
-                port: 1,
-                authentication: .noAuthentication
-            ))
+            proxyConfiguration: .socks5(
+                PersistentProxyConfiguration.SocksConfiguration(
+                    server: .ipv4(.any),
+                    port: 1,
+                    authentication: .noAuthentication
+                ))
         )
     }
 
@@ -137,12 +139,13 @@ extension APIAccessMethodsTests {
             id: uuid,
             name: "Method",
             isEnabled: true,
-            proxyConfiguration: .shadowsocks(PersistentProxyConfiguration.ShadowsocksConfiguration(
-                server: .ipv4(.any),
-                port: 1,
-                password: "Password",
-                cipher: .default
-            ))
+            proxyConfiguration: .shadowsocks(
+                PersistentProxyConfiguration.ShadowsocksConfiguration(
+                    server: .ipv4(.any),
+                    port: 1,
+                    password: "Password",
+                    cipher: .default
+                ))
         )
     }
 }

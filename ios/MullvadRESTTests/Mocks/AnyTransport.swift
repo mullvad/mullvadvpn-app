@@ -7,8 +7,9 @@
 //
 
 @preconcurrency import Foundation
-@testable import MullvadREST
 import MullvadTypes
+
+@testable import MullvadREST
 
 /// Mock implementation of REST transport that can be used to handle requests without doing any actual networking.
 class AnyTransport: RESTTransport, @unchecked Sendable {

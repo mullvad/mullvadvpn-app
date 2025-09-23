@@ -18,10 +18,11 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         TunnelSettingsUpdate.multihop(.on).apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ))
+        XCTAssertTrue(
+            tunnelSettingsStrategy.shouldReconnectToNewRelay(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ))
     }
 
     func testConnectToNewRelayOnRelaysConstraintChange() {
@@ -29,17 +30,20 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         TunnelSettingsUpdate.relayConstraints(RelayConstraints()).apply(to: &currentSettings)
 
         var updatedSettings = currentSettings
-        TunnelSettingsUpdate.relayConstraints(RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.country("zz")])),
-            port: .only(9999),
-            filter: .only(.init(ownership: .rented, providers: .only(["foo", "bar"])))
-        )).apply(to: &updatedSettings)
+        TunnelSettingsUpdate.relayConstraints(
+            RelayConstraints(
+                exitLocations: .only(UserSelectedRelays(locations: [.country("zz")])),
+                port: .only(9999),
+                filter: .only(.init(ownership: .rented, providers: .only(["foo", "bar"])))
+            )
+        ).apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ))
+        XCTAssertTrue(
+            tunnelSettingsStrategy.shouldReconnectToNewRelay(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ))
     }
 
     func testConnectToCurrentRelayOnDNSSettingsChange() {
@@ -52,10 +56,11 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         TunnelSettingsUpdate.dnsSettings(dnsSettings).apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ))
+        XCTAssertTrue(
+            tunnelSettingsStrategy.shouldReconnectToNewRelay(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ))
     }
 
     func testConnectToCurrentRelayOnQuantumResistanceChanges() {
@@ -66,32 +71,38 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         TunnelSettingsUpdate.quantumResistance(.on).apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ))
+        XCTAssertTrue(
+            tunnelSettingsStrategy.shouldReconnectToNewRelay(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ))
     }
 
     func testConnectToCurrentRelayOnWireGuardObfuscationChange() {
         var currentSettings = LatestTunnelSettings()
-        TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
-            state: .off,
-            udpOverTcpPort: .port80
-        ))
+        TunnelSettingsUpdate.obfuscation(
+            WireGuardObfuscationSettings(
+                state: .off,
+                udpOverTcpPort: .port80
+            )
+        )
         .apply(to: &currentSettings)
 
         var updatedSettings = currentSettings
-        TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
-            state: .automatic,
-            udpOverTcpPort: .automatic
-        ))
+        TunnelSettingsUpdate.obfuscation(
+            WireGuardObfuscationSettings(
+                state: .automatic,
+                udpOverTcpPort: .automatic
+            )
+        )
         .apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ))
+        XCTAssertTrue(
+            tunnelSettingsStrategy.shouldReconnectToNewRelay(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ))
     }
 
     func testConnectToCurrentRelayWhenNothingChange() {
@@ -99,10 +110,11 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         let updatedSettings = currentSettings
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertFalse(tunnelSettingsStrategy.shouldReconnectToNewRelay(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ))
+        XCTAssertFalse(
+            tunnelSettingsStrategy.shouldReconnectToNewRelay(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ))
     }
 
     func testHardReconnectWhenIncludeAllNetworksChange() {
@@ -112,10 +124,11 @@ final class TunnelSettingsStrategyTests: XCTestCase {
             .apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertEqual(tunnelSettingsStrategy.getReconnectionStrategy(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ), .hardReconnect)
+        XCTAssertEqual(
+            tunnelSettingsStrategy.getReconnectionStrategy(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ), .hardReconnect)
     }
 
     func testHardReconnectWhenLocalNetworkSharingChange() {
@@ -125,9 +138,10 @@ final class TunnelSettingsStrategyTests: XCTestCase {
             .apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertEqual(tunnelSettingsStrategy.getReconnectionStrategy(
-            oldSettings: currentSettings,
-            newSettings: updatedSettings
-        ), .hardReconnect)
+        XCTAssertEqual(
+            tunnelSettingsStrategy.getReconnectionStrategy(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
+            ), .hardReconnect)
     }
 }

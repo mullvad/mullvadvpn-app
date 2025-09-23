@@ -61,10 +61,11 @@ extension RelayPicking {
                 ipv4Address = IPv4Address(shadowsocksAddress) ?? ipv4Address
             }
 
-            endpoint = match.endpoint.override(ipv4Relay: IPv4Endpoint(
-                ip: ipv4Address,
-                port: port
-            ))
+            endpoint = match.endpoint.override(
+                ipv4Relay: IPv4Endpoint(
+                    ip: ipv4Address,
+                    port: port
+                ))
         }
 
         return RelaySelectorMatch(endpoint: endpoint, relay: match.relay, location: match.location)

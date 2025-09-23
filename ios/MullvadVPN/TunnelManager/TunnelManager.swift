@@ -161,7 +161,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         nextKeyRotationDate = nil
 
         guard isRunningPeriodicPrivateKeyRotation,
-              let scheduleDate = getNextKeyRotationDate() else { return }
+            let scheduleDate = getNextKeyRotationDate()
+        else { return }
         nextKeyRotationDate = scheduleDate
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
@@ -242,11 +243,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             }
         )
 
-        operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: backgroundTaskProvider,
-            name: "Start tunnel",
-            cancelUponExpiration: true
-        ))
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: "Start tunnel",
+                cancelUponExpiration: true
+            ))
         operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
 
         operationQueue.addOperation(operation)
@@ -275,11 +277,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             completionHandler?(result.error)
         }
         operation.isOnDemandEnabled = isOnDemandEnabled
-        operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: backgroundTaskProvider,
-            name: "Stop tunnel",
-            cancelUponExpiration: true
-        ))
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: "Stop tunnel",
+                cancelUponExpiration: true
+            ))
         operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
 
         operationQueue.addOperation(operation)
@@ -395,11 +398,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             completionHandler(result)
         }
 
-        operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: backgroundTaskProvider,
-            name: action.taskName,
-            cancelUponExpiration: true
-        ))
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: action.taskName,
+                cancelUponExpiration: true
+            ))
 
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.manageTunnel.category)
@@ -823,7 +827,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
     @objc private func applicationDidBecomeActive() {
         #if DEBUG
-        logger.debug("Refresh device state and tunnel status due to application becoming active.")
+            logger.debug("Refresh device state and tunnel status due to application becoming active.")
         #endif
         refreshTunnelStatus()
         refreshDeviceState()
@@ -872,7 +876,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
         unsubscribeVPNStatusObserver()
 
-        statusObserver = tunnel
+        statusObserver =
+            tunnel
             .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
                 guard let self else { return }
 
@@ -940,11 +945,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
 
         operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
-        operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: backgroundTaskProvider,
-            name: "Refresh device state",
-            cancelUponExpiration: true
-        ))
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: "Refresh device state",
+                cancelUponExpiration: true
+            ))
 
         operationQueue.addOperation(operation)
     }
@@ -1007,11 +1013,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             }
         }
 
-        operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: backgroundTaskProvider,
-            name: taskName,
-            cancelUponExpiration: false
-        ))
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: taskName,
+                cancelUponExpiration: false
+            ))
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
         )
@@ -1043,11 +1050,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             }
         }
 
-        operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: backgroundTaskProvider,
-            name: taskName,
-            cancelUponExpiration: false
-        ))
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: taskName,
+                cancelUponExpiration: false
+            ))
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
         )
@@ -1160,88 +1168,90 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
 #if DEBUG
 
-// MARK: - Simulations
+    // MARK: - Simulations
 
-extension TunnelManager {
-    enum AccountExpirySimulationOption {
-        case closeToExpiry(days: Int)
-        case expired
-        case active
+    extension TunnelManager {
+        enum AccountExpirySimulationOption {
+            case closeToExpiry(days: Int)
+            case expired
+            case active
 
-        fileprivate var date: Date? {
-            let calendar = Calendar.current
-            let now = Date()
+            fileprivate var date: Date? {
+                let calendar = Calendar.current
+                let now = Date()
 
-            switch self {
-            case .active:
-                return calendar.date(byAdding: .year, value: 1, to: now)
+                switch self {
+                case .active:
+                    return calendar.date(byAdding: .year, value: 1, to: now)
 
-            case let .closeToExpiry(days):
-                return calendar.date(
-                    byAdding: DateComponents(day: days, second: 5),
-                    to: now
-                )
+                case let .closeToExpiry(days):
+                    return calendar.date(
+                        byAdding: DateComponents(day: days, second: 5),
+                        to: now
+                    )
 
-            case .expired:
-                return calendar.date(byAdding: .minute, value: -1, to: now)
+                case .expired:
+                    return calendar.date(byAdding: .minute, value: -1, to: now)
+                }
+            }
+        }
+
+        /**
+        
+         This function simulates account state transitions. The change is not permanent and any call to
+         `updateAccountData()` will overwrite it, but it's usually enough for quick testing.
+        
+         It can be invoked somewhere in `initTunnelManagerOperation` (`AppDelegate`) after tunnel manager is fully
+         initialized. The following code snippet can be used to cycle through various states:
+        
+         ```
+         func delay(seconds: UInt) async throws {
+         try await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
+         }
+        
+         Task {
+         print("Wait 5 seconds")
+         try await delay(seconds: 5)
+        
+         print("Simulate active account")
+         self.tunnelManager.simulateAccountExpiration(option: .active)
+         try await delay(seconds: 5)
+        
+         print("Simulate close to expiry")
+         self.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
+         try await delay(seconds: 10)
+        
+         print("Simulate expired account")
+         self.tunnelManager.simulateAccountExpiration(option: .expired)
+         try await delay(seconds: 5)
+        
+         print("Simulate active account")
+         self.tunnelManager.simulateAccountExpiration(option: .active)
+         }
+         ```
+        
+         Another way to invoke this code is to pause debugger and run it directly:
+        
+         ```
+         command alias swift expression -l Swift -O --
+        
+         swift import MullvadVPN
+         swift (UIApplication.shared.delegate as? AppDelegate)?.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
+         ```
+        
+         */
+        func simulateAccountExpiration(option: AccountExpirySimulationOption) {
+            scheduleDeviceStateUpdate(taskName: "Simulating account expiry", reconnectTunnel: false) { deviceState in
+                guard case .loggedIn(var accountData, let deviceData) = deviceState, let date = option.date else {
+                    return
+                }
+
+                accountData.expiry = date
+
+                deviceState = .loggedIn(accountData, deviceData)
             }
         }
     }
-
-    /**
-
-     This function simulates account state transitions. The change is not permanent and any call to
-     `updateAccountData()` will overwrite it, but it's usually enough for quick testing.
-
-     It can be invoked somewhere in `initTunnelManagerOperation` (`AppDelegate`) after tunnel manager is fully
-     initialized. The following code snippet can be used to cycle through various states:
-
-     ```
-     func delay(seconds: UInt) async throws {
-     try await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
-     }
-
-     Task {
-     print("Wait 5 seconds")
-     try await delay(seconds: 5)
-
-     print("Simulate active account")
-     self.tunnelManager.simulateAccountExpiration(option: .active)
-     try await delay(seconds: 5)
-
-     print("Simulate close to expiry")
-     self.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
-     try await delay(seconds: 10)
-
-     print("Simulate expired account")
-     self.tunnelManager.simulateAccountExpiration(option: .expired)
-     try await delay(seconds: 5)
-
-     print("Simulate active account")
-     self.tunnelManager.simulateAccountExpiration(option: .active)
-     }
-     ```
-
-     Another way to invoke this code is to pause debugger and run it directly:
-
-     ```
-     command alias swift expression -l Swift -O --
-
-     swift import MullvadVPN
-     swift (UIApplication.shared.delegate as? AppDelegate)?.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
-     ```
-
-     */
-    func simulateAccountExpiration(option: AccountExpirySimulationOption) {
-        scheduleDeviceStateUpdate(taskName: "Simulating account expiry", reconnectTunnel: false) { deviceState in
-            guard case .loggedIn(var accountData, let deviceData) = deviceState, let date = option.date else { return }
-
-            accountData.expiry = date
-
-            deviceState = .loggedIn(accountData, deviceData)
-        }
-    }
-}
 
 #endif
 
@@ -1324,5 +1334,3 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.handleRestError(error)
     }
 }
-
-// swiftlint:disable:this file_length

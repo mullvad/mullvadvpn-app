@@ -6,11 +6,12 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import XCTest
+
 @testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 class TransportStrategyTests: XCTestCase {
     private var directAccess: PersistentAccessMethod!
@@ -22,12 +23,13 @@ class TransportStrategyTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
 
-        shadowsocksLoader = ShadowsocksLoaderStub(configuration: ShadowsocksConfiguration(
-            address: .ipv4(.loopback),
-            port: 1080,
-            password: "123",
-            cipher: CipherIdentifiers.CHACHA20.description
-        ))
+        shadowsocksLoader = ShadowsocksLoaderStub(
+            configuration: ShadowsocksConfiguration(
+                address: .ipv4(.loopback),
+                port: 1080,
+                password: "123",
+                cipher: CipherIdentifiers.CHACHA20.description
+            ))
 
         directAccess = PersistentAccessMethod(
             id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
@@ -63,7 +65,7 @@ class TransportStrategyTests: XCTestCase {
             ]),
             shadowsocksLoader: shadowsocksLoader
         )
-        for _ in 0 ... 4 {
+        for _ in 0...4 {
             transportStrategy.didFail()
             XCTAssertEqual(transportStrategy.connectionTransport(), .direct)
         }
@@ -81,7 +83,7 @@ class TransportStrategyTests: XCTestCase {
             shadowsocksLoader: shadowsocksLoader
         )
 
-        for _ in 0 ... 10 {
+        for _ in 0...10 {
             transportStrategy.didFail()
 
             XCTAssertEqual(
@@ -101,18 +103,19 @@ class TransportStrategyTests: XCTestCase {
                     id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95090")!,
                     name: "",
                     isEnabled: true,
-                    proxyConfiguration: .shadowsocks(PersistentProxyConfiguration.ShadowsocksConfiguration(
-                        server: .ipv4(.loopback),
-                        port: 8083,
-                        password: "",
-                        cipher: .default
-                    ))
+                    proxyConfiguration: .shadowsocks(
+                        PersistentProxyConfiguration.ShadowsocksConfiguration(
+                            server: .ipv4(.loopback),
+                            port: 8083,
+                            password: "",
+                            cipher: .default
+                        ))
                 ),
             ]),
             shadowsocksLoader: shadowsocksLoader
         )
         let accessMethodsCount = 4
-        for i in 0 ..< (accessMethodsCount * 2) {
+        for i in 0..<(accessMethodsCount * 2) {
             let previousOne = transportStrategy.connectionTransport()
             transportStrategy.didFail()
             let currentOne = transportStrategy.connectionTransport()
@@ -136,12 +139,13 @@ class TransportStrategyTests: XCTestCase {
                     id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95090")!,
                     name: "",
                     isEnabled: true,
-                    proxyConfiguration: .shadowsocks(PersistentProxyConfiguration.ShadowsocksConfiguration(
-                        server: .ipv4(.loopback),
-                        port: 8083,
-                        password: "",
-                        cipher: .default
-                    ))
+                    proxyConfiguration: .shadowsocks(
+                        PersistentProxyConfiguration.ShadowsocksConfiguration(
+                            server: .ipv4(.loopback),
+                            port: 8083,
+                            password: "",
+                            cipher: .default
+                        ))
                 ),
             ]),
             shadowsocksLoader: shadowsocksLoader
@@ -150,12 +154,13 @@ class TransportStrategyTests: XCTestCase {
         transportStrategy.didFail()
         XCTAssertEqual(
             transportStrategy.connectionTransport(),
-            .shadowsocks(configuration: ShadowsocksConfiguration(
-                address: .ipv4(.loopback),
-                port: 8083,
-                password: "",
-                cipher: ShadowsocksCipherOptions.default.rawValue.description
-            ))
+            .shadowsocks(
+                configuration: ShadowsocksConfiguration(
+                    address: .ipv4(.loopback),
+                    port: 8083,
+                    password: "",
+                    cipher: ShadowsocksCipherOptions.default.rawValue.description
+                ))
         )
     }
 
@@ -186,7 +191,7 @@ class TransportStrategyTests: XCTestCase {
             ]),
             shadowsocksLoader: shadowsocksLoader
         )
-        for _ in 0 ... 10 {
+        for _ in 0...10 {
             transportStrategy.didFail()
             XCTAssertEqual(transportStrategy.connectionTransport(), .none)
         }
@@ -196,10 +201,11 @@ class TransportStrategyTests: XCTestCase {
         let username = "user"
         let password = "pass"
         let authentication = PersistentProxyConfiguration.SocksAuthentication
-            .authentication(PersistentProxyConfiguration.UserCredential(
-                username: username,
-                password: password
-            ))
+            .authentication(
+                PersistentProxyConfiguration.UserCredential(
+                    username: username,
+                    password: password
+                ))
         let socks5Configuration = PersistentProxyConfiguration.SocksConfiguration(
             server: .ipv4(.loopback),
             port: 1080,
@@ -231,8 +237,9 @@ class TransportStrategyTests: XCTestCase {
         transportStrategy.didFail()
 
         guard case let .socks5(configuration) = transportStrategy.connectionTransport(),
-              username == configuration.username,
-              password == configuration.password else {
+            username == configuration.username,
+            password == configuration.password
+        else {
             XCTAssertThrowsError("Failed to load Socks5 with authentication")
             return
         }

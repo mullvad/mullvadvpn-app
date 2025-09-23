@@ -42,12 +42,13 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         self.customListInteractor = customListInteractor
         self.customList = customList
         self.nodes = nodes
-        self.subject = CurrentValueSubject(CustomListViewModel(
-            id: customList.id,
-            name: customList.name,
-            locations: customList.locations,
-            tableSections: [.name, .editLocations, .deleteList]
-        ))
+        self.subject = CurrentValueSubject(
+            CustomListViewModel(
+                id: customList.id,
+                name: customList.name,
+                locations: customList.locations,
+                tableSections: [.name, .editLocations, .deleteList]
+            ))
     }
 
     func start() {

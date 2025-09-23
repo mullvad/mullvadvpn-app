@@ -39,8 +39,9 @@ public final class TransportProvider: RESTTransportProvider, Sendable {
 
             let currentStrategy = transportStrategy
             return TransportWrapper(wrapped: actualTransport) { [weak self] error in
-                if (error as? URLError)?.shouldResetNetworkTransport ?? false ||
-                    (error as? EncryptedDnsProxyError)?.shouldResetNetworkTransport ?? false {
+                if (error as? URLError)?.shouldResetNetworkTransport ?? false
+                    || (error as? EncryptedDnsProxyError)?.shouldResetNetworkTransport ?? false
+                {
                     self?.resetTransportMatching(currentStrategy)
                 }
             }
@@ -124,10 +125,8 @@ private extension URLError {
     ///  * Was made when internet connection was available
     ///  * Was made in a context with data roaming, but international roaming was turned off
     var shouldResetNetworkTransport: Bool {
-        code != .cancelled &&
-            code != .notConnectedToInternet &&
-            code != .internationalRoamingOff &&
-            code != .callIsActive
+        code != .cancelled && code != .notConnectedToInternet && code != .internationalRoamingOff
+            && code != .callIsActive
     }
 }
 

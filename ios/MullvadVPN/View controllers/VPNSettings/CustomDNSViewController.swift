@@ -56,10 +56,11 @@ class CustomDNSViewController: UITableViewController {
         }
         dataSource?.update(from: interactor.tunnelSettings)
 
-        tableView.tableHeaderView = UIView(frame: CGRect(
-            origin: .zero,
-            size: CGSize(width: 0, height: UIMetrics.TableView.emptyHeaderHeight)
-        ))
+        tableView.tableHeaderView = UIView(
+            frame: CGRect(
+                origin: .zero,
+                size: CGSize(width: 0, height: UIMetrics.TableView.emptyHeaderHeight)
+            ))
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -89,7 +90,7 @@ class CustomDNSViewController: UITableViewController {
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
-                ),
+                )
             ]
         )
 
@@ -103,9 +104,10 @@ extension CustomDNSViewController: @preconcurrency DNSSettingsDataSourceDelegate
     }
 
     func showInfo(for item: VPNSettingsInfoButtonItem) {
-        showInfo(with: NSAttributedString(
-            markdownString: item.description,
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
-        ))
+        showInfo(
+            with: NSAttributedString(
+                markdownString: item.description,
+                options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+            ))
     }
 }

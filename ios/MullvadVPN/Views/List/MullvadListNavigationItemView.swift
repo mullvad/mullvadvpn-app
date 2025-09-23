@@ -66,8 +66,10 @@ struct MullvadListNavigationItemView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 11)
             .background(
-                isPressed ? Color.MullvadButton.primaryPressed : Color.MullvadButton
-                    .primary
+                isPressed
+                    ? Color.MullvadButton.primaryPressed
+                    : Color.MullvadButton
+                        .primary
             )
         }
         .accessibilityIdentifier(accessibilityIdentifier?.asString ?? title)

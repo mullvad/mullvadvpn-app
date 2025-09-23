@@ -77,14 +77,15 @@ final class LoginCoordinator: Coordinator, Presenting {
 
         if case let .useExistingAccount(accountNumber) = action {
             if let error = error as? REST.Error, error.compareErrorCode(.maxDevicesReached) {
-                return .wait(Promise { resolve in
-                    nonisolated(unsafe) let sendableResolve = resolve
-                    self.showDeviceList(for: accountNumber) { error in
-                        self.lastLoginAction = action
+                return .wait(
+                    Promise { resolve in
+                        nonisolated(unsafe) let sendableResolve = resolve
+                        self.showDeviceList(for: accountNumber) { error in
+                            self.lastLoginAction = action
 
-                        sendableResolve(error.map { .failure($0) } ?? .success(()))
-                    }
-                })
+                            sendableResolve(error.map { .failure($0) } ?? .success(()))
+                        }
+                    })
             } else {
                 return .activateTextField
             }
@@ -118,11 +119,12 @@ final class LoginCoordinator: Coordinator, Presenting {
                 deviceManaging: interactor,
                 style: .tooManyDevices(returnToLogin),
                 onError: { title, error in
-                    let errorDescription = if case let .network(urlError) = error as? REST.Error {
-                        urlError.localizedDescription
-                    } else {
-                        error.localizedDescription
-                    }
+                    let errorDescription =
+                        if case let .network(urlError) = error as? REST.Error {
+                            urlError.localizedDescription
+                        } else {
+                            error.localizedDescription
+                        }
                     let presentation = AlertPresentation(
                         id: "delete-device-error-alert",
                         title: title,
@@ -131,7 +133,7 @@ final class LoginCoordinator: Coordinator, Presenting {
                             AlertAction(
                                 title: NSLocalizedString("Got it!", comment: ""),
                                 style: .default
-                            ),
+                            )
                         ]
                     )
 

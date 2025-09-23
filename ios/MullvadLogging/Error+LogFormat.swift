@@ -14,7 +14,8 @@ extension Error {
         let nsError = self as NSError
         var message = ""
 
-        let description = (self as? CustomErrorDescriptionProtocol)?
+        let description =
+            (self as? CustomErrorDescriptionProtocol)?
             .customErrorDescription ?? localizedDescription
 
         message += "\(description) (domain = \(nsError.domain), code = \(nsError.code))"

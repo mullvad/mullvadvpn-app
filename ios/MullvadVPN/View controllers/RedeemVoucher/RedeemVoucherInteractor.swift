@@ -35,15 +35,17 @@ final class RedeemVoucherInteractor: @unchecked Sendable {
         code: String,
         completion: @escaping (@Sendable (Result<REST.SubmitVoucherResponse, Error>) -> Void)
     ) {
-        tasks.append(tunnelManager.redeemVoucher(code) { [weak self] result in
-            guard let self else { return }
-            completion(result)
-            guard shouldVerifyVoucherAsAccount,
-                  result.error?.isInvalidVoucher ?? false else {
-                return
-            }
-            verifyVoucherAsAccount(code: code)
-        })
+        tasks.append(
+            tunnelManager.redeemVoucher(code) { [weak self] result in
+                guard let self else { return }
+                completion(result)
+                guard shouldVerifyVoucherAsAccount,
+                    result.error?.isInvalidVoucher ?? false
+                else {
+                    return
+                }
+                verifyVoucherAsAccount(code: code)
+            })
     }
 
     func logout() async {
@@ -62,7 +64,8 @@ final class RedeemVoucherInteractor: @unchecked Sendable {
             retryStrategy: .noRetry
         ) { [weak self] result in
             guard let self,
-                  case .success = result else {
+                case .success = result
+            else {
                 return
             }
             showLogoutDialog?()
