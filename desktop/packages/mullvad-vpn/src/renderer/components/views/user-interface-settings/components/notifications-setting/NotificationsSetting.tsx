@@ -1,8 +1,7 @@
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
+import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
 
 export function NotificationsSetting() {
   const enableSystemNotifications = useSelector(
@@ -11,27 +10,17 @@ export function NotificationsSetting() {
   const { setEnableSystemNotifications } = useAppContext();
 
   return (
-    <AriaInputGroup>
-      <Cell.Container>
-        <AriaLabel>
-          <Cell.InputLabel>
-            {messages.pgettext('user-interface-settings-view', 'Notifications')}
-          </Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch isOn={enableSystemNotifications} onChange={setEnableSystemNotifications} />
-        </AriaInput>
-      </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {messages.pgettext(
-              'user-interface-settings-view',
-              'Enable or disable system notifications. The critical notifications will always be displayed.',
-            )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
-    </AriaInputGroup>
+    <SettingsToggleListItem
+      checked={enableSystemNotifications}
+      onCheckedChange={setEnableSystemNotifications}
+      description={messages.pgettext(
+        'user-interface-settings-view',
+        'Enable or disable system notifications. The critical notifications will always be displayed.',
+      )}>
+      <SettingsToggleListItem.Label>
+        {messages.pgettext('user-interface-settings-view', 'Notifications')}
+      </SettingsToggleListItem.Label>
+      <SettingsToggleListItem.Switch />
+    </SettingsToggleListItem>
   );
 }
