@@ -50,7 +50,7 @@ export function ManageDevicesView() {
               {loading && <Spinner />}
               {!loading && (
                 <div>
-                  <List items={devices} getKey={getDeviceKey}>
+                  <List items={devices} getKey={getDeviceKey} skipAddTransition>
                     {(device) => <DeviceListItem device={device} />}
                   </List>
                 </div>
