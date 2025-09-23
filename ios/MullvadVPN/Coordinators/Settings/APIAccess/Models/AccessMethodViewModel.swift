@@ -113,8 +113,8 @@ extension AccessMethodViewModel {
                 preamble: NSLocalizedString("The app communicates with a Mullvad API server directly.", comment: ""),
                 body: [
                     NSLocalizedString(
-                        "With the “Direct” method, the app communicates with a Mullvad API " +
-                            "server directly without any intermediate proxies.",
+                        "With the “Direct” method, the app communicates with a Mullvad API "
+                            + "server directly without any intermediate proxies.",
                         comment: ""
                     ),
                     NSLocalizedString("This can be useful when you are not affected by censorship.", comment: ""),
@@ -129,8 +129,8 @@ extension AccessMethodViewModel {
                 ),
                 body: [
                     NSLocalizedString(
-                        "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a " +
-                            "Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.",
+                        "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a "
+                            + "Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.",
                         comment: ""
                     ),
                     NSLocalizedString(
@@ -148,16 +148,16 @@ extension AccessMethodViewModel {
                 ),
                 body: [
                     NSLocalizedString(
-                        "With the “Encrypted DNS proxy” method, the app will communicate with our " +
-                            "Mullvad API through a proxy address. It does this by retrieving " +
-                            "an address from a DNS over HTTPS (DoH) server and then using that " +
-                            "to reach our API servers.",
+                        "With the “Encrypted DNS proxy” method, the app will communicate with our "
+                            + "Mullvad API through a proxy address. It does this by retrieving "
+                            + "an address from a DNS over HTTPS (DoH) server and then using that "
+                            + "to reach our API servers.",
                         comment: ""
                     ),
                     NSLocalizedString(
-                        "If you are not connected to our VPN, then the Encrypted DNS proxy will use " +
-                            "your own non-VPN IP when connecting. The DoH servers are hosted by one of the " +
-                            "following providers: Quad9 or Cloudflare.",
+                        "If you are not connected to our VPN, then the Encrypted DNS proxy will use "
+                            + "your own non-VPN IP when connecting. The DoH servers are hosted by one of the "
+                            + "following providers: Quad9 or Cloudflare.",
                         comment: ""
                     ),
                 ]

@@ -47,8 +47,10 @@ struct DNSServerEntry: Decodable {
 class Networking {
     /// Get configured ad serving domain
     private static func getAdServingDomain() throws -> String {
-        guard let adServingDomain = Bundle(for: Networking.self)
-            .infoDictionary?["AdServingDomain"] as? String else {
+        guard
+            let adServingDomain = Bundle(for: Networking.self)
+                .infoDictionary?["AdServingDomain"] as? String
+        else {
             throw NetworkingError.notConfiguredError
         }
 
@@ -94,8 +96,10 @@ class Networking {
 
     /// Get configured domain to use for Internet connectivity checks
     public static func getAlwaysReachableDomain() throws -> String {
-        guard let shouldBeReachableDomain = Bundle(for: Networking.self)
-            .infoDictionary?["ShouldBeReachableDomain"] as? String else {
+        guard
+            let shouldBeReachableDomain = Bundle(for: Networking.self)
+                .infoDictionary?["ShouldBeReachableDomain"] as? String
+        else {
             throw NetworkingError.notConfiguredError
         }
 
@@ -103,8 +107,10 @@ class Networking {
     }
 
     public static func getAlwaysReachableIPAddress() -> String {
-        guard let shouldBeReachableIPAddress = Bundle(for: Networking.self)
-            .infoDictionary?["ShouldBeReachableIPAddress"] as? String else {
+        guard
+            let shouldBeReachableIPAddress = Bundle(for: Networking.self)
+                .infoDictionary?["ShouldBeReachableIPAddress"] as? String
+        else {
             XCTFail("Should be reachable IP address not configured")
             return String()
         }

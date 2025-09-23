@@ -40,7 +40,7 @@ struct SettingsInfoView: View {
         }
     }
 
-//    A TabView inside a Scrollview has no height. This hidden view stretches the TabView to have the size of the heighest page.
+    //    A TabView inside a Scrollview has no height. This hidden view stretches the TabView to have the size of the heighest page.
     private func hiddenViewToStretchHeightInsideScrollView() -> some View {
         return ZStack {
             contentView()
@@ -52,10 +52,11 @@ struct SettingsInfoView: View {
 
     private func bodyText(_ page: SettingsInfoViewModelPage) -> some View {
         let message = page.body
-        return (try? AttributedString(
-            markdown: message,
-            options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-        )).map(Text.init) ?? Text(message)
+        return
+            (try? AttributedString(
+                markdown: message,
+                options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+            )).map(Text.init) ?? Text(message)
     }
 
     private func contentView() -> some View {
@@ -77,96 +78,100 @@ struct SettingsInfoView: View {
 }
 
 #Preview("Single page") {
-    SettingsInfoView(viewModel: SettingsInfoViewModel(
-        pages: [
-            SettingsInfoViewModelPage(
-                body: """
-                Multihop routes your traffic into one WireGuard server and out another, making it \
-                harder to trace. This results in increased latency but increases anonymity online.
-                """,
-                image: .multihopIllustration
-            ),
-        ]
-    ))
-}
-
-#Preview("Multiple pages") {
-    SettingsInfoView(viewModel: SettingsInfoViewModel(
-        pages: [
-            SettingsInfoViewModelPage(
-                body: """
-                Multihop routes your traffic into one WireGuard server and out another, making it \
-                harder to trace. This results in increased latency but increases anonymity online.
-                """,
-                image: .multihopIllustration
-            ),
-            SettingsInfoViewModelPage(
-                body: """
-                Multihop routes your traffic into one WireGuard server and out another, making it \
-                harder to trace. This results in increased latency but increases anonymity online.
-                Multihop routes your traffic into one WireGuard server and out another, making it \
-                harder to trace. This results in increased latency but increases anonymity online.
-                """,
-                image: .multihopIllustration
-            ),
-        ]
-    ))
-}
-
-#Preview("Single inside Scrollview") {
-    ScrollView {
-        SettingsInfoView(viewModel: SettingsInfoViewModel(
+    SettingsInfoView(
+        viewModel: SettingsInfoViewModel(
             pages: [
                 SettingsInfoViewModelPage(
                     body: """
-                    Multihop routes your traffic into one WireGuard server and out another, making it \
-                    harder to trace. This results in increased latency but increases anonymity online.
-                    """,
+                        Multihop routes your traffic into one WireGuard server and out another, making it \
+                        harder to trace. This results in increased latency but increases anonymity online.
+                        """,
+                    image: .multihopIllustration
+                )
+            ]
+        ))
+}
+
+#Preview("Multiple pages") {
+    SettingsInfoView(
+        viewModel: SettingsInfoViewModel(
+            pages: [
+                SettingsInfoViewModelPage(
+                    body: """
+                        Multihop routes your traffic into one WireGuard server and out another, making it \
+                        harder to trace. This results in increased latency but increases anonymity online.
+                        """,
+                    image: .multihopIllustration
+                ),
+                SettingsInfoViewModelPage(
+                    body: """
+                        Multihop routes your traffic into one WireGuard server and out another, making it \
+                        harder to trace. This results in increased latency but increases anonymity online.
+                        Multihop routes your traffic into one WireGuard server and out another, making it \
+                        harder to trace. This results in increased latency but increases anonymity online.
+                        """,
                     image: .multihopIllustration
                 ),
             ]
         ))
+}
+
+#Preview("Single inside Scrollview") {
+    ScrollView {
+        SettingsInfoView(
+            viewModel: SettingsInfoViewModel(
+                pages: [
+                    SettingsInfoViewModelPage(
+                        body: """
+                            Multihop routes your traffic into one WireGuard server and out another, making it \
+                            harder to trace. This results in increased latency but increases anonymity online.
+                            """,
+                        image: .multihopIllustration
+                    )
+                ]
+            ))
     }
 }
 
 #Preview("Multiple inside Scrollview") {
     ScrollView {
-        SettingsInfoView(viewModel: SettingsInfoViewModel(
-            pages: [
-                SettingsInfoViewModelPage(
-                    body: NSLocalizedString(
-                        """
-                        **Attention: This increases network traffic and will also  negatively affect speed, latency, \
-                        and battery usage. Use with caution on limited plans.**
+        SettingsInfoView(
+            viewModel: SettingsInfoViewModel(
+                pages: [
+                    SettingsInfoViewModelPage(
+                        body: NSLocalizedString(
+                            """
+                            **Attention: This increases network traffic and will also  negatively affect speed, latency, \
+                            and battery usage. Use with caution on limited plans.**
 
-                        DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
-                        your encrypted VPN traffic.
+                            DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
+                            your encrypted VPN traffic.
 
-                        By using sophisticated AI it’s possible to analyze the traffic of data \
-                        packets going in and out of your device (even if the traffic is encrypted).
-                        """,
-                        comment: ""
+                            By using sophisticated AI it’s possible to analyze the traffic of data \
+                            packets going in and out of your device (even if the traffic is encrypted).
+                            """,
+                            comment: ""
+                        ),
+                        image: .daitaOffIllustration
                     ),
-                    image: .daitaOffIllustration
-                ),
-                SettingsInfoViewModelPage(
-                    body: NSLocalizedString(
-                        """
-                        If an observer monitors these data packets, DAITA makes it significantly \
-                        harder for them to identify which websites you are visiting or with whom \
-                        you are communicating.
+                    SettingsInfoViewModelPage(
+                        body: NSLocalizedString(
+                            """
+                            If an observer monitors these data packets, DAITA makes it significantly \
+                            harder for them to identify which websites you are visiting or with whom \
+                            you are communicating.
 
-                        DAITA does this by carefully adding network noise and making all network \
-                        packets the same size.
+                            DAITA does this by carefully adding network noise and making all network \
+                            packets the same size.
 
-                        Not all our servers are DAITA-enabled. Therefore, we use multihop \
-                        automatically to enable DAITA with any server.
-                        """,
-                        comment: ""
+                            Not all our servers are DAITA-enabled. Therefore, we use multihop \
+                            automatically to enable DAITA with any server.
+                            """,
+                            comment: ""
+                        ),
+                        image: .daitaOnIllustration
                     ),
-                    image: .daitaOnIllustration
-                ),
-            ]
-        ))
+                ]
+            ))
     }
 }

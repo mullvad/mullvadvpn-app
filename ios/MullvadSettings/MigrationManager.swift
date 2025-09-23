@@ -69,7 +69,8 @@ public struct MigrationManager {
             } catch .itemNotFound as KeychainError {
                 migrationCompleted(.nothing)
             } catch let couldNotReadKeychainError as KeychainError
-                where couldNotReadKeychainError == .interactionNotAllowed {
+                where couldNotReadKeychainError == .interactionNotAllowed
+            {
                 migrationCompleted(.failure(couldNotReadKeychainError))
             } catch {
                 resetStoreHandler(.failure(error))
@@ -92,10 +93,12 @@ public struct MigrationManager {
 
         // Corrupted settings version (i.e. negative values, or downgrade from a future version) should fail
         guard var savedSchema = SchemaVersion(rawValue: settingsVersion) else {
-            migrationCompleted(.failure(UnsupportedSettingsVersionError(
-                storedVersion: settingsVersion,
-                currentVersion: SchemaVersion.current
-            )))
+            migrationCompleted(
+                .failure(
+                    UnsupportedSettingsVersionError(
+                        storedVersion: settingsVersion,
+                        currentVersion: SchemaVersion.current
+                    )))
             return
         }
 

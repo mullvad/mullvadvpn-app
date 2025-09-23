@@ -6,9 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadSettings
 import Network
 import XCTest
+
+@testable import MullvadSettings
 
 final class IPOverrideRepositoryTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()

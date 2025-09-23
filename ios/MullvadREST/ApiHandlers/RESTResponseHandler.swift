@@ -46,8 +46,10 @@ extension REST {
             handlerBlock = block
         }
 
-        func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
-            .ResponseHandlerResult<Success> {
+        func handleURLResponse(_ response: HTTPURLResponse, data: Data)
+            -> REST
+            .ResponseHandlerResult<Success>
+        {
             handlerBlock(response, data)
         }
     }

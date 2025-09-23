@@ -99,7 +99,7 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         var relayConstraint = relayConstraint
 
         guard let customListSelection = relayConstraint.value?.customListSelection,
-              customListSelection.listId == list.id
+            customListSelection.listId == list.id
         else { return relayConstraint }
 
         switch action {
@@ -131,7 +131,8 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             navigationController.dismiss(animated: true)
             didFinish?(self)
         } else if let listController = navigationController.viewControllers
-            .first(where: { $0 is ListCustomListViewController }) {
+            .first(where: { $0 is ListCustomListViewController })
+        {
             navigationController.popToViewController(listController, animated: true)
             listViewController.updateDataSource(reloadExisting: true, animated: false)
         }

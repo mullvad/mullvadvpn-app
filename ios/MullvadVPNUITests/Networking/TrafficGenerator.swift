@@ -116,13 +116,15 @@ class TrafficGenerator: @unchecked Sendable {
             if self.connection.state != .ready {
                 print("Not connected, won't send data")
             } else {
-                self.connection.send(content: data, completion: .contentProcessed { error in
-                    if let error = error {
-                        print("Failed to send data: \(error)")
-                    } else {
-                        print("Data sent")
-                    }
-                })
+                self.connection.send(
+                    content: data,
+                    completion: .contentProcessed { error in
+                        if let error = error {
+                            print("Failed to send data: \(error)")
+                        } else {
+                            print("Data sent")
+                        }
+                    })
             }
         }
 
@@ -166,7 +168,8 @@ extension NWEndpoint {
             type,
             domain,
             interface
-        ): "service named:\(name), type:\(type), domain:\(domain), interface:\(interface?.customDebugDescription ?? "[No interface]")"
+        ):
+            "service named:\(name), type:\(type), domain:\(domain), interface:\(interface?.customDebugDescription ?? "[No interface]")"
         case let .unix(path): "unix: \(path)"
         @unknown default: "Unknown NWEndpoint type"
         }

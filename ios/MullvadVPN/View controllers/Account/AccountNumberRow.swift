@@ -140,9 +140,10 @@ class AccountNumberRow: UIView {
         let formattedString = accountNumber.formattedAccountNumber
 
         if isObscured {
-            return String(formattedString.map { ch in
-                ch == " " ? ch : "•"
-            })
+            return String(
+                formattedString.map { ch in
+                    ch == " " ? ch : "•"
+                })
         } else {
             return formattedString
         }

@@ -49,8 +49,10 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         // view. If there is, help the user by showing the entry instead of the exit view.
         var startContext: LocationViewControllerWrapper.MultihopContext = .exit
         if tunnelManager.settings.tunnelMultihopState.isEnabled {
-            startContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
-                .blockedState?.reason { .entry } else { .exit }
+            startContext =
+                if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
+                    .blockedState?.reason
+                { .entry } else { .exit }
         }
 
         let locationViewControllerWrapper = LocationViewControllerWrapper(
@@ -209,10 +211,11 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
         editAction.setAccessibilityIdentifier(.editCustomListButton)
         actionSheet.addAction(editAction)
 
-        actionSheet.addAction(UIAlertAction(
-            title: NSLocalizedString("Cancel", comment: ""),
-            style: .cancel
-        ))
+        actionSheet.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("Cancel", comment: ""),
+                style: .cancel
+            ))
 
         presentationContext.present(actionSheet, animated: true)
     }

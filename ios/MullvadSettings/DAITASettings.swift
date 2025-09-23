@@ -66,11 +66,13 @@ public struct DAITASettings: Codable, Equatable, Sendable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        daitaState = try container.decodeIfPresent(DAITAState.self, forKey: .daitaState)
+        daitaState =
+            try container.decodeIfPresent(DAITAState.self, forKey: .daitaState)
             ?? container.decodeIfPresent(DAITAState.self, forKey: .state)
             ?? .off
 
-        directOnlyState = try container.decodeIfPresent(DirectOnlyState.self, forKey: .directOnlyState)
+        directOnlyState =
+            try container.decodeIfPresent(DirectOnlyState.self, forKey: .directOnlyState)
             ?? .off
     }
 }

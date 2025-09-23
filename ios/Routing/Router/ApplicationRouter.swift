@@ -27,7 +27,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
 
     /**
      Designated initializer.
-
+    
      Delegate object is unonwed and the caller has to guarantee that the router does not outlive it.
      */
     public init(_ delegate: some ApplicationRouterDelegate<RouteType>) {
@@ -55,31 +55,34 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
      Enqueue route for presetnation.
      */
     public func present(_ route: RouteType, animated: Bool = true, metadata: Any? = nil) {
-        enqueue(PendingRoute(
-            operation: .present(route),
-            animated: animated,
-            metadata: metadata
-        ))
+        enqueue(
+            PendingRoute(
+                operation: .present(route),
+                animated: animated,
+                metadata: metadata
+            ))
     }
 
     /**
      Enqueue dismissal of the route.
      */
     public func dismiss(_ route: RouteType, animated: Bool = true) {
-        enqueue(PendingRoute(
-            operation: .dismiss(.singleRoute(route)),
-            animated: animated
-        ))
+        enqueue(
+            PendingRoute(
+                operation: .dismiss(.singleRoute(route)),
+                animated: animated
+            ))
     }
 
     /**
      Enqueue dismissal of a group of routes.
      */
     public func dismissAll(_ group: RouteType.RouteGroupType, animated: Bool = true) {
-        enqueue(PendingRoute(
-            operation: .dismiss(.group(group)),
-            animated: animated
-        ))
+        enqueue(
+            PendingRoute(
+                operation: .dismiss(.group(group)),
+                animated: animated
+            ))
     }
 
     private func enqueue(_ pendingRoute: PendingRoute<RouteType>) {
@@ -102,7 +105,8 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
          Pass sub-route for routes supporting sub-navigation.
          */
         if route.supportsSubNavigation, modalStack.contains(route.routeGroup),
-           var presentedRoute = presentedRoutes[route.routeGroup]?.first {
+            var presentedRoute = presentedRoutes[route.routeGroup]?.first
+        {
             let context = RouteSubnavigationContext(
                 presentedRoute: presentedRoute,
                 route: route,
@@ -144,9 +148,10 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
             // Check if incoming route is modal.
             route.routeGroup.isModal,
             // Check whether incoming route can be presented on top of current.
-            (lastRouteGroup > route.routeGroup) ||
-            // OR, check whether incoming exclusive route can be presented on top of current.
-            (lastRouteGroup >= route.routeGroup && route.isExclusive) {
+            (lastRouteGroup > route.routeGroup)
+                // OR, check whether incoming exclusive route can be presented on top of current.
+                || (lastRouteGroup >= route.routeGroup && route.isExclusive)
+        {
             completion(.blockedByModalContext)
             return
         }
@@ -243,9 +248,10 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
 
         // Check if the route can be dismissed and there is no other modal above.
         if let lastModalGroup = modalStack.last,
-           lastModalGroup != dismissRoute.routeGroup,
-           dismissRoute.routeGroup.isModal,
-           isLastRoute {
+            lastModalGroup != dismissRoute.routeGroup,
+            dismissRoute.routeGroup.isModal,
+            isLastRoute
+        {
             completion(.blockedByModalAbove)
             return
         }

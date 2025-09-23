@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 @propertyWrapper
 public struct AppStorage<Value> {
     let key: String
@@ -19,7 +20,8 @@ public struct AppStorage<Value> {
         }
         set {
             if let anyOptional = newValue as? AnyOptional,
-               anyOptional.isNil {
+                anyOptional.isNil
+            {
                 container.removeObject(forKey: key)
             } else {
                 container.set(newValue, forKey: key)

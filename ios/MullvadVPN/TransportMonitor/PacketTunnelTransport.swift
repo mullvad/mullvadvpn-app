@@ -84,11 +84,14 @@ final class PacketTunnelAPITransport: APITransportProtocol {
 
             case let .failure(error):
                 let error = error.isOperationCancellationError ? URLError(.cancelled) : error
-                completion(ProxyAPIResponse(data: nil, error: APIError(
-                    statusCode: 0,
-                    errorDescription: error.localizedDescription,
-                    serverResponseCode: nil
-                )))
+                completion(
+                    ProxyAPIResponse(
+                        data: nil,
+                        error: APIError(
+                            statusCode: 0,
+                            errorDescription: error.localizedDescription,
+                            serverResponseCode: nil
+                        )))
             }
         }
     }

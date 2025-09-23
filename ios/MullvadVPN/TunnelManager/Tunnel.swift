@@ -12,9 +12,9 @@ import NetworkExtension
 
 // Switch to stabs on simulator
 #if targetEnvironment(simulator)
-typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
+    typealias TunnelProviderManagerType = SimulatorTunnelProviderManager
 #else
-typealias TunnelProviderManagerType = NETunnelProviderManager
+    typealias TunnelProviderManagerType = NETunnelProviderManager
 #endif
 
 protocol TunnelStatusObserver {
@@ -56,23 +56,23 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     var backgroundTaskProvider: BackgroundTaskProviding
 
     #if DEBUG
-    /// System VPN configuration identifier.
-    /// This property performs a private call to obtain system configuration ID so it does not
-    /// guarantee to return anything, also it may not return anything for newly created tunnels.
-    var systemIdentifier: UUID? {
-        let configurationKey = "configuration"
-        let identifierKey = "identifier"
+        /// System VPN configuration identifier.
+        /// This property performs a private call to obtain system configuration ID so it does not
+        /// guarantee to return anything, also it may not return anything for newly created tunnels.
+        var systemIdentifier: UUID? {
+            let configurationKey = "configuration"
+            let identifierKey = "identifier"
 
-        guard tunnelProvider.responds(to: NSSelectorFromString(configurationKey)),
-              let config = tunnelProvider.value(forKey: configurationKey) as? NSObject,
-              config.responds(to: NSSelectorFromString(identifierKey)),
-              let identifier = config.value(forKey: identifierKey) as? UUID
-        else {
-            return nil
+            guard tunnelProvider.responds(to: NSSelectorFromString(configurationKey)),
+                let config = tunnelProvider.value(forKey: configurationKey) as? NSObject,
+                config.responds(to: NSSelectorFromString(identifierKey)),
+                let identifier = config.value(forKey: identifierKey) as? UUID
+            else {
+                return nil
+            }
+
+            return identifier
         }
-
-        return identifier
-    }
     #endif
 
     /// Tunnel start date.
@@ -104,9 +104,9 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     func logFormat() -> String {
         var s = identifier.uuidString
         #if DEBUG
-        if let configurationIdentifier = systemIdentifier?.uuidString {
-            s += " (system profile ID: \(configurationIdentifier))"
-        }
+            if let configurationIdentifier = systemIdentifier?.uuidString {
+                s += " (system profile ID: \(configurationIdentifier))"
+            }
         #endif
         return s
     }

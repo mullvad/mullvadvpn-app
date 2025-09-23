@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 import protocol MullvadTypes.Cancellable
 
 public protocol RESTRequestExecutor<Success> {

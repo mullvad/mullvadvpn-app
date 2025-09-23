@@ -38,7 +38,8 @@ func receivePostQuantumKey(
 
     // If there are no private keys for the ephemeral peer, then the negotiation either failed, or timed out.
     guard let rawEphemeralKey,
-          let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32)) else {
+        let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32))
+    else {
         ephemeralPeerReceiver.ephemeralPeerExchangeFailed()
         return
     }

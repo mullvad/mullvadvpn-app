@@ -7,9 +7,10 @@
 //
 
 import MullvadMockData
+import XCTest
+
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 class CustomListsDataSourceTests: XCTestCase {
     var allLocationNodes = [LocationNode]()
@@ -91,15 +92,19 @@ extension CustomListsDataSourceTests {
 
     var customLists: [CustomList] {
         [
-            CustomList(name: "Netflix", locations: [
-                .hostname("es", "mad", "es1-wireguard"),
-                .country("se"),
-                .city("us", "dal"),
-            ]),
-            CustomList(name: "Youtube", locations: [
-                .hostname("se", "sto", "se2-wireguard"),
-                .city("us", "dal"),
-            ]),
+            CustomList(
+                name: "Netflix",
+                locations: [
+                    .hostname("es", "mad", "es1-wireguard"),
+                    .country("se"),
+                    .city("us", "dal"),
+                ]),
+            CustomList(
+                name: "Youtube",
+                locations: [
+                    .hostname("se", "sto", "se2-wireguard"),
+                    .city("us", "dal"),
+                ]),
         ]
     }
 }

@@ -110,20 +110,22 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     private func submit(code: String) {
         contentView.state = .verifying
         contentView.isEditing = false
-        interactor.redeemVoucher(code: code, completion: { [weak self] result in
-            guard let self else { return }
-            /// Safe to assume `@MainActor` isolation because
-            /// `TunnelManager.redeemVoucher` sets the `RedeemVoucherOperation`'s `completionQueue` to `.main`
-            MainActor.assumeIsolated {
-                switch result {
-                case let .success(value):
-                    contentView.state = .success
-                    delegate?.redeemVoucherDidSucceed(self, with: value)
-                case let .failure(error):
-                    contentView.state = .failure(error)
+        interactor.redeemVoucher(
+            code: code,
+            completion: { [weak self] result in
+                guard let self else { return }
+                /// Safe to assume `@MainActor` isolation because
+                /// `TunnelManager.redeemVoucher` sets the `RedeemVoucherOperation`'s `completionQueue` to `.main`
+                MainActor.assumeIsolated {
+                    switch result {
+                    case let .success(value):
+                        contentView.state = .success
+                        delegate?.redeemVoucherDidSucceed(self, with: value)
+                    case let .failure(error):
+                        contentView.state = .failure(error)
+                    }
                 }
-            }
-        })
+            })
     }
 
     private func cancel() {

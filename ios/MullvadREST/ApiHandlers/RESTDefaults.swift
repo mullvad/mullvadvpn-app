@@ -10,7 +10,6 @@ import Foundation
 import MullvadRustRuntime
 import MullvadTypes
 
-// swiftlint:disable force_cast
 extension REST {
     /// The API hostname and endpoint are defined in the Info.plist of the MullvadREST framework bundle
     /// This is due to not being able to target `Bundle.main` from a Unit Test environment as it gets its own bundle that would not contain the above variables.
@@ -30,5 +29,3 @@ extension REST {
     /// Default network timeout for API requests.
     public static let defaultAPINetworkTimeout: Duration = .seconds(10)
 }
-
-// swiftlint:enable force_cast

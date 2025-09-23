@@ -10,8 +10,8 @@ import Foundation
 import NetworkExtension
 
 #if swift(>=6)
-#if compiler(>=6)
-public typealias NWTCPConnection = __NWTCPConnection
-public typealias NWHostEndpoint = __NWHostEndpoint
-#endif
+    #if compiler(>=6)
+        public typealias NWTCPConnection = __NWTCPConnection
+        public typealias NWHostEndpoint = __NWHostEndpoint
+    #endif
 #endif

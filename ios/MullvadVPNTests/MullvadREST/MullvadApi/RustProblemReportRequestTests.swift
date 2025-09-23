@@ -37,16 +37,17 @@ struct RustProblemReportRequestTests {
     @Test("Test invalid metadata insertion for SendProblemReport")
     func testInvalidMetadataHandling() {
         let invalidMetadata: [[UInt8]: [UInt8]] = [
-            [0xC0, 0x80]: [0xC0, 0x80], // // Incomplete UTF-8 byte sequence for key an value
-            [0x7E]: [0x80], // Valid key , but invalid start byte in UTF-8
-            [0xE0, 0x80]: [0xC2, 0x80], // Malformed UTF-8 multibyte sequence for key and valid value
+            [0xC0, 0x80]: [0xC0, 0x80],  // // Incomplete UTF-8 byte sequence for key an value
+            [0x7E]: [0x80],  // Valid key , but invalid start byte in UTF-8
+            [0xE0, 0x80]: [0xC2, 0x80],  // Malformed UTF-8 multibyte sequence for key and valid value
         ]
         let metadata = swift_problem_report_metadata_new()
         for (keyBytes, valueBytes) in invalidMetadata {
             keyBytes.withUnsafeBytes { (keyPtr: UnsafeRawBufferPointer) in
                 valueBytes.withUnsafeBytes { (valuePtr: UnsafeRawBufferPointer) in
                     guard let keyBaseAddress = keyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
-                          let valueBaseAddress = valuePtr.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
+                        let valueBaseAddress = valuePtr.baseAddress?.assumingMemoryBound(to: UInt8.self)
+                    else {
                         return
                     }
 

@@ -6,11 +6,12 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadMockData
 import MullvadTypes
 import Network
-@testable import PacketTunnelCore
 import XCTest
+
+@testable import MullvadMockData
+@testable import PacketTunnelCore
 
 final class TunnelMonitorTests: XCTestCase {
     let networkCounters = NetworkCounters()

@@ -125,8 +125,8 @@ struct IPOverrideFeature: ChipFeature {
             let endpoint = state.relays?.ingress.endpoint
         else { return false }
         return overrides.contains { override in
-            (override.ipv4Address.map { $0 == endpoint.ipv4Relay.ip } ?? false) ||
-                (override.ipv6Address.map { $0 == endpoint.ipv6Relay?.ip } ?? false)
+            (override.ipv4Address.map { $0 == endpoint.ipv4Relay.ip } ?? false)
+                || (override.ipv6Address.map { $0 == endpoint.ipv6Relay?.ip } ?? false)
         }
     }
 

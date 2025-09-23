@@ -129,15 +129,19 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         }
         guard let sectionFooterText = sectionIdentifier.sectionFooter else { return nil }
 
-        guard let headerView = tableView
-            .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
+        guard
+            let headerView =
+                tableView
+                .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
         else { return nil }
 
-        var contentConfiguration = ListCellContentConfiguration(textProperties: ListCellContentConfiguration
-            .TextProperties(
-                font: .mullvadMini,
-                color: .TableSection.footerTextColor
-            )
+        var contentConfiguration = ListCellContentConfiguration(
+            textProperties:
+                ListCellContentConfiguration
+                .TextProperties(
+                    font: .mullvadMini,
+                    color: .TableSection.footerTextColor
+                )
         )
         contentConfiguration.text = sectionFooterText
         headerView.contentConfiguration = contentConfiguration
@@ -168,7 +172,8 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     // MARK: - Cell configuration
 
     private func dequeueCell(at indexPath: IndexPath, for itemIdentifier: EditAccessMethodItemIdentifier)
-        -> UITableViewCell {
+        -> UITableViewCell
+    {
         let cell = tableView.dequeueReusableView(withIdentifier: itemIdentifier.cellIdentifier, for: indexPath)
 
         configureBackground(cell: cell, itemIdentifier: itemIdentifier)
@@ -359,7 +364,8 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     }
 
     private func onDelete() {
-        let methodName = subject.value.name.isEmpty
+        let methodName =
+            subject.value.name.isEmpty
             ? NSLocalizedString("method", comment: "")
             : subject.value.name
 
@@ -395,4 +401,4 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     private func onCancelTest() {
         interactor.cancelProxyConfigurationTest()
     }
-} // swiftlint:disable:this file_length
+}

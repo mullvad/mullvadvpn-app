@@ -47,23 +47,25 @@ class BaseUITestCase: XCTestCase {
     private var packetCaptureSessionIsActive = false
     private var packetCaptureSession: PacketCaptureSession?
 
-    // swiftlint:disable force_cast
-    let displayName = Bundle(for: BaseUITestCase.self)
+    let displayName =
+        Bundle(for: BaseUITestCase.self)
         .infoDictionary?["DisplayName"] as! String
-    private let bundleHasTimeAccountNumber = Bundle(for: BaseUITestCase.self)
+    private let bundleHasTimeAccountNumber =
+        Bundle(for: BaseUITestCase.self)
         .infoDictionary?["HasTimeAccountNumber"] as? String
-    private let bundleNoTimeAccountNumber = Bundle(for: BaseUITestCase.self)
+    private let bundleNoTimeAccountNumber =
+        Bundle(for: BaseUITestCase.self)
         .infoDictionary?["NoTimeAccountNumber"] as? String
-    let iOSDevicePinCode = Bundle(for: BaseUITestCase.self)
+    let iOSDevicePinCode =
+        Bundle(for: BaseUITestCase.self)
         .infoDictionary?["IOSDevicePinCode"] as! String
-    let attachAppLogsOnFailure = Bundle(for: BaseUITestCase.self)
+    let attachAppLogsOnFailure =
+        Bundle(for: BaseUITestCase.self)
         .infoDictionary?["AttachAppLogsOnFailure"] as! String == "1"
     let partnerApiToken = Bundle(for: BaseUITestCase.self).infoDictionary?["PartnerApiToken"] as? String
-    // swiftlint:enable force_cast
 
     lazy var mullvadAPIWrapper: MullvadAPIWrapper = {
         do {
-            // swiftlint:disable:next force_try
             return try! MullvadAPIWrapper()
         }
     }()
@@ -78,7 +80,8 @@ class BaseUITestCase: XCTestCase {
 
     static func uninstallAppInTestSuiteTearDown() -> Bool {
         if let uninstallAppInTestSuiteTearDown = Bundle(for: BaseUITestCase.self)
-            .infoDictionary?["UninstallAppInTestSuiteTearDown"] as? String {
+            .infoDictionary?["UninstallAppInTestSuiteTearDown"] as? String
+        {
             return uninstallAppInTestSuiteTearDown == "1"
         }
 
@@ -218,7 +221,7 @@ class BaseUITestCase: XCTestCase {
 
     /// Test level setup
     override func setUp() async throws {
-        currentTestCaseShouldCapturePackets = false // Reset for each test case run
+        currentTestCaseShouldCapturePackets = false  // Reset for each test case run
         continueAfterFailure = false
         app.launch()
     }
@@ -285,13 +288,15 @@ class BaseUITestCase: XCTestCase {
 
     /// Check if currently logged on to an account. Note that it is assumed that we are logged in if login view isn't currently shown.
     func isLoggedIn() -> Bool {
-        return !app
+        return
+            !app
             .otherElements[.loginView]
             .waitForExistence(timeout: 1.0)
     }
 
     func isPresentingSettings() -> Bool {
-        return app
+        return
+            app
             .otherElements[.settingsContainerView]
             .exists
     }
@@ -368,11 +373,12 @@ class BaseUITestCase: XCTestCase {
 
     static func uninstallApp() {
         let appName = "Mullvad VPN"
-        let searchQuery = appName
+        let searchQuery =
+            appName
             .replacingOccurrences(
                 of: " ",
                 with: ""
-            ) // With space in the query Spotlight search sometimes don't match the Mullvad VPN app
+            )  // With space in the query Spotlight search sometimes don't match the Mullvad VPN app
 
         let timeout = TimeInterval(5)
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -383,13 +389,13 @@ class BaseUITestCase: XCTestCase {
         var mullvadAppIcon: XCUIElement
 
         // How to navigate to Spotlight search differs between iPhone and iPad
-        if BaseUITestCase.testDeviceIsIPad() == false { // iPhone
+        if BaseUITestCase.testDeviceIsIPad() == false {  // iPhone
             springboard.swipeDown()
             spotlight.textFields["SpotlightSearchField"].typeText(searchQuery)
             mullvadAppIcon = spotlightOrSpringboard.icons[appName]
-        } else { // iPad
+        } else {  // iPad
             // Swipe left enough times to reach the last page
-            for _ in 0 ..< 3 {
+            for _ in 0..<3 {
                 springboard.swipeLeft()
                 Thread.sleep(forTimeInterval: 0.5)
             }
@@ -420,5 +426,4 @@ class BaseUITestCase: XCTestCase {
             XCTFail("Failed to find 'Delete'")
         }
     }
-    // swiftlint:disable:next file_length
 }

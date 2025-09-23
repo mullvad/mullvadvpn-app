@@ -7,11 +7,11 @@
 //
 
 import MullvadMockData
+@preconcurrency import XCTest
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-
-@preconcurrency import XCTest
 
 class ShadowsocksLoaderTests: XCTestCase {
     private let sampleRelays = ServerRelaysResponseStubs.sampleRelays
@@ -26,19 +26,23 @@ class ShadowsocksLoaderTests: XCTestCase {
         shadowsocksConfigurationCache = ShadowsocksConfigurationCacheStub()
         relaySelector = ShadowsocksRelaySelectorStub(relays: sampleRelays)
 
-        relaySelector.exitBridgeResult = .success(try XCTUnwrap(closetRelayTo(
-            location: relayConstraints.exitLocations,
-            port: relayConstraints.port,
-            filter: relayConstraints.filter,
-            in: sampleRelays
-        )))
+        relaySelector.exitBridgeResult = .success(
+            try XCTUnwrap(
+                closetRelayTo(
+                    location: relayConstraints.exitLocations,
+                    port: relayConstraints.port,
+                    filter: relayConstraints.filter,
+                    in: sampleRelays
+                )))
 
-        relaySelector.entryBridgeResult = .success(try XCTUnwrap(closetRelayTo(
-            location: relayConstraints.entryLocations,
-            port: relayConstraints.port,
-            filter: relayConstraints.filter,
-            in: sampleRelays
-        )))
+        relaySelector.entryBridgeResult = .success(
+            try XCTUnwrap(
+                closetRelayTo(
+                    location: relayConstraints.entryLocations,
+                    port: relayConstraints.port,
+                    filter: relayConstraints.filter,
+                    in: sampleRelays
+                )))
 
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksConfigurationCache,

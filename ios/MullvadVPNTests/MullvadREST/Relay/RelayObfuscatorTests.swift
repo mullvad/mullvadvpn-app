@@ -7,10 +7,11 @@
 //
 
 import MullvadMockData
+import XCTest
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 final class RelayObfuscatorTests: XCTestCase {
     let defaultWireguardPort: RelayConstraint<UInt16> = .only(56)
@@ -129,7 +130,7 @@ final class RelayObfuscatorTests: XCTestCase {
             udpOverTcpPort: .automatic
         )
 
-        try (0 ... 10).filter { $0.isMultiple(of: 2) }.forEach { attempt in
+        try (0...10).filter { $0.isMultiple(of: 2) }.forEach { attempt in
             let obfuscationResult = RelayObfuscator(
                 relays: sampleRelays,
                 tunnelSettings: tunnelSettings,
@@ -172,13 +173,14 @@ final class RelayObfuscatorTests: XCTestCase {
 
         let portRanges = RelaySelector.parseRawPortRanges(sampleRelays.wireguard.shadowsocksPortRanges)
 
-        XCTAssertTrue(try portRanges.contains(where: { range in
-            range.contains(try XCTUnwrap(obfuscationResult.port.value))
-        }))
+        XCTAssertTrue(
+            try portRanges.contains(where: { range in
+                range.contains(try XCTUnwrap(obfuscationResult.port.value))
+            }))
     }
 
     func testObfuscateShadowsocksRelayFilteringWithPortOutsideDefaultRanges() throws {
-        let allPorts: Range<UInt16> = 1 ..< 65000
+        let allPorts: Range<UInt16> = 1..<65000
         let defaultPortRanges = RelaySelector.parseRawPortRanges(sampleRelays.wireguard.shadowsocksPortRanges)
 
         let portsOutsideDefaultRange = allPorts.filter { port in

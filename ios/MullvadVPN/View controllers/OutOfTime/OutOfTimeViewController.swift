@@ -110,24 +110,26 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         contentView.enablePurchaseButton(!tunnelState.isSecured)
 
         if tunnelState.isSecured {
-            contentView.setBodyLabelText([
-                baseMessage,
-                NSLocalizedString(
-                    "To add more, you will need to " +
-                        "disconnect and access the Internet with an unsecure connection.",
-                    comment: ""
-                ),
-            ].joined()
+            contentView.setBodyLabelText(
+                [
+                    baseMessage,
+                    NSLocalizedString(
+                        "To add more, you will need to "
+                            + "disconnect and access the Internet with an unsecure connection.",
+                        comment: ""
+                    ),
+                ].joined()
             )
         } else {
-            contentView.setBodyLabelText([
-                baseMessage,
-                NSLocalizedString(
-                    "Either buy credit on our website " +
-                        "or make an in-app purchase via the **Add time** button below.",
-                    comment: ""
-                ),
-            ].joined()
+            contentView.setBodyLabelText(
+                [
+                    baseMessage,
+                    NSLocalizedString(
+                        "Either buy credit on our website "
+                            + "or make an in-app purchase via the **Add time** button below.",
+                        comment: ""
+                    ),
+                ].joined()
             )
         }
     }

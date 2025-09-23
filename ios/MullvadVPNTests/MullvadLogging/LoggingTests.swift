@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import MullvadLogging
 import XCTest
+
+@testable import MullvadLogging
 
 class LoggingTests: XCTestCase {
     let fileManager = FileManager.default

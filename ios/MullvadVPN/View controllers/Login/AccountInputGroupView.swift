@@ -450,8 +450,9 @@ final class AccountInputGroupView: UIView {
 
         bottomRowView.accessibilityElementsHidden = !shouldShow
 
-        if lastUsedAccountButton.accessibilityElementIsFocused() ||
-            removeLastUsedAccountButton.accessibilityElementIsFocused() {
+        if lastUsedAccountButton.accessibilityElementIsFocused()
+            || removeLastUsedAccountButton.accessibilityElementIsFocused()
+        {
             UIAccessibility.post(notification: .layoutChanged, argument: textField)
         }
     }
@@ -541,5 +542,4 @@ private class AccountInputBorderLayer: CAShapeLayer {
         return super.defaultAction(forKey: event)
     }
 
-    // swiftlint:disable:next file_length
 }

@@ -93,7 +93,8 @@ extension REST {
             let rawValue = try container.decode(String.self, forKey: .code)
 
             code = ServerResponseCode(rawValue: rawValue)
-            detail = try container.decodeIfPresent(String.self, forKey: .detail)
+            detail =
+                try container.decodeIfPresent(String.self, forKey: .detail)
                 ?? container.decodeIfPresent(String.self, forKey: .error)
         }
 
@@ -136,7 +137,8 @@ extension REST {
             case .noTransport:
                 return "Transport is not configured."
             case let .invalidResponse(response):
-                return "Received invalid response. Expected HTTPURLResponse, got \(response.map { "\($0.self)" } ?? "(nil)")."
+                return
+                    "Received invalid response. Expected HTTPURLResponse, got \(response.map { "\($0.self)" } ?? "(nil)")."
             }
         }
     }

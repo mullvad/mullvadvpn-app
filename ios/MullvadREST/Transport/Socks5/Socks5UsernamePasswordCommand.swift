@@ -30,9 +30,9 @@ struct Socks5UsernamePasswordCommand {
     var rawData: Data {
         var data = Data()
         guard username.count < UInt8.max,
-              password.count < UInt8.max,
-              let usernameData = username.data(using: .utf8),
-              let passwordData = password.data(using: .utf8)
+            password.count < UInt8.max,
+            let usernameData = username.data(using: .utf8),
+            let passwordData = password.data(using: .utf8)
         else { return data }
 
         // Protocol version
@@ -73,11 +73,13 @@ struct Socks5UsernamePasswordReply {
         var iterator = data.makeIterator()
 
         guard let readVersion = iterator.next(),
-              readVersion == Socks5Constants.usernamePasswordAuthenticationProtocol else { return nil }
+            readVersion == Socks5Constants.usernamePasswordAuthenticationProtocol
+        else { return nil }
         self.version = readVersion
 
         guard let readStatus = iterator.next(),
-              let statusCode = Socks5StatusCode(rawValue: readStatus) else { return nil }
+            let statusCode = Socks5StatusCode(rawValue: readStatus)
+        else { return nil }
         self.status = statusCode
     }
 }

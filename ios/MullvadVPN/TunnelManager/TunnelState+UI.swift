@@ -167,15 +167,17 @@ extension TunnelState {
         let usingDaita = daitaEnabled == true
 
         return if let entryName {
-            String(format: NSLocalizedString(
-                "%@ via %@\(usingDaita ? " using DAITA" : "")",
-                comment: ""
-            ), exitName, entryName)
+            String(
+                format: NSLocalizedString(
+                    "%@ via %@\(usingDaita ? " using DAITA" : "")",
+                    comment: ""
+                ), exitName, entryName)
         } else {
-            String(format: NSLocalizedString(
-                "%@\(usingDaita ? " using DAITA" : "")",
-                comment: ""
-            ), exitName)
+            String(
+                format: NSLocalizedString(
+                    "%@\(usingDaita ? " using DAITA" : "")",
+                    comment: ""
+                ), exitName)
         }
     }
 

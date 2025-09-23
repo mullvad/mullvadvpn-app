@@ -20,7 +20,8 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         }
         set {
             guard let newConfiguration = newValue as? ListCellContentConfiguration,
-                  actualConfiguration != newConfiguration else { return }
+                actualConfiguration != newConfiguration
+            else { return }
 
             let previousConfiguration = actualConfiguration
             actualConfiguration = newConfiguration

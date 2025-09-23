@@ -1,3 +1,5 @@
+import XCTest
+
 //
 //  EphemeralPeerExchangingPipelineTests.swift
 //  MullvadPostQuantumTests
@@ -11,7 +13,6 @@
 @testable import MullvadTypes
 @testable import PacketTunnelCore
 @testable import WireGuardKitTypes
-import XCTest
 
 final class EphemeralPeerExchangingPipelineTests: XCTestCase {
     var entryRelay: SelectedRelay!

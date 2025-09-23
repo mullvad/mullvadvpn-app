@@ -7,11 +7,12 @@
 //
 
 import MullvadMockData
-@testable import MullvadREST
 import MullvadRustRuntime
 import MullvadTypes
 import Network
 import XCTest
+
+@testable import MullvadREST
 
 /// This tests main purpose is to test the functionallity of the FFI rather than every function of the proxy itself.
 /// It makes sure the response and errors are parsed correctly.
@@ -21,12 +22,13 @@ class MullvadApiTests: XCTestCase {
     let addressCache = REST.AddressCache(canWriteToCache: false, fileCache: MemoryCache())
 
     func makeApiProxy(port: UInt16) throws -> APIQuerying {
-        let shadowsocksLoader = ShadowsocksLoaderStub(configuration: ShadowsocksConfiguration(
-            address: .ipv4(.loopback),
-            port: 1080,
-            password: "123",
-            cipher: CipherIdentifiers.CHACHA20.description
-        ))
+        let shadowsocksLoader = ShadowsocksLoaderStub(
+            configuration: ShadowsocksConfiguration(
+                address: .ipv4(.loopback),
+                port: 1080,
+                password: "123",
+                cipher: CipherIdentifiers.CHACHA20.description
+            ))
 
         let accessMethodsRepository = AccessMethodRepositoryStub.stub
 
@@ -37,7 +39,8 @@ class MullvadApiTests: XCTestCase {
             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: initAccessMethodSettingsWrapper(
-                methods: accessMethodsRepository
+                methods:
+                    accessMethodsRepository
                     .fetchAll()
             ),
             addressCacheProvider: addressCache,
@@ -73,7 +76,8 @@ class MullvadApiTests: XCTestCase {
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
-            _ = apiProxy
+            _ =
+                apiProxy
                 .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
@@ -100,7 +104,8 @@ class MullvadApiTests: XCTestCase {
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
-            _ = apiProxy
+            _ =
+                apiProxy
                 .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
@@ -129,7 +134,8 @@ class MullvadApiTests: XCTestCase {
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
-            _ = apiProxy
+            _ =
+                apiProxy
                 .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
@@ -163,7 +169,8 @@ class MullvadApiTests: XCTestCase {
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
-            _ = apiProxy
+            _ =
+                apiProxy
                 .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
@@ -207,11 +214,12 @@ class MullvadApiTests: XCTestCase {
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<Void, Error> = await withCheckedContinuation { continuation in
-            _ = apiProxy
+            _ =
+                apiProxy
                 .sendProblemReport(
                     problemReportRequest,
                     retryStrategy:
-                    .noRetry
+                        .noRetry
                 ) { result in
                     continuation.resume(returning: result)
                 }

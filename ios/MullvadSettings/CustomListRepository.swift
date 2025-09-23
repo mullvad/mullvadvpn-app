@@ -48,7 +48,8 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
         list.name = list.name.trimmingCharacters(in: .whitespaces)
 
         if let listWithSameName = lists.first(where: { $0.name.compare(list.name) == .orderedSame }),
-           listWithSameName.id != list.id {
+            listWithSameName.id != list.id
+        {
             throw CustomRelayListError.duplicateName
         } else if let index = lists.firstIndex(where: { $0.id == list.id }) {
             lists[index] = list

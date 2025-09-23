@@ -47,18 +47,21 @@ struct AccountDataThrottling {
             break
 
         case .whenCloseToExpiryAndBeyond:
-            guard let closeToExpiry = Calendar.current.date(
-                byAdding: .day,
-                value: Self.closeToExpiryDays * -1,
-                to: accountData.expiry
-            ) else { return }
+            guard
+                let closeToExpiry = Calendar.current.date(
+                    byAdding: .day,
+                    value: Self.closeToExpiryDays * -1,
+                    to: accountData.expiry
+                )
+            else { return }
 
             if closeToExpiry > now {
                 return
             }
         }
 
-        let waitInterval = accountData.expiry > now
+        let waitInterval =
+            accountData.expiry > now
             ? Self.defaultWaitInterval
             : Self.waitIntervalForExpiredAccount
 

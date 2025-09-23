@@ -6,10 +6,11 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 import MullvadMockData
+import Testing
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import Testing
 
 struct RelayFilterViewModelTests {
     @Test(

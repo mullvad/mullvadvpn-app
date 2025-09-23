@@ -25,7 +25,7 @@ struct PaymentAlertPresenter {
                     handler: {
                         completion?()
                     }
-                ),
+                )
             ]
         )
 
@@ -49,7 +49,7 @@ struct PaymentAlertPresenter {
                     handler: {
                         completion?()
                     }
-                ),
+                )
             ]
         )
 
@@ -73,7 +73,7 @@ struct PaymentAlertPresenter {
                     handler: {
                         completion?()
                     }
-                ),
+                )
             ]
         )
 
@@ -102,7 +102,7 @@ struct PaymentAlertPresenter {
                     handler: {
                         completion?()
                     }
-                ),
+                )
             ]
         )
 

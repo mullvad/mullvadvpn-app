@@ -30,7 +30,8 @@ class MockUDPOverTCPObfuscationSettingsViewModel: UDPOverTCPObfuscationSettingsV
 class TunnelUDPOverTCPObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchingObservableObject<
     WireGuardObfuscationUdpOverTcpPort
 >,
-    UDPOverTCPObfuscationSettingsViewModel {
+UDPOverTCPObfuscationSettingsViewModel
+{
     init(tunnelManager: TunnelManager) {
         super.init(
             tunnelManager: tunnelManager,

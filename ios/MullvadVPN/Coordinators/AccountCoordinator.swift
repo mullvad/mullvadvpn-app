@@ -116,17 +116,19 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.SettingsRedeemVoucher.preferredContentSize,
                 modalPresentationStyle: .custom,
-                transitioningDelegate: FormSheetTransitioningDelegate(options: FormSheetPresentationOptions(
-                    useFullScreenPresentationInCompactWidth: false,
-                    adjustViewWhenKeyboardAppears: true
-                ))
+                transitioningDelegate: FormSheetTransitioningDelegate(
+                    options: FormSheetPresentationOptions(
+                        useFullScreenPresentationInCompactWidth: false,
+                        adjustViewWhenKeyboardAppears: true
+                    ))
             )
         )
     }
 
     private func navigateToDeviceManagement() {
         guard let accountNumber = interactor.deviceState.accountData?.number,
-              let currentDeviceId = interactor.deviceState.deviceData?.identifier else {
+            let currentDeviceId = interactor.deviceState.deviceData?.identifier
+        else {
             return
         }
         let controller = UIHostingController(
@@ -169,7 +171,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
-                ),
+                )
             ]
         )
 
@@ -202,10 +204,11 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.AccountDeletion.preferredContentSize,
                 modalPresentationStyle: .custom,
-                transitioningDelegate: FormSheetTransitioningDelegate(options: FormSheetPresentationOptions(
-                    useFullScreenPresentationInCompactWidth: true,
-                    adjustViewWhenKeyboardAppears: false
-                ))
+                transitioningDelegate: FormSheetTransitioningDelegate(
+                    options: FormSheetPresentationOptions(
+                        useFullScreenPresentationInCompactWidth: true,
+                        adjustViewWhenKeyboardAppears: false
+                    ))
             )
         )
     }
@@ -251,10 +254,12 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             icon: .info,
             title: NSLocalizedString("If you haven’t received additional VPN time after purchasing", comment: ""),
             message: message,
-            buttons: [AlertAction(
-                title: NSLocalizedString("Got it!", comment: ""),
-                style: .default
-            )]
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Got it!", comment: ""),
+                    style: .default
+                )
+            ]
         )
 
         let presenter = AlertPresenter(context: self)
@@ -277,7 +282,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
-                ),
+                )
             ]
         )
 

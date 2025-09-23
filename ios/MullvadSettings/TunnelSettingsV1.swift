@@ -58,7 +58,8 @@ public struct InterfaceSettings: Codable, Equatable, @unchecked Sendable {
         )
 
         // Provide default value, since `dnsSettings` key does not exist in <= 2021.2
-        dnsSettings = try container.decodeIfPresent(DNSSettings.self, forKey: .dnsSettings)
+        dnsSettings =
+            try container.decodeIfPresent(DNSSettings.self, forKey: .dnsSettings)
             ?? DNSSettings()
     }
 
@@ -75,7 +76,8 @@ public struct InterfaceSettings: Codable, Equatable, @unchecked Sendable {
 /// A struct holding a private WireGuard key with associated metadata
 public struct PrivateKeyWithMetadata: Equatable, Codable {
     private enum CodingKeys: String, CodingKey {
-        case privateKey = "privateKeyData", creationDate
+        case privateKey = "privateKeyData"
+        case creationDate
     }
 
     /// When the key was created

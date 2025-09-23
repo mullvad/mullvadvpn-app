@@ -166,7 +166,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     private func applyViewState(animated: Bool) {
         let isInteractionEnabled = paymentState.allowsViewInteraction
 
-        contentView.purchaseButton.isEnabled = !isFetchingProducts
+        contentView.purchaseButton.isEnabled =
+            !isFetchingProducts
             && isInteractionEnabled
             && !interactor.tunnelState.isBlockingInternet
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
@@ -231,16 +232,18 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             do {
                 let product = try await Product.products(
                     for: [
-                        storeKit2TestProduct,
+                        storeKit2TestProduct
                     ]
                 ).first!
-                let token = switch await interactor
-                    .getPaymentToken(for: accountData.number) {
-                case let .success(token):
-                    UUID(uuidString: token)!
-                case let .failure(error):
-                    throw error
-                }
+                let token =
+                    switch await interactor
+                        .getPaymentToken(for: accountData.number)
+                    {
+                    case let .success(token):
+                        UUID(uuidString: token)!
+                    case let .failure(error):
+                        throw error
+                    }
 
                 let result = try await product.purchase(
                     options: [.appAccountToken(token)]

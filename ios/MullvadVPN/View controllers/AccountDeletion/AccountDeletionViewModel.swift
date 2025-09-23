@@ -111,8 +111,9 @@ class AccountDeletionViewModel: ObservableObject {
 
     func validate(input: String) -> Result<String, Error> {
         if let deviceAccountNumber = backEnd.accountNumber,
-           let fourLastDigits = deviceAccountNumber.split(every: 4).last,
-           fourLastDigits == input {
+            let fourLastDigits = deviceAccountNumber.split(every: 4).last,
+            fourLastDigits == input
+        {
             return .success(deviceAccountNumber)
         } else {
             return .failure(Error.invalidInput)

@@ -53,7 +53,6 @@ public struct OSLogHandler: LogHandler {
         }
     }
 
-    // swiftlint:disable:next function_parameter_count
     public func log(
         level: Logging.Logger.Level,
         message: Logging.Logger.Message,

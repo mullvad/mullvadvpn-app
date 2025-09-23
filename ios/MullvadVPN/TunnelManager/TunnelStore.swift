@@ -63,16 +63,17 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
                 tunnel.removeObserver(self)
             }
 
-            self.persistentTunnels = managers?.map { manager in
-                let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
-                tunnel.addObserver(self)
+            self.persistentTunnels =
+                managers?.map { manager in
+                    let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
+                    tunnel.addObserver(self)
 
-                self.logger.debug(
-                    "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
-                )
+                    self.logger.debug(
+                        "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
+                    )
 
-                return tunnel
-            } ?? []
+                    return tunnel
+                } ?? []
         }
     }
 
@@ -96,19 +97,20 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
         lock.lock()
         defer { lock.unlock() }
 
-        // swiftlint:disable:next force_cast
         handleTunnelStatus(tunnel: tunnel as! TunnelType, status: status)
     }
 
     private func handleTunnelStatus(tunnel: TunnelType, status: NEVPNStatus) {
         if status == .invalid,
-           let index = persistentTunnels.firstIndex(of: tunnel) {
+            let index = persistentTunnels.firstIndex(of: tunnel)
+        {
             persistentTunnels.remove(at: index)
             logger.debug("Persistent tunnel was removed: \(tunnel.logFormat()).")
         }
 
         if status != .invalid,
-           let index = newTunnels.compactMap({ $0.value }).firstIndex(where: { $0 == tunnel }) {
+            let index = newTunnels.compactMap({ $0.value }).firstIndex(where: { $0 == tunnel })
+        {
             newTunnels.remove(at: index)
             persistentTunnels.append(tunnel)
             logger.debug("New tunnel became persistent: \(tunnel.logFormat()).")

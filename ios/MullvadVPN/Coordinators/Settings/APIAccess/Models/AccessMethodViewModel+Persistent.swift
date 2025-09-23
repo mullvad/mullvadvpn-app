@@ -132,10 +132,11 @@ extension AccessMethodViewModel.Socks {
             }
 
             if !(username.isEmpty && password.isEmpty) {
-                draftConfiguration.authentication = .authentication(PersistentProxyConfiguration.UserCredential(
-                    username: username,
-                    password: password
-                ))
+                draftConfiguration.authentication = .authentication(
+                    PersistentProxyConfiguration.UserCredential(
+                        username: username,
+                        password: password
+                    ))
             }
         }
 
@@ -204,7 +205,8 @@ private enum CommonValidators {
     ///   - context: an input context.
     /// - Returns: a result containing a parsed port number on success, otherwise an instance of ``AccessMethodFieldValidationError``.
     static func parsePort(from value: String, context: AccessMethodFieldValidationError.Context)
-        -> Result<UInt16, AccessMethodFieldValidationError> {
+        -> Result<UInt16, AccessMethodFieldValidationError>
+    {
         guard let portNumber = UInt16(value) else {
             return .failure(AccessMethodFieldValidationError(kind: .invalidPort, field: .port, context: context))
         }

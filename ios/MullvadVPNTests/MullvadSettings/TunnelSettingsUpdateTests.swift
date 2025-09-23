@@ -6,10 +6,11 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadSettings
 import MullvadTypes
 import Network
 import XCTest
+
+@testable import MullvadSettings
 
 final class TunnelSettingsUpdateTests: XCTestCase {
     func testApplyDNSSettings() {
@@ -35,17 +36,20 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         var settings = LatestTunnelSettings()
 
         // When:
-        let update = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
-            state: .udpOverTcp,
-            udpOverTcpPort: .port5001
-        ))
+        let update = TunnelSettingsUpdate.obfuscation(
+            WireGuardObfuscationSettings(
+                state: .udpOverTcp,
+                udpOverTcpPort: .port5001
+            ))
         update.apply(to: &settings)
 
         // Then:
-        XCTAssertEqual(settings.wireGuardObfuscation, WireGuardObfuscationSettings(
-            state: .udpOverTcp,
-            udpOverTcpPort: .port5001
-        ))
+        XCTAssertEqual(
+            settings.wireGuardObfuscation,
+            WireGuardObfuscationSettings(
+                state: .udpOverTcp,
+                udpOverTcpPort: .port5001
+            ))
     }
 
     func testApplyShadowsocksObfuscation() {
@@ -53,15 +57,18 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         var settings = LatestTunnelSettings()
 
         // When:
-        let update = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
-            state: .shadowsocks
-        ))
+        let update = TunnelSettingsUpdate.obfuscation(
+            WireGuardObfuscationSettings(
+                state: .shadowsocks
+            ))
         update.apply(to: &settings)
 
         // Then:
-        XCTAssertEqual(settings.wireGuardObfuscation, WireGuardObfuscationSettings(
-            state: .shadowsocks
-        ))
+        XCTAssertEqual(
+            settings.wireGuardObfuscation,
+            WireGuardObfuscationSettings(
+                state: .shadowsocks
+            ))
     }
 
     func testApplyQuicObfuscation() {
@@ -69,15 +76,18 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         var settings = LatestTunnelSettings()
 
         // When:
-        let update = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
-            state: .quic
-        ))
+        let update = TunnelSettingsUpdate.obfuscation(
+            WireGuardObfuscationSettings(
+                state: .quic
+            ))
         update.apply(to: &settings)
 
         // Then:
-        XCTAssertEqual(settings.wireGuardObfuscation, WireGuardObfuscationSettings(
-            state: .quic
-        ))
+        XCTAssertEqual(
+            settings.wireGuardObfuscation,
+            WireGuardObfuscationSettings(
+                state: .quic
+            ))
     }
 
     func testApplyRelayConstraints() {

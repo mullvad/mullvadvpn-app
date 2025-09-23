@@ -43,13 +43,13 @@ class ProblemReportReviewViewController: UIViewController {
         navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.appLogsDoneButton)
 
         #if DEBUG
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            systemItem: .action,
-            primaryAction: UIAction(handler: { [weak self] _ in
-                self?.share()
-            })
-        )
-        navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.appLogsShareButton)
+            navigationItem.leftBarButtonItem = UIBarButtonItem(
+                systemItem: .action,
+                primaryAction: UIAction(handler: { [weak self] _ in
+                    self?.share()
+                })
+            )
+            navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.appLogsShareButton)
         #endif
 
         textView.setAccessibilityIdentifier(.problemReportAppLogsTextView)
@@ -100,20 +100,20 @@ class ProblemReportReviewViewController: UIViewController {
     }
 
     #if DEBUG
-    private func share() {
-        interactor.fetchReportString { [weak self] reportString in
-            guard let self,!reportString.isEmpty else { return }
-            Task { @MainActor in
-                let activityController = UIActivityViewController(
-                    activityItems: [reportString],
-                    applicationActivities: nil
-                )
+        private func share() {
+            interactor.fetchReportString { [weak self] reportString in
+                guard let self, !reportString.isEmpty else { return }
+                Task { @MainActor in
+                    let activityController = UIActivityViewController(
+                        activityItems: [reportString],
+                        applicationActivities: nil
+                    )
 
-                activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
+                    activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
 
-                present(activityController, animated: true)
+                    present(activityController, animated: true)
+                }
             }
         }
-    }
     #endif
 }

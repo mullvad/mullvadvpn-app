@@ -65,11 +65,12 @@ extension DAITATunnelSettingsViewModel {
         from error: DAITASettingsCompatibilityError,
         setting: DAITASettings
     ) -> DAITASettingsPromptItem {
-        let promptItemSetting: DAITASettingsPromptItem.Setting = if setting.daitaState != value.daitaState {
-            .daita
-        } else {
-            .directOnly
-        }
+        let promptItemSetting: DAITASettingsPromptItem.Setting =
+            if setting.daitaState != value.daitaState {
+                .daita
+            } else {
+                .directOnly
+            }
 
         var promptItem: DAITASettingsPromptItem
 

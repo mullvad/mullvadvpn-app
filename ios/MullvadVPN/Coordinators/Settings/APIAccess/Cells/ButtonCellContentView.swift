@@ -21,7 +21,8 @@ class ButtonCellContentView: UIView, UIContentView {
         }
         set {
             guard let newConfiguration = newValue as? ButtonCellContentConfiguration,
-                  actualConfiguration != newConfiguration else { return }
+                actualConfiguration != newConfiguration
+            else { return }
 
             let previousConfiguration = actualConfiguration
             actualConfiguration = newConfiguration

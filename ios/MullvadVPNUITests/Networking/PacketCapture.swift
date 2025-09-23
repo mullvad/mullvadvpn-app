@@ -22,10 +22,8 @@ struct PacketCaptureSession {
 /// Represents a stream in packet capture
 class Stream: Codable, Equatable {
     static func == (lhs: Stream, rhs: Stream) -> Bool {
-        return lhs.sourceAddress == rhs.sourceAddress &&
-            lhs.destinationAddress == rhs.destinationAddress &&
-            lhs.flowID == rhs.flowID &&
-            lhs.transportProtocol == rhs.transportProtocol
+        return lhs.sourceAddress == rhs.sourceAddress && lhs.destinationAddress == rhs.destinationAddress
+            && lhs.flowID == rhs.flowID && lhs.transportProtocol == rhs.transportProtocol
     }
 
     let sourceAddress: String
@@ -128,16 +126,14 @@ class Packet: Codable, Equatable {
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         fromPeer = try container.decode(Bool.self, forKey: .fromPeer)
-        timestamp = try container.decode(Int64.self, forKey: .timestamp) / 1000000
+        timestamp = try container.decode(Int64.self, forKey: .timestamp) / 1_000_000
         date = Date(timeIntervalSince1970: TimeInterval(timestamp))
         size = try container.decode(Int32.self, forKey: .size)
     }
 
     static func == (lhs: Packet, rhs: Packet) -> Bool {
-        return lhs.fromPeer == rhs.fromPeer &&
-            lhs.timestamp == rhs.timestamp &&
-            lhs.date == rhs.date &&
-            lhs.size == rhs.size
+        return lhs.fromPeer == rhs.fromPeer && lhs.timestamp == rhs.timestamp && lhs.date == rhs.date
+            && lhs.size == rhs.size
     }
 }
 
@@ -147,7 +143,7 @@ class PacketCaptureClient: TestRouterAPIClient {
         let session = PacketCaptureSession()
 
         let jsonDictionary = [
-            "label": session.identifier,
+            "label": session.identifier
         ]
 
         _ = sendRequest(
@@ -309,13 +305,14 @@ class PacketCaptureClient: TestRouterAPIClient {
             requestError = error
 
             guard let data = data,
-                  let response = response as? HTTPURLResponse,
-                  error == nil else {
+                let response = response as? HTTPURLResponse,
+                error == nil
+            else {
                 XCTFail("Error: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
 
-            if 200 ... 204 ~= response.statusCode && error == nil {
+            if 200...204 ~= response.statusCode && error == nil {
                 responseData = data
             } else {
                 XCTFail("Request failed")
@@ -332,7 +329,7 @@ class PacketCaptureClient: TestRouterAPIClient {
             XCTFail("Failed to send packet capture API request - timeout")
         } else {
             if let response = requestResponse as? HTTPURLResponse {
-                if (200 ... 201 ~= response.statusCode) == false {
+                if (200...201 ~= response.statusCode) == false {
                     XCTFail("Packet capture API request failed - unexpected server response")
                 }
             }

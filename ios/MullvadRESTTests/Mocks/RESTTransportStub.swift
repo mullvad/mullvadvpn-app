@@ -6,9 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import XCTest
+
 @testable import MullvadREST
 @testable import MullvadTypes
-import XCTest
 
 struct RESTTransportStub: RESTTransport {
     let name = "transport-stub"

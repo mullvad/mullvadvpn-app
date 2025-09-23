@@ -76,27 +76,30 @@ struct SettingsViewControllerFactory {
     }
 
     private func makeVPNSettingsViewCoordinator() -> MakeChildResult {
-        return .childCoordinator(VPNSettingsCoordinator(
-            navigationController: navigationController,
-            interactorFactory: interactorFactory,
-            ipOverrideRepository: ipOverrideRepository,
-            route: .settings(.vpnSettings)
-        ))
+        return .childCoordinator(
+            VPNSettingsCoordinator(
+                navigationController: navigationController,
+                interactorFactory: interactorFactory,
+                ipOverrideRepository: ipOverrideRepository,
+                route: .settings(.vpnSettings)
+            ))
     }
 
     private func makeProblemReportViewController() -> MakeChildResult {
-        return .viewController(ProblemReportViewController(
-            interactor: interactorFactory.makeProblemReportInteractor(),
-            alertPresenter: alertPresenter
-        ))
+        return .viewController(
+            ProblemReportViewController(
+                interactor: interactorFactory.makeProblemReportInteractor(),
+                alertPresenter: alertPresenter
+            ))
     }
 
     private func makeAPIAccessCoordinator() -> MakeChildResult {
-        return .childCoordinator(ListAccessMethodCoordinator(
-            navigationController: navigationController,
-            accessMethodRepository: accessMethodRepository,
-            proxyConfigurationTester: proxyConfigurationTester
-        ))
+        return .childCoordinator(
+            ListAccessMethodCoordinator(
+                navigationController: navigationController,
+                accessMethodRepository: accessMethodRepository,
+                proxyConfigurationTester: proxyConfigurationTester
+            ))
     }
 
     private func makeChangelogCoordinator() -> MakeChildResult {

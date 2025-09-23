@@ -6,16 +6,17 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
 import XCTest
+
+@testable import MullvadREST
 
 class UIntTests: XCTestCase {
     func testCountingSets() {
-        for setSize in UInt(1) ..< 20 {
+        for setSize in UInt(1)..<20 {
             let sampleSize: UInt = (setSize * 2) - 1
 
             var count: UInt = 0
-            (UInt(0) ... sampleSize).forEach { index in
+            (UInt(0)...sampleSize).forEach { index in
                 count = count == setSize ? 1 : count + 1
 
                 let lowerHalfCount = count - 1

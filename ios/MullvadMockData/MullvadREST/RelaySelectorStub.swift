@@ -47,41 +47,44 @@ extension RelaySelectorStub {
     public static func nonFallible() -> RelaySelectorStub {
         let publicKey = PrivateKey().publicKey.rawValue
 
-        return RelaySelectorStub(selectedRelaysResult: { _ in
-            let cityRelay = SelectedRelay(
-                endpoint: MullvadEndpoint(
-                    ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
-                    ipv4Gateway: .loopback,
-                    ipv6Gateway: .loopback,
-                    publicKey: publicKey
-                ),
-                hostname: "se-got",
-                location: Location(
-                    country: "",
-                    countryCode: "se",
-                    city: "",
-                    cityCode: "got",
-                    latitude: 0,
-                    longitude: 0
-                ),
-                features: nil
-            )
+        return RelaySelectorStub(
+            selectedRelaysResult: { _ in
+                let cityRelay = SelectedRelay(
+                    endpoint: MullvadEndpoint(
+                        ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
+                        ipv4Gateway: .loopback,
+                        ipv6Gateway: .loopback,
+                        publicKey: publicKey
+                    ),
+                    hostname: "se-got",
+                    location: Location(
+                        country: "",
+                        countryCode: "se",
+                        city: "",
+                        cityCode: "got",
+                        latitude: 0,
+                        longitude: 0
+                    ),
+                    features: nil
+                )
 
-            return SelectedRelays(
-                entry: cityRelay,
-                exit: cityRelay,
-                retryAttempt: 0,
-                obfuscation: .off
-            )
-        }, candidatesResult: nil)
+                return SelectedRelays(
+                    entry: cityRelay,
+                    exit: cityRelay,
+                    retryAttempt: 0,
+                    obfuscation: .off
+                )
+            }, candidatesResult: nil)
     }
 
     /// Returns a relay selector that cannot satisfy constraints .
     public static func unsatisfied() -> RelaySelectorStub {
-        return RelaySelectorStub(selectedRelaysResult: { _ in
-            throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
-        }, candidatesResult: {
-            throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
-        })
+        return RelaySelectorStub(
+            selectedRelaysResult: { _ in
+                throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
+            },
+            candidatesResult: {
+                throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
+            })
     }
 }

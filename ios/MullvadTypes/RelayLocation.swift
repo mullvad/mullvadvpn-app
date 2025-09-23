@@ -87,9 +87,9 @@ public enum RelayLocation: Codable, Hashable, CustomDebugStringConvertible, Send
             output += "city(\(String(reflecting: country)), \(String(reflecting: city)))"
 
         case let .hostname(country, city, host):
-            output += "hostname(\(String(reflecting: country)), " +
-                "\(String(reflecting: city)), " +
-                "\(String(reflecting: host)))"
+            output +=
+                "hostname(\(String(reflecting: country)), " + "\(String(reflecting: city)), "
+                + "\(String(reflecting: host)))"
         }
 
         return output

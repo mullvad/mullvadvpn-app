@@ -6,10 +6,11 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
 import MullvadTypes
 import Network
 import XCTest
+
+@testable import MullvadREST
 
 final class AddressCacheTests: XCTestCase {
     let apiEndpoint: AnyIPEndpoint = .ipv4(IPv4Endpoint(ip: IPv4Address.loopback, port: 80))
@@ -66,7 +67,7 @@ final class AddressCacheTests: XCTestCase {
     }
 
     func testSetEndpointsOnlyAcceptsTheFirstEndpoint() throws {
-        let ipAddresses = (1 ... 10)
+        let ipAddresses = (1...10)
             .map { "\($0).\($0).\($0).\($0):80" }
             .compactMap { AnyIPEndpoint(string: $0) }
 
@@ -90,9 +91,10 @@ final class AddressCacheTests: XCTestCase {
         let fixedDate = Date()
         let addressCache = REST.AddressCache(
             canWriteToCache: true,
-            fileCache: MockFileCache(initialState: .exists(
-                REST.StoredAddressCache(updatedAt: fixedDate, endpoint: apiEndpoint)
-            ))
+            fileCache: MockFileCache(
+                initialState: .exists(
+                    REST.StoredAddressCache(updatedAt: fixedDate, endpoint: apiEndpoint)
+                ))
         )
         addressCache.loadFromFile()
 
@@ -122,9 +124,10 @@ final class AddressCacheTests: XCTestCase {
     func testGetCurrentEndpointReadsFromCacheWhenReadOnly() throws {
         let addressCache = REST.AddressCache(
             canWriteToCache: false,
-            fileCache: MockFileCache(initialState: .exists(
-                REST.StoredAddressCache(updatedAt: Date(), endpoint: apiEndpoint)
-            ))
+            fileCache: MockFileCache(
+                initialState: .exists(
+                    REST.StoredAddressCache(updatedAt: Date(), endpoint: apiEndpoint)
+                ))
         )
         XCTAssertEqual(addressCache.getCurrentEndpoint(), apiEndpoint)
     }

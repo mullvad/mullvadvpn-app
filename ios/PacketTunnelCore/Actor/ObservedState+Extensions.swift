@@ -33,8 +33,7 @@ extension ObservedState {
 
     public var connectionState: ObservedConnectionState? {
         switch self {
-        case
-            let .connecting(connectionState),
+        case let .connecting(connectionState),
             let .reconnecting(connectionState),
             let .connected(connectionState),
             let .negotiatingEphemeralPeer(connectionState, _),

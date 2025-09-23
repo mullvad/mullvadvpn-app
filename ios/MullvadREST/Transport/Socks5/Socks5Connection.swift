@@ -15,7 +15,7 @@ final class Socks5Connection: Sendable {
     let configuration: Socks5Configuration
     /**
      Initializes a new connection passing data between local and remote TCP connection over the socks proxy.
-
+    
      - Parameters:
          - queue: the queue on which connection events are delivered.
          - localConnection: the local TCP connection.
@@ -38,7 +38,7 @@ final class Socks5Connection: Sendable {
 
     /**
      Start establishing a connection.
-
+    
      The start operation is asynchronous. Calls to start after the first one are ignored.
      */
     func start() {
@@ -56,10 +56,10 @@ final class Socks5Connection: Sendable {
 
     /**
      Cancel the connection.
-
+    
      Cancellation is asynchronous. All block handlers are released to break retain cycles once connection moved to stopped state. The object is not meant to be
      reused or restarted after cancellation.
-
+    
      Calls to cancel after the first one are ignored.
      */
     func cancel() {
@@ -70,9 +70,9 @@ final class Socks5Connection: Sendable {
 
     /**
      Set a handler that receives connection state events.
-
+    
      It's advised to set the state handler before starting the connection to avoid missing updates to the connection state.
-
+    
      - Parameter newStateHandler: state handler block.
      */
     func setStateHandler(_ newStateHandler: (@Sendable (Socks5Connection, State) -> Void)?) {
@@ -203,11 +203,13 @@ final class Socks5Connection: Sendable {
                 endpoint: remoteServerEndpoint,
                 configuration: configuration
             )
-            authentication.authenticate(onComplete: { [self] in
-                connect()
-            }, onFailure: { [self] error in
-                handleError(error)
-            })
+            authentication.authenticate(
+                onComplete: { [self] in
+                    connect()
+                },
+                onFailure: { [self] error in
+                    handleError(error)
+                })
         }
     }
 

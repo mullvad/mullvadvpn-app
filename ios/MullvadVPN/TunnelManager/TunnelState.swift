@@ -139,7 +139,7 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
     var isSecured: Bool {
         switch self {
         case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection), .error(.accountExpired),
-             .error(.deviceRevoked), .negotiatingEphemeralPeer:
+            .error(.deviceRevoked), .negotiatingEphemeralPeer:
             true
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             false
@@ -158,8 +158,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
     var relays: SelectedRelays? {
         switch self {
         case let .connected(relays, _, _),
-             let .reconnecting(relays, _, _),
-             let .negotiatingEphemeralPeer(relays, _, _, _):
+            let .reconnecting(relays, _, _),
+            let .negotiatingEphemeralPeer(relays, _, _, _):
             relays
         case let .connecting(relays, _, _):
             relays
@@ -174,8 +174,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
     var isPostQuantum: Bool? {
         switch self {
         case let .connecting(_, isPostQuantum: isPostQuantum, isDaita: _),
-             let .connected(_, isPostQuantum: isPostQuantum, isDaita: _),
-             let .reconnecting(_, isPostQuantum: isPostQuantum, isDaita: _):
+            let .connected(_, isPostQuantum: isPostQuantum, isDaita: _),
+            let .reconnecting(_, isPostQuantum: isPostQuantum, isDaita: _):
             isPostQuantum
         default:
             nil
@@ -185,8 +185,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
     var isDaita: Bool? {
         switch self {
         case let .connecting(_, isPostQuantum: _, isDaita: isDaita),
-             let .connected(_, isPostQuantum: _, isDaita: isDaita),
-             let .reconnecting(_, isPostQuantum: _, isDaita: isDaita):
+            let .connected(_, isPostQuantum: _, isDaita: isDaita),
+            let .reconnecting(_, isPostQuantum: _, isDaita: isDaita):
             isDaita
         default:
             nil

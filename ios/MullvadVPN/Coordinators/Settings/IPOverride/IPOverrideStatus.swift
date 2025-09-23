@@ -9,7 +9,9 @@
 import UIKit
 
 enum IPOverrideStatus: Equatable, CustomStringConvertible {
-    case active, noImports, importSuccessful(Context), importFailed(Context)
+    case active, noImports
+    case importSuccessful(Context)
+    case importFailed(Context)
 
     enum Context {
         case file, text

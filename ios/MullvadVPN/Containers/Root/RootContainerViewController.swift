@@ -131,7 +131,8 @@ class RootContainerViewController: UIViewController {
     }
 
     override var disablesAutomaticKeyboardDismissal: Bool {
-        topViewController?.disablesAutomaticKeyboardDismissal ?? super
+        topViewController?.disablesAutomaticKeyboardDismissal
+            ?? super
             .disablesAutomaticKeyboardDismissal
     }
 
@@ -327,7 +328,8 @@ class RootContainerViewController: UIViewController {
     // MARK: - Accessibility
 
     override func accessibilityPerformMagicTap() -> Bool {
-        delegate?.rootContainerViewAccessibilityPerformMagicTap(self) ?? super
+        delegate?.rootContainerViewAccessibilityPerformMagicTap(self)
+            ?? super
             .accessibilityPerformMagicTap()
     }
 
@@ -424,7 +426,6 @@ class RootContainerViewController: UIViewController {
         showSettings(animated: true)
     }
 
-    // swiftlint:disable:next function_body_length
     private func setViewControllersInternal(
         _ newViewControllers: [UIViewController],
         isUnwinding: Bool,
@@ -554,12 +555,14 @@ class RootContainerViewController: UIViewController {
          */
         if shouldHandleAppearanceEvents {
             if let targetViewController,
-               sourceViewController != targetViewController {
+                sourceViewController != targetViewController
+            {
                 self.endChildControllerTransition(targetViewController)
             }
 
             if let sourceViewController,
-               sourceViewController != targetViewController {
+                sourceViewController != targetViewController
+            {
                 self.endChildControllerTransition(sourceViewController)
             }
         }
@@ -627,7 +630,8 @@ class RootContainerViewController: UIViewController {
     ) {
         if shouldHandleAppearanceEvents {
             if let sourceViewController,
-               sourceViewController != targetViewController {
+                sourceViewController != targetViewController
+            {
                 beginChildControllerTransition(
                     sourceViewController,
                     isAppearing: false,
@@ -635,7 +639,8 @@ class RootContainerViewController: UIViewController {
                 )
             }
             if let targetViewController,
-               sourceViewController != targetViewController {
+                sourceViewController != targetViewController
+            {
                 beginChildControllerTransition(
                     targetViewController,
                     isAppearing: true,
@@ -721,7 +726,8 @@ class RootContainerViewController: UIViewController {
 
     private func updateNotificationBarHiddenFromChildPreferences() {
         if let notificationController,
-           let conforming = topViewController as? RootContainment {
+            let conforming = topViewController as? RootContainment
+        {
             if conforming.prefersNotificationBarHidden {
                 removeNotificationController(notificationController)
             } else {
@@ -805,7 +811,7 @@ class RootContainerViewController: UIViewController {
 
     /**
      Layout guide for notification view.
-
+    
      When set, notification view follows the layout guide that defines its dimensions and position, otherwise it's
      laid out within container's safe area.
      */
@@ -874,5 +880,4 @@ extension RootContainerViewController {
         headerBarView.update(configuration: configuration)
     }
 
-    // swiftlint:disable:next file_length
 }

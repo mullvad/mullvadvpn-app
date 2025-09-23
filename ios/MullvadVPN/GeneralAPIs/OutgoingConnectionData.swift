@@ -19,7 +19,8 @@ struct OutgoingConnectionData<T: Codable & IPAddress>: Codable, Equatable {
     let exitIP: Bool
 
     enum CodingKeys: String, CodingKey {
-        case ip, exitIP = "mullvad_exit_ip"
+        case ip
+        case exitIP = "mullvad_exit_ip"
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {

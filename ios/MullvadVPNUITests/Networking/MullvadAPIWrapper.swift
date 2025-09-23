@@ -22,14 +22,14 @@ class MullvadAPIWrapper: @unchecked Sendable {
     private let throttleDelay: TimeInterval = 0.25
     private let throttleWaitTimeout: TimeInterval = 5.0
 
-    // swiftlint:disable force_cast
-    static let hostName = Bundle(for: MullvadAPIWrapper.self)
+    static let hostName =
+        Bundle(for: MullvadAPIWrapper.self)
         .infoDictionary?["ApiHostName"] as! String
 
     /// API endpoint configuration value in the format <IP-address>:<port>
-    static let endpoint = Bundle(for: MullvadAPIWrapper.self)
+    static let endpoint =
+        Bundle(for: MullvadAPIWrapper.self)
         .infoDictionary?["ApiEndpoint"] as! String
-    // swiftlint:enable force_cast
 
     init() throws {
         let apiAddress = try Self.getAPIIPAddress() + ":" + Self.getAPIPort()
@@ -143,7 +143,7 @@ class MullvadAPIWrapper: @unchecked Sendable {
 
     /// Add multiple devices to specified account. Dummy WireGuard keys will be generated.
     func addDevices(_ numberOfDevices: Int, account: String) {
-        for i in 0 ..< numberOfDevices {
+        for i in 0..<numberOfDevices {
             self.addDevice(account)
             print("Created \(i + 1) devices")
         }

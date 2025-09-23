@@ -18,14 +18,19 @@ struct SwitchRowView: View {
     var didTapInfoButton: (() -> Void)?
 
     var body: some View {
-        Toggle(isOn: $isOn, label: {
-            Text(text)
-        })
-        .toggleStyle(CustomToggleStyle(
-            disabled: disabled,
-            accessibilityId: accessibilityId,
-            infoButtonAction: didTapInfoButton
-        ))
+        Toggle(
+            isOn: $isOn,
+            label: {
+                Text(text)
+            }
+        )
+        .toggleStyle(
+            CustomToggleStyle(
+                disabled: disabled,
+                accessibilityId: accessibilityId,
+                infoButtonAction: didTapInfoButton
+            )
+        )
         .disabled(disabled)
         .font(.mullvadSmall)
         .padding(UIMetrics.SettingsRowView.layoutMargins)

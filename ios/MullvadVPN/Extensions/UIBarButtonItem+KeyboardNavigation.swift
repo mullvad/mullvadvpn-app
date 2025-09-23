@@ -46,10 +46,12 @@ extension UIBarButtonItem {
         accessibilityLabel = keyboardNavigationItemType.localizedTitle
     }
 
-    static func makeKeyboardNavigationItems(_ configurationBlock: (
-        _ prevItem: UIBarButtonItem,
-        _ nextItem: UIBarButtonItem
-    ) -> Void) -> [UIBarButtonItem] {
+    static func makeKeyboardNavigationItems(
+        _ configurationBlock: (
+            _ prevItem: UIBarButtonItem,
+            _ nextItem: UIBarButtonItem
+        ) -> Void
+    ) -> [UIBarButtonItem] {
         let prevButton = UIBarButtonItem(keyboardNavigationItemType: .previous, target: nil, action: nil)
         let nextButton = UIBarButtonItem(keyboardNavigationItemType: .next, target: nil, action: nil)
 

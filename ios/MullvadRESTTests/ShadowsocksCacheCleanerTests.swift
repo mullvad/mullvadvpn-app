@@ -6,20 +6,22 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
-@testable import MullvadSettings
-@testable import MullvadTypes
 import Network
 import Testing
 
+@testable import MullvadREST
+@testable import MullvadSettings
+@testable import MullvadTypes
+
 actor ShadowsocksCacheCleanerTests {
-    var cache = ShadowsocksCacheStub(configuration:
-        ShadowsocksConfiguration(
-            address: .ipv4(IPv4Address.loopback),
-            port: 1234,
-            password: "password",
-            cipher: "chacha20"
-        )
+    var cache = ShadowsocksCacheStub(
+        configuration:
+            ShadowsocksConfiguration(
+                address: .ipv4(IPv4Address.loopback),
+                port: 1234,
+                password: "password",
+                cipher: "chacha20"
+            )
     )
 
     deinit {

@@ -32,7 +32,7 @@ public struct TransportStrategy: Equatable, Sendable {
 
         public static func == (lhs: Self, rhs: Self) -> Bool {
             switch (lhs, rhs) {
-            case(.direct, .direct), (.none, .none):
+            case (.direct, .direct), (.none, .none):
                 true
             case let (.shadowsocks(lhsConfiguration), .shadowsocks(rhsConfiguration)):
                 lhsConfiguration == rhsConfiguration
@@ -66,7 +66,8 @@ public struct TransportStrategy: Equatable, Sendable {
         )
         self
             .opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
-                methods: connectionModeProviderProxy
+                methods:
+                    connectionModeProviderProxy
                     .accessMethods()
             )
     }
@@ -101,18 +102,20 @@ public struct TransportStrategy: Equatable, Sendable {
                 return connectionTransport()
             }
         case let .shadowsocks(configuration):
-            return .shadowsocks(configuration: ShadowsocksConfiguration(
-                address: configuration.server,
-                port: configuration.port,
-                password: configuration.password,
-                cipher: configuration.cipher.rawValue.description
-            ))
+            return .shadowsocks(
+                configuration: ShadowsocksConfiguration(
+                    address: configuration.server,
+                    port: configuration.port,
+                    password: configuration.password,
+                    cipher: configuration.cipher.rawValue.description
+                ))
         case let .socks5(configuration):
-            return .socks5(configuration: Socks5Configuration(
-                proxyEndpoint: configuration.toAnyIPEndpoint,
-                username: configuration.credential?.username,
-                password: configuration.credential?.password
-            ))
+            return .socks5(
+                configuration: Socks5Configuration(
+                    proxyEndpoint: configuration.toAnyIPEndpoint,
+                    username: configuration.credential?.username,
+                    password: configuration.credential?.password
+                ))
         }
     }
 

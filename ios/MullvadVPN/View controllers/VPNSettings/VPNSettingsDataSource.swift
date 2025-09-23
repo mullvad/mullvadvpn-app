@@ -12,7 +12,8 @@ import UIKit
 final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     VPNSettingsDataSource.Section,
     VPNSettingsDataSource.Item
->, UITableViewDelegate {
+>, UITableViewDelegate
+{
     typealias InfoButtonHandler = (Item) -> Void
 
     enum CellReuseIdentifiers: String, CaseIterable {
@@ -63,7 +64,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
     enum Section: String, Hashable, CaseIterable {
         #if DEBUG
-        case localNetworkSharing
+            case localNetworkSharing
         #endif
         case dnsSettings
         case ipOverrides
@@ -180,9 +181,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    private(set) var viewModel = VPNSettingsViewModel() { didSet {
-        vpnSettingsCellFactory.viewModel = viewModel
-    }}
+    private(set) var viewModel = VPNSettingsViewModel() {
+        didSet {
+            vpnSettingsCellFactory.viewModel = viewModel
+        }
+    }
     private let vpnSettingsCellFactory: VPNSettingsCellFactory
     private weak var tableView: UITableView?
 
@@ -204,19 +207,21 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             }
         }
 
-        let obfuscationStateItem: Item = switch viewModel.obfuscationState {
-        case .automatic: .wireGuardObfuscationAutomatic
-        case .off: .wireGuardObfuscationOff
-        case .on, .udpOverTcp: .wireGuardObfuscationUdpOverTcp
-        case .shadowsocks: .wireGuardObfuscationShadowsocks
-        case .quic: .wireGuardObfuscationQuic
-        }
+        let obfuscationStateItem: Item =
+            switch viewModel.obfuscationState {
+            case .automatic: .wireGuardObfuscationAutomatic
+            case .off: .wireGuardObfuscationOff
+            case .on, .udpOverTcp: .wireGuardObfuscationUdpOverTcp
+            case .shadowsocks: .wireGuardObfuscationShadowsocks
+            case .quic: .wireGuardObfuscationQuic
+            }
 
-        let quantumResistanceItem: Item = switch viewModel.quantumResistance {
-        case .automatic: .quantumResistanceAutomatic
-        case .off: .quantumResistanceOff
-        case .on: .quantumResistanceOn
-        }
+        let quantumResistanceItem: Item =
+            switch viewModel.quantumResistance {
+            case .automatic: .quantumResistanceAutomatic
+            case .off: .quantumResistanceOff
+            case .on: .quantumResistanceOn
+            }
 
         let obfuscationPortItem: Item = .wireGuardObfuscationPort(viewModel.obfuscationUpdOverTcpPort)
 
@@ -242,11 +247,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         )
         self.vpnSettingsCellFactory = vpnSettingsCellFactory
 
-        self.onlyShowSection = switch section {
-        case .obfuscation: .wireGuardObfuscation
-        case .quantumResistance: .quantumResistance
-        default: nil
-        }
+        self.onlyShowSection =
+            switch section {
+            case .obfuscation: .wireGuardObfuscation
+            case .quantumResistance: .quantumResistance
+            default: nil
+            }
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             vpnSettingsCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
@@ -394,10 +400,13 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
-        guard let view = tableView
-            .dequeueReusableHeaderFooterView(
-                withIdentifier: HeaderFooterReuseIdentifiers.settingsHeaderView.rawValue
-            ) as? SettingsHeaderView else { return nil }
+        guard
+            let view =
+                tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: HeaderFooterReuseIdentifiers.settingsHeaderView.rawValue
+                ) as? SettingsHeaderView
+        else { return nil }
 
         switch sectionIdentifier {
         case .wireGuardPorts:
@@ -428,7 +437,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .dnsSettings, .ipOverrides, .privacyAndSecurity:
             return .leastNonzeroMagnitude
         #if DEBUG
-        case .localNetworkSharing: return .leastNonzeroMagnitude
+            case .localNetworkSharing: return .leastNonzeroMagnitude
         #endif
         default:
             return UITableView.automaticDimension
@@ -441,7 +450,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         return switch sectionIdentifier {
         case .ipOverrides, .quantumResistance: UITableView.automaticDimension
         #if DEBUG
-        case .localNetworkSharing: UITableView.automaticDimension
+            case .localNetworkSharing: UITableView.automaticDimension
         #endif
         default: 0.5
         }
@@ -504,17 +513,17 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
         }
         #if DEBUG
-        if snapshot.sectionIdentifiers.contains(.localNetworkSharing) {
-            snapshot.appendItems(
-                [.localNetworkSharing(viewModel.localNetworkSharing)],
-                toSection: .localNetworkSharing
-            )
-            snapshot
-                .appendItems(
-                    [.includeAllNetworks(viewModel.includeAllNetworks)],
+            if snapshot.sectionIdentifiers.contains(.localNetworkSharing) {
+                snapshot.appendItems(
+                    [.localNetworkSharing(viewModel.localNetworkSharing)],
                     toSection: .localNetworkSharing
                 )
-        }
+                snapshot
+                    .appendItems(
+                        [.includeAllNetworks(viewModel.includeAllNetworks)],
+                        toSection: .localNetworkSharing
+                    )
+            }
         #endif
 
         if onlyShowSection == .wireGuardObfuscation {
@@ -547,7 +556,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
     private func reload(item: Item) {
         if let indexPath = indexPath(for: item),
-           let cell = tableView?.cellForRow(at: indexPath) {
+            let cell = tableView?.cellForRow(at: indexPath)
+        {
             vpnSettingsCellFactory.configureCell(cell, item: item, indexPath: indexPath)
         }
     }
@@ -729,5 +739,3 @@ extension VPNSettingsDataSource: @preconcurrency VPNSettingsCellEventHandler {
         delegate?.didUpdateTunnelSettings(.multihop(viewModel.multihopState))
     }
 }
-
-// swiftlint:disable:this file_length

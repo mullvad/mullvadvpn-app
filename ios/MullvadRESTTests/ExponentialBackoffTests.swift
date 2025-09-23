@@ -6,9 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
 import MullvadTypes
 import XCTest
+
+@testable import MullvadREST
 
 final class ExponentialBackoffTests: XCTestCase {
     func testExponentialBackoff() {

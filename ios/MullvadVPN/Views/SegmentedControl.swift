@@ -29,8 +29,8 @@ struct SegmentedControl<Segment: StringProtocol>: View {
                     Text(segment)
                         .font(.mullvadSmallSemiBold)
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity) // Makes the text take all the available space
-                        .contentShape(Rectangle()) // Makes the tappable area extend beyond just the text
+                        .frame(maxWidth: .infinity)  // Makes the text take all the available space
+                        .contentShape(Rectangle())  // Makes the tappable area extend beyond just the text
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.25)) {
                                 viewModel.selectedSegmentIndex = segments.firstIndex(of: segment)!
@@ -52,7 +52,7 @@ struct SegmentedControl<Segment: StringProtocol>: View {
                         )
                 }
             }
-            .padding([.leading, .trailing], 4) // Insets the inner shape to not overlay with the outer one
+            .padding([.leading, .trailing], 4)  // Insets the inner shape to not overlay with the outer one
             .frame(maxWidth: .infinity, maxHeight: proxy.size.height)
             .background(
                 Capsule(style: .circular)

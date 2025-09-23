@@ -57,15 +57,16 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
             obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
-        let findCandidates: (REST.ServerRelaysResponse, Bool) throws
-            -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled in
-                try RelaySelector.WireGuard.findCandidates(
-                    by: .any,
-                    in: relays,
-                    filterConstraint: tunnelSettings.relayConstraints.filter,
-                    daitaEnabled: daitaEnabled
-                )
-            }
+        let findCandidates:
+            (REST.ServerRelaysResponse, Bool) throws
+                -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled in
+                    try RelaySelector.WireGuard.findCandidates(
+                        by: .any,
+                        in: relays,
+                        filterConstraint: tunnelSettings.relayConstraints.filter,
+                        daitaEnabled: daitaEnabled
+                    )
+                }
 
         return if tunnelSettings.daita.isAutomaticRouting {
             // When "Direct only" is not enabled the user will pick from the exit relays and
@@ -115,12 +116,12 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
             if case let .only(port) = tunnelSettings.relayConstraints.port {
                 let isPortWithinValidWireGuardRanges: Bool =
                     relays.wireguard.portRanges
-                        .contains { range in
-                            if let minPort = range.first, let maxPort = range.last {
-                                return (minPort ... maxPort).contains(port)
-                            }
-                            return false
+                    .contains { range in
+                        if let minPort = range.first, let maxPort = range.last {
+                            return (minPort...maxPort).contains(port)
                         }
+                        return false
+                    }
                 guard isPortWithinValidWireGuardRanges else {
                     throw NoRelaysSatisfyingConstraintsError(.invalidPort)
                 }

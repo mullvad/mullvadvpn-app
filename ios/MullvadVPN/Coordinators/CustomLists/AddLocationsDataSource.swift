@@ -13,7 +13,8 @@ import UIKit
 
 class AddLocationsDataSource:
     UITableViewDiffableDataSource<LocationSection, LocationCellViewModel>,
-    LocationDiffableDataSourceProtocol, @unchecked Sendable {
+    LocationDiffableDataSourceProtocol, @unchecked Sendable
+{
     private var customListLocationNode: CustomListLocationNode
     private let nodes: [LocationNode]
     private let subject: CurrentValueSubject<CustomListViewModel, Never>
@@ -29,19 +30,21 @@ class AddLocationsDataSource:
         self.nodes = allLocationNodes
         self.subject = subject
 
-        self.customListLocationNode = CustomListLocationNodeBuilder(
-            customList: subject.value.customList,
-            allLocations: self.nodes
-        ).customListLocationNode
+        self.customListLocationNode =
+            CustomListLocationNodeBuilder(
+                customList: subject.value.customList,
+                allLocations: self.nodes
+            ).customListLocationNode
 
         let sections: [LocationSection] = [.customLists]
         self.sections = sections
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
-            let cell = tableView.dequeueReusableView(
-                withIdentifier: sections[indexPath.section],
-                for: indexPath
-            ) as! LocationCell // swiftlint:disable:this force_cast
+            let cell =
+                tableView.dequeueReusableView(
+                    withIdentifier: sections[indexPath.section],
+                    for: indexPath
+                ) as! LocationCell
             cell.configure(item: itemIdentifier, behavior: .add)
             cell.selectionStyle = .none
             return cell
@@ -77,11 +80,12 @@ class AddLocationsDataSource:
                 }
             }
 
-            locationsList.append(contentsOf: recursivelyCreateCellViewModelTree(
-                for: node,
-                in: .customLists,
-                indentationLevel: 1
-            ))
+            locationsList.append(
+                contentsOf: recursivelyCreateCellViewModelTree(
+                    for: node,
+                    in: .customLists,
+                    indentationLevel: 1
+                ))
         }
         reloadDataSnapshot(with: [locationsList])
     }
@@ -95,7 +99,6 @@ class AddLocationsDataSource:
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // swiftlint:disable:next force_cast
         let cell = super.tableView(tableView, cellForRowAt: indexPath) as! LocationCell
         cell.delegate = self
         return cell
@@ -112,7 +115,8 @@ extension AddLocationsDataSource: @preconcurrency LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {
         toggleItems(for: cell) {
             if let indexPath = self.tableView.indexPath(for: cell),
-               let item = self.itemIdentifier(for: indexPath) {
+                let item = self.itemIdentifier(for: indexPath)
+            {
                 self.scroll(to: item, animated: true)
             }
         }
@@ -134,12 +138,14 @@ extension AddLocationsDataSource: @preconcurrency LocationCellDelegate {
         } else {
             customListLocationNode.remove(selectedLocation: item.node, with: locationList)
         }
-        reloadDataSnapshot(with: [locationList], completion: {
-            let locations = self.customListLocationNode.children.reduce([]) { partialResult, locationNode in
-                partialResult + locationNode.locations
-            }
-            self.subject.value.locations = locations
-        })
+        reloadDataSnapshot(
+            with: [locationList],
+            completion: {
+                let locations = self.customListLocationNode.children.reduce([]) { partialResult, locationNode in
+                    partialResult + locationNode.locations
+                }
+                self.subject.value.locations = locations
+            })
     }
 }
 
@@ -215,7 +221,8 @@ fileprivate extension CustomListLocationNode {
         parent.children.forEach { child in
             // adding siblings if they are already selected in snapshot
             if let item = locationList.first(where: { $0.node == child }),
-               item.isSelected && !children.contains(child) {
+                item.isSelected && !children.contains(child)
+            {
                 children.append(child)
             }
         }

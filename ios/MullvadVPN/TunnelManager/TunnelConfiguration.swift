@@ -21,7 +21,7 @@ struct TunnelConfiguration {
         protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
         #if DEBUG
-        protocolConfig.includeAllNetworks = includeAllNetworks
+            protocolConfig.includeAllNetworks = includeAllNetworks
         #endif
         protocolConfig.excludeLocalNetworks = excludeLocalNetworks
 

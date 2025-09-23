@@ -11,7 +11,8 @@ import MullvadSettings
 import MullvadTypes
 
 final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider,
-    @unchecked Sendable {
+    @unchecked Sendable
+{
     private var accountExpiry = AccountExpiry()
     private var tunnelObserver: TunnelBlockObserver?
     private var timer: DispatchSourceTimer?
@@ -54,10 +55,11 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
             identifier: identifier,
             style: .warning,
             title: durationText,
-            body: NSAttributedString(string: NSLocalizedString(
-                "You can add more time via the account view or website to continue using the VPN.",
-                comment: ""
-            ))
+            body: NSAttributedString(
+                string: NSLocalizedString(
+                    "You can add more time via the account view or website to continue using the VPN.",
+                    comment: ""
+                ))
         )
     }
 

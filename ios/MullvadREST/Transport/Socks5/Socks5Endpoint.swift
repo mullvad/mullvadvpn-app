@@ -19,9 +19,9 @@ public struct Socks5HostEndpoint: Sendable {
 
     /**
      Initializes a new host endpoint.
-
+    
      Returns `nil` when the hostname is either empty or longer than 255 bytes, because it cannot be represented in socks protocol.
-
+    
      - Parameters:
         - hostname: the endpoint's hostname
         - port: the endpoint's port

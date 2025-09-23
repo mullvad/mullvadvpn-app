@@ -18,17 +18,16 @@ extension Bundle {
     /// Note: XXXX.YY is an app version (i.e 2020.5) and Z is a build number (i.e 1)
     var productVersion: String {
         let version = object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "???"
-        let buildNumber = object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ??
-            "???"
+        let buildNumber = object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "???"
 
         #if DEBUG
-        return "\(version)-dev\(buildNumber)"
+            return "\(version)-dev\(buildNumber)"
         #else
-        if appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" {
-            return "\(version)-beta\(buildNumber)"
-        } else {
-            return version
-        }
+            if appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" {
+                return "\(version)-beta\(buildNumber)"
+            } else {
+                return version
+            }
         #endif
     }
 

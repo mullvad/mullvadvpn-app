@@ -49,12 +49,13 @@ extension REST {
                 case .constant:
                     AnyIterator(Jittered(inner))
                 case let .exponentialBackoff(_, _, maxDelay):
-                    AnyIterator(Transformer(inner: Jittered(inner)) { nextValue in
-                        let maxDelay = maxDelay.duration
+                    AnyIterator(
+                        Transformer(inner: Jittered(inner)) { nextValue in
+                            let maxDelay = maxDelay.duration
 
-                        guard let nextValue else { return maxDelay }
-                        return nextValue >= maxDelay ? maxDelay : nextValue
-                    })
+                            guard let nextValue else { return maxDelay }
+                            return nextValue >= maxDelay ? maxDelay : nextValue
+                        })
                 }
             } else {
                 return AnyIterator(inner)
@@ -133,11 +134,12 @@ extension REST {
                 }
 
             case let .exponentialBackoff(initial, multiplier, maxDelay):
-                return AnyIterator(ExponentialBackoff(
-                    initial: initial.duration,
-                    multiplier: multiplier,
-                    maxDelay: maxDelay.duration
-                ))
+                return AnyIterator(
+                    ExponentialBackoff(
+                        initial: initial.duration,
+                        multiplier: multiplier,
+                        maxDelay: maxDelay.duration
+                    ))
             }
         }
     }

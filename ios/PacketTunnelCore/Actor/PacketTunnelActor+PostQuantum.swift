@@ -54,11 +54,13 @@ extension PacketTunnelActor {
          because the obfuscation may be tied to a specific UDP session, as is the case for udp2tcp.
          */
         let settings: Settings = try settingsReader.read()
-        guard let connectionData = try obfuscateConnection(
-            nextRelays: .current,
-            settings: settings,
-            reason: .userInitiated
-        ) else {
+        guard
+            let connectionData = try obfuscateConnection(
+                nextRelays: .current,
+                settings: settings,
+                reason: .userInitiated
+            )
+        else {
             logger.error("Tried to update ephemeral peer negotiation in invalid state: \(state.name)")
             return
         }

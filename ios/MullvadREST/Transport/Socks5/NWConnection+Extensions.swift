@@ -11,7 +11,7 @@ import Network
 extension NWConnection {
     /**
      Read exact number of bytes from connection.
-
+    
      - Parameters:
         - exactLength: exact number of bytes to read.
         - completion:  a completion handler.

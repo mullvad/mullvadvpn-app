@@ -58,18 +58,19 @@ public final class EncryptedDNSTransport: RESTTransport, @unchecked Sendable {
                 return components?.url
             }
 
-            let wrappedCompletionHandler: @Sendable (Data?, URLResponse?, (any Error)?)
-                -> Void = { [weak self] data, response, maybeError in
-                    if maybeError != nil {
-                        self?.encryptedDnsProxy.stop()
-                    }
-                    // Do not call the completion handler if the request was cancelled in flight
-                    if let cancelledError = maybeError as? URLError, cancelledError.code == .cancelled {
-                        return
-                    }
+            let wrappedCompletionHandler:
+                @Sendable (Data?, URLResponse?, (any Error)?)
+                    -> Void = { [weak self] data, response, maybeError in
+                        if maybeError != nil {
+                            self?.encryptedDnsProxy.stop()
+                        }
+                        // Do not call the completion handler if the request was cancelled in flight
+                        if let cancelledError = maybeError as? URLError, cancelledError.code == .cancelled {
+                            return
+                        }
 
-                    completion(data, response, maybeError)
-                }
+                        completion(data, response, maybeError)
+                    }
 
             let dataTask = urlSession.dataTask(with: urlRequestCopy, completionHandler: wrappedCompletionHandler)
             dataTask.resume()

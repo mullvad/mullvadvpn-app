@@ -162,13 +162,12 @@ final class RelayFilterViewModel {
             }
 
             // If all available providers are selected, switch back to "any"
-            relayFilter.providers = selectedProviders.isEmpty
+            relayFilter.providers =
+                selectedProviders.isEmpty
                 ? .only([])
-                : (
-                    selectedProviders.count == providers(for: relayFilter.ownership).count
-                        ? .any
-                        : .only(selectedProviders)
-                )
+                : (selectedProviders.count == providers(for: relayFilter.ownership).count
+                    ? .any
+                    : .only(selectedProviders))
         }
     }
 
