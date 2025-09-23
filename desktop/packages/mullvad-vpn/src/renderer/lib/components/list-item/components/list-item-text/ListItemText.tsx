@@ -1,4 +1,4 @@
-import { Text, TextProps } from '../../../typography';
+import { Text, TextProps } from '../../../text';
 import { useListItemContext } from '../../ListItemContext';
 
 export type ListItemTextProps<E extends React.ElementType = 'span'> = TextProps<E>;

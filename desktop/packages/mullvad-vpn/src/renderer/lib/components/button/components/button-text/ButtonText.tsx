@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { BodySmallSemiBold, BodySmallSemiBoldProps } from '../../../typography';
+import { BodySmallSemiBold, BodySmallSemiBoldProps } from '../../../text';
 import { useButtonContext } from '../../ButtonContext';
 
 export type ButtonTextProps<T extends React.ElementType = 'span'> = BodySmallSemiBoldProps<T>;

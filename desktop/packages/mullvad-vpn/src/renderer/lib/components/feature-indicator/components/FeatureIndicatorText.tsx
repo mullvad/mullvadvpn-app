@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { BodySmallSemiBoldProps, LabelTinySemiBold } from '../../typography';
+import { BodySmallSemiBoldProps, LabelTinySemiBold } from '../../text';
 import { useFeatureIndicatorContext } from '../FeatureIndicatorContext';
 
 export type FeatureIndicatorTextProps<T extends React.ElementType = 'span'> =

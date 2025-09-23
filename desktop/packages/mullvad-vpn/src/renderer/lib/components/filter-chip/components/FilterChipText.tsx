@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { BodySmallSemiBoldProps, LabelTinySemiBold } from '../../typography';
+import { BodySmallSemiBoldProps, LabelTinySemiBold } from '../../text';
 import { useFilterChipContext } from '../FilterChipContext';
 
 export type FilterChipTextProps<T extends React.ElementType = 'span'> = BodySmallSemiBoldProps<T>;
