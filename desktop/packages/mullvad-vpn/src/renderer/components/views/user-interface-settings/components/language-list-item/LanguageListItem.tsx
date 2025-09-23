@@ -5,7 +5,7 @@ import { Image } from '../../../../../lib/components';
 import { useSelector } from '../../../../../redux/store';
 import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 
-export function LanguageButton() {
+export function LanguageListItem() {
   const { getPreferredLocaleDisplayName } = useAppContext();
   const preferredLocale = useSelector((state) => state.settings.guiSettings.preferredLocale);
   const localeDisplayName = getPreferredLocaleDisplayName(preferredLocale);
