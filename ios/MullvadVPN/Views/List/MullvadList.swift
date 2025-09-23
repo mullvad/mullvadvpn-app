@@ -45,11 +45,20 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
                         .listRowInsets(EdgeInsets(UIMetrics.contentHeadingLayoutMargins))
                 }
 
-                ForEach(data, id: id) { item in
-                    content(item)
-                        .listRowInsets(.init())
-                        .listRowSeparator(.hidden)
+                VStack(spacing: 0) {
+                    let lastItem = data.last
+
+                    ForEach(data, id: id) { item in
+                        content(item)
+                        if item != lastItem {
+                            Divider()
+                                .background(Color.MullvadList.separator)
+                        }
+                    }
                 }
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(.init())
 
                 if let footerView = footer?() {
                     footerView
@@ -59,7 +68,7 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
                 }
             }
             .listStyle(.plain)
-            .listRowSpacing(UIMetrics.TableView.separatorHeight)
+            .listRowSpacing(.zero)
             .environment(\.defaultMinListRowHeight, 0)
         }
     }

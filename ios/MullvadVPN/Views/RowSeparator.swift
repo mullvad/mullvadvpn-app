@@ -14,7 +14,7 @@ struct RowSeparator: View {
     var body: some View {
         color
             .frame(height: UIMetrics.TableView.separatorHeight)
-            .padding(.leading, 16)
+            .padding(.horizontal, 16)
     }
 }
 
