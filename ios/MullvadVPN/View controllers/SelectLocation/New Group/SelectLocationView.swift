@@ -22,6 +22,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             viewModel.multihopContext = newContext
                         })
                     )
+                    .transformEffect(.identity)
                 }
                 MullvadSecondaryTextField(
                     placeholder: "Search for locations or servers...",
@@ -237,7 +238,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func refreshCustomLists()
 }
 
-class LocationContext {
+struct LocationContext {
     var locations: [LocationNode]
     var customLists: [LocationNode]
     var filter: [SelectLocationFilter]

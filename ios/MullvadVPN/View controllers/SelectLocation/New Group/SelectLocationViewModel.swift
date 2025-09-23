@@ -26,14 +26,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     @Published var multihopContext: MultihopContext?
 
-//    @Published var activeEntryFilter: [SelectLocationFilter]
-//    @Published var connectedExitRelayHostname: String?
-//    @Published var connectedEntryRelayHostname: String?
-//    @Published var customLists: [LocationNode] = []
     @Published private var exitContext: LocationContext
     @Published private var entryContext: LocationContext?
-//    @Published var selectedExitLocation: LocationNode?
-//    @Published var selectedEntryLocation: LocationNode?
     @Published var searchText: String = ""
     @Published var context: LocationContext?
 
@@ -55,6 +49,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private var tunnelObserver: TunnelBlockObserver?
 
     var cancellables: [Combine.AnyCancellable] = []
+
     init(
         tunnelManager: TunnelManager,
         relaySelectorWrapper: RelaySelectorWrapper,
@@ -103,7 +98,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             locations: [],
             customLists: [],
             filter: SelectLocationViewModelImpl
-                .getActiveEntryFilters(tunnelManager.settings),
+                .getActiveExitFilters(tunnelManager.settings),
             selectedLocation: nil,
             connectedRelayHostname: nil,
             selectLocation: { location in
@@ -137,9 +132,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     } else {
                         multihopContext = nil
                     }
-//                    let isAutomaticRouting = settings.daita.isAutomaticRouting
-
-//                    activeEntryFilter = SelectLocationViewModelImpl.getActiveFilters(settings)
+                    exitContext.filter = SelectLocationViewModelImpl
+                        .getActiveExitFilters(settings)
+                    entryContext?.filter = SelectLocationViewModelImpl
+                        .getActiveEntryFilters(settings)
                 }
             )
 
@@ -194,6 +190,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private static func getActiveEntryFilters(_ settings: LatestTunnelSettings) -> [SelectLocationFilter] {
         var activeFilter: [SelectLocationFilter] = []
 
+        let isMultihop = settings.tunnelMultihopState.isEnabled
         if let ownershipFilter = settings.relayConstraints.filter.value {
             switch ownershipFilter.ownership {
             case .any:
@@ -208,17 +205,54 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             }
         }
         if settings.daita.isDirectOnly {
-            if settings.tunnelMultihopState.isEnabled {
+            if isMultihop {
                 activeFilter.append(.daita)
             }
         }
 
         let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
         if isObfuscation {
-            activeFilter
-                .append(
-                    .obfuscation
-                )
+            if isMultihop {
+                activeFilter
+                    .append(
+                        .obfuscation
+                    )
+            }
+        }
+        return activeFilter
+    }
+
+    private static func getActiveExitFilters(_ settings: LatestTunnelSettings) -> [SelectLocationFilter] {
+        var activeFilter: [SelectLocationFilter] = []
+
+        let isMultihop = settings.tunnelMultihopState.isEnabled
+        if let ownershipFilter = settings.relayConstraints.filter.value {
+            switch ownershipFilter.ownership {
+            case .any:
+                break
+            case .owned:
+                activeFilter.append(.owned)
+            case .rented:
+                activeFilter.append(.rented)
+            }
+            if let provider = ownershipFilter.providers.value {
+                activeFilter.append(.provider(provider.count))
+            }
+        }
+        if settings.daita.isDirectOnly {
+            if !isMultihop {
+                activeFilter.append(.daita)
+            }
+        }
+
+        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
+        if isObfuscation {
+            if !isMultihop {
+                activeFilter
+                    .append(
+                        .obfuscation
+                    )
+            }
         }
         return activeFilter
     }
@@ -255,7 +289,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         exitContext.customLists = customListsDataSource.search(by: searchText)
         if let entryContext {
             customListsDataSource.reload(allLocationNodes: entryContext.locations)
-            entryContext.customLists = customListsDataSource.search(by: searchText)
+            self.entryContext?.customLists = customListsDataSource.search(by: searchText)
         }
 
         if let exitLocations = settings.relayConstraints.exitLocations.value {
