@@ -1,4 +1,4 @@
-import { Text, TextProps } from '../../../typography';
+import { Text, TextProps } from '../../../text';
 import { useSwitchContext } from '../../';
 
 export type SwitchLabelProps = TextProps;

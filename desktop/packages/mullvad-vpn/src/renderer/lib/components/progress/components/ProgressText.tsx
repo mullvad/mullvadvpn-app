@@ -1,4 +1,4 @@
-import { LabelTinySemiBold, LabelTinySemiBoldProps } from '../../typography';
+import { LabelTinySemiBold, LabelTinySemiBoldProps } from '../../text';
 import { useProgress } from '../ProgressContext';
 
 export type ProgressTextProps<T extends React.ElementType = 'span'> = LabelTinySemiBoldProps<T>;
