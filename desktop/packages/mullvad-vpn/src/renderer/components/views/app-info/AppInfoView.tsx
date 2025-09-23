@@ -1,6 +1,5 @@
 import { messages } from '../../../../shared/gettext';
 import { Flex } from '../../../lib/components';
-import { Animate } from '../../../lib/components/animate';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../KeyboardNavigation';
@@ -31,14 +30,9 @@ export function AppInfoView() {
               <SettingsHeader>
                 <HeaderTitle>{messages.pgettext('app-info-view', 'App info')}</HeaderTitle>
               </SettingsHeader>
-              <Animate
-                present={showUpdateAvailable}
-                animations={[{ type: 'fade' }, { type: 'wipe', direction: 'vertical' }]}>
-                <Flex $margin={{ bottom: 'medium' }}>
-                  <UpdateAvailableListItem />
-                </Flex>
-              </Animate>
+
               <Flex $flexDirection="column" $gap="medium">
+                {showUpdateAvailable && <UpdateAvailableListItem />}
                 <Flex $flexDirection="column">
                   <VersionListItem />
                   <ChangelogListItem />
