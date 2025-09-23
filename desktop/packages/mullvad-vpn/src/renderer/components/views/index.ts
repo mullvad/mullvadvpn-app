@@ -12,4 +12,5 @@ export * from './shadowsocks-settings';
 export * from './split-tunneling';
 export * from './udp-over-tcp-settings';
 export * from './vpn-settings';
+export * from './user-interface-settings';
 export * from './wireguard-settings';
