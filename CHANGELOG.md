@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add settings reset command to the CLI ('mullvad reset-settings').
+- Make feature indicators in connection panel navigate to the relevant setting when clicked.
 
 ### Changed
 - Add validation for API access methods to only allow unique names. Access methods with
