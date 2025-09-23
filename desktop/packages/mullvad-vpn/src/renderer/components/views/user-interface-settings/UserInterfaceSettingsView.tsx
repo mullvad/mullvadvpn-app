@@ -30,7 +30,7 @@ const StyledAnimateMapCellGroup = styled(SettingsGroup)({
   },
 });
 
-export function UserInterfaceSettings() {
+export function UserInterfaceSettingsView() {
   const { pop } = useHistory();
   const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
