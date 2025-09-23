@@ -1,1 +1,1 @@
-export * from './UserInterfaceSettings';
+export * from './UserInterfaceSettingsView';
