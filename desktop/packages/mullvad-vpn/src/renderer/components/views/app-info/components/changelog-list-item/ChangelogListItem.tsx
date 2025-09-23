@@ -8,8 +8,8 @@ export function ChangelogListItem() {
 
   return (
     <ListItem>
-      <ListItem.Item>
-        <ListItem.Trigger onClick={pushChangelog}>
+      <ListItem.Trigger onClick={pushChangelog}>
+        <ListItem.Item>
           <ListItem.Content>
             <ListItem.Label>
               {
@@ -19,8 +19,8 @@ export function ChangelogListItem() {
             </ListItem.Label>
             <Icon icon="chevron-right" />
           </ListItem.Content>
-        </ListItem.Trigger>
-      </ListItem.Item>
+        </ListItem.Item>
+      </ListItem.Trigger>
     </ListItem>
   );
 }
