@@ -41,7 +41,6 @@ struct DeviceListView: View {
                     Spacer()
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
 
         MullvadList(
