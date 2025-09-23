@@ -79,7 +79,7 @@ const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
 
-const GEO_DIR = path.resolve(__dirname, 'assets/geo');
+const GEO_DIR = path.resolve(import.meta.dirname, 'assets/geo');
 
 class ApplicationMain
   implements
@@ -1012,7 +1012,7 @@ class ApplicationMain
   }
 
   private allowFileAccess(url: string): boolean {
-    const buildDir = path.normalize(path.join(path.resolve(__dirname), '..', '..'));
+    const buildDir = path.normalize(path.join(path.resolve(import.meta.dirname), '..', '..'));
 
     if (url.startsWith('file:')) {
       // Extract the path from the URL
