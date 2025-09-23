@@ -22,7 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-
+### Added
+- Make feature indicators clickable and navigate to the relevant setting when clicked.
 
 ## [2025.10-beta1] - 2025-09-16
 ### Added
