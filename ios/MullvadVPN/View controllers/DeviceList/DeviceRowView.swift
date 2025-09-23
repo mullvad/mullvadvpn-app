@@ -78,7 +78,7 @@ class DeviceRowView: UIView {
         textLabel.text = viewModel.name
         creationDateLabel.text = .init(
             format:
-            NSLocalizedString("Created: %@", comment: ""),
+                NSLocalizedString("Created: %@", comment: ""),
             viewModel.creationDate
         )
 

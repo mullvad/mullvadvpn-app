@@ -35,16 +35,20 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     let mainContentContainer = UIView()
     let leftContentContainer = UIView()
     let rightContentContainer = UIView()
-    var infoButtonHandler: InfoButtonHandler? { didSet {
-        infoButton.isHidden = infoButtonHandler == nil
-        let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
-            .contentLayoutMargins.trailing + 24
+    var infoButtonHandler: InfoButtonHandler? {
+        didSet {
+            infoButton.isHidden = infoButtonHandler == nil
+            let buttonAreaWidth =
+                UIMetrics.contentLayoutMargins.leading
+                + UIMetrics
+                .contentLayoutMargins.trailing + 24
 
-        infoButton.widthAnchor
-            .constraint(
-                equalToConstant: infoButton.isHidden ? 0 : buttonAreaWidth
-            ).isActive = true
-    }}
+            infoButton.widthAnchor
+                .constraint(
+                    equalToConstant: infoButton.isHidden ? 0 : buttonAreaWidth
+                ).isActive = true
+        }
+    }
 
     var disclosureType: SettingsDisclosureType = .none {
         didSet {

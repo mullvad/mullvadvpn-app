@@ -50,7 +50,6 @@ extension REST {
         }
     }
 
-    // swiftlint:disable nesting
     public struct ServerRelay: Codable, Equatable, Sendable {
         public struct Features: Codable, Equatable, Sendable {
             public struct DAITA: Codable, Equatable, Sendable {
@@ -134,8 +133,6 @@ extension REST {
             (features?.daita != nil) || daita == true
         }
     }
-
-    // swiftlint:enable nesting
 
     public struct ServerWireguardTunnels: Codable, Equatable, Sendable {
         public let ipv4Gateway: IPv4Address

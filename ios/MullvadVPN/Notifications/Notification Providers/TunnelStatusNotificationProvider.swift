@@ -140,18 +140,19 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func notificationDescription(for packetTunnelError: BlockedStateReason) -> InAppNotificationDescriptor {
-        let tapAction: InAppNotificationAction? = switch packetTunnelError {
-        case .noRelaysSatisfyingPortConstraints:
-            InAppNotificationAction {
-                NotificationManager.shared
-                    .notificationProvider(
-                        self,
-                        didReceiveAction: "\(ActionIdentifier.showVPNSettings)"
-                    )
+        let tapAction: InAppNotificationAction? =
+            switch packetTunnelError {
+            case .noRelaysSatisfyingPortConstraints:
+                InAppNotificationAction {
+                    NotificationManager.shared
+                        .notificationProvider(
+                            self,
+                            didReceiveAction: "\(ActionIdentifier.showVPNSettings)"
+                        )
+                }
+            default:
+                nil
             }
-        default:
-            nil
-        }
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .error,

@@ -41,7 +41,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
 
-    // swiftlint:disable:next function_body_length
     override init() {
         Self.configureLogging()
         providerLogger = Logger(label: "PacketTunnelProvider")
@@ -140,7 +139,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                     reconfigurationSemaphore: channel
                 )
                 await channel.receive()
-            }, onFinish: { [unowned self] in
+            },
+            onFinish: { [unowned self] in
                 actor.notifyEphemeralPeerNegotiated()
             }
         )
@@ -262,7 +262,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             shadowsocksLoader: shadowsocksLoader
         )
 
-        // swiftlint:disable:next force_try
+        // swift-format-ignore: NeverUseForceTry
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
@@ -301,7 +301,7 @@ extension PacketTunnelProvider {
             )
         )
         #if DEBUG
-        loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
+            loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
         loggerBuilder.install()
     }
@@ -354,7 +354,8 @@ extension PacketTunnelProvider {
 
                     // Start device check every second failure attempt to connect.
                     if lastConnectionAttempt != connectionAttempt, connectionAttempt > 0,
-                       connectionAttempt.isMultiple(of: 2) {
+                        connectionAttempt.isMultiple(of: 2)
+                    {
                         startDeviceCheck()
                     }
 
@@ -449,4 +450,4 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
         // and it will not try to reconnect
         actor.reconnect(to: .random, reconnectReason: .connectionLoss)
     }
-} // swiftlint:disable:this file_length
+}

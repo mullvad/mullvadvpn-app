@@ -60,9 +60,10 @@ public struct EphemeralPeerConfiguration: Equatable, CustomDebugStringConvertibl
 
     public var debugDescription: String {
         var string = "{ private key : \(privateKey),"
-        string += preSharedKey.flatMap {
-            "preShared key: \($0), "
-        } ?? ""
+        string +=
+            preSharedKey.flatMap {
+                "preShared key: \($0), "
+            } ?? ""
         string += ", allowedIPs: \(allowedIPs) }"
         return string
     }

@@ -95,12 +95,12 @@ extension State {
 
     var connectionData: State.ConnectionData? {
         switch self {
-        case
-            let .connecting(connState),
+        case let .connecting(connState),
             let .connected(connState),
             let .reconnecting(connState),
             let .negotiatingEphemeralPeer(connState, _),
-            let .disconnecting(connState): connState
+            let .disconnecting(connState):
+            connState
         default: nil
         }
     }
@@ -140,19 +140,17 @@ extension State {
     mutating func mutateAssociatedData(_ modifier: (inout StateAssociatedData) -> Void) {
         switch self {
         case let .connecting(connState),
-             let .connected(connState),
-             let .reconnecting(connState),
-             let .negotiatingEphemeralPeer(connState, _),
-             let .disconnecting(connState):
+            let .connected(connState),
+            let .reconnecting(connState),
+            let .negotiatingEphemeralPeer(connState, _),
+            let .disconnecting(connState):
             var associatedData: StateAssociatedData = connState
             modifier(&associatedData)
-            // swiftlint:disable:next force_cast
             self = self.replacingConnectionData(with: associatedData as! ConnectionData)
 
         case let .error(blockedState):
             var associatedData: StateAssociatedData = blockedState
             modifier(&associatedData)
-            // swiftlint:disable:next force_cast
             self = .error(associatedData as! BlockingData)
 
         default:
@@ -191,9 +189,9 @@ extension State.KeyPolicy: Equatable {
 extension BlockedStateReason {
     /**
      Returns true if the tunnel should attempt to restart periodically to recover from error that does not require explicit restart to be initiated by user.
-
+    
      Common scenarios when tunnel will attempt to restart itself periodically:
-
+    
      - Keychain and filesystem are locked on boot until user unlocks device in the very first time.
      - App update that requires settings schema migration. Packet tunnel will be automatically restarted after update but it would not be able to read settings until
        user opens the app which performs migration.
@@ -204,10 +202,10 @@ extension BlockedStateReason {
         case .deviceLocked, .tunnelAdapter:
             return true
         case .noRelaysSatisfyingConstraints, .noRelaysSatisfyingFilterConstraints,
-             .multihopEntryEqualsExit, .noRelaysSatisfyingObfuscationSettings,
-             .noRelaysSatisfyingDaitaConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
-             .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey,
-             .noRelaysSatisfyingPortConstraints:
+            .multihopEntryEqualsExit, .noRelaysSatisfyingObfuscationSettings,
+            .noRelaysSatisfyingDaitaConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
+            .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey,
+            .noRelaysSatisfyingPortConstraints:
             return false
         }
     }

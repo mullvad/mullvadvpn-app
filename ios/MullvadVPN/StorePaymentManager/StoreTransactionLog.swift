@@ -24,7 +24,6 @@ final class StoreTransactionLog: @unchecked Sendable {
     static var defaultFileURL: URL {
         let directories = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
         let location = directories.first?.appendingPathComponent("transaction.log", isDirectory: false)
-        // swiftlint:disable:next force_unwrapping
         return location!
     }
 

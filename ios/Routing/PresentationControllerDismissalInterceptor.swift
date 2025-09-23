@@ -13,7 +13,8 @@ import UIKit
  `dismissHandler` closure. Forwards all delegate calls to the `forwardingTarget`.
  */
 final class PresentationControllerDismissalInterceptor: NSObject,
-    UIAdaptivePresentationControllerDelegate {
+    UIAdaptivePresentationControllerDelegate
+{
     private let dismissHandler: (UIPresentationController) -> Void
     nonisolated(unsafe) private let forwardingTarget: UIAdaptivePresentationControllerDelegate?
     private let protocolSelectors: [Selector]
@@ -33,10 +34,8 @@ final class PresentationControllerDismissalInterceptor: NSObject,
     }
 
     override func responds(to aSelector: Selector!) -> Bool {
-        super.responds(to: aSelector) || (
-            protocolSelectors.contains(aSelector) &&
-                forwardingTarget?.responds(to: aSelector) ?? false
-        )
+        super.responds(to: aSelector)
+            || (protocolSelectors.contains(aSelector) && forwardingTarget?.responds(to: aSelector) ?? false)
     }
 
     override func forwardingTarget(for aSelector: Selector!) -> Any? {
@@ -71,7 +70,7 @@ private func getProtocolMethods(
 
     defer { methodDescriptions.map { free($0) } }
 
-    return (0 ..< methodCount).compactMap { index in
+    return (0..<methodCount).compactMap { index in
         methodDescriptions?[Int(index)].name
     }
 }

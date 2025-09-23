@@ -39,7 +39,7 @@ struct WgKeyRotation: Sendable {
     /**
      Begin key rotation attempt by marking last rotation attempt and creating next private key if needed.
      If the next private key was created during the preivous rotation attempt then continue using the same key.
-
+    
      Returns the public key that should be pushed to the backend.
      */
     mutating func beginAttempt() -> PublicKey {
@@ -61,10 +61,10 @@ struct WgKeyRotation: Sendable {
      Successfuly finish key rotation by swapping the current key with the next one, marking key creation date and
      removing the date of last rotation attempt which indicates that the last rotation had succedeed and no new
      rotation attempts were made.
-
+    
      Device related properties are refreshed from `Device` struct that the caller should have received from the API. This function does nothing if the next private
      key is unset.
-
+    
      Returns `false` if next private key is unset. Otherwise `true`.
      */
     mutating func setCompleted(with updatedDevice: Device) -> Bool {
@@ -88,14 +88,15 @@ struct WgKeyRotation: Sendable {
 
     /**
      Returns the date of next key rotation, as it normally occurs in the app process using the following rules:
-
+    
      1. Returns the date relative to key creation date + 30 days, if last rotation attempt was successful.
      2. Returns the date relative to last rotation attempt date + 24 hours, if last rotation attempt was unsuccessful.
-
+    
      If the date produced is in the past then `Date()` is returned instead.
      */
     var nextRotationDate: Date {
-        let nextRotationDate = data.wgKeyData.lastRotationAttemptDate?
+        let nextRotationDate =
+            data.wgKeyData.lastRotationAttemptDate?
             .addingTimeInterval(Self.retryInterval.timeInterval)
             ?? data.wgKeyData.creationDate.addingTimeInterval(Self.rotationInterval.timeInterval)
 
@@ -109,13 +110,13 @@ struct WgKeyRotation: Sendable {
 
     /**
      Returns `true` if packet tunnel should perform key rotation.
-
+    
      During the startup packet tunnel rotates the key immediately if it detected that the key stored on server does not
      match the key stored on device. In that case it passes `rotateImmediately = true`.
-
+    
      To dampen the effect of packet tunnel entering into a restart cycle and going on a key rotation rampage,
      this function adds a 15 seconds cooldown interval to prevent it from pushing keys too often.
-
+    
      After performing the initial key rotation on startup, packet tunnel will keep a 24 hour interval between the
      subsequent key rotation attempts.
      */

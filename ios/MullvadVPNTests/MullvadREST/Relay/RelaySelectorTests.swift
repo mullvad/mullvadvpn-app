@@ -7,12 +7,13 @@
 //
 
 import MullvadMockData
-@testable import MullvadREST
-@testable import MullvadSettings
 import MullvadTypes
 import Network
-@testable import WireGuardKitTypes
 import XCTest
+
+@testable import MullvadREST
+@testable import MullvadSettings
+@testable import WireGuardKitTypes
 
 private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
 
@@ -48,10 +49,11 @@ class RelaySelectorTests: XCTestCase {
 
     func testMultipleLocationsConstraint() throws {
         let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [
-                .city("se", "got"),
-                .hostname("se", "sto", "se6-wireguard"),
-            ]))
+            exitLocations: .only(
+                UserSelectedRelays(locations: [
+                    .city("se", "got"),
+                    .hostname("se", "sto", "se6-wireguard"),
+                ]))
         )
 
         let relayWithLocations = sampleRelays.wireguard.relays.map {
@@ -176,12 +178,13 @@ class RelaySelectorTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.country("INVALID COUNTRY")]))
         )
 
-        let selectedRelay = try XCTUnwrap(RelaySelector.Shadowsocks.closestRelay(
-            location: constraints.exitLocations,
-            port: constraints.port,
-            filter: constraints.filter,
-            in: sampleRelays
-        ))
+        let selectedRelay = try XCTUnwrap(
+            RelaySelector.Shadowsocks.closestRelay(
+                location: constraints.exitLocations,
+                port: constraints.port,
+                filter: constraints.filter,
+                in: sampleRelays
+            ))
 
         XCTAssertTrue(sampleRelays.bridge.relays.contains(selectedRelay))
     }
@@ -305,7 +308,7 @@ extension RelaySelectorTests {
                     city: "Madrid",
                     latitude: 40.408566,
                     longitude: -3.69222
-                ),
+                )
             ],
             wireguard: REST.ServerWireguardTunnels(
                 ipv4Gateway: .loopback,
@@ -326,7 +329,7 @@ extension RelaySelectorTests {
                         daita: true,
                         shadowsocksExtraAddrIn: nil,
                         features: nil
-                    ),
+                    )
                 ],
                 shadowsocksPortRanges: []
             ),

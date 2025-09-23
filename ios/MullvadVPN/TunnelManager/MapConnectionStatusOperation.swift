@@ -35,7 +35,6 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
         super.init(dispatchQueue: queue)
     }
 
-    // swiftlint:disable:next function_body_length
     override func main() {
         guard let tunnel = interactor.tunnel else {
             setTunnelDisconnectedStatus()
@@ -122,7 +121,8 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
                     tunnelStatus.state = .disconnecting(.nothing)
                 } else {
                     let isNetworkReachable = tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false
-                    tunnelStatus.state = isNetworkReachable
+                    tunnelStatus.state =
+                        isNetworkReachable
                         ? .disconnecting(.nothing)
                         : .waitingForConnectivity(.noNetwork)
                 }
@@ -151,7 +151,8 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
     private func setTunnelDisconnectedStatus() {
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
-            tunnelStatus.state = pathStatus == .unsatisfied
+            tunnelStatus.state =
+                pathStatus == .unsatisfied
                 ? .waitingForConnectivity(.noNetwork)
                 : .disconnected
         }

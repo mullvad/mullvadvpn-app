@@ -105,7 +105,7 @@ extension PacketTunnelActor {
             //  a call of the reducer produces one state transition and a sequence of effects. In the app, a stop transitions to .disconnecting, shuts down various processes, and finally transitions to .disconnected. We currently do this by having an effect which acknowledges the completion of disconnection and just sets the state. This is a bit messy, and could possibly do with some rethinking.
             switch state {
             case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
-                 let .negotiatingEphemeralPeer(connState, _):
+                let .negotiatingEphemeralPeer(connState, _):
                 state = .disconnecting(connState)
                 return [
                     .stopTunnelMonitor,

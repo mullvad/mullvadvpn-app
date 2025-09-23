@@ -18,13 +18,15 @@ extension ChipViewModelProtocol {
         var chipsToAdd = [ChipModel]()
         var isOverflowing = false
 
-        let moreTextWidth = String(format: NSLocalizedString("%d more...", comment: ""), chips.count)
-            .width(using: .preferredFont(forTextStyle: .subheadline)) + 4 // Some extra to be safe.
+        let moreTextWidth =
+            String(format: NSLocalizedString("%d more...", comment: ""), chips.count)
+            .width(using: .preferredFont(forTextStyle: .subheadline)) + 4  // Some extra to be safe.
         var totalChipsWidth: CGFloat = 0
 
         for (index, chip) in chips.enumerated() {
             let textWidth = chip.name.width(using: .preferredFont(forTextStyle: .subheadline))
-            let chipWidth = textWidth
+            let chipWidth =
+                textWidth
                 + UIMetrics.FeatureIndicators.chipViewHorisontalPadding * 2
                 + UIMetrics.FeatureIndicators.chipViewTrailingMargin
             let isLastChip = index == chips.count - 1

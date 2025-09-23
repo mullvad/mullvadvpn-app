@@ -28,13 +28,15 @@ extension REST {
         }
 
         func getAuthorization(
-            completion: @escaping @Sendable (Result<REST.Authorization, Swift.Error>)
+            completion:
+                @escaping @Sendable (Result<REST.Authorization, Swift.Error>)
                 -> Void
         ) -> Cancellable {
             accessTokenManager.getAccessToken(accountNumber: accountNumber) { result in
-                completion(result.map { tokenData in
-                    tokenData.accessToken
-                })
+                completion(
+                    result.map { tokenData in
+                        tokenData.accessToken
+                    })
             }
         }
     }

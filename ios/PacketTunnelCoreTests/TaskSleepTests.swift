@@ -6,8 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import PacketTunnelCore
 import XCTest
+
+@testable import PacketTunnelCore
 
 final class TaskSleepTests: XCTestCase {
     func testCancellation() async throws {
@@ -29,7 +30,7 @@ final class TaskSleepTests: XCTestCase {
     /// This test triggers a race condition in `sleepUsingContinuousClock` where an `AutoCancellingTask` will
     /// cancel a `DispatchSourceTimer` in a `Task` trying to call `resume` on its continuation handler more than once
     func testSuccessfulEventHandlerRemovesCancellation() async throws {
-        for _ in 0 ... 20 {
+        for _ in 0...20 {
             let task = recoveryTask()
             try await Task.sleep(duration: .milliseconds(10))
             task.callDummyFunctionToForceConcurrencyWait()
@@ -37,11 +38,12 @@ final class TaskSleepTests: XCTestCase {
     }
 
     private func recoveryTask() -> AutoCancellingTask {
-        AutoCancellingTask(Task.detached {
-            while Task.isCancelled == false {
-                try await Task.sleepUsingContinuousClock(for: .milliseconds(10))
-            }
-        })
+        AutoCancellingTask(
+            Task.detached {
+                while Task.isCancelled == false {
+                    try await Task.sleepUsingContinuousClock(for: .milliseconds(10))
+                }
+            })
     }
 }
 

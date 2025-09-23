@@ -14,15 +14,16 @@ struct TermsOfServiceView: View {
     @ScaledMetric(relativeTo: .footnote)
     var imageHeight = 20
 
-    let termsOfService = LocalizedStringKey("""
-    You have a right to privacy. That’s why we never store activity logs, don’t ask for personal \
-    information, and encourage anonymous payments.
+    let termsOfService = LocalizedStringKey(
+        """
+        You have a right to privacy. That’s why we never store activity logs, don’t ask for personal \
+        information, and encourage anonymous payments.
 
-    In some situations, as outlined in our privacy policy, we might process personal data that you \
-    choose to send, for example if you email us.
+        In some situations, as outlined in our privacy policy, we might process personal data that you \
+        choose to send, for example if you email us.
 
-    We strongly believe in retaining as little data as possible because we want you to remain anonymous.
-    """)
+        We strongly believe in retaining as little data as possible because we want you to remain anonymous.
+        """)
 
     let privacyPolicyLink =
         LocalizedStringKey(stringLiteral: "[Privacy Policy](\(ApplicationConfiguration.privacyPolicyLink))")

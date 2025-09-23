@@ -53,15 +53,16 @@ public enum LogRotation {
 
         do {
             // Filter out all log files in directory.
-            let logPaths: [URL] = (try fileManager.contentsOfDirectory(
-                atPath: logDirectory.relativePath
-            )).compactMap { file in
-                if file.split(separator: ".").last == "log" {
-                    logDirectory.appendingPathComponent(file)
-                } else {
-                    nil
+            let logPaths: [URL] =
+                (try fileManager.contentsOfDirectory(
+                    atPath: logDirectory.relativePath
+                )).compactMap { file in
+                    if file.split(separator: ".").last == "log" {
+                        logDirectory.appendingPathComponent(file)
+                    } else {
+                        nil
+                    }
                 }
-            }
 
             // Convert logs into objects with necessary meta data.
             let logs = try logPaths.map { logPath in

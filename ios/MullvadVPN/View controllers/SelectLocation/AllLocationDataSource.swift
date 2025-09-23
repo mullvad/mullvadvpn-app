@@ -75,7 +75,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 name: serverLocation.country,
                 code: LocationNode.combineNodeCodes([countryCode]),
                 locations: [location],
-                isActive: true, // Defaults to true, updated when children are populated.
+                isActive: true,  // Defaults to true, updated when children are populated.
                 showsChildren: showsChildren
             )
 
@@ -89,12 +89,13 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 name: serverLocation.city,
                 code: LocationNode.combineNodeCodes([countryCode, cityCode]),
                 locations: [location],
-                isActive: true, // Defaults to true, updated when children are populated.
+                isActive: true,  // Defaults to true, updated when children are populated.
                 showsChildren: showsChildren
             )
 
             if let countryNode = rootNode.countryFor(code: countryCode),
-               !countryNode.children.contains(cityNode) {
+                !countryNode.children.contains(cityNode)
+            {
                 cityNode.parent = countryNode
                 countryNode.children.append(cityNode)
                 countryNode.children.sort()
@@ -110,8 +111,9 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             )
 
             if let countryNode = rootNode.countryFor(code: countryCode),
-               let cityNode = countryNode.cityFor(codes: [countryCode, cityCode]),
-               !cityNode.children.contains(hostNode) {
+                let cityNode = countryNode.cityFor(codes: [countryCode, cityCode]),
+                !cityNode.children.contains(hostNode)
+            {
                 hostNode.parent = cityNode
                 cityNode.children.append(hostNode)
                 cityNode.children.sort()

@@ -32,9 +32,11 @@ struct DeviceManagementView: View {
             }
             return switch self {
             case .tooManyDevices:
-                [LocalizedStringKey(
-                    "Are you sure you want to log \(attributedDeviceName) out?"
-                )]
+                [
+                    LocalizedStringKey(
+                        "Are you sure you want to log \(attributedDeviceName) out?"
+                    )
+                ]
             case .deviceManagement:
                 [
                     LocalizedStringKey("Remove \(attributedDeviceName)?"),
@@ -59,7 +61,6 @@ struct DeviceManagementView: View {
     }
 
     var bodyText: LocalizedStringKey {
-        // swiftlint:disable line_length
         switch style {
         case .deviceManagement:
             "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
@@ -73,7 +74,6 @@ struct DeviceManagementView: View {
                 "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
             }
         }
-        // swiftlint:enable line_length
     }
 
     private func fetchDevices() {
@@ -131,7 +131,8 @@ struct DeviceManagementView: View {
                                                     self.loggedInDevices?.removeAll(where: { $0.id == device.id })
                                                 case let .failure(error):
                                                     self.loggedInDevices = loggedInDevices.map {
-                                                        $0.id == device
+                                                        $0.id
+                                                            == device
                                                             .id ? $0.setIsBeingRemoved(false) : $0
                                                     }
                                                     onError("Failed to log out device", error)
@@ -145,35 +146,37 @@ struct DeviceManagementView: View {
                         ),
                         dismissButtonTitle: "Cancel"
                     )
-                }, header: {
-                    AnyView(VStack(alignment: .leading, spacing: 8) {
-                        if case .tooManyDevices = style {
-                            if canLoginNewDevice {
-                                HStack {
-                                    Spacer()
-                                    Image.mullvadIconSuccess
-                                    Spacer()
+                },
+                header: {
+                    AnyView(
+                        VStack(alignment: .leading, spacing: 8) {
+                            if case .tooManyDevices = style {
+                                if canLoginNewDevice {
+                                    HStack {
+                                        Spacer()
+                                        Image.mullvadIconSuccess
+                                        Spacer()
+                                    }
+                                    Text("Super!")
+                                        .font(.mullvadBig)
+                                        .foregroundStyle(Color.mullvadTextPrimary)
+                                } else {
+                                    HStack {
+                                        Spacer()
+                                        Image.mullvadIconFail
+                                        Spacer()
+                                    }
+                                    Text("Too many devices")
+                                        .font(.mullvadBig)
+                                        .foregroundStyle(Color.mullvadTextPrimary)
                                 }
-                                Text("Super!")
-                                    .font(.mullvadBig)
-                                    .foregroundStyle(Color.mullvadTextPrimary)
-                            } else {
-                                HStack {
-                                    Spacer()
-                                    Image.mullvadIconFail
-                                    Spacer()
-                                }
-                                Text("Too many devices")
-                                    .font(.mullvadBig)
-                                    .foregroundStyle(Color.mullvadTextPrimary)
                             }
+                            Text(bodyText)
+                                .foregroundColor(.mullvadTextPrimary)
+                                .opacity(0.6)
+                                .font(.mullvadTinySemiBold)
+                                .padding(.bottom, 16.0)
                         }
-                        Text(bodyText)
-                            .foregroundColor(.mullvadTextPrimary)
-                            .opacity(0.6)
-                            .font(.mullvadTinySemiBold)
-                            .padding(.bottom, 16.0)
-                    }
                     )
                 }
             )

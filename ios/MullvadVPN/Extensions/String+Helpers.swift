@@ -15,7 +15,7 @@ extension String {
 
         let resultCount = Int((Float(count) / Float(length)).rounded(.up))
 
-        return (0 ..< resultCount)
+        return (0..<resultCount)
             .map { dropFirst($0 * length).prefix(length) }
     }
 

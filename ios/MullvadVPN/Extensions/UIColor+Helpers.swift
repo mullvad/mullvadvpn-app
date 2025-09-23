@@ -20,7 +20,10 @@ extension UIColor {
 
     /// Returns the color darker by the given percent (in range from 0..1)
     func darkened(by percent: CGFloat) -> UIColor? {
-        var r = CGFloat.zero, g = CGFloat.zero, b = CGFloat.zero, a = CGFloat.zero
+        var r = CGFloat.zero
+        var g = CGFloat.zero
+        var b = CGFloat.zero
+        var a = CGFloat.zero
         let factor = 1.0 - percent
 
         if getRed(&r, green: &g, blue: &b, alpha: &a) {

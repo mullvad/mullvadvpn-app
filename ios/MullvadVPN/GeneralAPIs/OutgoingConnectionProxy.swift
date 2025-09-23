@@ -18,7 +18,8 @@ protocol OutgoingConnectionHandling {
 
 final class OutgoingConnectionProxy: OutgoingConnectionHandling {
     enum ExitIPVersion: String {
-        case v4 = "ipv4", v6 = "ipv6"
+        case v4 = "ipv4"
+        case v6 = "ipv6"
 
         func host(hostname: String) -> String {
             "\(rawValue).am.i.\(hostname)"
@@ -43,7 +44,7 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
 
     private func perform<T: Decodable>(retryStrategy: REST.RetryStrategy, version: ExitIPVersion) async throws -> T {
         let delayIterator = retryStrategy.makeDelayIterator()
-        for _ in 0 ..< retryStrategy.maxRetryCount {
+        for _ in 0..<retryStrategy.maxRetryCount {
             do {
                 return try await perform(host: version.host(hostname: hostname))
             } catch {
@@ -81,7 +82,7 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
             throw REST.Error.network(URLError(.badServerResponse))
         }
         let decoder = JSONDecoder()
-        guard (200 ..< 300).contains(httpResponse.statusCode) else {
+        guard (200..<300).contains(httpResponse.statusCode) else {
             throw REST.Error.unhandledResponse(
                 httpResponse.statusCode,
                 try? decoder.decode(

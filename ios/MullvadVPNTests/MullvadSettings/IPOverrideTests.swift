@@ -6,9 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadSettings
 import MullvadTypes
 import XCTest
+
+@testable import MullvadSettings
 
 final class IPOverrideTests: XCTestCase {
     let repository = IPOverrideRepository()
@@ -59,45 +60,45 @@ extension IPOverrideTests {
 extension IPOverrideTests {
     private var overrides: String {
         return """
-        {
-            "relay_overrides": [
-                {
-                    "hostname": "Host 1",
-                    "ipv4_addr_in": "127.0.0.1",
-                    "ipv6_addr_in": "::"
-                },
-                {
-                    "hostname": "Host 2",
-                    "ipv4_addr_in": "127.0.0.2",
-                    "ipv6_addr_in": "::1"
-                }
-            ]
-        }
-        """
+            {
+                "relay_overrides": [
+                    {
+                        "hostname": "Host 1",
+                        "ipv4_addr_in": "127.0.0.1",
+                        "ipv6_addr_in": "::"
+                    },
+                    {
+                        "hostname": "Host 2",
+                        "ipv4_addr_in": "127.0.0.2",
+                        "ipv6_addr_in": "::1"
+                    }
+                ]
+            }
+            """
     }
 
     private var overridesWithUnsupportedKeys: String {
         return """
-        "{
-            "relay_overrides": [{
-                "name": "Host 1",
-                "hostname": "Host 1",
-                "ipv4_addr_in": "127.0.0.1",
-                "ipv6_addr_in": "::"
-            }]
-        }
-        """
+            "{
+                "relay_overrides": [{
+                    "name": "Host 1",
+                    "hostname": "Host 1",
+                    "ipv4_addr_in": "127.0.0.1",
+                    "ipv6_addr_in": "::"
+                }]
+            }
+            """
     }
 
     private var overridesWithMalformedValues: String {
         return """
-        "{
-            "relay_overrides": [{
-                "hostname": "Host 1",
-                "ipv4_addr_in": "127.0.0",
-                "ipv6_addr_in": "::"
-            }]
-        }
-        """
+            "{
+                "relay_overrides": [{
+                    "hostname": "Host 1",
+                    "ipv4_addr_in": "127.0.0",
+                    "ipv6_addr_in": "::"
+                }]
+            }
+            """
     }
 }

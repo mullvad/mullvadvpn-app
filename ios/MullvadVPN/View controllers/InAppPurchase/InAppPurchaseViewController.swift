@@ -111,12 +111,16 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         sheetController.view.tintColor = .AlertController.tintColor
         products.sortedByPrice().forEach { product in
             guard let title = product.customLocalizedTitle else { return }
-            let action = UIAlertAction(title: title, style: .default, handler: { _ in
-                sheetController.dismiss(animated: true, completion: {
-                    self.purchase(product: product)
-                    self.spinnerView.startAnimating()
+            let action = UIAlertAction(
+                title: title, style: .default,
+                handler: { _ in
+                    sheetController.dismiss(
+                        animated: true,
+                        completion: {
+                            self.purchase(product: product)
+                            self.spinnerView.startAnimating()
+                        })
                 })
-            })
             action
                 .accessibilityIdentifier = action.accessibilityIdentifier
             sheetController.addAction(action)

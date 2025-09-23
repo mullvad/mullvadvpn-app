@@ -117,11 +117,15 @@ final class NotificationManager: NotificationProviderDelegate {
     func handleSystemNotificationResponse(_ response: UNNotificationResponse) {
         dispatchPrecondition(condition: .onQueue(.main))
 
-        guard let sourceProvider = notificationProviders.first(where: { notificationProvider in
-            guard let notificationProvider = notificationProvider as? SystemNotificationProvider else { return false }
+        guard
+            let sourceProvider = notificationProviders.first(where: { notificationProvider in
+                guard let notificationProvider = notificationProvider as? SystemNotificationProvider else {
+                    return false
+                }
 
-            return response.notification.request.identifier == notificationProvider.identifier.domainIdentifier
-        }) else {
+                return response.notification.request.identifier == notificationProvider.identifier.domainIdentifier
+            })
+        else {
             logger.warning(
                 "Received response with request identifier: \(response.notification.request.identifier) that didn't map to any notification provider"
             )
@@ -179,13 +183,13 @@ final class NotificationManager: NotificationProviderDelegate {
 
             if notificationProvider.shouldRemovePendingRequests {
                 notificationCenter.removePendingNotificationRequests(withIdentifiers: [
-                    notificationProvider.identifier.domainIdentifier,
+                    notificationProvider.identifier.domainIdentifier
                 ])
             }
 
             if notificationProvider.shouldRemoveDeliveredRequests {
                 notificationCenter.removeDeliveredNotifications(withIdentifiers: [
-                    notificationProvider.identifier.domainIdentifier,
+                    notificationProvider.identifier.domainIdentifier
                 ])
             }
 
@@ -215,7 +219,8 @@ final class NotificationManager: NotificationProviderDelegate {
             var newNotificationDescriptors = inAppNotificationDescriptors
 
             if let replaceNotificationDescriptor = notificationProvider.notificationDescriptor {
-                newNotificationDescriptors = notificationProviders
+                newNotificationDescriptors =
+                    notificationProviders
                     .compactMap { notificationProvider -> InAppNotificationDescriptor? in
                         if replaceNotificationDescriptor.identifier == notificationProvider.identifier {
                             return replaceNotificationDescriptor

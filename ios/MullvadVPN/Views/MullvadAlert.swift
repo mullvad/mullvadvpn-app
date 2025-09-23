@@ -58,12 +58,13 @@ struct AlertModifier: ViewModifier {
             alertMessage(alert.messages)
             VStack(spacing: 16) {
                 alertAction(for: alert.action)
-                alertAction(for: MullvadAlert.Action(
-                    type: .default,
-                    title: alert.dismissButtonTitle,
-                    identifier: nil,
-                    handler: { self.alert = nil }
-                ))
+                alertAction(
+                    for: MullvadAlert.Action(
+                        type: .default,
+                        title: alert.dismissButtonTitle,
+                        identifier: nil,
+                        handler: { self.alert = nil }
+                    ))
             }
         }
         .padding()
@@ -126,18 +127,18 @@ extension View {
     Text("Hello, World!")
         .mullvadAlert(
             item:
-            .constant(
-                .init(
-                    type: .warning,
-                    messages: ["Something needs to be done"],
-                    action: .init(
-                        type: .danger,
-                        title: "Do it!",
-                        identifier: nil,
-                        handler: {}
-                    ),
-                    dismissButtonTitle: "Cancel"
+                .constant(
+                    .init(
+                        type: .warning,
+                        messages: ["Something needs to be done"],
+                        action: .init(
+                            type: .danger,
+                            title: "Do it!",
+                            identifier: nil,
+                            handler: {}
+                        ),
+                        dismissButtonTitle: "Cancel"
+                    )
                 )
-            )
         )
 }

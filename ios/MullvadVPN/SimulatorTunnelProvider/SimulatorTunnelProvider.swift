@@ -11,60 +11,60 @@ import NetworkExtension
 
 #if targetEnvironment(simulator)
 
-class SimulatorTunnelProviderDelegate {
-    var connection: SimulatorVPNConnection?
+    class SimulatorTunnelProviderDelegate {
+        var connection: SimulatorVPNConnection?
 
-    var protocolConfiguration: NEVPNProtocol {
-        connection?.protocolConfiguration ?? NEVPNProtocol()
-    }
-
-    var reasserting: Bool {
-        get {
-            connection?.reasserting ?? false
+        var protocolConfiguration: NEVPNProtocol {
+            connection?.protocolConfiguration ?? NEVPNProtocol()
         }
-        set {
-            connection?.reasserting = newValue
+
+        var reasserting: Bool {
+            get {
+                connection?.reasserting ?? false
+            }
+            set {
+                connection?.reasserting = newValue
+            }
         }
-    }
 
-    func startTunnel(options: [String: NSObject]?, completionHandler: @escaping @Sendable (Error?) -> Void) {
-        completionHandler(nil)
-    }
-
-    func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping @Sendable () -> Void) {
-        completionHandler()
-    }
-
-    func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
-        completionHandler?(nil)
-    }
-}
-
-final class SimulatorTunnelProvider: Sendable {
-    static let shared = SimulatorTunnelProvider()
-
-    private let lock = NSLock()
-    nonisolated(unsafe) private var _delegate: SimulatorTunnelProviderDelegate?
-
-    var delegate: SimulatorTunnelProviderDelegate! {
-        get {
-            lock.lock()
-            defer { lock.unlock() }
-
-            return _delegate
+        func startTunnel(options: [String: NSObject]?, completionHandler: @escaping @Sendable (Error?) -> Void) {
+            completionHandler(nil)
         }
-        set {
-            lock.lock()
-            _delegate = newValue
-            lock.unlock()
+
+        func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping @Sendable () -> Void) {
+            completionHandler()
+        }
+
+        func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
+            completionHandler?(nil)
         }
     }
 
-    private init() {}
+    final class SimulatorTunnelProvider: Sendable {
+        static let shared = SimulatorTunnelProvider()
 
-    func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil) {
-        delegate.handleAppMessage(messageData, completionHandler: completionHandler)
+        private let lock = NSLock()
+        nonisolated(unsafe) private var _delegate: SimulatorTunnelProviderDelegate?
+
+        var delegate: SimulatorTunnelProviderDelegate! {
+            get {
+                lock.lock()
+                defer { lock.unlock() }
+
+                return _delegate
+            }
+            set {
+                lock.lock()
+                _delegate = newValue
+                lock.unlock()
+            }
+        }
+
+        private init() {}
+
+        func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil) {
+            delegate.handleAppMessage(messageData, completionHandler: completionHandler)
+        }
     }
-}
 
 #endif

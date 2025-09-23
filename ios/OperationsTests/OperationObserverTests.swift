@@ -6,9 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadMockData
 import Operations
 import XCTest
+
+@testable import MullvadMockData
 
 class OperationObserverTests: XCTestCase {
     func testBlockObserver() throws {
@@ -19,17 +20,21 @@ class OperationObserverTests: XCTestCase {
         let expectDidFinish = expectation(description: "didAttach handler")
 
         let operation = AsyncBlockOperation {}
-        operation.addBlockObserver(OperationBlockObserver(
-            didAttach: { _ in
-                expectDidAttach.fulfill()
-            }, didStart: { _ in
-                expectDidStart.fulfill()
-            }, didCancel: { _ in
-                expectDidCancel.fulfill()
-            }, didFinish: { _, _ in
-                expectDidFinish.fulfill()
-            }
-        ))
+        operation.addBlockObserver(
+            OperationBlockObserver(
+                didAttach: { _ in
+                    expectDidAttach.fulfill()
+                },
+                didStart: { _ in
+                    expectDidStart.fulfill()
+                },
+                didCancel: { _ in
+                    expectDidCancel.fulfill()
+                },
+                didFinish: { _, _ in
+                    expectDidFinish.fulfill()
+                }
+            ))
 
         let operationQueue = AsyncOperationQueue()
         operationQueue.addOperation(operation)
@@ -46,17 +51,21 @@ class OperationObserverTests: XCTestCase {
         let expectDidFinish = expectation(description: "didAttach handler")
 
         let operation = AsyncBlockOperation {}
-        operation.addBlockObserver(OperationBlockObserver(
-            didAttach: { _ in
-                expectDidAttach.fulfill()
-            }, didStart: { _ in
-                expectDidStart.fulfill()
-            }, didCancel: { _ in
-                expectDidCancel.fulfill()
-            }, didFinish: { _, _ in
-                expectDidFinish.fulfill()
-            }
-        ))
+        operation.addBlockObserver(
+            OperationBlockObserver(
+                didAttach: { _ in
+                    expectDidAttach.fulfill()
+                },
+                didStart: { _ in
+                    expectDidStart.fulfill()
+                },
+                didCancel: { _ in
+                    expectDidCancel.fulfill()
+                },
+                didFinish: { _, _ in
+                    expectDidFinish.fulfill()
+                }
+            ))
         operation.cancel()
 
         let operationQueue = AsyncOperationQueue()

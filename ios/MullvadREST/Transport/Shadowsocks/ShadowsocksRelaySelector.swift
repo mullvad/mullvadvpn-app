@@ -28,10 +28,11 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
     public func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
         let cachedRelays = try relayCache.read().relays
 
-        let locationConstraint = switch settings.tunnelMultihopState {
-        case .on: settings.relayConstraints.entryLocations
-        case .off: settings.relayConstraints.exitLocations
-        }
+        let locationConstraint =
+            switch settings.tunnelMultihopState {
+            case .on: settings.relayConstraints.entryLocations
+            case .off: settings.relayConstraints.exitLocations
+            }
 
         return RelaySelector.Shadowsocks.closestRelay(
             location: locationConstraint,

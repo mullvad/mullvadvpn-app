@@ -21,7 +21,8 @@ struct WireGuardAdapterErrorWrapper: LocalizedError {
             return "Failure to perform an operation in such state."
 
         case let .dnsResolution(resolutionErrors):
-            let detailedErrorDescription = resolutionErrors
+            let detailedErrorDescription =
+                resolutionErrors
                 .enumerated()
                 .map { index, dnsResolutionError in
                     let errorDescription = dnsResolutionError.errorDescription ?? "???"

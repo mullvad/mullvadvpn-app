@@ -8,10 +8,11 @@
 
 import Foundation
 import MullvadMockData
-@testable import MullvadREST
-@testable import MullvadSettings
 import Network
 import XCTest
+
+@testable import MullvadREST
+@testable import MullvadSettings
 
 final class DestinationDescriberTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
@@ -31,16 +32,18 @@ final class DestinationDescriberTests: XCTestCase {
             customListRepository: customListRepository
         )
         let listid = UUID()
-        try customListRepository.save(list: .init(
-            id: listid,
-            name: "NameOfList",
-            locations: [.country("se"), .country("dk")]
-        ))
+        try customListRepository.save(
+            list: .init(
+                id: listid,
+                name: "NameOfList",
+                locations: [.country("se"), .country("dk")]
+            ))
         XCTAssertEqual(
-            describer.describe(.init(
-                locations: [.country("se"), .country("dk")],
-                customListSelection: .init(listId: listid, isList: true)
-            )),
+            describer.describe(
+                .init(
+                    locations: [.country("se"), .country("dk")],
+                    customListSelection: .init(listId: listid, isList: true)
+                )),
             "NameOfList"
         )
     }
@@ -53,16 +56,18 @@ final class DestinationDescriberTests: XCTestCase {
             customListRepository: customListRepository
         )
         let listid = UUID()
-        try customListRepository.save(list: .init(
-            id: listid,
-            name: "NameOfList2",
-            locations: [.country("se"), .country("dk")]
-        ))
+        try customListRepository.save(
+            list: .init(
+                id: listid,
+                name: "NameOfList2",
+                locations: [.country("se"), .country("dk")]
+            ))
         XCTAssertEqual(
-            describer.describe(.init(
-                locations: [.country("se")],
-                customListSelection: .init(listId: listid, isList: false)
-            )),
+            describer.describe(
+                .init(
+                    locations: [.country("se")],
+                    customListSelection: .init(listId: listid, isList: false)
+                )),
             "Sweden"
         )
     }

@@ -17,12 +17,13 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
             VStack(alignment: .leading, spacing: 8) {
                 if isAutomaticRoutingActive {
                     DAITAMultihopNotice()
-                        .padding(EdgeInsets(
-                            top: -UIMetrics.contentInsets.top,
-                            leading: UIMetrics.contentInsets.toEdgeInsets.leading,
-                            bottom: 8,
-                            trailing: UIMetrics.contentInsets.toEdgeInsets.trailing
-                        ))
+                        .padding(
+                            EdgeInsets(
+                                top: -UIMetrics.contentInsets.top,
+                                leading: UIMetrics.contentInsets.toEdgeInsets.leading,
+                                bottom: 8,
+                                trailing: UIMetrics.contentInsets.toEdgeInsets.trailing
+                            ))
                 }
 
                 SettingsInfoView(viewModel: dataViewModel)
@@ -46,11 +47,11 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
                     SettingsRowViewFooter(
                         text: String(
                             format:
-                            NSLocalizedString(
-                                "By enabling “%@” you will have to manually select a server that is %@-enabled. " +
-                                    "%@ won't automatically be used to enable DAITA with any server.",
-                                comment: ""
-                            ),
+                                NSLocalizedString(
+                                    "By enabling “%@” you will have to manually select a server that is %@-enabled. "
+                                        + "%@ won't automatically be used to enable DAITA with any server.",
+                                    comment: ""
+                                ),
                             NSLocalizedString("Direct only", comment: ""),
                             NSLocalizedString("DAITA", comment: ""),
                             NSLocalizedString("Multihop", comment: "")
@@ -73,7 +74,8 @@ extension SettingsDAITAView {
         Binding<Bool>(
             get: {
                 tunnelViewModel.value.daitaState.isEnabled
-            }, set: { enabled in
+            },
+            set: { enabled in
                 var settings = tunnelViewModel.value
                 settings.daitaState.isEnabled = enabled
 
@@ -86,7 +88,8 @@ extension SettingsDAITAView {
         Binding<Bool>(
             get: {
                 tunnelViewModel.value.directOnlyState.isEnabled
-            }, set: { enabled in
+            },
+            set: { enabled in
                 var settings = tunnelViewModel.value
                 settings.directOnlyState.isEnabled = enabled
 
@@ -110,8 +113,8 @@ extension SettingsDAITAView {
                 SettingsInfoViewModelPage(
                     body: [
                         NSLocalizedString(
-                            "**Attention: This increases network traffic and will also negatively affect " +
-                                "speed, latency, and battery usage. Use with caution on limited plans.**",
+                            "**Attention: This increases network traffic and will also negatively affect "
+                                + "speed, latency, and battery usage. Use with caution on limited plans.**",
                             comment: ""
                         ),
                         String(
@@ -123,9 +126,9 @@ extension SettingsDAITAView {
                             daitafullTitle
                         ),
                         NSLocalizedString(
-                            "By using sophisticated AI it’s possible to analyze " +
-                                "the traffic of data packets going in and out of your " +
-                                "device (even if the traffic is encrypted).",
+                            "By using sophisticated AI it’s possible to analyze "
+                                + "the traffic of data packets going in and out of your "
+                                + "device (even if the traffic is encrypted).",
                             comment: ""
                         ),
                     ].joinedParagraphs(),
@@ -133,22 +136,25 @@ extension SettingsDAITAView {
                 ),
                 SettingsInfoViewModelPage(
                     body: [
-                        String(format: NSLocalizedString(
-                            "If an observer monitors these data packets, %@ makes it " +
-                                "significantly harder for them to identify which websites " +
-                                "you are visiting or with whom you are communicating.",
-                            comment: ""
-                        ), daitaTitle),
-                        String(format: NSLocalizedString(
-                            "%@ does this by carefully adding network noise and making " +
-                                "all network packets the same size.",
-                            comment: ""
-                        ), daitaTitle),
-                        String(format: NSLocalizedString(
-                            "Not all our servers are %@-enabled. Therefore, we use multihop " +
-                                "automatically to enable %@ with any server.",
-                            comment: ""
-                        ), daitaTitle, daitaTitle),
+                        String(
+                            format: NSLocalizedString(
+                                "If an observer monitors these data packets, %@ makes it "
+                                    + "significantly harder for them to identify which websites "
+                                    + "you are visiting or with whom you are communicating.",
+                                comment: ""
+                            ), daitaTitle),
+                        String(
+                            format: NSLocalizedString(
+                                "%@ does this by carefully adding network noise and making "
+                                    + "all network packets the same size.",
+                                comment: ""
+                            ), daitaTitle),
+                        String(
+                            format: NSLocalizedString(
+                                "Not all our servers are %@-enabled. Therefore, we use multihop "
+                                    + "automatically to enable %@ with any server.",
+                                comment: ""
+                            ), daitaTitle, daitaTitle),
                     ].joinedParagraphs(),
                     image: .daitaOnIllustration
                 ),

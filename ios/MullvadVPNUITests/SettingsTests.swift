@@ -12,9 +12,9 @@ import XCTest
 class SettingsTests: LoggedOutUITestCase {
     func testSendProblemReport() throws {
         #if MULLVAD_ENVIRONMENT_STAGING
-        let shouldSkipTest = false
+            let shouldSkipTest = false
         #else
-        let shouldSkipTest = true
+            let shouldSkipTest = true
         #endif
 
         try XCTSkipIf(shouldSkipTest, "This test should only run in the staging environment")
@@ -29,10 +29,12 @@ class SettingsTests: LoggedOutUITestCase {
             .tapEmailTextField()
             .enterText("cookie@mullvad.net")
             .tapMessageTextView()
-            .enterText("""
-            Dear support
-            This is a problem report from an iOS app test.
-            """)
+            .enterText(
+                """
+                Dear support
+                This is a problem report from an iOS app test.
+                """
+            )
             .tapKeyboardDoneButton()
             .tapSendButton()
 

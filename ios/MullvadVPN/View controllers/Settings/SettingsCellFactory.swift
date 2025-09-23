@@ -25,10 +25,12 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
         let cell: UITableViewCell
 
-        cell = tableView
+        cell =
+            tableView
             .dequeueReusableCell(
                 withIdentifier: item.reuseIdentifier.rawValue
-            ) ?? SettingsCell(
+            )
+            ?? SettingsCell(
                 style: item.reuseIdentifier.cellStyle,
                 reuseIdentifier: item.reuseIdentifier.rawValue
             )
@@ -39,7 +41,6 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
         return cell
     }
 
-    // swiftlint:disable:next function_body_length
     func configureCell(_ cell: UITableViewCell, item: SettingsDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .vpnSettings:
@@ -85,7 +86,8 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString("DAITA", comment: "")
 
-            cell.detailTitleLabel.text = viewModel.daitaSettings.daitaState.isEnabled
+            cell.detailTitleLabel.text =
+                viewModel.daitaSettings.daitaState.isEnabled
                 ? NSLocalizedString("On", comment: "")
                 : NSLocalizedString("Off", comment: "")
 
@@ -97,7 +99,8 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString("Multihop", comment: "")
 
-            cell.detailTitleLabel.text = viewModel.multihopState.isEnabled
+            cell.detailTitleLabel.text =
+                viewModel.multihopState.isEnabled
                 ? NSLocalizedString("On", comment: "")
                 : NSLocalizedString("Off", comment: "")
 

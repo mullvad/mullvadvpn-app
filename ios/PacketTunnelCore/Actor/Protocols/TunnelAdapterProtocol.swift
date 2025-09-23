@@ -9,7 +9,6 @@
 import Foundation
 import MullvadTypes
 import Network
-
 @preconcurrency import WireGuardKitTypes
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.

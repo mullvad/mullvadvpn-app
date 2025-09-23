@@ -87,10 +87,13 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
         // If the connection never becomes viable, force a reconnection after 10 seconds
         scheduleInTunnelConnectionTimeout(startTime: .now() + tcpConnectionTimeout)
 
-        let tcpConnectionObserver = inTunnelTCPConnection.observe(\.isViable, options: [
-            .initial,
-            .new,
-        ]) { [weak self] observedConnection, _ in
+        let tcpConnectionObserver = inTunnelTCPConnection.observe(
+            \.isViable,
+            options: [
+                .initial,
+                .new,
+            ]
+        ) { [weak self] observedConnection, _ in
             guard let self, observedConnection.isViable else { return }
             self.negotiation?.tcpConnectionObserver.invalidate()
             self.timer?.cancel()

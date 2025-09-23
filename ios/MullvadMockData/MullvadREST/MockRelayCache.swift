@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 @testable import MullvadREST
 
 public struct MockRelayCache: RelayCacheProtocol {

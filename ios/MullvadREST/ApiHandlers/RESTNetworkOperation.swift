@@ -212,15 +212,17 @@ extension REST {
             case let .unhandledResponse(serverErrorResponse):
                 // Response handler couldn't handle the response.
                 if serverErrorResponse?.code == .invalidAccessToken,
-                   requiresAuthorization,
-                   retryInvalidAccessTokenError {
+                    requiresAuthorization,
+                    retryInvalidAccessTokenError
+                {
                     logger.debug("Received invalid access token error. Retry once.")
                     retryInvalidAccessTokenError = false
                     startRequest()
                 } else {
-                    finish(result: .failure(
-                        REST.Error.unhandledResponse(response.statusCode, serverErrorResponse)
-                    ))
+                    finish(
+                        result: .failure(
+                            REST.Error.unhandledResponse(response.statusCode, serverErrorResponse)
+                        ))
                 }
             }
         }

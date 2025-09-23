@@ -60,8 +60,10 @@ final class TunnelViewControllerInteractor: @unchecked Sendable {
                 didUpdateTunnelStatus?(tunnelStatus)
                 if case .connected = tunnelStatus.state {
                     outgoingConnectionTask = Task(priority: .high) { [weak self] in
-                        guard let outgoingConnectionInfo = try await self?.outgoingConnectionService
-                            .getOutgoingConnectionInfo() else {
+                        guard
+                            let outgoingConnectionInfo = try await self?.outgoingConnectionService
+                                .getOutgoingConnectionInfo()
+                        else {
                             return
                         }
                         await self?.didGetOutgoingAddress?(outgoingConnectionInfo)

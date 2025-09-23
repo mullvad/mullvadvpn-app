@@ -84,10 +84,11 @@ class AccountDeviceRow: UIView {
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
 
-        deviceManagementButton.addGestureRecognizer(UITapGestureRecognizer(
-            target: self,
-            action: #selector(didTapDeviceManagementButton)
-        ))
+        deviceManagementButton.addGestureRecognizer(
+            UITapGestureRecognizer(
+                target: self,
+                action: #selector(didTapDeviceManagementButton)
+            ))
     }
 
     required init?(coder: NSCoder) {

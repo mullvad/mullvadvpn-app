@@ -21,11 +21,15 @@ class LogoutDialogueView: UIView {
     private let messageLabel: UILabel = {
         let label = UILabel()
 
-        let message = NSMutableAttributedString(string: [NSLocalizedString(
-            "It looks like you’ve entered an account number instead of a voucher code. " +
-                "If you would like to change the active account, please log out first.",
-            comment: ""
-        ), NSLocalizedString("If so, click log out below to log in with the other account number.", comment: "")]
+        let message = NSMutableAttributedString(
+            string: [
+                NSLocalizedString(
+                    "It looks like you’ve entered an account number instead of a voucher code. "
+                        + "If you would like to change the active account, please log out first.",
+                    comment: ""
+                ),
+                NSLocalizedString("If so, click log out below to log in with the other account number.", comment: ""),
+            ]
             .joinedParagraphs(lineBreaks: 0)
         )
         message.apply(paragraphStyle: .alert)
@@ -112,18 +116,20 @@ class LogoutDialogueView: UIView {
         guard hideConstraint?.isActive == true else { return }
         showConstraint?.isActive = true
         hideConstraint?.isActive = false
-        animateWith(animations: {
-            self.containerView.alpha = 1.0
-        }, duration: 0.3, delay: 0.2)
+        animateWith(
+            animations: {
+                self.containerView.alpha = 1.0
+            }, duration: 0.3, delay: 0.2)
     }
 
     private func fadeOut() {
         guard showConstraint?.isActive == true else { return }
         showConstraint?.isActive = false
         hideConstraint?.isActive = true
-        animateWith(animations: {
-            self.containerView.alpha = 0.0
-        }, duration: 0.0, delay: 0.0)
+        animateWith(
+            animations: {
+                self.containerView.alpha = 0.0
+            }, duration: 0.0, delay: 0.0)
     }
 
     private func animateWith(

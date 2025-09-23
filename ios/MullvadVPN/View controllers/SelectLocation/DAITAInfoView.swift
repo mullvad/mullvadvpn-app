@@ -21,8 +21,8 @@ class DAITAInfoView: UIView {
             string: NSLocalizedString(
                 String(
                     format: NSLocalizedString(
-                        "The entry server for %@ is currently overridden by %@. To select an entry server, " +
-                            "please first enable “%@” or disable “%@“ in the settings.",
+                        "The entry server for %@ is currently overridden by %@. To select an entry server, "
+                            + "please first enable “%@” or disable “%@“ in the settings.",
                         comment: ""
                     ),
                     NSLocalizedString("multihop", comment: ""),

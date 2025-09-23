@@ -7,12 +7,12 @@
 //
 
 import Foundation
-
 import MullvadMockData
+import XCTest
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 class RelayPickingTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
@@ -116,7 +116,7 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard") // Madrid relay is closest to exit relay.
+        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard")  // Madrid relay is closest to exit relay.
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
 
@@ -207,7 +207,7 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard") // Madrid relay is closest to exit relay.
+        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard")  // Madrid relay is closest to exit relay.
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
 
@@ -232,7 +232,7 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard") // Madrid relay is closest to exit relay.
+        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard")  // Madrid relay is closest to exit relay.
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
 

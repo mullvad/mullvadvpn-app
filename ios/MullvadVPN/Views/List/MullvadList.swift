@@ -70,7 +70,8 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
         [1, 2, 3],
         header: {
             Text("Header")
-        }, footer: {
+        },
+        footer: {
             Text("Footer")
         },
         content: { item in

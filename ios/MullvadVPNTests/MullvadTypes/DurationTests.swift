@@ -6,9 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
 import MullvadTypes
 import XCTest
+
+@testable import MullvadREST
 
 final class DurationTests: XCTestCase {
     func testComparable() throws {
@@ -21,8 +22,8 @@ final class DurationTests: XCTestCase {
         XCTAssertTrue(Duration.milliseconds(1234) == 1.234)
 
         XCTAssertTrue(Duration.milliseconds(.max) == 9.223372036854775e+15)
-        XCTAssertEqual(Duration.milliseconds(.max).milliseconds, 9223372036854775807)
-        XCTAssertEqual(Duration.seconds(.max).milliseconds, 9223372036854775807)
+        XCTAssertEqual(Duration.milliseconds(.max).milliseconds, 9_223_372_036_854_775_807)
+        XCTAssertEqual(Duration.seconds(.max).milliseconds, 9_223_372_036_854_775_807)
 
         XCTAssertLessThan(Duration.milliseconds(999), .seconds(1))
         XCTAssertGreaterThan(Duration.milliseconds(1001), .seconds(1))

@@ -28,7 +28,7 @@ class TunnelControlPage: Page {
         var connectionAttempts: [ConnectionAttempt] = []
         var lastConnectionAttempt: ConnectionAttempt?
         let startTime = Date()
-        let pollingInterval = TimeInterval(0.5) // How often to check for changes
+        let pollingInterval = TimeInterval(0.5)  // How often to check for changes
 
         let inAddressRow = app.staticTexts[AccessibilityIdentifier.connectionPanelInAddressRow]
 
@@ -130,7 +130,7 @@ class TunnelControlPage: Page {
         let connectionAttempts = waitForConnectionAttempts(3, timeout: 30)
 
         // Should do three connection attempts but due to UI bug sometimes only two are displayed, sometimes all three
-        if connectionAttempts.count == 3 { // Expected retries flow
+        if connectionAttempts.count == 3 {  // Expected retries flow
             for (attemptIndex, attempt) in connectionAttempts.enumerated() {
                 if attemptIndex < 2 {
                     XCTAssertEqual(attempt.protocolName, "UDP")
@@ -140,7 +140,7 @@ class TunnelControlPage: Page {
                     XCTFail("Unexpected connection attempt")
                 }
             }
-        } else if connectionAttempts.count == 2 { // Most of the times this incorrect flow is shown
+        } else if connectionAttempts.count == 2 {  // Most of the times this incorrect flow is shown
             for (attemptIndex, attempt) in connectionAttempts.enumerated() {
                 if attemptIndex == 0 {
                     XCTAssertEqual(attempt.protocolName, "UDP")
@@ -220,8 +220,8 @@ class TunnelControlPage: Page {
         let inAddressRow = app.staticTexts[.connectionPanelInAddressRow]
         // The row looks like this "85.203.53.145:43030 UDP"
         let components = inAddressRow.label.components(separatedBy: ":")
-        let inIpAddress = components[0] // 85.203.53.145
-        let inPort = components[1].components(separatedBy: " ")[0] // 43030 UDP, take only the port part
+        let inIpAddress = components[0]  // 85.203.53.145
+        let inPort = components[1].components(separatedBy: " ")[0]  // 43030 UDP, take only the port part
         return (inIpAddress, Int(inPort)!)
     }
 
