@@ -7,7 +7,6 @@ import { Flex, Text } from '../../../../../lib/components';
 import { Link } from '../../../../../lib/components/link';
 import { TransitionType, useHistory } from '../../../../../lib/history';
 import { useSelector } from '../../../../../redux/store';
-import DeviceInfoButton from '../../../../DeviceInfoButton';
 
 const StyledText = styled(Text)`
   text-transform: capitalize;
@@ -23,10 +22,7 @@ export function DeviceNameRow() {
 
   return (
     <Flex $justifyContent="space-between">
-      <Flex $gap="small" $alignItems="center">
-        <StyledText variant="bodySmallSemibold">{deviceName}</StyledText>
-        <DeviceInfoButton />
-      </Flex>
+      <StyledText variant="bodySmallSemibold">{deviceName}</StyledText>
       <Link as="button" onClick={navigateToManageDevices}>
         <Link.Text>
           {
