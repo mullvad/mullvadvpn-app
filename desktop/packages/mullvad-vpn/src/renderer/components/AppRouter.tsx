@@ -40,7 +40,7 @@ import {
   ShadowsocksSettingsView,
   SplitTunnelingView,
   UdpOverTcpSettingsView,
-  UserInterfaceSettings,
+  UserInterfaceSettingsView,
   VpnSettingsView,
   WireguardSettingsView,
 } from './views';
@@ -71,7 +71,11 @@ export default function AppRouter() {
           <Route exact path={RoutePath.account} component={Account} />
           <Route exact path={RoutePath.settings} component={SettingsView} />
           <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
-          <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
+          <Route
+            exact
+            path={RoutePath.userInterfaceSettings}
+            component={UserInterfaceSettingsView}
+          />
           <Route exact path={RoutePath.multihopSettings} component={MultihopSettingsView} />
           <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
           <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsView} />
