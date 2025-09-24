@@ -83,7 +83,7 @@ export function ObfuscationSettings() {
           </SettingsListbox.SplitOption.Item>
           <SettingsListbox.SplitOption.NavigateButton
             to={RoutePath.shadowsocks}
-            aria-description={messages.pgettext('accessibility', 'Shadowsocks settings')}
+            aria-label={messages.pgettext('accessibility', 'Shadowsocks settings')}
           />
         </SettingsListbox.SplitOption>
         <SettingsListbox.SplitOption value={ObfuscationType.udp2tcp}>
@@ -101,7 +101,7 @@ export function ObfuscationSettings() {
           </SettingsListbox.SplitOption.Item>
           <SettingsListbox.SplitOption.NavigateButton
             to={RoutePath.udpOverTcp}
-            aria-description={messages.pgettext('accessibility', 'UDP-over-TCP settings')}
+            aria-label={messages.pgettext('accessibility', 'UDP-over-TCP settings')}
           />
         </SettingsListbox.SplitOption>
         <SettingsListbox.BaseOption value={ObfuscationType.quic}>
