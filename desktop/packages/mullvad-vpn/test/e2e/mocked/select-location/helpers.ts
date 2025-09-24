@@ -64,12 +64,12 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
 
   const locateRelaysByObfuscation = (
     relayList: IRelayList,
-    relayFieldName: string,
+    relayCondition: (relay: IRelayListHostname) => boolean,
   ): LocatedRelay[] =>
     relayList.countries.flatMap((country) =>
       country.cities.flatMap((city) =>
         city.relays
-          .filter((relay) => relayFieldName in relay)
+          .filter((relay) => relayCondition(relay))
           .map((relay) => ({ country, city, relay })),
       ),
     );
