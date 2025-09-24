@@ -74,91 +74,26 @@ mod test {
     use super::*;
     use crate::migrations::load_seed;
 
-    pub const V2_SETTINGS: &str = r#"
-{
-  "account_token": "1234",
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "country": "se"
-        }
-      },
-      "tunnel_protocol": "any",
-      "openvpn_constraints": {
-        "port": {
-          "only": 53
-        },
-        "protocol": {
-          "only": "udp"
-        }
-      }
+    /// Parse example v1 settings as a pretty printed JSON string.
+    fn v1_settings() -> serde_json::Value {
+        load_seed("v1.json")
     }
-  },
-  "allow_lan": true,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null
-    },
-    "generic": {
-      "enable_ipv6": false
+
+    fn v1_2019v3_settings() -> serde_json::Value {
+        load_seed("v1_2019v3.json")
     }
-  },
-  "show_beta_releases": false,
-  "settings_version": 2
-}
-"#;
 
-    const V1_SETTINGS: &str = include_str!("v1_settings.json");
-
-    const V1_SETTINGS_2019V3: &str = r#"
-{
-  "account_token": "1234",
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "country": "se"
-        }
-      },
-      "tunnel": {
-        "only": {
-          "openvpn": {
-            "port": {
-              "only": 53
-            },
-            "protocol": {
-              "only": "udp"
-            }
-          }
-        }
-      }
+    #[test]
+    fn snapshot_v1_settings() {
+        let v1 = serde_json::to_string_pretty(&v1_settings()).unwrap();
+        insta::assert_snapshot!(v1);
     }
-  },
-  "allow_lan": true,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null
-    },
-    "generic": {
-      "enable_ipv6": false
+
+    #[test]
+    fn snapshot_v1_2019v3_settings() {
+        let v1_2019v3 = serde_json::to_string_pretty(&v1_2019v3_settings()).unwrap();
+        insta::assert_snapshot!(v1_2019v3);
     }
-  }
-}
-
-"#;
-
-    // TODO: add a snapshot of the seed as well.
 
     #[test]
     fn v1_to_v2_migration() {
