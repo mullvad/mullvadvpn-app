@@ -50,6 +50,19 @@ export function filterLocationsByQuic(
     : locations;
 }
 
+export function filterLocationsByLwo(
+  locations: IRelayLocationCountryRedux[],
+  lwo: boolean,
+  tunnelProtocol: TunnelProtocol,
+  locationType: LocationType,
+  multihop: boolean,
+): IRelayLocationCountryRedux[] {
+  const lwoOnRelay = (relay: IRelayLocationRelayRedux) => relay.lwo;
+  return lwoFilterActive(lwo, locationType, tunnelProtocol, multihop)
+    ? filterLocationsImpl(locations, lwoOnRelay)
+    : locations;
+}
+
 export function quicFilterActive(
   quic: boolean,
   locationType: LocationType,
@@ -60,6 +73,18 @@ export function quicFilterActive(
     ? locationType === LocationType.entry
     : locationType === LocationType.exit;
   return quic && isEntry && tunnelProtocol !== 'openvpn';
+}
+
+export function lwoFilterActive(
+  lwo: boolean,
+  locationType: LocationType,
+  tunnelProtocol: TunnelProtocol,
+  multihop: boolean,
+) {
+  const isEntry = multihop
+    ? locationType === LocationType.entry
+    : locationType === LocationType.exit;
+  return lwo && isEntry && tunnelProtocol !== 'openvpn';
 }
 
 export function filterLocationsByDaita(
