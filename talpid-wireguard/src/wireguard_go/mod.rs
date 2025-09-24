@@ -695,7 +695,7 @@ impl Tunnel for WgGoTunnel {
     }
 
     #[cfg(daita)]
-    fn start_daita(&mut self, settings: DaitaSettings) -> Result<()> {
+    async fn start_daita(&mut self, settings: DaitaSettings) -> Result<()> {
         log::info!("Initializing DAITA for wireguard device");
         let peer_public_key = self.handle().config.entry_peer.public_key.clone();
 

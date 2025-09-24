@@ -1062,7 +1062,10 @@ pub(crate) trait Tunnel: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
-    fn start_daita(&mut self, settings: DaitaSettings) -> std::result::Result<(), TunnelError>;
+    async fn start_daita(
+        &mut self,
+        settings: DaitaSettings,
+    ) -> std::result::Result<(), TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
