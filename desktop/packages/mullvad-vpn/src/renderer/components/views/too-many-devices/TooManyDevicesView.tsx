@@ -13,8 +13,7 @@ import { IconBadge, IconBadgeProps } from '../../../lib/icon-badge';
 import { useSelector } from '../../../redux/store';
 import { AppMainHeader } from '../../app-main-header';
 import CustomScrollbars from '../../CustomScrollbars';
-import { DeviceListItem } from '../../device-list-item';
-import List from '../../List';
+import { DeviceList } from '../../device-list';
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
@@ -63,11 +62,7 @@ export function TooManyDevicesView() {
                 </Text>
                 <Text variant="labelTiny">{subtitle}</Text>
               </View.Container>
-              <div>
-                <List items={devices} getKey={getDeviceKey} skipAddTransition>
-                  {(device) => <DeviceListItem device={device} />}
-                </List>
-              </div>
+              <DeviceList />
             </>
           )}
 
@@ -91,8 +86,6 @@ export function TooManyDevicesView() {
     </View>
   );
 }
-
-const getDeviceKey = (device: IDevice): string => device.id;
 
 function getIconSource(devices: Array<IDevice>): IconBadgeProps['state'] {
   if (devices.length === 5) {
