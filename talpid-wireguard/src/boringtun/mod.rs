@@ -11,9 +11,10 @@ use boringtun::{
         api::{ApiClient, ApiServer, command::*},
         peer::AllowedIP,
     },
+    tun::channel::{TunChannelRx, TunChannelTx},
     udp::{
-        UdpSocketFactory,
-        channel::{PacketChannelUdp, TunChannelRx, TunChannelTx, get_packet_channels},
+        channel::{UdpChannelFactory, new_udp_tun_channel},
+        socket::UdpSocketFactory,
     },
 };
 #[cfg(not(target_os = "android"))]
@@ -39,7 +40,7 @@ type UdpFactory = UdpSocketFactory;
 
 type SinglehopDevice = DeviceHandle<(UdpFactory, Arc<tun07::AsyncDevice>, Arc<tun07::AsyncDevice>)>;
 type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
-type ExitDevice = DeviceHandle<(PacketChannelUdp, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
+type ExitDevice = DeviceHandle<(UdpChannelFactory, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
 
 const PACKET_CHANNEL_CAPACITY: usize = 100;
 
@@ -242,7 +243,7 @@ async fn create_devices(
             .unwrap_or(Ipv6Addr::UNSPECIFIED);
 
         let (tun_tx, tun_rx, udp_channels) =
-            get_packet_channels(PACKET_CHANNEL_CAPACITY, source_v4, source_v6);
+            new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6);
 
         let (exit_api, exit_api_server) = ApiServer::new();
         let exit_device = ExitDevice::new(
@@ -435,8 +436,35 @@ impl Tunnel for BoringTun {
         })
     }
 
-    fn start_daita(&mut self, _settings: DaitaSettings) -> Result<(), TunnelError> {
-        log::info!("Haha no");
+    async fn start_daita(&mut self, settings: DaitaSettings) -> Result<(), TunnelError> {
+        log::error!("start_daita");
+
+        let api = match &self.devices {
+            Some(devices) => match devices {
+                Devices::Singlehop { api, .. } => api,
+                Devices::Multihop { entry_api, .. } => entry_api,
+            },
+            None => todo!(),
+        };
+
+        let response = api.send(Get::default()).await.unwrap();
+
+        let get = match response {
+            Response::Get(get) => get,
+            Response::Set(..) => unreachable!(),
+        };
+
+        let mut set = Set::builder().build();
+        for peer in get.peers {
+            set = set.peer(
+                SetPeer::builder()
+                    .peer(peer.peer)
+                    .maybenot_machines(settings.client_machines.clone())
+                    .build(),
+            );
+        }
+        api.send(set).await.unwrap(); // TODO
+
         Ok(())
     }
 }
@@ -474,6 +502,8 @@ fn create_set_command(
     if let Some(psk) = &peer.psk {
         boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
     }
+
+    let _ = peer.constant_packet_size; // TODO
 
     set_cmd
         .peers
