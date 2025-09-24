@@ -143,6 +143,8 @@ async fn config_ephemeral_peers_inner(
             &tun_provider,
         )
         .await?;
+
+        log::info!("request_ephemeral_peer");
         let entry_ephemeral_peer = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
@@ -186,6 +188,7 @@ async fn config_ephemeral_peers_inner(
         if let Some(tunnel) = tunnel.as_mut() {
             tunnel
                 .start_daita(daita)
+                .await
                 .map_err(Error::TunnelError)
                 .map_err(CloseMsg::SetupError)?;
         }
