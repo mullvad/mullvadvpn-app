@@ -1,0 +1,113 @@
+---
+source: mullvad-daemon/src/migrations/v9.rs
+expression: v10
+---
+{
+  "allow_lan": false,
+  "api_access_methods": {
+    "custom": [],
+    "direct": {
+      "access_method": {
+        "built_in": "direct"
+      },
+      "enabled": true,
+      "id": "d81121bf-c942-4ca4-971f-8ea6581bc915",
+      "name": "Direct"
+    },
+    "mullvad_bridges": {
+      "access_method": {
+        "built_in": "bridge"
+      },
+      "enabled": true,
+      "id": "92135711-534d-4950-963d-93e446a792e4",
+      "name": "Mullvad Bridges"
+    }
+  },
+  "auto_connect": false,
+  "block_when_disconnected": false,
+  "bridge_settings": {
+    "bridge_type": "normal",
+    "custom": null,
+    "normal": {
+      "location": "any",
+      "ownership": "any",
+      "providers": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "custom_lists": {
+    "custom_lists": []
+  },
+  "obfuscation_settings": {
+    "selected_obfuscation": "auto",
+    "udp2tcp": {
+      "port": "any"
+    }
+  },
+  "relay_overrides": [],
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "location": {
+            "country": "se"
+          }
+        }
+      },
+      "openvpn_constraints": {
+        "port": "any"
+      },
+      "ownership": "any",
+      "providers": "any",
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": "se"
+            }
+          }
+        },
+        "ip_version": "any",
+        "port": "any",
+        "use_multihop": false
+      }
+    }
+  },
+  "settings_version": 9,
+  "show_beta_releases": true,
+  "split_tunnel": {
+    "apps": [
+      "com.android.chrome",
+      "net.mullvad.mullvadvpn"
+    ],
+    "enable_exclusions": true
+  },
+  "tunnel_options": {
+    "dns_options": {
+      "custom_options": {
+        "addresses": []
+      },
+      "default_options": {
+        "block_ads": false,
+        "block_adult_content": false,
+        "block_gambling": false,
+        "block_malware": false,
+        "block_social_media": false,
+        "block_trackers": false
+      },
+      "state": "default"
+    },
+    "generic": {
+      "enable_ipv6": false
+    },
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null,
+      "quantum_resistant": "auto",
+      "rotation_interval": null
+    }
+  }
+}

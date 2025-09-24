@@ -194,7 +194,7 @@ mod test {
     mod android {
         use super::*;
 
-        use crate::migrations::v9::{JsonSettings, android::add_split_tunneling_settings};
+        use crate::migrations::v9::android::add_split_tunneling_settings;
 
         /// Parse example v9 settings as a pretty printed JSON string.
         /// This settings blob does not contain the "split_tunnel" option.
@@ -211,131 +211,15 @@ mod test {
         /// Assert that split-tunneling settings has been added to the android settings post-migration.
         #[test]
         fn test_v9_to_v10_migration() {
-            use crate::migrations::v9::test::android::constants::V10_ANDROID_SETTINGS;
-            use core::str::FromStr;
-
             let enabled = true;
             let apps = ["com.android.chrome", "net.mullvad.mullvadvpn"];
-
             let mut settings = v9_settings().as_object().cloned().unwrap();
-            // Perform the actual settings migration while skipping the I/O performed in
-            // `migrate_split_tunnel_settings`.
+            // Perform a partial settings migration while skipping the I/O performed in `migrate_split_tunnel_settings`.
             add_split_tunneling_settings(&mut settings, enabled, &apps);
-            let new_settings = JsonSettings::from_str(V10_ANDROID_SETTINGS).unwrap();
-            assert_eq!(settings, new_settings);
-        }
-
-        mod constants {
-
-            /// This settings blob *should* contain the "split_tunnel" option.
-            pub const V10_ANDROID_SETTINGS: &str = r#"
-  {
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "location": {
-            "country": "se"
-          }
-        }
-      },
-      "providers": "any",
-      "ownership": "any",
-      "tunnel_protocol": "wireguard",
-      "wireguard_constraints": {
-        "port": "any",
-        "ip_version": "any",
-        "use_multihop": false,
-        "entry_location": {
-          "only": {
-            "location": {
-              "country": "se"
-            }
-          }
-        }
-      },
-      "openvpn_constraints": {
-        "port": "any"
-      }
-    }
-  },
-  "bridge_settings": {
-    "bridge_type": "normal",
-    "normal": {
-      "location": "any",
-      "providers": "any",
-      "ownership": "any"
-    },
-    "custom": null
-  },
-  "obfuscation_settings": {
-    "selected_obfuscation": "auto",
-    "udp2tcp": {
-      "port": "any"
-    }
-  },
-  "bridge_state": "auto",
-  "custom_lists": {
-    "custom_lists": []
-  },
-  "api_access_methods": {
-    "direct": {
-      "id": "d81121bf-c942-4ca4-971f-8ea6581bc915",
-      "name": "Direct",
-      "enabled": true,
-      "access_method": {
-        "built_in": "direct"
-      }
-    },
-    "mullvad_bridges": {
-      "id": "92135711-534d-4950-963d-93e446a792e4",
-      "name": "Mullvad Bridges",
-      "enabled": true,
-      "access_method": {
-        "built_in": "bridge"
-      }
-    },
-    "custom": []
-  },
-  "allow_lan": false,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null,
-      "quantum_resistant": "auto",
-      "rotation_interval": null
-    },
-    "generic": {
-      "enable_ipv6": false
-    },
-    "dns_options": {
-      "state": "default",
-      "default_options": {
-        "block_ads": false,
-        "block_trackers": false,
-        "block_malware": false,
-        "block_adult_content": false,
-        "block_gambling": false,
-        "block_social_media": false
-      },
-      "custom_options": {
-        "addresses": []
-      }
-    }
-  },
-  "relay_overrides": [],
-  "show_beta_releases": true,
-  "split_tunnel": {
-    "enable_exclusions": true,
-    "apps": ["com.android.chrome", "net.mullvad.mullvadvpn"]
-  },
-  "settings_version": 10
-  }
-  "#;
+            let v10 = serde_json::to_string_pretty(&settings).unwrap();
+            // This settings blob *should* contain the "split_tunnel" option.
+            // It is fine that it is the wrong 'settings_version'.
+            insta::assert_snapshot!(v10);
         }
     }
 
