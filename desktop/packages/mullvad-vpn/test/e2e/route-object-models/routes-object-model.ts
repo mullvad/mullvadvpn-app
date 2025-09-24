@@ -10,6 +10,7 @@ import { MultihopSettingsRouteObjectModel } from './multihop-settings';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SelectLocationRouteObjectModel } from './select-location';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
+import { ShadowsocksSettingsRouteObjectModel } from './shadowsocks-settings';
 import { SplitTunnelingSettingsRouteObjectModel } from './split-tunneling-settings';
 import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
@@ -31,6 +32,7 @@ export class RoutesObjectModel {
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
   readonly splitTunnelingSettings: SplitTunnelingSettingsRouteObjectModel;
+  readonly shadowsocksSettings: ShadowsocksSettingsRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -47,5 +49,6 @@ export class RoutesObjectModel {
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
     this.splitTunnelingSettings = new SplitTunnelingSettingsRouteObjectModel(page, utils);
+    this.shadowsocksSettings = new ShadowsocksSettingsRouteObjectModel(page, utils);
   }
 }
