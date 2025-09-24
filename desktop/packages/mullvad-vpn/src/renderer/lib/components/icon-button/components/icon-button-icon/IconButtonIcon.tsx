@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { Icon, IconProps } from '../../icon/Icon';
-import { useIconButtonContext } from '../IconButtonContext';
+import { Icon, IconProps } from '../../../icon/Icon';
+import { useIconButtonContext } from '../../IconButtonContext';
 export type IconButtonIconProps = IconProps;
 
 export const StyledIconButtonIcon = styled(Icon)``;
