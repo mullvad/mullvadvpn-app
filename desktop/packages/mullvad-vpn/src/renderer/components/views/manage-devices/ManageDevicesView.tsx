@@ -1,23 +1,17 @@
-import { IDevice } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
-import { Spinner, Text } from '../../../lib/components';
+import { Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../app-navigation-header';
-import { DeviceListItem } from '../../device-list-item';
+import { DeviceList } from '../../device-list';
 import { BackAction } from '../../KeyboardNavigation';
-import List from '../../List';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import { useGetDevices } from './hooks';
-
-const getDeviceKey = (device: IDevice): string => device.id;
 
 export function ManageDevicesView() {
   const { pop } = useHistory();
 
-  const { loading, devices } = useGetDevices();
   return (
     <BackAction action={pop}>
       <View backgroundColor="darkBlue">
@@ -47,14 +41,7 @@ export function ManageDevicesView() {
                   </Text>
                 </FlexColumn>
               </View.Container>
-              {loading && <Spinner />}
-              {!loading && (
-                <div>
-                  <List items={devices} getKey={getDeviceKey} skipAddTransition>
-                    {(device) => <DeviceListItem device={device} />}
-                  </List>
-                </div>
-              )}
+              <DeviceList />
             </FlexColumn>
           </NavigationScrollbars>
         </NavigationContainer>
