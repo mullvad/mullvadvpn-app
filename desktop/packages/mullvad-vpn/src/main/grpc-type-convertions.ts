@@ -412,6 +412,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.shadowsocks;
     case grpcTypes.FeatureIndicator.QUIC:
       return FeatureIndicator.quic;
+    case grpcTypes.FeatureIndicator.LWO:
+      return FeatureIndicator.lwo;
   }
 }
 
