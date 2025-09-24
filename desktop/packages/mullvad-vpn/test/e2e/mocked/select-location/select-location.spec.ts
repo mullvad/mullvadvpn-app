@@ -289,7 +289,7 @@ test.describe('Select location', () => {
         }
         await util.ipc.settings[''].notify(settings);
 
-        const locatedRelays = helpers.locateRelaysByObfuscation(relayList);
+        const locatedRelays = helpers.locateRelaysByObfuscation(relayList, 'quic');
         const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 
@@ -309,7 +309,7 @@ test.describe('Select location', () => {
         }
         await util.ipc.settings[''].notify(settings);
 
-        const locatedRelays = helpers.locateRelaysByObfuscation(relayList);
+        const locatedRelays = helpers.locateRelaysByObfuscation(relayList, 'lwo');
         const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 
