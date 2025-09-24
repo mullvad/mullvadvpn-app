@@ -227,7 +227,7 @@ class CustomListLocationsScreenTest {
             )
 
             // Assert
-            onNodeWithText(NO_LOCATIONS_FOUND_TEXT).assertExists()
+            onNodeWithText(NO_MATCHING_SERVERS_FOUNDS).assertExists()
         }
 
     @Test
@@ -294,5 +294,6 @@ class CustomListLocationsScreenTest {
         const val SEARCH_PLACEHOLDER = "Search for..."
         const val EMPTY_SEARCH = "No result for \"%s\", please try a different search"
         const val NO_LOCATIONS_FOUND_TEXT = "No locations found"
+        const val NO_MATCHING_SERVERS_FOUNDS = "No matching servers found."
     }
 }
