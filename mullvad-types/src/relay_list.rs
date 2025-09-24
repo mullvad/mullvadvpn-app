@@ -351,6 +351,9 @@ pub struct WireguardRelayEndpointData {
     /// Parameters for connecting to the masque-proxy running on the relay.
     #[serde(default)]
     pub quic: Option<Quic>,
+    /// Whether the relay supports LWO
+    #[serde(default)]
+    pub lwo: bool,
     /// Optional IP addresses used by Shadowsocks
     #[serde(default)]
     pub shadowsocks_extra_addr_in: HashSet<IpAddr>,
@@ -362,6 +365,7 @@ impl WireguardRelayEndpointData {
             public_key,
             daita: Default::default(),
             quic: Default::default(),
+            lwo: Default::default(),
             shadowsocks_extra_addr_in: Default::default(),
         }
     }
@@ -376,6 +380,13 @@ impl WireguardRelayEndpointData {
     pub fn set_quic(self, quic: Quic) -> Self {
         Self {
             quic: Some(quic),
+            ..self
+        }
+    }
+
+    pub fn set_lwo(self, enabled: bool) -> Self {
+        Self {
+            lwo: enabled,
             ..self
         }
     }

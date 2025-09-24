@@ -145,8 +145,8 @@ fn filter_on_obfuscation(
             },
             None => false,
         },
-        // TODO: This is only enabled on some relays
-        ObfuscationQuery::Lwo => true,
+        // LWO is only enabled on some relays
+        ObfuscationQuery::Lwo => endpoint_data.lwo,
         // Other relays are compatible with this query
         ObfuscationQuery::Off | ObfuscationQuery::Auto | ObfuscationQuery::Udp2tcp(_) => true,
     }

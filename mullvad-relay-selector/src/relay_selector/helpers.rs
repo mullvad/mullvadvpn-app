@@ -220,10 +220,9 @@ pub fn get_lwo_obfuscator(
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
 ) -> Option<(ObfuscatorConfig, Relay)> {
-    let _wg = relay.wireguard()?;
-
-    // TODO: check if LWO is supported on this relay
-
+    if !relay.wireguard()?.lwo {
+        return None;
+    }
     let ip = match endpoint.peer.endpoint {
         SocketAddr::V4(_) => IpAddr::V4(relay.ipv4_addr_in),
         SocketAddr::V6(_) => IpAddr::V6(relay.ipv6_addr_in?),
