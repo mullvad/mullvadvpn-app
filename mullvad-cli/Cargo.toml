@@ -14,9 +14,6 @@ workspace = true
 name = "mullvad"
 path = "src/main.rs"
 
-[features]
-lwo = ["mullvad-types/lwo"]
-
 [dependencies]
 anyhow = { workspace = true }
 chrono = { workspace = true }
@@ -31,7 +28,7 @@ mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
-tokio = { workspace = true, features =  ["macros", "rt-multi-thread", "fs"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "fs"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
