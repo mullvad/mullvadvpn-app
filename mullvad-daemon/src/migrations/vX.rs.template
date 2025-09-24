@@ -51,3 +51,4 @@ mod test {
         let settings = serde_json::to_string_pretty(&settings).unwrap();
         insta::assert_snapshot!(settings);
     }
+}
