@@ -1,14 +1,14 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors, Radius, spacings } from '../../foundations';
 import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export type ButtonProps = React.ComponentPropsWithRef<'button'> & {
   variant?: 'primary' | 'success' | 'destructive';
   width?: 'fill' | 'fit';
-}
+};
 
 const styles = {
   radius: Radius.radius4,
@@ -123,18 +123,15 @@ export const StyledButton = styled.button<ButtonProps>`
   }}
 `;
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { children, disabled = false, style, ...props },
-  ref,
-) {
+function Button({ children, disabled = false, ...props }: ButtonProps) {
   return (
     <ButtonProvider disabled={disabled}>
-      <StyledButton ref={ref} disabled={disabled} {...props}>
+      <StyledButton disabled={disabled} {...props}>
         {children}
       </StyledButton>
     </ButtonProvider>
   );
-});
+}
 
 const ButtonNamespace = Object.assign(Button, {
   Text: ButtonText,
