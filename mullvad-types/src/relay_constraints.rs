@@ -640,7 +640,6 @@ pub enum SelectedObfuscation {
     Udp2Tcp,
     Shadowsocks,
     Quic,
-    #[cfg_attr(all(feature = "clap", not(feature = "lwo")), clap(skip))]
     Lwo,
 }
 
