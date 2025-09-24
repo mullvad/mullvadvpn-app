@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../foundations';
@@ -8,10 +8,10 @@ import { IconButtonProvider } from './IconButtonContext';
 
 export type IconButtonVariant = 'primary' | 'secondary';
 
-export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export type IconButtonProps = React.ComponentPropsWithRef<'button'> & {
   variant?: IconButtonVariant;
   size?: IconProps['size'];
-}
+};
 
 const variants: Record<
   IconButtonVariant,
@@ -86,20 +86,16 @@ const StyledButton = styled.button<{
   }}
 `;
 
-const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ variant = 'primary', size = 'medium', disabled, style, ...props }, ref) => {
-    return (
-      <IconButtonProvider size={size} variant={variant} disabled={disabled}>
-        <StyledButton ref={ref} disabled={disabled} $variant={variant} $size={size} {...props} />
-      </IconButtonProvider>
-    );
-  },
-);
+function IconButton({ variant = 'primary', size = 'medium', disabled, ...props }: IconButtonProps) {
+  return (
+    <IconButtonProvider size={size} variant={variant} disabled={disabled}>
+      <StyledButton disabled={disabled} $variant={variant} $size={size} {...props} />
+    </IconButtonProvider>
+  );
+}
 
 const IconButtonNamespace = Object.assign(IconButton, {
   Icon: IconButtonIcon,
 });
 
 export { IconButtonNamespace as IconButton };
-
-IconButton.displayName = 'Button';
