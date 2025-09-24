@@ -270,7 +270,6 @@
     <string name="new_list">Ny liste</string>
     <string name="no_custom_lists_available">Ingen tilgjengelige egendefinerte lister</string>
     <string name="no_internet_connection">Ingen internettforbindelse</string>
-    <string name="no_locations_found">Ingen plasseringer funnet</string>
     <string name="no_matching_relay">Ingen servere passer til innstillingene dine. Prøv å endre server eller andre innstillinger.</string>
     <string name="no_recent_selection">Ingen nylig valghistorikk</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>

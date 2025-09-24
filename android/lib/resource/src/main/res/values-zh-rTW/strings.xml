@@ -270,7 +270,6 @@
     <string name="new_list">新清單</string>
     <string name="no_custom_lists_available">有可用的自訂清單</string>
     <string name="no_internet_connection">沒有網際網路連線</string>
-    <string name="no_locations_found">找不到位置</string>
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
     <string name="no_recent_selection">無最近選擇歷史</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
