@@ -34,4 +34,13 @@ export class WireguardSettingsRouteObjectModel extends NavigationObjectModel {
   async selectUdpOverTcp() {
     await this.getUdpOverTcpOption().click();
   }
+
+  async selectShadowsocks() {
+    await this.selectors.shadowsocksOption().click();
+  }
+
+  async gotoShadowSocksSettings() {
+    await this.selectors.shadowsocksSettingsButton().click();
+    await this.utils.expectRoute(RoutePath.shadowsocks);
+  }
 }
