@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add settings reset command to the CLI ('mullvad reset-settings').
 - Make feature indicators in connection panel navigate to the relevant setting when clicked.
+- Add new LWO obfuscation method for WireGuard.
 
 ### Changed
 - Add validation for API access methods to only allow unique names. Access methods with
