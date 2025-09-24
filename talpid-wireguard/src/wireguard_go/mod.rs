@@ -114,7 +114,7 @@ pub(crate) async fn open_wireguard_go_tunnel(
     //
     // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
     #[cfg(target_os = "android")]
-    let config = patch_allowed_ips(config, gateway_only);
+    let config = config::patch_allowed_ips(config, gateway_only);
 
     #[cfg(target_os = "android")]
     let tunnel = if let Some(exit_peer) = &config.exit_peer {
@@ -140,44 +140,6 @@ pub(crate) async fn open_wireguard_go_tunnel(
     };
 
     Ok(tunnel)
-}
-
-/// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
-/// Used to block traffic to other destinations while connecting on Android.
-#[cfg(target_os = "android")]
-fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
-    use std::net::IpAddr;
-
-    if gateway_only {
-        let mut patched_config = config.clone();
-        let gateway_net_v4 =
-            ipnetwork::IpNetwork::from(std::net::IpAddr::from(config.ipv4_gateway));
-        let gateway_net_v6 = config
-            .ipv6_gateway
-            .map(|net| ipnetwork::IpNetwork::from(IpAddr::from(net)));
-        for peer in patched_config.peers_mut() {
-            peer.allowed_ips = peer
-                .allowed_ips
-                .iter()
-                .cloned()
-                .filter_map(|mut allowed_ip| {
-                    if allowed_ip.prefix() == 0 {
-                        if allowed_ip.is_ipv4() {
-                            allowed_ip = gateway_net_v4;
-                        } else if let Some(net) = gateway_net_v6 {
-                            allowed_ip = net;
-                        } else {
-                            return None;
-                        }
-                    }
-                    Some(allowed_ip)
-                })
-                .collect();
-        }
-        Cow::Owned(patched_config)
-    } else {
-        Cow::Borrowed(config)
-    }
 }
 
 impl WgGoTunnel {
