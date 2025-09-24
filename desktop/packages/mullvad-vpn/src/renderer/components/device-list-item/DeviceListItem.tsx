@@ -1,4 +1,5 @@
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
@@ -6,6 +7,7 @@ import { capitalizeEveryWord } from '../../../shared/string-helpers';
 import { IconButton, Text } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
+import { spacings } from '../../lib/foundations';
 import { useBoolean } from '../../lib/utility-hooks';
 import { DeviceListItemProvider, useDeviceListItemContext } from './';
 import { ConfirmDialog } from './components';
@@ -16,6 +18,10 @@ export type SettingsToggleListItemProps = {
   device: IDevice;
 } & Omit<ListItemProps, 'children'>;
 
+const StyledCurrentListItem = styled(ListItem)`
+  margin-bottom: ${spacings.medium};
+`;
+
 function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'device'>) {
   const { device, deleting, showConfirmDialog, confirmDialogVisible, error } =
     useDeviceListItemContext();
@@ -23,9 +29,11 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
   const deviceName = capitalizeEveryWord(device.name);
   const createdDate = device.created.toISOString().split('T')[0];
 
+  const ListItemComponent = isCurrentDevice ? StyledCurrentListItem : ListItem;
+
   return (
     <>
-      <ListItem data-testid={'device-list-item'} disabled={deleting} {...props}>
+      <ListItemComponent data-testid={'device-list-item'} disabled={deleting} {...props}>
         <ListItem.Item>
           <ListItem.Content>
             <FlexColumn>
@@ -70,7 +78,7 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
             </ListItem.Group>
           </ListItem.Content>
         </ListItem.Item>
-      </ListItem>
+      </ListItemComponent>
       <ConfirmDialog isOpen={confirmDialogVisible} />
       <ErrorDialog isOpen={error} />
     </>
