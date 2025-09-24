@@ -22,7 +22,7 @@ talpid-types.path = "../talpid-types"
 # NOTE: for other platforms, maybenot-ffi is NOT declared here, but instead built directly from
 # wireguard-go-rs/libwg/wireguard-go/maybenot-ffi
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-maybenot-ffi = "2.0.1"
+maybenot-ffi = "2.2.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { workspace = true, features = [

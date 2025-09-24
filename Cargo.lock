@@ -388,7 +388,7 @@ dependencies = [
  "arrayvec",
  "cc",
  "cfg-if",
- "constant_time_eq",
+ "constant_time_eq 0.3.0",
 ]
 
 [[package]]
@@ -440,7 +440,6 @@ dependencies = [
 [[package]]
 name = "boringtun"
 version = "0.6.0"
-source = "git+https://github.com/mullvad/boringtun?rev=83b3b5bb1bf3ec8b9849cc0d250d96d623b6181f#83b3b5bb1bf3ec8b9849cc0d250d96d623b6181f"
 dependencies = [
  "aead",
  "async-trait",
@@ -449,15 +448,18 @@ dependencies = [
  "blake2",
  "bytes",
  "chacha20poly1305",
+ "constant_time_eq 0.4.2",
  "duplicate",
  "either",
  "eyre",
+ "futures",
  "hex",
  "hmac",
  "ip_network",
  "ip_network_table",
  "libc",
  "log",
+ "maybenot",
  "nix 0.30.1",
  "parking_lot",
  "pcap-file",
@@ -809,6 +811,12 @@ name = "constant_time_eq"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7144d30dcf0fafbce74250a3963025d8d52177934239851c917d29f1df280c2"
+
+[[package]]
+name = "constant_time_eq"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
 
 [[package]]
 name = "core-foundation"

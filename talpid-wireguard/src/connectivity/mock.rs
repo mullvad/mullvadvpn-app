@@ -122,7 +122,7 @@ impl Tunnel for MockTunnel {
     }
 
     #[cfg(daita)]
-    fn start_daita(
+    async fn start_daita(
         &mut self,
         _: talpid_tunnel_config_client::DaitaSettings,
     ) -> std::result::Result<(), TunnelError> {
