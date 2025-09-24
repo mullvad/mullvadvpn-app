@@ -363,6 +363,7 @@ impl WireGuardRelay {
                 daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
                 shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
                 quic: self.features.quic.map(relay_list::Quic::from),
+                lwo: self.features.lwo.is_some(),
             });
 
         into_mullvad_relay(relay, location, endpoint_data)
@@ -374,6 +375,7 @@ impl WireGuardRelay {
 struct Features {
     daita: Option<Daita>,
     quic: Option<Quic>,
+    lwo: Option<Lwo>,
 }
 
 /// DAITA doesn't have any configuration options (exposed by the API).
@@ -404,6 +406,12 @@ impl From<Quic> for relay_list::Quic {
         Self::new(value.addr_in, value.token, value.domain)
     }
 }
+
+/// LWO doesn't have any configuration options (exposed by the API).
+///
+/// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
+#[derive(Debug, Clone, serde::Deserialize)]
+struct Lwo {}
 
 #[derive(Debug, serde::Deserialize)]
 struct Bridges {
