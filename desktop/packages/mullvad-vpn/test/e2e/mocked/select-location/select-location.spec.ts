@@ -289,7 +289,30 @@ test.describe('Select location', () => {
         }
         await util.ipc.settings[''].notify(settings);
 
-        const locatedRelays = helpers.locateRelaysByObfuscation(relayList);
+        const locatedRelays = helpers.locateRelaysByObfuscation(
+          relayList,
+          (relay) => 'quic' in relay,
+        );
+        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relayNames = relays.map((relay) => relay.hostname);
+
+        await helpers.expandLocatedRelays(locatedRelays);
+
+        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+
+        // Expect all filtered relays to have a button
+        await expect(buttons).toHaveCount(relays.length);
+      });
+    });
+    test.describe('Filter by LWO', () => {
+      test('Should apply filter when LWO obfuscation is selected', async () => {
+        const settings = getDefaultSettings();
+        if ('normal' in settings.relaySettings) {
+          settings.obfuscationSettings.selectedObfuscation = ObfuscationType.lwo;
+        }
+        await util.ipc.settings[''].notify(settings);
+
+        const locatedRelays = helpers.locateRelaysByObfuscation(relayList, (relay) => relay.lwo);
         const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 

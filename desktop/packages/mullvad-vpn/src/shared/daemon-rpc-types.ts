@@ -399,6 +399,7 @@ export interface IRelayListHostname {
   daita: boolean;
   // The absence of this value signals that the relay does not deploy QUIC.
   quic?: Quic;
+  lwo: boolean;
 }
 
 export type Quic = {
@@ -527,6 +528,7 @@ export enum ObfuscationType {
   udp2tcp,
   shadowsocks,
   quic,
+  lwo,
 }
 
 export type ObfuscationSettings = {
