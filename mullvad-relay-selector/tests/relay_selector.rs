@@ -340,6 +340,8 @@ fn assert_wireguard_retry_order() {
             .udp2tcp()
             .ip_version(IpVersion::V6)
             .build(),
+        // 7
+        RelayQueryBuilder::wireguard().lwo().build(),
     ];
 
     assert!(
