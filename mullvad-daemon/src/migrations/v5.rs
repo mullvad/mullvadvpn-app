@@ -197,9 +197,9 @@ mod test {
 
     #[test]
     fn test_v5_to_v6_migration() {
-        let mut v5 = &mut v5_settings();
+        let mut v5 = v5_settings();
         migrate(&mut v5).unwrap();
-        let v6 = serde_json::to_string_pretty(v5).unwrap();
+        let v6 = serde_json::to_string_pretty(&v5).unwrap();
         insta::assert_snapshot!(v6);
     }
 }
