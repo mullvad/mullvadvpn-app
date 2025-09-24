@@ -472,6 +472,7 @@ impl WireguardMonitor {
                 &config,
                 args.tun_provider.clone(),
                 args.route_manager,
+                should_negotiate_ephemeral_peer,
             ))
             .map(Box::new)? as Box<dyn Tunnel>;
 
