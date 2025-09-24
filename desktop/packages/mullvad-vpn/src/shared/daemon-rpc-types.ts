@@ -232,6 +232,7 @@ export enum FeatureIndicator {
   udp2tcp,
   shadowsocks,
   quic,
+  lwo,
   lanSharing,
   dnsContentBlockers,
   customDns,
