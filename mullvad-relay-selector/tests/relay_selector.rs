@@ -79,7 +79,8 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                                 ],
                                 "Bearer test".to_owned(),
                                 "se9-wireguard.blockerad.eu".to_owned(),
-                            )),
+                            ))
+                            .set_lwo(true),
                     ),
                     location: DUMMY_LOCATION.clone(),
                 },
@@ -923,6 +924,32 @@ fn test_selecting_openvpn_and_quic() {
     let _relay = relay_selector
         .get_relay_by_query(query)
         .expect("OpenVPN should not be affected by QUIC");
+}
+
+/// Test LWO relay selection
+#[test]
+fn test_selecting_wireguard_over_lwo() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let query = RelayQueryBuilder::wireguard().lwo().build();
+    assert!(!query.wireguard_constraints().multihop());
+
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator,
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert!(obfuscator.is_some_and(|obfuscator| matches!(
+                obfuscator.config,
+                Obfuscators::Single(ObfuscatorConfig::Lwo { .. }),
+            )))
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with LWO, instead chose {wrong_relay:?}"
+        ),
+    }
 }
 
 /// Selecting WG IPv6 should not affect OpenVPN

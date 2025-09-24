@@ -652,6 +652,12 @@ pub mod builder {
     /// in the mullvad-types crate.
     pub struct Quic;
 
+    /// LWO obfuscation.
+    ///
+    /// LWO does not have any user-configurable parameters, so there is no type defined
+    /// in the mullvad-types crate.
+    pub struct Lwo;
+
     // This impl-block is quantified over all configurations
     impl<Multihop, Obfuscation, Daita, QuantumResistant>
         RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, QuantumResistant>>
@@ -820,6 +826,22 @@ pub mod builder {
                 protocol: Wireguard {
                     multihop: self.protocol.multihop,
                     obfuscation: Quic,
+                    daita: self.protocol.daita,
+                    quantum_resistant: self.protocol.quantum_resistant,
+                },
+            }
+        }
+
+        /// Enable LWO obfuscation.
+        pub fn lwo(
+            mut self,
+        ) -> RelayQueryBuilder<Wireguard<Multihop, Lwo, Daita, QuantumResistant>> {
+            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Lwo;
+            RelayQueryBuilder {
+                query: self.query,
+                protocol: Wireguard {
+                    multihop: self.protocol.multihop,
+                    obfuscation: Lwo,
                     daita: self.protocol.daita,
                     quantum_resistant: self.protocol.quantum_resistant,
                 },
