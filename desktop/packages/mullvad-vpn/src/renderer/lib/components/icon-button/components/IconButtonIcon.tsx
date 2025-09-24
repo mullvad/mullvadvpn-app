@@ -44,17 +44,17 @@ const StyledIconButtonIcon = styled(Icon)<{ $variant: IconButtonVariant }>(({ $v
 
     background-color: var(--background);
 
-    &&:not([data-disabled]):hover {
+    &&:not([data-disabled='true']):hover {
       --transition-duration: 0s;
       background-color: var(--hover);
     }
 
-    &&:not([data-disabled]):active {
+    &&:not([data-disabled='true']):active {
       --transition-duration: 0s;
       background-color: var(--pressed);
     }
 
-    &[data-disabled='true'] {
+    &&[data-disabled='true'] {
       background-color: var(--disabled);
     }
   `;
