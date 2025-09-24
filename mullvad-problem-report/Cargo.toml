@@ -11,7 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
-dirs = "5.0.1"
+dirs = { workspace = true }
 thiserror = { workspace = true }
 log = { workspace = true }
 regex = "1.0"

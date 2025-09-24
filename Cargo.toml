@@ -83,6 +83,7 @@ undocumented_unsafe_blocks = "warn"
 implicit_clone = "warn"
 
 [workspace.dependencies]
+dirs = "6.0.0"
 tokio = { version = "1.44" }
 tokio-util = "0.7"
 parity-tokio-ipc = "0.9"

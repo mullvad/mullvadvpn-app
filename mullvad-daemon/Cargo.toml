@@ -80,7 +80,7 @@ talpid-macos = { path = "../talpid-macos" }
 ctrlc = "3.0"
 windows-service = "0.6.0"
 winapi = { version = "0.3", features = ["winnt", "excpt", "winerror"] }
-dirs = "5.0.1"
+dirs = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
