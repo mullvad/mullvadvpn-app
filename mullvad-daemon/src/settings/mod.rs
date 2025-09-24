@@ -236,7 +236,7 @@ impl SettingsPersister {
         Ok(())
     }
 
-    /// Resets default settings
+    /// Resets to default settings
     pub async fn reset(&mut self) -> Result<(), Error> {
         self.settings = Self::default_settings();
         let path = self.path.clone();

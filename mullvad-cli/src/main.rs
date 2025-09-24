@@ -129,7 +129,16 @@ enum Cli {
     },
 
     /// Reset settings, caches, and logs
-    FactoryReset,
+    FactoryReset {
+        #[clap(long, short = 'y', default_value_t = false)]
+        assume_yes: bool,
+    },
+
+    /// Reset settings only, but remain logged in and keep logs and caches
+    ResetSettings {
+        #[clap(long, short = 'y', default_value_t = false)]
+        assume_yes: bool,
+    },
 
     /// Manage custom lists
     #[clap(subcommand)]
@@ -173,7 +182,8 @@ async fn main() -> Result<()> {
         Cli::Obfuscation(cmd) => cmd.handle().await,
         Cli::ApiAccess(cmd) => cmd.handle().await,
         Cli::Version => version::print().await,
-        Cli::FactoryReset => reset::handle().await,
+        Cli::FactoryReset { assume_yes } => reset::handle_factory_reset(assume_yes).await,
+        Cli::ResetSettings { assume_yes } => reset::handle_settings_reset(assume_yes).await,
         Cli::Relay(cmd) => cmd.handle().await,
         Cli::Tunnel(cmd) => cmd.handle().await,
         Cli::SplitTunnel(cmd) => cmd.handle().await,
