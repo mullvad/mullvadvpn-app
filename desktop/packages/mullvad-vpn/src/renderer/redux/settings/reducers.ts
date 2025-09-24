@@ -79,6 +79,7 @@ export interface IRelayLocationRelayRedux {
   endpointType: RelayEndpointType;
   daita: boolean;
   quic?: Quic;
+  lwo: boolean;
 }
 
 export interface IRelayLocationCityRedux {

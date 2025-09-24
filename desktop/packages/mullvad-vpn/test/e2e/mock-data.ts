@@ -22,6 +22,7 @@ const relayList: IRelayList = {
               owned: true,
               endpointType: 'wireguard',
               daita: true,
+              lwo: true,
             },
             {
               hostname: 'mullvad-wireguard-23',
@@ -33,6 +34,7 @@ const relayList: IRelayList = {
               owned: true,
               endpointType: 'wireguard',
               daita: true,
+              lwo: false,
             },
             {
               hostname: 'another-provider-wireguard-1',
@@ -44,6 +46,7 @@ const relayList: IRelayList = {
               owned: false,
               endpointType: 'wireguard',
               daita: true,
+              lwo: false,
             },
             {
               hostname: 'mullvad-wireguard-quic-1',
@@ -60,6 +63,7 @@ const relayList: IRelayList = {
                 domain: '',
                 token: '',
               },
+              lwo: false,
             },
             {
               hostname: 'mullvad-openvpn-1',
@@ -70,7 +74,8 @@ const relayList: IRelayList = {
               weight: 0,
               owned: true,
               endpointType: 'openvpn',
-              daita: true,
+              daita: false,
+              lwo: false,
             },
           ],
         },
