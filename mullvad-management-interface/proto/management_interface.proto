@@ -744,6 +744,8 @@ message Relay {
       bool daita = 2;
       Quic quic = 3;
       repeated string shadowsocks_extra_addr_in = 4;
+      bool lwo = 5;
+
     }
 
     oneof data {
