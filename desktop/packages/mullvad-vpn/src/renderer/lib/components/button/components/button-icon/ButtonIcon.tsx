@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { Icon, IconProps } from '../../icon';
-import { useButtonContext } from '../ButtonContext';
+import { Icon, IconProps } from '../../../icon';
+import { useButtonContext } from '../../ButtonContext';
 
 type ButtonIconProps = Omit<IconProps, 'size'>;
 
