@@ -270,7 +270,6 @@
     <string name="new_list">Новый список</string>
     <string name="no_custom_lists_available">Нет своих списков</string>
     <string name="no_internet_connection">Нет подключения к Интернету</string>
-    <string name="no_locations_found">Местоположения не найдены</string>
     <string name="no_matching_relay">Нет серверов, соответствующих вашим настройкам. Попробуйте изменить сервер или задайте другие настройки.</string>
     <string name="no_recent_selection">Нет истории недавнего выбора</string>
     <string name="no_wireguard_key">Не найден действительный ключ WireGuard. Управлять ключами можно в дополнительных настройках.</string>

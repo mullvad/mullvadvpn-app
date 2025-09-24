@@ -247,7 +247,6 @@
     <string name="create_new_list">Create new list</string>
     <string name="create_new_account">Create new account</string>
     <string name="create">Create</string>
-    <string name="no_locations_found">No locations found</string>
     <string name="add_locations">Add locations</string>
     <string name="save">Save</string>
     <string name="edit_custom_lists">Edit custom lists</string>
@@ -438,4 +437,6 @@
     <string name="connect_on_start_info_first">Automatically connect on device start-up.</string>
     <string name="connect_on_start_info_second">For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings.</string>
     <string name="open_app_details">Open app details</string>
+    <string name="no_matching_servers_found_first_line">No matching servers found.</string>
+    <string name="no_matching_servers_found_second_line">Please try changing your filters.</string>
 </resources>

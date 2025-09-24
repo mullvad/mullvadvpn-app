@@ -270,7 +270,6 @@
     <string name="new_list">新建列表</string>
     <string name="no_custom_lists_available">有可用的自定义列表</string>
     <string name="no_internet_connection">没有互联网连接</string>
-    <string name="no_locations_found">找不到位置</string>
     <string name="no_matching_relay">没有与您的设置匹配的服务器，请尝试更改服务器或其他设置。</string>
     <string name="no_recent_selection">无最近选择历史记录</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。</string>

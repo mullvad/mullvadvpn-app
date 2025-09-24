@@ -270,7 +270,6 @@
     <string name="new_list">新規リスト</string>
     <string name="no_custom_lists_available">利用可能なカスタムリストはありません</string>
     <string name="no_internet_connection">インターネット接続がありません</string>
-    <string name="no_locations_found">場所が見つかりませんでした</string>
     <string name="no_matching_relay">設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。</string>
     <string name="no_recent_selection">最近の選択履歴はありません</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
