@@ -1,5 +1,5 @@
 import { Page } from 'playwright';
 
 export const createSelectors = (page: Page) => ({
-  enableDaitaSwitch: () => page.getByLabel('Enable'),
+  enableDaitaSwitch: () => page.getByRole('switch', { name: 'Enable' }),
 });
