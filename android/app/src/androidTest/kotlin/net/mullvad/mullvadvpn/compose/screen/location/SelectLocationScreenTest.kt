@@ -293,7 +293,7 @@ class SelectLocationScreenTest {
             onNodeWithText(customList.relay.name).performLongClick()
 
             // Assert
-            onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
+            onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG).assertExists()
         }
 
     @Test
@@ -337,7 +337,7 @@ class SelectLocationScreenTest {
             onNodeWithText(relayItem.relay.name).performLongClick()
 
             // Assert
-            onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
+            onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG).assertExists()
         }
 
     companion object {

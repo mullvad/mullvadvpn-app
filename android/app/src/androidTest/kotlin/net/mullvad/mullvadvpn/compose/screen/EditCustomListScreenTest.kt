@@ -84,7 +84,7 @@ class EditCustomListScreenTest {
             )
 
             // Assert
-            onNodeWithText(customList.name.value)
+            onNodeWithText(customList.name.value).assertExists()
         }
 
     @Test
@@ -102,7 +102,7 @@ class EditCustomListScreenTest {
             )
 
             // Assert
-            onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size))
+            onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size)).assertExists()
         }
 
     @Test
