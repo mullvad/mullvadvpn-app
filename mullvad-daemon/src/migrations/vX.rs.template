@@ -39,4 +39,15 @@ mod test {
     use super::{migrate, version_matches};
 
     // TODO: Implement tests. Look at other migration modules for inspiration.
-}
+
+    // Step 1: Snapshot the default settings
+    // Step 2: Implement `migrate`
+    // Step 3: Review the updated snapshot with `cargo insta review`. Accept it if it looks good.
+    #[test]
+    fn snapshot_migrated_settings() {
+        let mut settings = serde_json::json!(mullvad_types::settings::Settings::default());
+        // After implementing migrate, uncomment this statement and take a new snapshot.
+        // migrate(&mut settings).unwrap();
+        let settings = serde_json::to_string_pretty(&settings).unwrap();
+        insta::assert_snapshot!(settings);
+    }
