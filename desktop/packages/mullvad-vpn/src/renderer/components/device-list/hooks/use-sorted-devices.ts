@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useSelector } from '../../../../redux/store';
+import { useSelector } from '../../../redux/store';
 
 export const useSortedDevices = () => {
   const devices = useSelector((state) => state.account.devices);
