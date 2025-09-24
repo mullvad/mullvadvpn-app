@@ -20,8 +20,8 @@ export function UpdateAvailableListItem() {
 
   return (
     <ListItem>
-      <ListItem.Item>
-        <ListItem.Trigger onClick={handleClick}>
+      <ListItem.Trigger onClick={handleClick}>
+        <ListItem.Item>
           <ListItem.Content>
             <Flex $flexDirection="column">
               <ListItem.Label>
@@ -37,8 +37,8 @@ export function UpdateAvailableListItem() {
               <Icon icon={isLinux ? 'external' : 'chevron-right'} />
             </ListItem.Group>
           </ListItem.Content>
-        </ListItem.Trigger>
-      </ListItem.Item>
+        </ListItem.Item>
+      </ListItem.Trigger>
     </ListItem>
   );
 }
