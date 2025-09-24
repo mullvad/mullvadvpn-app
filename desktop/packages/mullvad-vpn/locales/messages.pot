@@ -2723,6 +2723,10 @@ msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
 msgstr ""
 
+msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr ""
+
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
 #. the VPN tunnel.
