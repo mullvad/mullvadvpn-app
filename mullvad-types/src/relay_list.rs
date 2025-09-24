@@ -255,6 +255,7 @@ impl PartialEq for Relay {
     ///     #   daita: false,
     ///     #   shadowsocks_extra_addr_in: Default::default(),
     ///     #   quic: None,
+    ///     #   lwo: false,
     ///     # }),
     ///     # location: mullvad_types::location::Location {
     ///     #   country: "Sweden".to_string(),
