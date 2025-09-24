@@ -30,14 +30,3 @@ id = "CVE-2025-55305" # GHSA-vmqv-hx8q-j7mg
 ignoreUntil = 2025-12-04
 reason = "The embeddedAsarIntegrityValidation and onlyLoadAppFromAsar fuses aren't enabled"
 
-# vite: The vulnerable code is only used in development and not in production and requires local system access to exploit.
-[[IgnoredVulns]]
-id = "CVE-2025-58751" # GHSA-g4jq-h2w9-997c
-ignoreUntil = 2025-09-30
-reason = "Fixing requires upgrading vite to a new major version, which will take a few days."
-
-# vite: The vulnerable code is only used in development and not in production and requires local system access to exploit.
-[[IgnoredVulns]]
-id = "CVE-2025-58752" # GHSA-jqfw-vq24-v9c3
-ignoreUntil = 2025-09-30
-reason = "Fixing requires upgrading vite to a new major version, which will take a few days."
