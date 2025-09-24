@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
     config::Config,
@@ -114,6 +116,24 @@ enum Devices {
     },
 }
 
+impl Devices {
+    async fn stop(self) {
+        match self {
+            Devices::Singlehop { device, .. } => {
+                device.stop().await;
+            }
+            Devices::Multihop {
+                entry_device,
+                exit_device,
+                ..
+            } => {
+                exit_device.stop().await;
+                entry_device.stop().await;
+            }
+        }
+    }
+}
+
 #[cfg(target_os = "android")]
 struct AndroidUdpSocketFactory {
     pub tun: Arc<Tun>,
@@ -144,6 +164,7 @@ pub async fn open_boringtun_tunnel(
     config: &Config,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
+    #[cfg(target_os = "android")] gateway_only: bool,
 ) -> super::Result<BoringTun> {
     log::info!("BoringTun::start_tunnel");
     let routes = config.get_tunnel_destinations();
@@ -197,11 +218,19 @@ pub async fn open_boringtun_tunnel(
     log::info!("passing tunnel dev to boringtun");
     let async_tun = Arc::new(async_tun);
 
+    let config = config.clone();
+    #[cfg(target_os = "android")]
+    let config = match gateway_only {
+        // See `wireguard_go` module for why this is needed.
+        true => patch_allowed_ips(config),
+        false => config,
+    };
+
     let boringtun = BoringTun::new(
         async_tun,
         #[cfg(target_os = "android")]
         tun.clone(),
-        config.clone(),
+        config,
         interface_name,
     )
     .await
@@ -358,21 +387,12 @@ impl Tunnel for BoringTun {
     fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
         log::info!("BoringTun::stop"); // remove me
         tokio::runtime::Handle::current().block_on(async {
-            match self.devices.take().unwrap() {
-                Devices::Singlehop { device, .. } => {
-                    device.stop().await;
-                }
-                Devices::Multihop {
-                    entry_device,
-                    exit_device,
-                    ..
-                } => {
-                    exit_device.stop().await;
-                    entry_device.stop().await;
-                }
+            // TODO: devices should never be None while this BoringTun instance is running.
+            debug_assert!(self.devices.is_some());
+            if let Some(devices) = self.devices.take() {
+                devices.stop().await;
             }
         });
-
         Ok(())
     }
 
@@ -422,34 +442,22 @@ impl Tunnel for BoringTun {
         config: Config,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
-            let old_config = std::mem::replace(&mut self.config, config);
-
-            if old_config.is_multihop() != self.config.is_multihop() {
-                // TODO: Update existing tunnels?
-                match self.devices.take().unwrap() {
-                    Devices::Singlehop { device, .. } => {
-                        device.stop().await;
-                    }
-                    Devices::Multihop {
-                        entry_device,
-                        exit_device,
-                        ..
-                    } => {
-                        exit_device.stop().await;
-                        entry_device.stop().await;
-                    }
-                }
-
-                self.devices = Some(
-                    create_devices(
-                        &self.config,
-                        self.tun.clone(),
-                        #[cfg(target_os = "android")]
-                        self.android_tun.clone(),
-                    )
-                    .await?,
-                );
+            let _old_config = std::mem::replace(&mut self.config, config);
+            // TODO: diff with _old_config to see if devices need to be recreated.
+            // TODO: devices should never be None while this BoringTun instance is running.
+            debug_assert!(self.devices.is_some());
+            if let Some(devices) = self.devices.take() {
+                devices.stop().await;
             }
+            self.devices = Some(
+                create_devices(
+                    &self.config,
+                    self.tun.clone(),
+                    #[cfg(target_os = "android")]
+                    self.android_tun.clone(),
+                )
+                .await?,
+            );
             Ok(())
         })
     }
@@ -564,7 +572,7 @@ pub fn get_tunnel_for_userspace(
     tun_config.ipv6_gateway = config.ipv6_gateway;
     tun_config.mtu = config.mtu;
 
-    // Route everything into the tunnel and have wireguard-go act as a firewall when
+    // Route everything into the tunnel and have WireGuard act as a firewall when
     // blocking. These will not necessarily be the actual routes used by android. Those will
     // be generated at a later stage e.g. if Local Network Sharing is enabled.
     tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
