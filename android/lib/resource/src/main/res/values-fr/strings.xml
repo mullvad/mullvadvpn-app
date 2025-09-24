@@ -270,7 +270,6 @@
     <string name="new_list">Nouvelle liste</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>
     <string name="no_internet_connection">Aucune connexion à Internet</string>
-    <string name="no_locations_found">Aucune localisation trouvée</string>
     <string name="no_matching_relay">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
     <string name="no_recent_selection">Aucun historique des sélections récentes</string>
     <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>

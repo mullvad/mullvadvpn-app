@@ -270,7 +270,6 @@
     <string name="new_list">새 목록</string>
     <string name="no_custom_lists_available">이용 가능한 사용자 지정 목록 없음</string>
     <string name="no_internet_connection">인터넷에 연결되지 않음</string>
-    <string name="no_locations_found">위치를 찾을 수 없음</string>
     <string name="no_matching_relay">설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요.</string>
     <string name="no_recent_selection">최근 선택 내역이 없습니다</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>

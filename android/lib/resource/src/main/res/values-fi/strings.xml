@@ -270,7 +270,6 @@
     <string name="new_list">Uusi luettelo</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>
     <string name="no_internet_connection">Ei verkkoyhteyttä</string>
-    <string name="no_locations_found">Sijainteja ei löytynyt</string>
     <string name="no_matching_relay">Mikään palvelin ei vastaa asetuksiasi. Kokeile vaihtaa palvelinta tai muuttaa muita asetuksia.</string>
     <string name="no_recent_selection">Ei viimeisimpien valintojen historiaa</string>
     <string name="no_wireguard_key">Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa.</string>
