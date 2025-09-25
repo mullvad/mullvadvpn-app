@@ -3019,10 +3019,7 @@ impl Daemon {
         enabled: bool,
         access_method: AccessMethod,
     ) {
-        let result = self
-            .add_access_method(name, enabled, access_method)
-            .await
-            .map_err(Error::AccessMethodError);
+        let result = self.add_access_method(name, enabled, access_method).await;
         Self::oneshot_send(tx, result, "add_api_access_method response");
     }
 
@@ -3055,10 +3052,7 @@ impl Daemon {
         tx: ResponseTx<(), Error>,
         method: AccessMethodSetting,
     ) {
-        let result = self
-            .update_access_method(method)
-            .await
-            .map_err(Error::AccessMethodError);
+        let result = self.update_access_method(method).await;
         Self::oneshot_send(tx, result, "update_api_access_method response");
     }
 

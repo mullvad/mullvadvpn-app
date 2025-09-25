@@ -4,6 +4,7 @@ import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers
 import { types as grpcTypes } from 'management-interface';
 
 import {
+  AccessMethodExistsError,
   AccessMethodSetting,
   AccountDataError,
   AccountDataResponse,
@@ -601,16 +602,38 @@ export class DaemonRpc extends GrpcClient {
     }
   }
 
-  public async addApiAccessMethod(method: NewAccessMethodSetting): Promise<string> {
-    const result = await this.call<grpcTypes.NewAccessMethodSetting, grpcTypes.UUID>(
-      this.client.addApiAccessMethod,
-      convertToNewApiAccessMethodSetting(method),
-    );
-    return result.getValue();
+  public async addApiAccessMethod(
+    method: NewAccessMethodSetting,
+  ): Promise<string | AccessMethodExistsError> {
+    try {
+      const result = await this.call<grpcTypes.NewAccessMethodSetting, grpcTypes.UUID>(
+        this.client.addApiAccessMethod,
+        convertToNewApiAccessMethodSetting(method),
+      );
+      return result.getValue();
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      if (error.code === 6) {
+        return { type: 'name already exists' };
+      } else {
+        throw error;
+      }
+    }
   }
 
-  public async updateApiAccessMethod(method: AccessMethodSetting) {
-    await this.call(this.client.updateApiAccessMethod, convertToApiAccessMethodSetting(method));
+  public async updateApiAccessMethod(
+    method: AccessMethodSetting,
+  ): Promise<void | AccessMethodExistsError> {
+    try {
+      await this.call(this.client.updateApiAccessMethod, convertToApiAccessMethodSetting(method));
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      if (error.code === 6) {
+        return { type: 'name already exists' };
+      } else {
+        throw error;
+      }
+    }
   }
 
   public async getCurrentApiAccessMethod() {

@@ -22,7 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-
+### Changed
+- Add validation for API access methods to only allow unique names. Access methods with
+  duplicated names will be renamed.
 
 ## [2025.10-beta1] - 2025-09-16
 ### Added
