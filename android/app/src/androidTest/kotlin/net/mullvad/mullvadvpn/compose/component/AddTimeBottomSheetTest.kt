@@ -2,12 +2,10 @@ package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.unit.Density
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.every
 import io.mockk.mockk

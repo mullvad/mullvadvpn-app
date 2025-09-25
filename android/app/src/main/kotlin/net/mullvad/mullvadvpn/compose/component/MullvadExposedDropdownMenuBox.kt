@@ -38,7 +38,9 @@ fun MullvadExposedDropdownMenuBox(
         modifier = modifier.clickable { expanded = !expanded },
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
             readOnly = true,
             value = title,
             onValueChange = { /* Do nothing */ },
