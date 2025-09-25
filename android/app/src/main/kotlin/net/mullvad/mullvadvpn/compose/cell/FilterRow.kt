@@ -1,10 +1,11 @@
 package net.mullvad.mullvadvpn.compose.cell
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,11 +25,14 @@ import net.mullvad.mullvadvpn.usecase.FilterChip
 @Composable
 private fun PreviewFilterCell() {
     AppTheme {
-        FilterRow(
-            filters = listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)),
-            onRemoveOwnershipFilter = {},
-            onRemoveProviderFilter = {},
-        )
+        Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
+            FilterRow(
+                filters =
+                    listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)),
+                onRemoveOwnershipFilter = {},
+                onRemoveProviderFilter = {},
+            )
+        }
     }
 }
 
@@ -43,11 +47,7 @@ fun FilterRow(
     val scrollState = rememberScrollState()
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier =
-            modifier
-                .padding(horizontal = Dimens.searchFieldHorizontalPadding)
-                .fillMaxWidth()
-                .horizontalScroll(scrollState),
+        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace),
     ) {
         if (showTitle) {
