@@ -49,7 +49,7 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
   - `brew install ios-deploy jq`
 7. Install Homebrew and dependencies
   - `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-  - `brew install xcbeautify wget swiftlint protobuf`
+  - `brew install xcbeautify wget protobuf`
 8. Install Ruby
   - `curl -sSL https://get.rvm.io | bash`
 9. Install Rust and add iOS targets
