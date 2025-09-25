@@ -5833,7 +5833,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./lint.sh\n";
+			shellScript = "./format.sh lint\n";
 		};
 		580E3F222A9861990061809D /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5852,7 +5852,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./lint.sh\n";
+			shellScript = "./format.sh lint\n";
 		};
 		A93969802CE603110032A7A0 /* Import maybenot_machines */ = {
 			isa = PBXShellScriptBuildPhase;
