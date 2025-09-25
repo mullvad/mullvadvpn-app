@@ -270,7 +270,6 @@
     <string name="new_list">Yeni liste</string>
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>
-    <string name="no_locations_found">Konum bulunamadı</string>
     <string name="no_matching_relay">Ayarlarınızla eşleşen sunucu yok. Sunucuyu veya diğer ayarları değiştirmeyi deneyin.</string>
     <string name="no_recent_selection">Son seçim geçmişi yok</string>
     <string name="no_wireguard_key">Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin.</string>

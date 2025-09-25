@@ -270,7 +270,6 @@
     <string name="new_list">Nova lista</string>
     <string name="no_custom_lists_available">Nenhuma lista personalizada disponível</string>
     <string name="no_internet_connection">Sem ligação à internet</string>
-    <string name="no_locations_found">Nenhuma localização encontrada</string>
     <string name="no_matching_relay">Nenhum servidor corresponde às suas definições. Tente alterar o servidor ou outras definições.</string>
     <string name="no_recent_selection">Sem histórico de seleção recente</string>
     <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>

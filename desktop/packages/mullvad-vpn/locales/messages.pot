@@ -3206,7 +3206,7 @@ msgstr ""
 msgid "No internet connection"
 msgstr ""
 
-msgid "No locations found"
+msgid "No matching servers found."
 msgstr ""
 
 msgid "No recent selection history"
@@ -3246,6 +3246,9 @@ msgid "Please enter a valid remote server port"
 msgstr ""
 
 msgid "Please press connect to request VPN permission"
+msgstr ""
+
+msgid "Please try changing your filters."
 msgstr ""
 
 msgid "Privacy"

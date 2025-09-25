@@ -270,7 +270,6 @@
     <string name="new_list">Nieuwe lijst</string>
     <string name="no_custom_lists_available">Geen aangepaste lijsten beschikbaar</string>
     <string name="no_internet_connection">Geen internetverbinding</string>
-    <string name="no_locations_found">Geen locaties gevonden</string>
     <string name="no_matching_relay">Er zijn geen servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
     <string name="no_recent_selection">Geen recente selectiegeschiedenis</string>
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
