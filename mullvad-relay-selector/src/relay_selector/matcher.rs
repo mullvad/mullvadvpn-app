@@ -140,8 +140,8 @@ fn filter_on_obfuscation(
         ObfuscationQuery::Quic => match endpoint_data.quic() {
             Some(quic) => match query.ip_version {
                 Constraint::Any => true,
-                Constraint::Only(IpVersion::V4) => quic.in_ipv4().is_some(),
-                Constraint::Only(IpVersion::V6) => quic.in_ipv6().is_some(),
+                Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
+                Constraint::Only(IpVersion::V6) => quic.in_ipv6().next().is_some(),
             },
             None => false,
         },

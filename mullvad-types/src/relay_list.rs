@@ -165,26 +165,26 @@ impl Quic {
         }
     }
 
-    /// In address as an IPv4 address.
+    /// Return IPv4 in-addresses.
     ///
     /// Use this if you want to connect to the masque-proxy using IPv4.
-    pub fn in_ipv4(&self) -> Option<Ipv4Addr> {
+    pub fn in_ipv4(&self) -> impl Iterator<Item = Ipv4Addr> {
         let ipv4 = |ipaddr: &IpAddr| match ipaddr {
             IpAddr::V4(ipv4_addr) => Some(*ipv4_addr),
             IpAddr::V6(_) => None,
         };
-        self.addr_in.iter().find_map(ipv4)
+        self.addr_in.iter().filter_map(ipv4)
     }
 
-    /// In address as an IPv6 address.
+    /// Return IPv6 in-addresses.
     ///
     /// Use this if you want to connect to the masque-proxy using IPv6.
-    pub fn in_ipv6(&self) -> Option<Ipv6Addr> {
+    pub fn in_ipv6(&self) -> impl Iterator<Item = Ipv6Addr> {
         let ipv6 = |ipaddr: &IpAddr| match ipaddr {
             IpAddr::V4(_) => None,
             IpAddr::V6(ipv6_addr) => Some(*ipv6_addr),
         };
-        self.addr_in.iter().find_map(ipv6)
+        self.addr_in.iter().filter_map(ipv6)
     }
 
     /// Port of the masque-proxy daemon.
