@@ -9,9 +9,8 @@ export interface StartAppResponse {
 
 export interface TestUtils {
   currentRoute: () => Promise<string | null>;
-  waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
   waitForRoute: (route: string) => Promise<void>;
-  waitForNextRoute: () => Promise<string>;
+  waitForRouteChange: (trigger: () => Promise<void> | void) => Promise<string>;
 }
 
 interface History {
@@ -30,9 +29,8 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
 
   const util: TestUtils = {
     currentRoute: currentRouteFactory(app),
-    waitForNavigation: waitForNavigationFactory(app),
     waitForRoute: waitForRouteFactory(app),
-    waitForNextRoute: waitForNextRouteFactory(app),
+    waitForRouteChange: waitForRouteChangeFactory(app),
   };
 
   return { app, page, util };
@@ -60,18 +58,6 @@ const currentRouteFactory = (app: ElectronApplication) => {
   };
 };
 
-const waitForNavigationFactory = (app: ElectronApplication) => {
-  const waitForNextRoute = waitForNextRouteFactory(app);
-  // Wait for navigation animation to finish. A function can be provided that initiates the
-  // navigation, e.g. clicks a button.
-  return async (initiateNavigation?: () => Promise<void> | void) => {
-    // Wait for route to change after optionally initiating the navigation.
-    const [route] = await Promise.all([waitForNextRoute(), initiateNavigation?.()]);
-
-    return route;
-  };
-};
-
 // This factory returns a function which returns a boolean when the route passed to it matches that of the application.
 const waitForRouteFactory = (app: ElectronApplication) => {
   const getCurrentRoute = currentRouteFactory(app);
@@ -88,16 +74,19 @@ const waitForRouteFactory = (app: ElectronApplication) => {
 };
 
 // Returns the route when it changes
-const waitForNextRouteFactory = (app: ElectronApplication) => {
-  return async () =>
-    app.evaluate<string>(
-      ({ ipcMain }) =>
-        new Promise((resolve) => {
-          ipcMain.once('navigation-setHistory', (_event, history: History) => {
-            resolve(history.entries[history.index].pathname);
-          });
-        }),
-    );
+const waitForRouteChangeFactory = (app: ElectronApplication) => {
+  return async (trigger: () => Promise<void> | void): Promise<string> => {
+    const routeChangePromise = await app.evaluate(({ ipcMain }) => ({
+      route: new Promise<string>((resolve) => {
+        ipcMain.once('navigation-setHistory', (_event, history: History) => {
+          resolve(history.entries[history.index].pathname);
+        });
+      }),
+    }));
+
+    await trigger();
+    return routeChangePromise.route;
+  };
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {
