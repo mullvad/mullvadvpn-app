@@ -1,0 +1,29 @@
+{
+  "appteam-desktop": [
+    "building/Dockerfile",
+    "building/linux-container-image.txt",
+    "ci/**",
+    "!ci/buildserver-build-android.sh",
+    "!ci/ios/**",
+    "desktop/**",
+    "installer-downloader/**",
+    "mullvad-*/**",
+    "rustfmt.toml",
+    "rust-toolchain.toml",
+    "talpid-*/**",
+    "test/**",
+    "tunnel-obfuscation/**",
+    "windows/**",
+    "windows-installer/**",
+    "wireguard-go-rs/**"
+  ],
+  "appteam-ios": [
+    "ci/ios/**",
+    "ios/**"
+  ],
+  "appteam-android": [
+    "android/**",
+    "building/android-container-image.txt",
+    "ci/buildserver-build-android.sh"
+  ]
+}
