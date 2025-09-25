@@ -10,6 +10,7 @@ export * from './login';
 export * from './open-vpn-settings';
 export * from './changelog';
 export * from './settings';
+export * from './select-language';
 export * from './shadowsocks-settings';
 export * from './split-tunneling';
 export * from './too-many-devices';

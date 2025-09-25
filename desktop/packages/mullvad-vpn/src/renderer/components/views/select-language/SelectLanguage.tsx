@@ -1,25 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
-import { useAppContext } from '../../renderer/context';
-import { messages } from '../../shared/gettext';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaInputGroup } from './AriaGroup';
-import Selector, { SelectorItem } from './cell/Selector';
-import { CustomScrollbarsRef } from './CustomScrollbars';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaInputGroup } from '../../AriaGroup';
+import Selector, { SelectorItem } from '../../cell/Selector';
+import { CustomScrollbarsRef } from '../../CustomScrollbars';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const StyledSelector = styled(Selector)({
   marginBottom: 0,
 }) as typeof Selector;
 
-export default function SelectLanguage() {
+export function SelectLanguage() {
   const { pop } = useHistory();
   const { preferredLocale, preferredLocalesList, setPreferredLocale } = usePreferredLocale();
   const scrollView = useRef<CustomScrollbarsRef>(null);
