@@ -13,8 +13,6 @@ use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
 #[cfg(all(unix, not(target_os = "android")))]
 use ipnetwork::IpNetwork;
-#[cfg(target_os = "android")]
-use std::borrow::Cow;
 #[cfg(daita)]
 use std::ffi::CString;
 #[cfg(unix)]
