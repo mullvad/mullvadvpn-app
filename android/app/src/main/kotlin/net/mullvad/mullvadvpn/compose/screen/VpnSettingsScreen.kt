@@ -566,7 +566,7 @@ fun VpnSettingsContent(
                             },
                             bodyView = {},
                             background = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            startPadding = Dimens.cellStartPaddingLarge,
+                            startPadding = Dimens.indentedCellStartPadding,
                         )
                     }
 

@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -72,6 +73,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
@@ -311,7 +313,6 @@ fun SearchLocationScreen(
             ) {
                 filterRow(
                     filters = state.contentOrNull()?.filterChips ?: emptyList(),
-                    onBackgroundColor = onBackgroundColor,
                     onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
@@ -336,15 +337,23 @@ fun SearchLocationScreen(
                                 locationBottomSheetState = newSheetState
                             },
                             customListHeader = {
-                                Title(
-                                    text = stringResource(R.string.custom_lists),
-                                    onBackgroundColor = onBackgroundColor,
+                                RelayListHeader(
+                                    content = {
+                                        Text(
+                                            text = stringResource(R.string.custom_lists),
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
                                 )
                             },
                             locationHeader = {
-                                Title(
-                                    text = stringResource(R.string.locations),
-                                    onBackgroundColor = onBackgroundColor,
+                                RelayListHeader(
+                                    content = {
+                                        Text(
+                                            text = stringResource(R.string.locations),
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
                                 )
                             },
                         )
@@ -413,35 +422,18 @@ private fun SearchBar(
 
 private fun LazyListScope.filterRow(
     filters: List<FilterChip>,
-    onBackgroundColor: Color,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
 ) {
     if (filters.isNotEmpty()) {
         item {
-            Title(text = stringResource(R.string.filters), onBackgroundColor = onBackgroundColor)
-        }
-        item {
             FilterRow(
                 filters = filters,
-                showTitle = false,
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
             )
         }
     }
-}
-
-@Composable
-private fun Title(text: String, onBackgroundColor: Color) {
-    Text(
-        text = text,
-        color = onBackgroundColor,
-        modifier =
-            Modifier.fillMaxWidth()
-                .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-        style = MaterialTheme.typography.labelLarge,
-    )
 }
 
 private fun LazyListScope.loading() {

@@ -32,12 +32,11 @@ fun RelayListHeader(
 ) {
     ProvideContentColorTextStyle(
         MaterialTheme.colorScheme.onBackground,
-        MaterialTheme.typography.bodyLarge,
+        MaterialTheme.typography.labelLarge,
     ) {
         Row(
             modifier =
-                Modifier.padding(horizontal = Dimens.tinyPadding)
-                    .defaultMinSize(minHeight = LIST_HEADER_MIN_HEIGHT)
+                Modifier.defaultMinSize(minHeight = LIST_HEADER_MIN_HEIGHT)
                     .height(IntrinsicSize.Min)
                     .then(modifier),
             verticalAlignment = Alignment.CenterVertically,
