@@ -8,18 +8,10 @@ import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
 import { formatAccountNumber } from '../../../lib/account';
 import useActions from '../../../lib/actionsHook';
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  Label,
-  Link,
-  Spinner,
-  Text,
-  TitleMedium,
-} from '../../../lib/components';
+import { Box, Button, Flex, Icon, Spinner, Text, TitleMedium } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { Label } from '../../../lib/components/label';
+import { Link } from '../../../lib/components/link';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { formatHtml } from '../../../lib/html-formatter';
@@ -158,7 +150,7 @@ class Login extends React.Component<IProps, IState> {
               </FlexColumn>
               <Flex $justifyContent="center">
                 <StyledLine $margin={{ vertical: 'small', right: 'small' }} />
-                <Text variant="labelTiny">
+                <Text variant="labelTinySemiBold">
                   {
                     // TRANSLATORS: Text shown between two horizontal lines above the "create account" button.
                     // TRANSLATORS: In this context it is used to separate the users alternative of logging in
@@ -372,7 +364,11 @@ class Login extends React.Component<IProps, IState> {
     return (
       <>
         <Flex $flexDirection="column" $gap="tiny">
-          <Label htmlFor={inputId} variant="labelTiny" color="whiteAlpha60" data-testid="subtitle">
+          <Label
+            htmlFor={inputId}
+            variant="labelTinySemiBold"
+            color="whiteAlpha60"
+            data-testid="subtitle">
             {this.formSubtitle()}
           </Label>
           <form onSubmit={this.onSubmit}>

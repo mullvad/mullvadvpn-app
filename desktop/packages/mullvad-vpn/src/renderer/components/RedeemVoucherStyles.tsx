@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { LabelTiny } from '../lib/components';
+import { LabelTinySemiBold } from '../lib/components';
 import { colors } from '../lib/foundations';
 import { normalText, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
@@ -51,6 +51,6 @@ export const StyledTitle = styled.span(smallText, {
   marginBottom: '5px',
 });
 
-export const StyledAccountNumberInfo = styled(LabelTiny)({
+export const StyledAccountNumberInfo = styled(LabelTinySemiBold)({
   marginTop: '8px',
 });

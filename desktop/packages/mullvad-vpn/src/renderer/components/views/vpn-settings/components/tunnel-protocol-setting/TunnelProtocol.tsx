@@ -98,7 +98,7 @@ export function TunnelProtocolSetting() {
                 { openVpn: strings.openvpn },
               )}{' '}
             </SettingsListbox.Text>
-            <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
+            <ExternalLink variant="labelTinySemiBold" to={urls.removingOpenVpnBlog}>
               <ExternalLink.Text>
                 {sprintf(
                   // TRANSLATORS: Link in tunnel protocol selector footer to blog post

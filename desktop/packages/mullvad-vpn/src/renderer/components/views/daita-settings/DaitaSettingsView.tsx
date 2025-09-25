@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
-import { Button, Flex, Icon, Text } from '../../../lib/components';
+import { Button, Flex, Icon, LabelTiny, LabelTinySemiBold, Text } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
@@ -19,12 +19,16 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import PageSlider from '../../PageSlider';
 import { SettingsToggleListItem } from '../../settings-toggle-list-item';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { useShowDaitaMultihopInfo } from './hooks';
 
-const StyledHeaderSubTitle = styled(HeaderSubTitle)({
-  display: 'inline-block',
-});
+const StyledLabelTinySemiBold = styled(LabelTinySemiBold).attrs({ color: 'whiteAlpha60' })`
+  display: inline-block;
+`;
+
+const StyledLabelTiny = styled(LabelTiny).attrs({ color: 'whiteAlpha60' })`
+  display: inline-block;
+`;
 
 const StyledIllustration = styled.img({
   width: '100%',
@@ -50,7 +54,7 @@ export function DaitaSettingsView() {
                 {showDaitaMultihopInfo && (
                   <Flex $gap="small" $alignItems="center">
                     <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
-                    <Text variant="labelTiny" color="whiteAlpha60">
+                    <Text variant="labelTinySemiBold" color="whiteAlpha60">
                       {messages.pgettext(
                         'wireguard-settings-view',
                         'Multihop is being used to enable DAITA for your selected location',
@@ -65,7 +69,7 @@ export function DaitaSettingsView() {
                         src={`${PATH_PREFIX}assets/images/daita-off-illustration.svg`}
                       />
                       <Flex $flexDirection="column" $gap="medium">
-                        <StyledHeaderSubTitle>
+                        <StyledLabelTinySemiBold>
                           {sprintf(
                             messages.pgettext(
                               // TRANSLATORS: Information to the user that with this setting enabled
@@ -76,8 +80,8 @@ export function DaitaSettingsView() {
                             ),
                             { wireguard: strings.wireguard },
                           )}
-                        </StyledHeaderSubTitle>
-                        <StyledHeaderSubTitle>
+                        </StyledLabelTinySemiBold>
+                        <StyledLabelTiny>
                           {sprintf(
                             messages.pgettext(
                               // TRANSLATORS: Information to the user what the DAITA setting does.
@@ -89,14 +93,14 @@ export function DaitaSettingsView() {
                             ),
                             { daita: strings.daita, daitaFull: strings.daitaFull },
                           )}
-                        </StyledHeaderSubTitle>
-                        <StyledHeaderSubTitle>
+                        </StyledLabelTiny>
+                        <StyledLabelTiny>
                           {messages.pgettext(
                             // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
                             'wireguard-settings-view',
                             'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
                           )}
-                        </StyledHeaderSubTitle>
+                        </StyledLabelTiny>
                       </Flex>
                     </React.Fragment>,
                     <React.Fragment key="with-daita">
@@ -104,7 +108,7 @@ export function DaitaSettingsView() {
                         src={`${PATH_PREFIX}assets/images/daita-on-illustration.svg`}
                       />
                       <Flex $flexDirection="column" $gap="medium">
-                        <StyledHeaderSubTitle>
+                        <StyledLabelTiny>
                           {sprintf(
                             messages.pgettext(
                               // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
@@ -113,8 +117,8 @@ export function DaitaSettingsView() {
                             ),
                             { daita: strings.daita },
                           )}
-                        </StyledHeaderSubTitle>
-                        <StyledHeaderSubTitle>
+                        </StyledLabelTiny>
+                        <StyledLabelTiny>
                           {sprintf(
                             messages.pgettext(
                               // TRANSLATORS: Information to the user what the DAITA setting does.
@@ -125,8 +129,8 @@ export function DaitaSettingsView() {
                             ),
                             { daita: strings.daita },
                           )}
-                        </StyledHeaderSubTitle>
-                        <StyledHeaderSubTitle>
+                        </StyledLabelTiny>
+                        <StyledLabelTiny>
                           {sprintf(
                             messages.pgettext(
                               // TRANSLATORS: Information to the user that DAITA is not available
@@ -140,7 +144,7 @@ export function DaitaSettingsView() {
                             ),
                             { daita: strings.daita },
                           )}
-                        </StyledHeaderSubTitle>
+                        </StyledLabelTiny>
                       </Flex>
                     </React.Fragment>,
                   ]}

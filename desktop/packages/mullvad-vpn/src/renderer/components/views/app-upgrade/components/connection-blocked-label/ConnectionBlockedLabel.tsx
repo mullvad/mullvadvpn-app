@@ -1,12 +1,12 @@
 import { messages } from '../../../../../../shared/gettext';
-import { Flex, LabelTiny } from '../../../../../lib/components';
+import { Flex, LabelTinySemiBold } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 
 export function ConnectionBlockedLabel() {
   return (
     <Flex $gap="small" $alignItems="baseline">
       <Dot size="small" variant="error" />
-      <LabelTiny>
+      <LabelTinySemiBold>
         {
           // TRANSLATORS: Label displayed when an error occurred due to the connection being blocked
           messages.pgettext(
@@ -14,7 +14,7 @@ export function ConnectionBlockedLabel() {
             'Connection blocked. Try changing server or other settings.',
           )
         }
-      </LabelTiny>
+      </LabelTinySemiBold>
     </Flex>
   );
 }

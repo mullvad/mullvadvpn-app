@@ -1,4 +1,4 @@
-import { Flex, Icon, LabelTiny } from '../../../../../../../lib/components';
+import { Flex, Icon, LabelTinySemiBold } from '../../../../../../../lib/components';
 import { DownloadProgress } from '../../../download-progress';
 import { ManualDownloadLink, ReportProblemButton, RetryButton } from './components';
 import { useMessage, useShowManualDownloadLink } from './hooks';
@@ -15,7 +15,7 @@ export function ErrorFooter() {
             <Icon size="small" icon="alert-circle" color="red" />
           </div>
           <Flex $flexDirection="column">
-            <LabelTiny>{message}</LabelTiny>
+            <LabelTinySemiBold>{message}</LabelTinySemiBold>
           </Flex>
         </Flex>
         <DownloadProgress />

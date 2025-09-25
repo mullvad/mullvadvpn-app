@@ -74,7 +74,7 @@ export function ObfuscationSettings() {
               <SettingsListbox.SplitOption.Label>
                 {messages.pgettext('wireguard-settings-view', 'Shadowsocks')}
               </SettingsListbox.SplitOption.Label>
-              <Text variant="labelTiny" color="whiteAlpha60">
+              <Text variant="labelTinySemiBold" color="whiteAlpha60">
                 {sprintf(subLabelTemplate, {
                   port: formatPortForSubLabel(obfuscationSettings.shadowsocksSettings.port),
                 })}
@@ -92,7 +92,7 @@ export function ObfuscationSettings() {
               <SettingsListbox.SplitOption.Label>
                 {messages.pgettext('wireguard-settings-view', 'UDP-over-TCP')}
               </SettingsListbox.SplitOption.Label>
-              <Text variant="labelTiny" color="whiteAlpha60">
+              <Text variant="labelTinySemiBold" color="whiteAlpha60">
                 {sprintf(subLabelTemplate, {
                   port: formatPortForSubLabel(obfuscationSettings.udp2tcpSettings.port),
                 })}

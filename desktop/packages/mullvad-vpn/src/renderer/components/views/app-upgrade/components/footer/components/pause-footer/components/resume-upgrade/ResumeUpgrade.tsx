@@ -1,5 +1,5 @@
 import { messages } from '../../../../../../../../../../shared/gettext';
-import { Flex, LabelTiny } from '../../../../../../../../../lib/components';
+import { Flex, LabelTinySemiBold } from '../../../../../../../../../lib/components';
 import { DownloadProgress } from '../../../../../download-progress';
 import { ResumeButton } from '../../../../../resume-button';
 
@@ -7,12 +7,12 @@ export function ResumeUpgrade() {
   return (
     <Flex $padding="large" $flexDirection="column">
       <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
-        <LabelTiny>
+        <LabelTinySemiBold>
           {
             // TRANSLATORS: Label displayed above a progress bar when the update is verified successfully
             messages.pgettext('app-upgrade-view', 'Download paused')
           }
-        </LabelTiny>
+        </LabelTinySemiBold>
         <DownloadProgress />
       </Flex>
       <Flex $flexDirection="column">

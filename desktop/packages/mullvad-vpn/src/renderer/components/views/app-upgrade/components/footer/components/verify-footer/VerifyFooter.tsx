@@ -1,5 +1,5 @@
 import { messages } from '../../../../../../../../shared/gettext';
-import { Flex, LabelTiny, Spinner } from '../../../../../../../lib/components';
+import { Flex, LabelTinySemiBold, Spinner } from '../../../../../../../lib/components';
 import { DownloadProgress } from '../../../download-progress';
 import { PauseButton } from '../../../pause-button';
 
@@ -9,12 +9,12 @@ export function VerifyFooter() {
       <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
         <Flex $gap="tiny" $alignItems="center">
           <Spinner size="small" />
-          <LabelTiny>
+          <LabelTinySemiBold>
             {
               // TRANSLATORS: Label displayed above a progress bar when the update is being verified
               messages.pgettext('app-upgrade-view', 'Verifying installer...')
             }
-          </LabelTiny>
+          </LabelTinySemiBold>
         </Flex>
         <DownloadProgress />
       </Flex>

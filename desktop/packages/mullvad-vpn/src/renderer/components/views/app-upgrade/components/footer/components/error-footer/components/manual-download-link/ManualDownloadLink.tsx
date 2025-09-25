@@ -6,7 +6,7 @@ export function ManualDownloadLink() {
   const downloadUrl = useDownloadUrl();
 
   return (
-    <ExternalLink variant="labelTiny" to={downloadUrl}>
+    <ExternalLink variant="labelTinySemiBold" to={downloadUrl}>
       <ExternalLink.Text>
         {
           // TRANSLATORS: Link shown to optionally manually download the update

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Text, TextProps } from '../../typography';
+import { Text, TextProps } from '../../text';
 import { useLinkContext } from '../LinkContext';
 
 export type LinkTextProps = TextProps;
