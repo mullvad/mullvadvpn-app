@@ -65,10 +65,7 @@ struct DeviceManagementView: View {
             "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
         case .tooManyDevices:
             if canLoginNewDevice {
-                """
-                You can now continue logging in on this device.
-                """
-
+                "You can now continue logging in on this device."
             } else {
                 "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
             }
@@ -172,9 +169,7 @@ struct DeviceManagementView: View {
                             .foregroundColor(.mullvadTextPrimary)
                             .opacity(0.6)
                             .font(.mullvadTinySemiBold)
-                            .padding(.bottom, 16.0)
-                    }
-                    )
+                    })
                 }
             )
             Spacer()
@@ -187,14 +182,7 @@ struct DeviceManagementView: View {
                 }
                 .accessibilityIdentifier(AccessibilityIdentifier.continueWithLoginButton)
                 .disabled(!canLoginNewDevice)
-                .padding(
-                    EdgeInsets(
-                        top: UIMetrics.contentLayoutMargins.top,
-                        leading: UIMetrics.contentLayoutMargins.leading,
-                        bottom: UIMetrics.contentLayoutMargins.bottom,
-                        trailing: UIMetrics.contentLayoutMargins.trailing
-                    )
-                )
+                .padding(EdgeInsets(UIMetrics.contentLayoutMargins))
             }
         }
         .mullvadAlert(item: $deviceManagementAlert)

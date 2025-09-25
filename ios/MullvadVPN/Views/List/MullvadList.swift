@@ -40,27 +40,43 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
             List {
                 if let headerView = header?() {
                     headerView
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(UIMetrics.contentHeadingLayoutMargins))
+                        .listRowStyling(insets: EdgeInsets(UIMetrics.contentHeadingLayoutMargins))
                 }
 
+                let lastItem = data.last
                 ForEach(data, id: id) { item in
-                    content(item)
-                        .listRowInsets(.init())
-                        .listRowSeparator(.hidden)
+                    VStack(spacing: 0) {
+                        content(item)
+                        if item != lastItem {
+                            RowSeparator()
+                        }
+                    }
+                    .listRowStyling()
                 }
 
                 if let footerView = footer?() {
                     footerView
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(UIMetrics.contentFooterLayoutMargins))
+                        .listRowStyling(insets: EdgeInsets(UIMetrics.contentFooterLayoutMargins))
                 }
             }
             .listStyle(.plain)
-            .listRowSpacing(UIMetrics.TableView.separatorHeight)
+            .listRowSpacing(.zero)
             .environment(\.defaultMinListRowHeight, 0)
+        }
+    }
+}
+
+extension View {
+    func listRowStyling(
+        background: Color = .clear,
+        separator: Visibility = .hidden,
+        insets: EdgeInsets = .init()
+    ) -> some View {
+        apply {
+            $0
+                .listRowBackground(background)
+                .listRowSeparator(separator)
+                .listRowInsets(insets)
         }
     }
 }
