@@ -412,7 +412,12 @@ fun SelectLocationScreen(
                     ) { filterChips ->
                         if (filterChips.isNotEmpty()) {
                             FilterRow(
-                                modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                                modifier =
+                                    Modifier.padding(
+                                        bottom = Dimens.smallPadding,
+                                        start = Dimens.mediumPadding,
+                                        end = Dimens.mediumPadding,
+                                    ),
                                 filters = filterChips,
                                 onRemoveOwnershipFilter = removeOwnershipFilter,
                                 onRemoveProviderFilter = removeProviderFilter,
@@ -515,8 +520,8 @@ private fun MultihopBar(
         modifier =
             Modifier.fillMaxWidth()
                 .padding(
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
+                    start = Dimens.mediumPadding,
+                    end = Dimens.mediumPadding,
                     bottom = Dimens.smallPadding,
                 )
     ) {
