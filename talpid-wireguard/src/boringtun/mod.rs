@@ -169,7 +169,7 @@ pub async fn open_boringtun_tunnel(
         let _ = routes; // TODO: do we need this?
         // See `wireguard_go` module for why this is needed.
         let config = patch_allowed_ips(config, gateway_only);
-        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
+        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), &config)?;
         let is_new_tunnel = tun.is_new;
 
         // TODO We should also wait for routes before sending any ping / connectivity check
