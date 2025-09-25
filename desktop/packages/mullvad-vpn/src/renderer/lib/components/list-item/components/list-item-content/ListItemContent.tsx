@@ -23,6 +23,8 @@ const StyledFlex = styled(Flex)<{
       height: 100%;
       padding-left: ${$paddingLeft};
       padding-right: ${spacings.medium};
+      padding-top: ${spacings.tiny};
+      padding-bottom: ${spacings.tiny};
       &&:has(> :last-child:nth-child(1)) {
         &&:has(img) {
           justify-content: center;
