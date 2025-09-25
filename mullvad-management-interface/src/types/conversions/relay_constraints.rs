@@ -65,7 +65,7 @@ impl TryFrom<&proto::OpenvpnConstraints> for mullvad_types::relay_constraints::O
 
         Ok(mullvad_constraints::OpenVpnConstraints {
             port: Constraint::from(match &constraints.port {
-                Some(port) => Some(mullvad_constraints::TransportPort::try_from(port.clone())?),
+                Some(port) => Some(mullvad_constraints::TransportPort::try_from(*port)?),
                 None => None,
             }),
         })
