@@ -17,6 +17,10 @@ const StyledDeviceLabel = styled(FootnoteMini)({
   textOverflow: 'ellipsis',
 });
 
+const StyledFlex = styled(Flex)({
+  width: '100%',
+});
+
 export const AppMainHeaderDeviceInfo = () => {
   const deviceName = useSelector((state) => state.account.deviceName);
   const accountExpiry = useSelector((state) => state.account.expiry);
@@ -28,7 +32,7 @@ export const AppMainHeaderDeviceInfo = () => {
       : '';
 
   return (
-    <Flex $gap="large" $margin={{ top: 'tiny' }}>
+    <StyledFlex $gap="large" $margin={{ top: 'tiny' }}>
       <StyledDeviceLabel color="whiteAlpha80">
         {sprintf(
           // TRANSLATORS: A label that will display the newly created device name to inform the user
@@ -48,6 +52,6 @@ export const AppMainHeaderDeviceInfo = () => {
           })}
         </StyledTimeLeftLabel>
       )}
-    </Flex>
+    </StyledFlex>
   );
 };
