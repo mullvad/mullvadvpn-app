@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run swift format lint
-        run: ./lint.sh -s
+        run: ./format.sh lint -s
         working-directory: ios
 
   ui-test-build:
