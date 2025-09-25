@@ -108,29 +108,33 @@ class SetupAccountCompletedContentView: UIView {
         buttonsStackView.addArrangedSubview(startButton)
 
         scrollView.addConstrainedSubviews([textsStackView]) {
-            textsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .leading(0),
-                .trailing(0),
-            ]))
+            textsStackView.pinEdgesToSuperviewMargins(
+                PinnableEdges([
+                    .leading(0),
+                    .trailing(0),
+                ]))
 
-            textsStackView.pinEdgesToSuperview(PinnableEdges([
-                .top(0),
-                .bottom(0),
-            ]))
+            textsStackView.pinEdgesToSuperview(
+                PinnableEdges([
+                    .top(0),
+                    .bottom(0),
+                ]))
         }
 
         addConstrainedSubviews([scrollView, buttonsStackView]) {
-            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .top(UIMetrics.contentLayoutMargins.top),
-                .leading(0),
-                .trailing(0),
-            ]))
+            scrollView.pinEdgesToSuperviewMargins(
+                PinnableEdges([
+                    .top(UIMetrics.contentLayoutMargins.top),
+                    .leading(0),
+                    .trailing(0),
+                ]))
 
-            buttonsStackView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .leading(UIMetrics.padding8),
-                .trailing(UIMetrics.padding8),
-                .bottom(UIMetrics.contentLayoutMargins.bottom),
-            ]))
+            buttonsStackView.pinEdgesToSuperviewMargins(
+                PinnableEdges([
+                    .leading(UIMetrics.padding8),
+                    .trailing(UIMetrics.padding8),
+                    .bottom(UIMetrics.contentLayoutMargins.bottom),
+                ]))
 
             buttonsStackView.topAnchor.constraint(
                 equalTo: scrollView.bottomAnchor,
