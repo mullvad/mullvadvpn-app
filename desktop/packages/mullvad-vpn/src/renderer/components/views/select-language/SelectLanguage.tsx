@@ -19,7 +19,7 @@ const StyledSelector = styled(Selector)({
   marginBottom: 0,
 }) as typeof Selector;
 
-export function SelectLanguage() {
+export function SelectLanguageView() {
   const { pop } = useHistory();
   const { preferredLocale, preferredLocalesList, setPreferredLocale } = usePreferredLocale();
   const scrollView = useRef<CustomScrollbarsRef>(null);
