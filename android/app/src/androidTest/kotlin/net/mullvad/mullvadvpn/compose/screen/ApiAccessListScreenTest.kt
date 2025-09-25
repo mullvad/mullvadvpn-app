@@ -48,7 +48,7 @@ class ApiAccessListScreenTest {
             )
 
             // Assert
-            onNodeWithText("Current: ${currentApiAccessMethod.name}")
+            onNodeWithText("Current: ${currentApiAccessMethod.name}").assertExists()
         }
 
     @Test
@@ -61,8 +61,8 @@ class ApiAccessListScreenTest {
             )
 
             // Assert
-            onNodeWithText(apiAccessMethod.name.value)
-            onNodeWithText("On")
+            onNodeWithText(apiAccessMethod.name.value).assertExists()
+            onNodeWithText("On").assertExists()
         }
 
     @Test

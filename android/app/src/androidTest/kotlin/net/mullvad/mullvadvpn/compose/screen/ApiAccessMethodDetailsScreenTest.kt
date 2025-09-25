@@ -89,7 +89,7 @@ class ApiAccessMethodDetailsScreenTest {
             onNodeWithText("Enable method").performClick()
 
             // Assert
-            onNodeWithText("At least one method needs to be enabled")
+            onNodeWithText("At least one method needs to be enabled").assertExists()
             verify(exactly = 0) { onEnableClicked(any()) }
         }
 
