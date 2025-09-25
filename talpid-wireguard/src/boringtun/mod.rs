@@ -1,6 +1,8 @@
+#[cfg(target_os = "android")]
+use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
-    config::{Config, patch_allowed_ips},
+    config::Config,
     stats::{Stats, StatsMap},
 };
 #[cfg(target_os = "android")]
