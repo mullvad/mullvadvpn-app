@@ -141,6 +141,7 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
                             daita,
                             shadowsocks_extra_addr_in,
                             quic,
+                            lwo: data.lwo,
                         })
                     }
                     MullvadEndpointData::Bridge => Data::Bridge(Bridge {}),
@@ -306,6 +307,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
                         public_key,
                         daita,
                         quic,
+                        lwo: wireguard.lwo,
                         shadowsocks_extra_addr_in,
                     };
                     MullvadEndpointData::Wireguard(data)

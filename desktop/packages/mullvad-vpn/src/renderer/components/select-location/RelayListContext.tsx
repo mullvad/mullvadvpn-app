@@ -10,6 +10,7 @@ import {
   filterLocations,
   filterLocationsByDaita,
   filterLocationsByEndPointType,
+  filterLocationsByLwo,
   filterLocationsByQuic,
   getLocationsExpandedBySearch,
   searchForLocations,
@@ -76,6 +77,9 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const quic = useSelector(
     (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
   );
+  const lwo = useSelector(
+    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.lwo,
+  );
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
@@ -113,12 +117,16 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       ipVersion,
     );
   }, [quic, relayListForDaita, locationType, tunnelProtocol, multihop, ipVersion]);
+  // Only show relays that have LWO endpoints when LWO is enabled.
+  const relayListForLwo = useMemo(() => {
+    return filterLocationsByLwo(relayListForQuic, lwo, tunnelProtocol, locationType, multihop);
+  }, [lwo, relayListForQuic, locationType, tunnelProtocol, multihop]);
 
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers
   const relayListForFilters = useMemo(() => {
-    return filterLocations(relayListForQuic, relaySettings?.ownership, relaySettings?.providers);
-  }, [relaySettings?.ownership, relaySettings?.providers, relayListForQuic]);
+    return filterLocations(relayListForLwo, relaySettings?.ownership, relaySettings?.providers);
+  }, [relaySettings?.ownership, relaySettings?.providers, relayListForLwo]);
 
   // Filters the relays based on the provided search term
   const relayListForSearch = useMemo(() => {

@@ -77,6 +77,13 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
     option: { name: 'Obfuscation', type: 'listbox' },
   },
   {
+    testId: 'LWO',
+    featureIndicator: FeatureIndicator.lwo,
+    route: RoutePath.wireguardSettings,
+    featureIndicatorLabel: 'Obfuscation',
+    option: { name: 'Obfuscation', type: 'listbox' },
+  },
+  {
     testId: 'multihop',
     featureIndicator: FeatureIndicator.multihop,
     route: RoutePath.multihopSettings,

@@ -74,6 +74,7 @@ pub enum FeatureIndicator {
     Udp2Tcp,
     Shadowsocks,
     Quic,
+    Lwo,
     LanSharing,
     DnsContentBlockers,
     CustomDns,
@@ -101,6 +102,7 @@ impl FeatureIndicator {
             FeatureIndicator::Udp2Tcp => "Udp2Tcp",
             FeatureIndicator::Shadowsocks => "Shadowsocks",
             FeatureIndicator::Quic => "Quic",
+            FeatureIndicator::Lwo => "LWO",
             FeatureIndicator::LanSharing => "LAN Sharing",
             FeatureIndicator::DnsContentBlockers => "Dns Content Blocker",
             FeatureIndicator::CustomDns => "Custom Dns",
@@ -181,6 +183,7 @@ pub fn compute_feature_indicators(
             let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
             let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
             let quic = has_obfuscation(ObfuscationType::Quic);
+            let lwo = has_obfuscation(ObfuscationType::Lwo);
 
             let mtu = settings.tunnel_options.wireguard.mtu.is_some();
 
@@ -212,6 +215,7 @@ pub fn compute_feature_indicators(
                 (udp_tcp, FeatureIndicator::Udp2Tcp),
                 (shadowsocks, FeatureIndicator::Shadowsocks),
                 (quic, FeatureIndicator::Quic),
+                (lwo, FeatureIndicator::Lwo),
                 (mtu, FeatureIndicator::CustomMtu),
                 #[cfg(daita)]
                 (daita, FeatureIndicator::Daita),
@@ -459,6 +463,7 @@ mod tests {
             FeatureIndicator::Udp2Tcp => {}
             FeatureIndicator::Shadowsocks => {}
             FeatureIndicator::Quic => {}
+            FeatureIndicator::Lwo => {}
             FeatureIndicator::LanSharing => {}
             FeatureIndicator::DnsContentBlockers => {}
             FeatureIndicator::CustomDns => {}

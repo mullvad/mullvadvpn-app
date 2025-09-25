@@ -11,6 +11,7 @@ import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import {
   daitaFilterActive,
   filterSpecialLocations,
+  lwoFilterActive,
   quicFilterActive,
 } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
@@ -70,7 +71,11 @@ export default function SelectLocation() {
   const quic = useSelector(
     (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
   );
+  const lwo = useSelector(
+    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.lwo,
+  );
   const showQuicFilter = quicFilterActive(quic, locationType, tunnelProtocol, multihop);
+  const showLwoFilter = lwoFilterActive(lwo, locationType, tunnelProtocol, multihop);
   const showDaitaFilter = daitaFilterActive(
     daita,
     directOnly,
@@ -129,7 +134,11 @@ export default function SelectLocation() {
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
   const showFilters =
-    showOwnershipFilter || showProvidersFilter || showDaitaFilter || showQuicFilter;
+    showOwnershipFilter ||
+    showProvidersFilter ||
+    showDaitaFilter ||
+    showQuicFilter ||
+    showLwoFilter;
   return (
     <BackAction action={onClose}>
       <Layout>
@@ -222,6 +231,23 @@ export default function SelectLocation() {
                                 'Obfuscation: %(obfuscation)s',
                               ),
                               { obfuscation: 'QUIC' },
+                            )}
+                          </FilterChip.Text>
+                        </FilterChip>
+                      )}
+
+                      {showLwoFilter && (
+                        <FilterChip as="div">
+                          <FilterChip.Text>
+                            {sprintf(
+                              // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
+                              // TRANSLATORS: Available placeholders:
+                              // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
+                              messages.pgettext(
+                                'select-location-view',
+                                'Obfuscation: %(obfuscation)s',
+                              ),
+                              { obfuscation: 'LWO' },
                             )}
                           </FilterChip.Text>
                         </FilterChip>

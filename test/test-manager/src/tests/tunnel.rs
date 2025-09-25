@@ -322,6 +322,46 @@ pub async fn test_wireguard_over_quic_ipvx(
     Ok(())
 }
 
+/// Use LWO obfuscation. This tests whether the daemon can connect using LWO.
+/// Note that this doesn't verify that the outgoing traffic looks like http traffic (even though it
+/// doesn't sound too difficult to do?).
+#[duplicate_item(
+      VX     test_wireguard_over_lwo_ipvx;
+    [ V4 ] [ test_wireguard_over_lwo_ipv4 ];
+    [ V6 ] [ test_wireguard_over_lwo_ipv6 ];
+)]
+#[test_function]
+pub async fn test_wireguard_over_lwo_ipvx(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    let ip_version = IpVersion::VX;
+
+    log::info!("Enable QUIC as obfuscation method");
+    let query = RelayQueryBuilder::wireguard()
+        .ip_version(ip_version)
+        .lwo()
+        .build();
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+
+    log::info!("Connect to WireGuard via LWO endpoint");
+    connect_and_wait(&mut mullvad_client).await?;
+
+    // Verify that the device has a Mullvad exit IP
+    let conncheck = geoip_lookup_with_retries(&rpc).await;
+    let mullvad_exit_ip = conncheck
+        .as_ref()
+        .is_ok_and(|am_i_mullvad| am_i_mullvad.mullvad_exit_ip);
+    ensure!(
+        mullvad_exit_ip,
+        "Device is either blocked ❌ or leaking 💦 - {:?}",
+        conncheck,
+    );
+
+    Ok(())
+}
+
 /// Test whether bridge mode works. This fails if:
 /// * No outgoing traffic to the bridge/entry relay is observed from the SUT.
 /// * The conncheck reports an unexpected exit relay.

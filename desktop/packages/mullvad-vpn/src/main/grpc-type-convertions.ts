@@ -133,12 +133,14 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
 
   const daita = wireguard ? wireguard.daita : false;
   const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
+  const lwo = wireguard ? wireguard.lwo : false;
 
   return {
     ...relayObject,
     endpointType,
     daita,
     quic,
+    lwo,
   };
 }
 
@@ -412,6 +414,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.shadowsocks;
     case grpcTypes.FeatureIndicator.QUIC:
       return FeatureIndicator.quic;
+    case grpcTypes.FeatureIndicator.LWO:
+      return FeatureIndicator.lwo;
   }
 }
 
@@ -724,6 +728,9 @@ function convertFromObfuscationSettings(
       break;
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.QUIC:
       selectedObfuscationType = ObfuscationType.quic;
+      break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO:
+      selectedObfuscationType = ObfuscationType.lwo;
       break;
   }
 
