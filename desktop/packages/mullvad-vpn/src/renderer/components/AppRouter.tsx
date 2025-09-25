@@ -35,7 +35,7 @@ import {
   MainView,
   MultihopSettingsView,
   OpenVpnSettingsView,
-  SelectLanguage,
+  SelectLanguageView,
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingView,
@@ -70,7 +70,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
           <Route exact path={RoutePath.account} component={Account} />
           <Route exact path={RoutePath.settings} component={SettingsView} />
-          <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
+          <Route exact path={RoutePath.selectLanguage} component={SelectLanguageView} />
           <Route
             exact
             path={RoutePath.userInterfaceSettings}
