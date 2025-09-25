@@ -1,5 +1,5 @@
-xcode_version = "15.0.1"
-xcode_xip_name = "Xcode_15.0.1.xip"
+xcode_version = "16.4"
+xcode_xip_name = "Xcode_16.4.xip"
 vm_name = "app-build"
 user_name = "admin"
 shared_folder_path = "vm_shared_folder"
