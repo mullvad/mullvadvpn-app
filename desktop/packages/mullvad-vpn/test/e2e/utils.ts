@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { _electron as electron, ElectronApplication, Locator, Page } from 'playwright';
+import { matchPath } from 'react-router';
 
 export interface StartAppResponse {
   app: ElectronApplication;
@@ -64,10 +65,15 @@ const waitForRouteFactory = (app: ElectronApplication) => {
 
   const waitForRoute = async (route: string) => {
     const currentRoute = await getCurrentRoute();
-
-    if (currentRoute !== route) {
-      return waitForRoute(route);
+    if (currentRoute) {
+      const matches = matchPath(currentRoute, {
+        path: route,
+      });
+      if (matches?.isExact) {
+        return;
+      }
     }
+    return waitForRoute(route);
   };
 
   return waitForRoute;
