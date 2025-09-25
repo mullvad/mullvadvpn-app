@@ -106,29 +106,33 @@ class OutOfTimeContentView: UIView {
 
     func setUpSubviews() {
         scrollView.addConstrainedSubviews([topStackView]) {
-            topStackView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .leading(0),
-                .trailing(0),
-            ]))
+            topStackView.pinEdgesToSuperviewMargins(
+                PinnableEdges([
+                    .leading(0),
+                    .trailing(0),
+                ]))
 
-            topStackView.pinEdgesToSuperview(PinnableEdges([
-                .top(0),
-                .bottom(0),
-            ]))
+            topStackView.pinEdgesToSuperview(
+                PinnableEdges([
+                    .top(0),
+                    .bottom(0),
+                ]))
         }
 
         addConstrainedSubviews([scrollView, bottomStackView]) {
-            scrollView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .top(UIMetrics.contentLayoutMargins.top),
-                .leading(0),
-                .trailing(0),
-            ]))
+            scrollView.pinEdgesToSuperviewMargins(
+                PinnableEdges([
+                    .top(UIMetrics.contentLayoutMargins.top),
+                    .leading(0),
+                    .trailing(0),
+                ]))
 
-            bottomStackView.pinEdgesToSuperviewMargins(PinnableEdges([
-                .leading(UIMetrics.padding8),
-                .trailing(UIMetrics.padding8),
-                .bottom(UIMetrics.contentLayoutMargins.bottom),
-            ]))
+            bottomStackView.pinEdgesToSuperviewMargins(
+                PinnableEdges([
+                    .leading(UIMetrics.padding8),
+                    .trailing(UIMetrics.padding8),
+                    .bottom(UIMetrics.contentLayoutMargins.bottom),
+                ]))
 
             bottomStackView.topAnchor.constraint(
                 equalTo: scrollView.bottomAnchor,
