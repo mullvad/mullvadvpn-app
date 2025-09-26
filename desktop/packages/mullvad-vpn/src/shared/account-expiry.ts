@@ -18,6 +18,10 @@ export function closeToExpiry(expiry: DateType, days = 3): boolean {
 }
 
 export function formatDate(date: DateType, locale: string): string {
+  if (window.env.development && locale === 'sv-rö') {
+    locale = 'sv';
+  }
+
   return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(
     new Date(date),
   );
