@@ -221,8 +221,7 @@ private fun RedeemSuccessBody(message: String) {
     Text(
         text = message,
         modifier =
-            Modifier.padding(start = Dimens.smallPadding, top = Dimens.cellTopPadding)
-                .fillMaxWidth(),
+            Modifier.padding(start = Dimens.smallPadding, top = Dimens.smallPadding).fillMaxWidth(),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.labelLarge,
     )

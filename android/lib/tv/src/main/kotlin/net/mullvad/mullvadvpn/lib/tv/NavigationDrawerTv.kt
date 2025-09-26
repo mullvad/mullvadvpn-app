@@ -187,7 +187,7 @@ private fun NavigationDrawerTvHeader(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimens.mullvadLogoTextStartPadding),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.tvMullvadLogoTextStartPadding),
         ) {
             Icon(
                 modifier = Modifier.size(Dimens.mediumIconSize),
@@ -197,7 +197,7 @@ private fun NavigationDrawerTvHeader(
             )
             if (isExpanded) {
                 Icon(
-                    modifier = Modifier.height(Dimens.mullvadLogoTextHeight),
+                    modifier = Modifier.height(Dimens.tvMullvadLogoTextHeight),
                     painter = painterResource(id = R.drawable.logo_text),
                     contentDescription = null, // No meaningful user info or action.
                     tint = Color.Unspecified, // Logo should not be tinted

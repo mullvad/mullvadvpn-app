@@ -49,7 +49,7 @@ fun DnsCell(
         iconView = {
             Icon(
                 modifier =
-                    Modifier.padding(end = Dimens.verticalDividerPadding)
+                    Modifier.padding(end = Dimens.smallPadding)
                         .alpha(
                             when {
                                 isUnreachableLocalDnsWarningVisible ||

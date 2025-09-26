@@ -289,7 +289,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                         top = Dimens.smallPadding,
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.spacingAboveButton,
+                        bottom = Dimens.cellVerticalSpacing,
                     ),
         )
     }
@@ -306,7 +306,7 @@ private fun DeviceListButtonPanel(
             Modifier.padding(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
-                top = Dimens.spacingAboveButton,
+                top = Dimens.mediumPadding,
             )
     ) {
         VariantButton(
