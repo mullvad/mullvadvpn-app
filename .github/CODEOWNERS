@@ -1,6 +1,10 @@
 # Defining who has to review changes to what files.
 # Try to keep the entries sorted alphabetically, so they end up in the same order as
 # they would if you listed the entire repository as a tree.
+#
+# This enforcement is to protect certain important files from being changed without the approval
+# of team leads. For more fine grained code ownership assignments to teams, see
+# `/code-owners.json` and `/.github/workflows/code-owner-approval.yml`.
 
 # Container images used for building the app are owned by respective team leads and tech lead
 /building/android-container-image.txt @faern @albin-mullvad @rawa
@@ -25,6 +29,10 @@
 /.github/workflows/verify-locked-down-signatures.yml @faern @raksooo @pinkisemils @rawa
 /ci/verify-locked-down-signatures.sh @faern @raksooo @pinkisemils @rawa
 /.github/workflows/unicop.yml @faern @raksooo @pinkisemils @rawa
+
+# Our own code ownership mapping and automation must be approved by leads
+/.github/workflows/code-owner-approval.yml @faern @raksooo @pinkisemils @rawa
+/code-owners.json @faern @raksooo @pinkisemils @rawa
 
 # The CODEOWNERS itself must be protected from unauthorized changes,
 # otherwise the protection becomes quite moot.
