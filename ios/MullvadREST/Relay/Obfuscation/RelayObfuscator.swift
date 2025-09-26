@@ -16,7 +16,7 @@ protocol RelayObfuscating {
     func obfuscate() throws -> RelayObfuscation
 }
 
-struct RelayObfuscation {
+public struct RelayObfuscation {
     let allRelays: REST.ServerRelaysResponse
     let obfuscatedRelays: REST.ServerRelaysResponse
     let port: RelayConstraint<UInt16>
@@ -27,13 +27,13 @@ struct RelayObfuscator: RelayObfuscating {
     let relays: REST.ServerRelaysResponse
     let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
-    let obfuscationBypass: any ObfuscationProviding
+//    let obfuscationBypass: any ObfuscationProviding
 
     func obfuscate() -> RelayObfuscation {
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
             connectionAttemptCount: connectionAttemptCount,
-            tunnelSettings: tunnelSettings,
-            obfuscationBypass: obfuscationBypass
+            tunnelSettings: tunnelSettings
+//            obfuscationBypass: obfuscationBypass
         )
 
         return switch obfuscationMethod {

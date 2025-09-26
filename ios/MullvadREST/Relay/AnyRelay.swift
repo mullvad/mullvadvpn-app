@@ -18,6 +18,7 @@ public protocol AnyRelay {
     var active: Bool { get }
     var includeInCountry: Bool { get }
     var daita: Bool? { get }
+    var features: REST.ServerRelay.Features? { get }
 
     func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self
 }

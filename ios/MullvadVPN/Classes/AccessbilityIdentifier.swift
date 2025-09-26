@@ -109,6 +109,7 @@ public enum AccessibilityIdentifier: Equatable {
     case daitaFilterPill
     case obfuscationFilterPill
     case languageCell
+    case multihopEverywhereCell
 
     // Labels
     case accountPageDeviceNameLabel

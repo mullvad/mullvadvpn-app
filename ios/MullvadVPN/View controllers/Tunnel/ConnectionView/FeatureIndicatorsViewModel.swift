@@ -37,14 +37,20 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 DaitaFeature(state: tunnelState, settings: tunnelSettings),
                 QuantumResistanceFeature(state: tunnelState),
                 MultihopFeature(state: tunnelState, settings: tunnelSettings),
-                ObfuscationFeature(settings: tunnelSettings, state: observedState),
+                ObfuscationFeature(settings: tunnelSettings, tunnelState: tunnelState, observedState: observedState),
                 DNSFeature(settings: tunnelSettings),
                 IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
             ]
 
             return features
                 .filter { $0.isEnabled }
-                .map { ChipModel(id: $0.id, name: $0.name) }
+                .map {
+                    if let multihop = $0 as? MultihopFeature {
+                        ChipModel(id: multihop.id, name: multihop.name, isMultihopEverywhere: multihop.isMultihopEverywhere)
+                    } else {
+                        ChipModel(id: $0.id, name: $0.name, isMultihopEverywhere: false)
+                    }
+                }
         default:
             return []
         }

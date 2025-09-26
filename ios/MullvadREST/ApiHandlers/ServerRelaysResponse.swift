@@ -35,6 +35,7 @@ extension REST {
         public let weight: UInt64
         public let includeInCountry: Bool
         public var daita: Bool?
+        public var features: REST.ServerRelay.Features?
 
         public func override(ipv4AddrIn: IPv4Address?) -> Self {
             BridgeRelay(

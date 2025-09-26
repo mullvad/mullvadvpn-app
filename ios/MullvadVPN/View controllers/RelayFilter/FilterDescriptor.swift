@@ -15,7 +15,7 @@ struct FilterDescriptor {
     var isEnabled: Bool {
         // Check if multihop is enabled via settings
         let isMultihopEnabled = settings.tunnelMultihopState.isEnabled
-        let isSmartRoutingEnabled = settings.daita.isAutomaticRouting
+        let multihopEverywhere = settings.multihopEverwhere
 
         /// Closure to check if there are enough relays available for multihoping
         let hasSufficientRelays: () -> Bool = {
@@ -28,7 +28,7 @@ struct FilterDescriptor {
             // Multihop mode requires at least one entry relay, one exit relay,
             // and more than one unique server.
             return hasSufficientRelays()
-        } else if isSmartRoutingEnabled {
+        } else if multihopEverywhere {
             // Smart Routing mode: Enabled only if there is NO daita server in the exit relays
             let isSmartRoutingNeeded = !relayFilterResult.exitRelays.contains { $0.relay.hasDaita }
             return isSmartRoutingNeeded ? hasSufficientRelays() : true

@@ -34,6 +34,10 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
     /// Forces the system to route most traffic through the tunnel
     public var includeAllNetworks: Bool
 
+    /// Enables relay selection to always multhop if needed to find relays compatible
+    /// with user settings and constraints.
+    public var multihopEverwhere: Bool
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
@@ -42,7 +46,8 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         tunnelMultihopState: MultihopState = .off,
         daita: DAITASettings = DAITASettings(),
         localNetworkSharing: Bool = false,
-        includeAllNetworks: Bool = false
+        includeAllNetworks: Bool = false,
+        multihopEverwhere: Bool = true
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -52,6 +57,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.daita = daita
         self.localNetworkSharing = localNetworkSharing
         self.includeAllNetworks = includeAllNetworks
+        self.multihopEverwhere = multihopEverwhere
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {

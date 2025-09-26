@@ -22,13 +22,12 @@ class DAITAInfoView: UIView {
                 String(
                     format: NSLocalizedString(
                         "The entry server for %@ is currently overridden by %@. To select an entry server, " +
-                            "please first enable “%@” or disable “%@“ in the settings.",
+                            "please first disable %@ in the settings.",
                         comment: ""
                     ),
                     NSLocalizedString("multihop", comment: ""),
-                    NSLocalizedString("DAITA", comment: ""),
-                    NSLocalizedString("Direct only", comment: ""),
-                    NSLocalizedString("DAITA", comment: "")
+                    NSLocalizedString("Mullvad S.M.A.R.T. Routing™", comment: ""),
+                    NSLocalizedString("Mullvad S.M.A.R.T. Routing™", comment: "")
                 ),
                 comment: ""
             ),
@@ -47,14 +46,14 @@ class DAITAInfoView: UIView {
         let settingsButton = AppButton(style: .default)
 
         settingsButton.setTitle(
-            String(format: NSLocalizedString("Open %@ settings", comment: ""), NSLocalizedString("DAITA", comment: "")),
+            NSLocalizedString("Open settings", comment: ""),
             for: .normal
         )
 
         return settingsButton
     }()
 
-    var didPressDaitaSettingsButton: (() -> Void)?
+    var didPressSettingsButton: (() -> Void)?
 
     init() {
         super.init(frame: .zero)
@@ -77,6 +76,6 @@ class DAITAInfoView: UIView {
     }
 
     @objc private func didPressButton() {
-        didPressDaitaSettingsButton?()
+        didPressSettingsButton?()
     }
 }

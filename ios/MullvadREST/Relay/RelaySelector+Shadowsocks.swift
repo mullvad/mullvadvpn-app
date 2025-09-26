@@ -50,6 +50,7 @@ extension RelaySelector {
                 location,
                 filterConstraint: filter,
                 daitaEnabled: false,
+                obfuscation: nil,
                 relays: mappedBridges
             )) ?? []
             guard filteredRelays.isEmpty == false else { return relay(from: relaysResponse) }

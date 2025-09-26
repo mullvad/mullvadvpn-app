@@ -60,6 +60,9 @@ struct SettingsViewControllerFactory {
         case .language:
             // Handled separately and presented settings.
             .failed
+        case .multihopEverywhere:
+            // Toggle, only presented in settings view.
+            .failed
         case .vpnSettings:
             makeVPNSettingsViewCoordinator()
         case .problemReport:

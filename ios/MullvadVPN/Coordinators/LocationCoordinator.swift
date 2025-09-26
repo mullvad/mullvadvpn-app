@@ -161,7 +161,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
     }
 
     func navigateToDaitaSettings() {
-        applicationRouter?.present(.daita)
+        applicationRouter?.present(.settings(nil))
     }
 
     func didSelectExitRelays(_ relays: UserSelectedRelays) {

@@ -127,9 +127,6 @@
         }
       }
     },
-    "%@: Multihop" : {
-
-    },
     "%d more..." : {
       "localizations" : {
         "de" : {
@@ -262,6 +259,7 @@
 
     },
     "Account deletion" : {
+
     },
     "Account number" : {
       "localizations" : {
@@ -725,16 +723,6 @@
     },
     "Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." : {
 
-    },
-    "By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server."
-          }
-        }
-      }
     },
     "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." : {
       "localizations" : {
@@ -1282,6 +1270,7 @@
 
     },
     "Delete Account" : {
+
     },
     "Delete list" : {
       "localizations" : {
@@ -1328,6 +1317,7 @@
       }
     },
     "Deleting account..." : {
+
     },
     "Device is inactive" : {
       "localizations" : {
@@ -2469,6 +2459,7 @@
       }
     },
     "Last four digits of the account number are incorrect" : {
+
     },
     "Last used account" : {
 
@@ -2684,6 +2675,9 @@
 
     },
     "Mullvad bridges" : {
+
+    },
+    "Mullvad S.M.A.R.T. Routing™" : {
 
     },
     "multihop" : {
@@ -3034,7 +3028,7 @@
         }
       }
     },
-    "Open %@ settings" : {
+    "Open settings" : {
 
     },
     "Optional" : {
@@ -4111,12 +4105,12 @@
     "The entry and exit servers cannot be the same. Try changing one to a new server or location." : {
 
     },
-    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." : {
+    "The entry server for %@ is currently overridden by %@. To select an entry server, please first disable %@ in the settings." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings."
+            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first disable %3$@ in the settings."
           }
         }
       }

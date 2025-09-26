@@ -14,21 +14,27 @@ struct SinglehopPicker: RelayPicking {
     let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
 
+    func shouldTriggerMultihop(reason: NoRelaysSatisfyingConstraintsReason) -> Bool {
+        guard tunnelSettings.multihopEverwhere else { return false }
+
+        return switch reason {
+        case .noDaitaRelaysFound, .noObfuscatedRelaysFound:
+            true
+        case .filterConstraintNotMatching, .invalidPort, .entryEqualsExit,
+                .multihopInvalidFlow, .noActiveRelaysFound, .relayConstraintNotMatching:
+            false
+        }
+    }
+
     func pick() throws -> SelectedRelays {
         do {
-            return try pick(from: obfuscation.obfuscatedRelays)
-        } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
-            // If DAITA is on, Direct only is off and obfuscation has been ruled out, and no supported relays are found,
-            // we should try to find the nearest available relay that supports DAITA and use it as entry in a multihop selection.
-            if tunnelSettings.daita.isAutomaticRouting {
-                return try MultihopPicker(
-                    obfuscation: obfuscation,
-                    tunnelSettings: tunnelSettings,
-                    connectionAttemptCount: connectionAttemptCount
-                ).pick()
-            } else {
-                throw error
-            }
+            return try pick(from: obfuscation.allRelays)
+        } catch let error as NoRelaysSatisfyingConstraintsError where shouldTriggerMultihop(reason: error.reason) {
+            return try MultihopPicker(
+                obfuscation: obfuscation,
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
+            ).pick()
         }
     }
 
@@ -36,26 +42,18 @@ struct SinglehopPicker: RelayPicking {
         let constraints = tunnelSettings.relayConstraints
         let daitaSettings = tunnelSettings.daita
 
-        // Guarantee that the chosen relay supports selected obfuscation
-        let obfuscationBypass = UnsupportedObfuscationProvider(
-            relayConstraint: constraints.exitLocations,
-            relays: obfuscatedRelays,
-            filterConstraint: constraints.filter,
-            daitaEnabled: daitaSettings.daitaState.isEnabled
-        )
-
         let supportedObfuscation = RelayObfuscator(
             relays: obfuscation.allRelays,
             tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount,
-            obfuscationBypass: obfuscationBypass
+            connectionAttemptCount: connectionAttemptCount
         ).obfuscate()
 
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: tunnelSettings.relayConstraints.exitLocations,
-            in: supportedObfuscation.obfuscatedRelays,
+            in: supportedObfuscation.allRelays,
             filterConstraint: constraints.filter,
-            daitaEnabled: daitaSettings.daitaState.isEnabled
+            daitaEnabled: daitaSettings.daitaState.isEnabled,
+            obfuscation: supportedObfuscation
         )
 
         let match = try findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: true)

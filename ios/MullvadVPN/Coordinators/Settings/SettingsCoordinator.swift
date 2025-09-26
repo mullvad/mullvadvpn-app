@@ -41,6 +41,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// Language route.
     case language
+
+    /// Multihop everywhere toggle, no route.
+    case multihopEverywhere
 }
 
 /// Top-level settings coordinator.

@@ -20,8 +20,8 @@ public struct ObfuscationMethodSelector {
     /// - Note: This method should never return `.automatic`.
     public static func obfuscationMethodBy(
         connectionAttemptCount: UInt,
-        tunnelSettings: LatestTunnelSettings,
-        obfuscationBypass: any ObfuscationProviding
+        tunnelSettings: LatestTunnelSettings
+//        obfuscationBypass: any ObfuscationProviding
     ) -> WireGuardObfuscationState {
         if tunnelSettings.wireGuardObfuscation.state == .automatic {
             let selectedObfuscation: WireGuardObfuscationState = if connectionAttemptCount.isOrdered(
@@ -36,49 +36,49 @@ public struct ObfuscationMethodSelector {
             } else {
                 .off
             }
-            return obfuscationBypass.bypassUnsupportedObfuscation(selectedObfuscation)
+            return selectedObfuscation
         }
         return tunnelSettings.wireGuardObfuscation.state
     }
 }
 
-public struct UnsupportedObfuscationProvider: ObfuscationProviding {
-    let relayConstraint: RelayConstraint<UserSelectedRelays>
-    let relays: REST.ServerRelaysResponse
-    let filterConstraint: RelayConstraint<RelayFilter>
-    let daitaEnabled: Bool
-
-    public init(
-        relayConstraint: RelayConstraint<UserSelectedRelays>,
-        relays: REST.ServerRelaysResponse,
-        filterConstraint: RelayConstraint<RelayFilter>,
-        daitaEnabled: Bool
-    ) {
-        self.relayConstraint = relayConstraint
-        self.relays = relays
-        self.filterConstraint = filterConstraint
-        self.daitaEnabled = daitaEnabled
-    }
-
-    public func bypassUnsupportedObfuscation(_ obfuscation: WireGuardObfuscationState) -> WireGuardObfuscationState {
-        guard obfuscation != .off else { return .off }
-        do {
-            let candidates = try RelaySelector.WireGuard.findCandidates(
-                by: relayConstraint,
-                in: relays,
-                filterConstraint: filterConstraint,
-                daitaEnabled: daitaEnabled
-            )
-            return candidates.isEmpty ? .udpOverTcp : obfuscation
-        } catch {
-            return .udpOverTcp
-        }
-    }
-}
-
-public struct IdentityObfuscationProvider: ObfuscationProviding {
-    public init() {}
-    public func bypassUnsupportedObfuscation(_ obfuscation: WireGuardObfuscationState) -> WireGuardObfuscationState {
-        obfuscation
-    }
-}
+//public struct UnsupportedObfuscationProvider: ObfuscationProviding {
+//    let relayConstraint: RelayConstraint<UserSelectedRelays>
+//    let relays: REST.ServerRelaysResponse
+//    let filterConstraint: RelayConstraint<RelayFilter>
+//    let daitaEnabled: Bool
+//
+//    public init(
+//        relayConstraint: RelayConstraint<UserSelectedRelays>,
+//        relays: REST.ServerRelaysResponse,
+//        filterConstraint: RelayConstraint<RelayFilter>,
+//        daitaEnabled: Bool
+//    ) {
+//        self.relayConstraint = relayConstraint
+//        self.relays = relays
+//        self.filterConstraint = filterConstraint
+//        self.daitaEnabled = daitaEnabled
+//    }
+//
+//    public func bypassUnsupportedObfuscation(_ obfuscation: WireGuardObfuscationState) -> WireGuardObfuscationState {
+//        guard obfuscation != .off else { return .off }
+//        do {
+//            let candidates = try RelaySelector.WireGuard.findCandidates(
+//                by: relayConstraint,
+//                in: relays,
+//                filterConstraint: filterConstraint,
+//                daitaEnabled: daitaEnabled
+//            )
+//            return candidates.isEmpty ? .udpOverTcp : obfuscation
+//        } catch {
+//            return .udpOverTcp
+//        }
+//    }
+//}
+//
+//public struct IdentityObfuscationProvider: ObfuscationProviding {
+//    public init() {}
+//    public func bypassUnsupportedObfuscation(_ obfuscation: WireGuardObfuscationState) -> WireGuardObfuscationState {
+//        obfuscation
+//    }
+//}

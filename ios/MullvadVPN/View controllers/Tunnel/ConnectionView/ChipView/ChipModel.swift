@@ -12,4 +12,5 @@ import SwiftUI
 struct ChipModel: Identifiable {
     var id: FeatureType
     let name: String
+    let isMultihopEverywhere: Bool
 }

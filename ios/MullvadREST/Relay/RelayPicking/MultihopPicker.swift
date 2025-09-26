@@ -18,37 +18,24 @@ struct MultihopPicker: RelayPicking {
         let constraints = tunnelSettings.relayConstraints
         let daitaSettings = tunnelSettings.daita
 
-        // Guarantee that the entry relay supports selected obfuscation
-        let obfuscationBypass = UnsupportedObfuscationProvider(
-            relayConstraint: constraints.entryLocations,
-            relays: obfuscation.obfuscatedRelays,
-            filterConstraint: constraints.filter,
-            daitaEnabled: daitaSettings.daitaState.isEnabled
-        )
-
-        let supportedObfuscation = RelayObfuscator(
-            relays: obfuscation.allRelays,
-            tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount,
-            obfuscationBypass: obfuscationBypass
-        ).obfuscate()
-
         let entryCandidates = try RelaySelector.WireGuard.findCandidates(
-            by: daitaSettings.isAutomaticRouting ? .any : constraints.entryLocations,
-            in: supportedObfuscation.obfuscatedRelays,
+            by: tunnelSettings.multihopEverwhere ? .any : constraints.entryLocations,
+            in: obfuscation.allRelays,
             filterConstraint: constraints.filter,
-            daitaEnabled: daitaSettings.daitaState.isEnabled
+            daitaEnabled: daitaSettings.daitaState.isEnabled,
+            obfuscation: obfuscation
         )
 
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
-            in: supportedObfuscation.allRelays,
+            in: obfuscation.allRelays,
             filterConstraint: constraints.filter,
-            daitaEnabled: false
+            daitaEnabled: false,
+            obfuscation: nil
         )
 
         let picker = MultihopPicker(
-            obfuscation: supportedObfuscation,
+            obfuscation: obfuscation,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount
         )
@@ -79,7 +66,7 @@ struct MultihopPicker: RelayPicking {
         return try decisionFlow.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            daitaAutomaticRouting: daitaSettings.isAutomaticRouting
+            multihopEverywhere: tunnelSettings.multihopEverwhere
         )
     }
 

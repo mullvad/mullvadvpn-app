@@ -37,7 +37,7 @@ struct DaitaFeature: ChipFeature {
         // When multihop is enabled via DAITA without being explicitly enabled
         // by the user, display combined indicator instead.
         state.isMultihop && !settings.tunnelMultihopState.isEnabled
-            ? String(format: NSLocalizedString("%@: Multihop", comment: ""), NSLocalizedString("DAITA", comment: ""))
+            ? String(format: NSLocalizedString("%@", comment: ""), NSLocalizedString("DAITA", comment: ""))
             : NSLocalizedString("DAITA", comment: "")
     }
 }
@@ -63,7 +63,12 @@ struct MultihopFeature: ChipFeature {
     var isEnabled: Bool {
         // Multihop indicator should only be visible when user has explicitly turned on
         // multihop, not when using multihop via DAITA.
-        state.isMultihop && settings.tunnelMultihopState.isEnabled
+//        state.isMultihop && settings.tunnelMultihopState.isEnabled
+        state.isMultihop
+    }
+
+    var isMultihopEverywhere: Bool {
+        state.isMultihop && !settings.tunnelMultihopState.isEnabled
     }
 
     var name: String {
@@ -74,10 +79,11 @@ struct MultihopFeature: ChipFeature {
 struct ObfuscationFeature: ChipFeature {
     let id: FeatureType = .obfuscation
     let settings: LatestTunnelSettings
-    let state: ObservedState
+    let tunnelState: TunnelState
+    let observedState: ObservedState
 
     var actualObfuscationMethod: WireGuardObfuscationState {
-        state.connectionState.map { $0.obfuscationMethod } ?? .off
+        observedState.connectionState.map { $0.obfuscationMethod } ?? .off
     }
 
     var isEnabled: Bool {
@@ -94,7 +100,13 @@ struct ObfuscationFeature: ChipFeature {
         // or a colour/border style or whatever), use the `isAutomatic` field.
         // To say what type of obfuscation it is,
         // we can look at `actualObfuscationMethod`
-        NSLocalizedString("Obfuscation", comment: "")
+        //
+        // When multihop is enabled via obfuscation without being explicitly enabled
+        // by the user, display combined indicator instead.
+        tunnelState.isMultihop && !settings.tunnelMultihopState.isEnabled
+            ? String(format: NSLocalizedString("%@", comment: ""), NSLocalizedString("Obfuscation", comment: ""))
+            : NSLocalizedString("Obfuscation", comment: "")
+
     }
 }
 

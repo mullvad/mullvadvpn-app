@@ -29,7 +29,8 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
                 by: relayConstraints.exitLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
                 filterConstraint: relayConstraints.filter,
-                daitaEnabled: false
+                daitaEnabled: false,
+                obfuscation: nil
             ),
             wireguard: ServerRelaysResponseStubs.sampleRelays.wireguard,
             portConstraint: relayConstraints.port,
@@ -41,7 +42,8 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
                 by: relayConstraints.entryLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
                 filterConstraint: relayConstraints.filter,
-                daitaEnabled: false
+                daitaEnabled: false,
+                obfuscation: nil
             ),
             wireguard: ServerRelaysResponseStubs.sampleRelays.wireguard,
             portConstraint: relayConstraints.port,

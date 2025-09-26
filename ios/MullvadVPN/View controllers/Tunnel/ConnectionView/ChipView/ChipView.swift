@@ -8,6 +8,18 @@
 
 import SwiftUI
 
+struct DashedBorderView: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.clear)
+            .frame(width: 100, height: 100)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [10, 5]))
+            )
+    }
+}
+
 struct ChipView: View {
     let item: ChipModel
     let onPress: (() -> Void)?
@@ -25,10 +37,12 @@ struct ChipView: View {
                 .padding(.vertical, 4)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(
-                            UIColor.primaryColor.color,
-                            lineWidth: borderWidth
-                        )
+                        .strokeBorder(style: StrokeStyle(lineWidth: borderWidth, dash: item.isMultihopEverywhere ? [10, 5] : []))
+                        .foregroundStyle(UIColor.primaryColor.color)
+//                        .stroke(
+//                            UIColor.primaryColor.color,
+//                            lineWidth: borderWidth
+//                        )
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(UIColor.secondaryColor.color)
@@ -41,7 +55,7 @@ struct ChipView: View {
 
 #Preview {
     ZStack {
-        ChipView(item: ChipModel(id: .daita, name: "Example")) {}
+        ChipView(item: ChipModel(id: .daita, name: "Example", isMultihopEverywhere: false)) {}
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(UIColor.secondaryColor.color)

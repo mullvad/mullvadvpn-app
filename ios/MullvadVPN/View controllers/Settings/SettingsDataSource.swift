@@ -13,15 +13,21 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     UITableViewDelegate {
     enum CellReuseIdentifier: String, CaseIterable {
         case basic
+        case toggle
         case changelog
 
         var reusableViewClass: AnyClass {
-            SettingsCell.self
+            switch self {
+            case .toggle:
+                SettingsSwitchCell.self
+            case .basic, .changelog:
+                SettingsCell.self
+            }
         }
 
         var cellStyle: UITableViewCell.CellStyle {
             switch self {
-            case .basic: .default
+            case .basic, .toggle: .default
             case .changelog: .subtitle
             }
         }
@@ -43,6 +49,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     enum Section: String {
         case vpnSettings
+        case multihopEverywhere
         case apiAccess
         case version
         case problemReport
@@ -58,6 +65,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case daita
         case multihop
         case language
+        case multihopEverywhere
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -77,12 +85,15 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .multihopCell
             case .language:
                 .languageCell
+            case .multihopEverywhere:
+                .multihopEverywhereCell
             }
         }
 
         var reuseIdentifier: CellReuseIdentifier {
             switch self {
             case .changelog: .changelog
+            case .multihopEverywhere: .toggle
             default: .basic
             }
         }
@@ -105,6 +116,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             settingsCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
         }
+
+        self.settingsCellFactory.delegate = self
 
         tableView.sectionFooterHeight = 0
         tableView.tableHeaderView = UIView(frame: CGRect(
@@ -181,6 +194,9 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             ], toSection: .vpnSettings)
         }
 
+        snapshot.appendSections([.multihopEverywhere])
+        snapshot.appendItems([.multihopEverywhere])
+
         #if DEBUG
         snapshot.appendSections([.language])
         snapshot.appendItems([.language], toSection: .language)
@@ -194,5 +210,11 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
 
         apply(snapshot)
+    }
+}
+
+extension SettingsDataSource: @preconcurrency SettingsCellEventHandler {
+    func setMultihopEverywhere(_ enabled: Bool) {
+        delegate?.didToggleMutihopEverywhere(enabled: enabled)
     }
 }

@@ -108,7 +108,7 @@ final class LocationViewController: UIViewController {
         dataSource?.setSelectedRelays(selectedRelays)
     }
 
-    func toggleDaitaAutomaticRouting(isEnabled: Bool) {
+    func toggleMultihopEverywhere(isEnabled: Bool) {
         guard isEnabled else {
             daitaInfoView?.removeFromSuperview()
             daitaInfoView = nil
@@ -123,7 +123,7 @@ final class LocationViewController: UIViewController {
         let daitaInfoView = DAITAInfoView()
         self.daitaInfoView = daitaInfoView
 
-        daitaInfoView.didPressDaitaSettingsButton = { [weak self] in
+        daitaInfoView.didPressSettingsButton = { [weak self] in
             self?.delegate?.navigateToDaitaSettings()
         }
 

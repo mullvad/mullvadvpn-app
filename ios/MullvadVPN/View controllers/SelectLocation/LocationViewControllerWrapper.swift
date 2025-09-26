@@ -121,13 +121,13 @@ final class LocationViewControllerWrapper: UIViewController {
 
         let isMultihop = settings.tunnelMultihopState.isEnabled
         let isDirectOnly = settings.daita.isDirectOnly
-        let isAutomaticRouting = settings.daita.isAutomaticRouting
+        let isMultihopEverywhere = settings.multihopEverwhere
         let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
 
         if isMultihop {
-            entryLocationViewController?.setObfuscationChip(isObfuscation && !isAutomaticRouting)
+            entryLocationViewController?.setObfuscationChip(isObfuscation && !isMultihopEverywhere)
             entryLocationViewController?.setDaitaChip(isDirectOnly)
-            entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: isAutomaticRouting)
+            entryLocationViewController?.toggleMultihopEverywhere(isEnabled: isMultihopEverywhere)
         } else {
             segmentedControlView?.isHidden = true
             exitLocationViewController.setObfuscationChip(isObfuscation)

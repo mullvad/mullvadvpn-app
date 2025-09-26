@@ -34,28 +34,28 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
                             text: NSLocalizedString("Enable", comment: ""),
                             accessibilityId: .daitaSwitch
                         )
-                        RowSeparator(edgeInsets: .init(top: 0, leading: 16, bottom: 0, trailing: 16))
-                        SwitchRowView(
-                            isOn: directOnlyIsEnabled,
-                            disabled: !daitaIsEnabled.wrappedValue,
-                            text: NSLocalizedString("Direct only", comment: ""),
-                            accessibilityId: .daitaDirectOnlySwitch
-                        )
+//                        RowSeparator(edgeInsets: .init(top: 0, leading: 16, bottom: 0, trailing: 16))
+//                        SwitchRowView(
+//                            isOn: directOnlyIsEnabled,
+//                            disabled: !daitaIsEnabled.wrappedValue,
+//                            text: NSLocalizedString("Direct only", comment: ""),
+//                            accessibilityId: .daitaDirectOnlySwitch
+//                        )
                     }
 
-                    SettingsRowViewFooter(
-                        text: String(
-                            format:
-                            NSLocalizedString(
-                                "By enabling “%@” you will have to manually select a server that is %@-enabled. " +
-                                    "%@ won't automatically be used to enable DAITA with any server.",
-                                comment: ""
-                            ),
-                            NSLocalizedString("Direct only", comment: ""),
-                            NSLocalizedString("DAITA", comment: ""),
-                            NSLocalizedString("Multihop", comment: "")
-                        )
-                    )
+//                    SettingsRowViewFooter(
+//                        text: String(
+//                            format:
+//                            NSLocalizedString(
+//                                "By enabling “%@” you will have to manually select a server that is %@-enabled. " +
+//                                    "%@ won't automatically be used to enable DAITA with any server.",
+//                                comment: ""
+//                            ),
+//                            NSLocalizedString("Direct only", comment: ""),
+//                            NSLocalizedString("DAITA", comment: ""),
+//                            NSLocalizedString("Multihop", comment: "")
+//                        )
+//                    )
                 }
                 .padding(.leading, UIMetrics.contentInsets.left)
                 .padding(.trailing, UIMetrics.contentInsets.right)

@@ -10,21 +10,21 @@
 import XCTest
 
 final class DAITASettingsTests: XCTestCase {
-    func testIsAutomaticRouting() throws {
-        let settings = DAITASettings()
-
-        XCTAssertEqual(
-            settings.isAutomaticRouting,
-            settings.daitaState == .on && settings.directOnlyState == .off
-        )
-    }
-
-    func testIsDirectOnly() throws {
-        let settings = DAITASettings()
-
-        XCTAssertEqual(
-            settings.isDirectOnly,
-            settings.daitaState == .on && settings.directOnlyState == .on
-        )
-    }
+//    func testIsAutomaticRouting() throws {
+//        let settings = DAITASettings()
+//
+//        XCTAssertEqual(
+//            settings.isAutomaticRouting,
+//            settings.daitaState == .on && settings.directOnlyState == .off
+//        )
+//    }
+//
+//    func testIsDirectOnly() throws {
+//        let settings = DAITASettings()
+//
+//        XCTAssertEqual(
+//            settings.isDirectOnly,
+//            settings.daitaState == .on && settings.directOnlyState == .on
+//        )
+//    }
 }

@@ -65,6 +65,7 @@ public enum RelaySelector {
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
         filterConstraint: RelayConstraint<RelayFilter>,
         daitaEnabled: Bool,
+        obfuscation: RelayObfuscation?,
         relays: [RelayWithLocation<T>]
     ) throws -> [RelayWithLocation<T>] {
         // Filter on various settings and constraints.
@@ -72,6 +73,7 @@ public enum RelaySelector {
         filteredRelays = try filterByFilterConstraint(relays: filteredRelays, constraint: filterConstraint)
         filteredRelays = try filterByLocationConstraint(relays: filteredRelays, constraint: relayConstraint)
         filteredRelays = try filterByDaita(relays: filteredRelays, daitaEnabled: daitaEnabled)
+        filteredRelays = try filterByObfuscation(relays: filteredRelays, obfuscation: obfuscation)
         return filterByCountryInclusion(relays: filteredRelays, constraint: relayConstraint)
     }
 
@@ -171,6 +173,28 @@ public enum RelaySelector {
 
         return if filteredRelays.isEmpty {
             throw NoRelaysSatisfyingConstraintsError(.noDaitaRelaysFound)
+        } else {
+            filteredRelays
+        }
+    }
+
+    private static func filterByObfuscation<T: AnyRelay>(
+        relays: [RelayWithLocation<T>],
+        obfuscation: RelayObfuscation?
+    ) throws -> [RelayWithLocation<T>] {
+        guard let obfuscation, ![.automatic, .off].contains(obfuscation.method) else {
+            return relays
+        }
+
+        let filteredRelays = relays.filter {
+            guard let relay = $0.relay as? REST.ServerRelay else {
+                return false
+            }
+            return obfuscation.obfuscatedRelays.wireguard.relays.contains(relay)
+        }
+
+        return if filteredRelays.isEmpty {
+            throw NoRelaysSatisfyingConstraintsError(.noObfuscatedRelaysFound)
         } else {
             filteredRelays
         }

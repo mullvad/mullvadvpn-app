@@ -50,12 +50,12 @@ class MockFeatureIndicatorsViewModel: ChipViewModelProtocol {
     func onPressed(item: ChipModel) {}
 
     @Published var chips: [ChipModel] = [
-        ChipModel(id: .daita, name: "DAITA"),
-        ChipModel(id: .obfuscation, name: "Obfuscation"),
-        ChipModel(id: .quantumResistance, name: "Quantum resistance"),
-        ChipModel(id: .multihop, name: "Multihop"),
-        ChipModel(id: .dns, name: "DNS content blockers"),
-        ChipModel(id: .dns, name: "Custom DNS"),
-        ChipModel(id: .ipOverrides, name: "Server IP override"),
+        ChipModel(id: .daita, name: "DAITA", isMultihopEverywhere: false),
+        ChipModel(id: .obfuscation, name: "Obfuscation", isMultihopEverywhere: false),
+        ChipModel(id: .quantumResistance, name: "Quantum resistance", isMultihopEverywhere: false),
+        ChipModel(id: .multihop, name: "Multihop", isMultihopEverywhere: false),
+        ChipModel(id: .dns, name: "DNS content blockers", isMultihopEverywhere: false),
+        ChipModel(id: .dns, name: "Custom DNS", isMultihopEverywhere: false),
+        ChipModel(id: .ipOverrides, name: "Server IP override", isMultihopEverywhere: false),
     ]
 }

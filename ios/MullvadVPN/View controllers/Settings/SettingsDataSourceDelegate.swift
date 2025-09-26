@@ -11,4 +11,5 @@ import UIKit
 
 protocol SettingsDataSourceDelegate: AnyObject {
     func didSelectItem(item: SettingsDataSource.Item)
+    func didToggleMutihopEverywhere(enabled: Bool)
 }

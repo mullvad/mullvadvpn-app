@@ -11,7 +11,7 @@ import MullvadREST
 import MullvadSettings
 
 final class SettingsInteractor {
-    private let tunnelManager: TunnelManager
+    private(set) var tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
     var didUpdateSettings: (() -> Void)?
 

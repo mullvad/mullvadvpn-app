@@ -79,6 +79,10 @@ extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
         guard let route = item.navigationRoute else { return }
         delegate?.settingsViewController(self, didRequestRoutePresentation: route)
     }
+
+    func didToggleMutihopEverywhere(enabled: Bool) {
+        interactor.tunnelManager.updateSettings([.multihopEverywhere(enabled)])
+    }
 }
 
 extension SettingsDataSource.Item {
@@ -100,6 +104,8 @@ extension SettingsDataSource.Item {
             .multihop
         case .language:
             .language
+        case .multihopEverywhere:
+            .multihopEverywhere
         }
     }
 }

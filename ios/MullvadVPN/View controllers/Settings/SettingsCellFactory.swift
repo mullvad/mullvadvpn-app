@@ -9,10 +9,15 @@
 import MullvadSettings
 import UIKit
 
+protocol SettingsCellEventHandler {
+    func setMultihopEverywhere(_ enabled: Bool)
+}
+
 @MainActor
 final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
     var viewModel: SettingsViewModel
+    var delegate: SettingsCellEventHandler?
     private let interactor: SettingsInteractor
 
     init(tableView: UITableView, interactor: SettingsInteractor) {
@@ -25,13 +30,26 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
         let cell: UITableViewCell
 
-        cell = tableView
+        cell = switch item.reuseIdentifier {
+        case .basic, .changelog:
+            tableView
             .dequeueReusableCell(
                 withIdentifier: item.reuseIdentifier.rawValue
-            ) ?? SettingsCell(
+            ) ??
+            SettingsCell(
                 style: item.reuseIdentifier.cellStyle,
                 reuseIdentifier: item.reuseIdentifier.rawValue
             )
+        case .toggle:
+            tableView
+                .dequeueReusableCell(
+                    withIdentifier: item.reuseIdentifier.rawValue
+            ) ??
+            SettingsSwitchCell(
+                style: item.reuseIdentifier.cellStyle,
+                reuseIdentifier: item.reuseIdentifier.rawValue
+            )
+        }
 
         // Configure the cell with the common logic
         configureCell(cell, item: item, indexPath: indexPath)
@@ -103,6 +121,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+
         case .language:
             guard let cell = cell as? SettingsCell else { return }
 
@@ -112,6 +131,18 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+
+        case .multihopEverywhere:
+            guard let cell = cell as? SettingsSwitchCell else { return }
+
+            cell.action = { enable in
+                self.delegate?.setMultihopEverywhere(enable)
+            }
+
+            cell.titleLabel.text = NSLocalizedString("Mullvad S.M.A.R.T. Routing™", comment: "")
+            cell.setOn(viewModel.multihopEverywhere, animated: true)
+
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
         }
     }
 }
