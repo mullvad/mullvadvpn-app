@@ -130,7 +130,12 @@ export default function (
       if (status.type === 'ok') {
         if (action.expired) {
           status.expiredState = 'expired';
-        } else if (status.expiredState === 'expired' && !action.expired) {
+        } else if (
+          status.expiredState === 'expired' &&
+          !action.expired &&
+          // Expiry is the same if this is triggered by system time change
+          state.expiry !== action.expiry
+        ) {
           status.expiredState = 'time_added';
         } else {
           status.expiredState = undefined;

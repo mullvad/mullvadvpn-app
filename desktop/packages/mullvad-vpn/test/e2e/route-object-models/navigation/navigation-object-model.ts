@@ -13,12 +13,12 @@ export class NavigationObjectModel {
     this.navigationSelectors = createSelectors(page);
   }
 
-  async goBack() {
-    await this.navigationSelectors.backButton().click();
-    await this.utils.waitForNextRoute();
-  }
-
-  async gotoRoot() {
-    await this.page.press('body', 'Shift+Escape');
+  async goBack(levels = 1) {
+    for (let i = 0; i < levels; i++) {
+      await Promise.all([
+        this.utils.waitForNextRoute(),
+        this.navigationSelectors.backButton().click(),
+      ]);
+    }
   }
 }

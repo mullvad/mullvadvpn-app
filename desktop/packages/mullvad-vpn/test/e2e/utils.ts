@@ -9,7 +9,6 @@ export interface StartAppResponse {
 
 export interface TestUtils {
   currentRoute: () => Promise<string | null>;
-  waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
   waitForRoute: (route: string) => Promise<void>;
   waitForNextRoute: () => Promise<string>;
 }
@@ -30,7 +29,6 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
 
   const util: TestUtils = {
     currentRoute: currentRouteFactory(app),
-    waitForNavigation: waitForNavigationFactory(app),
     waitForRoute: waitForRouteFactory(app),
     waitForNextRoute: waitForNextRouteFactory(app),
   };
@@ -57,18 +55,6 @@ const currentRouteFactory = (app: ElectronApplication) => {
 
       return null;
     });
-  };
-};
-
-const waitForNavigationFactory = (app: ElectronApplication) => {
-  const waitForNextRoute = waitForNextRouteFactory(app);
-  // Wait for navigation animation to finish. A function can be provided that initiates the
-  // navigation, e.g. clicks a button.
-  return async (initiateNavigation?: () => Promise<void> | void) => {
-    // Wait for route to change after optionally initiating the navigation.
-    const [route] = await Promise.all([waitForNextRoute(), initiateNavigation?.()]);
-
-    return route;
   };
 };
 
