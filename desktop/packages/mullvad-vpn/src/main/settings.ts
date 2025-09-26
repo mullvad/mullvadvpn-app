@@ -37,8 +37,8 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetEnableIpv6((enableIpv6) =>
       this.daemonRpc.setEnableIpv6(enableIpv6),
     );
-    IpcMainEventChannel.settings.handleSetBlockWhenDisconnected((blockWhenDisconnected) =>
-      this.daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
+    IpcMainEventChannel.settings.handleSetLockdownMode((lockdownMode) =>
+      this.daemonRpc.setLockdownMode(lockdownMode),
     );
     IpcMainEventChannel.settings.handleSetBridgeState(async (bridgeState) => {
       await this.daemonRpc.setBridgeState(bridgeState);
@@ -158,8 +158,8 @@ export default class Settings implements Readonly<ISettings> {
   public get autoConnect() {
     return this.settingsValue.autoConnect;
   }
-  public get blockWhenDisconnected() {
-    return this.settingsValue.blockWhenDisconnected;
+  public get lockdownMode() {
+    return this.settingsValue.lockdownMode;
   }
   public get showBetaReleases() {
     return this.settingsValue.showBetaReleases;
