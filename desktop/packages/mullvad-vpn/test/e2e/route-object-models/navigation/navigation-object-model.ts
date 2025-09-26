@@ -14,8 +14,7 @@ export class NavigationObjectModel {
   }
 
   async goBack() {
-    await this.navigationSelectors.backButton().click();
-    await this.utils.waitForNextRoute();
+    await this.utils.waitForRouteChange(() => this.navigationSelectors.backButton().click());
   }
 
   async gotoRoot() {
