@@ -14,7 +14,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -23,10 +23,10 @@ test.afterAll(async () => {
 
 async function navigateToSplitTunneling() {
   await page.click('button[aria-label="Settings"]');
-  await util.waitForRoute(RoutePath.settings);
+  await util.expectRoute(RoutePath.settings);
 
   await page.getByText('Split tunneling').click();
-  await util.waitForRoute(RoutePath.splitTunneling);
+  await util.expectRoute(RoutePath.splitTunneling);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Split tunneling');

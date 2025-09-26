@@ -16,7 +16,7 @@ export class WireguardSettingsRouteObjectModel extends NavigationObjectModel {
 
   async gotoUdpOverTcpSettings() {
     await this.selectors.udpOverTcpSettingsButton().click();
-    await this.utils.waitForRoute(RoutePath.udpOverTcp);
+    await this.utils.expectRoute(RoutePath.udpOverTcp);
   }
 
   getAutomaticObfuscationOption() {
