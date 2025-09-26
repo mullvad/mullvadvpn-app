@@ -30,7 +30,8 @@ class MockShadowsocksObfuscationSettingsViewModel: ShadowsocksObfuscationSetting
 class TunnelShadowsocksObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchingObservableObject<
     WireGuardObfuscationShadowsocksPort
 >,
-    ShadowsocksObfuscationSettingsViewModel {
+ShadowsocksObfuscationSettingsViewModel
+{
     init(tunnelManager: TunnelManager) {
         super.init(
             tunnelManager: tunnelManager,

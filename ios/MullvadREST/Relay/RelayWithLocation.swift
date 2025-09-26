@@ -19,13 +19,11 @@ public struct RelayWithLocation<T: AnyRelay & Sendable>: Sendable {
             serverLocation.countryCode == countryCode
 
         case let .city(countryCode, cityCode):
-            serverLocation.countryCode == countryCode &&
-                serverLocation.cityCode == cityCode
+            serverLocation.countryCode == countryCode && serverLocation.cityCode == cityCode
 
         case let .hostname(countryCode, cityCode, hostname):
-            serverLocation.countryCode == countryCode &&
-                serverLocation.cityCode == cityCode &&
-                relay.hostname == hostname
+            serverLocation.countryCode == countryCode && serverLocation.cityCode == cityCode
+                && relay.hostname == hostname
         }
     }
 

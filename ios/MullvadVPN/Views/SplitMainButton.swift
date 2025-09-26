@@ -22,27 +22,34 @@ struct SplitMainButton: View {
 
     var body: some View {
         HStack(spacing: 1) {
-            Button(action: primaryAction, label: {
-                HStack {
-                    Spacer()
-                    Text(text)
-                    Spacer()
+            Button(
+                action: primaryAction,
+                label: {
+                    HStack {
+                        Spacer()
+                        Text(text)
+                        Spacer()
+                    }
+                    .padding(.leading, secondaryButtonSize.width)
+                    .sizeOfView { primaryButtonSize = $0 }
                 }
-                .padding(.leading, secondaryButtonSize.width)
-                .sizeOfView { primaryButtonSize = $0 }
-            })
+            )
             .ifLet(accessibilityId) { view, value in
                 view.accessibilityIdentifier(value.asString)
             }
 
-            Button(action: secondaryAction, label: {
-                Image(image)
-                    .resizable()
-                    .scaledToFit()
-                    .padding(10)
-                    .frame(width: min(max(primaryButtonSize.height, 44), 60), height: max(primaryButtonSize.height, 44))
-                    .sizeOfView { secondaryButtonSize = $0 }
-            })
+            Button(
+                action: secondaryAction,
+                label: {
+                    Image(image)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(10)
+                        .frame(
+                            width: min(max(primaryButtonSize.height, 44), 60), height: max(primaryButtonSize.height, 44)
+                        )
+                        .sizeOfView { secondaryButtonSize = $0 }
+                })
         }
         .buttonStyle(MainButtonStyle(style))
         .cornerRadius(UIMetrics.MainButton.cornerRadius)

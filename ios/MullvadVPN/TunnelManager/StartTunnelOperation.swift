@@ -102,7 +102,8 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     private func makeTunnelProvider(
-        completionHandler: @escaping @Sendable (Result<any TunnelProtocol, Error>)
+        completionHandler:
+            @escaping @Sendable (Result<any TunnelProtocol, Error>)
             -> Void
     ) {
         let persistentTunnels = interactor.getPersistentTunnels()

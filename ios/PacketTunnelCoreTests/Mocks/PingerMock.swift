@@ -9,6 +9,7 @@
 import Foundation
 import MullvadTypes
 import Network
+
 @testable import PacketTunnelCore
 
 /// Ping client mock that can be used to simulate network transmission errors and delays.

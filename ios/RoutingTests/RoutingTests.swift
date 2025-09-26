@@ -6,8 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import Routing
 import XCTest
+
+@testable import Routing
 
 @MainActor
 final class RoutingTests: XCTestCase {

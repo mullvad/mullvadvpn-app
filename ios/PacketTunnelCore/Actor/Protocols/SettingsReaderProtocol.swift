@@ -16,7 +16,7 @@ import Network
 public protocol SettingsReaderProtocol {
     /**
      Read settings from storage.
-
+    
      - Throws: an error thrown by this method is passed down to the implementation of `BlockedStateErrorMapperProtocol`.
      - Returns: `Settings` used to configure packet tunnel adapter.
      */

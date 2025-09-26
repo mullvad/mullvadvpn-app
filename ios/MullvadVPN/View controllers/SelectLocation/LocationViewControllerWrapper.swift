@@ -232,28 +232,29 @@ final class LocationViewControllerWrapper: UIViewController {
         var oldViewController: LocationViewController?
         var newViewController: LocationViewController?
 
-        (selectedRelays, oldViewController, newViewController) = switch multihopContext {
-        case .entry:
-            (
-                RelaySelection(
-                    selected: selectedEntry,
-                    excluded: selectedExit,
-                    excludedTitle: MultihopContext.exit.description
-                ),
-                exitLocationViewController,
-                entryLocationViewController
-            )
-        case .exit:
-            (
-                RelaySelection(
-                    selected: selectedExit,
-                    excluded: settings.tunnelMultihopState.isEnabled ? selectedEntry : nil,
-                    excludedTitle: MultihopContext.entry.description
-                ),
-                entryLocationViewController,
-                exitLocationViewController
-            )
-        }
+        (selectedRelays, oldViewController, newViewController) =
+            switch multihopContext {
+            case .entry:
+                (
+                    RelaySelection(
+                        selected: selectedEntry,
+                        excluded: selectedExit,
+                        excludedTitle: MultihopContext.exit.description
+                    ),
+                    exitLocationViewController,
+                    entryLocationViewController
+                )
+            case .exit:
+                (
+                    RelaySelection(
+                        selected: selectedExit,
+                        excluded: settings.tunnelMultihopState.isEnabled ? selectedEntry : nil,
+                        excludedTitle: MultihopContext.entry.description
+                    ),
+                    entryLocationViewController,
+                    exitLocationViewController
+                )
+            }
         newViewController?.setSelectedRelays(selectedRelays)
         oldViewController?.view.isUserInteractionEnabled = false
         newViewController?.view.isUserInteractionEnabled = true

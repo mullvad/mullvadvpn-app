@@ -135,14 +135,17 @@ class RelayFilterView: UIView {
         case .any:
             return nil
         case .owned, .rented:
-            let title = ownership == .owned
+            let title =
+                ownership == .owned
                 ? RelayFilterDataSourceItem.ownedOwnershipItem.name
                 : RelayFilterDataSourceItem.rentedOwnershipItem.name
-            return ChipConfiguration(group: .filter, title: title, didTapButton: { [weak self] in
-                guard var filter = self?.filter else { return }
-                filter.ownership = .any
-                self?.didUpdateFilter?(filter)
-            })
+            return ChipConfiguration(
+                group: .filter, title: title,
+                didTapButton: { [weak self] in
+                    guard var filter = self?.filter else { return }
+                    filter.ownership = .any
+                    self?.didUpdateFilter?(filter)
+                })
         }
     }
 
@@ -155,24 +158,29 @@ class RelayFilterView: UIView {
                 format: NSLocalizedString("Providers: %d", comment: ""),
                 providerList.count
             )
-            return ChipConfiguration(group: .filter, title: title, didTapButton: { [weak self] in
-                guard var filter = self?.filter else { return }
-                filter.providers = .any
-                self?.didUpdateFilter?(filter)
-            })
+            return ChipConfiguration(
+                group: .filter, title: title,
+                didTapButton: { [weak self] in
+                    guard var filter = self?.filter else { return }
+                    filter.providers = .any
+                    self?.didUpdateFilter?(filter)
+                })
         }
     }
 
     private func observeContentSize() {
-        contentSizeObservation = chipsView.collectionView.observe(\.contentSize, options: [
-            .new,
-            .old,
-        ]) { [weak self] _, change in
+        contentSizeObservation = chipsView.collectionView.observe(
+            \.contentSize,
+            options: [
+                .new,
+                .old,
+            ]
+        ) { [weak self] _, change in
             guard let self, let newSize = change.newValue else { return }
             Task { @MainActor in
                 let height = newSize.height == .zero ? 8 : newSize.height
                 collectionViewHeightConstraint.constant = height > 80 ? 80 : height
-                layoutIfNeeded() // Update the layout
+                layoutIfNeeded()  // Update the layout
             }
         }
     }

@@ -9,7 +9,8 @@
 import MullvadTypes
 
 public func initMullvadShadowsocksBridgeProvider(provider: SwiftShadowsocksBridgeProvider)
-    -> SwiftShadowsocksLoaderWrapper {
+    -> SwiftShadowsocksLoaderWrapper
+{
     let rawProvider = Unmanaged.passUnretained(provider).toOpaque()
     return init_swift_shadowsocks_loader_wrapper(rawProvider)
 }

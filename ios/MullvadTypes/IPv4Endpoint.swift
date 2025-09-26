@@ -26,7 +26,8 @@ public struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertibl
         )
 
         if components.count == 2, let parsedIP = IPv4Address(String(components[0])),
-           let parsedPort = UInt16(components[1]) {
+            let parsedPort = UInt16(components[1])
+        {
             ip = parsedIP
             port = parsedPort
         } else {

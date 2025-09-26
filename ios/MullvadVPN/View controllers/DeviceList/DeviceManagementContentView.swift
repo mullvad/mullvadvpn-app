@@ -282,10 +282,11 @@ class DeviceManagementContentView: UIView {
         if canContinue {
             return NSLocalizedString("You can now continue logging in on this device.", comment: "")
         } else {
-            return NSLocalizedString("""
-            Please log out of at least one by removing it from the list below. You can find \
-            the corresponding device name under the device’s Account settings.
-            """, comment: "")
+            return NSLocalizedString(
+                """
+                Please log out of at least one by removing it from the list below. You can find \
+                the corresponding device name under the device’s Account settings.
+                """, comment: "")
         }
     }
 }

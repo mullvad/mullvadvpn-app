@@ -34,50 +34,55 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
             )
             let about = NSLocalizedString("About API access…", comment: "")
 
-            MullvadList(viewModel.items, header: {
-                MullvadInfoHeaderView(
-                    bodyText: text,
-                    link: about,
-                    onTapLink: viewModel.showAbout
-                )
-            }, footer: {
-                MainButton(
-                    text: LocalizedStringKey("Add"),
-                    style: .default
-                ) {
-                    viewModel.addNewMethod()
-                }
-                .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
-            }, content: { item in
-                let accessibilityId: AccessibilityIdentifier? = switch item.id {
-                case AccessMethodRepository.directId:
-                    AccessibilityIdentifier.accessMethodDirectCell
-                case AccessMethodRepository.bridgeId:
-                    AccessibilityIdentifier.accessMethodBridgesCell
-                case AccessMethodRepository.encryptedDNSId:
-                    AccessibilityIdentifier.accessMethodEncryptedDNSCell
-                default:
-                    nil
-                }
-                let state = viewModel.itemInUse?.id == item.id
-                    ? NSLocalizedString("In use", comment: "")
-                    : (
-                        !item.isEnabled
-                            ? NSLocalizedString("Disabled", comment: "")
-                            : nil
+            MullvadList(
+                viewModel.items,
+                header: {
+                    MullvadInfoHeaderView(
+                        bodyText: text,
+                        link: about,
+                        onTapLink: viewModel.showAbout
                     )
-                MullvadListNavigationItemView(
-                    item: MullvadListNavigationItem(
-                        id: item.id,
-                        title: item.name,
-                        state: state,
-                        detail: item.detail,
-                        accessibilityIdentifier: accessibilityId
+                },
+                footer: {
+                    MainButton(
+                        text: LocalizedStringKey("Add"),
+                        style: .default
                     ) {
-                        viewModel.methodSelected(item)
+                        viewModel.addNewMethod()
                     }
-                )
-            })
+                    .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
+                },
+                content: { item in
+                    let accessibilityId: AccessibilityIdentifier? =
+                        switch item.id {
+                        case AccessMethodRepository.directId:
+                            AccessibilityIdentifier.accessMethodDirectCell
+                        case AccessMethodRepository.bridgeId:
+                            AccessibilityIdentifier.accessMethodBridgesCell
+                        case AccessMethodRepository.encryptedDNSId:
+                            AccessibilityIdentifier.accessMethodEncryptedDNSCell
+                        default:
+                            nil
+                        }
+                    let state =
+                        viewModel.itemInUse?.id == item.id
+                        ? NSLocalizedString("In use", comment: "")
+                        : (!item.isEnabled
+                            ? NSLocalizedString("Disabled", comment: "")
+                            : nil)
+                    MullvadListNavigationItemView(
+                        item: MullvadListNavigationItem(
+                            id: item.id,
+                            title: item.name,
+                            state: state,
+                            detail: item.detail,
+                            accessibilityIdentifier: accessibilityId
+                        ) {
+                            viewModel.methodSelected(item)
+                        }
+                    )
+                }
+            )
             .accessibilityIdentifier(
                 AccessibilityIdentifier.apiAccessListView.asString
             )

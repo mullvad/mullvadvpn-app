@@ -24,18 +24,19 @@ public struct ObfuscationMethodSelector {
         obfuscationBypass: any ObfuscationProviding
     ) -> WireGuardObfuscationState {
         if tunnelSettings.wireGuardObfuscation.state == .automatic {
-            let selectedObfuscation: WireGuardObfuscationState = if connectionAttemptCount.isOrdered(
-                nth: 2,
-                forEverySetOf: 4
-            ) {
-                .shadowsocks
-            } else if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 4) {
-                .quic
-            } else if connectionAttemptCount.isOrdered(nth: 4, forEverySetOf: 4) {
-                .udpOverTcp
-            } else {
-                .off
-            }
+            let selectedObfuscation: WireGuardObfuscationState =
+                if connectionAttemptCount.isOrdered(
+                    nth: 2,
+                    forEverySetOf: 4
+                ) {
+                    .shadowsocks
+                } else if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 4) {
+                    .quic
+                } else if connectionAttemptCount.isOrdered(nth: 4, forEverySetOf: 4) {
+                    .udpOverTcp
+                } else {
+                    .off
+                }
             return obfuscationBypass.bypassUnsupportedObfuscation(selectedObfuscation)
         }
         return tunnelSettings.wireGuardObfuscation.state

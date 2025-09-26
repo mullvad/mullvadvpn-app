@@ -10,10 +10,11 @@ import UIKit
 
 @MainActor
 class MethodSettingsDataSourceConfiguration {
-    private let dataSource: UITableViewDiffableDataSource<
-        MethodSettingsSectionIdentifier,
-        MethodSettingsItemIdentifier
-    >?
+    private let dataSource:
+        UITableViewDiffableDataSource<
+            MethodSettingsSectionIdentifier,
+            MethodSettingsItemIdentifier
+        >?
 
     init(
         dataSource: UITableViewDiffableDataSource<MethodSettingsSectionIdentifier, MethodSettingsItemIdentifier>
@@ -106,14 +107,15 @@ class MethodSettingsDataSourceConfiguration {
             return
         }
 
-        let itemsToReload: [MethodSettingsItemIdentifier] = switch viewModel.method {
-        case .direct, .bridges, .encryptedDNS:
-            []
-        case .shadowsocks:
-            MethodSettingsItemIdentifier.allShadowsocksItems
-        case .socks5:
-            MethodSettingsItemIdentifier.allSocksItems(authenticate: viewModel.socks.authenticate)
-        }
+        let itemsToReload: [MethodSettingsItemIdentifier] =
+            switch viewModel.method {
+            case .direct, .bridges, .encryptedDNS:
+                []
+            case .shadowsocks:
+                MethodSettingsItemIdentifier.allShadowsocksItems
+            case .socks5:
+                MethodSettingsItemIdentifier.allSocksItems(authenticate: viewModel.socks.authenticate)
+            }
 
         snapshot.reconfigureItems(itemsToReload + [.validationError])
         dataSource?.apply(snapshot, animatingDifferences: false)

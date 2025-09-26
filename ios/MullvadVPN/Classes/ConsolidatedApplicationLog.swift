@@ -43,7 +43,8 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
         self.redactCustomStrings = redactCustomStrings
         self.bufferSize = bufferSize
 
-        applicationGroupContainers = securityGroupIdentifiers
+        applicationGroupContainers =
+            securityGroupIdentifiers
             .compactMap { securityGroupIdentifier -> URL? in
                 FileManager.default
                     .containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)
@@ -156,7 +157,8 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
         let replacementCharacter = Character(UTF8.decode(UTF8.encodedReplacementCharacter))
         if let data = try? fileHandle.read(upToCount: Int(bufferSize)),
-           let lossyString = String(bytes: data, encoding: .utf8) {
+            let lossyString = String(bytes: data, encoding: .utf8)
+        {
             let resultString = lossyString.drop { ch in
                 // Drop leading replacement characters produced when decoding data
                 ch == replacementCharacter
@@ -169,7 +171,8 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
     private func redactCustomStrings(in string: String) -> String {
         guard let customStrings = redactCustomStrings,
-              !customStrings.isEmpty else {
+            !customStrings.isEmpty
+        else {
             return string
         }
         return customStrings.reduce(string) { resultString, redact in
@@ -197,8 +200,8 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
     }
 
     private func redactAccountNumber(string: String) -> String {
+        // swift-format-ignore: NeverUseForceTry
         redact(
-            // swiftlint:disable:next force_try
             regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
             string: string,
             replacementString: kRedactedAccountPlaceholder
@@ -226,7 +229,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
         string: String,
         replacementString: String
     ) -> String {
-        let nsRange = NSRange(string.startIndex ..< string.endIndex, in: string)
+        let nsRange = NSRange(string.startIndex..<string.endIndex, in: string)
         let template = NSRegularExpression.escapedTemplate(for: replacementString)
 
         return regularExpression.stringByReplacingMatches(

@@ -27,7 +27,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private var tunnelObserver: TunnelObserver?
 
     private var appDelegate: AppDelegate {
-        // swiftlint:disable:next force_cast
         UIApplication.shared.delegate as! AppDelegate
     }
 
@@ -121,12 +120,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     /**
      Refresh login metadata (account and device data) potentially throttling refresh requests based on recency of
      the last issued request.
-
+    
      Account data is always refreshed when either settings or account are presented on screen, otherwise only when close
      to or past expiry.
-
+    
      Both account and device data are refreshed regardless of other conditions when `forceUpdate` is `true`.
-
+    
      For more information on exact timings used for throttling refresh requests refer to `AccountDataThrottling` and
      `DeviceDataThrottling` types.
      */
@@ -216,7 +215,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
                     handler: {
                         completionHandler()
                     }
-                ),
+                )
             ]
         )
 

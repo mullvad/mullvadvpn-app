@@ -47,8 +47,9 @@ class ChipViewCell: UIView, UIContentView {
     private lazy var closeButtonActionHandler: UIAction = {
         return UIAction { [weak self] action in
             guard let self,
-                  let chipConfiguration = configuration as? ChipConfiguration,
-                  let action = chipConfiguration.didTapButton else {
+                let chipConfiguration = configuration as? ChipConfiguration,
+                let action = chipConfiguration.didTapButton
+            else {
                 return
             }
             action()

@@ -7,10 +7,11 @@
 //
 
 import MullvadMockData
+import XCTest
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 class MultihopDecisionFlowTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
@@ -18,77 +19,89 @@ class MultihopDecisionFlowTests: XCTestCase {
     func testOneToOneCanHandle() throws {
         let oneToOne = OneToOne(next: nil, relayPicker: picker)
 
-        XCTAssertTrue(oneToOne.canHandle(
-            entryCandidates: [seSto6],
-            exitCandidates: [seSto2]
-        ))
+        XCTAssertTrue(
+            oneToOne.canHandle(
+                entryCandidates: [seSto6],
+                exitCandidates: [seSto2]
+            ))
 
-        XCTAssertFalse(oneToOne.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2]
-        ))
+        XCTAssertFalse(
+            oneToOne.canHandle(
+                entryCandidates: [seSto2, seSto6],
+                exitCandidates: [seSto2]
+            ))
 
-        XCTAssertFalse(oneToOne.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2, seSto6]
-        ))
+        XCTAssertFalse(
+            oneToOne.canHandle(
+                entryCandidates: [seSto2, seSto6],
+                exitCandidates: [seSto2, seSto6]
+            ))
     }
 
     func testOneToManyCanHandle() throws {
         let oneToMany = OneToMany(next: nil, relayPicker: picker)
 
-        XCTAssertTrue(oneToMany.canHandle(
-            entryCandidates: [seSto2],
-            exitCandidates: [seSto2, seSto6]
-        ))
+        XCTAssertTrue(
+            oneToMany.canHandle(
+                entryCandidates: [seSto2],
+                exitCandidates: [seSto2, seSto6]
+            ))
 
-        XCTAssertFalse(oneToMany.canHandle(
-            entryCandidates: [seSto6],
-            exitCandidates: [seSto2]
-        ))
+        XCTAssertFalse(
+            oneToMany.canHandle(
+                entryCandidates: [seSto6],
+                exitCandidates: [seSto2]
+            ))
 
-        XCTAssertFalse(oneToMany.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2, seSto6]
-        ))
+        XCTAssertFalse(
+            oneToMany.canHandle(
+                entryCandidates: [seSto2, seSto6],
+                exitCandidates: [seSto2, seSto6]
+            ))
     }
 
     func testManyToOneCanHandle() throws {
         let manyToOne = ManyToOne(next: nil, relayPicker: picker)
 
-        XCTAssertTrue(manyToOne.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2]
-        ))
+        XCTAssertTrue(
+            manyToOne.canHandle(
+                entryCandidates: [seSto2, seSto6],
+                exitCandidates: [seSto2]
+            ))
 
-        XCTAssertFalse(manyToOne.canHandle(
-            entryCandidates: [seSto6],
-            exitCandidates: [seSto2]
-        ))
+        XCTAssertFalse(
+            manyToOne.canHandle(
+                entryCandidates: [seSto6],
+                exitCandidates: [seSto2]
+            ))
 
-        XCTAssertFalse(manyToOne.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2, seSto6]
-        ))
+        XCTAssertFalse(
+            manyToOne.canHandle(
+                entryCandidates: [seSto2, seSto6],
+                exitCandidates: [seSto2, seSto6]
+            ))
     }
 
     func testManyToManyCanHandle() throws {
         let manyToMany = ManyToMany(next: nil, relayPicker: picker)
 
-        XCTAssertTrue(manyToMany.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2, seSto6]
-        ))
+        XCTAssertTrue(
+            manyToMany.canHandle(
+                entryCandidates: [seSto2, seSto6],
+                exitCandidates: [seSto2, seSto6]
+            ))
 
-        XCTAssertFalse(manyToMany.canHandle(
-            entryCandidates: [seSto6],
-            exitCandidates: [seSto2]
-        ))
+        XCTAssertFalse(
+            manyToMany.canHandle(
+                entryCandidates: [seSto6],
+                exitCandidates: [seSto2]
+            ))
 
-        XCTAssertFalse(manyToMany.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2]
-        ))
+        XCTAssertFalse(
+            manyToMany.canHandle(
+                entryCandidates: [seSto2, seSto6],
+                exitCandidates: [seSto2]
+            ))
     }
 
     func testOneToOnePick() throws {
@@ -122,11 +135,12 @@ class MultihopDecisionFlowTests: XCTestCase {
         XCTAssertEqual(selectedRelaysWithoutSmartRouting.entry?.hostname, "se2-wireguard")
         XCTAssertEqual(selectedRelaysWithoutSmartRouting.exit.hostname, "se6-wireguard")
 
-        let selectedRelaysWithSmartRouting = try XCTUnwrap(oneToMany.pick(
-            entryCandidates: [seSto2],
-            exitCandidates: [seSto2, seSto6],
-            daitaAutomaticRouting: true
-        ))
+        let selectedRelaysWithSmartRouting = try XCTUnwrap(
+            oneToMany.pick(
+                entryCandidates: [seSto2],
+                exitCandidates: [seSto2, seSto6],
+                daitaAutomaticRouting: true
+            ))
         XCTAssertEqual(selectedRelaysWithSmartRouting.entry?.hostname, "se2-wireguard")
         XCTAssertEqual(selectedRelaysWithSmartRouting.exit.hostname, "se6-wireguard")
     }

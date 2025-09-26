@@ -39,7 +39,6 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
         return cell
     }
 
-    // swiftlint:disable:next cyclomatic_complexity function_body_length
     func configureCell(_ cell: UITableViewCell, item: VPNSettingsDataSource.Item, indexPath: IndexPath) {
         (cell as? SettingsCell)?.detailTitleLabel.accessibilityIdentifier = nil
         switch item {

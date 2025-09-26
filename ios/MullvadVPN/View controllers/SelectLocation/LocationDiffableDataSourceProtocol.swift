@@ -27,12 +27,14 @@ extension LocationDiffableDataSourceProtocol {
             tableView.scrollToRow(at: indexPath, at: .top, animated: animated)
         } else {
             if let last = item.node.children.last {
-                if let lastInsertedIndexPath = self.indexPath(for: LocationCellViewModel(
-                    section: sections[indexPath.section],
-                    node: last
-                )),
+                if let lastInsertedIndexPath = self.indexPath(
+                    for: LocationCellViewModel(
+                        section: sections[indexPath.section],
+                        node: last
+                    )),
                     let lastVisibleIndexPath = visibleIndexPaths.last,
-                    lastInsertedIndexPath >= lastVisibleIndexPath {
+                    lastInsertedIndexPath >= lastVisibleIndexPath
+                {
                     tableView.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
                 }
             }
@@ -41,7 +43,8 @@ extension LocationDiffableDataSourceProtocol {
 
     func toggleItems(for cell: LocationCell, completion: (() -> Void)? = nil) {
         guard let indexPath = tableView.indexPath(for: cell),
-              let item = itemIdentifier(for: indexPath) else { return }
+            let item = itemIdentifier(for: indexPath)
+        else { return }
         let snapshot = snapshot()
         let section = sections[indexPath.section]
         let isExpanded = item.node.showsChildren

@@ -99,20 +99,23 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
             // Do not rotate the key if account is invalid even if the API successfully returns a device.
             if accountVerdict != .invalid, deviceVerdict == .keyMismatch {
                 rotateKeyIfNeeded { rotationResult in
-                    completion(rotationResult.map { rotationStatus in
-                        DeviceCheck(
-                            accountVerdict: accountVerdict,
-                            deviceVerdict: rotationStatus.isSucceeded ? .active : .keyMismatch,
-                            keyRotationStatus: rotationStatus
-                        )
-                    })
+                    completion(
+                        rotationResult.map { rotationStatus in
+                            DeviceCheck(
+                                accountVerdict: accountVerdict,
+                                deviceVerdict: rotationStatus.isSucceeded ? .active : .keyMismatch,
+                                keyRotationStatus: rotationStatus
+                            )
+                        })
                 }
             } else {
-                completion(.success(DeviceCheck(
-                    accountVerdict: accountVerdict,
-                    deviceVerdict: deviceVerdict,
-                    keyRotationStatus: .noAction
-                )))
+                completion(
+                    .success(
+                        DeviceCheck(
+                            accountVerdict: accountVerdict,
+                            deviceVerdict: deviceVerdict,
+                            keyRotationStatus: .noAction
+                        )))
             }
         } catch {
             completion(.failure(error))

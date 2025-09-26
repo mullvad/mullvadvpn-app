@@ -14,7 +14,8 @@ import UIKit
 
 final class LocationDataSource:
     UITableViewDiffableDataSource<LocationSection, LocationCellViewModel>,
-    LocationDiffableDataSourceProtocol {
+    LocationDiffableDataSourceProtocol
+{
     nonisolated(unsafe) private var currentSearchString = ""
     nonisolated(unsafe) private var dataSources: [LocationDataSourceProtocol] = []
     // The selected location.
@@ -41,10 +42,11 @@ final class LocationDataSource:
         self.dataSources.append(contentsOf: [customLists, allLocations])
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
-            let cell = tableView.dequeueReusableView(
-                withIdentifier: sections[indexPath.section],
-                for: indexPath
-            ) as! LocationCell // swiftlint:disable:this force_cast
+            let cell =
+                tableView.dequeueReusableView(
+                    withIdentifier: sections[indexPath.section],
+                    for: indexPath
+                ) as! LocationCell
             cell.configure(item: itemIdentifier, behavior: .select)
             return cell
         }
@@ -56,10 +58,14 @@ final class LocationDataSource:
 
     func setRelays(_ relaysWithLocation: LocationRelays, selectedRelays: RelaySelection) {
         Task { @MainActor in
-            guard let allLocationsDataSource = dataSources
-                .first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
-                let customListsDataSource = dataSources
-                .first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource else { return }
+            guard
+                let allLocationsDataSource =
+                    dataSources
+                    .first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
+                let customListsDataSource =
+                    dataSources
+                    .first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
+            else { return }
             allLocationsDataSource.reload(relaysWithLocation)
             customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes)
             Task { @MainActor in
@@ -89,9 +95,11 @@ final class LocationDataSource:
             DispatchQueue.main.async {
                 self.reloadDataSnapshot(with: list) {
                     if searchString.isEmpty, let selectedLocation = self.selectedLocation {
-                        self.updateSelection(selectedLocation: selectedLocation, completion: {
-                            self.scrollToSelectedRelay()
-                        })
+                        self.updateSelection(
+                            selectedLocation: selectedLocation,
+                            completion: {
+                                self.scrollToSelectedRelay()
+                            })
                     } else {
                         self.scrollToTop(animated: false)
                     }
@@ -103,10 +111,11 @@ final class LocationDataSource:
     /// Refreshes the custom list section and keeps all modifications intact (selection and expanded states).
     func refreshCustomLists() {
         Task { @MainActor in
-            guard let allLocationsDataSource =
-                dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
+            guard
+                let allLocationsDataSource =
+                    dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
                 let customListsDataSource =
-                dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
+                    dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
             else {
                 return
             }
@@ -123,9 +132,11 @@ final class LocationDataSource:
             selectedLocation = _selectedLocation
             excludedLocation = mapSelection(from: selectedRelays.excluded)
             excludedLocation?.excludedRelayTitle = selectedRelays.excludedTitle
-            self.updateSelection(selectedLocation: _selectedLocation, completion: {
-                self.scrollToSelectedRelay()
-            })
+            self.updateSelection(
+                selectedLocation: _selectedLocation,
+                completion: {
+                    self.scrollToSelectedRelay()
+                })
         }
     }
 
@@ -152,8 +163,9 @@ final class LocationDataSource:
         if let selectedRelays {
             // Look for a matching custom list node.
             if let customListSelection = selectedRelays.customListSelection,
-               let customList = customListsDataSource?.customList(by: customListSelection.listId),
-               let selectedNode = customListsDataSource?.node(by: selectedRelays, for: customList) {
+                let customList = customListsDataSource?.customList(by: customListSelection.listId),
+                let selectedNode = customListsDataSource?.node(by: selectedRelays, for: customList)
+            {
                 return LocationCellViewModel(
                     section: .customLists,
                     node: selectedNode,
@@ -161,7 +173,8 @@ final class LocationDataSource:
                 )
                 // Look for a matching all locations node.
             } else if let location = selectedRelays.locations.first,
-                      let selectedNode = allLocationsDataSource?.node(by: location) {
+                let selectedNode = allLocationsDataSource?.node(by: location)
+            {
                 return LocationCellViewModel(
                     section: .allLocations,
                     node: selectedNode,
@@ -187,10 +200,13 @@ final class LocationDataSource:
         }
 
         // Make sure we have an index path for the selected item.
-        guard let indexPath = indexPath(for: LocationCellViewModel(
-            section: selectedLocation.section,
-            node: rootNode
-        )) else { return }
+        guard
+            let indexPath = indexPath(
+                for: LocationCellViewModel(
+                    section: selectedLocation.section,
+                    node: rootNode
+                ))
+        else { return }
 
         // Walk tree backwards to determine which nodes should be expanded.
         selectedLocation.node.forEachAncestor { node in
@@ -245,60 +261,72 @@ extension LocationDataSource {
     }
 
     func nodeShouldBeSelected(_ node: LocationNode) -> Bool {
-        false // N/A
+        false  // N/A
     }
 }
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let headerView = tableView
-            .dequeueReusableHeaderFooterView(withIdentifier: LocationSectionHeaderFooterView
-                .reuseIdentifier
-            ) as? LocationSectionHeaderFooterView else { return nil }
+        guard
+            let headerView =
+                tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: LocationSectionHeaderFooterView
+                        .reuseIdentifier
+                ) as? LocationSectionHeaderFooterView
+        else { return nil }
 
         switch sections[section] {
         case .allLocations:
-            headerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
-                name: LocationSection.allLocations.header,
-                style: .header
-            ))
+            headerView.configure(
+                configuration: LocationSectionHeaderFooterView.Configuration(
+                    name: LocationSection.allLocations.header,
+                    style: .header
+                ))
         case .customLists:
-            headerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
-                name: LocationSection.customLists.header,
-                style: .header,
-                primaryAction: UIAction { [weak self] _ in
-                    self?.didTapEditCustomLists?()
-                }
-            ))
+            headerView.configure(
+                configuration: LocationSectionHeaderFooterView.Configuration(
+                    name: LocationSection.customLists.header,
+                    style: .header,
+                    primaryAction: UIAction { [weak self] _ in
+                        self?.didTapEditCustomLists?()
+                    }
+                ))
         }
 
         return headerView
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        guard let footerView = tableView
-            .dequeueReusableHeaderFooterView(withIdentifier: LocationSectionHeaderFooterView
-                .reuseIdentifier
-            ) as? LocationSectionHeaderFooterView else { return nil }
+        guard
+            let footerView =
+                tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: LocationSectionHeaderFooterView
+                        .reuseIdentifier
+                ) as? LocationSectionHeaderFooterView
+        else { return nil }
 
         switch sections[section] {
         case .allLocations:
             guard dataSources[section].nodes.isEmpty else {
                 return nil
             }
-            footerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
-                name: LocationSection.allLocations.footer,
-                style: .footer
-            ))
+            footerView.configure(
+                configuration: LocationSectionHeaderFooterView.Configuration(
+                    name: LocationSection.allLocations.footer,
+                    style: .footer
+                ))
         case .customLists:
             guard dataSources[section].nodes.isEmpty else {
                 return nil
             }
-            footerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
-                name: LocationSection.customLists.footer,
-                style: .footer,
-                directionalEdgeInsets: NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 24, trailing: 8)
-            ))
+            footerView.configure(
+                configuration: LocationSectionHeaderFooterView.Configuration(
+                    name: LocationSection.customLists.footer,
+                    style: .footer,
+                    directionalEdgeInsets: NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 24, trailing: 8)
+                ))
         }
 
         return footerView
@@ -341,7 +369,8 @@ extension LocationDataSource: UITableViewDelegate {
 extension LocationDataSource: @preconcurrency LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {
         guard let indexPath = tableView.indexPath(for: cell),
-              let item = itemIdentifier(for: indexPath) else { return }
+            let item = itemIdentifier(for: indexPath)
+        else { return }
         toggleItems(for: cell) {
             self.scroll(to: item, animated: true)
         }
@@ -349,7 +378,8 @@ extension LocationDataSource: @preconcurrency LocationCellDelegate {
 
     func toggleSelecting(cell: LocationCell) {
         guard let indexPath = tableView.indexPath(for: cell),
-              let item = itemIdentifier(for: indexPath) else { return }
+            let item = itemIdentifier(for: indexPath)
+        else { return }
         selectedLocation = item
         var customListSelection: UserSelectedRelays.CustomListSelection?
         if let topmostNode = item.node.root as? CustomListLocationNode {

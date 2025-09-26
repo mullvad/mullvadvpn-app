@@ -139,10 +139,11 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         state = try container.decode(WireGuardObfuscationState.self, forKey: .state)
-        shadowsocksPort = try container.decodeIfPresent(
-            WireGuardObfuscationShadowsocksPort.self,
-            forKey: .shadowsocksPort
-        ) ?? .automatic
+        shadowsocksPort =
+            try container.decodeIfPresent(
+                WireGuardObfuscationShadowsocksPort.self,
+                forKey: .shadowsocksPort
+            ) ?? .automatic
 
         if let port = try? container.decodeIfPresent(WireGuardObfuscationUdpOverTcpPort.self, forKey: .udpOverTcpPort) {
             udpOverTcpPort = port

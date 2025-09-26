@@ -46,7 +46,7 @@ extension SettingsMultihopView {
                         comment: ""
                     ),
                     image: .multihopIllustration
-                ),
+                )
             ]
         )
     }

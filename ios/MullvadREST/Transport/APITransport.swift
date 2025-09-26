@@ -34,19 +34,21 @@ public final class APITransport: APITransportProtocol {
         let apiRequest = requestFactory.makeRequest(request)
 
         return try apiRequest { response in
-            let error: APIError? = if !response.success {
-                APIError(
-                    statusCode: Int(response.statusCode),
-                    errorDescription: response.errorDescription ?? "",
-                    serverResponseCode: response.serverResponseCode
-                )
-            } else { nil }
+            let error: APIError? =
+                if !response.success {
+                    APIError(
+                        statusCode: Int(response.statusCode),
+                        errorDescription: response.errorDescription ?? "",
+                        serverResponseCode: response.serverResponseCode
+                    )
+                } else { nil }
 
-            completion(ProxyAPIResponse(
-                data: response.body,
-                error: error,
-                etag: response.etag
-            ))
+            completion(
+                ProxyAPIResponse(
+                    data: response.body,
+                    error: error,
+                    etag: response.etag
+                ))
         }
     }
 }

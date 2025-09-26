@@ -21,11 +21,12 @@ class UDPConnection: Connection, @unchecked Sendable {
     private let nwConnection: NWConnection
 
     convenience init(remote: IPAddress, port: UInt16) {
-        self.init(nwConnection: NWConnection(
-            host: NWEndpoint.Host("\(remote)"),
-            port: NWEndpoint.Port(integerLiteral: port),
-            using: .udp
-        ))
+        self.init(
+            nwConnection: NWConnection(
+                host: NWEndpoint.Host("\(remote)"),
+                port: NWEndpoint.Port(integerLiteral: port),
+                using: .udp
+            ))
     }
 
     required init(nwConnection: NWConnection) {
@@ -87,13 +88,15 @@ class UDPConnection: Connection, @unchecked Sendable {
 
     func sendData(_ data: Data) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            nwConnection.send(content: data, completion: .contentProcessed { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume(returning: ())
-                }
-            })
+            nwConnection.send(
+                content: data,
+                completion: .contentProcessed { error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: ())
+                    }
+                })
         }
     }
 }

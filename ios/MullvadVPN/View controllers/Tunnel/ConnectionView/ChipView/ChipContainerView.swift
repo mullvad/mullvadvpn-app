@@ -20,11 +20,12 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
         GeometryReader { geo in
             let containerWidth = geo.size.width
 
-            let (chipsToAdd, showMoreButton) = if isExpanded {
-                (viewModel.chips, false)
-            } else {
-                viewModel.chipsToAdd(forContainerWidth: containerWidth)
-            }
+            let (chipsToAdd, showMoreButton) =
+                if isExpanded {
+                    (viewModel.chips, false)
+                } else {
+                    viewModel.chipsToAdd(forContainerWidth: containerWidth)
+                }
 
             HStack {
                 ZStack(alignment: .topLeading) {

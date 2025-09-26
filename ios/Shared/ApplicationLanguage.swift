@@ -38,8 +38,8 @@ enum ApplicationLanguage: String, CaseIterable, Identifiable {
     case swedish = "sv"
     case thai = "th"
     case turkish = "tr"
-    case chineseSimplified = "zh-Hans" // Maps to zh-CN
-    case chineseTraditional = "zh-Hant" // Maps to zh-TW
+    case chineseSimplified = "zh-Hans"  // Maps to zh-CN
+    case chineseTraditional = "zh-Hant"  // Maps to zh-TW
 
     var id: String { rawValue }
 
@@ -70,7 +70,7 @@ enum ApplicationLanguage: String, CaseIterable, Identifiable {
 
     var countryCodeForFlag: String {
         switch self {
-        case .english: "us" // English → US flag (or "gb" for UK)
+        case .english: "us"  // English → US flag (or "gb" for UK)
         case .danish: "dk"
         case .german: "de"
         case .spanish: "es"

@@ -29,7 +29,8 @@ public enum RelaySelector {
     }
 
     static func pickRandomRelayByWeight<T: AnyRelay>(relays: [RelayWithLocation<T>])
-        -> RelayWithLocation<T>? {
+        -> RelayWithLocation<T>?
+    {
         rouletteSelection(relays: relays, weightFunction: { relayWithLocation in relayWithLocation.relay.weight })
     }
 
@@ -44,10 +45,11 @@ public enum RelaySelector {
 
         // Pick a random number in the range 1 - totalWeight. This chooses the relay with a
         // non-zero weight.
-        var i = (1 ... totalWeight).randomElement()!
+        var i = (1...totalWeight).randomElement()!
 
         let randomRelay = relays.first { relay -> Bool in
-            let (result, isOverflow) = i
+            let (result, isOverflow) =
+                i
                 .subtractingReportingOverflow(weightFunction(relay))
 
             i = isOverflow ? 0 : result
@@ -99,7 +101,7 @@ public enum RelaySelector {
             let endPort = inputRange[1]
 
             if startPort <= endPort {
-                return startPort ... endPort
+                return startPort...endPort
             } else {
                 return nil
             }
@@ -112,7 +114,7 @@ public enum RelaySelector {
             partialResult + closedRange.count
         }
 
-        guard var portIndex = (0 ..< portAmount).randomElement() else {
+        guard var portIndex = (0..<portAmount).randomElement() else {
             return nil
         }
 

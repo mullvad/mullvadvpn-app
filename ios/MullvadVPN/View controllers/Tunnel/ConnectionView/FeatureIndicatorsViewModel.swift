@@ -32,7 +32,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
         // e.g. Access local network in blocked state
         switch tunnelState {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer,
-             .connected, .pendingReconnect:
+            .connected, .pendingReconnect:
             let features: [any ChipFeature] = [
                 DaitaFeature(state: tunnelState, settings: tunnelSettings),
                 QuantumResistanceFeature(state: tunnelState),
@@ -42,7 +42,8 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
             ]
 
-            return features
+            return
+                features
                 .filter { $0.isEnabled }
                 .map { ChipModel(id: $0.id, name: $0.name) }
         default:

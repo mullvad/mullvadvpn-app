@@ -171,15 +171,17 @@ final class AddressCacheTracker: @unchecked Sendable {
     }
 
     private func _nextScheduleDate() -> Date {
-        let nextDate = lastFailureAttemptDate.map { date in
-            Date(
-                timeInterval: Self.retryInterval.timeInterval,
-                since: date
+        let nextDate =
+            lastFailureAttemptDate.map { date in
+                Date(
+                    timeInterval: Self.retryInterval.timeInterval,
+                    since: date
+                )
+            }
+            ?? Date(
+                timeInterval: Self.updateInterval.timeInterval,
+                since: store.getLastUpdateDate()
             )
-        } ?? Date(
-            timeInterval: Self.updateInterval.timeInterval,
-            since: store.getLastUpdateDate()
-        )
 
         return max(nextDate, Date())
     }

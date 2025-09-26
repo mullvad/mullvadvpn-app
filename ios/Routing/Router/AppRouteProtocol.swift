@@ -20,7 +20,7 @@ public protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable, Sendable
 
     /**
      Defines a modal level that's used for restricting modal presentation.
-
+    
      A group with higher modal level can be presented above a group with lower level but not the other way around. For example, if a modal group is represented by
      `UIAlertController`, it should have the highest level (i.e `Int.max`) to prevent other modals from being presented above it, however it enables alert
      controller to be presented above any other modal.

@@ -6,16 +6,14 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-// swiftlint:disable function_body_length
-@testable import MullvadREST
+import XCTest
 
 @testable import MullvadMockData
+@testable import MullvadREST
 @testable import MullvadRustRuntime
 @testable import MullvadSettings
 @testable import MullvadTypes
 @testable import WireGuardKitTypes
-
-import XCTest
 
 class TunnelManagerTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
@@ -339,5 +337,3 @@ class TunnelManagerTests: XCTestCase {
         )
     }
 }
-
-// swiftlint:enable function_body_length

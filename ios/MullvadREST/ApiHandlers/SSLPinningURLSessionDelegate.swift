@@ -32,7 +32,8 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate, @uncheck
         completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-           let serverTrust = challenge.protectionSpace.serverTrust {
+            let serverTrust = challenge.protectionSpace.serverTrust
+        {
             /// If a request is going through a local shadowsocks proxy, the host would be a localhost address,`
             /// which would not appear in the list of valid host names in the root certificate.
             /// The same goes for direct connections to the API, the host would be the IP address of the endpoint.

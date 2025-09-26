@@ -19,7 +19,7 @@ struct CustomListLocationNodeBuilder {
             name: customList.name,
             code: customList.name,
             locations: customList.locations,
-            isActive: true, // Defaults to true, updated after children have been populated.
+            isActive: true,  // Defaults to true, updated after children have been populated.
             customList: customList
         )
 
@@ -56,16 +56,19 @@ struct CustomListLocationNodeBuilder {
 
 private extension CustomListLocationNode {
     func sort() {
-        let sortedChildren = Dictionary(grouping: children, by: {
-            return switch RelayLocation(dashSeparatedString: $0.code)! {
-            case .country:
-                LocationGroup.country
-            case .city:
-                LocationGroup.city
-            case .hostname:
-                LocationGroup.host
+        let sortedChildren = Dictionary(
+            grouping: children,
+            by: {
+                return switch RelayLocation(dashSeparatedString: $0.code)! {
+                case .country:
+                    LocationGroup.country
+                case .city:
+                    LocationGroup.city
+                case .hostname:
+                    LocationGroup.host
+                }
             }
-        })
+        )
         .sorted(by: { $0.key < $1.key })
         .reduce([]) {
             $0 + $1.value.sorted(by: { $0.name < $1.name })

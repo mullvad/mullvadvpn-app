@@ -24,12 +24,13 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
     }
 
     private var groupSize: GroupingStyle = .full
-    private lazy var inputFormatter = InputTextFormatter(configuration: InputTextFormatter.Configuration(
-        allowedInput: .numeric,
-        groupSeparator: " ",
-        groupSize: 4,
-        maxGroups: groupSize.size
-    ))
+    private lazy var inputFormatter = InputTextFormatter(
+        configuration: InputTextFormatter.Configuration(
+            allowedInput: .numeric,
+            groupSeparator: " ",
+            groupSize: 4,
+            maxGroups: groupSize.size
+        ))
 
     var onReturnKey: ((AccountTextField) -> Bool)?
 

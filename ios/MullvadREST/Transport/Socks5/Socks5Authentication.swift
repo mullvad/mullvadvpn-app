@@ -29,13 +29,15 @@ struct Socks5Authentication: Sendable {
         }
         let authenticateCommand = Socks5UsernamePasswordCommand(username: username, password: password)
 
-        connection.send(content: authenticateCommand.rawData, completion: .contentProcessed { error in
-            if let error {
-                onFailure(error)
-            } else {
-                readNegotiationReply(onComplete: onComplete, onFailure: onFailure)
-            }
-        })
+        connection.send(
+            content: authenticateCommand.rawData,
+            completion: .contentProcessed { error in
+                if let error {
+                    onFailure(error)
+                } else {
+                    readNegotiationReply(onComplete: onComplete, onFailure: onFailure)
+                }
+            })
     }
 
     func readNegotiationReply(

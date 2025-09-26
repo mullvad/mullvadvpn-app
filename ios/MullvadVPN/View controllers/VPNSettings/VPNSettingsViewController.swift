@@ -71,17 +71,19 @@ class VPNSettingsViewController: UITableViewController {
         }
 
         let showsSingleSection = section != nil
-        tableView.tableHeaderView = UIView(frame: CGRect(
-            origin: .zero,
-            size: CGSize(width: 0, height: showsSingleSection ? 0 : UIMetrics.TableView.emptyHeaderHeight)
-        ))
+        tableView.tableHeaderView = UIView(
+            frame: CGRect(
+                origin: .zero,
+                size: CGSize(width: 0, height: showsSingleSection ? 0 : UIMetrics.TableView.emptyHeaderHeight)
+            ))
     }
 }
 
 extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelegate {
     func humanReadablePortRepresentation() -> String {
         let ranges = interactor.cachedRelays?.relays.wireguard.portRanges ?? []
-        return ranges
+        return
+            ranges
             .compactMap { range in
                 if let minPort = range.first, let maxPort = range.last {
                     return minPort == maxPort ? String(minPort) : "\(minPort)-\(maxPort)"
@@ -105,7 +107,7 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
-                ),
+                )
             ]
         )
 
@@ -152,7 +154,8 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
 
     func showLocalNetworkSharingWarning(_ enable: Bool, completion: @escaping (Bool) -> Void) {
         if interactor.tunnelManager.tunnelStatus.state.isSecured {
-            let status = enable
+            let status =
+                enable
                 ? NSLocalizedString("Enabling", comment: "")
                 : NSLocalizedString("Disabling", comment: "")
             let description = NSLocalizedString(

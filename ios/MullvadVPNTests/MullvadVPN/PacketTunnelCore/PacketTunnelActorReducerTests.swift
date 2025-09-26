@@ -7,12 +7,13 @@
 //
 
 import MullvadMockData
-@testable import MullvadREST
-@testable import MullvadSettings
 import MullvadTypes
-@testable import PacketTunnelCore
 import WireGuardKitTypes
 import XCTest
+
+@testable import MullvadREST
+@testable import MullvadSettings
+@testable import PacketTunnelCore
 
 final class PacketTunnelActorReducerTests: XCTestCase {
     var selectedRelays: SelectedRelays!
@@ -49,11 +50,13 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         // When
         let effects = PacketTunnelActor.Reducer.reduce(&state, .start(StartOptions(launchSource: .app)))
         // Then
-        XCTAssertEqual(effects, [
-            .startDefaultPathObserver,
-            .startTunnelMonitor,
-            .startConnection(.random),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .startDefaultPathObserver,
+                .startTunnelMonitor,
+                .startConnection(.random),
+            ])
     }
 
     func testHandleStartWithPreselectedRelay() {
@@ -65,11 +68,13 @@ final class PacketTunnelActorReducerTests: XCTestCase {
             .start(StartOptions(launchSource: .app, selectedRelays: selectedRelays))
         )
         // Then
-        XCTAssertEqual(effects, [
-            .startDefaultPathObserver,
-            .startTunnelMonitor,
-            .startConnection(.preSelected(selectedRelays)),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .startDefaultPathObserver,
+                .startTunnelMonitor,
+                .startConnection(.preSelected(selectedRelays)),
+            ])
     }
 
     // MARK: .stop
@@ -82,12 +87,14 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
         // Then
         XCTAssertEqual(state, .disconnecting(connectionData))
-        XCTAssertEqual(effects, [
-            .stopTunnelMonitor,
-            .stopDefaultPathObserver,
-            .stopTunnelAdapter,
-            .setDisconnectedState,
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .stopTunnelMonitor,
+                .stopDefaultPathObserver,
+                .stopTunnelAdapter,
+                .setDisconnectedState,
+            ])
     }
 
     func testHandleStopFromConnecting() {
@@ -98,12 +105,14 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
         // Then
         XCTAssertEqual(state, .disconnecting(connectionData))
-        XCTAssertEqual(effects, [
-            .stopTunnelMonitor,
-            .stopDefaultPathObserver,
-            .stopTunnelAdapter,
-            .setDisconnectedState,
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .stopTunnelMonitor,
+                .stopDefaultPathObserver,
+                .stopTunnelAdapter,
+                .setDisconnectedState,
+            ])
     }
 
     func testHandleStopFromReconnecting() {
@@ -114,12 +123,14 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
         // Then
         XCTAssertEqual(state, .disconnecting(connectionData))
-        XCTAssertEqual(effects, [
-            .stopTunnelMonitor,
-            .stopDefaultPathObserver,
-            .stopTunnelAdapter,
-            .setDisconnectedState,
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .stopTunnelMonitor,
+                .stopDefaultPathObserver,
+                .stopTunnelAdapter,
+                .setDisconnectedState,
+            ])
     }
 
     func testHandleStopFromError() {
@@ -136,11 +147,13 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
 
         // Then
-        XCTAssertEqual(effects, [
-            .stopDefaultPathObserver,
-            .stopTunnelAdapter,
-            .setDisconnectedState,
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .stopDefaultPathObserver,
+                .stopTunnelAdapter,
+                .setDisconnectedState,
+            ])
     }
 
     func testHandleStopFromUnconnectedStates() {
@@ -166,10 +179,12 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.current, reason: .userInitiated))
 
         // Then
-        XCTAssertEqual(effects, [
-            .stopTunnelMonitor,
-            .restartConnection(.current, .userInitiated),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .stopTunnelMonitor,
+                .restartConnection(.current, .userInitiated),
+            ])
     }
 
     func testHandleConnectionLossReconnectFromConnectedStates() {
@@ -180,9 +195,11 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .connectionLoss))
 
         // Then
-        XCTAssertEqual(effects, [
-            .restartConnection(.random, .connectionLoss),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .restartConnection(.random, .connectionLoss)
+            ])
     }
 
     func testHandleReconnectFromDisconnectedIsNoOp() {
@@ -215,10 +232,12 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .userInitiated))
 
         // Then
-        XCTAssertEqual(effects, [
-            .stopTunnelMonitor,
-            .restartConnection(.random, .userInitiated),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .stopTunnelMonitor,
+                .restartConnection(.random, .userInitiated),
+            ])
     }
 
     // MARK: .error
@@ -231,9 +250,11 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .error(.deviceRevoked))
 
         // then
-        XCTAssertEqual(effects, [
-            .configureForErrorState(.deviceRevoked),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .configureForErrorState(.deviceRevoked)
+            ])
     }
 
     // MARK: .notifyKeyRotated
@@ -247,9 +268,11 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .notifyKeyRotated(date))
 
         // then
-        XCTAssertEqual(effects, [
-            .cacheActiveKey(date),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .cacheActiveKey(date)
+            ])
     }
 
     func testHandleNotifyKeyRotatedWhileUsingPriorKey() {
@@ -288,9 +311,11 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
         // then
         XCTAssertEqual(state.keyPolicy, State.KeyPolicy.useCurrent)
-        XCTAssertEqual(effects, [
-            .reconnect(.random),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .reconnect(.random)
+            ])
     }
 
     // MARK: .monitorEvent
@@ -320,8 +345,10 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let effects = PacketTunnelActor.Reducer.reduce(&state, .monitorEvent(.connectionLost))
 
         // Then
-        XCTAssertEqual(effects, [
-            .restartConnection(.random, .connectionLoss),
-        ])
+        XCTAssertEqual(
+            effects,
+            [
+                .restartConnection(.random, .connectionLoss)
+            ])
     }
 }

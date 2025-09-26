@@ -127,7 +127,8 @@ class LocationCell: UITableViewCell {
         updateStatusIndicatorColor()
 
         // Set the accessibility value to indicate selection status
-        accessibilityValue = selected
+        accessibilityValue =
+            selected
             ? NSLocalizedString("Selected", comment: "")
             : nil
     }
@@ -195,7 +196,8 @@ class LocationCell: UITableViewCell {
 
         // Provide a hint about the action
         if !locationCellViewModel.node.children.isEmpty {
-            accessibilityHint = locationCellViewModel.node.showsChildren
+            accessibilityHint =
+                locationCellViewModel.node.showsChildren
                 ? NSLocalizedString("Collapses this location.", comment: "")
                 : NSLocalizedString("Expands this location.", comment: "")
         } else {
@@ -328,11 +330,12 @@ extension LocationCell {
             // Only custom list nodes have more than one location. Therefore checking first
             // location here is fine.
             if let location = item.node.locations.first {
-                let accessibilityId: AccessibilityIdentifier = switch location {
-                case .country: .countryLocationCell
-                case .city: .cityLocationCell
-                case .hostname: .relayLocationCell
-                }
+                let accessibilityId: AccessibilityIdentifier =
+                    switch location {
+                    case .country: .countryLocationCell
+                    case .city: .cityLocationCell
+                    case .hostname: .relayLocationCell
+                    }
                 setAccessibilityIdentifier(accessibilityId)
             }
         }

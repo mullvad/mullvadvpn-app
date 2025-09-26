@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import XCTest
+
 @testable import MullvadREST
 @testable import MullvadTypes
-import XCTest
 
 class RetryStrategyTests: XCTestCase {
     func testJitteredBackoffDoesNotGoBeyondMaxDelay() throws {
@@ -19,7 +20,7 @@ class RetryStrategyTests: XCTestCase {
         let iterator = retry.makeDelayIterator()
         var previousDelay = Duration(secondsComponent: 0, attosecondsComponent: 0)
 
-        for _ in 0 ... 10 {
+        for _ in 0...10 {
             let currentDelay = try XCTUnwrap(iterator.next())
             XCTAssertLessThanOrEqual(previousDelay, currentDelay)
             XCTAssertLessThanOrEqual(currentDelay, maxDelay.duration)
@@ -34,9 +35,9 @@ class RetryStrategyTests: XCTestCase {
         let minimumDelay = Duration(secondsComponent: 10, attosecondsComponent: 0)
         let maximumDelay = Duration(secondsComponent: 20, attosecondsComponent: 0)
 
-        for _ in 0 ... 10 {
+        for _ in 0...10 {
             let currentDelay = try XCTUnwrap(iterator.next())
-            let maximumJitterRange = minimumDelay ... maximumDelay
+            let maximumJitterRange = minimumDelay...maximumDelay
             print(currentDelay)
             XCTAssertLessThanOrEqual(maximumJitterRange.lowerBound, currentDelay)
             XCTAssertGreaterThanOrEqual(maximumJitterRange.upperBound, currentDelay)

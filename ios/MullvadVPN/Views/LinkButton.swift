@@ -46,7 +46,7 @@ class LinkButton: CustomButton {
         for state: UIControl.State
     ) -> NSAttributedString {
         var attributes: [NSAttributedString.Key: Any] = [
-            .underlineStyle: NSUnderlineStyle.single.rawValue,
+            .underlineStyle: NSUnderlineStyle.single.rawValue
         ]
 
         if let titleColor = state.customButtonTitleColor {

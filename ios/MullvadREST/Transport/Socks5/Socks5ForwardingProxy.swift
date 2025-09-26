@@ -43,7 +43,7 @@ public final class Socks5ForwardingProxy: Sendable {
 
     /**
      Initializes a socks forwarding proxy accepting connections on local TCP port and establishing connection to the remote endpoint over socks proxy.
-
+    
      - Parameters:
        - socksProxyEndpoint: socks proxy endpoint.
        - remoteServerEndpoint: remote server that socks proxy should connect to.
@@ -64,9 +64,9 @@ public final class Socks5ForwardingProxy: Sendable {
 
     /**
      Start forwarding proxy.
-
+    
      Repeat calls do nothing, but accumulate the completion handler for invocation once the proxy moves to the next state.
-
+    
      - Parameter completion: completion handler that is called once the TCP listener is ready in the first time or failed before moving to the ready state.
                              Invoked on main queue.
      */
@@ -82,7 +82,7 @@ public final class Socks5ForwardingProxy: Sendable {
 
     /**
      Stop forwarding proxy.
-
+    
      - Parameter completion: completion handler that's called immediately after cancelling the TCP listener. Invoked on main queue.
      */
     public func stop(completion: (@Sendable () -> Void)? = nil) {
@@ -97,7 +97,7 @@ public final class Socks5ForwardingProxy: Sendable {
 
     /**
      Set error handler to receive unrecoverable errors at runtime.
-
+    
      - Parameter errorHandler: an error handler block. Invoked on main queue.
      */
     public func setErrorHandler(_ errorHandler: (@Sendable (Error) -> Void)?) {
@@ -125,7 +125,7 @@ public final class Socks5ForwardingProxy: Sendable {
 
     /**
      Start TCP listener.
-
+    
      - Parameter completion: completion handler that is called once the TCP listener is ready or failed.
      */
     private func startListener(completion: @escaping @Sendable (Error?) -> Void) {
@@ -135,10 +135,12 @@ public final class Socks5ForwardingProxy: Sendable {
 
         case let .starting(listener, previousCompletion):
             // Accumulate completion handlers when requested to start multiple times in a row.
-            self.state = .starting(listener: listener, completion: { error in
-                previousCompletion(error)
-                completion(error)
-            })
+            self.state = .starting(
+                listener: listener,
+                completion: { error in
+                    previousCompletion(error)
+                    completion(error)
+                })
 
         case .stopped:
             do {
@@ -153,7 +155,7 @@ public final class Socks5ForwardingProxy: Sendable {
 
     /**
      Create new TCP listener.
-
+    
      - Throws: an instance of `NWError` if unable to initialize `NWListener`.
      - Returns: a configured instance of `NWListener`.
      */
@@ -170,7 +172,7 @@ public final class Socks5ForwardingProxy: Sendable {
 
     /**
      Reset block handlers and cancel an instance of `NWListener`.
-
+    
      - Parameter tcpListener: an instance of `NWListener`.
      */
     private func cancelListener(_ tcpListener: NWListener) {

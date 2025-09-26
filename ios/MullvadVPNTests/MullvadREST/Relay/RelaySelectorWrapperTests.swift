@@ -7,37 +7,39 @@
 //
 
 import MullvadMockData
+import XCTest
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 class RelaySelectorWrapperTests: XCTestCase {
     let multihopWithDaitaConstraints = RelayConstraints(
-        entryLocations: .only(UserSelectedRelays(locations: [.country("es")])), // Relay with DAITA.
+        entryLocations: .only(UserSelectedRelays(locations: [.country("es")])),  // Relay with DAITA.
         exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
     )
 
     let multihopWithoutDaitaConstraints = RelayConstraints(
-        entryLocations: .only(UserSelectedRelays(locations: [.country("se")])), // Relay without DAITA.
+        entryLocations: .only(UserSelectedRelays(locations: [.country("se")])),  // Relay without DAITA.
         exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
     )
 
     let singlehopWithoutDaitaConstraints = RelayConstraints(
-        exitLocations: .only(UserSelectedRelays(locations: [.country("se")])) // Relay without DAITA.
+        exitLocations: .only(UserSelectedRelays(locations: [.country("se")]))  // Relay without DAITA.
     )
 
     let singlehopWithDaitaConstraints = RelayConstraints(
-        exitLocations: .only(UserSelectedRelays(locations: [.country("es")])) // Relay with DAITA.
+        exitLocations: .only(UserSelectedRelays(locations: [.country("es")]))  // Relay with DAITA.
     )
 
     var relayCache: RelayCache!
     override func setUpWithError() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(try StoredRelays(
-                rawData: try REST.Coding.makeJSONEncoder().encode(ServerRelaysResponseStubs.sampleRelays),
-                updatedAt: .distantPast
-            ))
+            initialState: .exists(
+                try StoredRelays(
+                    rawData: try REST.Coding.makeJSONEncoder().encode(ServerRelaysResponseStubs.sampleRelays),
+                    updatedAt: .distantPast
+                ))
         )
 
         relayCache = RelayCache(fileCache: fileCache)
@@ -127,9 +129,9 @@ class RelaySelectorWrapperTests: XCTestCase {
         let settings = LatestTunnelSettings(
             relayConstraints: .init(
                 port:
-                .only(
-                    ServerRelaysResponseStubs.sampleRelays.wireguard.portRanges.first!.first!
-                )
+                    .only(
+                        ServerRelaysResponseStubs.sampleRelays.wireguard.portRanges.first!.first!
+                    )
             )
         )
 

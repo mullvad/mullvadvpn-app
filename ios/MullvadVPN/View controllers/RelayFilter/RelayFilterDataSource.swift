@@ -10,10 +10,12 @@ import Combine
 import MullvadREST
 import MullvadTypes
 import UIKit
+
 final class RelayFilterDataSource: UITableViewDiffableDataSource<
     RelayFilterDataSource.Section,
     RelayFilterDataSourceItem
-> {
+>
+{
     private weak var tableView: UITableView?
     private var viewModel: RelayFilterViewModel
     private let relayFilterCellFactory: RelayFilterCellFactory
@@ -38,14 +40,18 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
     }
 
     private func registerCells() {
-        CellReuseIdentifiers.allCases.forEach { tableView?.register(
-            $0.reusableViewClass,
-            forCellReuseIdentifier: $0.rawValue
-        ) }
-        HeaderFooterReuseIdentifiers.allCases.forEach { tableView?.register(
-            $0.reusableViewClass,
-            forHeaderFooterViewReuseIdentifier: $0.rawValue
-        ) }
+        CellReuseIdentifiers.allCases.forEach {
+            tableView?.register(
+                $0.reusableViewClass,
+                forCellReuseIdentifier: $0.rawValue
+            )
+        }
+        HeaderFooterReuseIdentifiers.allCases.forEach {
+            tableView?.register(
+                $0.reusableViewClass,
+                forHeaderFooterViewReuseIdentifier: $0.rawValue
+            )
+        }
     }
 
     private func setupBindings() {
@@ -61,7 +67,8 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
     }
 
     private func availableProviders(givenOwnership ownership: RelayFilter.Ownership) -> [RelayFilterDataSourceItem] {
-        [RelayFilterDataSourceItem.allProviders] + viewModel
+        [RelayFilterDataSourceItem.allProviders]
+            + viewModel
             .availableProviders(for: ownership)
     }
 
@@ -115,7 +122,8 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
         tableView?.indexPathsForSelectedRows?.forEach { selectRow(false, at: $0) }
 
         if let ownership = viewModel.ownershipItem(for: filter.ownership),
-           let ownershipIndexPath = indexPath(for: ownership) {
+            let ownershipIndexPath = indexPath(for: ownership)
+        {
             selectRow(true, at: ownershipIndexPath)
         }
 
@@ -249,9 +257,11 @@ extension RelayFilterDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let view = tableView.dequeueReusableHeaderFooterView(
-            withIdentifier: HeaderFooterReuseIdentifiers.section.rawValue
-        ) as? SettingsHeaderView else { return nil }
+        guard
+            let view = tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.section.rawValue
+            ) as? SettingsHeaderView
+        else { return nil }
 
         let sectionId = snapshot().sectionIdentifiers[section]
         let title: String

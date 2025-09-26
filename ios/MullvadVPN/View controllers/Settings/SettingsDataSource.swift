@@ -10,7 +10,8 @@ import MullvadSettings
 import UIKit
 
 final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource.Section, SettingsDataSource.Item>,
-    UITableViewDelegate {
+    UITableViewDelegate
+{
     enum CellReuseIdentifier: String, CaseIterable {
         case basic
         case changelog
@@ -107,10 +108,11 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
 
         tableView.sectionFooterHeight = 0
-        tableView.tableHeaderView = UIView(frame: CGRect(
-            origin: .zero,
-            size: CGSize(width: 0, height: UIMetrics.TableView.emptyHeaderHeight)
-        ))
+        tableView.tableHeaderView = UIView(
+            frame: CGRect(
+                origin: .zero,
+                size: CGSize(width: 0, height: UIMetrics.TableView.emptyHeaderHeight)
+            ))
         tableView.delegate = self
 
         registerClasses()
@@ -174,16 +176,17 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
         if interactor.deviceState.isLoggedIn {
             snapshot.appendSections([.vpnSettings])
-            snapshot.appendItems([
-                .daita,
-                .multihop,
-                .vpnSettings,
-            ], toSection: .vpnSettings)
+            snapshot.appendItems(
+                [
+                    .daita,
+                    .multihop,
+                    .vpnSettings,
+                ], toSection: .vpnSettings)
         }
 
         #if DEBUG
-        snapshot.appendSections([.language])
-        snapshot.appendItems([.language], toSection: .language)
+            snapshot.appendSections([.language])
+            snapshot.appendItems([.language], toSection: .language)
         #endif
 
         snapshot.appendSections([.apiAccess])

@@ -7,8 +7,9 @@
 //
 
 import MullvadMockData
-@testable import MullvadSettings
 import XCTest
+
+@testable import MullvadSettings
 
 class AllLocationsDataSourceTests: XCTestCase {
     var allLocationNodes = [LocationNode]()

@@ -47,10 +47,11 @@ class SelectableSettingsCell: SettingsCell {
     private func setTickView() {
         setLeadingView { superview in
             superview.addConstrainedSubviews([tickImageView]) {
-                tickImageView.pinEdgesToSuperview(PinnableEdges([
-                    .leading(0), .top(0), .bottom(0),
-                    .trailing(UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing),
-                ]))
+                tickImageView.pinEdgesToSuperview(
+                    PinnableEdges([
+                        .leading(0), .top(0), .bottom(0),
+                        .trailing(UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing),
+                    ]))
             }
         }
     }

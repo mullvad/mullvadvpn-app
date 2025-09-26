@@ -6,8 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadREST
 import XCTest
+
+@testable import MullvadREST
 
 final class RelayCacheTests: XCTestCase {
     func testReadCache() throws {

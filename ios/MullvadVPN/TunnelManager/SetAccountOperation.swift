@@ -100,12 +100,12 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin logout flow by performing the following steps:
-
+    
      1. Delete currently logged in device from the API if device is logged in.
      2. Transition device state to logged out state.
      3. Remove system VPN configuration if exists.
      4. Reset tunnel status to disconnected state.
-
+    
      Does nothing if device is already logged out.
      */
     private func startLogoutFlow(completion: @escaping @Sendable () -> Void) {
@@ -125,7 +125,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin login flow with a new account and performing the following steps:
-
+    
      1. Create new account via API.
      2. Call `continueLoginFlow()` passing the result of account creation request.
      */
@@ -137,7 +137,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin login flow with an existing account by performing the following steps:
-
+    
      1. Retrieve existing account from the API.
      2. Call `continueLoginFlow()` passing the result of account retrieval request.
      */
@@ -152,7 +152,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin delete flow of an existing account by performing the following steps:
-
+    
      1. Delete existing account with the API.
      2. Reset tunnel settings to default and remove last used account.
      */
@@ -172,7 +172,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     /**
      Continue login flow after receiving account data as a part of creating new or retrieving existing account from
      the API by performing the following steps:
-
+    
      1. Store last used account number.
      2. Create new device with the API.
      3. Persist settings.
@@ -187,11 +187,12 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
             storeLastUsedAccount(accountNumber: accountData.number)
 
             createDevice(accountNumber: accountData.number) { [self] result in
-                completion(result.map { newDevice in
-                    storeSettings(accountData: accountData, newDevice: newDevice)
+                completion(
+                    result.map { newDevice in
+                        storeSettings(accountData: accountData, newDevice: newDevice)
 
-                    return accountData
-                })
+                        return accountData
+                    })
             }
         } catch {
             completion(.failure(error))
@@ -348,7 +349,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Transitions device state into logged out state by performing the following tasks:
-
+    
      1. Prepare tunnel manager for removal of VPN configuration. In response tunnel manager stops processing VPN status
         notifications coming from VPN configuration.
      2. Reset device staate to logged out and persist it.
@@ -396,7 +397,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
         logger.debug("Create device...")
 
-        let task = devicesProxy
+        let task =
+            devicesProxy
             .createDevice(accountNumber: accountNumber, request: request, retryStrategy: .default) { [self] result in
                 dispatchQueue.async { [self] in
                     // Due to retry strategy, it's possible for server to register the new key without being
@@ -432,11 +434,13 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         let task = devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
             dispatchQueue.async { [self] in
-                let result = result
+                let result =
+                    result
                     .flatMap { devices in
-                        .success(devices.first { device in
-                            device.pubkey == publicKey
-                        })
+                        .success(
+                            devices.first { device in
+                                device.pubkey == publicKey
+                            })
                     }
                     .inspectError { error in
                         logger.error(error: error, message: "Failed to get devices.")
@@ -456,5 +460,3 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         var device: Device
     }
 }
-
-// swiftlint:disable:this file_length

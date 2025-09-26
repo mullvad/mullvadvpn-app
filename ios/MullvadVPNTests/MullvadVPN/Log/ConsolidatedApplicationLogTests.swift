@@ -96,7 +96,7 @@ final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
 
     private func generateRandomName() -> String {
         let characterSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        let randomName = (0 ..< 6).compactMap { _ in characterSet.randomElement() }
+        let randomName = (0..<6).compactMap { _ in characterSet.randomElement() }
         return String(randomName)
     }
 }
@@ -104,24 +104,24 @@ final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
 extension ConsolidatedApplicationLogTests {
     private var content: String {
         return """
-        MullvadVPN version xxxx.x
-        [22/11/2024 @ 08:52:22][AppDelegate][debug] Registered app refresh task.
-        [22/11/2024 @ 08:52:22][AppDelegate][debug] Registered address cache update task.
-        [22/11/2024 @ 08:52:22][AppDelegate][debug] Registered private key rotation task.
-        [22/11/2024 @ 08:52:23][TunnelManager][debug] Refresh device state
-        and tunnel status
-        due to application becoming active.
-        [22/11/2024 @ 08:52:23][RelayCacheTracker][debug] Start periodic relay updates.
-        [22/11/2024 @ 08:52:23][AddressCache.Tracker][debug] Start periodic address cache updates.
-        [22/11/2024 @ 08:52:23][AddressCache.Tracker][debug] Schedule address cache update at 23/11/2024 @ 08:49:52.
-        [22/11/2024 @ 08:52:23][AppDelegate][debug] Attempted migration from UI Process, but found nothing to do.
-        [22/11/2024 @ 08:52:23][TunnelManager][debug] Refresh tunnel status for new tunnel.
-        [22/11/2024 @ 08:52:23][REST.NetworkOperation][debug] name=get-access-token.2
-        Send request
-        to /auth/v1/token via 127.0.0.1 using encrypted-dns-url-session.
-        [22/11/2024 @ 08:52:23][ApplicationRouter][debug] Presenting .main.
-        [22/11/2024 @ 08:52:23][REST.NetworkOperation][debug] name=get-access-token.2 Response: 200.
-        [22/11/2024 @ 08:52:23][AppDelegate][debug] Finished initialization.
-        """
+            MullvadVPN version xxxx.x
+            [22/11/2024 @ 08:52:22][AppDelegate][debug] Registered app refresh task.
+            [22/11/2024 @ 08:52:22][AppDelegate][debug] Registered address cache update task.
+            [22/11/2024 @ 08:52:22][AppDelegate][debug] Registered private key rotation task.
+            [22/11/2024 @ 08:52:23][TunnelManager][debug] Refresh device state
+            and tunnel status
+            due to application becoming active.
+            [22/11/2024 @ 08:52:23][RelayCacheTracker][debug] Start periodic relay updates.
+            [22/11/2024 @ 08:52:23][AddressCache.Tracker][debug] Start periodic address cache updates.
+            [22/11/2024 @ 08:52:23][AddressCache.Tracker][debug] Schedule address cache update at 23/11/2024 @ 08:49:52.
+            [22/11/2024 @ 08:52:23][AppDelegate][debug] Attempted migration from UI Process, but found nothing to do.
+            [22/11/2024 @ 08:52:23][TunnelManager][debug] Refresh tunnel status for new tunnel.
+            [22/11/2024 @ 08:52:23][REST.NetworkOperation][debug] name=get-access-token.2
+            Send request
+            to /auth/v1/token via 127.0.0.1 using encrypted-dns-url-session.
+            [22/11/2024 @ 08:52:23][ApplicationRouter][debug] Presenting .main.
+            [22/11/2024 @ 08:52:23][REST.NetworkOperation][debug] name=get-access-token.2 Response: 200.
+            [22/11/2024 @ 08:52:23][AppDelegate][debug] Finished initialization.
+            """
     }
 }

@@ -149,10 +149,10 @@ class InputTextFormatterTests: XCTestCase {
 private extension String {
     func range(withOffset offset: Int, length: Int) -> Range<String.Index>? {
         guard let start = index(startIndex, offsetBy: offset, limitedBy: endIndex),
-              let end = index(start, offsetBy: length, limitedBy: endIndex)
+            let end = index(start, offsetBy: length, limitedBy: endIndex)
         else {
             return nil
         }
-        return start ..< end
+        return start..<end
     }
 }

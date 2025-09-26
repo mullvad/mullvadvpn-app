@@ -50,20 +50,21 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     ) -> ProtocolObfuscationResult {
         remotePort = endpoint.ipv4Relay.port
 
-        let obfuscationProtocol: TunnelObfuscationProtocol? = switch obfuscationMethod {
-        case .udpOverTcp:
-            .udpOverTcp
-        case .shadowsocks:
-            .shadowsocks
-        case .quic:
-            if let relayFeatures = relayFeatures?.quic {
-                .quic(hostname: relayFeatures.domain, token: relayFeatures.token)
-            } else {
+        let obfuscationProtocol: TunnelObfuscationProtocol? =
+            switch obfuscationMethod {
+            case .udpOverTcp:
+                .udpOverTcp
+            case .shadowsocks:
+                .shadowsocks
+            case .quic:
+                if let relayFeatures = relayFeatures?.quic {
+                    .quic(hostname: relayFeatures.domain, token: relayFeatures.token)
+                } else {
+                    nil
+                }
+            default:
                 nil
             }
-        default:
-            nil
-        }
 
         guard let obfuscationProtocol else {
             tunnelObfuscator = nil

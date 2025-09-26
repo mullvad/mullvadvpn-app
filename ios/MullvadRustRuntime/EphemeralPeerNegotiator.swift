@@ -36,7 +36,6 @@ public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
         peerReceiver: any TunnelProvider,
         ephemeralPeerParams: EphemeralPeerParameters
     ) -> Bool {
-        // swiftlint:disable:next force_cast
         let ephemeralPeerReceiver = Unmanaged.passUnretained(peerReceiver as! EphemeralPeerReceiver)
             .toOpaque()
 

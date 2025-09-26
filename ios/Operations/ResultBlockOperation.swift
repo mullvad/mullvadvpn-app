@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 import protocol MullvadTypes.Cancellable
 
 public final class ResultBlockOperation<Success: Sendable>: ResultOperation<Success>, @unchecked Sendable {

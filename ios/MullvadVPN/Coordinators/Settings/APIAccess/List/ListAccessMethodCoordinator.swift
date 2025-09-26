@@ -32,9 +32,10 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 
     func start(animated: Bool) {
         let view = ListAccessMethodView(
-            viewModel: ListAccessViewModelBridge(interactor: ListAccessMethodInteractor(
-                repository: accessMethodRepository
-            ), delegate: self)
+            viewModel: ListAccessViewModelBridge(
+                interactor: ListAccessMethodInteractor(
+                    repository: accessMethodRepository
+                ), delegate: self)
         )
         let host = UIHostingController(rootView: view)
         host.title = NSLocalizedString("API access", comment: "")
@@ -73,8 +74,10 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     }
 
     private func popToList() {
-        guard let listController = navigationController.viewControllers
-            .first(where: { $0 is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>> }) else {
+        guard
+            let listController = navigationController.viewControllers
+                .first(where: { $0 is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>> })
+        else {
             return
         }
 
@@ -89,18 +92,18 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
         )
         let body = [
             NSLocalizedString(
-                "The app needs to communicate with a Mullvad API server to log you in, " +
-                    "fetch server lists, and other critical operations.",
+                "The app needs to communicate with a Mullvad API server to log you in, "
+                    + "fetch server lists, and other critical operations.",
                 comment: ""
             ),
             NSLocalizedString(
-                "On some networks, where various types of censorship are being used, " +
-                    "the API servers might not be directly reachable.",
+                "On some networks, where various types of censorship are being used, "
+                    + "the API servers might not be directly reachable.",
                 comment: ""
             ),
             NSLocalizedString(
-                "This feature allows you to circumvent that censorship by adding custom ways " +
-                    "to access the API via proxies and similar methods.",
+                "This feature allows you to circumvent that censorship by adding custom ways "
+                    + "to access the API via proxies and similar methods.",
                 comment: ""
             ),
         ]

@@ -12,7 +12,8 @@ import UIKit
 final class CustomDNSDataSource: UITableViewDiffableDataSource<
     CustomDNSDataSource.Section,
     CustomDNSDataSource.Item
->, UITableViewDelegate {
+>, UITableViewDelegate
+{
     typealias InfoButtonHandler = (Item) -> Void
 
     enum CellReuseIdentifiers: String, CaseIterable {
@@ -124,9 +125,11 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 
     private var isEditing = false
 
-    private(set) var viewModel = VPNSettingsViewModel() { didSet {
-        cellFactory.viewModel = viewModel
-    }}
+    private(set) var viewModel = VPNSettingsViewModel() {
+        didSet {
+            cellFactory.viewModel = viewModel
+        }
+    }
     private(set) var viewModelBeforeEditing = VPNSettingsViewModel()
     private let cellFactory: CustomDNSCellFactory
     private weak var tableView: UITableView?
@@ -242,9 +245,9 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         let destinationItem = itemIdentifier(for: destinationIndexPath)!
 
         guard case let .dnsServer(sourceIdentifier) = sourceItem,
-              case let .dnsServer(targetIdentifier) = destinationItem,
-              let sourceIndex = viewModel.indexOfDNSEntry(entryIdentifier: sourceIdentifier),
-              let destinationIndex = viewModel.indexOfDNSEntry(entryIdentifier: targetIdentifier)
+            case let .dnsServer(targetIdentifier) = destinationItem,
+            let sourceIndex = viewModel.indexOfDNSEntry(entryIdentifier: sourceIdentifier),
+            let destinationIndex = viewModel.indexOfDNSEntry(entryIdentifier: targetIdentifier)
         else { return }
 
         let removedEntry = viewModel.customDNSDomains.remove(at: sourceIndex)
@@ -263,11 +266,14 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
-        guard let view = tableView
-            .dequeueReusableHeaderFooterView(
-                withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader
-                    .rawValue
-            ) as? SettingsHeaderView else { return nil }
+        guard
+            let view =
+                tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader
+                        .rawValue
+                ) as? SettingsHeaderView
+        else { return nil }
 
         switch sectionIdentifier {
         case .contentBlockers:
@@ -333,7 +339,8 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         }
 
         guard let indexPathForFirstRow,
-              let indexPathForLastRow else { return sourceIndexPath }
+            let indexPathForLastRow
+        else { return sourceIndexPath }
 
         if proposedDestinationIndexPath.section == sourceIndexPath.section {
             return min(max(proposedDestinationIndexPath, indexPathForFirstRow), indexPathForLastRow)
@@ -409,7 +416,8 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 
     private func reload(item: Item) {
         if let indexPath = indexPath(for: item),
-           let cell = tableView?.cellForRow(at: indexPath) {
+            let cell = tableView?.cellForRow(at: indexPath)
+        {
             cellFactory.configureCell(cell, item: item, indexPath: indexPath)
         }
     }
@@ -476,9 +484,9 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
             reload(item: .blockAll)
         }
 
-        if
-            let index = snapshot().sectionIdentifiers.firstIndex(of: .contentBlockers),
-            let headerView = tableView?.headerView(forSection: index) as? SettingsHeaderView {
+        if let index = snapshot().sectionIdentifiers.firstIndex(of: .contentBlockers),
+            let headerView = tableView?.headerView(forSection: index) as? SettingsHeaderView
+        {
             configureContentBlockersHeader(headerView)
         }
 
@@ -529,7 +537,8 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
                 }
 
             if let lastDNSEntry,
-               let indexPath = self?.indexPath(for: lastDNSEntry) {
+                let indexPath = self?.indexPath(for: lastDNSEntry)
+            {
                 let cell = self?.tableView?.cellForRow(at: indexPath) as? SettingsDNSTextCell
 
                 self?.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
@@ -581,9 +590,11 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 
         let enabledBlockersCount = viewModel.enabledBlockersCount
         let attributedTitle = NSMutableAttributedString(string: title)
-        let blockerCountText = NSAttributedString(string: " (\(enabledBlockersCount))", attributes: [
-            .foregroundColor: UIColor.primaryTextColor.withAlphaComponent(0.6),
-        ])
+        let blockerCountText = NSAttributedString(
+            string: " (\(enabledBlockersCount))",
+            attributes: [
+                .foregroundColor: UIColor.primaryTextColor.withAlphaComponent(0.6)
+            ])
 
         if enabledBlockersCount > 0 {
             attributedTitle.append(blockerCountText)
@@ -666,5 +677,3 @@ extension CustomDNSDataSource: @preconcurrency CustomDNSCellEventHandler {
         delegate?.showInfo(for: button)
     }
 }
-
-// swiftlint:disable:this file_length

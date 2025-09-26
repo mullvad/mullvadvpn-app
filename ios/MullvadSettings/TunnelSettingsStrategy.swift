@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 public protocol TunnelSettingsStrategyProtocol: Sendable {
     func shouldReconnectToNewRelay(oldSettings: LatestTunnelSettings, newSettings: LatestTunnelSettings) -> Bool
     func getReconnectionStrategy(
@@ -32,8 +33,9 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
         oldSettings: LatestTunnelSettings,
         newSettings: LatestTunnelSettings
     ) -> TunnelSettingsReconnectionStrategy {
-        if oldSettings.localNetworkSharing != newSettings.localNetworkSharing ||
-            oldSettings.includeAllNetworks != newSettings.includeAllNetworks {
+        if oldSettings.localNetworkSharing != newSettings.localNetworkSharing
+            || oldSettings.includeAllNetworks != newSettings.includeAllNetworks
+        {
             return .hardReconnect
         }
         switch (oldSettings, newSettings) {

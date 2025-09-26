@@ -13,7 +13,8 @@ import UIKit
 /// Suitable to be used with `UITextField`.
 class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
     enum AllowedInput {
-        case numeric, alphanumeric(isUpperCase: Bool)
+        case numeric
+        case alphanumeric(isUpperCase: Bool)
     }
 
     struct Configuration {
@@ -54,7 +55,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
 
     /// Replace the currently held value with the given string
     func replace(with replacementString: String) {
-        let stringRange = formattedString.startIndex ..< formattedString.endIndex
+        let stringRange = formattedString.startIndex..<formattedString.endIndex
 
         replaceCharacters(
             in: stringRange,
@@ -76,11 +77,12 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
         // Since removing separator alone makes no sense, this computation extends the string range
         // to include the digit preceding a separator.
         if replacementString.isEmpty, emptySelection, !formattedString.isEmpty {
-            let precedingDigitIndex = formattedString
+            let precedingDigitIndex =
+                formattedString
                 .prefix(through: stringRange.lowerBound)
                 .lastIndex { isAllowed($0) } ?? formattedString.startIndex
 
-            stringRange = precedingDigitIndex ..< stringRange.upperBound
+            stringRange = precedingDigitIndex..<stringRange.upperBound
         }
 
         // Replace the given range within a formatted string
@@ -126,8 +128,9 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
 
             // Add separator between the groups of digits
             if numDigits > 0,
-               configuration.groupSize > 0,
-               numDigits % Int(configuration.groupSize) == 0 {
+                configuration.groupSize > 0,
+                numDigits % Int(configuration.groupSize) == 0
+            {
                 reformattedString.append(configuration.groupSeparator)
 
                 if originalCaretPosition > index {
@@ -222,10 +225,12 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
 
     /// Convert the computed caret position to an empty `UITextRange` within the given text field.
     private func caretTextRange(in textField: UITextField) -> UITextRange? {
-        guard let position = textField.position(
-            from: textField.beginningOfDocument,
-            offset: caretPositionUtf16
-        ) else { return nil }
+        guard
+            let position = textField.position(
+                from: textField.beginningOfDocument,
+                offset: caretPositionUtf16
+            )
+        else { return nil }
 
         return textField.textRange(from: position, to: position)
     }

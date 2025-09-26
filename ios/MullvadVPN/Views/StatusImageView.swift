@@ -39,7 +39,6 @@ class StatusImageView: UIImageView {
             }
         }
 
-        // swiftlint:disable:next unused_setter_value
         set {
             fatalError("This accessibilityValue property is get only")
         }

@@ -7,11 +7,12 @@
 //
 
 import Combine
-@testable import MullvadMockData
-@testable import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
 import XCTest
+
+@testable import MullvadMockData
+@testable import MullvadREST
 
 final class AppMessageHandlerTests: XCTestCase {
     // MARK: URLRequest

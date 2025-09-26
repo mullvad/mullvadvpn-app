@@ -7,8 +7,9 @@
 //
 
 import Combine
-import struct MullvadTypes.Duration
 import UIKit
+
+import struct MullvadTypes.Duration
 
 /// The view controller providing the interface for editing method settings
 /// and testing the proxy configuration.
@@ -121,12 +122,15 @@ class MethodSettingsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
 
-        guard let headerView = tableView
-            .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
+        guard
+            let headerView =
+                tableView
+                .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
         else { return nil }
 
         var contentConfiguration = ListCellContentConfiguration(
-            textProperties: ListCellContentConfiguration
+            textProperties:
+                ListCellContentConfiguration
                 .TextProperties(color: .TableSection.headerTextColor)
         )
         contentConfiguration.text = sectionIdentifier.sectionName
@@ -163,7 +167,8 @@ class MethodSettingsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         guard !isTesting, let itemIdentifier = dataSource?.itemIdentifier(for: indexPath),
-              itemIdentifier.isSelectable else { return nil }
+            itemIdentifier.isSelectable
+        else { return nil }
 
         return indexPath
     }
@@ -258,9 +263,10 @@ class MethodSettingsViewController: UITableViewController {
         let validationError = validationResult.error as? AccessMethodValidationError
 
         // Only look for empty values for input validation.
-        inputValidationErrors = validationError?.fieldErrors.filter { error in
-            error.kind == .emptyValue
-        } ?? []
+        inputValidationErrors =
+            validationError?.fieldErrors.filter { error in
+                error.kind == .emptyValue
+            } ?? []
 
         saveBarButton.isEnabled = !isTesting && inputValidationErrors.isEmpty
     }
@@ -270,9 +276,10 @@ class MethodSettingsViewController: UITableViewController {
         let validationError = validationResult.error as? AccessMethodValidationError
 
         // Only look for format errors for test (save validation).
-        contentValidationErrors = validationError?.fieldErrors.filter { error in
-            error.kind != .emptyValue
-        } ?? []
+        contentValidationErrors =
+            validationError?.fieldErrors.filter { error in
+                error.kind != .emptyValue
+            } ?? []
     }
 
     private func onSave(transitionDelay: Duration = .zero) {

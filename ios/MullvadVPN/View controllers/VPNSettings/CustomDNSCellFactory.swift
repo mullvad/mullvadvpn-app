@@ -56,7 +56,6 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
         }
     }
 
-    // swiftlint:disable:next function_body_length
     func configureCell(_ cell: UITableViewCell, item: CustomDNSDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .blockAll:
@@ -162,7 +161,8 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
             cell.accessibilityIdentifier = "\(item.accessibilityIdentifier) (\(entryIdentifier))"
 
             cell.onTextChange = { [weak self] cell in
-                cell.isValidInput = self?
+                cell.isValidInput =
+                    self?
                     .dnsEntryIsValid(identifier: entryIdentifier, cell: cell) ?? false
             }
 

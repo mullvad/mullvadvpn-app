@@ -1,9 +1,10 @@
 import SwiftUI
 
 extension Image {
-    static var mullvadIconClose: some View { Image("IconClose")
-        .resizable()
-        .frame(width: 25, height: 25)
+    static var mullvadIconClose: some View {
+        Image("IconClose")
+            .resizable()
+            .frame(width: 25, height: 25)
     }
 
     static let mullvadIconAlert = Image("IconAlert")

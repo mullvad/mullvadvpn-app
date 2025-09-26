@@ -12,9 +12,7 @@ import UIKit
 import XCTest
 
 class FirewallClient: TestRouterAPIClient {
-    // swiftlint:disable force_cast
     let testDeviceIdentifier = Bundle(for: FirewallClient.self).infoDictionary?["TestDeviceIdentifier"] as! String
-    // swiftlint:enable force_cast
 
     lazy var sessionIdentifier = "urn:uuid:" + testDeviceIdentifier
 
@@ -28,8 +26,8 @@ class FirewallClient: TestRouterAPIClient {
 
         let dataDictionary: [String: Any] = [
             "label": sessionIdentifier,
-            "from": firewallRule.fromIPAddress, // Deprecated, replaced by "src"
-            "to": firewallRule.toIPAddress, // Deprectated, replaced by "dst"
+            "from": firewallRule.fromIPAddress,  // Deprecated, replaced by "src"
+            "to": firewallRule.toIPAddress,  // Deprectated, replaced by "dst"
             "src": firewallRule.fromIPAddress,
             "dst": firewallRule.toIPAddress,
             "protocols": firewallRule.protocolsAsStringArray(),

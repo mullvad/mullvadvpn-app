@@ -167,7 +167,8 @@ class AccountTests: LoggedOutUITestCase {
             .enterText(hasTimeAccountNumber)
 
         repeat {
-            successIconShown = loginPage
+            successIconShown =
+                loginPage
                 .tapAccountNumberSubmitButton()
                 .getSuccessIconShown()
 
@@ -184,7 +185,7 @@ class AccountTests: LoggedOutUITestCase {
             .enterText("0000000000000000")
             .tapAccountNumberSubmitButton()
             .verifyFailIconShown()
-            .waitForPageToBeShown() // Verify still on login page
+            .waitForPageToBeShown()  // Verify still on login page
     }
 
     func testLoginToAccountWithTooManyDevices() throws {

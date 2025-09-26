@@ -45,9 +45,10 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
     }
 
     func start(animated: Bool) {
-        let section: VPNSettingsSection? = if case let .vpnSettings(route) = route { route } else {
-            nil
-        }
+        let section: VPNSettingsSection? =
+            if case let .vpnSettings(route) = route { route } else {
+                nil
+            }
         let controller = VPNSettingsViewController(
             interactor: interactorFactory.makeVPNSettingsInteractor(),
             alertPresenter: AlertPresenter(context: self),

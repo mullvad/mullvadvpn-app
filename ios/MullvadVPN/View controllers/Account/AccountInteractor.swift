@@ -65,7 +65,8 @@ final class AccountInteractor: Sendable {
     // This function is for testing only
     func getPaymentToken(for accountNumber: String) async -> Result<String, Error> {
         await withCheckedContinuation { continuation in
-            _ = apiProxy
+            _ =
+                apiProxy
                 .initStorekitPayment(
                     accountNumber: accountNumber,
                     retryStrategy: .noRetry,
@@ -82,7 +83,8 @@ final class AccountInteractor: Sendable {
         for accountNumber: String
     ) async -> Result<Void, Error> {
         await withCheckedContinuation { c in
-            _ = apiProxy
+            _ =
+                apiProxy
                 .checkStorekitPayment(
                     accountNumber: accountNumber,
                     transaction: StorekitTransaction(transaction: transaction.jwsRepresentation),

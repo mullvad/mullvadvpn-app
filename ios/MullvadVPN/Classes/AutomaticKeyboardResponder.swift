@@ -47,12 +47,14 @@ class AutomaticKeyboardResponder {
 
     private func handleKeyboardNotification(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let targetView else { return }
+            let targetView
+        else { return }
         // In iOS 16.1 and later, the keyboard notification object is the screen the keyboard appears on.
         if #available(iOS 16.1, *) {
             guard let screen = notification.object as? UIScreen,
-                  // Get the keyboard’s frame at the end of its animation.
-                  let keyboardFrameEnd = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+                // Get the keyboard’s frame at the end of its animation.
+                let keyboardFrameEnd = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+            else { return }
 
             // Use that screen to get the coordinate space to convert from.
             let fromCoordinateSpace = screen.coordinateSpace
@@ -105,7 +107,8 @@ extension AutomaticKeyboardResponder {
         self.init(targetView: targetView) { scrollView, offset in
             if scrollView.canBecomeFirstResponder {
                 scrollView.contentInset.bottom = targetView.isFirstResponder ? offset : 0
-                scrollView.verticalScrollIndicatorInsets.bottom = targetView.isFirstResponder
+                scrollView.verticalScrollIndicatorInsets.bottom =
+                    targetView.isFirstResponder
                     ? offset
                     : 0
             } else {

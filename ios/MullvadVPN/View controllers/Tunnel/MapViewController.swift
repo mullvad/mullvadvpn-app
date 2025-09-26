@@ -57,9 +57,11 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     ) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        coordinator.animate(alongsideTransition: nil, completion: { context in
-            self.recomputeVisibleRegion(animated: context.isAnimated)
-        })
+        coordinator.animate(
+            alongsideTransition: nil,
+            completion: { context in
+                self.recomputeVisibleRegion(animated: context.isAnimated)
+            })
     }
 
     override func viewDidLayoutSubviews() {
@@ -180,12 +182,14 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
                 for geometry in feature.geometry {
                     if let polygon = geometry as? MKPolygon {
                         if let interiorPolygons = polygon.interiorPolygons,
-                           !interiorPolygons.isEmpty {
+                            !interiorPolygons.isEmpty
+                        {
                             overlays
-                                .append(MKPolygon(
-                                    points: polygon.points(),
-                                    count: polygon.pointCount
-                                ))
+                                .append(
+                                    MKPolygon(
+                                        points: polygon.points(),
+                                        count: polygon.pointCount
+                                    ))
                             overlays.append(contentsOf: interiorPolygons)
                         } else {
                             overlays.append(polygon)
@@ -284,8 +288,9 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
         let mapViewLayoutFrame = mapView.layoutMarginsGuide.layoutFrame
 
         guard mapViewLayoutFrame.width > 0, mapView.frame.width > 0,
-              region.span.longitudeDelta > 0,
-              mapView.region.span.longitudeDelta > 0 else { return region }
+            region.span.longitudeDelta > 0,
+            mapView.region.span.longitudeDelta > 0
+        else { return region }
 
         // MKMapView.convert(_:toRectTo:) returns CGRect scaled to the zoom level derived from
         // currently set region.

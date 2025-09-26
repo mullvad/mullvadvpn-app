@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 enum DAITASettingsPromptItem: CustomStringConvertible {
     case daitaSettingIncompatibleWithSinglehop(Setting)
     case daitaSettingIncompatibleWithMultihop(Setting)
@@ -31,10 +32,11 @@ enum DAITASettingsPromptItem: CustomStringConvertible {
     var description: String {
         switch self {
         case .daitaSettingIncompatibleWithSinglehop:
-            NSLocalizedString("""
-            DAITA isn't available at the currently selected location. After enabling, please go to \
-            the "Select location" view and select a location that supports DAITA.
-            """, comment: "")
+            NSLocalizedString(
+                """
+                DAITA isn't available at the currently selected location. After enabling, please go to \
+                the "Select location" view and select a location that supports DAITA.
+                """, comment: "")
 
         case .daitaSettingIncompatibleWithMultihop:
             NSLocalizedString(
