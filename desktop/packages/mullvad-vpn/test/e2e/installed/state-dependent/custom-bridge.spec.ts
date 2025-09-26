@@ -18,7 +18,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -27,14 +27,14 @@ test.afterAll(async () => {
 
 test('App should enable bridge mode', async () => {
   await page.click('button[aria-label="Settings"]');
-  await util.waitForRoute(RoutePath.settings);
+  await util.expectRoute(RoutePath.settings);
 
   await page.getByText('VPN settings').click();
-  await util.waitForRoute(RoutePath.vpnSettings);
+  await util.expectRoute(RoutePath.vpnSettings);
 
   await page.getByRole('option', { name: 'OpenVPN' }).click();
   await page.getByText('OpenVPN settings').click();
-  await util.waitForRoute(RoutePath.openVpnSettings);
+  await util.expectRoute(RoutePath.openVpnSettings);
 
   const bridgeModeListox = page.getByRole('listbox', { name: 'Bridge mode' });
   const bridgeModeOnButton = bridgeModeListox.getByRole('option', { name: 'On', exact: true });
@@ -42,18 +42,18 @@ test('App should enable bridge mode', async () => {
   await expect(bridgeModeOnButton).toHaveAttribute('aria-selected', 'true');
 
   await page.click('button[aria-label="Back"]');
-  await util.waitForRoute(RoutePath.vpnSettings);
+  await util.expectRoute(RoutePath.vpnSettings);
 
   await page.click('button[aria-label="Back"]');
-  await util.waitForRoute(RoutePath.settings);
+  await util.expectRoute(RoutePath.settings);
 
   await page.click('button[aria-label="Close"]');
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test('App display disabled custom bridge', async () => {
   await page.click('button[aria-label^="Select location"]');
-  await util.waitForRoute(RoutePath.selectLocation);
+  await util.expectRoute(RoutePath.selectLocation);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Select location');
@@ -66,7 +66,7 @@ test('App display disabled custom bridge', async () => {
 
 test('App should add new custom bridge', async () => {
   await page.click('button[aria-label="Add new custom bridge"]');
-  await util.waitForRoute(RoutePath.editCustomBridge);
+  await util.expectRoute(RoutePath.editCustomBridge);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Add custom bridge');
@@ -90,7 +90,7 @@ test('App should add new custom bridge', async () => {
     .click();
 
   await addButton.click();
-  await util.waitForRoute(RoutePath.selectLocation);
+  await util.expectRoute(RoutePath.selectLocation);
 
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
   await expect(customBridgeButton).toBeEnabled();
@@ -118,7 +118,7 @@ test('App should edit custom bridge', async () => {
   await page.getByText(/^Entry$/).click();
 
   await page.click('button[aria-label="Edit custom bridge"]');
-  await util.waitForRoute(RoutePath.editCustomBridge);
+  await util.expectRoute(RoutePath.editCustomBridge);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Edit custom bridge');
@@ -132,7 +132,7 @@ test('App should edit custom bridge', async () => {
   await expect(saveButton).toBeEnabled();
 
   await saveButton.click();
-  await util.waitForRoute(RoutePath.selectLocation);
+  await util.expectRoute(RoutePath.selectLocation);
 
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
   await expect(customBridgeButton).toBeEnabled();
@@ -141,7 +141,7 @@ test('App should edit custom bridge', async () => {
 
 test('App should delete custom bridge', async () => {
   await page.click('button[aria-label="Edit custom bridge"]');
-  await util.waitForRoute(RoutePath.editCustomBridge);
+  await util.expectRoute(RoutePath.editCustomBridge);
 
   const deleteButton = page.locator('button:has-text("Delete")');
   await expect(deleteButton).toBeVisible();
@@ -152,7 +152,7 @@ test('App should delete custom bridge', async () => {
 
   const confirmButton = page.getByTestId('delete-confirm');
   await confirmButton.click();
-  await util.waitForRoute(RoutePath.selectLocation);
+  await util.expectRoute(RoutePath.selectLocation);
 
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
   await expect(customBridgeButton).toBeDisabled();

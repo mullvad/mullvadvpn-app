@@ -15,7 +15,7 @@ export class LoginRouteObjectModel {
   }
 
   async waitForRoute() {
-    await this.utils.waitForRoute(RoutePath.login);
+    await this.utils.expectRoute(RoutePath.login);
   }
 
   fillAccountNumber(accountNumber: string) {

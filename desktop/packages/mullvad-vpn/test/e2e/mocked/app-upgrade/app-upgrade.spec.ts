@@ -28,7 +28,7 @@ test.describe('App upgrade', () => {
     upgradeEventIpc = createAppUpgradeEventIpcHelper(util);
     selectors = createSelectors(page);
 
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
 
     await util.ipc.upgradeVersion[''].notify({
       supported: true,
@@ -42,11 +42,11 @@ test.describe('App upgrade', () => {
     await util.ipc.app.getUpgradeCacheDir.ignore();
 
     await page.click('button[aria-label="Settings"]');
-    await util.waitForRoute(RoutePath.settings);
+    await util.expectRoute(RoutePath.settings);
     await page.getByRole('button', { name: 'App info' }).click();
-    await util.waitForRoute(RoutePath.appInfo);
+    await util.expectRoute(RoutePath.appInfo);
     await page.getByRole('button', { name: 'Update available' }).click();
-    await util.waitForRoute(RoutePath.appUpgrade);
+    await util.expectRoute(RoutePath.appUpgrade);
   };
 
   const restart = async () => {

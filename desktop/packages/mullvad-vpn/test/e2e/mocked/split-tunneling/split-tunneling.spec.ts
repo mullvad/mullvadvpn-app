@@ -14,7 +14,7 @@ test.describe('Split tunneling', () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
 
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
     await routes.main.gotoSettings();
     await routes.settings.gotoSplitTunnelingSettings();
   });
