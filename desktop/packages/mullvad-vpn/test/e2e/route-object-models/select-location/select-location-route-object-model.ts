@@ -42,6 +42,6 @@ export class SelectLocationRouteObjectModel {
 
   async gotoFilter() {
     await this.selectors.filterButton().click();
-    await this.utils.waitForRoute(RoutePath.filter);
+    await this.utils.expectRoute(RoutePath.filter);
   }
 }

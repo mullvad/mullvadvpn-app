@@ -16,17 +16,17 @@ export class MainRouteObjectModel {
   }
 
   async waitForRoute() {
-    await this.utils.waitForRoute(RoutePath.main);
+    await this.utils.expectRoute(RoutePath.main);
   }
 
   async gotoSettings() {
     await this.selectors.settingsButton().click();
-    await this.utils.waitForRoute(RoutePath.settings);
+    await this.utils.expectRoute(RoutePath.settings);
   }
 
   async gotoSelectLocation() {
     await this.selectors.selectLocationButton().click();
-    await this.utils.waitForRoute(RoutePath.selectLocation);
+    await this.utils.expectRoute(RoutePath.selectLocation);
   }
 
   async expandConnectionPanel() {

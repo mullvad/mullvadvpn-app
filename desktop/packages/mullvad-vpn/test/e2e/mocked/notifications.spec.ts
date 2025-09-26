@@ -13,7 +13,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {

@@ -85,7 +85,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
   };
 
   const resetView = async () => {
-    const currentRoute = await utils.currentRoute();
+    const currentRoute = await utils.getCurrentRoute();
     if (currentRoute === RoutePath.selectLocation) {
       await routes.selectLocation.gotoFilter();
     }

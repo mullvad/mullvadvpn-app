@@ -9,7 +9,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -53,7 +53,7 @@ test('Headerbar account info should be displayed correctly', async () => {
 
 test('Settings Page', async () => {
   await page.click('button[aria-label="Settings"]');
-  await util.waitForRoute(RoutePath.settings);
+  await util.expectRoute(RoutePath.settings);
 
   const title = page.locator('h1');
   await expect(title).toContainText('Settings');

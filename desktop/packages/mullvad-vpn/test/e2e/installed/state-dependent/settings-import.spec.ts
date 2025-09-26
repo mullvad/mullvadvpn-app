@@ -24,7 +24,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -33,13 +33,13 @@ test.afterAll(async () => {
 
 async function navigateToSettingsImport() {
   await page.click('button[aria-label="Settings"]');
-  await util.waitForRoute(RoutePath.settings);
+  await util.expectRoute(RoutePath.settings);
 
   await page.getByRole('button', { name: 'VPN settings' }).click();
-  await util.waitForRoute(RoutePath.vpnSettings);
+  await util.expectRoute(RoutePath.vpnSettings);
 
   await page.getByRole('button', { name: 'Server IP override' }).click();
-  await util.waitForRoute(RoutePath.settingsImport);
+  await util.expectRoute(RoutePath.settingsImport);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Server IP override');
@@ -53,11 +53,11 @@ test('App should display no overrides', async () => {
 
 test('App should fail to import text', async () => {
   await page.getByRole('button', { name: 'Import via text' }).click();
-  await util.waitForRoute(RoutePath.settingsTextImport);
+  await util.expectRoute(RoutePath.settingsTextImport);
 
   await page.locator('textarea').fill(INVALID_JSON);
   await page.click('button[aria-label="Save"]');
-  await util.waitForRoute(RoutePath.settingsImport);
+  await util.expectRoute(RoutePath.settingsImport);
 
   await expect(page.getByTestId('status-title')).toHaveText('NO OVERRIDES IMPORTED');
   await expect(page.getByTestId('status-subtitle')).toBeVisible();
@@ -67,14 +67,14 @@ test('App should fail to import text', async () => {
 
 test('App should succeed to import text', async () => {
   await page.getByRole('button', { name: 'Import via text' }).click();
-  await util.waitForRoute(RoutePath.settingsTextImport);
+  await util.expectRoute(RoutePath.settingsTextImport);
 
   const textarea = page.locator('textarea');
   await expect(textarea).toHaveValue(INVALID_JSON);
   await textarea.fill(VALID_JSON);
 
   await page.click('button[aria-label="Save"]');
-  await util.waitForRoute(RoutePath.settingsImport);
+  await util.expectRoute(RoutePath.settingsImport);
 
   await expect(page.getByTestId('status-title')).toHaveText('IMPORT SUCCESSFUL');
   await expect(page.getByTestId('status-subtitle')).toBeVisible();
@@ -84,20 +84,20 @@ test('App should succeed to import text', async () => {
   await expect(page.getByTestId('status-title')).toHaveText('OVERRIDES ACTIVE');
 
   await page.getByRole('button', { name: 'Import via text' }).click();
-  await util.waitForRoute(RoutePath.settingsTextImport);
+  await util.expectRoute(RoutePath.settingsTextImport);
 
   await expect(textarea).toHaveValue('');
 
   await page.click('button[aria-label="Close"]');
-  await util.waitForRoute(RoutePath.settingsImport);
+  await util.expectRoute(RoutePath.settingsImport);
 });
 
 test('App should show active overrides', async () => {
   await page.click('button[aria-label="Back"]');
-  await util.waitForRoute(RoutePath.vpnSettings);
+  await util.expectRoute(RoutePath.vpnSettings);
 
   await page.getByRole('button', { name: 'Server IP override' }).click();
-  await util.waitForRoute(RoutePath.settingsImport);
+  await util.expectRoute(RoutePath.settingsImport);
 
   await expect(page.getByTestId('status-title')).toHaveText('OVERRIDES ACTIVE');
   await expect(page.getByText('Clear all overrides')).toBeEnabled();

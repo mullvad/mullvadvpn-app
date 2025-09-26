@@ -149,7 +149,7 @@ test.describe('Feature indicators', () => {
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers({ page, routes, utils: util });
 
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
   });
 
   test.afterAll(async () => {
@@ -159,7 +159,7 @@ test.describe('Feature indicators', () => {
   test.afterEach(async () => {
     await helpers.disconnect();
     await routes.wireguardSettings.gotoRoot();
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
   });
 
   async function expectFeatureIndicators(expectedIndicators: Array<string>, only = true) {
@@ -239,7 +239,7 @@ test.describe('Feature indicators', () => {
     const indicator = routes.main.selectors.featureIndicator(featureIndicatorLabel);
     await expect(indicator).toBeVisible();
     await indicator.click();
-    await util.waitForRoute(route);
+    await util.expectRoute(route);
   };
 
   featureIndicatorWithoutOption.forEach(
@@ -248,7 +248,7 @@ test.describe('Feature indicators', () => {
         await helpers.connectWithFeatures([featureIndicator]);
         await clickFeatureIndicator(featureIndicatorLabel, route);
 
-        await util.waitForRoute(route);
+        await util.expectRoute(route);
       });
     },
   );
@@ -272,7 +272,7 @@ test.describe('Feature indicators', () => {
         }
         await expect(element).toBeInViewport();
 
-        await util.waitForRoute(route);
+        await util.expectRoute(route);
       });
     },
   );

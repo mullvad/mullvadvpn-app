@@ -19,7 +19,7 @@ export class FilterRouteObjectModel {
 
   async gotoSelectLocation() {
     await this.selectors.backButton().click();
-    await this.utils.waitForRoute(RoutePath.selectLocation);
+    await this.utils.expectRoute(RoutePath.selectLocation);
   }
 
   async expandProviders() {

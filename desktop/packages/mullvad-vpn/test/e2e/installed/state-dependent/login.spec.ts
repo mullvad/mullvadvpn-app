@@ -28,7 +28,7 @@ test.afterAll(async () => {
 });
 
 test('App should fail to login', async () => {
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -46,7 +46,7 @@ test('App should fail to login', async () => {
 });
 
 test('App should create account', async () => {
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 
   await routes.login.createNewAccount();
 
@@ -56,7 +56,7 @@ test('App should create account', async () => {
   await expect(title).toHaveText('Account created');
   await expect(subtitle).toHaveText('Logged in');
 
-  await util.waitForRoute(RoutePath.expired);
+  await util.expectRoute(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Congrats!');
@@ -68,11 +68,11 @@ test('App should create account', async () => {
 
 test('App should become logged out', async () => {
   exec('mullvad account logout');
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 });
 
 test('App should log in', async () => {
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -86,7 +86,7 @@ test('App should log in', async () => {
   await expect(title).toHaveText('Logged in');
   await expect(subtitle).toHaveText('Valid account number');
 
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 
   await expectDisconnected(page);
 });
@@ -94,10 +94,10 @@ test('App should log in', async () => {
 test('App should log out', async () => {
   await page.getByTestId('account-button').click();
 
-  await util.waitForRoute(RoutePath.account);
+  await util.expectRoute(RoutePath.account);
 
   await page.getByText('Log out').click();
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -106,7 +106,7 @@ test('App should log out', async () => {
 });
 
 test('App should log in to expired account', async () => {
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -117,7 +117,7 @@ test('App should log in to expired account', async () => {
   await routes.login.fillAccountNumber(accountNumber);
 
   await routes.login.loginByPressingEnter();
-  await util.waitForRoute(RoutePath.expired);
+  await util.expectRoute(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Out of time');

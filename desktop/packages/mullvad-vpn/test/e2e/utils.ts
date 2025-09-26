@@ -13,9 +13,9 @@ export interface StartAppResponse {
 type TriggerFn = () => Promise<void> | void;
 
 export interface TestUtils {
-  currentRoute: () => Promise<string | null>;
-  waitForRoute: (route: RoutePath) => Promise<void>;
-  waitForRouteChange: (trigger: TriggerFn) => Promise<void>;
+  getCurrentRoute: () => Promise<string | null>;
+  expectRoute: (route: RoutePath) => Promise<void>;
+  expectRouteChange: (trigger: TriggerFn) => Promise<void>;
 }
 
 type LaunchOptions = NonNullable<Parameters<typeof electron.launch>[0]>;
@@ -29,9 +29,9 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   page.on('console', (msg) => console.log(msg.text()));
 
   const util: TestUtils = {
-    currentRoute: () => currentRoute(page),
-    waitForRoute: (route: RoutePath) => waitForRoute(page, route),
-    waitForRouteChange: (trigger: TriggerFn) => waitForRouteChange(page, trigger),
+    getCurrentRoute: () => getCurrentRoute(page),
+    expectRoute: (route: RoutePath) => expectRoute(page, route),
+    expectRouteChange: (trigger: TriggerFn) => expectRouteChange(page, trigger),
   };
 
   return { app, page, util };
@@ -42,20 +42,20 @@ export const launch = (options: LaunchOptions): Promise<ElectronApplication> => 
   return electron.launch(options);
 };
 
-function currentRoute(page: Page): Promise<string | null> {
+function getCurrentRoute(page: Page): Promise<string | null> {
   return page.evaluate('window.e2e.location');
 }
 
 // Returns a promise which resolves when the provided route is reached.
-async function waitForRoute(page: Page, expectedRoute: RoutePath): Promise<void> {
-  await expect.poll(async () => currentRoute(page)).toBe(expectedRoute);
+async function expectRoute(page: Page, expectedRoute: RoutePath): Promise<void> {
+  await expect.poll(async () => getCurrentRoute(page)).toBe(expectedRoute);
 }
 
 // Returns a promise which resolves when the route changes.
-async function waitForRouteChange(page: Page, trigger: TriggerFn) {
-  const initialRoute = await currentRoute(page);
+async function expectRouteChange(page: Page, trigger: TriggerFn) {
+  const initialRoute = await getCurrentRoute(page);
   await trigger();
-  await expect.poll(async () => currentRoute(page)).not.toBe(initialRoute);
+  await expect.poll(async () => getCurrentRoute(page)).not.toBe(initialRoute);
 }
 
 const getStyleProperty = (locator: Locator, property: string) => {

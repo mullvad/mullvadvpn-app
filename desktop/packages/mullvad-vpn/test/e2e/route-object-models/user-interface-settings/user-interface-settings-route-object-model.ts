@@ -17,11 +17,11 @@ export class UserInterfaceSettingsRouteObjectModel {
 
   async gotoSelectLanguage() {
     await this.selectors.languageButton().click();
-    await this.utils.waitForRoute(RoutePath.selectLanguage);
+    await this.utils.expectRoute(RoutePath.selectLanguage);
   }
 
   async waitForRoute() {
-    await this.utils.waitForRoute(RoutePath.userInterfaceSettings);
+    await this.utils.expectRoute(RoutePath.userInterfaceSettings);
   }
 
   getLocalizedLanguageButton(language: string) {

@@ -16,6 +16,6 @@ export class LaunchRouteObjectModel {
   }
 
   async waitForRoute() {
-    await this.utils.waitForRoute(RoutePath.launch);
+    await this.utils.expectRoute(RoutePath.launch);
   }
 }

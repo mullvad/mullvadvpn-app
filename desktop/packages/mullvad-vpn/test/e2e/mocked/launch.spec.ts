@@ -13,7 +13,7 @@ test.describe('Launch', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
 
     await util.ipc.daemon.disconnected.notify();
     await routes.launch.waitForRoute();

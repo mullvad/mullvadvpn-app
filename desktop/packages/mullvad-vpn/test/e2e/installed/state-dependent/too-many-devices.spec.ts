@@ -15,7 +15,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 });
 
 test.afterAll(async () => {
@@ -27,7 +27,7 @@ test('App should show too many devices', async () => {
   await loginInput.fill(process.env.ACCOUNT_NUMBER!);
 
   await loginInput.press('Enter');
-  await util.waitForRoute(RoutePath.tooManyDevices);
+  await util.expectRoute(RoutePath.tooManyDevices);
 
   const loginButton = page.getByText('Continue with login');
 
@@ -43,8 +43,8 @@ test('App should show too many devices', async () => {
 
   // Trigger transition: too-many-devices -> login -> main
   await loginButton.click();
-  await util.waitForRoute(RoutePath.login);
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.main);
 });
 
 function getInput(page: Page): Locator {

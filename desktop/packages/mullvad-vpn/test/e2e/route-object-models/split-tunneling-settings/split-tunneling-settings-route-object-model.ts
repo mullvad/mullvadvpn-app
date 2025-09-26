@@ -16,7 +16,7 @@ export class SplitTunnelingSettingsRouteObjectModel {
   }
 
   async waitForRoute() {
-    await this.utils.waitForRoute(RoutePath.splitTunneling);
+    await this.utils.expectRoute(RoutePath.splitTunneling);
   }
 
   getLinuxApplications() {

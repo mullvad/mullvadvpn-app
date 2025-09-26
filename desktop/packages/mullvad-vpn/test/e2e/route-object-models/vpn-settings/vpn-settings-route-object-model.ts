@@ -17,7 +17,7 @@ export class VpnSettingsRouteObjectModel {
 
   async gotoWireguardSettings() {
     await this.selectors.wireguardSettingsButton().click();
-    await this.utils.waitForRoute(RoutePath.wireguardSettings);
+    await this.utils.expectRoute(RoutePath.wireguardSettings);
   }
 
   getAutoConnectSwitch() {

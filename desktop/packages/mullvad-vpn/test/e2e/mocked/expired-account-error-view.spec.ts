@@ -11,7 +11,7 @@ let util: MockedTestUtils;
 
 test.beforeEach(async () => {
   ({ page, util } = await startMockedApp());
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test.afterEach(async () => {
@@ -38,5 +38,5 @@ test('App should show out of time view after running out of time', async () => {
   expiryDate.setSeconds(expiryDate.getSeconds() + 2);
 
   await util.ipc.account[''].notify({ expiry: expiryDate.toISOString() });
-  await util.waitForRoute(RoutePath.expired);
+  await util.expectRoute(RoutePath.expired);
 });
