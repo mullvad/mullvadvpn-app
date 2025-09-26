@@ -1,5 +1,8 @@
+import { expect } from '@playwright/test';
 import fs from 'fs';
 import { _electron as electron, ElectronApplication, Locator, Page } from 'playwright';
+
+import { RoutePath } from '../../src/shared/routes';
 
 export interface StartAppResponse {
   app: ElectronApplication;
@@ -7,16 +10,12 @@ export interface StartAppResponse {
   util: TestUtils;
 }
 
+type TriggerFn = () => Promise<void> | void;
+
 export interface TestUtils {
   currentRoute: () => Promise<string | null>;
-  waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
-  waitForRoute: (route: string) => Promise<void>;
-  waitForNextRoute: () => Promise<string>;
-}
-
-interface History {
-  entries: Array<{ pathname: string }>;
-  index: number;
+  waitForRoute: (route: RoutePath) => Promise<void>;
+  waitForRouteChange: (trigger: TriggerFn) => Promise<void>;
 }
 
 type LaunchOptions = NonNullable<Parameters<typeof electron.launch>[0]>;
@@ -24,15 +23,15 @@ type LaunchOptions = NonNullable<Parameters<typeof electron.launch>[0]>;
 export const startApp = async (options: LaunchOptions): Promise<StartAppResponse> => {
   const app = await launch(options);
   const page = await app.firstWindow();
+  await page.waitForEvent('load');
 
   page.on('pageerror', (error) => console.log(error));
   page.on('console', (msg) => console.log(msg.text()));
 
   const util: TestUtils = {
-    currentRoute: currentRouteFactory(app),
-    waitForNavigation: waitForNavigationFactory(app),
-    waitForRoute: waitForRouteFactory(app),
-    waitForNextRoute: waitForNextRouteFactory(app),
+    currentRoute: () => currentRoute(page),
+    waitForRoute: (route: RoutePath) => waitForRoute(page, route),
+    waitForRouteChange: (trigger: TriggerFn) => waitForRouteChange(page, trigger),
   };
 
   return { app, page, util };
@@ -43,62 +42,21 @@ export const launch = (options: LaunchOptions): Promise<ElectronApplication> => 
   return electron.launch(options);
 };
 
-const currentRouteFactory = (app: ElectronApplication) => {
-  return () => {
-    return app.evaluate<string | null>(({ webContents }) => {
-      const electronWebContent = webContents
-        .getAllWebContents()
-        // Select window that isn't devtools
-        .find((webContents) => webContents.getURL().startsWith('file://'));
+function currentRoute(page: Page): Promise<string | null> {
+  return page.evaluate('window.e2e.location');
+}
 
-      if (electronWebContent) {
-        return electronWebContent.executeJavaScript('window.e2e.location');
-      }
+// Returns a promise which resolves when the provided route is reached.
+async function waitForRoute(page: Page, expectedRoute: RoutePath): Promise<void> {
+  await expect.poll(async () => currentRoute(page)).toBe(expectedRoute);
+}
 
-      return null;
-    });
-  };
-};
-
-const waitForNavigationFactory = (app: ElectronApplication) => {
-  const waitForNextRoute = waitForNextRouteFactory(app);
-  // Wait for navigation animation to finish. A function can be provided that initiates the
-  // navigation, e.g. clicks a button.
-  return async (initiateNavigation?: () => Promise<void> | void) => {
-    // Wait for route to change after optionally initiating the navigation.
-    const [route] = await Promise.all([waitForNextRoute(), initiateNavigation?.()]);
-
-    return route;
-  };
-};
-
-// This factory returns a function which returns a boolean when the route passed to it matches that of the application.
-const waitForRouteFactory = (app: ElectronApplication) => {
-  const getCurrentRoute = currentRouteFactory(app);
-
-  const waitForRoute = async (route: string) => {
-    const currentRoute = await getCurrentRoute();
-
-    if (currentRoute !== route) {
-      return waitForRoute(route);
-    }
-  };
-
-  return waitForRoute;
-};
-
-// Returns the route when it changes
-const waitForNextRouteFactory = (app: ElectronApplication) => {
-  return async () =>
-    app.evaluate<string>(
-      ({ ipcMain }) =>
-        new Promise((resolve) => {
-          ipcMain.once('navigation-setHistory', (_event, history: History) => {
-            resolve(history.entries[history.index].pathname);
-          });
-        }),
-    );
-};
+// Returns a promise which resolves when the route changes.
+async function waitForRouteChange(page: Page, trigger: TriggerFn) {
+  const initialRoute = await currentRoute(page);
+  await trigger();
+  await expect.poll(async () => currentRoute(page)).not.toBe(initialRoute);
+}
 
 const getStyleProperty = (locator: Locator, property: string) => {
   return locator.evaluate(

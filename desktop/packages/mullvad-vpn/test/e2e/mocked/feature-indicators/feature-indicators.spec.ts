@@ -141,6 +141,8 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   },
 ];
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('Feature indicators', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
@@ -246,8 +248,7 @@ test.describe('Feature indicators', () => {
         await helpers.connectWithFeatures([featureIndicator]);
         await clickFeatureIndicator(featureIndicatorLabel, route);
 
-        const currentRoute = await util.currentRoute();
-        expect(currentRoute).toBe(route);
+        await util.waitForRoute(route);
       });
     },
   );
@@ -271,8 +272,7 @@ test.describe('Feature indicators', () => {
         }
         await expect(element).toBeInViewport();
 
-        const currentRoute = await util.currentRoute();
-        expect(currentRoute).toBe(route);
+        await util.waitForRoute(route);
       });
     },
   );

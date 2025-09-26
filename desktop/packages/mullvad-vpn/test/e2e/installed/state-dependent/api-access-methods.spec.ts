@@ -59,7 +59,7 @@ test('App should display access methods', async () => {
 
 test('App should add invalid access method', async () => {
   await page.locator('button:has-text("Add")').click();
-  await util.waitForNextRoute();
+  await util.waitForRoute(RoutePath.editApiAccessMethods);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Add method');
@@ -113,7 +113,7 @@ test('App should edit access method', async () => {
   const customMethod = page.getByTestId('access-method').last();
   await customMethod.locator('button').last().click();
   await customMethod.getByText('Edit').click();
-  await util.waitForNextRoute();
+  await util.waitForRoute(RoutePath.editApiAccessMethods);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Edit method');
