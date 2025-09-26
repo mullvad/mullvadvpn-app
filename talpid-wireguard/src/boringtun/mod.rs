@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
     config::Config,
@@ -130,6 +132,7 @@ pub async fn open_boringtun_tunnel(
     config: &Config,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
+    #[cfg(target_os = "android")] gateway_only: bool,
 ) -> super::Result<BoringTun> {
     log::info!("BoringTun::start_tunnel");
     let routes = config.get_tunnel_destinations();
@@ -152,7 +155,9 @@ pub async fn open_boringtun_tunnel(
     #[cfg(target_os = "android")]
     let (tun, async_tun) = {
         let _ = routes; // TODO: do we need this?
-        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
+        // See `wireguard_go` module for why this is needed.
+        let config = patch_allowed_ips(config, gateway_only);
+        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), &config)?;
         let is_new_tunnel = tun.is_new;
 
         // TODO We should also wait for routes before sending any ping / connectivity check
