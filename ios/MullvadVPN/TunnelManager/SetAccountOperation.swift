@@ -67,16 +67,19 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     // MARK: -
 
     override func main() {
-        startLogoutFlow { [self] in
-            self.accessTokenManager.invalidateAllTokens()
+        startLogoutFlow { [weak self] in
+            guard let self else { return }
+            accessTokenManager.invalidateAllTokens()
             switch action {
             case .new:
-                startNewAccountFlow { [self] result in
+                startNewAccountFlow { [weak self] result in
+                    guard let self else { return }
                     finish(result: result.map { .some($0) })
                 }
 
             case let .existing(accountNumber):
-                startExistingAccountFlow(accountNumber: accountNumber) { [self] result in
+                startExistingAccountFlow(accountNumber: accountNumber) { [weak self] result in
+                    guard let self else { return }
                     finish(result: result.map { .some($0) })
                 }
 
@@ -84,7 +87,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
                 finish(result: .success(nil))
 
             case let .delete(accountNumber):
-                startDeleteAccountFlow(accountNumber: accountNumber) { [self] result in
+                startDeleteAccountFlow(accountNumber: accountNumber) { [weak self] result in
+                    guard let self else { return }
                     finish(result: result.map { .none })
                 }
             }
@@ -111,7 +115,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     private func startLogoutFlow(completion: @escaping @Sendable () -> Void) {
         switch interactor.deviceState {
         case let .loggedIn(accountData, deviceData):
-            deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] _ in
+            deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [weak self] _ in
+                guard let self else { return }
                 unsetDeviceState(completion: completion)
             }
 
@@ -130,7 +135,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
      2. Call `continueLoginFlow()` passing the result of account creation request.
      */
     private func startNewAccountFlow(completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void) {
-        createAccount { [self] result in
+        createAccount { [weak self] result in
+            guard let self else { return }
             continueLoginFlow(result, completion: completion)
         }
     }
@@ -145,7 +151,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         accountNumber: String,
         completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void
     ) {
-        getAccount(accountNumber: accountNumber) { [self] result in
+        getAccount(accountNumber: accountNumber) { [weak self] result in
+            guard let self else { return }
             continueLoginFlow(result, completion: completion)
         }
     }
@@ -160,7 +167,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         accountNumber: String,
         completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
-        deleteAccount(accountNumber: accountNumber) { [self] result in
+        deleteAccount(accountNumber: accountNumber) { [weak self] result in
+            guard let self else { return }
             if result.isSuccess {
                 interactor.removeLastUsedAccount()
             }
@@ -186,7 +194,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
             storeLastUsedAccount(accountNumber: accountData.number)
 
-            createDevice(accountNumber: accountData.number) { [self] result in
+            createDevice(accountNumber: accountData.number) { [weak self] result in
+                guard let self else { return }
                 completion(result.map { newDevice in
                     storeSettings(accountData: accountData, newDevice: newDevice)
 
@@ -237,8 +246,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     private func createAccount(completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void) {
         logger.debug("Create new account...")
 
-        let task = accountsProxy.createAccount(retryStrategy: .default) { [self] result in
-            dispatchQueue.async { [self] in
+        let task = accountsProxy.createAccount(retryStrategy: .default) { [weak self] result in
+            guard let self else { return }
+            dispatchQueue.async { [weak self] in
+                guard let self else { return }
                 let result = result.inspectError { error in
                     guard !error.isOperationCancellationError else { return }
 
@@ -270,8 +281,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         let task = accountsProxy.getAccountData(
             accountNumber: accountNumber,
             retryStrategy: .default
-        ) { [self] result in
-            dispatchQueue.async { [self] in
+        ) { [weak self] result in
+            guard let self else { return }
+            dispatchQueue.async { [weak self] in
+                guard let self else { return }
                 let result = result.inspectError { error in
                     guard !error.isOperationCancellationError else { return }
 
@@ -300,8 +313,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         let task = accountsProxy.deleteAccount(
             accountNumber: accountNumber,
             retryStrategy: .default
-        ) { [self] result in
-            dispatchQueue.async { [self] in
+        ) { [weak self] result in
+            guard let self else { return }
+            dispatchQueue.async { [weak self] in
+                guard let self else { return }
                 let result = result.inspectError { error in
                     guard !error.isOperationCancellationError else { return }
 
@@ -327,8 +342,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
             accountNumber: accountNumber,
             identifier: deviceIdentifier,
             retryStrategy: .default
-        ) { [self] result in
-            dispatchQueue.async { [self] in
+        ) { [weak self] result in
+            guard let self else { return }
+            dispatchQueue.async { [weak self] in
+                guard let self else { return }
                 switch result {
                 case let .success(isDeleted):
                     logger.debug(isDeleted ? "Deleted device." : "Device is already deleted.")
@@ -372,8 +389,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         }
 
         // Remove VPN configuration.
-        tunnel.removeFromPreferences { [self] error in
-            dispatchQueue.async { [self] in
+        tunnel.removeFromPreferences { [weak self] error in
+            guard let self else { return }
+            dispatchQueue.async { [weak self] in
+                guard let self else { return }
                 // Ignore error but log it.
                 if let error {
                     logger.error(error: error, message: "Failed to remove VPN configuration.")
@@ -397,8 +416,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         logger.debug("Create device...")
 
         let task = devicesProxy
-            .createDevice(accountNumber: accountNumber, request: request, retryStrategy: .default) { [self] result in
-                dispatchQueue.async { [self] in
+            .createDevice(accountNumber: accountNumber, request: request, retryStrategy: .default) { [weak self] result in
+                guard let self else { return }
+                dispatchQueue.async { [weak self] in
+                    guard let self else { return }
                     // Due to retry strategy, it's possible for server to register the new key without being
                     // able to return the acknowledgment back to client.
                     // In that case the subsequent retry attempt will error with `.publicKeyInUse`. Fetch the device
@@ -430,8 +451,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         publicKey: PublicKey,
         completion: @escaping @Sendable (Result<Device?, Error>) -> Void
     ) {
-        let task = devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
-            dispatchQueue.async { [self] in
+        let task = devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default) { [weak self] result in
+            guard let self else { return }
+            dispatchQueue.async { [weak self] in
+                guard let self else { return }
                 let result = result
                     .flatMap { devices in
                         .success(devices.first { device in
