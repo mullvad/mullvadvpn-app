@@ -17,26 +17,26 @@ export class SettingsRouteObjectModel {
 
   async gotoUserInterfaceSettings() {
     await this.selectors.userInterfaceButton().click();
-    await this.utils.waitForRoute(RoutePath.userInterfaceSettings);
+    await this.utils.expectRoute(RoutePath.userInterfaceSettings);
   }
 
   async gotoVpnSettings() {
     await this.selectors.vpnSettingsButton().click();
-    await this.utils.waitForRoute(RoutePath.vpnSettings);
+    await this.utils.expectRoute(RoutePath.vpnSettings);
   }
 
   async gotoMultihopSettings() {
     await this.selectors.multihopSettingsButton().click();
-    await this.utils.waitForRoute(RoutePath.multihopSettings);
+    await this.utils.expectRoute(RoutePath.multihopSettings);
   }
 
   async gotoDaitaSettings() {
     await this.selectors.daitaSettingsButton().click();
-    await this.utils.waitForRoute(RoutePath.daitaSettings);
+    await this.utils.expectRoute(RoutePath.daitaSettings);
   }
 
   async gotoSplitTunnelingSettings() {
     await this.selectors.splitTunnelingSettingsButton().click();
-    await this.utils.waitForRoute(RoutePath.splitTunneling);
+    await this.utils.expectRoute(RoutePath.splitTunneling);
   }
 }
