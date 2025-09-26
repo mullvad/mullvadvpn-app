@@ -74,6 +74,7 @@ class AccountTests: LoggedOutUITestCase {
             .tapDeleteAccountButton()
 
         AccountDeletionPage(app)
+            .tapTextField()
             .enterText(String(accountNumber.suffix(4)))
             .tapDeleteAccountButton()
 

@@ -25,8 +25,9 @@ class BaseUITestCase: XCTestCase {
     static let testsDefaultCountryName = "Sweden"
     static let testsDefaultCountryIdentifier = "se"
 
-    /// Default DAITA supported country to use in tests
-    static let testsDefaultDAITACountryName = "Relay Software Country"
+    /// Default DAITA supported relay to use in tests
+    static let testsDefaultDAITACountryName = "Germany"
+    static let testsNonDAITACountryName = "Ireland"
 
     /// Default city to use in tests
     static let testsDefaultCityName = "Gothenburg"
@@ -36,9 +37,9 @@ class BaseUITestCase: XCTestCase {
     static let testsDefaultRelayName = "se-got-wg-001"
 
     /// Default QUIC supported relay to use in tests
-    static let testsDefaultQuicCountryName = "Ireland"
-    static let testsDefaultQuicCityName = "Dublin"
-    static let testsDefaultQuicRelayName = "ie-dub-wg-001"
+    static let testsDefaultQuicCountryName = "Germany"
+    static let testsDefaultQuicCityName = "Frankfurt"
+    static let testsDefaultQuicRelayName = "de-fra-wg-001"
 
     /// True when the current test case is capturing packets
     private var currentTestCaseShouldCapturePackets = false
