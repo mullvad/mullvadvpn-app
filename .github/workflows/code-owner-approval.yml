@@ -1,0 +1,137 @@
+---
+name: Code Owner Approval
+description: Ensure that someone from each team that owns code changed in the PR has approved the PR
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+
+jobs:
+  check-team-approvals:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check code owner approvals
+        uses: actions/github-script@v8
+        with:
+          # Requires a token with read access to the "members" scope under organization,
+          # and read access to the pull request scope under the repository.
+          github-token: ${{ secrets.CODE_OWNERSHIP_CI_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Returns an array of file paths changed in the PR
+            async function getChangedFiles() {
+              const changedFiles = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number
+              });
+
+              return changedFiles.data.map(file => file.filename);
+            }
+
+            // Returns a list of usernames who approved the PR (based on their latest review)
+            async function getApprovers() {
+              const reviews = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number
+              });
+
+              const latestReviews = new Map();
+
+              for (const review of reviews.data) {
+                const currentLatest = latestReviews.get(review.user.id);
+
+                // Keep the most recent review (higher ID = more recent)
+                if (!currentLatest || review.id > currentLatest.id) {
+                  latestReviews.set(review.user.id, review);
+                }
+              }
+
+              // Filter to only approved reviews
+              const approvers = [];
+              for (const [userId, review] of latestReviews) {
+                if (review.state === 'APPROVED') {
+                  approvers.push(review.user.login);
+                }
+              }
+
+              return approvers;
+            }
+
+
+            const changedFiles = await getChangedFiles();
+            console.log('[DEBUG] Files changed in this PR:', changedFiles);
+
+            // Load team ownership mapping
+            const codeOwnerships = JSON.parse(fs.readFileSync('code-owners.json'));
+
+            // The set of teams owning code changed in this PR
+            const affectedTeams = new Set();
+
+            for (const [team, patterns] of Object.entries(codeOwnerships)) {
+              console.log(`[DEBUG] Team: ${team}, Ownership patterns:`, [...patterns]);
+
+              // List all files in the repository matching this owner's patterns
+              const globber = await glob.create(patterns.join('\n'));
+              const matches = await globber.glob();
+
+              // Convert absolute paths to relative paths
+              const ownedFiles = matches.map(match =>
+                path.relative(process.env.GITHUB_WORKSPACE, match)
+              );
+
+              for (const changedFile of changedFiles) {
+                if (ownedFiles.includes(changedFile)) {
+                  affectedTeams.add(team);
+                  console.log(`[DEBUG] File ${changedFile} is owned by ${team}`);
+                }
+              }
+            }
+
+            if (affectedTeams.size === 0) {
+              console.log('✅ No code owner for any changed file');
+              return;
+            }
+
+            console.log(`👥 This PR needs approval from: ${[...affectedTeams].join(', ')}`);
+
+            // Set of teams that have approved this PR
+            const approvedTeams = new Set();
+
+            const approvers = await getApprovers();
+            console.log(`👍 PR approved by: ${approvers.join(', ')}`);
+
+            for (const approver of approvers) {
+              for (const team of affectedTeams) {
+                try {
+                  await github.rest.teams.getMembershipForUserInOrg({
+                    org: context.repo.owner,
+                    team_slug: team,
+                    username: approver
+                  });
+                  approvedTeams.add(team);
+                  console.log(`[DEBUG] ${approver} is member of team '${team}' - approval counted`);
+                } catch (e) {
+                  console.log(`[DEBUG] ${approver} is not member of team '${team} (${e})`);
+                }
+              }
+            }
+
+            console.log('👍 Teams that have approved this PR:', [...approvedTeams].join(', '));
+
+            const missingApprovals = [...affectedTeams].filter(t => !approvedTeams.has(t));
+
+            if (missingApprovals.length > 0) {
+              console.log(`❌ Missing approvals from: ${missingApprovals.join(', ')}`);
+              core.setFailed(`Missing approvals from: ${missingApprovals.join(', ')}`);
+            } else {
+              console.log('✅ All code owners approved this change!');
+            }
