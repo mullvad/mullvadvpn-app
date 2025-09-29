@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-09-30
+### Changed
+- Ignore releases with a rollout of `0`.
+
+
 ## [1.1.0] - 2025-06-16
 ### Added
 #### Windows
