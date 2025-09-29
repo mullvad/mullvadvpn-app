@@ -163,12 +163,8 @@ fn annotate_route(route: &MIB_IPFORWARD_ROW2) -> Option<AnnotatedRoute<'_>> {
     )
     .ok()?;
 
-    if iface.Connected == 0 {
-        None
-    } else {
-        Some(AnnotatedRoute {
-            route,
-            effective_metric: route.Metric + iface.Metric,
-        })
-    }
+    iface.Connected.then(|| AnnotatedRoute {
+        route,
+        effective_metric: route.Metric + iface.Metric,
+    })
 }

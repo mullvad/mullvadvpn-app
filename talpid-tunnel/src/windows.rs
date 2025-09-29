@@ -30,12 +30,12 @@ pub fn initialize_interfaces(
         row.SitePrefixLength = 0;
         row.RouterDiscoveryBehavior = RouterDiscoveryDisabled;
         row.DadTransmits = 0;
-        row.ManagedAddressConfigurationSupported = 0;
-        row.OtherStatefulConfigurationSupported = 0;
+        row.ManagedAddressConfigurationSupported = false;
+        row.OtherStatefulConfigurationSupported = false;
 
         // Ensure lowest interface metric
         row.Metric = 1;
-        row.UseAutomaticMetric = 0;
+        row.UseAutomaticMetric = false;
 
         set_ip_interface_entry(&mut row)?;
     }

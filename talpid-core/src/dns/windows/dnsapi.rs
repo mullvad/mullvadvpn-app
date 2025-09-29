@@ -6,7 +6,6 @@ use std::{
     },
     time::{Duration, Instant},
 };
-use windows_sys::Win32::Foundation::BOOL;
 
 static FLUSH_TIMEOUT: Duration = Duration::from_secs(5);
 static DNSAPI_HANDLE: OnceLock<DnsApi> = OnceLock::new();
@@ -64,7 +63,7 @@ impl DnsApi {
             let begin = Instant::now();
 
             // SAFETY: this function is trivially safe to call
-            let result = if unsafe { (DnsFlushResolverCache)() } != 0 {
+            let result = if unsafe { (DnsFlushResolverCache)() } {
                 let elapsed = begin.elapsed();
                 if elapsed >= FLUSH_TIMEOUT {
                     log::warn!(
@@ -93,5 +92,5 @@ impl DnsApi {
 #[link(name = "dnsapi")]
 unsafe extern "system" {
     // Flushes the DNS resolver cache
-    pub fn DnsFlushResolverCache() -> BOOL;
+    pub fn DnsFlushResolverCache() -> bool;
 }

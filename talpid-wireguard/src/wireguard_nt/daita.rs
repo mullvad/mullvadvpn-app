@@ -6,13 +6,13 @@ use rand08::{
     rngs::{OsRng, adapter::ReseedingRng},
 };
 use std::{
-    collections::HashMap, fs, io, os::windows::prelude::RawHandle, path::Path, sync::Arc,
-    time::Duration,
+    collections::HashMap, fs, io, os::windows::io::AsRawHandle, os::windows::prelude::RawHandle,
+    path::Path, sync::Arc, time::Duration,
 };
 use talpid_types::net::wireguard::PublicKey;
 use tokio::task::JoinHandle;
 use windows_sys::Win32::{
-    Foundation::{BOOLEAN, ERROR_NO_MORE_ITEMS},
+    Foundation::ERROR_NO_MORE_ITEMS,
     System::Threading::{INFINITE, WaitForMultipleObjects, WaitForSingleObject},
 };
 
@@ -74,7 +74,7 @@ pub enum ActionType {
 #[derive(Debug, Clone, Copy)]
 pub struct PaddingAction {
     pub byte_count: u16,
-    pub replace: BOOLEAN,
+    pub replace: u8,
 }
 
 // See DAITA_ACTION:
@@ -99,19 +99,17 @@ const ACTIONS_CAPACITY: usize = 1000;
 
 pub mod bindings {
     use super::*;
-    use windows_sys::Win32::Foundation::BOOL;
-
     pub type WireGuardDaitaActivateFn = unsafe extern "stdcall" fn(
         adapter: RawHandle,
         events_capacity: usize,
         actions_capacity: usize,
-    ) -> BOOL;
+    ) -> bool;
     pub type WireGuardDaitaEventDataAvailableEventFn =
         unsafe extern "stdcall" fn(adapter: RawHandle) -> RawHandle;
     pub type WireGuardDaitaReceiveEventsFn =
         unsafe extern "stdcall" fn(adapter: RawHandle, events: *mut Event) -> usize;
     pub type WireGuardDaitaSendActionFn =
-        unsafe extern "stdcall" fn(adapter: RawHandle, action: *const Action) -> BOOL;
+        unsafe extern "stdcall" fn(adapter: RawHandle, action: *const Action) -> bool;
 }
 
 #[derive(Debug)]
@@ -293,7 +291,7 @@ impl Machinist {
         use windows_sys::Win32::Foundation::WAIT_OBJECT_0;
 
         loop {
-            if unsafe { WaitForSingleObject(self.quit_event.as_raw(), 0) } == WAIT_OBJECT_0 {
+            if unsafe { WaitForSingleObject(self.quit_event.as_raw_handle(), 0) } == WAIT_OBJECT_0 {
                 break;
             }
 
@@ -393,8 +391,8 @@ impl Machinist {
         use windows_sys::Win32::Foundation::WAIT_OBJECT_0;
 
         let wait_events = [
-            self.quit_event.as_raw(),
-            self.daita.event_data_available_event() as isize,
+            self.quit_event.as_raw_handle(),
+            self.daita.event_data_available_event(),
         ];
 
         let mut event_buffer: [Event; EVENTS_CAPACITY] = unsafe { std::mem::zeroed() };

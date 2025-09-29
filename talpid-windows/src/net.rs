@@ -4,9 +4,10 @@ use socket2::SockAddr;
 use std::{
     ffi::{OsStr, OsString},
     fmt, io,
-    mem::{self, MaybeUninit},
+    mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::ffi::{OsStrExt, OsStringExt},
+    ptr,
     sync::Mutex,
     time::{Duration, Instant},
 };
@@ -30,7 +31,6 @@ use windows_sys::{
             AF_INET, AF_INET6, AF_UNSPEC, IN_ADDR, IN6_ADDR, IpDadStateDeprecated,
             IpDadStateDuplicate, IpDadStateInvalid, IpDadStatePreferred, IpDadStateTentative,
             NL_DAD_STATE, SOCKADDR_IN as sockaddr_in, SOCKADDR_IN6 as sockaddr_in6, SOCKADDR_INET,
-            SOCKADDR_STORAGE as sockaddr_storage,
         },
     },
     core::GUID,
@@ -174,7 +174,7 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send
 ) -> io::Result<Box<IpNotifierHandle<'a>>> {
     let mut context = Box::new(IpNotifierHandle {
         callback: Mutex::new(Box::new(callback)),
-        handle: 0,
+        handle: ptr::null_mut(),
     });
 
     win32_err!(unsafe {
@@ -182,7 +182,7 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send
             af_family_from_family(family),
             Some(inner_callback),
             &mut *context as *mut _ as *mut _,
-            0,
+            false,
             (&mut context.handle) as *mut _,
         )
     })?;
@@ -194,9 +194,11 @@ pub fn get_ip_interface_entry(
     family: AddressFamily,
     luid: &NET_LUID_LH,
 ) -> io::Result<MIB_IPINTERFACE_ROW> {
-    let mut row: MIB_IPINTERFACE_ROW = unsafe { mem::zeroed() };
-    row.Family = family as u16;
-    row.InterfaceLuid = *luid;
+    let mut row = MIB_IPINTERFACE_ROW {
+        Family: family as u16,
+        InterfaceLuid: *luid,
+        ..Default::default()
+    };
 
     win32_err!(unsafe { GetIpInterfaceEntry(&mut row) })?;
     Ok(row)
@@ -324,7 +326,7 @@ pub fn get_ip_address_for_interface(
 
 /// Adds a unicast IP address for the given interface.
 pub fn add_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Result<()> {
-    let mut row = unsafe { mem::zeroed() };
+    let mut row = MIB_UNICASTIPADDRESS_ROW::default();
     unsafe { InitializeUnicastIpAddressEntry(&mut row) };
 
     row.InterfaceLuid = luid;
@@ -385,7 +387,7 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID_LH> {
         .encode_wide()
         .chain(std::iter::once(0u16))
         .collect();
-    let mut luid: NET_LUID_LH = unsafe { std::mem::zeroed() };
+    let mut luid = NET_LUID_LH::default();
     win32_err!(unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) })?;
     Ok(luid)
 }
@@ -427,7 +429,7 @@ pub fn ipaddr_from_in6addr(addr: IN6_ADDR) -> Ipv6Addr {
 /// Converts a `SocketAddr` to `SOCKADDR_INET`
 pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
     // SAFETY: SOCKADDR_INET is a union of C structs, these can be safely zeroed.
-    let mut sockaddr: SOCKADDR_INET = unsafe { mem::zeroed() };
+    let mut sockaddr = SOCKADDR_INET::default();
     match addr {
         // SAFETY: `*const sockaddr` may be treated as `*const sockaddr_in` since we know it's a v4
         // address.
@@ -447,13 +449,30 @@ pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
 pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAddr> {
     // SAFETY: si_family is always valid
     let family = unsafe { addr.si_family };
-    unsafe {
-        let mut storage: sockaddr_storage = mem::zeroed();
-        *(&mut storage as *mut _ as *mut SOCKADDR_INET) = addr;
-        SockAddr::new(storage, mem::size_of_val(&addr) as i32)
+    match family {
+        AF_INET => {
+            // SAFETY: We know this is an IPv4 address based on the family
+            let ipv4_addr = unsafe { addr.Ipv4 };
+            // SAFETY: The IPv4 address is initialized
+            let ip = Ipv4Addr::from(u32::from_be(unsafe { ipv4_addr.sin_addr.S_un.S_addr }));
+            let port = u16::from_be(ipv4_addr.sin_port);
+            Ok(SocketAddr::V4(SocketAddrV4::new(ip, port)))
+        }
+        AF_INET6 => {
+            // SAFETY: We know this is an IPv6 address based on the family
+            let ipv6_addr = unsafe { addr.Ipv6 };
+            // SAFETY: The IPv6 address is initialized
+            let ip = Ipv6Addr::from(unsafe { ipv6_addr.sin6_addr.u.Byte });
+            let port = u16::from_be(ipv6_addr.sin6_port);
+            let flowinfo = ipv6_addr.sin6_flowinfo;
+            // SAFETY: The scope ID is initialized
+            let scope_id = unsafe { ipv6_addr.Anonymous.sin6_scope_id };
+            Ok(SocketAddr::V6(SocketAddrV6::new(
+                ip, port, flowinfo, scope_id,
+            )))
+        }
+        _ => Err(Error::UnknownAddressFamily(family)),
     }
-    .as_socket()
-    .ok_or(Error::UnknownAddressFamily(family))
 }
 
 /// Address family. These correspond to the `AF_*` constants.

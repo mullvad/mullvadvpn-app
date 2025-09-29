@@ -31,7 +31,7 @@ use talpid_windows::net;
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
     Win32::{
-        Foundation::{BOOL, ERROR_MORE_DATA, FreeLibrary, HMODULE},
+        Foundation::{ERROR_MORE_DATA, FreeLibrary, HMODULE},
         NetworkManagement::Ndis::NET_LUID_LH,
         Networking::WinSock::{
             ADDRESS_FAMILY, AF_INET, AF_INET6, IN_ADDR, IN6_ADDR, SOCKADDR_INET,
@@ -69,14 +69,14 @@ type WireGuardSetConfigurationFn = unsafe extern "stdcall" fn(
     adapter: RawHandle,
     config: *const MaybeUninit<u8>,
     bytes: u32,
-) -> BOOL;
+) -> bool;
 type WireGuardGetConfigurationFn = unsafe extern "stdcall" fn(
     adapter: RawHandle,
     config: *const MaybeUninit<u8>,
     bytes: *mut u32,
-) -> BOOL;
+) -> bool;
 type WireGuardSetStateFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
+    unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> bool;
 
 #[repr(C)]
 #[allow(dead_code)]
@@ -108,7 +108,7 @@ enum WireGuardAdapterLogState {
 }
 
 type WireGuardSetAdapterLoggingFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, state: WireGuardAdapterLogState) -> BOOL;
+    unsafe extern "stdcall" fn(adapter: RawHandle, state: WireGuardAdapterLogState) -> bool;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -707,9 +707,14 @@ impl WgNtDll {
         let wg_nt_dll =
             U16CString::from_os_str_truncate(resource_dir.join("mullvad-wireguard.dll"));
 
-        let handle =
-            unsafe { LoadLibraryExW(wg_nt_dll.as_ptr(), 0, LOAD_WITH_ALTERED_SEARCH_PATH) };
-        if handle == 0 {
+        let handle = unsafe {
+            LoadLibraryExW(
+                wg_nt_dll.as_ptr(),
+                ptr::null_mut(),
+                LOAD_WITH_ALTERED_SEARCH_PATH,
+            )
+        };
+        if handle.is_null() {
             return Err(io::Error::last_os_error());
         }
         Self::new_inner(handle, Self::get_proc_address)
@@ -808,10 +813,10 @@ impl WgNtDll {
         config: *const MaybeUninit<u8>,
         config_size: usize,
     ) -> io::Result<()> {
-        let result = unsafe {
+        let succeeded = unsafe {
             (self.func_set_configuration)(adapter, config, u32::try_from(config_size).unwrap())
         };
-        if result == 0 {
+        if !succeeded {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -821,10 +826,10 @@ impl WgNtDll {
         let mut config_size = 0;
         let mut config = vec![];
         loop {
-            let result = unsafe {
+            let succeeded = unsafe {
                 (self.func_get_configuration)(adapter, config.as_mut_ptr(), &mut config_size)
             };
-            if result == 0 {
+            if !succeeded {
                 let last_error = io::Error::last_os_error();
                 if last_error.raw_os_error() != Some(ERROR_MORE_DATA as i32) {
                     break Err(last_error);
@@ -841,8 +846,8 @@ impl WgNtDll {
         adapter: RawHandle,
         state: WgAdapterState,
     ) -> io::Result<()> {
-        let result = unsafe { (self.func_set_adapter_state)(adapter, state) };
-        if result == 0 {
+        let succeeded = unsafe { (self.func_set_adapter_state)(adapter, state) };
+        if !succeeded {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -857,7 +862,7 @@ impl WgNtDll {
         adapter: RawHandle,
         state: WireGuardAdapterLogState,
     ) -> io::Result<()> {
-        if unsafe { (self.func_set_adapter_logging)(adapter, state) } == 0 {
+        if !unsafe { (self.func_set_adapter_logging)(adapter, state) } {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -870,7 +875,7 @@ impl WgNtDll {
         events_capacity: usize,
         actions_capacity: usize,
     ) -> io::Result<()> {
-        if unsafe { (self.func_daita_activate)(adapter, events_capacity, actions_capacity) } == 0 {
+        if !unsafe { (self.func_daita_activate)(adapter, events_capacity, actions_capacity) } {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -907,7 +912,7 @@ impl WgNtDll {
         adapter: RawHandle,
         action: *const daita::Action,
     ) -> io::Result<()> {
-        if unsafe { (self.func_daita_send_action)(adapter, action) } == 0 {
+        if !unsafe { (self.func_daita_send_action)(adapter, action) } {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -1235,7 +1240,7 @@ mod tests {
 
     #[test]
     fn test_dll_imports() {
-        WgNtDll::new_inner(0, get_proc_fn).unwrap();
+        WgNtDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
     }
 
     #[test]

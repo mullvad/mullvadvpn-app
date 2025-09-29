@@ -2381,7 +2381,7 @@ dependencies = [
  "serde",
  "talpid-platform-metadata",
  "tokio",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "winres",
 ]
 
@@ -3026,7 +3026,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.9",
  "tokio",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "winres",
 ]
 
@@ -3084,7 +3084,7 @@ dependencies = [
  "tokio-stream",
  "winapi",
  "windows-service",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "winres",
 ]
 
@@ -3181,7 +3181,7 @@ dependencies = [
  "socket2 0.5.8",
  "talpid-windows",
  "tokio",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -3231,7 +3231,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "typed-builder 0.21.0",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -3251,7 +3251,7 @@ dependencies = [
  "once_cell",
  "thiserror 2.0.9",
  "widestring",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -3272,7 +3272,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "uuid",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "winres",
 ]
 
@@ -3331,7 +3331,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "windows-service",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -5542,7 +5542,7 @@ dependencies = [
  "windows 0.58.0",
  "windows-core 0.58.0",
  "windows-service",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "winreg 0.51.0",
  "wmi",
 ]
@@ -5614,7 +5614,7 @@ dependencies = [
  "uuid",
  "widestring",
  "winapi",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "winreg 0.51.0",
 ]
 
@@ -5637,7 +5637,7 @@ dependencies = [
  "tonic-build",
  "tower",
  "winapi",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "winres",
 ]
 
@@ -5648,7 +5648,7 @@ dependencies = [
  "rs-release",
  "talpid-dbus",
  "talpid-windows",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -5672,7 +5672,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "widestring",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -5699,7 +5699,7 @@ dependencies = [
  "tokio",
  "tun 0.5.5",
  "tun 0.7.13",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -5721,7 +5721,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "zeroize",
 ]
 
@@ -5748,7 +5748,7 @@ dependencies = [
  "socket2 0.5.8",
  "talpid-types",
  "thiserror 2.0.9",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]
@@ -5794,7 +5794,7 @@ dependencies = [
  "tun 0.7.13",
  "tunnel-obfuscation",
  "widestring",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "wireguard-go-rs",
  "zeroize",
 ]
@@ -6817,6 +6817,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "windows-link"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45e46c0661abb7180e7b9c281db115305d49ca1709ab8242adf09666d2173c65"
+
+[[package]]
 name = "windows-result"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6911,6 +6917,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e38bc4d79ed67fd075bcc251a1c39b32a1776bbe92e5bef1f0bf1f8c531853b"
 dependencies = [
  "windows-targets 0.52.6",
+]
+
+[[package]]
+name = "windows-sys"
+version = "0.61.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f109e41dd4a3c848907eb83d5a42ea98b3769495597450cf6d153507b166f0f"
+dependencies = [
+ "windows-link",
 ]
 
 [[package]]
@@ -7269,7 +7284,7 @@ dependencies = [
  "maybenot-ffi",
  "talpid-types",
  "thiserror 2.0.9",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.1",
  "zeroize",
 ]
 
