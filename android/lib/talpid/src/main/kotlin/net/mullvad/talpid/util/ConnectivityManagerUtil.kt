@@ -74,7 +74,7 @@ fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> =
 
             awaitClose { unregisterNetworkCallback(callback) }
         }
-        .onEach { Logger.d("Got a default network event type: ${it::class.simpleName}") }
+        .onEach { Logger.i("Got a default network event type: ${it::class.simpleName}") }
 
 fun ConnectivityManager.nonVpnInternetNetworksEvents(): Flow<NetworkEvent> =
     callbackFlow {
@@ -203,6 +203,13 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
  * with the default network not being updated correctly on Android 9 and below when the VPN is
  * turned on. The non-VPN network event is not used it is just there to trigger a new connectivity
  * check.
+ *
+ * Note: Even the use of a combine with non-VPN networks flow is primarily to fix issues on Android
+ * 8 and 9, we have seen similar user reports on newer versions of Android as well. When we stop
+ * supporting Android 8 and 9 and if we decide to remove this fix we should make sure that it won't
+ * cause issues for users on Android 10+.
+ *
+ * See DROID-2025 for more details.
  */
 @OptIn(FlowPreview::class)
 fun ConnectivityManager.hasInternetConnectivity(
@@ -212,6 +219,7 @@ fun ConnectivityManager.hasInternetConnectivity(
             defaultEvent
         }
         .debounce(CONNECTIVITY_DEBOUNCE)
+        .onEach { Logger.i("Resolving connectivity status") }
         .map { resolveConnectivityStatus(it, resolver) }
         .distinctUntilChanged()
 
