@@ -1,5 +1,7 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
+use crate::TunnelError;
+
 use super::{
     Tunnel,
     config::Config,
@@ -11,7 +13,7 @@ use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use once_cell::sync::OnceCell;
 use std::{
-    ffi::CStr,
+    ffi::{CStr, c_uchar},
     fmt,
     future::Future,
     io,
@@ -24,8 +26,7 @@ use std::{
     sync::{Arc, LazyLock, Mutex},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-#[cfg(daita)]
-use std::{ffi::c_uchar, path::PathBuf};
+use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{BoxedError, ErrorExt};
 use talpid_windows::net;
 use widestring::{U16CStr, U16CString};
@@ -40,9 +41,6 @@ use windows_sys::{
     },
     core::GUID,
 };
-
-#[cfg(daita)]
-mod daita;
 
 static WG_NT_DLL: OnceCell<WgNtDll> = OnceCell::new();
 static ADAPTER_TYPE: LazyLock<U16CString> =
@@ -165,27 +163,13 @@ pub enum Error {
     /// Failed to parse data returned by the driver
     #[error("Failed to parse data returned by wireguard-nt")]
     InvalidConfigData,
-
-    /// DAITA machinist failed
-    #[cfg(daita)]
-    #[error("Failed to enable DAITA on tunnel device")]
-    EnableTunnelDaita(#[source] io::Error),
-
-    /// DAITA machinist failed
-    #[cfg(daita)]
-    #[error("Failed to initialize DAITA machinist")]
-    InitializeMachinist(#[source] daita::Error),
 }
 
 pub struct WgNtTunnel {
-    #[cfg(daita)]
-    resource_dir: PathBuf,
     config: Arc<Mutex<Config>>,
     device: Option<Arc<WgNtAdapter>>,
     interface_name: String,
     setup_handle: tokio::task::JoinHandle<()>,
-    #[cfg(daita)]
-    daita_handle: Option<daita::MachinistHandle>,
     _logger_handle: LoggerHandle,
 }
 
@@ -326,8 +310,6 @@ bitflags! {
         const REPLACE_ALLOWED_IPS = 0b00100000;
         const REMOVE = 0b01000000;
         const UPDATE = 0b10000000;
-        #[cfg(daita)]
-        const HAS_CONSTANT_PACKET_SIZE = 0b100000000;
     }
 }
 
@@ -345,7 +327,6 @@ struct WgPeer {
     rx_bytes: u64,
     last_handshake: u64,
     allowed_ips_count: u32,
-    #[cfg(daita)]
     constant_packet_size: c_uchar,
 }
 
@@ -484,53 +465,17 @@ impl WgNtTunnel {
         });
 
         Ok(WgNtTunnel {
-            #[cfg(daita)]
-            resource_dir: resource_dir.to_owned(),
             config: Arc::new(Mutex::new(config.clone())),
             device,
             interface_name,
             setup_handle,
-            #[cfg(daita)]
-            daita_handle: None,
             _logger_handle: logger_handle,
         })
     }
 
     fn stop_tunnel(&mut self) {
         self.setup_handle.abort();
-        #[cfg(daita)]
-        if let Some(daita_handle) = self.daita_handle.take() {
-            let _ = daita_handle.close();
-        }
         let _ = self.device.take();
-    }
-
-    #[cfg(daita)]
-    fn spawn_machinist(&mut self) -> Result<()> {
-        if let Some(handle) = self.daita_handle.take() {
-            log::info!("Stopping previous DAITA machines");
-            let _ = handle.close();
-        }
-
-        let Some(device) = self.device.clone() else {
-            log::debug!("Tunnel is stopped; not starting machines");
-            return Ok(());
-        };
-
-        let config = self.config.lock().unwrap();
-
-        log::info!("Initializing DAITA for wireguard device");
-        let session = daita::Session::from_adapter(device).map_err(Error::EnableTunnelDaita)?;
-        self.daita_handle = Some(
-            daita::Machinist::spawn(
-                &self.resource_dir,
-                session,
-                config.entry_peer.public_key.clone(),
-                config.mtu,
-            )
-            .map_err(Error::InitializeMachinist)?,
-        );
-        Ok(())
     }
 }
 
@@ -689,14 +634,6 @@ struct WgNtDll {
     func_set_adapter_state: WireGuardSetStateFn,
     func_set_logger: WireGuardSetLoggerFn,
     func_set_adapter_logging: WireGuardSetAdapterLoggingFn,
-    #[cfg(daita)]
-    func_daita_activate: daita::bindings::WireGuardDaitaActivateFn,
-    #[cfg(daita)]
-    func_daita_event_data_available_event: daita::bindings::WireGuardDaitaEventDataAvailableEventFn,
-    #[cfg(daita)]
-    func_daita_receive_events: daita::bindings::WireGuardDaitaReceiveEventsFn,
-    #[cfg(daita)]
-    func_daita_send_action: daita::bindings::WireGuardDaitaSendActionFn,
 }
 
 unsafe impl Send for WgNtDll {}
@@ -749,23 +686,6 @@ impl WgNtDll {
             },
             func_set_adapter_logging: unsafe {
                 *((&get_proc_fn(handle, c"WireGuardSetAdapterLogging")?) as *const _ as *const _)
-            },
-            #[cfg(daita)]
-            func_daita_activate: unsafe {
-                *((&get_proc_fn(handle, c"WireGuardDaitaActivate")?) as *const _ as *const _)
-            },
-            #[cfg(daita)]
-            func_daita_event_data_available_event: unsafe {
-                *((&get_proc_fn(handle, c"WireGuardDaitaEventDataAvailableEvent")?) as *const _
-                    as *const _)
-            },
-            #[cfg(daita)]
-            func_daita_receive_events: unsafe {
-                *((&get_proc_fn(handle, c"WireGuardDaitaReceiveEvents")?) as *const _ as *const _)
-            },
-            #[cfg(daita)]
-            func_daita_send_action: unsafe {
-                *((&get_proc_fn(handle, c"WireGuardDaitaSendAction")?) as *const _ as *const _)
             },
         })
     }
@@ -867,56 +787,6 @@ impl WgNtDll {
         }
         Ok(())
     }
-
-    #[cfg(daita)]
-    pub unsafe fn daita_activate(
-        &self,
-        adapter: RawHandle,
-        events_capacity: usize,
-        actions_capacity: usize,
-    ) -> io::Result<()> {
-        if !unsafe { (self.func_daita_activate)(adapter, events_capacity, actions_capacity) } {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(())
-    }
-
-    #[cfg(daita)]
-    pub unsafe fn daita_event_data_available_event(
-        &self,
-        adapter: RawHandle,
-    ) -> io::Result<RawHandle> {
-        let ready_event = unsafe { (self.func_daita_event_data_available_event)(adapter) };
-        if ready_event.is_null() {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(ready_event)
-    }
-
-    #[cfg(daita)]
-    pub unsafe fn daita_receive_events(
-        &self,
-        adapter: RawHandle,
-        events: *mut daita::Event,
-    ) -> io::Result<usize> {
-        let num_events = unsafe { (self.func_daita_receive_events)(adapter, events) };
-        if num_events == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(num_events)
-    }
-
-    #[cfg(daita)]
-    pub unsafe fn daita_send_action(
-        &self,
-        adapter: RawHandle,
-        action: *const daita::Action,
-    ) -> io::Result<()> {
-        if !unsafe { (self.func_daita_send_action)(adapter, action) } {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(())
-    }
 }
 
 impl Drop for WgNtDll {
@@ -943,17 +813,10 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     buffer.extend(as_uninit_byte_slice(&header));
 
     for peer in config.peers() {
-        #[cfg(not(daita))]
         let mut flags = WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT;
-        #[cfg(daita)]
-        let mut flags = WgPeerFlag::HAS_PUBLIC_KEY
-            | WgPeerFlag::HAS_ENDPOINT
-            | WgPeerFlag::HAS_CONSTANT_PACKET_SIZE;
         if peer.psk.is_some() {
             flags |= WgPeerFlag::HAS_PRESHARED_KEY;
         }
-        #[cfg(daita)]
-        let constant_packet_size = if peer.constant_packet_size { 1 } else { 0 };
         let wg_peer = WgPeer {
             flags,
             reserved: 0,
@@ -969,8 +832,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: u32::try_from(peer.allowed_ips.len()).unwrap(),
-            #[cfg(daita)]
-            constant_packet_size,
+            constant_packet_size: 0,
         };
 
         buffer.extend(as_uninit_byte_slice(&wg_peer));
@@ -1127,18 +989,8 @@ impl Tunnel for WgNtTunnel {
         })
     }
 
-    #[cfg(daita)]
-    fn start_daita(
-        &mut self,
-        _: talpid_tunnel_config_client::DaitaSettings,
-    ) -> std::result::Result<(), crate::TunnelError> {
-        self.spawn_machinist().map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to start DAITA for wg-nt tunnel")
-            );
-            super::TunnelError::SetConfigError
-        })
+    fn start_daita(&mut self, _settings: DaitaSettings) -> std::result::Result<(), TunnelError> {
+        unimplemented!("DAITA is not supported on wireguard-nt")
     }
 }
 
@@ -1193,9 +1045,8 @@ mod tests {
         ipv6_gateway: None,
         mtu: 0,
         obfuscator_config: None,
-        #[cfg(daita)]
-        daita: false,
         quantum_resistant: false,
+        daita: false,
     });
 
     static WG_STRUCT_CONFIG: LazyLock<Interface> = LazyLock::new(|| Interface {
@@ -1207,9 +1058,7 @@ mod tests {
             peers_count: 1,
         },
         p0: WgPeer {
-            flags: WgPeerFlag::HAS_PUBLIC_KEY
-                | WgPeerFlag::HAS_ENDPOINT
-                | WgPeerFlag::HAS_CONSTANT_PACKET_SIZE,
+            flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
             reserved: 0,
             public_key: *WG_PUBLIC_KEY.as_bytes(),
             preshared_key: [0; WIREGUARD_KEY_LENGTH],
