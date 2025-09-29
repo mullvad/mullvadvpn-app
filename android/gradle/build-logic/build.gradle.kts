@@ -71,6 +71,12 @@ gradlePlugin {
             implementationClass = "AndroidLibraryInstrumentedTestPlugin"
         }
     }
+    plugins {
+        register("wireProtoPatcher") {
+            id = "mullvad.wire-proto-patcher"
+            implementationClass = "WireProtoPatcherPlugin"
+        }
+    }
 }
 
 configurations
