@@ -23,7 +23,7 @@ pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
 use futures::future::BoxFuture;
-use std::{ops::Not, time::Duration};
+use std::time::Duration;
 
 use crate::{
     logging::print_mullvad_logs, mullvad_daemon::RpcClientProvider, package::get_version_from_path,
@@ -137,14 +137,24 @@ pub fn get_filtered_tests(
             .collect::<Result<_, anyhow::Error>>()?
     };
 
-    tests.retain(|test| {
+    let on_skip_list = |test: &TestMetadata| {
         skipped_tests
             .iter()
             .any(|skip| skip.eq_ignore_ascii_case(test.name))
-            .not()
-    });
+    };
+    let on_include_list = |test: &TestMetadata| {
+        specified_tests
+            .iter()
+            .any(|skip| skip.eq_ignore_ascii_case(test.name))
+    };
+    // If a test is explicitly run, the `skip` attribute of the `test_function` macro should be overriden.
+    let intended_to_be_run = |test: &TestMetadata| !test.skip || on_include_list(test);
 
-    tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os));
+    tests.retain(|test| {
+        should_run_on_os(test.targets, TEST_CONFIG.os)
+            && !on_skip_list(test)
+            && intended_to_be_run(test)
+    });
 
     Ok(tests)
 }
