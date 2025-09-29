@@ -1,55 +1,42 @@
-import com.google.protobuf.gradle.proto
-
 plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.protobuf.core)
     alias(libs.plugins.mullvad.unit.test)
+    alias(libs.plugins.wire)
+    alias(libs.plugins.wire.proto.patcher)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.grpc"
 
-    sourceSets {
-        getByName("main") {
-            proto { srcDir("${rootProject.projectDir}/../mullvad-management-interface/proto") }
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.add("-XXLanguage:+WhenGuards")
+            // This is due to a warning in the generated code from Wire.
+            allWarningsAsErrors = false
         }
     }
-
-    kotlin { compilerOptions { freeCompilerArgs.add("-XXLanguage:+WhenGuards") } }
 }
 
-protobuf {
-    protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
-    plugins {
-        val grpcPluginPath = System.getenv("PROTOC_GEN_GRPC_JAVA_PLUGIN")
-        create("java") {
-            if (grpcPluginPath != null) {
-                path = grpcPluginPath
-            } else {
-                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
-            }
-        }
-        create("grpc") {
-            if (grpcPluginPath != null) {
-                path = grpcPluginPath
-            } else {
-                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
-            }
-        }
-        create("grpckt") {
-            artifact = libs.plugins.grpc.protoc.gen.grpc.kotlin.get().toString() + ":jdk8@jar"
-        }
+wireProtoPatcher {
+    protoSourceDir.set(file("${rootProject.projectDir}/../mullvad-management-interface/proto"))
+}
+
+wire {
+    sourcePath {
+        val patchedDir =
+            tasks.named("patchProtoFiles").flatMap { (it as PatchProtosTask).outputDir }
+        srcDir(patchedDir)
     }
-    generateProtoTasks {
-        all().forEach {
-            it.plugins {
-                create("java") { option("lite") }
-                create("grpc") { option("lite") }
-                create("grpckt") { option("lite") }
-            }
-            it.builtins { create("kotlin") { option("lite") } }
-        }
+
+    kotlin {
+        android = true
+        rpcRole = "client"
+        rpcCallStyle = "suspending"
+        explicitStreamingCalls = true
+        emitProtoReader32 = true
+        escapeKotlinKeywords = true
+        makeImmutableCopies = true
     }
 }
 
@@ -63,12 +50,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.coroutines.android)
 
-    implementation(libs.grpc.okhttp)
-    implementation(libs.grpc.android)
-    implementation(libs.grpc.stub)
-    implementation(libs.grpc.kotlin.stub)
-    implementation(libs.grpc.protobuf.lite)
-    implementation(libs.protobuf.kotlin.lite)
+    implementation(libs.wire.runtime)
+    implementation(libs.wire.grpc)
+    implementation(libs.okhttp.logging.interceptor)
 
     implementation(libs.arrow)
     implementation(libs.arrow.optics)

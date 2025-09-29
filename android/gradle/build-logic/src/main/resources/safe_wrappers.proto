@@ -1,0 +1,20 @@
+syntax = "proto3";
+package safe_wrappers;
+
+// Drop-in replacements for the `google.protobuf.*Value` wrapper types.
+//
+// This file is bundled with the `WireProtoPatcherPlugin` and is copied
+// verbatim into the generated output directory. The plugin rewrites any
+// `google/protobuf/wrappers.proto` import (and the corresponding
+// `google.protobuf.*Value` type references) in the patched proto files to
+// point at these types instead, since Wire does not treat the well-known
+// wrapper types as nullable the way protoc/other codegens do.
+message SafeDoubleValue { double value = 1; }
+message SafeFloatValue { float value = 1; }
+message SafeInt64Value { int64 value = 1; }
+message SafeUInt64Value { uint64 value = 1; }
+message SafeInt32Value { int32 value = 1; }
+message SafeUInt32Value { uint32 value = 1; }
+message SafeBoolValue { bool value = 1; }
+message SafeStringValue { string value = 1; }
+message SafeBytesValue { bytes value = 1; }
