@@ -26,86 +26,88 @@ let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
-test.beforeAll(async () => {
-  ({ page, util } = await startMockedApp());
-  routes = new RoutesObjectModel(page, util);
-  await routes.main.waitForRoute();
-});
-
-test.afterAll(async () => {
-  await page.close();
-});
-
-/**
- * Disconnected state
- */
-test('App should show disconnected tunnel state', async () => {
-  await util.ipc.tunnel[''].notify({ state: 'disconnected', lockedDown: false });
-  await expectDisconnected(page);
-});
-
-/**
- * Connecting state
- */
-test('App should show connecting tunnel state', async () => {
-  await util.ipc.tunnel[''].notify({ state: 'connecting', featureIndicators: undefined });
-  await expectConnecting(page);
-});
-
-/**
- * Disconnecting state
- */
-test('App should show disconnecting tunnel state', async () => {
-  await util.ipc.tunnel[''].notify({ state: 'disconnecting', details: 'nothing' });
-  await expectDisconnecting(page);
-});
-
-/**
- * Error state
- */
-test('App should show error tunnel state', async () => {
-  await util.ipc.tunnel[''].notify({
-    state: 'error',
-    details: { cause: ErrorStateCause.isOffline },
-  });
-  await expectError(page);
-});
-
-/**
- * Connected state
- */
-test.describe('Connected state', () => {
-  test.beforeEach(async () => {
-    const location: ILocation = { ...mockLocation, mullvadExitIp: true };
-
-    const endpoint: ITunnelEndpoint = {
-      address: 'wg10:80',
-      protocol: 'tcp',
-      quantumResistant: false,
-      tunnelType: 'wireguard',
-      daita: false,
-    };
-    await util.ipc.tunnel[''].notify({
-      state: 'connected',
-      details: { endpoint, location },
-      featureIndicators: undefined,
-    });
+test.describe('Connection states', () => {
+  test.beforeAll(async () => {
+    ({ page, util } = await startMockedApp());
+    routes = new RoutesObjectModel(page, util);
+    await routes.main.waitForRoute();
   });
 
-  test.afterEach(async () => {
+  test.afterAll(async () => {
+    await page.close();
+  });
+
+  /**
+   * Disconnected state
+   */
+  test('App should show disconnected tunnel state', async () => {
+    await util.ipc.tunnel[''].notify({ state: 'disconnected', lockedDown: false });
+    await expectDisconnected(page);
+  });
+
+  /**
+   * Connecting state
+   */
+  test('App should show connecting tunnel state', async () => {
+    await util.ipc.tunnel[''].notify({ state: 'connecting', featureIndicators: undefined });
+    await expectConnecting(page);
+  });
+
+  /**
+   * Disconnecting state
+   */
+  test('App should show disconnecting tunnel state', async () => {
     await util.ipc.tunnel[''].notify({ state: 'disconnecting', details: 'nothing' });
+    await expectDisconnecting(page);
   });
 
-  test('App should show connected tunnel state', async () => {
-    await expectConnected(page);
+  /**
+   * Error state
+   */
+  test('App should show error tunnel state', async () => {
+    await util.ipc.tunnel[''].notify({
+      state: 'error',
+      details: { cause: ErrorStateCause.isOffline },
+    });
+    await expectError(page);
   });
 
-  test('App should show both IPv4 and IPv6 out address', async () => {
-    await routes.main.expandConnectionPanel();
+  /**
+   * Connected state
+   */
+  test.describe('Connected state', () => {
+    test.beforeEach(async () => {
+      const location: ILocation = { ...mockLocation, mullvadExitIp: true };
 
-    const outIps = routes.main.getOutIps();
-    await expect(outIps).toHaveCount(2);
-    await expect(outIps.first()).toHaveText(mockLocation.ipv4!);
-    await expect(outIps.last()).toHaveText(mockLocation.ipv6!);
+      const endpoint: ITunnelEndpoint = {
+        address: 'wg10:80',
+        protocol: 'tcp',
+        quantumResistant: false,
+        tunnelType: 'wireguard',
+        daita: false,
+      };
+      await util.ipc.tunnel[''].notify({
+        state: 'connected',
+        details: { endpoint, location },
+        featureIndicators: undefined,
+      });
+    });
+
+    test.afterEach(async () => {
+      await util.ipc.tunnel[''].notify({ state: 'disconnecting', details: 'nothing' });
+    });
+
+    test('App should show connected tunnel state', async () => {
+      await expectConnected(page);
+    });
+
+    test('App should show both IPv4 and IPv6 out address', async () => {
+      await routes.main.expandConnectionPanel();
+
+      const outIps = routes.main.getOutIps();
+      await expect(outIps).toHaveCount(2);
+      await expect(outIps.first()).toHaveText(mockLocation.ipv4!);
+      await expect(outIps.last()).toHaveText(mockLocation.ipv6!);
+    });
   });
 });
