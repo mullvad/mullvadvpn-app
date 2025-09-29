@@ -41,8 +41,8 @@ class AddTimeBottomSheetTest {
         sheetState: SheetState =
             SheetState(
                 skipPartiallyExpanded = true,
-                density = Density(1f),
-                initialValue = SheetValue.Expanded,
+                positionalThreshold = { 0f },
+                velocityThreshold = { 0f },
             ),
         onPurchaseBillingProductClick: (ProductId) -> Unit = {},
         onPlayPaymentInfoClick: () -> Unit = {},

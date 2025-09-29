@@ -76,7 +76,8 @@ private fun PreviewPaymentBottomSheet(
             sheetState =
                 SheetState(
                     skipPartiallyExpanded = true,
-                    density = Density(1f),
+                    positionalThreshold = { 0f },
+                    velocityThreshold = { 0f },
                     initialValue = SheetValue.Expanded,
                 ),
             onPurchaseBillingProductClick = {},
