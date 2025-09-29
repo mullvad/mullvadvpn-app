@@ -65,10 +65,6 @@ talpid-dbus = { path = "../talpid-dbus" }
 bitflags = "1.2"
 talpid-windows = { path = "../talpid-windows" }
 widestring = "1.0"
-maybenot = "2.0.0"
-# TODO: rand 0.8 is a hard requirement of maybenot-ffi 2.0. May be upgraded to rand 0.9
-# when maybenot 2.2 is released.
-rand08 = { package = "rand", version = "0.8.5" }
 rand_chacha = "0.3.1"
 
 # TODO: Figure out which features are needed and which are not
