@@ -16,6 +16,7 @@ mod split_tunnel;
 mod states;
 mod version;
 mod wireguard;
+mod well_known;
 
 #[derive(thiserror::Error, Debug)]
 pub enum FromProtobufTypeError {

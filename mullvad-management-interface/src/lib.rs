@@ -157,14 +157,23 @@ pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 's
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::SecurityAttributes;
 
+    log::debug!("We got here! LOLZ");
+
     let mut endpoint = IpcEndpoint::new(rpc_socket_path.as_ref().to_string_lossy().to_string());
+    log::debug!("We got here! LOLZ AFTER");
     endpoint.set_security_attributes(
         SecurityAttributes::allow_everyone_create()
             .map_err(Error::SecurityAttributes)?
             .set_mode(0o766)
             .map_err(Error::SecurityAttributes)?,
     );
-    let incoming = endpoint.incoming().map_err(Error::StartServerError)?;
+    log::debug!("We got here! LOLZ BEFORE");
+    let incoming = endpoint.incoming().map_err(|e| {
+        log::error!("We got an error {}", e);
+        e
+    }).map_err(Error::StartServerError)?;
+
+    log::debug!("We got here! 2 LOLZ");
 
     #[cfg(unix)]
     if let Some(group_name) = &*MULLVAD_MANAGEMENT_SOCKET_GROUP {
@@ -176,6 +185,8 @@ pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 's
         fs::set_permissions(rpc_socket_path, PermissionsExt::from_mode(0o760))
             .map_err(Error::PermissionsError)?;
     }
+
+    log::debug!("We got here! 3 LOLZ");
 
     Ok(tokio::spawn(async move {
         if let Err(execution_error) = Server::builder()

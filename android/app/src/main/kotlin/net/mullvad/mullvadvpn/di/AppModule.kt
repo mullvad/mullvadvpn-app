@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.di
 
 import android.content.Context
+import android.os.Environment
+import android.os.Environment.DIRECTORY_DOCUMENTS
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
