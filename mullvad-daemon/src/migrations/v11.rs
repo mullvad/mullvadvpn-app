@@ -157,8 +157,28 @@ fn migrate_duplicated_api_access_method_names(settings: &mut serde_json::Value) 
 mod test {
     use serde_json::json;
 
+    use crate::migrations::load_seed;
+    use crate::migrations::v11::migrate;
     use crate::migrations::v11::migrate_block_when_disconnected;
     use crate::migrations::v11::migrate_duplicated_api_access_method_names;
+
+    fn v11_settings() -> serde_json::Value {
+        load_seed("v11.json")
+    }
+
+    #[test]
+    fn snapshot_v11_settings() {
+        let v11 = serde_json::to_string_pretty(&v11_settings()).unwrap();
+        insta::assert_snapshot!(v11);
+    }
+
+    #[test]
+    fn test_v11_to_v12_migration() {
+        let mut v11 = v11_settings();
+        migrate(&mut v11).unwrap();
+        let v12 = serde_json::to_string_pretty(&v11).unwrap();
+        insta::assert_snapshot!(v12);
+    }
 
     /// "block_when_disconnected" is renamed to "lockdown_mode"
     #[test]
