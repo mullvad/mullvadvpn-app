@@ -41,6 +41,7 @@
                  android:theme="@style/Theme.App.Starting"
                  android:localeConfig="@xml/locales_config"
                  android:supportsRtl="true"
+                 android:networkSecurityConfig="@xml/network_security_config"
                  tools:ignore="CredManMissingDal,CredentialDependency,GoogleAppIndexingWarning">
 
         <!--
