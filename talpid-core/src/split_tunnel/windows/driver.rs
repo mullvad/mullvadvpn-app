@@ -28,7 +28,7 @@ use talpid_windows::{io::Overlapped, process::ProcessSnapshot, sync::Event};
 use windows_sys::Win32::{
     Foundation::{
         ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
-        HANDLE, NTSTATUS, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0,
+        NTSTATUS, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0,
     },
     Networking::WinSock::{IN_ADDR, IN6_ADDR},
     Storage::FileSystem::FILE_FLAG_OVERLAPPED,
@@ -849,7 +849,7 @@ pub unsafe fn device_io_control_buffer_async(
 
     let result = unsafe {
         DeviceIoControl(
-            device.as_raw_handle() as HANDLE,
+            device.as_raw_handle(),
             ioctl_code,
             input_ptr,
             u32::try_from(input_len).map_err(|_error| {
@@ -888,13 +888,13 @@ pub fn get_overlapped_result(
     let event = overlapped.get_event().unwrap();
 
     // SAFETY: This is a valid event object.
-    unsafe { wait_for_single_object(event.as_raw(), None) }?;
+    unsafe { wait_for_single_object(event, None) }?;
 
     // SAFETY: The handle and overlapped object are valid.
     let mut returned_bytes = 0u32;
     let result = unsafe {
         GetOverlappedResult(
-            device.as_raw_handle() as HANDLE,
+            device.as_raw_handle(),
             overlapped.as_mut_ptr(),
             &mut returned_bytes,
             0,
@@ -911,14 +911,17 @@ pub fn get_overlapped_result(
 /// # Safety
 ///
 /// * `object` must be a valid object that can be signaled, such as an event object.
-pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) -> io::Result<()> {
+pub unsafe fn wait_for_single_object(
+    object: &impl AsRawHandle,
+    timeout: Option<Duration>,
+) -> io::Result<()> {
     let timeout = match timeout {
         Some(timeout) => u32::try_from(timeout.as_millis()).map_err(|_error| {
             io::Error::new(io::ErrorKind::InvalidInput, "the duration is too long")
         })?,
         None => INFINITE,
     };
-    let result = unsafe { WaitForSingleObject(object, timeout) };
+    let result = unsafe { WaitForSingleObject(object.as_raw_handle(), timeout) };
     match result {
         WAIT_OBJECT_0 => Ok(()),
         WAIT_FAILED => Err(io::Error::last_os_error()),
@@ -933,7 +936,10 @@ pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) 
 /// # Safety
 ///
 /// * `objects` must be a slice of valid objects that can be signaled, such as event objects.
-pub unsafe fn wait_for_multiple_objects(objects: &[HANDLE], wait_all: bool) -> io::Result<HANDLE> {
+pub unsafe fn wait_for_multiple_objects(
+    objects: &[RawHandle],
+    wait_all: bool,
+) -> io::Result<RawHandle> {
     unsafe {
         let objects_len = u32::try_from(objects.len())
             .map_err(|_error| io::Error::new(io::ErrorKind::InvalidInput, "too many objects"))?;

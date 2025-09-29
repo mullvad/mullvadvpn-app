@@ -1,11 +1,15 @@
-#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
-
 use crate::{Error, Result, UserPermissions};
 use once_cell::sync::OnceCell;
 use std::{
     ffi::OsStr,
     io, mem,
-    os::windows::prelude::OsStrExt,
+    os::windows::{
+        io::{
+            AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, HandleOrNull, IntoRawHandle,
+            OwnedHandle,
+        },
+        prelude::OsStrExt,
+    },
     path::{Path, PathBuf},
     ptr,
 };
@@ -13,8 +17,8 @@ use widestring::{WideCStr, WideCString};
 use windows_sys::{
     Win32::{
         Foundation::{
-            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL, GENERIC_EXECUTE,
-            GENERIC_READ, GENERIC_WRITE, HANDLE, INVALID_HANDLE_VALUE, LUID, LocalFree, S_OK,
+            ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL, GENERIC_EXECUTE, GENERIC_READ,
+            GENERIC_WRITE, HANDLE, LUID, LocalFree, S_OK,
         },
         Security::{
             self, AdjustTokenPrivileges,
@@ -72,18 +76,6 @@ pub fn create_dir(path: PathBuf, user_permissions: Option<UserPermissions>) -> R
         })?;
     }
     Ok(path)
-}
-
-struct Handle(HANDLE);
-
-impl Drop for Handle {
-    fn drop(&mut self) {
-        if self.0 != 0 && self.0 != INVALID_HANDLE_VALUE {
-            unsafe {
-                CloseHandle(self.0);
-            }
-        }
-    }
 }
 
 fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
@@ -178,6 +170,8 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
 
     let mut admin_psid = [0u8; MAX_SID_SIZE as usize];
     let mut admin_psid_len = u32::try_from(admin_psid.len()).unwrap();
+
+    // SAFETY: The pointer to the PSID is valid for writes of `admin_psid_len` bytes
     if unsafe {
         CreateWellKnownSid(
             WinBuiltinAdministratorsSid,
@@ -210,6 +204,8 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
 
     let mut au_psid = [0u8; MAX_SID_SIZE as usize];
     let mut au_psid_len = u32::try_from(au_psid.len()).unwrap();
+
+    // SAFETY: The pointer to the PSID is valid for writes of `au_psid_len` bytes
     if unsafe {
         CreateWellKnownSid(
             WinAuthenticatedUserSid,
@@ -243,6 +239,8 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
     let ea_entries = [admin_ea, authenticated_users_ea];
     let mut new_dacl = ptr::null_mut();
 
+    // SAFETY: `ea_entries` is valid for reads of `ea_entries.len()` elements
+    // `new_dacl` is a valid pointer to an ACL pointer
     let result = unsafe {
         SetEntriesInAclW(
             u32::try_from(ea_entries.len()).unwrap(),
@@ -261,6 +259,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
     }
     // new_dacl is now allocated and must be freed with FreeLocal
 
+    // SAFETY: All pointers are valid
     let result = unsafe {
         SetNamedSecurityInfoW(
             wide_path.as_ptr(),
@@ -273,6 +272,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
         )
     };
 
+    // SAFETY: `new_dacl` is a valid pointer since `SetEntriesInAclW` succeeded
     unsafe { LocalFree(new_dacl.cast()) };
 
     if result != ERROR_SUCCESS {
@@ -295,8 +295,15 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
         .get_or_try_init(|| {
             let join_handle = std::thread::spawn(|| {
                 impersonate_self(|| {
-                    let user_token = get_system_user_token()?;
-                    get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, user_token.0)
+                    let user_token = OwnedHandle::try_from(get_system_user_token()?).ok();
+                    // SAFETY: `FOLDERID_LocalAppData` is a valid known folder ID
+                    unsafe {
+                        get_known_folder_path(
+                            &FOLDERID_LocalAppData,
+                            KF_FLAG_DEFAULT,
+                            user_token.as_ref().map(|t| t.as_handle()),
+                        )
+                    }
                 })
                 .or_else(|error| {
                     log::error!("Failed to get AppData path: {error}");
@@ -311,54 +318,60 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
 /// Get user token for the system service user. Requires elevated privileges to work.
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
-/// If the current user is system, this function succeeds and returns a `NULL` handle;
-fn get_system_user_token() -> io::Result<Handle> {
+/// If the current user is system, this function succeeds and returns `None`
+fn get_system_user_token() -> io::Result<HandleOrNull> {
     let thread_token = get_current_thread_token()?;
 
-    if is_local_system_user_token(thread_token.0)? {
-        return Ok(Handle(0));
+    if is_local_system_user_token(&thread_token)? {
+        // SAFETY: It is safe to pass a null handle
+        return Ok(unsafe { HandleOrNull::from_raw_handle(ptr::null_mut()) });
     }
 
     let system_debug_priv = WideCString::from_str("SeDebugPrivilege").unwrap();
-    adjust_token_privilege(thread_token.0, &system_debug_priv, true)?;
+    adjust_token_privilege(&thread_token, &system_debug_priv, true)?;
 
     let find_result = find_process(|process_handle| {
         let process_token = open_process_token(
-            process_handle,
+            &process_handle,
             GENERIC_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE,
         )
         .ok()?;
 
-        match is_local_system_user_token(process_token.0) {
+        match is_local_system_user_token(&process_token) {
             Ok(true) => Some(process_token),
             _ => None,
         }
     });
 
-    if let Err(err) = adjust_token_privilege(thread_token.0, &system_debug_priv, false) {
+    if let Err(err) = adjust_token_privilege(&thread_token, &system_debug_priv, false) {
         log::error!("Failed to drop SeDebugPrivilege: {}", err);
     }
 
-    find_result
+    // SAFETY: The handle is valid
+    find_result.map(|h| unsafe { HandleOrNull::from_raw_handle(h.into_raw_handle()) })
 }
 
-fn open_process_token(process: HANDLE, access: u32) -> io::Result<Handle> {
-    let mut process_token = 0;
-    if unsafe { OpenProcessToken(process, access, &mut process_token) } == 0 {
+fn open_process_token(process: &impl AsRawHandle, access: u32) -> io::Result<OwnedHandle> {
+    let mut process_token = ptr::null_mut();
+    // SAFETY: `process` is a valid handle
+    if unsafe { OpenProcessToken(process.as_raw_handle(), access, &mut process_token) } == 0 {
         return Err(io::Error::last_os_error());
     }
-    Ok(Handle(process_token))
+    // SAFETY: `process_token` is a valid handle since `OpenProcessToken` succeeded
+    Ok(unsafe { OwnedHandle::from_raw_handle(process_token) })
 }
 
 /// If all else fails, infer the AppData path from the system directory.
 fn infer_appdata_from_system_directory() -> io::Result<PathBuf> {
-    let mut sysdir = get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT, 0)?;
+    // SAFETY: `FOLDERID_System` is a valid known folder ID
+    let mut sysdir = unsafe { get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT, None) }?;
     sysdir.extend(["config", "systemprofile", "AppData", "Local"]);
     Ok(sysdir)
 }
 
-fn get_current_thread_token() -> std::io::Result<Handle> {
-    let mut token_handle: HANDLE = 0;
+fn get_current_thread_token() -> std::io::Result<OwnedHandle> {
+    let mut token_handle: HANDLE = ptr::null_mut();
+    // SAFETY: `GetCurrentThread` always returns a valid handle
     if unsafe {
         OpenThreadToken(
             GetCurrentThread(),
@@ -370,16 +383,19 @@ fn get_current_thread_token() -> std::io::Result<Handle> {
     {
         return Err(std::io::Error::last_os_error());
     }
-    Ok(Handle(token_handle))
+    // SAFETY: `token_handle` is a valid handle since `OpenThreadToken` succeeded
+    Ok(unsafe { OwnedHandle::from_raw_handle(token_handle) })
 }
 
 fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
+    // SAFETY: Trivially safe
     if unsafe { ImpersonateSelf(SecurityImpersonation) } == 0 {
         return Err(std::io::Error::last_os_error());
     }
 
     let result = func();
 
+    // SAFETY: Trivially safe
     if unsafe { RevertToSelf() } == 0 {
         log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
     }
@@ -388,13 +404,13 @@ fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
 }
 
 fn adjust_token_privilege(
-    token_handle: HANDLE,
+    token_handle: &impl AsRawHandle,
     privilege: &WideCStr,
     enable: bool,
 ) -> std::io::Result<()> {
-    // SAFETY: LUID is a C struct and can safely be zeroed.
-    let mut privilege_luid: LUID = unsafe { mem::zeroed() };
+    let mut privilege_luid = LUID::default();
 
+    // SAFETY: `privilege` is a valid null-terminated string, and `privilege_luid` points to a LUID
     if unsafe { LookupPrivilegeValueW(ptr::null(), privilege.as_ptr(), &mut privilege_luid) } == 0 {
         return Err(std::io::Error::last_os_error());
     }
@@ -406,9 +422,10 @@ fn adjust_token_privilege(
             Attributes: if enable { SE_PRIVILEGE_ENABLED } else { 0 },
         }],
     };
+    // SAFETY: All pointers are valid
     let result = unsafe {
         AdjustTokenPrivileges(
-            token_handle,
+            token_handle.as_raw_handle(),
             0,
             &privileges,
             0,
@@ -426,15 +443,30 @@ fn adjust_token_privilege(
     Ok(())
 }
 
-fn get_known_folder_path(
+/// Retrieve path to a known folder for a specific user token.
+///
+/// # Safety
+///
+/// `folder_id` must be a valid pointer to a known folder ID GUID.
+unsafe fn get_known_folder_path(
     folder_id: *const GUID,
     flags: i32,
-    user_token: HANDLE,
+    user_token: Option<BorrowedHandle<'_>>,
 ) -> std::io::Result<PathBuf> {
     let mut folder_path: PWSTR = ptr::null_mut();
-    let status =
-        unsafe { SHGetKnownFolderPath(folder_id, flags as u32, user_token, &mut folder_path) };
+    // SAFETY: All arguments are valid
+    let status = unsafe {
+        SHGetKnownFolderPath(
+            folder_id,
+            flags as u32,
+            user_token
+                .map(|h| h.as_raw_handle())
+                .unwrap_or(ptr::null_mut()),
+            &mut folder_path,
+        )
+    };
     let result = if status == S_OK {
+        // SAFETY: `folder_path` is valid and null-terminated since `SHGetKnownFolderPath` succeeded
         let path = unsafe { WideCStr::from_ptr_str(folder_path) };
         Ok(PathBuf::from(path.to_os_string()))
     } else {
@@ -444,18 +476,21 @@ fn get_known_folder_path(
         ))
     };
 
+    // SAFETY: `folder_path` was allocated by `SHGetKnownFolderPath` and must be freed with `CoTaskMemFree
     unsafe { CoTaskMemFree(folder_path as *mut _) };
     result
 }
 
 /// Enumerate over all processes until `handle_process` returns a result or until there are
 /// no more processes left. In the latter case, an error is returned.
-fn find_process<T>(handle_process: impl Fn(HANDLE) -> Option<T>) -> io::Result<T> {
+fn find_process<T>(handle_process: impl Fn(BorrowedHandle<'_>) -> Option<T>) -> io::Result<T> {
     let mut pid_buffer = vec![0u32; 2048];
     let mut num_procs: u32 = u32::try_from(pid_buffer.len()).unwrap();
 
     let bytes_available = num_procs * (mem::size_of::<u32>() as u32);
     let mut bytes_written = 0;
+
+    // SAFETY: `pid_buffer` is valid for writes of `bytes_available` bytes
     if unsafe { EnumProcesses(pid_buffer.as_mut_ptr(), bytes_available, &mut bytes_written) } == 0 {
         return Err(io::Error::last_os_error());
     }
@@ -466,12 +501,14 @@ fn find_process<T>(handle_process: impl Fn(HANDLE) -> Option<T>) -> io::Result<T
     pid_buffer
         .into_iter()
         .find_map(|process| {
-            let process_handle =
-                Handle(unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, 0, process) });
-            if process_handle.0 == 0 {
+            // SAFETY: Trivially safe
+            let process_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, 0, process) };
+            if process_handle.is_null() {
                 return None;
             }
-            handle_process(process_handle.0)
+            // SAFETY: `process_handle` is a valid handle since `OpenProcess` succeeded
+            let process_handle = unsafe { OwnedHandle::from_raw_handle(process_handle) };
+            handle_process(process_handle.as_handle())
         })
         .ok_or(io::Error::new(
             io::ErrorKind::NotFound,
@@ -479,15 +516,17 @@ fn find_process<T>(handle_process: impl Fn(HANDLE) -> Option<T>) -> io::Result<T
         ))
 }
 
-fn is_local_system_user_token(token: HANDLE) -> io::Result<bool> {
+fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
     let mut token_info = vec![0u8; 1024];
 
     loop {
         let mut returned_info_len = 0;
 
+        // SAFETY: `token` is a valid handle, and `token_info` is valid for writes of
+        // `token_info.len()` bytes
         let info_result = unsafe {
             GetTokenInformation(
-                token,
+                token.as_raw_handle(),
                 TokenUser,
                 token_info.as_mut_ptr() as _,
                 u32::try_from(token_info.len()).expect("len must fit in u32"),
@@ -517,6 +556,7 @@ fn is_local_system_user_token(token: HANDLE) -> io::Result<bool> {
     let mut local_system_sid = [0u8; MAX_SID_SIZE as usize];
     let mut local_system_size = u32::try_from(local_system_sid.len()).unwrap();
 
+    // SAFETY: `local_system_sid` is valid for writes of `local_system_size` bytes
     if unsafe {
         CreateWellKnownSid(
             WinLocalSystemSid,
@@ -531,5 +571,6 @@ fn is_local_system_user_token(token: HANDLE) -> io::Result<bool> {
         return Err(err);
     }
 
+    // SAFETY: Both arguments point to valid security identifiers
     Ok(unsafe { EqualSid(token_user.User.Sid, local_system_sid.as_ptr() as _) } != 0)
 }

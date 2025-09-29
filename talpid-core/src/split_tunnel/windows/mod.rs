@@ -13,6 +13,7 @@ use std::{
     ffi::{OsStr, OsString},
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    os::windows::io::AsRawHandle,
     path::{Path, PathBuf},
     sync::{
         Arc, Mutex, MutexGuard, RwLock, Weak,
@@ -245,9 +246,7 @@ impl SplitTunnel {
         overlapped: &mut Overlapped,
         data_buffer: &mut Vec<u8>,
     ) -> io::Result<EventResult> {
-        if unsafe { driver::wait_for_single_object(quit_event.as_raw(), Some(Duration::ZERO)) }
-            .is_ok()
-        {
+        if unsafe { driver::wait_for_single_object(quit_event, Some(Duration::ZERO)) }.is_ok() {
             return Ok(EventResult::Quit);
         }
 
@@ -271,8 +270,8 @@ impl SplitTunnel {
         })?;
 
         let event_objects = [
-            overlapped.get_event().unwrap().as_raw(),
-            quit_event.as_raw(),
+            overlapped.get_event().unwrap().as_raw_handle(),
+            quit_event.as_raw_handle(),
         ];
 
         let signaled_object =
@@ -285,7 +284,7 @@ impl SplitTunnel {
                 },
             )?;
 
-        if signaled_object == quit_event.as_raw() {
+        if signaled_object == quit_event.as_raw_handle() {
             // Quit event was signaled
             return Ok(EventResult::Quit);
         }
