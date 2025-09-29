@@ -252,7 +252,7 @@ fun MullvadMediumTopBar(
         navigationIcon = navigationIcon,
         scrollBehavior = scrollBehavior,
         colors =
-            TopAppBarDefaults.mediumTopAppBarColors(
+            TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface,
                 scrolledContainerColor = MaterialTheme.colorScheme.surface,
                 actionIconContentColor = MaterialTheme.colorScheme.onSurface,
@@ -281,7 +281,7 @@ fun MullvadLargeTopBar(
         navigationIcon = navigationIcon,
         scrollBehavior = scrollBehavior,
         colors =
-            TopAppBarDefaults.mediumTopAppBarColors(
+            TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface,
                 scrolledContainerColor = MaterialTheme.colorScheme.surface,
                 actionIconContentColor = MaterialTheme.colorScheme.onSurface,

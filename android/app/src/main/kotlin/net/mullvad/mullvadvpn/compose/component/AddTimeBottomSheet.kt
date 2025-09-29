@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -76,7 +75,8 @@ private fun PreviewPaymentBottomSheet(
             sheetState =
                 SheetState(
                     skipPartiallyExpanded = true,
-                    density = Density(1f),
+                    positionalThreshold = { 0f },
+                    velocityThreshold = { 0f },
                     initialValue = SheetValue.Expanded,
                 ),
             onPurchaseBillingProductClick = {},

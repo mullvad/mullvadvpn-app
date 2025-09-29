@@ -158,28 +158,28 @@ internal class Globe(resources: Resources) {
         // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
         private val vertexShaderCode =
             """
-    attribute vec3 aVertexPosition;
-    
-    uniform vec4 uColor;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-    
-    varying lowp vec4 vColor;
-    
-    void main(void) {
-        gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
-        vColor = uColor;
-    }
-        """
+            attribute vec3 aVertexPosition;
+            
+            uniform vec4 uColor;
+            uniform mat4 uModelViewMatrix;
+            uniform mat4 uProjectionMatrix;
+            
+            varying lowp vec4 vColor;
+            
+            void main(void) {
+                gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
+                vColor = uColor;
+            }
+                """
                 .trimIndent()
         private val fragmentShaderCode =
             """
-    varying lowp vec4 vColor;
-    
-    void main(void) {
-        gl_FragColor = vColor;
-    }
-        """
+            varying lowp vec4 vColor;
+            
+            void main(void) {
+                gl_FragColor = vColor;
+            }
+                """
                 .trimIndent()
     }
 }
