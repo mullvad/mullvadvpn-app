@@ -1,3 +1,5 @@
+import './lib/path-helpers';
+
 import { expect } from '@playwright/test';
 import fs from 'fs';
 import { _electron as electron, ElectronApplication, Locator, Page } from 'playwright';
@@ -48,14 +50,14 @@ function getCurrentRoute(page: Page): Promise<string | null> {
 
 // Returns a promise which resolves when the provided route is reached.
 async function expectRoute(page: Page, expectedRoute: RoutePath): Promise<void> {
-  await expect.poll(async () => getCurrentRoute(page)).toBe(expectedRoute);
+  await expect.poll(async () => getCurrentRoute(page)).toMatchPath(expectedRoute);
 }
 
 // Returns a promise which resolves when the route changes.
 async function expectRouteChange(page: Page, trigger: TriggerFn) {
   const initialRoute = await getCurrentRoute(page);
   await trigger();
-  await expect.poll(async () => getCurrentRoute(page)).not.toBe(initialRoute);
+  await expect.poll(async () => getCurrentRoute(page)).not.toMatchPath(initialRoute);
 }
 
 const getStyleProperty = (locator: Locator, property: string) => {

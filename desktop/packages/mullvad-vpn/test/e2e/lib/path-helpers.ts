@@ -1,0 +1,42 @@
+import { expect } from '@playwright/test';
+
+// Match the actual path against against the expected path where the expected can contain parameters
+function toMatchPath(actual: string, expected: string | null) {
+  const pass = matchPaths(expected, actual);
+  const message = () =>
+    pass
+      ? `Expected path to be "${expected}"`
+      : `Expected path "${expected}", but found "${actual}"`;
+  return { pass, message };
+}
+
+expect.extend({ toMatchPath });
+
+function trimTrailingSlash(value: string): string {
+  return value.replaceAll(/\/$/g, '');
+}
+
+// Match b against a where a can contain parameters
+export function matchPaths(a: string | null, b: string | null): boolean {
+  if (b?.includes(':')) {
+    throw new Error('Only a is allowed to contain parameters');
+  }
+
+  if (a === null || b === null) {
+    return a === b;
+  }
+
+  const aParts = trimTrailingSlash(a).split('/');
+  const bParts = trimTrailingSlash(b).split('/');
+
+  return (
+    aParts.length >= bParts.length &&
+    aParts.every((aPart, i) => {
+      if (aPart.startsWith(':')) {
+        return aPart.endsWith('?') ? true : bParts[i] !== undefined;
+      } else {
+        return aPart === bParts[i];
+      }
+    })
+  );
+}
