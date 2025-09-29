@@ -1,4 +1,4 @@
-use std::{io, mem};
+use std::{io, mem, os::windows::io::AsRawHandle, ptr};
 use windows_sys::Win32::System::IO::OVERLAPPED;
 
 use crate::sync::Event;
@@ -41,11 +41,11 @@ impl Overlapped {
     fn set_event(&mut self, event: Option<Event>) {
         match event {
             Some(event) => {
-                self.overlapped.hEvent = event.as_raw();
+                self.overlapped.hEvent = event.as_raw_handle();
                 self.event = Some(event);
             }
             None => {
-                self.overlapped.hEvent = 0;
+                self.overlapped.hEvent = ptr::null_mut();
                 self.event = None;
             }
         }

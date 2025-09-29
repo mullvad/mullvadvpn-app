@@ -72,8 +72,14 @@ static IPHLPAPI_HANDLE: OnceCell<IphlpApi> = OnceCell::new();
 
 impl IphlpApi {
     fn new() -> Result<Self, Error> {
-        let module = unsafe { LoadLibraryExW(w!("iphlpapi.dll"), 0, LOAD_LIBRARY_SEARCH_SYSTEM32) };
-        if module == 0 {
+        let module = unsafe {
+            LoadLibraryExW(
+                w!("iphlpapi.dll"),
+                ptr::null_mut(),
+                LOAD_LIBRARY_SEARCH_SYSTEM32,
+            )
+        };
+        if module.is_null() {
             log::error!("Failed to load iphlpapi.dll");
             return Err(Error::LoadDll(io::Error::last_os_error()));
         }

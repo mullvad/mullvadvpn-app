@@ -3,7 +3,7 @@
 
 use installer_downloader::delegate::ErrorMessage;
 use native_windows_gui::{self as nwg, Event};
-use windows_sys::Win32::UI::WindowsAndMessaging::PostMessageW;
+use windows_sys::Win32::{Foundation::HWND, UI::WindowsAndMessaging::PostMessageW};
 
 use super::ui::{AppWindow, QUEUE_MESSAGE};
 use crate::delegate::{AppDelegate, AppDelegateQueue};
@@ -247,6 +247,6 @@ impl AppDelegateQueue<AppWindow> for Queue {
         };
         let context_ptr = Box::into_raw(Box::new(context));
         // SAFETY: This is safe since `callback` is Send
-        unsafe { PostMessageW(hwnd as isize, QUEUE_MESSAGE, 0, context_ptr as isize) };
+        unsafe { PostMessageW(hwnd as HWND, QUEUE_MESSAGE, 0, context_ptr as isize) };
     }
 }

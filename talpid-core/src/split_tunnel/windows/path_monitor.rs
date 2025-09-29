@@ -280,7 +280,7 @@ impl DirContext {
             )
         };
 
-        if handle == 0 {
+        if handle.is_null() {
             return Err(io::Error::last_os_error());
         }
 
@@ -356,9 +356,10 @@ struct CompletionPort {
 impl CompletionPort {
     // `concurrent_threads`: 0 ==> number of processors
     fn create(concurrent_threads: u32) -> io::Result<Self> {
-        let handle =
-            unsafe { CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, concurrent_threads) };
-        if handle == 0 {
+        let handle = unsafe {
+            CreateIoCompletionPort(INVALID_HANDLE_VALUE, ptr::null_mut(), 0, concurrent_threads)
+        };
+        if handle.is_null() {
             return Err(io::Error::last_os_error());
         }
         Ok(CompletionPort { handle })
