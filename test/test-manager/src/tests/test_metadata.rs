@@ -10,6 +10,8 @@ pub struct TestMetadata {
     pub priority: Option<i32>,
     /// A list of location that will be used for by the test
     pub location: Option<Vec<String>>,
+    /// If the current test should be skipped.
+    pub skip: bool,
 }
 
 // Register our test metadata struct with inventory to allow submitting tests of this type.

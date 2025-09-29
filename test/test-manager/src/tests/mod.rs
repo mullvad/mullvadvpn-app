@@ -23,7 +23,7 @@ pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
 use futures::future::BoxFuture;
-use std::{ops::Not, time::Duration};
+use std::time::Duration;
 
 use crate::{
     logging::print_mullvad_logs, mullvad_daemon::RpcClientProvider, package::get_version_from_path,
@@ -122,7 +122,8 @@ pub fn get_filtered_tests(
     tests.sort_by_key(|test| test.priority.unwrap_or(0));
 
     let mut tests = if specified_tests.is_empty() {
-        // Keep all tests
+        // Include all but tests labelled with 'skip'
+        tests.retain(|test| !test.skip);
         tests
     } else {
         specified_tests
@@ -137,14 +138,13 @@ pub fn get_filtered_tests(
             .collect::<Result<_, anyhow::Error>>()?
     };
 
-    tests.retain(|test| {
+    let on_skip_list = |test: &TestMetadata| {
         skipped_tests
             .iter()
             .any(|skip| skip.eq_ignore_ascii_case(test.name))
-            .not()
-    });
+    };
 
-    tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os));
+    tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os) && !on_skip_list(test));
 
     Ok(tests)
 }
