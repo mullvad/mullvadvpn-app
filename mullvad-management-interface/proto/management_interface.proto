@@ -9,9 +9,9 @@ import "google/protobuf/duration.proto";
 
 service ManagementService {
   // Control and get tunnel state
-  rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
-  rpc DisconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
-  rpc ReconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+  rpc ConnectTunnel(google.protobuf.Empty) returns (BoolValue) {}
+  rpc DisconnectTunnel(google.protobuf.Empty) returns (BoolValue) {}
+  rpc ReconnectTunnel(google.protobuf.Empty) returns (BoolValue) {}
   rpc GetTunnelState(google.protobuf.Empty) returns (TunnelState) {}
 
   // Control the daemon and receive events
@@ -20,15 +20,15 @@ service ManagementService {
   rpc PrepareRestart(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   // Takes a a boolean argument which says whether the daemon should stop after
   // it is done preparing for a restart.
-  rpc PrepareRestartV2(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc PrepareRestartV2(BoolValue) returns (google.protobuf.Empty) {}
   rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-  rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  rpc GetCurrentVersion(google.protobuf.Empty) returns (StringValue) {}
   // Get information about the latest available version of the app.
   // Note that calling this during an in-app upgrade will cancel the upgrade.
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 
-  rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+  rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (BoolValue) {}
 
   // Relays and tunnel constraints
   rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -39,36 +39,36 @@ service ManagementService {
   // Settings
   rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
   rpc ResetSettings(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetShowBetaReleases(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetLockdownMode(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetAutoConnect(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+  rpc SetAllowLan(BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetShowBetaReleases(BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetLockdownMode(BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetAutoConnect(BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetWireguardMtu(UInt32Value) returns (google.protobuf.Empty) {}
   rpc SetWireguardAllowedIps(AllowedIpsList) returns (google.protobuf.Empty) {}
-  rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetEnableIpv6(BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
-  rpc SetEnableDaita(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetDaitaDirectOnly(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetEnableDaita(BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetDaitaDirectOnly(BoolValue) returns (google.protobuf.Empty) {}
   rpc SetDaitaSettings(DaitaSettings) returns (google.protobuf.Empty) {}
   rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
   rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
   rpc ClearAllRelayOverrides(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc SetEnableRecents(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetEnableRecents(BoolValue) returns (google.protobuf.Empty) {}
 
   // Account management
-  rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-  rpc LoginAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc CreateNewAccount(google.protobuf.Empty) returns (StringValue) {}
+  rpc LoginAccount(StringValue) returns (google.protobuf.Empty) {}
   rpc LogoutAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
+  rpc GetAccountData(StringValue) returns (AccountData) {}
   rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
   rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-  rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
+  rpc GetWwwAuthToken(google.protobuf.Empty) returns (StringValue) {}
+  rpc SubmitVoucher(StringValue) returns (VoucherSubmission) {}
 
   // Device management
   rpc GetDevice(google.protobuf.Empty) returns (DeviceState) {}
   rpc UpdateDevice(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc ListDevices(google.protobuf.StringValue) returns (DeviceList) {}
+  rpc ListDevices(StringValue) returns (DeviceList) {}
   rpc RemoveDevice(DeviceRemoval) returns (google.protobuf.Empty) {}
 
   // WireGuard key management
@@ -78,8 +78,8 @@ service ManagementService {
   rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 
   // Custom lists
-  rpc CreateCustomList(NewCustomList) returns (google.protobuf.StringValue) {}
-  rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc CreateCustomList(NewCustomList) returns (StringValue) {}
+  rpc DeleteCustomList(StringValue) returns (google.protobuf.Empty) {}
   rpc UpdateCustomList(CustomList) returns (google.protobuf.Empty) {}
   rpc ClearCustomLists(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
@@ -90,25 +90,25 @@ service ManagementService {
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
   rpc ClearCustomApiAccessMethods(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
-  rpc TestCustomApiAccessMethod(CustomProxy) returns (google.protobuf.BoolValue) {}
-  rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
+  rpc TestCustomApiAccessMethod(CustomProxy) returns (BoolValue) {}
+  rpc TestApiAccessMethodById(UUID) returns (BoolValue) {}
 
   // Bridges (Used for reaching the API)
   rpc GetBridges(google.protobuf.Empty) returns (BridgeList) {}
 
   // Split tunneling (Linux)
-  rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
-  rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
-  rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
+  rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream Int32Value) {}
+  rpc AddSplitTunnelProcess(Int32Value) returns (google.protobuf.Empty) {}
+  rpc RemoveSplitTunnelProcess(Int32Value) returns (google.protobuf.Empty) {}
   rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   // Split tunneling (Linux, Windows)
-  rpc SplitTunnelIsSupported(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+  rpc SplitTunnelIsSupported(google.protobuf.Empty) returns (BoolValue) {}
 
   // Split tunneling (Windows, macOS, Android)
-  rpc AddSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc AddSplitTunnelApp(StringValue) returns (google.protobuf.Empty) {}
+  rpc RemoveSplitTunnelApp(StringValue) returns (google.protobuf.Empty) {}
+  rpc SetSplitTunnelState(BoolValue) returns (google.protobuf.Empty) {}
 
   // Split tunneling (Windows, macOS)
   rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -119,7 +119,7 @@ service ManagementService {
   rpc VerifyPlayPurchase(PlayPurchase) returns (google.protobuf.Empty) {}
 
   // Check whether the app needs TCC approval for split tunneling (macOS)
-  rpc NeedFullDiskPermissions(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+  rpc NeedFullDiskPermissions(google.protobuf.Empty) returns (BoolValue) {}
 
   // Notify the split tunnel monitor that a volume was mounted or dismounted
   // (Windows).
@@ -127,16 +127,16 @@ service ManagementService {
 
   // Apply a JSON blob to the settings
   // See ../../docs/settings-patch-format.md for a description of the format
-  rpc ApplyJsonSettings(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc ApplyJsonSettings(StringValue) returns (google.protobuf.Empty) {}
   // Return a JSON blob containing all overridable settings, if there are any
-  rpc ExportJsonSettings(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  rpc ExportJsonSettings(google.protobuf.Empty) returns (StringValue) {}
 
   // Get current feature indicators
   rpc GetFeatureIndicators(google.protobuf.Empty) returns (FeatureIndicators) {}
 
   // Debug features
-  rpc DisableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc EnableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc DisableRelay(StringValue) returns (google.protobuf.Empty) {}
+  rpc EnableRelay(StringValue) returns (google.protobuf.Empty) {}
 
   rpc GetRolloutThreshold(google.protobuf.Empty) returns (Rollout) {}
   rpc RegenerateRolloutThreshold(google.protobuf.Empty) returns (Rollout) {}
@@ -146,10 +146,24 @@ service ManagementService {
   rpc AppUpgrade(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc AppUpgradeAbort(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc AppUpgradeEventsListen(google.protobuf.Empty) returns (stream AppUpgradeEvent) {}
-  rpc GetAppUpgradeCacheDir(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  rpc GetAppUpgradeCacheDir(google.protobuf.Empty) returns (StringValue) {}
 
   rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
   rpc LogListen(google.protobuf.Empty) returns (stream LogMessage) {}
+}
+
+// Replacement types for well known types
+message BoolValue {
+  bool value = 1;
+}
+message StringValue {
+  string value = 1;
+}
+message Int32Value {
+  int32 value = 1;
+}
+message UInt32Value {
+  uint32 value = 1;
 }
 
 message AppUpgradeEvent {
@@ -191,7 +205,7 @@ message AccountData {
   google.protobuf.Timestamp expiry = 2;
 }
 
-message AccountHistory { google.protobuf.StringValue number = 1; }
+message AccountHistory { StringValue number = 1; }
 
 message VoucherSubmission {
   uint64 seconds_added = 1;
