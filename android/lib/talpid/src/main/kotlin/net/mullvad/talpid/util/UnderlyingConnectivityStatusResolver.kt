@@ -43,8 +43,8 @@ class UnderlyingConnectivityStatusResolver(
 
                 // Protect so we can get underlying network
                 if (!protected) {
-                    // We shouldn't be doing this if we don't have a VPN, then we should of checked
-                    // the network directly.
+                    // We shouldn't be doing this if we don't have a VPN, then we should have
+                    // checked the network directly.
                     Logger.w("Failed to protect socket")
                 }
 
@@ -59,8 +59,15 @@ class UnderlyingConnectivityStatusResolver(
 
     private fun DatagramSocket.connectSafe(address: InetSocketAddress): Either<Throwable, Unit> =
         Either.catch { connect(address) }
-            .onLeft { Logger.e("Socket could not be set up") }
+            .onLeft { Logger.i("${address.toIpVersionString()} is not available") }
             .also { close() }
+
+    private fun InetSocketAddress.toIpVersionString(): String =
+        when (this.address) {
+            is Inet4Address -> "IPv4"
+            is Inet6Address -> "IPv6"
+            else -> "Unknown"
+        }
 
     companion object {
         private const val PUBLIC_IPV4_ADDRESS = "1.1.1.1"
