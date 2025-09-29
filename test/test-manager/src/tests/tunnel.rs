@@ -323,8 +323,7 @@ pub async fn test_wireguard_over_quic_ipvx(
 }
 
 /// Use LWO obfuscation. This tests whether the daemon can connect using LWO.
-/// Note that this doesn't verify that the outgoing traffic looks like http traffic (even though it
-/// doesn't sound too difficult to do?).
+/// Note that this doesn't verify that the outgoing traffic looks like WG traffic
 #[duplicate_item(
       VX     test_wireguard_over_lwo_ipvx;
     [ V4 ] [ test_wireguard_over_lwo_ipv4 ];
@@ -338,7 +337,7 @@ pub async fn test_wireguard_over_lwo_ipvx(
 ) -> anyhow::Result<()> {
     let ip_version = IpVersion::VX;
 
-    log::info!("Enable QUIC as obfuscation method");
+    log::info!("Enable LWO as obfuscation method");
     let query = RelayQueryBuilder::wireguard()
         .ip_version(ip_version)
         .lwo()
