@@ -5721,7 +5721,6 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "windows-sys 0.61.1",
  "zeroize",
 ]
 
