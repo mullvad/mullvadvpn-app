@@ -318,7 +318,7 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
 /// Get user token for the system service user. Requires elevated privileges to work.
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
-/// If the current user is system, this function succeeds and returns `None`
+/// If the current user is system, this function succeeds and returns a NULL handle
 fn get_system_user_token() -> io::Result<HandleOrNull> {
     let thread_token = get_current_thread_token()?;
 
