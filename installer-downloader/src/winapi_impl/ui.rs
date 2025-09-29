@@ -8,7 +8,8 @@ use native_windows_gui::{self as nwg, ControlHandle, ImageDecoder, WindowFlags};
 
 use windows_sys::Win32::Foundation::COLORREF;
 use windows_sys::Win32::Graphics::Gdi::{
-    COLOR_WINDOW, CreateFontIndirectW, LOGFONTW, SetBkColor, SetBkMode, SetTextColor, TRANSPARENT,
+    COLOR_WINDOW, CreateFontIndirectW, HDC, LOGFONTW, SetBkColor, SetBkMode, SetTextColor,
+    TRANSPARENT,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::WM_CTLCOLORSTATIC;
 
@@ -392,8 +393,8 @@ fn handle_banner_label_colors(
         if msg == WM_CTLCOLORSTATIC {
             // SAFETY: `w` is a valid device context for WM_CTLCOLORSTATIC
             unsafe {
-                SetTextColor(w as isize, rgb([255, 255, 255]));
-                SetBkColor(w as isize, rgb(BACKGROUND_COLOR));
+                SetTextColor(w as HDC, rgb([255, 255, 255]));
+                SetBkColor(w as HDC, rgb(BACKGROUND_COLOR));
             }
         }
         None
@@ -411,8 +412,8 @@ fn handle_link_messages(
         if msg == WM_CTLCOLORSTATIC && Some(p) == link_hwnd {
             // SAFETY: `w` is a valid device context for WM_CTLCOLORSTATIC
             unsafe {
-                SetBkMode(w as isize, TRANSPARENT as _);
-                SetTextColor(w as isize, rgb(LINK_COLOR));
+                SetBkMode(w as HDC, TRANSPARENT as _);
+                SetTextColor(w as HDC, rgb(LINK_COLOR));
             }
             // Out of bounds background
             return Some(COLOR_WINDOW as isize);
@@ -488,7 +489,7 @@ fn create_link_font() -> Result<&'static nwg::Font, nwg::NwgError> {
         // SAFETY: `logfont` is a valid font
         let raw_font = unsafe { CreateFontIndirectW(&logfont) };
 
-        if raw_font == 0 {
+        if raw_font.is_null() {
             return Err(nwg::NwgError::Unknown);
         }
 

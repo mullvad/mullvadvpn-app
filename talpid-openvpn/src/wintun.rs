@@ -180,9 +180,14 @@ impl WintunDll {
     fn new(resource_dir: &Path) -> io::Result<Self> {
         let wintun_dll = U16CString::from_os_str_truncate(resource_dir.join("wintun.dll"));
 
-        let handle =
-            unsafe { LoadLibraryExW(wintun_dll.as_ptr(), 0, LOAD_WITH_ALTERED_SEARCH_PATH) };
-        if handle == 0 {
+        let handle = unsafe {
+            LoadLibraryExW(
+                wintun_dll.as_ptr(),
+                ptr::null_mut(),
+                LOAD_WITH_ALTERED_SEARCH_PATH,
+            )
+        };
+        if handle.is_null() {
             return Err(io::Error::last_os_error());
         }
         Self::new_inner(handle, Self::get_proc_address)
@@ -373,7 +378,7 @@ mod tests {
 
     #[test]
     fn test_wintun_imports() {
-        WintunDll::new_inner(0, get_proc_fn).unwrap();
+        WintunDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
     }
 
     #[test]

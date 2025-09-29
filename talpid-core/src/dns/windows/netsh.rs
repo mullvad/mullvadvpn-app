@@ -170,7 +170,7 @@ fn wait_for_child(subproc: &mut Child, timeout: Duration) -> io::Result<Option<E
     let dur_millis = u32::try_from(timeout.as_millis()).unwrap_or(INFINITE);
 
     let subproc_handle = subproc.as_raw_handle();
-    match unsafe { WaitForSingleObject(subproc_handle as isize, dur_millis) } {
+    match unsafe { WaitForSingleObject(subproc_handle, dur_millis) } {
         WAIT_OBJECT_0 => subproc.try_wait(),
         WAIT_TIMEOUT => Ok(None),
         _error => Err(io::Error::last_os_error()),

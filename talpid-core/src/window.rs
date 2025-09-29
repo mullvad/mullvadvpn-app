@@ -52,8 +52,8 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
                 0,
                 0,
                 0,
-                0,
-                0,
+                ptr::null_mut(),
+                ptr::null_mut(),
                 GetModuleHandleW(ptr::null_mut()),
                 ptr::null_mut(),
             )
@@ -77,7 +77,7 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
         let mut msg = unsafe { std::mem::zeroed() };
 
         loop {
-            let status = unsafe { GetMessageW(&mut msg, 0, 0, 0) };
+            let status = unsafe { GetMessageW(&mut msg, ptr::null_mut(), 0, 0) };
 
             if status < 0 {
                 continue;
@@ -86,7 +86,7 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
                 break;
             }
 
-            if msg.hwnd == 0 {
+            if msg.hwnd.is_null() {
                 if msg.message == REQUEST_THREAD_SHUTDOWN {
                     unsafe { DestroyWindow(dummy_window) };
                 }
