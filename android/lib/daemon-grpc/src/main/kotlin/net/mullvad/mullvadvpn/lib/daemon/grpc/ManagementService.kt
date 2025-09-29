@@ -8,10 +8,7 @@ import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
 import co.touchlab.kermit.Logger
-import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
-import com.google.protobuf.StringValue
-import com.google.protobuf.UInt32Value
 import io.grpc.ConnectivityState
 import io.grpc.Status
 import io.grpc.StatusException
@@ -280,7 +277,7 @@ class ManagementService(
             .mapLeft { DeviceUpdateError(it) }
 
     suspend fun getDeviceList(token: AccountNumber): Either<GetDeviceListError, List<Device>> =
-        Either.catch { grpc.listDevices(StringValue.of(token.value)) }
+        Either.catch { grpc.listDevices(token.value.toStringValue()) }
             .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
             .onLeft { Logger.e("Get device list error") }
             .mapLeft { GetDeviceListError.Unknown(it) }
@@ -345,7 +342,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun loginAccount(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
-        Either.catch { grpc.loginAccount(StringValue.of(accountNumber.value)) }
+        Either.catch { grpc.loginAccount(accountNumber.value.toStringValue()) }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
@@ -399,7 +396,7 @@ class ManagementService(
         accountNumber: AccountNumber
     ): Either<GetAccountDataError, AccountData> =
         Either.catch {
-                grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain(accountNumber)
+                grpc.getAccountData(accountNumber.value.toStringValue()).toDomain(accountNumber)
             }
             .onLeft { Logger.e("Get account data error") }
             .mapLeft(GetAccountDataError::Unknown)
@@ -503,13 +500,17 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setWireguardMtu(value: Int): Either<SetWireguardMtuError, Unit> =
-        Either.catch { grpc.setWireguardMtu(UInt32Value.of(value)) }
+        Either.catch { grpc.setWireguardMtu(value.toUInt32Value()) }
             .onLeft { Logger.e("Set wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
 
     suspend fun resetWireguardMtu(): Either<SetWireguardMtuError, Unit> =
-        Either.catch { grpc.setWireguardMtu(UInt32Value.newBuilder().clearValue().build()) }
+        Either.catch {
+                grpc.setWireguardMtu(
+                    ManagementInterface.UInt32Value.newBuilder().clearValue().build()
+                )
+            }
             .onLeft { Logger.e("Reset wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
@@ -578,18 +579,18 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setAllowLan(allow: Boolean): Either<SetAllowLanError, Unit> =
-        Either.catch { grpc.setAllowLan(BoolValue.of(allow)) }
+        Either.catch { grpc.setAllowLan(allow.toBoolValue()) }
             .onLeft { Logger.e("Set allow lan error") }
             .mapLeft(SetAllowLanError::Unknown)
             .mapEmpty()
 
     suspend fun setDaitaEnabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch { grpc.setEnableDaita(BoolValue.of(enabled)) }
+        Either.catch { grpc.setEnableDaita(enabled.toBoolValue()) }
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
     suspend fun setDaitaDirectOnly(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch { grpc.setDaitaDirectOnly(BoolValue.of(enabled)) }
+        Either.catch { grpc.setDaitaDirectOnly(enabled.toBoolValue()) }
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
@@ -670,7 +671,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
-        Either.catch { grpc.deleteCustomList(StringValue.of(id.value)) }
+        Either.catch { grpc.deleteCustomList(id.value.toStringValue()) }
             .onLeft { Logger.e("Delete custom list error") }
             .mapLeft(::UnknownCustomListError)
             .mapEmpty()
@@ -682,7 +683,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun applySettingsPatch(json: String): Either<SettingsPatchError, Unit> =
-        Either.catch { grpc.applyJsonSettings(StringValue.of(json)) }
+        Either.catch { grpc.applyJsonSettings(json.toStringValue()) }
             .mapLeftStatus {
                 when (it.status.code) {
                     // Currently we only get invalid argument errors from daemon via gRPC
@@ -742,7 +743,7 @@ class ManagementService(
     suspend fun submitVoucher(
         voucher: VoucherCode
     ): Either<RedeemVoucherError, RedeemVoucherSuccess> =
-        Either.catch { grpc.submitVoucher(StringValue.of(voucher.value)).toDomain() }
+        Either.catch { grpc.submitVoucher(voucher.value.toStringValue()).toDomain() }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.INVALID_ARGUMENT,
@@ -769,13 +770,13 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun addSplitTunnelingApp(app: AppId): Either<AddSplitTunnelingAppError, Unit> =
-        Either.catch { grpc.addSplitTunnelApp(StringValue.of(app.value)) }
+        Either.catch { grpc.addSplitTunnelApp(app.value.toStringValue()) }
             .onLeft { Logger.e("Add split tunneling app error") }
             .mapLeft(AddSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
     suspend fun removeSplitTunnelingApp(app: AppId): Either<RemoveSplitTunnelingAppError, Unit> =
-        Either.catch { grpc.removeSplitTunnelApp(StringValue.of(app.value)) }
+        Either.catch { grpc.removeSplitTunnelApp(app.value.toStringValue()) }
             .onLeft { Logger.e("Remove split tunneling app error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
             .mapEmpty()
@@ -783,7 +784,7 @@ class ManagementService(
     suspend fun setSplitTunnelingState(
         enabled: Boolean
     ): Either<RemoveSplitTunnelingAppError, Unit> =
-        Either.catch { grpc.setSplitTunnelState(BoolValue.of(enabled)) }
+        Either.catch { grpc.setSplitTunnelState(enabled.toBoolValue()) }
             .onLeft { Logger.e("Set split tunneling state error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
             .mapEmpty()
@@ -892,12 +893,12 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setIpv6Enabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch { grpc.setEnableIpv6(BoolValue.of(enabled)) }
+        Either.catch { grpc.setEnableIpv6(enabled.toBoolValue()) }
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
     suspend fun setRecentsEnabled(enabled: Boolean): Either<SetWireguardConstraintsError, Unit> =
-        Either.catch { grpc.setEnableRecents(BoolValue.of(enabled)) }
+        Either.catch { grpc.setEnableRecents(enabled.toBoolValue()) }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
@@ -905,6 +906,7 @@ class ManagementService(
         Either.catch { grpc.updateRelayLocations(Empty.getDefaultInstance()) }
             .mapLeft(UpdateRelayLocationsError::Unknown)
             .mapEmpty()
+
 
     suspend fun setMultihopAndEntryLocation(
         isMultihopEnabled: Boolean,
@@ -924,6 +926,14 @@ class ManagementService(
             .onLeft { Logger.e("Set multihop error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
+
+    private fun Boolean.toBoolValue() =
+        ManagementInterface.BoolValue.newBuilder().setValue(this).build()
+
+    private fun String.toStringValue() =
+        ManagementInterface.StringValue.newBuilder().setValue(this).build()
+
+    private fun Int.toUInt32Value() = ManagementInterface.UInt32Value.newBuilder().setValue(this).build()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
