@@ -1,10 +1,14 @@
 import React from 'react';
 
-import { useListboxContext } from '../../../ListboxContext';
 import { getOptions } from '../utils';
 
-export const useFocusOptionByIndex = () => {
-  const { setFocusedIndex, optionsRef } = useListboxContext();
+export const useFocusOptionByIndex = ({
+  optionsRef,
+  setFocusedIndex,
+}: {
+  optionsRef: React.RefObject<HTMLUListElement | null>;
+  setFocusedIndex: (index: number) => void;
+}) => {
   return React.useCallback(
     (index: number) => {
       const options = getOptions(optionsRef.current);
