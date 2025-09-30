@@ -329,7 +329,7 @@ pub async fn test_wireguard_over_quic_ipvx(
     [ V4 ] [ test_wireguard_over_lwo_ipv4 ];
     [ V6 ] [ test_wireguard_over_lwo_ipv6 ];
 )]
-#[test_function(skip)]
+#[test_function]
 pub async fn test_wireguard_over_lwo_ipvx(
     _: TestContext,
     rpc: ServiceClient,
