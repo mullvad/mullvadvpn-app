@@ -79,7 +79,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                     tunnelSettings.daita.daitaState.isEnabled
                 ),
                 exitRelays: try findCandidates(
-                    obfuscation.obfuscatedRelays,
+                    // If multihop is explicitly enabled as well, any exit should be viable.
+                    tunnelSettings.tunnelMultihopState.isEnabled ? obfuscation.allRelays : obfuscation.obfuscatedRelays,
                     false
                 )
             )
