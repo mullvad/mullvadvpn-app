@@ -8,6 +8,7 @@
     "desktop/**",
     "installer-downloader/**",
     "mullvad-*/**",
+    "!mullvad-ios/**",
     "rustfmt.toml",
     "rust-toolchain.toml",
     "talpid-*/**",
@@ -19,7 +20,8 @@
   ],
   "appteam-ios": [
     "ci/ios/**",
-    "ios/**"
+    "ios/**",
+    "mullvad-ios/**"
   ],
   "appteam-android": [
     "android/**",
