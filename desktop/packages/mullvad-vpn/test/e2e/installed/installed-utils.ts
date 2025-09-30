@@ -1,8 +1,24 @@
 import { startApp } from '../utils';
 
+const testStartBuild = process.env.TEST_START_BUILD === '1';
+
 export const startInstalledApp = async (): ReturnType<typeof startApp> => {
-  return startApp({ executablePath: getAppInstallPath() });
+  const options = getStartOptions();
+
+  return startApp(options);
 };
+
+function getStartOptions() {
+  if (testStartBuild) {
+    return {
+      args: ['.'],
+    };
+  }
+
+  return {
+    executablePath: getAppInstallPath(),
+  };
+}
 
 function getAppInstallPath(): string {
   switch (process.platform) {
