@@ -95,7 +95,7 @@
     <string name="create_custom_list_message">\"%1$s\" foi criada</string>
     <string name="create_new_account">Criar nova conta</string>
     <string name="create_new_account_warning_paragraph1">Já tem um número de conta guardado. Ao criar uma nova conta, o número de conta guardado será removido deste dispositivo. Esta ação não pode ser anulada.</string>
-    <string name="create_new_account_warning_paragraph2">Pretende criar uma nova conta?</string>
+    <string name="create_new_account_warning_paragraph2">Quer criar uma nova conta?</string>
     <string name="create_new_list">Criar nova lista</string>
     <string name="created_x">Criado: %1$s</string>
     <string name="creating_new_account">A criar conta...</string>
