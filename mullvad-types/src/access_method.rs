@@ -30,8 +30,10 @@ impl Settings {
     }
 
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
-    pub fn append(&mut self, api_access_method: AccessMethodSetting) {
-        self.custom.push(api_access_method)
+    pub fn append(&mut self, api_access_method: AccessMethodSetting) -> Result<(), Error> {
+        self.check_custom_access_method_name_is_unique(&api_access_method)?;
+        self.custom.push(api_access_method);
+        Ok(())
     }
 
     /// Remove an [`AccessMethod`] from `api_access_methods`.
@@ -69,13 +71,48 @@ impl Settings {
         &mut self,
         predicate: impl Fn(&AccessMethodSetting) -> bool,
         f: impl FnOnce(&mut AccessMethodSetting),
-    ) -> bool {
+    ) -> Result<bool, Error> {
         let mut updated = false;
+
+        let handle = self.clone();
+        let update_check = |new_access_method| {
+            handle.check_custom_access_method_name_is_unique(new_access_method)?;
+            Ok(())
+        };
+
         if let Some(access_method) = self.iter_mut().find(|setting| predicate(setting)) {
-            f(access_method);
+            let mut new_access_method = access_method.clone();
+            f(&mut new_access_method);
+            update_check(&new_access_method)?;
+            *access_method = new_access_method;
+
             updated = true;
         }
         self.ensure_consistent_state();
+
+        Ok(updated)
+    }
+
+    /// Update an existing builtin [`AccessMethodSetting`] chosen by
+    /// `predicate`, in a closure `f`, saving the result to `self`.
+    ///
+    /// Returns a bool to indicate whether some [`AccessMethodSetting`] was
+    /// updated.
+    pub fn update_builtin(
+        &mut self,
+        predicate: impl Fn(&AccessMethodSetting) -> bool,
+        f: impl FnOnce(&mut AccessMethodSetting),
+    ) -> bool {
+        let mut updated = false;
+
+        if let Some(access_method) = self
+            .iter_mut()
+            .find(|setting| setting.is_builtin() && predicate(setting))
+        {
+            f(access_method);
+
+            updated = true;
+        }
 
         updated
     }
@@ -92,6 +129,21 @@ impl Settings {
         if self.iter().all(|access_method| access_method.disabled()) {
             self.direct.enable();
         }
+    }
+
+    /// This function will return an error if a custom access method with
+    /// the same name already exists.
+    fn check_custom_access_method_name_is_unique(
+        &self,
+        new_api_access_method: &AccessMethodSetting,
+    ) -> Result<(), Error> {
+        if self.custom.iter().any(|api_access_method| {
+            api_access_method.id != new_api_access_method.id
+                && api_access_method.name == new_api_access_method.name
+        }) {
+            return Err(Error::DuplicateName);
+        }
+        Ok(())
     }
 
     /// Iterate over references of built-in & custom access methods.
@@ -162,8 +214,10 @@ impl Default for Settings {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, PartialEq)]
 pub enum Error {
+    #[error("Access method with name already exists")]
+    DuplicateName,
     /// Built-in access methods can not be removed
     #[error("Cannot remove built-in access method {}", attempted)]
     RemoveBuiltin { attempted: BuiltInAccessMethod },

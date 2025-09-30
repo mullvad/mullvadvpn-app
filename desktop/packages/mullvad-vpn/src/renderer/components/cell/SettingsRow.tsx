@@ -60,6 +60,7 @@ const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   display: 'flex',
   alignItems: 'center',
   marginLeft: measurements.horizontalViewMargin,
+  marginRight: measurements.horizontalViewMargin,
   marginTop: '5px',
   color: colors.whiteAlpha60,
 });
@@ -85,7 +86,7 @@ export function useSettingsRowContext() {
   return useContext(settingsRowContext);
 }
 
-interface IndentedRowProps {
+export interface IndentedRowProps {
   label: string;
   infoMessage?: string | Array<string>;
   errorMessage?: string;

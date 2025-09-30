@@ -17,9 +17,13 @@ import * as Cell from './cell';
 import { SettingsForm, useSettingsFormSubmittable } from './cell/SettingsForm';
 import { SettingsGroup } from './cell/SettingsGroup';
 import { SettingsRadioGroup } from './cell/SettingsRadioGroup';
-import { SettingsRow } from './cell/SettingsRow';
+import { IndentedRowProps, SettingsRow } from './cell/SettingsRow';
 import { SettingsSelect, SettingsSelectItem } from './cell/SettingsSelect';
-import { SettingsNumberInput, SettingsTextInput } from './cell/SettingsTextInput';
+import {
+  SettingsNumberInput,
+  SettingsTextInput,
+  SettingsTextInputProps,
+} from './cell/SettingsTextInput';
 
 interface ProxyFormContext {
   proxy?: CustomProxy;
@@ -78,7 +82,7 @@ export function ProxyForm(props: ProxyFormContextProviderProps) {
     <ProxyFormContextProvider {...props}>
       <SettingsForm>
         <ProxyFormInner />
-        <ProxyFormButtons new={props.proxy === undefined} />
+        <ProxyFormButtons />
       </SettingsForm>
     </ProxyFormContextProvider>
   );
@@ -100,12 +104,13 @@ const namedProxyFormContext = React.createContext<NamedProxyFormContext>({
 
 interface NamedProxyFormContainerProps
   extends Omit<ProxyFormContextProviderProps, 'proxy' | 'onSave'> {
+  children?: React.ReactNode;
   proxy?: NamedCustomProxy;
   onSave: (proxy: NamedCustomProxy) => void;
 }
 
 export function NamedProxyForm(props: NamedProxyFormContainerProps) {
-  const { onSave, ...otherProps } = props;
+  const { children, onSave, ...otherProps } = props;
 
   const [name, setName] = useState<string>(props.proxy?.name ?? '');
 
@@ -123,36 +128,36 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
   return (
     <namedProxyFormContext.Provider value={nameContextValue}>
       <ProxyFormContextProvider {...otherProps} onSave={save}>
-        <SettingsForm>
-          <ProxyFormNameField />
-          <ProxyFormInner />
-          <ProxyFormButtons new={props.proxy === undefined} />
-        </SettingsForm>
+        <SettingsForm>{children}</SettingsForm>
       </ProxyFormContextProvider>
     </namedProxyFormContext.Provider>
   );
 }
 
-function ProxyFormNameField() {
+type ProxyFormNameFieldProps = {
+  inputProps?: Partial<SettingsTextInputProps>;
+  rowProps?: Partial<IndentedRowProps>;
+};
+
+export function ProxyFormNameField(props: ProxyFormNameFieldProps) {
   const { name, setName } = useContext(namedProxyFormContext);
 
   return (
-    <SettingsRow label={messages.gettext('Name')}>
-      <SettingsTextInput
-        defaultValue={name}
-        placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
-        onUpdate={setName}
-      />
-    </SettingsRow>
+    <SettingsGroup>
+      <SettingsRow label={messages.gettext('Name')} {...props?.rowProps}>
+        <SettingsTextInput
+          defaultValue={name}
+          placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
+          onUpdate={setName}
+          {...props?.inputProps}
+        />
+      </SettingsRow>
+    </SettingsGroup>
   );
 }
 
-interface ProxyFormButtonsProps {
-  new: boolean;
-}
-
-export function ProxyFormButtons(props: ProxyFormButtonsProps) {
-  const { onSave, onCancel, onDelete } = useContext(proxyFormContext);
+export function ProxyFormButtons() {
+  const { onSave, onCancel, onDelete, proxy } = useContext(proxyFormContext);
 
   // Contains form submittability to know whether or not to enable the Add/Save button.
   const formSubmittable = useSettingsFormSubmittable();
@@ -170,16 +175,14 @@ export function ProxyFormButtons(props: ProxyFormButtonsProps) {
           <Button.Text>{messages.gettext('Cancel')}</Button.Text>
         </Button>
         <Button onClick={onSave} disabled={!formSubmittable}>
-          <Button.Text>
-            {props.new ? messages.gettext('Add') : messages.gettext('Save')}
-          </Button.Text>
+          <Button.Text>{proxy ? messages.gettext('Save') : messages.gettext('Add')}</Button.Text>
         </Button>
       </FlexRow>
     </Flex>
   );
 }
 
-function ProxyFormInner() {
+export function ProxyFormInner() {
   const { proxy, setProxy } = useContext(proxyFormContext);
 
   // Available custom proxies
@@ -214,9 +217,11 @@ function ProxyFormInner() {
 
   return (
     <>
-      <SettingsRow label={messages.gettext('Type')}>
-        <SettingsSelect defaultValue={type} onUpdate={setType} items={types} />
-      </SettingsRow>
+      <SettingsGroup>
+        <SettingsRow label={messages.gettext('Type')}>
+          <SettingsSelect defaultValue={type} onUpdate={setType} items={types} />
+        </SettingsRow>
+      </SettingsGroup>
 
       {type === 'shadowsocks' && (
         <EditShadowsocks

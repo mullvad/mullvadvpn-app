@@ -21,7 +21,7 @@ const StyledInput = styled.input(smallNormalText, {
   },
 });
 
-interface SettingsTextInputProps extends InputProps<'text'> {
+export interface SettingsTextInputProps extends InputProps<'text'> {
   defaultValue?: string;
 }
 
