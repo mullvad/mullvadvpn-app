@@ -16,9 +16,8 @@ source "tart-cli" "tart" {
   cpu_count    = 4
   memory_gb    = 8
   disk_size_gb = 50
-  ssh_password = "admin"
-  ssh_username = "admin"
-  ssh_timeout  = "180s"
+  communicator = "none"
+  run_extra_args = ["--net-bridged=en0"]
   boot_command = [
     # hello, hola, bonjour, etc.
     "<wait60s><spacebar>",
@@ -29,11 +28,11 @@ source "tart-cli" "tart" {
     # first entry in a list of "english"-prefixed items, which will be "English".
     #
     # [1]: should be named "English (US)", but oh well 🤷
-    "<wait30s>italiano<esc>english<enter>",
+    "<wait30s>italiano<wait1s><esc>english<wait1s><enter>",
     # Select Your Country or Region
-    "<wait30s>united states<leftShiftOn><tab><leftShiftOff><spacebar>",
+    "<wait30s>united states<wait1s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Transfer Your Data to This Mac
-    "<wait10s><tab><tab><tab><spacebar><tab><tab><spacebar>",
+    "<wait10s><tab><tab><tab><spacebar><wait1s><tab><tab><spacebar>",
     # Written and Spoken Languages
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Accessibility
@@ -41,9 +40,9 @@ source "tart-cli" "tart" {
     # Data & Privacy
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Create a Mac Account
-    "<wait10s>Managed via Tart<tab>admin<tab>admin<tab>admin<tab><tab><spacebar><tab><tab><spacebar>",
+    "<wait10s>tart<tab>admin<tab>admin<tab>admin<tab><tab><spacebar><tab><tab><spacebar>",
     # Enable Voice Over
-    "<wait30s><leftAltOn><f5><leftAltOff><wait5s><enter>",
+    "<wait40s><leftAltOn><f5><leftAltOff><wait5s><enter>",
     # Sign In with Your Apple ID
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Are you sure you want to skip signing in with an Apple ID?
@@ -63,7 +62,7 @@ source "tart-cli" "tart" {
     # Screen Time
     "<wait10s><tab><spacebar>",
     # Siri
-    "<wait10s><tab><spacebar><leftShiftOn><tab><leftShiftOff><spacebar>",
+    "<wait30s><tab><spacebar><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Choose Your Look
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Update Mac Automatically
@@ -80,11 +79,11 @@ source "tart-cli" "tart" {
     # Now that the installation is done, open "System Settings"
     "<wait10s><leftAltOn><spacebar><leftAltOff>System Settings<enter>",
     # Navigate to "Sharing"
-    "<wait10s><leftAltOn>f<leftAltOff>screen sharing<enter>",
+    "<wait10s><leftAltOn>f<leftAltOff>screen sharing",
     # Navigate to "Screen Sharing" and enable it
-    "<wait10s><tab><tab><tab><tab><tab><tab><tab><spacebar>",
+    "<wait10s><down><down><wait1s><esc><down><down><wait1s><spacebar><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Navigate to "Remote Login" and enable it
-    "<wait10s><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><spacebar>",
+    "<wait10s><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><spacebar>",
     # Quit System Settings
     "<wait10s><leftAltOn>q<leftAltOff>",
     # Disable Gatekeeper (1/2)
@@ -114,50 +113,41 @@ source "tart-cli" "tart" {
 build {
   sources = ["source.tart-cli.tart"]
 
-  provisioner "shell" {
-    inline = [
-      // Enable passwordless sudo
-      "echo admin | sudo -S sh -c \"mkdir -p /etc/sudoers.d/; echo 'admin ALL=(ALL) NOPASSWD: ALL' | EDITOR=tee visudo /etc/sudoers.d/admin-nopasswd\"",
-      // Enable auto-login
-      //
-      // See https://github.com/xfreebird/kcpassword for details.
-      "echo '00000000: 1ced 3f4a bcbc ba2c caca 4e82' | sudo xxd -r - /etc/kcpassword",
-      "sudo defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser admin",
-      // Disable screensaver at login screen
-      "sudo defaults write /Library/Preferences/com.apple.screensaver loginWindowIdleTime 0",
-      // Disable screensaver for admin user
-      "defaults -currentHost write com.apple.screensaver idleTime 0",
-      // Prevent the VM from sleeping
-      "sudo systemsetup -setsleep Off 2>/dev/null",
-      // Launch Safari to populate the defaults
-      "/Applications/Safari.app/Contents/MacOS/Safari &",
-      "SAFARI_PID=$!",
-      "disown",
-      "sleep 30",
-      "kill -9 $SAFARI_PID",
-      // Enable Safari's remote automation
-      "sudo safaridriver --enable",
-      // Disable screen lock
-      //
-      // Note that this only works if the user is logged-in,
-      // i.e. not on login screen.
-      "sysadminctl -screenLock off -password admin",
-    ]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     // Enable passwordless sudo
+  #     "echo admin | sudo -S sh -c \"mkdir -p /etc/sudoers.d/; echo 'admin ALL=(ALL) NOPASSWD: ALL' | EDITOR=tee visudo /etc/sudoers.d/admin-nopasswd\"",
+  #     // Enable auto-login
+  #     //
+  #     // See https://github.com/xfreebird/kcpassword for details.
+  #     "echo '00000000: 1ced 3f4a bcbc ba2c caca 4e82' | sudo xxd -r - /etc/kcpassword",
+  #     "sudo defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser admin",
+  #     // Disable screensaver at login screen
+  #     "sudo defaults write /Library/Preferences/com.apple.screensaver loginWindowIdleTime 0",
+  #     // Disable screensaver for admin user
+  #     "defaults -currentHost write com.apple.screensaver idleTime 0",
+  #     // Prevent the VM from sleeping
+  #     "sudo systemsetup -setsleep Off 2>/dev/null",
+  #     // Launch Safari to populate the defaults
+  #     "/Applications/Safari.app/Contents/MacOS/Safari &",
+  #     "SAFARI_PID=$!",
+  #     "disown",
+  #     "sleep 30",
+  #     "kill -9 $SAFARI_PID",
+  #     // Enable Safari's remote automation
+  #     "sudo safaridriver --enable",
+  #     // Disable screen lock
+  #     //
+  #     // Note that this only works if the user is logged-in,
+  #     // i.e. not on login screen.
+  #     "sysadminctl -screenLock off -password admin",
+  #   ]
+  # }
 
-  provisioner "shell" {
-    inline = [
-      # Ensure that Gatekeeper is disabled
-      "spctl --status | grep -q 'assessments disabled'"
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      # Install command-line tools
-      "touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress",
-      "softwareupdate --list | sed -n 's/.*Label: \\(Command Line Tools for Xcode-.*\\)/\\1/p' | xargs -I {} softwareupdate --install '{}'",
-      "rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress",
-    ]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     # Ensure that Gatekeeper is disabled
+  #     "spctl --status | grep -q 'assessments disabled'"
+  #   ]
+  # }
 }
