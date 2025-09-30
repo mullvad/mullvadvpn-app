@@ -8,47 +8,48 @@
 
 #if canImport(UIKit)
 
-import MullvadTypes
-import UIKit
+    import MullvadTypes
+    import UIKit
 
-@available(iOSApplicationExtension, unavailable)
-public final class BackgroundObserver: OperationObserver {
-    public let name: String
-    public let backgroundTaskProvider: BackgroundTaskProviding
-    public let cancelUponExpiration: Bool
+    @available(iOSApplicationExtension, unavailable)
+    public final class BackgroundObserver: OperationObserver {
+        public let name: String
+        public let backgroundTaskProvider: BackgroundTaskProviding
+        public let cancelUponExpiration: Bool
 
-    private var taskIdentifier: UIBackgroundTaskIdentifier?
+        private var taskIdentifier: UIBackgroundTaskIdentifier?
 
-    public init(backgroundTaskProvider: BackgroundTaskProviding, name: String, cancelUponExpiration: Bool) {
-        self.backgroundTaskProvider = backgroundTaskProvider
-        self.name = name
-        self.cancelUponExpiration = cancelUponExpiration
-    }
+        public init(backgroundTaskProvider: BackgroundTaskProviding, name: String, cancelUponExpiration: Bool) {
+            self.backgroundTaskProvider = backgroundTaskProvider
+            self.name = name
+            self.cancelUponExpiration = cancelUponExpiration
+        }
 
-    public func didAttach(to operation: Operation) {
-        let expirationHandler = cancelUponExpiration
-            ? { @MainActor in operation.cancel() } as? @MainActor @Sendable () -> Void
-            : nil
+        public func didAttach(to operation: Operation) {
+            let expirationHandler =
+                cancelUponExpiration
+                ? { @MainActor in operation.cancel() } as? @MainActor @Sendable () -> Void
+                : nil
 
-        taskIdentifier = backgroundTaskProvider.beginBackgroundTask(
-            withName: name,
-            expirationHandler: expirationHandler
-        )
-    }
+            taskIdentifier = backgroundTaskProvider.beginBackgroundTask(
+                withName: name,
+                expirationHandler: expirationHandler
+            )
+        }
 
-    public func operationDidStart(_ operation: Operation) {
-        // no-op
-    }
+        public func operationDidStart(_ operation: Operation) {
+            // no-op
+        }
 
-    public func operationDidCancel(_ operation: Operation) {
-        // no-op
-    }
+        public func operationDidCancel(_ operation: Operation) {
+            // no-op
+        }
 
-    public func operationDidFinish(_ operation: Operation, error: Error?) {
-        if let taskIdentifier {
-            backgroundTaskProvider.endBackgroundTask(taskIdentifier)
+        public func operationDidFinish(_ operation: Operation, error: Error?) {
+            if let taskIdentifier {
+                backgroundTaskProvider.endBackgroundTask(taskIdentifier)
+            }
         }
     }
-}
 
 #endif

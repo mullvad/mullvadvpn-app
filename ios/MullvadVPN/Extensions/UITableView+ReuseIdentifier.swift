@@ -103,7 +103,8 @@ extension UITableView {
     /// - Parameter identifier: header footer view identifier.
     /// - Returns: table header footer view.
     func dequeueReusableView(withIdentifier identifier: some HeaderFooterIdentifierProtocol)
-        -> UITableViewHeaderFooterView? {
+        -> UITableViewHeaderFooterView?
+    {
         dequeueReusableHeaderFooterView(withIdentifier: identifier.rawValue)
     }
 }

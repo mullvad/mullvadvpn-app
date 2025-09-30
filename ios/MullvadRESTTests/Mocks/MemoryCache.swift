@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import MullvadREST
 import MullvadTypes
+
+@testable import MullvadREST
 
 /// Mock implementation of a static memory cache passed to `AddressCache`.
 /// Since we don't do any actual networking in tests, the IP endpoint returned from cache is not important.

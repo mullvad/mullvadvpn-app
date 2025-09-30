@@ -12,7 +12,7 @@ import Network
 extension PacketTunnelActor {
     /**
      Start observing changes to default path.
-
+    
      - Parameter notifyObserverWithCurrentPath: immediately notifies path observer with the current path when set to `true`.
      */
     func startDefaultPathObserver() {
@@ -32,7 +32,7 @@ extension PacketTunnelActor {
 
     /**
      Event handler that receives new network path from tunnel monitor and updates internal state with new network reachability status.
-
+    
      - Parameter networkPath: new default path
      */
     func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) {

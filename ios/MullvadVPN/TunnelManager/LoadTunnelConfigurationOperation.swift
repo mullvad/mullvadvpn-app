@@ -62,7 +62,8 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendab
         Result { try SettingsManager.readSettings() }
             .flatMapError { error in
                 if let error = error as? ReadSettingsVersionError,
-                   let keychainError = error.underlyingError as? KeychainError, keychainError == .itemNotFound {
+                    let keychainError = error.underlyingError as? KeychainError, keychainError == .itemNotFound
+                {
                     logger.debug("Settings not found in keychain.")
 
                     return .success(nil)

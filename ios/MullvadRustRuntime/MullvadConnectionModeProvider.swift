@@ -9,7 +9,8 @@
 import MullvadTypes
 
 public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
-    -> SwiftAccessMethodSettingsWrapper {
+    -> SwiftAccessMethodSettingsWrapper
+{
     // 1. Get all the built in access methods, it is expected that they are always available
     let directMethod = methods.first(where: { $0.proxyConfiguration == .direct })!
     let bridgesMethod = methods.first(where: { $0.proxyConfiguration == .bridges })!
@@ -93,7 +94,8 @@ public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeM
 }
 
 fileprivate
-extension PersistentAccessMethod {
+    extension PersistentAccessMethod
+{
     func kind() -> UInt8 {
         switch kind {
         case .direct: UInt8(KindDirect.rawValue)

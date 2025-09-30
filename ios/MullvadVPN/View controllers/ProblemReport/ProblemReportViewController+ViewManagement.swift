@@ -133,12 +133,13 @@ extension ProblemReportViewController {
 
     func addConstraints() {
         activeMessageTextViewConstraints =
-            messageTextView.pinEdges(.all().excluding(.top), to: view) +
-            messageTextView.pinEdges(PinnableEdges([.top(0)]), to: view.safeAreaLayoutGuide)
+            messageTextView.pinEdges(.all().excluding(.top), to: view)
+            + messageTextView.pinEdges(PinnableEdges([.top(0)]), to: view.safeAreaLayoutGuide)
 
         inactiveMessageTextViewConstraints =
-            messageTextView.pinEdges(.all().excluding(.top), to: textFieldsHolder) +
-            [messageTextView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12)]
+            messageTextView.pinEdges(.all().excluding(.top), to: textFieldsHolder) + [
+                messageTextView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12)
+            ]
 
         textFieldsHolder.addSubview(emailTextField)
         textFieldsHolder.addSubview(messagePlaceholder)
@@ -240,19 +241,21 @@ extension ProblemReportViewController {
             messageTextView.contentInsetAdjustmentBehavior = .always
 
             // Animate constraints & rounded corners on the text view
-            animateDescriptionTextView(animations: {
-                // Turn off rounded corners as the text view fills in the entire view
-                self.messageTextView.roundCorners = false
+            animateDescriptionTextView(
+                animations: {
+                    // Turn off rounded corners as the text view fills in the entire view
+                    self.messageTextView.roundCorners = false
 
-                self.view.layoutIfNeeded()
-            }, completion: { _ in
-                self.isMessageTextViewExpanded = true
+                    self.view.layoutIfNeeded()
+                },
+                completion: { _ in
+                    self.isMessageTextViewExpanded = true
 
-                self.textViewKeyboardResponder?.updateContentInsets()
+                    self.textViewKeyboardResponder?.updateContentInsets()
 
-                // Tell accessibility engine to scan the new layout
-                UIAccessibility.post(notification: .layoutChanged, argument: nil)
-            })
+                    // Tell accessibility engine to scan the new layout
+                    UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                })
 
         } else {
             // Re-enable the large title
@@ -263,23 +266,25 @@ extension ProblemReportViewController {
             NSLayoutConstraint.activate(inactiveMessageTextViewConstraints)
 
             // Animate constraints & rounded corners on the text view
-            animateDescriptionTextView(animations: {
-                // Turn on rounded corners as the text view returns back to where it was
-                self.messageTextView.roundCorners = true
+            animateDescriptionTextView(
+                animations: {
+                    // Turn on rounded corners as the text view returns back to where it was
+                    self.messageTextView.roundCorners = true
 
-                self.view.layoutIfNeeded()
-            }, completion: { _ in
-                // Revert the content adjustment behavior
-                self.messageTextView.contentInsetAdjustmentBehavior = .never
+                    self.view.layoutIfNeeded()
+                },
+                completion: { _ in
+                    // Revert the content adjustment behavior
+                    self.messageTextView.contentInsetAdjustmentBehavior = .never
 
-                // Add the text view inside of the scroll view
-                self.textFieldsHolder.addSubview(self.messageTextView)
+                    // Add the text view inside of the scroll view
+                    self.textFieldsHolder.addSubview(self.messageTextView)
 
-                self.isMessageTextViewExpanded = false
+                    self.isMessageTextViewExpanded = false
 
-                // Tell accessibility engine to scan the new layout
-                UIAccessibility.post(notification: .layoutChanged, argument: nil)
-            })
+                    // Tell accessibility engine to scan the new layout
+                    UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                })
         }
     }
 

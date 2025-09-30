@@ -6,12 +6,13 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import Network
+import XCTest
+
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import Network
 @testable import PacketTunnelCore
-import XCTest
 
 final class ProtocolObfuscatorTests: XCTestCase {
     var obfuscator: ProtocolObfuscator<TunnelObfuscationStub>!
@@ -91,9 +92,10 @@ extension ProtocolObfuscatorTests {
         _ obfuscationState: WireGuardObfuscationState,
         obfuscationPort: WireGuardObfuscationUdpOverTcpPort
     ) -> LatestTunnelSettings {
-        LatestTunnelSettings(wireGuardObfuscation: WireGuardObfuscationSettings(
-            state: obfuscationState,
-            udpOverTcpPort: obfuscationPort
-        ))
+        LatestTunnelSettings(
+            wireGuardObfuscation: WireGuardObfuscationSettings(
+                state: obfuscationState,
+                udpOverTcpPort: obfuscationPort
+            ))
     }
 }

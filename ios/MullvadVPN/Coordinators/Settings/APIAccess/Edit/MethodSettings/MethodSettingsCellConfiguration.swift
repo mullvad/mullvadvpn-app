@@ -145,11 +145,15 @@ class MethodSettingsCellConfiguration {
     }
 
     private func configureProtocol(_ cell: UITableViewCell, itemIdentifier: MethodSettingsItemIdentifier) {
-        var contentConfiguration = ListCellContentConfiguration(textProperties: ListCellContentConfiguration
-            .TextProperties(color: .Cell.titleTextColor.withAlphaComponent(!isTesting
-                    ? 1
-                    : 0.8
-            ))
+        var contentConfiguration = ListCellContentConfiguration(
+            textProperties:
+                ListCellContentConfiguration
+                .TextProperties(
+                    color: .Cell.titleTextColor.withAlphaComponent(
+                        !isTesting
+                            ? 1
+                            : 0.8
+                    ))
         )
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.secondaryText = subject.value.method.localizedDescription
@@ -179,7 +183,8 @@ class MethodSettingsCellConfiguration {
 
         var contentConfiguration = MethodTestingStatusCellContentConfiguration()
         contentConfiguration.status = viewStatus
-        contentConfiguration.detailText = viewStatus == .reachable
+        contentConfiguration.detailText =
+            viewStatus == .reachable
             ? NSLocalizedString("Saving changes...", comment: "")
             : nil
 

@@ -16,7 +16,7 @@ class RestorePurchasesView: UIView {
         let stackView = UIStackView(arrangedSubviews: [
             restoreButton,
             infoButton,
-            UIView(), // Pushes the other views to the left.
+            UIView(),  // Pushes the other views to the left.
         ])
         stackView.spacing = UIMetrics.padding8
         return stackView
@@ -66,11 +66,13 @@ class RestorePurchasesView: UIView {
     private func makeAttributedString() -> NSAttributedString {
         let text = NSLocalizedString("Restore purchases", comment: "")
 
-        return NSAttributedString(string: text, attributes: [
-            .font: UIFont.mullvadMini,
-            .foregroundColor: UIColor.white,
-            .underlineStyle: NSUnderlineStyle.single.rawValue,
-        ])
+        return NSAttributedString(
+            string: text,
+            attributes: [
+                .font: UIFont.mullvadMini,
+                .foregroundColor: UIColor.white,
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+            ])
     }
 
     @objc private func didTapRestoreButton() {

@@ -14,11 +14,11 @@ import WireGuardKitTypes
 extension PacketTunnelActor {
     /**
      Transition actor to error state.
-
+    
      Evaluates the error and maps it to `BlockedStateReason` before switching actor to `.error` state.
-
+    
      - Important: this method will suspend and must only be invoked as a part of channel consumer to guarantee transactional execution.
-
+    
      - Parameter error: an error that occurred while starting the tunnel.
      */
     func setErrorStateInternal(with error: Error) async {
@@ -29,12 +29,12 @@ extension PacketTunnelActor {
 
     /**
      Transition actor to error state.
-
+    
      Normally actor enters error state on its own, due to unrecoverable errors. However error state can also be induced externally for example in response to
      device check indicating certain issues that actor is not able to detect on its own such as invalid account or device being revoked on backend.
-
+    
      - Important: this method will suspend and must only be invoked as a part of channel consumer to guarantee transactional execution.
-
+    
      - Parameter reason: reason why the actor is entering error state.
      */
     func setErrorStateInternal(with reason: BlockedStateReason) async {
@@ -49,7 +49,7 @@ extension PacketTunnelActor {
 
     /**
      Derive `BlockedState` from current `state` updating it with the given block reason.
-
+    
      - Parameter reason: block reason
      - Returns: New blocked state that should be assigned to error state, otherwise `nil` when actor is past or at `disconnecting` phase or
                 when actor is already in the error state and no changes need to be made.
@@ -138,9 +138,9 @@ extension PacketTunnelActor {
 
     /**
      Start a task that will attempt to reconnect the tunnel periodically, but only if the tunnel can recover from error state automatically.
-
+    
      See `BlockedStateReason.shouldRestartAutomatically` for more info.
-
+    
      - Parameter reason: the reason why actor is entering blocked state.
      - Returns: a task that will attempt to perform periodic recovery when applicable, otherwise `nil`.
      */

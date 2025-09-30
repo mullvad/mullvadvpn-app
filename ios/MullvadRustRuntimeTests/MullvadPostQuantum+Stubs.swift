@@ -6,9 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import NetworkExtension
+
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
-import NetworkExtension
 @testable import PacketTunnelCore
 @testable import WireGuardKitTypes
 

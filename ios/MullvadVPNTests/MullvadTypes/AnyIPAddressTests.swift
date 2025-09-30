@@ -6,8 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadTypes
 import XCTest
+
+@testable import MullvadTypes
 
 final class AnyIPAddressTests: XCTestCase {
     func testAnyIPAddressFromString() {

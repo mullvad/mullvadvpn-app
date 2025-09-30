@@ -113,7 +113,8 @@ class SpinnerActivityIndicatorView: UIView {
         sceneActivationObserver = NotificationCenter.default.addObserver(
             forName: UIScene.willEnterForegroundNotification,
             object: window?.windowScene,
-            queue: .main, using: { [weak self] _ in
+            queue: .main,
+            using: { [weak self] _ in
                 MainActor.assumeIsolated {
                     self?.restartAnimationIfNeeded()
                 }

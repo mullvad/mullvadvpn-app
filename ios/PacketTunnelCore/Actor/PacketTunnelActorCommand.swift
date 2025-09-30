@@ -58,7 +58,8 @@ extension PacketTunnelActor {
                 case .random:
                     return "reconnect(random, \(stopTunnelMonitor))"
                 case let .preSelected(selectedRelays):
-                    return "reconnect(\(selectedRelays.exit.hostname)\(selectedRelays.entry.flatMap { " via \($0.hostname)" } ?? ""), \(stopTunnelMonitor))"
+                    return
+                        "reconnect(\(selectedRelays.exit.hostname)\(selectedRelays.entry.flatMap { " via \($0.hostname)" } ?? ""), \(stopTunnelMonitor))"
                 }
             case let .error(reason):
                 return "error(\(reason))"

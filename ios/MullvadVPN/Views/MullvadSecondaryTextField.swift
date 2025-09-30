@@ -32,8 +32,10 @@ struct MullvadSecondaryTextField: View {
         }
         .padding(8)
         .background(
-            isEnabled ? Color.MullvadTextField.background : Color.MullvadTextField
-                .backgroundDisabled
+            isEnabled
+                ? Color.MullvadTextField.background
+                : Color.MullvadTextField
+                    .backgroundDisabled
         )
         .foregroundColor(isEnabled ? .MullvadTextField.textInput : .MullvadTextField.textDisabled)
         .overlay {
@@ -45,7 +47,8 @@ struct MullvadSecondaryTextField: View {
                         lineWidth: 2
                     )
             } else if isEnabled,
-                      !isValid {
+                !isValid
+            {
                 RoundedRectangle(cornerRadius: 12)
                     .inset(by: 0.5)
                     .stroke(

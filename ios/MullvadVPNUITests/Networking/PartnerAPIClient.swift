@@ -87,14 +87,15 @@ class PartnerAPIClient {
             requestError = error
 
             guard let data = data,
-                  let response = response as? HTTPURLResponse,
-                  error == nil else {
+                let response = response as? HTTPURLResponse,
+                error == nil
+            else {
                 XCTFail("Error: \(error?.localizedDescription ?? "Unknown error")")
                 completionHandlerInvokedExpectation.fulfill()
                 return
             }
 
-            if 200 ... 204 ~= response.statusCode {
+            if 200...204 ~= response.statusCode {
                 print("Request successful")
                 do {
                     if data.isEmpty {

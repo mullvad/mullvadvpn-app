@@ -16,13 +16,15 @@ struct Socks5HandshakeNegotiation: Sendable {
     let onFailure: @Sendable (Error) -> Void
 
     func perform() {
-        connection.send(content: handshake.rawData, completion: .contentProcessed { [self] error in
-            if let error {
-                onFailure(Socks5Error.remoteConnectionFailure(error))
-            } else {
-                readReply()
-            }
-        })
+        connection.send(
+            content: handshake.rawData,
+            completion: .contentProcessed { [self] error in
+                if let error {
+                    onFailure(Socks5Error.remoteConnectionFailure(error))
+                } else {
+                    readReply()
+                }
+            })
     }
 
     private func readReply() {

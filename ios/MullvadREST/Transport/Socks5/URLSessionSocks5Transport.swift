@@ -29,7 +29,7 @@ public final class URLSessionSocks5Transport: RESTTransport, Sendable {
 
     /**
      Instantiates new socks5 transport.
-
+    
      - Parameters:
          - urlSession: an instance of URLSession used for sending requests.
          - configuration: SOCKS5 configuration

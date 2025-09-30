@@ -21,7 +21,8 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             value: $viewModel.value,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationShadowsocksTable.asString,
             itemDescription: { item in NSLocalizedString("\(item)", comment: "") },
-            parseCustomValue: { UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationShadowsocksPort.custom($0) : nil }
+            parseCustomValue: {
+                UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationShadowsocksPort.custom($0) : nil }
             },
             formatCustomValue: {
                 if case let .custom(port) = $0 {
@@ -32,7 +33,8 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             },
             customLabel: NSLocalizedString("Custom", comment: ""),
             customPrompt: NSLocalizedString("Port", comment: ""),
-            customLegend: String(format: NSLocalizedString("Valid range: %d - %d", comment: ""), arguments: [1, 65535]),
+            customLegend: String(
+                format: NSLocalizedString("Valid range: %d - %d", comment: ""), arguments: [1, 65535]),
             customInputMinWidth: 100,
             customInputMaxLength: 5,
             customFieldMode: .numericText

@@ -30,9 +30,11 @@ final class ProblemReportInteractor: @unchecked Sendable {
     }
 
     func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
-        consolidatedLog.addLogFiles(fileURLs: ApplicationTarget.allCases.flatMap {
-            ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
-        }) { [weak self] in
+        consolidatedLog.addLogFiles(
+            fileURLs: ApplicationTarget.allCases.flatMap {
+                ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
+            }
+        ) { [weak self] in
             guard let self else { return }
             completion(consolidatedLog.string)
         }

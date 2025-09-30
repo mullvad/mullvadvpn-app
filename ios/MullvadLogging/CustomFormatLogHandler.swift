@@ -30,7 +30,6 @@ public struct CustomFormatLogHandler: LogHandler {
         }
     }
 
-    // swiftlint:disable:next function_parameter_count
     public func log(
         level: Logger.Level,
         message: Logger.Message,

@@ -74,7 +74,8 @@ public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsock
         let closestRelay = try relaySelector.selectRelay(with: tunnelSettings)
 
         guard let bridgeAddress = closestRelay?.ipv4AddrIn,
-              let bridgeConfiguration else { throw POSIXError(.ENOENT) }
+            let bridgeConfiguration
+        else { throw POSIXError(.ENOENT) }
 
         return ShadowsocksConfiguration(
             address: .ipv4(bridgeAddress),

@@ -74,22 +74,24 @@ class ProblemReportSubmissionOverlayView: UIView {
                 return [
                     NSAttributedString(
                         string: NSLocalizedString(
-                            "If you exit the form and try again later, the information you " +
-                                "already entered will still be here.",
+                            "If you exit the form and try again later, the information you "
+                                + "already entered will still be here.",
                             comment: ""
                         )
                     ),
                     NSAttributedString(
-                        markdownString: String(format: NSLocalizedString(
-                            """
-                            If you still experience issues you can email our support directly at \
-                            **%@**. Please attach your app log to your email.
-                            """,
-                            comment: ""
-                        ), supportEmail),
+                        markdownString: String(
+                            format: NSLocalizedString(
+                                """
+                                If you still experience issues you can email our support directly at \
+                                **%@**. Please attach your app log to your email.
+                                """,
+                                comment: ""
+                            ), supportEmail),
                         options: MarkdownStylingOptions(
                             font: .preferredFont(forTextStyle: .body)
-                        ), applyEffect: { _, _ in
+                        ),
+                        applyEffect: { _, _ in
                             [
                                 // Setting font again to circumvent bold weight.
                                 .font: UIFont.preferredFont(forTextStyle: .body),

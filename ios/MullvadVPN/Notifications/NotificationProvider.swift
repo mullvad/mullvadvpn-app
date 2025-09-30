@@ -21,7 +21,7 @@ class NotificationProvider: NotificationProviderProtocol, @unchecked Sendable {
 
     /**
      Provider identifier.
-
+    
      Override in subclasses and make sure each provider has unique identifier. It's preferred that identifiers use
      reverse domain name, for instance: `com.example.app.ProviderName`.
      */
@@ -38,7 +38,7 @@ class NotificationProvider: NotificationProviderProtocol, @unchecked Sendable {
 
     /**
      Send action to notification manager delegate.
-
+    
      Usually in response to user interacting with notification banner, i.e by tapping a button. Use different action
      identifiers if notification offers more than one action that user can perform.
      */

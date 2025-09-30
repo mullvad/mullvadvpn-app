@@ -49,8 +49,6 @@ import SwiftUI
   ```
   */
 
-// swiftlint:disable function_parameter_count
-
 struct SingleChoiceList<Value>: View where Value: Equatable {
     let title: String
     private let options: [OptionSpec]
@@ -172,15 +170,17 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ) {
         self.init(
             title: title,
-            optionSpecs: options.map { .literal($0) } + [.custom(
-                label: customLabel,
-                prompt: customPrompt,
-                legend: customLegend,
-                minInputWidth: customInputMinWidth,
-                maxInputLength: customInputMaxLength,
-                toValue: parseCustomValue,
-                fromValue: formatCustomValue
-            )],
+            optionSpecs: options.map { .literal($0) } + [
+                .custom(
+                    label: customLabel,
+                    prompt: customPrompt,
+                    legend: customLegend,
+                    minInputWidth: customInputMinWidth,
+                    maxInputLength: customInputMaxLength,
+                    toValue: parseCustomValue,
+                    fromValue: formatCustomValue
+                )
+            ],
             value: value,
             tableAccessibilityIdentifier: tableAccessibilityIdentifier,
             itemDescription: itemDescription,
@@ -222,7 +222,6 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     }
 
     // Construct the one row with a custom input field for a custom value
-    // swiftlint:disable function_body_length
     private func customRow(
         label: String,
         prompt: String,
@@ -316,8 +315,6 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         }
     }
 
-    // swiftlint:enable function_body_length
-
     private func subtitleRow(_ text: String) -> some View {
         HStack {
             Text(text)
@@ -372,7 +369,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                         }
                     }
                 }
-                .listRowInsets(.init()) // remove insets
+                .listRowInsets(.init())  // remove insets
             }
             .accessibilityIdentifier(tableAccessibilityIdentifier)
             .listStyle(.plain)
@@ -388,8 +385,6 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         }
     }
 }
-
-// swiftlint:enable function_parameter_count
 
 #Preview("Static values") {
     StatefulPreviewWrapper(1) { SingleChoiceList(title: "Test", options: [1, 2, 3], value: $0) }
@@ -420,4 +415,4 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             )
         }
     }
-} // swiftlint:disable:this file_length
+}

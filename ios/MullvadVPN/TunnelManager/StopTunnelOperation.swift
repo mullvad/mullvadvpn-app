@@ -37,7 +37,7 @@ class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             finish(result: .success(()))
 
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
-             .negotiatingEphemeralPeer:
+            .negotiatingEphemeralPeer:
             doShutDownTunnel()
 
         case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):

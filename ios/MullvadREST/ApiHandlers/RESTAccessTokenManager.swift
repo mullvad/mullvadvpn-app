@@ -73,12 +73,13 @@ extension REST {
         }
 
         public func invalidateAllTokens() {
-            operationQueue.addOperation(AsyncBlockOperation(dispatchQueue: dispatchQueue) { [weak self] in
-                guard let self else {
-                    return
-                }
-                self.tokens.removeAll()
-            })
+            operationQueue.addOperation(
+                AsyncBlockOperation(dispatchQueue: dispatchQueue) { [weak self] in
+                    guard let self else {
+                        return
+                    }
+                    self.tokens.removeAll()
+                })
         }
     }
 }

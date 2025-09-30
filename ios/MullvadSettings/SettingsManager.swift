@@ -18,24 +18,24 @@ public enum SettingsManager {
     nonisolated(unsafe) private static let logger = Logger(label: "SettingsManager")
 
     #if DEBUG
-    nonisolated(unsafe) private static var _store = KeychainSettingsStore(
-        serviceName: keychainServiceName,
-        accessGroup: ApplicationConfiguration.securityGroupIdentifier
-    )
+        nonisolated(unsafe) private static var _store = KeychainSettingsStore(
+            serviceName: keychainServiceName,
+            accessGroup: ApplicationConfiguration.securityGroupIdentifier
+        )
 
-    /// Alternative store used for tests.
-    nonisolated(unsafe) internal static var unitTestStore: SettingsStore?
+        /// Alternative store used for tests.
+        nonisolated(unsafe) internal static var unitTestStore: SettingsStore?
 
-    public static var store: SettingsStore {
-        if let unitTestStore { return unitTestStore }
-        return _store
-    }
+        public static var store: SettingsStore {
+            if let unitTestStore { return unitTestStore }
+            return _store
+        }
 
     #else
-    public static let store: SettingsStore = KeychainSettingsStore(
-        serviceName: keychainServiceName,
-        accessGroup: ApplicationConfiguration.securityGroupIdentifier
-    )
+        public static let store: SettingsStore = KeychainSettingsStore(
+            serviceName: keychainServiceName,
+            accessGroup: ApplicationConfiguration.securityGroupIdentifier
+        )
 
     #endif
 
@@ -142,7 +142,8 @@ public enum SettingsManager {
     public static func resetStore(completely: Bool = false) {
         logger.debug("Reset store.")
 
-        let keys = completely
+        let keys =
+            completely
             ? SettingsKey.allCases
             : [
                 .settings,

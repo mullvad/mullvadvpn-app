@@ -7,8 +7,9 @@
 //
 
 import CoreLocation
-@testable import MullvadREST
 import XCTest
+
+@testable import MullvadREST
 
 final class CoordinatesTests: XCTestCase {
     func testHaversine() {

@@ -177,12 +177,12 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
         defer { nslock.unlock() }
 
         guard let newStats = getStats(),
-              state.connectionState == .connecting || state.connectionState == .connected
+            state.connectionState == .connecting || state.connectionState == .connected
         else { return }
 
         // Check if counters were reset.
-        let isStatsReset = newStats.bytesReceived < state.netStats.bytesReceived ||
-            newStats.bytesSent < state.netStats.bytesSent
+        let isStatsReset =
+            newStats.bytesReceived < state.netStats.bytesReceived || newStats.bytesSent < state.netStats.bytesSent
 
         guard !isStatsReset else {
             logger.trace("Stats was being reset.")
@@ -191,7 +191,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
         }
 
         #if DEBUG
-        logCounters(currentStats: state.netStats, newStats: newStats)
+            logCounters(currentStats: state.netStats, newStats: newStats)
         #endif
 
         let now = Date()
@@ -215,7 +215,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
             state.isHeartbeatSuspended = true
 
         case .sendHeartbeatPing, .retryHeartbeatPing, .sendNextPing, .sendInitialPing,
-             .inboundTrafficTimeout, .trafficTimeout:
+            .inboundTrafficTimeout, .trafficTimeout:
             if state.isHeartbeatSuspended {
                 state.isHeartbeatSuspended = false
                 state.timeoutReference = now
@@ -225,19 +225,19 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
     }
 
     #if DEBUG
-    private func logCounters(currentStats: WgStats, newStats: WgStats) {
-        let rxDelta = newStats.bytesReceived.saturatingSubtraction(currentStats.bytesReceived)
-        let txDelta = newStats.bytesSent.saturatingSubtraction(currentStats.bytesSent)
+        private func logCounters(currentStats: WgStats, newStats: WgStats) {
+            let rxDelta = newStats.bytesReceived.saturatingSubtraction(currentStats.bytesReceived)
+            let txDelta = newStats.bytesSent.saturatingSubtraction(currentStats.bytesSent)
 
-        guard rxDelta > 0 || txDelta > 0 else { return }
+            guard rxDelta > 0 || txDelta > 0 else { return }
 
-        logger.trace(
-            """
-            rx: \(newStats.bytesReceived) (+\(rxDelta)) \
-            tx: \(newStats.bytesSent) (+\(txDelta))
-            """
-        )
-    }
+            logger.trace(
+                """
+                rx: \(newStats.bytesReceived) (+\(rxDelta)) \
+                tx: \(newStats.bytesSent) (+\(txDelta))
+                """
+            )
+        }
     #endif
 
     private func startConnectionRecovery() {
@@ -277,15 +277,16 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
             return
         }
 
-        logger.trace({
-            let time = now.timeIntervalSince(pingTimestamp) * 1000
-            let message = String(
-                format: "Received reply icmp_seq=%d, time=%.2f ms.",
-                sequenceNumber,
-                time
-            )
-            return Logger.Message(stringLiteral: message)
-        }())
+        logger.trace(
+            {
+                let time = now.timeIntervalSince(pingTimestamp) * 1000
+                let message = String(
+                    format: "Received reply icmp_seq=%d, time=%.2f ms.",
+                    sequenceNumber,
+                    time
+                )
+                return Logger.Message(stringLiteral: message)
+            }())
 
         if case .connecting = state.connectionState {
             state.connectionState = .connected

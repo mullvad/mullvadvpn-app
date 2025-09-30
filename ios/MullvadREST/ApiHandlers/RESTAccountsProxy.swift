@@ -88,17 +88,18 @@ extension REST {
             retryStrategy: RetryStrategy,
             completion: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
-            let requestHandler = AnyRequestHandler(createURLRequest: { endpoint, authorization in
-                var requestBuilder = try self.requestFactory.createRequestBuilder(
-                    endpoint: endpoint,
-                    method: .delete,
-                    pathTemplate: "accounts/me"
-                )
-                requestBuilder.setAuthorization(authorization)
-                requestBuilder.addValue(accountNumber, forHTTPHeaderField: "Mullvad-Account-Number")
+            let requestHandler = AnyRequestHandler(
+                createURLRequest: { endpoint, authorization in
+                    var requestBuilder = try self.requestFactory.createRequestBuilder(
+                        endpoint: endpoint,
+                        method: .delete,
+                        pathTemplate: "accounts/me"
+                    )
+                    requestBuilder.setAuthorization(authorization)
+                    requestBuilder.addValue(accountNumber, forHTTPHeaderField: "Mullvad-Account-Number")
 
-                return requestBuilder.getRequest()
-            }, authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber))
+                    return requestBuilder.getRequest()
+                }, authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber))
 
             let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Void> in
                 let statusCode = HTTPStatus(rawValue: response.statusCode)

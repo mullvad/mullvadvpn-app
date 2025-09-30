@@ -26,13 +26,15 @@ struct Socks5ConnectNegotiation {
     func perform() {
         let connectCommand = Socks5ConnectCommand(endpoint: endpoint)
 
-        connection.send(content: connectCommand.rawData, completion: .contentProcessed { [self] error in
-            if let error {
-                onFailure(Socks5Error.remoteConnectionFailure(error))
-            } else {
-                readPartialReply()
-            }
-        })
+        connection.send(
+            content: connectCommand.rawData,
+            completion: .contentProcessed { [self] error in
+                if let error {
+                    onFailure(Socks5Error.remoteConnectionFailure(error))
+                } else {
+                    readPartialReply()
+                }
+            })
     }
 
     /// Read the preamble of the connect reply.
@@ -57,7 +59,7 @@ struct Socks5ConnectNegotiation {
 
     /**
      Parse the bytes that comprise the preamble of a connect reply. Upon success read the endpoint data to produce the complete reply and finish negotiation.
-
+    
      The following fields are contained within the first 4 bytes: socks version, status code, reserved field, address type.
      */
     private func handlePartialReply(data: Data) throws {
@@ -89,8 +91,9 @@ struct Socks5ConnectNegotiation {
 
         // Read status code, reserved field and address type from reply.
         guard let rawStatusCode = iterator.next(),
-              iterator.next() != nil, // skip reserved field
-              let rawAddressType = iterator.next() else {
+            iterator.next() != nil,  // skip reserved field
+            let rawAddressType = iterator.next()
+        else {
             throw Socks5Error.unexpectedEndOfStream
         }
 

@@ -13,7 +13,8 @@ class DeviceManagementPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app
+        self.pageElement =
+            app
             .descendants(matching: .any)
             .matching(
                 identifier: AccessibilityIdentifier.deviceManagementView.asString

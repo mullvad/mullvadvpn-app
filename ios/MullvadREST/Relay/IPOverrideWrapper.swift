@@ -69,7 +69,8 @@ public final class IPOverrideWrapper: RelayCacheProtocol {
     }
 
     private func apply<T: AnyRelay>(overrides: [IPOverride], to relay: T) -> T {
-        return overrides
+        return
+            overrides
             .first { $0.hostname == relay.hostname }
             .flatMap {
                 relay.override(

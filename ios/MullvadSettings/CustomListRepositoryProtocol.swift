@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import MullvadTypes
+
 public protocol CustomListRepositoryProtocol {
     /// Save a custom list. If the list doesn't already exist, it must have a unique name.
     /// - Parameter list: a custom list.

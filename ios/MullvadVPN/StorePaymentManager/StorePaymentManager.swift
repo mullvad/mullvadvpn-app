@@ -241,11 +241,12 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
             self.accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .default, completion: finish)
         }
 
-        accountOperation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: backgroundTaskProvider,
-            name: "Validate account number",
-            cancelUponExpiration: false
-        ))
+        accountOperation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: "Validate account number",
+                cancelUponExpiration: false
+            ))
 
         accountOperation.completionQueue = .main
         accountOperation.completionHandler = { result in
@@ -335,21 +336,22 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
     private func didFailPurchase(transaction: SKPaymentTransaction) {
         paymentQueue.finishTransaction(transaction)
 
-        let paymentFailure = if let accountToken = deassociateAccountNumber(transaction.payment) {
-            StorePaymentFailure(
-                transaction: transaction,
-                payment: transaction.payment,
-                accountNumber: accountToken,
-                error: .storePayment(transaction.error!)
-            )
-        } else {
-            StorePaymentFailure(
-                transaction: transaction,
-                payment: transaction.payment,
-                accountNumber: nil,
-                error: .noAccountSet
-            )
-        }
+        let paymentFailure =
+            if let accountToken = deassociateAccountNumber(transaction.payment) {
+                StorePaymentFailure(
+                    transaction: transaction,
+                    payment: transaction.payment,
+                    accountNumber: accountToken,
+                    error: .storePayment(transaction.error!)
+                )
+            } else {
+                StorePaymentFailure(
+                    transaction: transaction,
+                    payment: transaction.payment,
+                    accountNumber: nil,
+                    error: .noAccountSet
+                )
+            }
 
         observerList.notify { observer in
             observer.storePaymentManager(self, didReceiveEvent: .failure(paymentFailure))
@@ -442,21 +444,23 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
             // Finish transaction to remove it from the payment queue.
             paymentQueue.finishTransaction(transaction)
 
-            event = StorePaymentEvent.finished(StorePaymentCompletion(
-                transaction: transaction,
-                accountNumber: accountNumber,
-                serverResponse: response
-            ))
+            event = StorePaymentEvent.finished(
+                StorePaymentCompletion(
+                    transaction: transaction,
+                    accountNumber: accountNumber,
+                    serverResponse: response
+                ))
 
         case let .failure(error as StorePaymentManagerError):
             logger.debug("Failed to upload the receipt. Keep transaction in the queue.")
 
-            event = StorePaymentEvent.failure(StorePaymentFailure(
-                transaction: transaction,
-                payment: transaction.payment,
-                accountNumber: accountNumber,
-                error: error
-            ))
+            event = StorePaymentEvent.failure(
+                StorePaymentFailure(
+                    transaction: transaction,
+                    payment: transaction.payment,
+                    accountNumber: accountNumber,
+                    error: error
+                ))
 
         default:
             break
@@ -469,5 +473,3 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         }
     }
 }
-
-// swiftlint:disable:this file_length

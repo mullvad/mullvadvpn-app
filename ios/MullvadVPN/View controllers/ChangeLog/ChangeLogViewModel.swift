@@ -37,9 +37,11 @@ class ChangeLogViewModel: ChangeLogViewModelProtocol {
 class MockChangeLogViewModel: ChangeLogViewModelProtocol {
     @Published var changeLog: ChangeLogModel?
     func getLatestChanges() {
-        changeLog = ChangeLogModel(title: "2025.1", changes: [
-            "Introduced a dark mode for better accessibility and user experience.",
-            "Added two-factor authentication (2FA) for all user accounts.",
-        ])
+        changeLog = ChangeLogModel(
+            title: "2025.1",
+            changes: [
+                "Introduced a dark mode for better accessibility and user experience.",
+                "Added two-factor authentication (2FA) for all user accounts.",
+            ])
     }
 }

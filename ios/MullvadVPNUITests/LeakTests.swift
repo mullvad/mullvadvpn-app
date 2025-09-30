@@ -21,9 +21,9 @@ class LeakTests: LoggedInWithTimeUITestCase {
     /// that no leaked traffic went directly to the host
     func testConnectionStartedBeforeTunnelShouldNotLeakOutside() throws {
         let skipReason = """
-        Connections started before the packet tunnel will leak as long as
-        includeAllNetworks is not set to true when starting the tunnel.
-        """
+            Connections started before the packet tunnel will leak as long as
+            includeAllNetworks is not set to true when starting the tunnel.
+            """
         try XCTSkipIf(true, skipReason)
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         startPacketCapture()

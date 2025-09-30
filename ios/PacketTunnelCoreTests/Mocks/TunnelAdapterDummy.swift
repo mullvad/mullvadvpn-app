@@ -8,6 +8,7 @@
 
 import Foundation
 import PacketTunnelCore
+
 @testable import WireGuardKitTypes
 
 /// Dummy tunnel adapter that does nothing and reports no errors.

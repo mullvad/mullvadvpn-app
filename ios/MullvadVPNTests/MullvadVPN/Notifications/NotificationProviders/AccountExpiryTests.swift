@@ -20,7 +20,7 @@ class AccountExpiryTests: XCTestCase {
     func testDateNowDuration() {
         let accountExpiry = AccountExpiry(expiryDate: Date())
         XCTAssertNil(accountExpiry.nextTriggerDate(for: .system))
-        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp)) // In-app expiry triggers on same date as well.
+        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp))  // In-app expiry triggers on same date as well.
     }
 
     func testDateInPastDuration() {

@@ -58,9 +58,11 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         }
     }
 
-    var infoButtonHandler: InfoButtonHandler? { didSet {
-        infoButton.isHidden = infoButtonHandler == nil
-    }}
+    var infoButtonHandler: InfoButtonHandler? {
+        didSet {
+            infoButton.isHidden = infoButtonHandler == nil
+        }
+    }
 
     private let chevronDown = UIImage(named: "IconChevronDown")
     private let chevronUp = UIImage(named: "IconChevronUp")
@@ -86,7 +88,9 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         contentView.directionalLayoutMargins = UIMetrics.SettingsCell.defaultLayoutMargins
         contentView.backgroundColor = UIColor.Cell.Background.normal
 
-        let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
+        let buttonAreaWidth =
+            UIMetrics.contentLayoutMargins.leading
+            + UIMetrics
             .contentLayoutMargins.trailing + buttonWidth
 
         contentView.addConstrainedSubviews([titleLabel, infoButton, collapseButton]) {
@@ -136,7 +140,8 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     }
 
     private func updateAccessibilityCustomActions() {
-        let actionName = isExpanded
+        let actionName =
+            isExpanded
             ? String(format: NSLocalizedString("Collapse %@", comment: ""), accessibilityCustomActionName)
             : String(format: NSLocalizedString("Expand %@", comment: ""), accessibilityCustomActionName)
 
@@ -145,7 +150,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
                 name: actionName,
                 target: self,
                 selector: #selector(toggleCollapseAccessibilityAction)
-            ),
+            )
         ]
     }
 }

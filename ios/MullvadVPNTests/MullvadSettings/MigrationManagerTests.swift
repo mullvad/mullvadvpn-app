@@ -6,11 +6,12 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import XCTest
+
 @testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
-import XCTest
 
 final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
     static let store = InMemorySettingsStore<SettingNotFound>()

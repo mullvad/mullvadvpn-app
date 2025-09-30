@@ -27,7 +27,7 @@ struct SettingsReader: SettingsReaderProtocol {
 private extension DeviceState {
     /**
      Returns `StoredDeviceState` if device is logged in, otherwise throws an error.
-
+    
      - Throws: an error of type `ReadDeviceDataError` when device is either revoked or logged out.
      - Returns: a copy of `StoredDeviceData` stored as associated value in `DeviceState.loggedIn` variant.
      */

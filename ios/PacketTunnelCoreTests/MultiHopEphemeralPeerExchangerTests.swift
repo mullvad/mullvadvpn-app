@@ -6,12 +6,13 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import XCTest
+
 @testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
 @testable import WireGuardKitTypes
-import XCTest
 
 final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
     var exitRelay: SelectedRelay!

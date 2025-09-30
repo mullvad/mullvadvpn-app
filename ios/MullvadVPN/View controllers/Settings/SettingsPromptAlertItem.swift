@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 enum DAITASettingsPromptItem: CustomStringConvertible {
     case daitaSettingIncompatibleWithSinglehop
     case daitaSettingIncompatibleWithMultihop

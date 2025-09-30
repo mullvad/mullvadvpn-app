@@ -72,7 +72,7 @@ extension ConnectionViewViewModel {
     var showsConnectionDetails: Bool {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer,
-             .connected, .pendingReconnect:
+            .connected, .pendingReconnect:
             true
         case .disconnecting, .disconnected, .waitingForConnectivity, .error:
             false
@@ -82,7 +82,7 @@ extension ConnectionViewViewModel {
     var textColorForSecureLabel: UIColor {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer,
-             .pendingReconnect, .disconnecting:
+            .pendingReconnect, .disconnecting:
             .white
         case .connected:
             .successColor
@@ -153,7 +153,7 @@ extension ConnectionViewViewModel {
         case .disconnecting, .pendingReconnect, .disconnected, .waitingForConnectivity(.noNetwork):
             LocalizedStringKey(connectionName ?? "Select location")
         case .connecting, .connected, .reconnecting, .waitingForConnectivity(.noConnection),
-             .negotiatingEphemeralPeer, .error:
+            .negotiatingEphemeralPeer, .error:
             LocalizedStringKey("Switch location")
         }
     }
@@ -163,7 +163,7 @@ extension ConnectionViewViewModel {
         case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
             .connect
         case .connecting, .pendingReconnect, .disconnecting(.reconnect), .waitingForConnectivity(.noConnection),
-             .negotiatingEphemeralPeer:
+            .negotiatingEphemeralPeer:
             .cancel
         case .connected, .reconnecting, .error:
             .disconnect
@@ -209,7 +209,7 @@ extension ConnectionViewViewModel {
 
         guard
             let address = tunnelRelays.entry?.endpoint.ipv4Relay.ip
-            ?? tunnelStatus.state.relays?.exit.endpoint.ipv4Relay.ip
+                ?? tunnelStatus.state.relays?.exit.endpoint.ipv4Relay.ip
         else {
             return nil
         }

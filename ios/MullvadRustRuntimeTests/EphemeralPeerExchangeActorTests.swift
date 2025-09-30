@@ -6,13 +6,14 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import NetworkExtension
+import XCTest
+
 @testable import MullvadMockData
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
-import NetworkExtension
 @testable import PacketTunnelCore
 @testable import WireGuardKitTypes
-import XCTest
 
 class EphemeralPeerExchangeActorTests: XCTestCase {
     var tunnelProvider: TunnelProviderStub!

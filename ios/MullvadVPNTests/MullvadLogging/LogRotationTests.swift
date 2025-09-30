@@ -6,8 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadLogging
 import XCTest
+
+@testable import MullvadLogging
 
 final class LogRotationTests: XCTestCase {
     let fileManager = FileManager.default
@@ -101,11 +102,11 @@ final class LogRotationTests: XCTestCase {
 
 extension LogRotationTests {
     private func stringOfSize(_ size: Int) -> String {
-        (0 ..< size).map { "\($0 % 10)" }.joined(separator: "")
+        (0..<size).map { "\($0 % 10)" }.joined(separator: "")
     }
 
     private func writeDataToDisk(path: URL, fileSize: Int) throws {
-        let data = Data((0 ..< fileSize).map { UInt8($0 & 0xff) })
+        let data = Data((0..<fileSize).map { UInt8($0 & 0xff) })
         try data.write(to: path)
     }
 }

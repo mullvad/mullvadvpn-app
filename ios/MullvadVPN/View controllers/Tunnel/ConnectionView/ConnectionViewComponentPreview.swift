@@ -16,16 +16,17 @@ import SwiftUI
 struct ConnectionViewComponentPreview<Content: View>: View {
     let showIndicators: Bool
     let connectedTunnelStatus = TunnelStatus(
-        observedState: .connected(ObservedConnectionState(
-            selectedRelays: SelectedRelaysStub.selectedRelays,
-            relayConstraints: RelayConstraints(entryLocations: .any, exitLocations: .any, port: .any, filter: .any),
-            networkReachability: .reachable,
-            connectionAttemptCount: 0,
-            transportLayer: .udp,
-            remotePort: 80,
-            isPostQuantum: true,
-            isDaitaEnabled: true
-        )),
+        observedState: .connected(
+            ObservedConnectionState(
+                selectedRelays: SelectedRelaysStub.selectedRelays,
+                relayConstraints: RelayConstraints(entryLocations: .any, exitLocations: .any, port: .any, filter: .any),
+                networkReachability: .reachable,
+                connectionAttemptCount: 0,
+                transportLayer: .udp,
+                remotePort: 80,
+                isPostQuantum: true,
+                isDaitaEnabled: true
+            )),
         state: .connected(SelectedRelaysStub.selectedRelays, isPostQuantum: true, isDaita: true)
     )
 

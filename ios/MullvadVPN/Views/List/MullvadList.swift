@@ -86,7 +86,8 @@ extension View {
         [1, 2, 3],
         header: {
             Text("Header")
-        }, footer: {
+        },
+        footer: {
             Text("Footer")
         },
         content: { item in

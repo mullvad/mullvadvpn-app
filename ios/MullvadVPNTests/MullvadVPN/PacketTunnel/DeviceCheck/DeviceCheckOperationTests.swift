@@ -6,7 +6,6 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadMockData
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
@@ -14,6 +13,8 @@ import Operations
 import PacketTunnelCore
 @preconcurrency import WireGuardKitTypes
 import XCTest
+
+@testable import MullvadMockData
 
 class DeviceCheckOperationTests: XCTestCase {
     private let operationQueue = AsyncOperationQueue()
@@ -473,10 +474,12 @@ private enum LastKeyRotationState {
 
 extension MockDeviceStateAccessor {
     static func mockLoggedIn(currentKey: PrivateKey, rotationState: LastKeyRotationState) -> MockDeviceStateAccessor {
-        MockDeviceStateAccessor(initialState: .loggedIn(
-            StoredAccountData.mock(),
-            StoredDeviceData.mock(wgKeyData: StoredWgKeyData.mock(currentKey: currentKey, rotationState: rotationState))
-        ))
+        MockDeviceStateAccessor(
+            initialState: .loggedIn(
+                StoredAccountData.mock(),
+                StoredDeviceData.mock(
+                    wgKeyData: StoredWgKeyData.mock(currentKey: currentKey, rotationState: rotationState))
+            ))
     }
 }
 
@@ -546,5 +549,4 @@ private extension AccountVerdict {
         return false
     }
 
-    // swiftlint:disable:next file_length
 }

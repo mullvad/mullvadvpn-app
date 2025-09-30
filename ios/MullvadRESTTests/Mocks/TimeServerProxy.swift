@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 @testable import MullvadREST
 
 /// Simple API proxy used for testing purposes.

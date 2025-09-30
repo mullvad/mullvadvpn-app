@@ -166,7 +166,7 @@ extension PacketTunnelActor {
                 // This will rearrange the event buffer but hopefully should have no side effects.
                 if case .reconnect = current {
                     // Walk backwards starting with the preceding element.
-                    for j in (0 ..< i).reversed() {
+                    for j in (0..<i).reversed() {
                         let preceding = buffer[j]
                         // Remove preceding reconnect and adjust the index of the outer loop.
                         if case .reconnect = preceding {

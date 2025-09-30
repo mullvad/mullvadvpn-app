@@ -58,10 +58,11 @@ enum CustomDNSPrecondition {
 
         case .conflictsWithOtherSettings:
             return NSAttributedString(
-                string: String(format: NSLocalizedString(
-                    "Disable all \"%@\" above to activate this setting.",
-                    comment: ""
-                ), "DNS content blockers"),
+                string: String(
+                    format: NSLocalizedString(
+                        "Disable all \"%@\" above to activate this setting.",
+                        comment: ""
+                    ), "DNS content blockers"),
                 attributes: [.font: preferredFont]
             )
         }
@@ -198,8 +199,7 @@ struct VPNSettingsViewModel: Equatable {
 
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
-        if blockAdvertising || blockTracking || blockMalware ||
-            blockAdultContent || blockGambling || blockSocialMedia {
+        if blockAdvertising || blockTracking || blockMalware || blockAdultContent || blockGambling || blockSocialMedia {
             return .conflictsWithOtherSettings
         } else {
             let hasValidDNSDomains = customDNSDomains.contains { entry in
@@ -234,7 +234,8 @@ struct VPNSettingsViewModel: Equatable {
         blockAdultContent = dnsSettings.blockingOptions.contains(.blockAdultContent)
         blockGambling = dnsSettings.blockingOptions.contains(.blockGambling)
         blockSocialMedia = dnsSettings.blockingOptions.contains(.blockSocialMedia)
-        blockAll = blockAdvertising
+        blockAll =
+            blockAdvertising
             && blockTracking
             && blockMalware
             && blockAdultContent
@@ -354,7 +355,7 @@ struct VPNSettingsViewModel: Equatable {
     func isPortWithinValidWireGuardRanges(_ port: UInt16) -> Bool {
         availableWireGuardPortRanges.contains { range in
             if let minPort = range.first, let maxPort = range.last {
-                return (minPort ... maxPort).contains(port)
+                return (minPort...maxPort).contains(port)
             }
 
             return false

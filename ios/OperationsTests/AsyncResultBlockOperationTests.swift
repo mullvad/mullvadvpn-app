@@ -6,10 +6,11 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadMockData
 import MullvadTypes
 import Operations
 import XCTest
+
+@testable import MullvadMockData
 
 final class AsyncResultBlockOperationTests: XCTestCase {
     let operationQueue = AsyncOperationQueue()

@@ -234,8 +234,8 @@ class LoginViewController: UIViewController, RootContainment {
             let message = NSMutableAttributedString(
                 markdownString: [
                     NSLocalizedString(
-                        "You already have a saved account number, by creating a new account the " +
-                            "saved account number will be removed from this device. This cannot be undone.",
+                        "You already have a saved account number, by creating a new account the "
+                            + "saved account number will be removed from this device. This cannot be undone.",
                         comment: ""
                     ),
                     NSLocalizedString("Do you want to create a new account?", comment: ""),

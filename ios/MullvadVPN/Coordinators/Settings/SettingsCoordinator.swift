@@ -45,7 +45,8 @@ enum SettingsNavigationRoute: Equatable {
 
 /// Top-level settings coordinator.
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
-    UINavigationControllerDelegate, Sendable {
+    UINavigationControllerDelegate, Sendable
+{
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
     private var currentRoute: SettingsNavigationRoute?
@@ -60,11 +61,14 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     }
 
     /// Event handler invoked when navigating bebtween child routes within the horizontal stack.
-    var willNavigate: ((
-        _ coordinator: SettingsCoordinator,
-        _ from: SettingsNavigationRoute?,
-        _ to: SettingsNavigationRoute
-    ) -> Void)?
+    var willNavigate:
+        (
+            (
+                _ coordinator: SettingsCoordinator,
+                _ from: SettingsNavigationRoute?,
+                _ to: SettingsNavigationRoute
+            ) -> Void
+        )?
 
     /// Event handler invoked when coordinator and its view hierarchy should be dismissed.
     nonisolated(unsafe) var didFinish: (@Sendable (SettingsCoordinator) -> Void)?

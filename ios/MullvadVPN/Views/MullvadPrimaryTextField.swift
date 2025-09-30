@@ -33,9 +33,10 @@ struct MullvadPrimaryTextField: View {
 
     private var showSuggestion: Bool {
         if let suggestion,
-           !suggestion.isEmpty,
-           suggestion != text,
-           isEnabled {
+            !suggestion.isEmpty,
+            suggestion != text,
+            isEnabled
+        {
             return true
         }
         return false
@@ -120,18 +121,20 @@ struct MullvadPrimaryTextField: View {
                         )
                     }
                 }
-                .clipShape(RoundedCorner(
-                    cornerRadius: 4,
-                    corners: !showSuggestion
-                        ? [.allCorners]
-                        : [
-                            .topLeft,
-                            .topRight,
-                        ]
-                ))
+                .clipShape(
+                    RoundedCorner(
+                        cornerRadius: 4,
+                        corners: !showSuggestion
+                            ? [.allCorners]
+                            : [
+                                .topLeft,
+                                .topRight,
+                            ]
+                    ))
 
                 if showSuggestion,
-                   let suggestion {
+                    let suggestion
+                {
                     HStack {
                         Button {
                             withAnimation {

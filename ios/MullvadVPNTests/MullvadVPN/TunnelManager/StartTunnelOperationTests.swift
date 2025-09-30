@@ -6,12 +6,13 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-@testable import MullvadMockData
 import MullvadSettings
 import Network
 import Operations
 import WireGuardKitTypes
 import XCTest
+
+@testable import MullvadMockData
 
 class StartTunnelOperationTests: XCTestCase {
     // MARK: utility code for setting up tests

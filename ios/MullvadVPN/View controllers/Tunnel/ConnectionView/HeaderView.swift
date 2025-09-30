@@ -66,16 +66,21 @@ extension ConnectionView {
                     titleForServer = viewModel.titleForServer
                     titleForCountryAndCity = viewModel.titleForCountryAndCity
                 }
-                .onChange(of: viewModel.titleForCountryAndCity, perform: { newValue in
-                    withAnimation {
-                        titleForCountryAndCity = newValue
+                .onChange(
+                    of: viewModel.titleForCountryAndCity,
+                    perform: { newValue in
+                        withAnimation {
+                            titleForCountryAndCity = newValue
+                        }
                     }
-                })
-                .onChange(of: viewModel.titleForServer, perform: { newValue in
-                    withAnimation {
-                        titleForServer = newValue
-                    }
-                })
+                )
+                .onChange(
+                    of: viewModel.titleForServer,
+                    perform: { newValue in
+                        withAnimation {
+                            titleForServer = newValue
+                        }
+                    })
             }
             .disabled(!viewModel.showsConnectionDetails)
         }
