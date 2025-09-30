@@ -190,6 +190,10 @@ export const useGetFeatureIndicator = () => {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
       onClick: gotoObfuscation,
     },
+    [FeatureIndicator.lwo]: {
+      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      onClick: gotoObfuscation,
+    },
     [FeatureIndicator.multihop]: {
       label:
         // TRANSLATORS: This refers to the multihop setting in the VPN settings view. This is
