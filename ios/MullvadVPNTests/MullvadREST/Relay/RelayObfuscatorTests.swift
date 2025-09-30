@@ -130,7 +130,7 @@ final class RelayObfuscatorTests: XCTestCase {
             udpOverTcpPort: .automatic
         )
 
-        try (0...10).filter { $0.isMultiple(of: 2) }.forEach { attempt in
+        (0...10).filter { $0.isMultiple(of: 2) }.forEach { attempt in
             let obfuscationResult = RelayObfuscator(
                 relays: sampleRelays,
                 tunnelSettings: tunnelSettings,
