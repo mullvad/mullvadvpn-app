@@ -107,8 +107,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         // If multihop is enabled, we should check if there's a DAITA related error when opening the location
         // view. If there is, help the user by showing the entry instead of the exit view.
         if tunnelManager.settings.tunnelMultihopState.isEnabled {
-            self.multihopContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
-                .blockedState?.reason { .entry } else { .exit }
+            self.multihopContext =
+                if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
+                    .blockedState?.reason
+                { .entry } else { .exit }
         }
 
         showDAITAInfo = tunnelManager.settings.daita.isAutomaticRouting
@@ -116,7 +118,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         self.exitContext = LocationContext(
             locations: [],
             customLists: [],
-            filter: SelectLocationViewModelImpl
+            filter:
+                SelectLocationViewModelImpl
                 .getActiveExitFilters(tunnelManager.settings),
             selectedLocation: nil,
             connectedRelayHostname: nil,
@@ -127,7 +130,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         self.entryContext = LocationContext(
             locations: [],
             customLists: [],
-            filter: SelectLocationViewModelImpl
+            filter:
+                SelectLocationViewModelImpl
                 .getActiveEntryFilters(tunnelManager.settings),
             selectedLocation: nil,
             connectedRelayHostname: nil,
@@ -151,9 +155,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     } else {
                         multihopContext = nil
                     }
-                    exitContext.filter = SelectLocationViewModelImpl
+                    exitContext.filter =
+                        SelectLocationViewModelImpl
                         .getActiveExitFilters(settings)
-                    entryContext.filter = SelectLocationViewModelImpl
+                    entryContext.filter =
+                        SelectLocationViewModelImpl
                         .getActiveEntryFilters(settings)
                 }
             )
@@ -298,7 +304,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             if let entryRelays = relaysCandidates.entryRelays {
                 entryLocationsDataSource
                     .reload(entryRelays.toLocationRelays())
-                entryContext.locations = entryLocationsDataSource
+                entryContext.locations =
+                    entryLocationsDataSource
                     .search(by: searchText)
             }
         }
@@ -320,8 +327,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         selectedEntryRelays: UserSelectedRelays?
     ) {
         if let customListSelection = selectedExitRelays.customListSelection,
-           let customList = customListsDataSource.customList(by: customListSelection.listId) {
-            exitContext.selectedLocation = customListsDataSource
+            let customList = customListsDataSource.customList(by: customListSelection.listId)
+        {
+            exitContext.selectedLocation =
+                customListsDataSource
                 .node(by: selectedExitRelays, for: customList)
         } else if let location = selectedExitRelays.locations.first {
             exitContext.selectedLocation = exitLocationsDataSource.node(by: location)
@@ -330,11 +339,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         }
         if let selectedEntryRelays {
             if let customListSelection = selectedEntryRelays.customListSelection,
-               let customList = customListsDataSource.customList(by: customListSelection.listId) {
-                entryContext.selectedLocation = customListsDataSource
+                let customList = customListsDataSource.customList(by: customListSelection.listId)
+            {
+                entryContext.selectedLocation =
+                    customListsDataSource
                     .node(by: selectedEntryRelays, for: customList)
             } else if let location = selectedEntryRelays.locations.first {
-                entryContext.selectedLocation = entryLocationsDataSource
+                entryContext.selectedLocation =
+                    entryLocationsDataSource
                     .node(by: location)
             } else {
                 entryContext.selectedLocation = nil
