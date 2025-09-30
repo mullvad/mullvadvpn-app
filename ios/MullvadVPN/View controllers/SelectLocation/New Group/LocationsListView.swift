@@ -71,20 +71,20 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 Button {
                     onSelect(location)
                 } label: {
-                    HStack {
-                        RelayItemView(
-                            label: location.name,
-                            isSelected: selectedLocation?.code == location.code,
-                            isConnected: connectedRelayHostname == location.name,
-                            position: position,
-                            level: level
-                        )
-                    }
+                    RelayItemView(
+                        label: location.name,
+                        isSelected: selectedLocation?.code == location.code,
+                        isConnected: connectedRelayHostname == location.name,
+                        position: position,
+                        level: level
+                    )
                 }
+                .disabled(!location.isActive)
             } else {
                 LocationDisclosureGroup(
                     level: level,
                     position: position,
+                    isActive: location.isActive,
                     isExpanded: $location.showsChildren
                 ) {
                     ForEach(
@@ -110,13 +110,19 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 } label: {
                     let isSelected = selectedLocation?.code == location.code
                     HStack {
-                        if isSelected {
+                        if !location.isActive {
+                            Image.mullvadRedDot
+                        } else if isSelected {
                             Image.mullvadIconTick
                                 .foregroundStyle(Color.mullvadSuccessColor)
                         }
                         Text(location.name)
                             .foregroundStyle(
-                                isSelected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary
+                                location.isActive ?
+                                    isSelected
+                                    ? Color.mullvadSuccessColor
+                                    : Color.mullvadTextPrimary
+                                    : Color.mullvadTextPrimaryDisabled
                             )
                             .font(.mullvadSmallSemiBold)
                     }
@@ -145,26 +151,25 @@ private struct RelayItemView: View {
         !isSelected && isConnected
     }
 
-    init(label: String, isSelected: Bool, isConnected: Bool, position: ItemPosition, level: Int) {
-        self.label = label
-        self.isSelected = isSelected
-        self.isConnected = isConnected
-        self.position = position
-        self.level = level
-    }
+    @Environment(\.isEnabled) var isEnabled
 
     var body: some View {
         HStack {
-            if isSelected {
+            if !isEnabled {
+                Image.mullvadRedDot
+            } else if isSelected {
                 Image.mullvadIconTick
                     .foregroundStyle(Color.mullvadSuccessColor)
             }
             VStack(alignment: .leading) {
                 Text(label)
                     .font(.mullvadSmallSemiBold)
-                    .foregroundStyle(isSelected
-                        ? Color.mullvadSuccessColor
-                        : Color.mullvadTextPrimary
+                    .foregroundStyle(
+                        isEnabled ?
+                            isSelected
+                            ? Color.mullvadSuccessColor
+                            : Color.mullvadTextPrimary
+                            : Color.mullvadTextPrimaryDisabled
                     )
                 if showSubtitle {
                     Text("Connected server")
@@ -236,6 +241,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
 
     let position: ItemPosition
     let level: Int
+    let isActive: Bool
     let label: () -> Label
     let content: () -> Content
     let onSelect: (() -> Void)?
@@ -244,6 +250,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
     init(
         level: Int,
         position: ItemPosition = .only,
+        isActive: Bool = true,
         isExpanded: Binding<Bool>,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
@@ -252,6 +259,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
     ) {
         self.position = position
         self.level = level
+        self.isActive = isActive
         self._isExpanded = isExpanded
 
         self.label = label
@@ -292,6 +300,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
                             .foregroundStyle(backgroundColor)
                     }
                 }
+                .disabled(!isActive)
                 Button {
                     withAnimation {
                         isExpanded.toggle()
@@ -301,6 +310,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
                         .rotationEffect(.degrees(isExpanded ? -90 : 90))
                         .animation(.default, value: isExpanded)
                         .padding(16)
+                        .frame(maxHeight: .infinity)
                         .background {
                             let corners: UIRectCorner =
                                 if level == 0 {
@@ -323,7 +333,6 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
                             )
                             .foregroundStyle(Color.MullvadList.Item.parent)
                         }
-                        .frame(maxHeight: .infinity)
                 }
                 .contentShape(Rectangle())
             }
@@ -345,6 +354,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
             LocationNode(
                 name: "Stockholm",
                 code: "sth",
+                isActive: false,
                 children: [
                     LocationNode(name: "se-sto-001", code: "se-sto-001"),
                     LocationNode(name: "se-sto-002", code: "se-sto-002"),
@@ -358,6 +368,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
             ]),
         ]),
         LocationNode(name: "blo-la-003", code: "blo-la-003"),
+        LocationNode(name: "blo-la-005", code: "blo-la-005", isActive: false),
         LocationNode(name: "Germany", code: "de", children: [
             LocationNode(name: "Berlin", code: "ber", children: [
                 LocationNode(name: "de-ber-001", code: "de-ber-001"),
@@ -376,7 +387,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
                 LocationNode(name: "fr-par-002", code: "fr-par-002"),
                 LocationNode(name: "fr-par-003", code: "fr-par-003"),
             ]),
-            LocationNode(name: "Lyon", code: "lyo", children: [
+            LocationNode(name: "Lyon", code: "lyo", isActive: false, children: [
                 LocationNode(name: "fr-lyo-001", code: "fr-lyo-001"),
                 LocationNode(name: "fr-lyo-002", code: "fr-lyo-002"),
                 LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
