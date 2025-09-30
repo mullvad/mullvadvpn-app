@@ -5,54 +5,58 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     @State var animatedFilters: [SelectLocationFilter]?
     var body: some View {
         ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if let multihopContext = viewModel.multihopContext {
-                        SegmentedControl(
-                            segments: MultihopContext.allCases,
-                            selectedSegment: .init(get: {
+            VStack(alignment: .leading, spacing: 16) {
+                if let multihopContext = viewModel.multihopContext {
+                    SegmentedControl(
+                        segments: MultihopContext.allCases,
+                        selectedSegment: .init(
+                            get: {
                                 multihopContext
-                            }, set: { newContext in
+                            },
+                            set: { newContext in
                                 viewModel.multihopContext = newContext
                             })
-                        )
-                    }
-                    if let animatedFilters,
-                        !animatedFilters.isEmpty {
-                        ActiveFilterView(
-                            activeFilter: viewModel.activeLocationContext.filter) { filter in
-                                viewModel.onFilterTapped(filter)
-                            } onRemove: { filter in
-                                viewModel.onFilterRemoved(filter)
-                            }
-                    }
-                    switch viewModel.multihopContext {
-                    case .none, .some(.exit):
-                        ExitLocationView(viewModel: viewModel)
-                            .transition(
-                                .move(edge: .trailing).combined(with: .opacity)
-                            )
-                            .apply {
-                                if #available(iOS 17.0, *) {
-                                    $0.geometryGroup()
-                                } else {
-                                    $0
-                                }
-                            }
-                    case .some(.entry):
-                        EntryLocationView(viewModel: viewModel)
-                            .transition(
-                                .move(edge: .leading).combined(with: .opacity)
-                            )
-                            .apply {
-                                if #available(iOS 17.0, *) {
-                                    $0.geometryGroup()
-                                } else {
-                                    $0
-                                }
-                            }
+                    )
+                }
+                if let animatedFilters,
+                    !animatedFilters.isEmpty
+                {
+                    ActiveFilterView(
+                        activeFilter: viewModel.activeLocationContext.filter
+                    ) { filter in
+                        viewModel.onFilterTapped(filter)
+                    } onRemove: { filter in
+                        viewModel.onFilterRemoved(filter)
                     }
                 }
-                .transformEffect(.identity)
+                switch viewModel.multihopContext {
+                case .none, .some(.exit):
+                    ExitLocationView(viewModel: viewModel)
+                        .transition(
+                            .move(edge: .trailing).combined(with: .opacity)
+                        )
+                        .apply {
+                            if #available(iOS 17.0, *) {
+                                $0.geometryGroup()
+                            } else {
+                                $0
+                            }
+                        }
+                case .some(.entry):
+                    EntryLocationView(viewModel: viewModel)
+                        .transition(
+                            .move(edge: .leading).combined(with: .opacity)
+                        )
+                        .apply {
+                            if #available(iOS 17.0, *) {
+                                $0.geometryGroup()
+                            } else {
+                                $0
+                            }
+                        }
+                }
+            }
+            .transformEffect(.identity)
             .onChange(of: viewModel.activeLocationContext.filter) { newValue in
                 withAnimation {
                     animatedFilters = newValue
@@ -155,7 +159,8 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 }
             }
 
-            let text: LocalizedStringKey = viewModel.activeLocationContext.customLists.isEmpty
+            let text: LocalizedStringKey =
+                viewModel.activeLocationContext.customLists.isEmpty
                 ? """
                 Save locations by adding them to a custom list.
                 """

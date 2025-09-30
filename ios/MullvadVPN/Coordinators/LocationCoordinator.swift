@@ -24,11 +24,11 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-//    var locationViewControllerWrapper: LocationViewControllerWrapper? {
-//        return navigationController.viewControllers.first {
-//            $0 is LocationViewControllerWrapper
-//        } as? LocationViewControllerWrapper
-//    }
+    //    var locationViewControllerWrapper: LocationViewControllerWrapper? {
+    //        return navigationController.viewControllers.first {
+    //            $0 is LocationViewControllerWrapper
+    //        } as? LocationViewControllerWrapper
+    //    }
 
     var selectLocationViewModel: (any SelectLocationViewModel)? {
         (navigationController.viewControllers.first {
@@ -89,18 +89,18 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController.pushViewController(hostingController, animated: false)
     }
 
-//    private func addTunnelObserver() {
-//        let tunnelObserver =
-//            TunnelBlockObserver(
-//                didUpdateTunnelSettings: { [weak self] _, settings in
-//                    guard let self else { return }
-//                    locationViewControllerWrapper?.onNewSettings?(settings)
-//                }
-//            )
-//
-//        tunnelManager.addObserver(tunnelObserver)
-//        self.tunnelObserver = tunnelObserver
-//    }
+    //    private func addTunnelObserver() {
+    //        let tunnelObserver =
+    //            TunnelBlockObserver(
+    //                didUpdateTunnelSettings: { [weak self] _, settings in
+    //                    guard let self else { return }
+    //                    locationViewControllerWrapper?.onNewSettings?(settings)
+    //                }
+    //            )
+    //
+    //        tunnelManager.addObserver(tunnelObserver)
+    //        self.tunnelObserver = tunnelObserver
+    //    }
 
     private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
@@ -113,7 +113,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] addCustomListCoordinator in
             addCustomListCoordinator.dismiss(animated: true)
-//            self?.locationViewControllerWrapper?.refreshCustomLists()
+            //            self?.locationViewControllerWrapper?.refreshCustomLists()
             self?.selectLocationViewModel?.refreshCustomLists()
         }
 
@@ -131,7 +131,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
             listCustomListCoordinator.dismiss(animated: true)
-//            self?.locationViewControllerWrapper?.refreshCustomLists()
+            //            self?.locationViewControllerWrapper?.refreshCustomLists()
             self?.selectLocationViewModel?.refreshCustomLists()
         }
 
@@ -146,7 +146,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 // See showEditCustomLists() above.
 extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-//        locationViewControllerWrapper?.refreshCustomLists()
+        //        locationViewControllerWrapper?.refreshCustomLists()
         selectLocationViewModel?.refreshCustomLists()
     }
 }
@@ -225,10 +225,11 @@ extension LocationCoordinator {
         editAction.setAccessibilityIdentifier(.editCustomListButton)
         actionSheet.addAction(editAction)
 
-        actionSheet.addAction(UIAlertAction(
-            title: NSLocalizedString("Cancel", comment: ""),
-            style: .cancel
-        ))
+        actionSheet.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("Cancel", comment: ""),
+                style: .cancel
+            ))
 
         presentationContext.present(actionSheet, animated: true)
     }

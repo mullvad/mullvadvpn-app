@@ -29,8 +29,8 @@ struct SegmentedControl<Segment>: View where Segment: CustomStringConvertible, S
                             .padding()
                             .font(.mullvadSmallSemiBold)
                             .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity) // Makes the text take all the available space
-                            .contentShape(Rectangle()) // Makes the tappable area extend beyond just the text
+                            .frame(maxWidth: .infinity)  // Makes the text take all the available space
+                            .contentShape(Rectangle())  // Makes the tappable area extend beyond just the text
                             .background(
                                 Group {
                                     if segment == selectedSegment {

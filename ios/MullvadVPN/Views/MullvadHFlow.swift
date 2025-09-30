@@ -1,10 +1,11 @@
 import SwiftUI
 
-struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Content: View, Data.Element: Hashable, Data.Element: Sendable {
+struct MullvadHFlow<Data, Content>: View
+where Data: RandomAccessCollection, Content: View, Data.Element: Hashable, Data.Element: Sendable {
     let spacing: CGFloat
     let alignment: HorizontalAlignment
     let items: Data
-//    let id: KeyPath<Data.Element, ID>
+    //    let id: KeyPath<Data.Element, ID>
 
     @State private var contentSize: [ItemSize] = []
 
@@ -66,8 +67,10 @@ struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Con
                 ForEach(items, id: \.self) { item in
                     let safeContentSize = contentSize
                     if let position = positions.first(
-                        where: { $0.item == item
-                        }) {
+                        where: {
+                            $0.item == item
+                        })
+                    {
                         content(item)
                             .sizeOfView { size in
                                 let currSizeIndex = contentSize.firstIndex { $0.item == item }
@@ -110,17 +113,17 @@ struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Con
                     Text(item)
                 }
                 .background(
-                    Color(hue: .random(in: 0 ... 1), saturation: 1, brightness: 1)
+                    Color(hue: .random(in: 0...1), saturation: 1, brightness: 1)
                 )
             }
             .background(Color.yellow)
         }
         Button("Add element") {
             print(items)
-            items.append(String(repeating: "42", count: Int.random(in: 1 ..< 5)))
+            items.append(String(repeating: "42", count: Int.random(in: 1..<5)))
         }
         Button("Remove element") {
-            items.remove(at: .random(in: 0 ..< items.count))
+            items.remove(at: .random(in: 0..<items.count))
         }
     }
 }
