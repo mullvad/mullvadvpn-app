@@ -25,7 +25,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
-  await util.waitForRoute(RoutePath.main);
+  await util.expectRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -34,9 +34,9 @@ test.afterAll(async () => {
 
 async function navigateToAccessMethods() {
   await page.click('button[aria-label="Settings"]');
-  await util.waitForRoute(RoutePath.settings);
+  await util.expectRoute(RoutePath.settings);
   await page.getByText('API access').click();
-  await util.waitForRoute(RoutePath.apiAccessMethods);
+  await util.expectRoute(RoutePath.apiAccessMethods);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('API access');
@@ -59,7 +59,7 @@ test('App should display access methods', async () => {
 
 test('App should add invalid access method', async () => {
   await page.locator('button:has-text("Add")').click();
-  await util.waitForNextRoute();
+  await util.expectRoute(RoutePath.editApiAccessMethods);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Add method');
@@ -84,7 +84,7 @@ test('App should add invalid access method', async () => {
   await expect(page.getByText('API unreachable, add anyway?')).toBeVisible();
 
   await page.locator('button:has-text("Save")').click();
-  await util.waitForRoute(RoutePath.apiAccessMethods);
+  await util.expectRoute(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
   // Direct, Bridges, Encrypted DNS Proxy & the non-functioning access method.
@@ -113,7 +113,7 @@ test('App should edit access method', async () => {
   const customMethod = page.getByTestId('access-method').last();
   await customMethod.locator('button').last().click();
   await customMethod.getByText('Edit').click();
-  await util.waitForNextRoute();
+  await util.expectRoute(RoutePath.editApiAccessMethods);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Edit method');
@@ -138,7 +138,7 @@ test('App should edit access method', async () => {
     .click();
 
   await page.locator('button:has-text("Save")').last().click();
-  await util.waitForRoute(RoutePath.apiAccessMethods);
+  await util.expectRoute(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
   // Direct, Bridges, Encrypted DNS Proxy & the custom access method.

@@ -19,10 +19,10 @@ test.afterAll(async () => {
 });
 
 test('App should fail to login', async () => {
-  await util.waitForRoute(RoutePath.deviceRevoked);
+  await util.expectRoute(RoutePath.deviceRevoked);
 
   await expect(page.getByTestId('title')).toHaveText('Device is inactive');
 
   await page.getByText('Go to login').click();
-  await util.waitForRoute(RoutePath.login);
+  await util.expectRoute(RoutePath.login);
 });

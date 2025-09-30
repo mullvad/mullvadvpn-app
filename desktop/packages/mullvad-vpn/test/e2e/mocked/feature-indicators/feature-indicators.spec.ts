@@ -141,13 +141,15 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   },
 ];
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('Feature indicators', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers({ page, routes, utils: util });
 
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
   });
 
   test.afterAll(async () => {
@@ -157,7 +159,7 @@ test.describe('Feature indicators', () => {
   test.afterEach(async () => {
     await helpers.disconnect();
     await routes.wireguardSettings.gotoRoot();
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
   });
 
   async function expectFeatureIndicators(expectedIndicators: Array<string>, only = true) {
@@ -237,7 +239,7 @@ test.describe('Feature indicators', () => {
     const indicator = routes.main.selectors.featureIndicator(featureIndicatorLabel);
     await expect(indicator).toBeVisible();
     await indicator.click();
-    await util.waitForRoute(route);
+    await util.expectRoute(route);
   };
 
   featureIndicatorWithoutOption.forEach(
@@ -246,8 +248,7 @@ test.describe('Feature indicators', () => {
         await helpers.connectWithFeatures([featureIndicator]);
         await clickFeatureIndicator(featureIndicatorLabel, route);
 
-        const currentRoute = await util.currentRoute();
-        expect(currentRoute).toBe(route);
+        await util.expectRoute(route);
       });
     },
   );
@@ -271,8 +272,7 @@ test.describe('Feature indicators', () => {
         }
         await expect(element).toBeInViewport();
 
-        const currentRoute = await util.currentRoute();
-        expect(currentRoute).toBe(route);
+        await util.expectRoute(route);
       });
     },
   );

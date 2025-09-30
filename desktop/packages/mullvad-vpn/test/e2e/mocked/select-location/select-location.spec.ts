@@ -23,11 +23,11 @@ test.describe('Select location', () => {
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers(page, routes, util);
 
-    await util.waitForRoute(RoutePath.main);
+    await util.expectRoute(RoutePath.main);
   });
 
   test.beforeEach(async () => {
-    if ((await util.currentRoute()) === RoutePath.main) {
+    if ((await util.getCurrentRoute()) === RoutePath.main) {
       await routes.main.gotoSelectLocation();
     }
   });
@@ -169,7 +169,7 @@ test.describe('Select location', () => {
       // Clicking exit relay should navigate to main route
       const exitRelayButton = routes.selectLocation.getRelaysMatching([exitRelay.hostname]);
       await exitRelayButton.click();
-      await util.waitForRoute(RoutePath.main);
+      await util.expectRoute(RoutePath.main);
     });
   });
 
@@ -214,7 +214,7 @@ test.describe('Select location', () => {
           });
 
           await routes.filter.applyFilter();
-          await util.waitForRoute(RoutePath.selectLocation);
+          await util.expectRoute(RoutePath.selectLocation);
           const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
           await expect(providerFilterChip).toBeVisible();
 
@@ -252,7 +252,7 @@ test.describe('Select location', () => {
           });
 
           await routes.filter.applyFilter();
-          await util.waitForRoute(RoutePath.selectLocation);
+          await util.expectRoute(RoutePath.selectLocation);
 
           const ownerFilterChip = routes.selectLocation.getFilterChip('Rented');
           await expect(ownerFilterChip).toBeVisible();

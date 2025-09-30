@@ -17,6 +17,7 @@
     ],
     "typeRoots": [
       "./types",
+      "./test/e2e/types",
       "node_modules/@types",
       "../../node_modules/@types"
     ]

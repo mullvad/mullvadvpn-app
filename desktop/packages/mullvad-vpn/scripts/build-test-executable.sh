@@ -15,6 +15,7 @@ ASSETS=(
     "build-standalone/src/shared/constants/*.js"
     "build-standalone/src/shared/routes.js"
     "build-standalone/test/e2e/utils.js"
+    "build-standalone/test/e2e/lib/*.js"
     "build-standalone/test/e2e/route-object-models/**/*.js"
     "build-standalone/test/e2e/shared/*.js"
     "build-standalone/test/e2e/installed/**/*.js"
