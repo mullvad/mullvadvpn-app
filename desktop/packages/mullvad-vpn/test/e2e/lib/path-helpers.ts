@@ -1,5 +1,16 @@
 import { expect } from '@playwright/test';
 
+import { RoutePath } from '../../../src/shared/routes';
+
+export function generatePath(path: RoutePath, params: Record<string, string>): string {
+  return Object.entries(params)
+    .reduce(
+      (path, [name, value]) => path.replace(new RegExp(`:${name}\\??`), value),
+      path as string,
+    )
+    .replaceAll(new RegExp('/:.*?\\?', 'g'), '');
+}
+
 // Match the actual path against against the expected path where the expected can contain parameters
 function toMatchPath(actual: string, expected: string | null) {
   const pass = matchPaths(expected, actual);
