@@ -86,7 +86,6 @@ class ServerRelayTests: XCTestCase {
 
         XCTAssertEqual(overrideRelay.ipv4AddrIn, .loopback)
         XCTAssertEqual(overrideRelay.ipv6AddrIn, .any)
-        XCTAssertEqual(overrideRelay.shadowsocksExtraAddrIn, ["\(IPv6Address.any)"])
     }
 
     func testOverrideIPv6AddrIn() throws {
@@ -97,7 +96,6 @@ class ServerRelayTests: XCTestCase {
 
         XCTAssertEqual(overrideRelay.ipv4AddrIn, .any)
         XCTAssertEqual(overrideRelay.ipv6AddrIn, .loopback)
-        XCTAssertEqual(overrideRelay.shadowsocksExtraAddrIn, ["\(IPv4Address.any)"])
     }
 
     func testOverrideBoth() throws {
@@ -108,7 +106,6 @@ class ServerRelayTests: XCTestCase {
 
         XCTAssertEqual(overrideRelay.ipv4AddrIn, .loopback)
         XCTAssertEqual(overrideRelay.ipv6AddrIn, .loopback)
-        XCTAssertEqual(overrideRelay.shadowsocksExtraAddrIn, [])
     }
 
     func testOverrideNone() throws {
@@ -119,10 +116,6 @@ class ServerRelayTests: XCTestCase {
 
         XCTAssertEqual(overrideRelay.ipv4AddrIn, .any)
         XCTAssertEqual(overrideRelay.ipv6AddrIn, .any)
-        XCTAssertEqual(
-            overrideRelay.shadowsocksExtraAddrIn,
-            shadowSocksExtraAddrIn
-        )
     }
 
     func testOverrideFeatures() throws {

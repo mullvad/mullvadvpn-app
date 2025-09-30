@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
 
+### Fixed
+- Fix IP overrides breaking certain obfuscation methods.
+
 ## [2025.5 - 2025-06-17]
 ### Changed
 - Make the app feel more responsive when reconnecting.
