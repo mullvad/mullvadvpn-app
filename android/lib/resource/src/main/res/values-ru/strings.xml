@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Обфускация</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>
     <string name="filter">Фильтр</string>
-    <string name="filters">Фильтры:</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>
     <string name="go_to_login">Войти</string>

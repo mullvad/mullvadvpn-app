@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Verschleierung</string>
     <string name="feature_quantum_resistant">Quantenresistenz</string>
     <string name="filter">Filter</string>
-    <string name="filters">Filter:</string>
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN-Tunnels an</string>
     <string name="foreground_notification_channel_name">Status des VPN-Tunnels</string>
     <string name="go_to_login">Zur Anmeldung</string>

@@ -3111,9 +3111,6 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-msgid "Filters:"
-msgstr ""
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr ""
 

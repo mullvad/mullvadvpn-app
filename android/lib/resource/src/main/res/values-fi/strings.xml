@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Hämäysteknologia</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="filter">Suodatin</string>
-    <string name="filters">Suodattimet:</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="go_to_login">Siirry kirjautumiseen</string>

@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">난독 처리</string>
     <string name="feature_quantum_resistant">양자 저항</string>
     <string name="filter">필터</string>
-    <string name="filters">필터:</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>
     <string name="go_to_login">로그인하기</string>

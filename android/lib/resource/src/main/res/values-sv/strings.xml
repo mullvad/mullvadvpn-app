@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Obfuskering</string>
     <string name="feature_quantum_resistant">Kvantresistens</string>
     <string name="filter">Filtrera</string>
-    <string name="filters">Filter:</string>
     <string name="foreground_notification_channel_description">Visar nuvarande status för VPN-tunnel</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå till inloggning</string>

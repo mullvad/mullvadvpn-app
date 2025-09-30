@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">難読化</string>
     <string name="feature_quantum_resistant">耐量子</string>
     <string name="filter">絞り込み</string>
-    <string name="filters">絞り込み:</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
     <string name="go_to_login">ログインに進む</string>

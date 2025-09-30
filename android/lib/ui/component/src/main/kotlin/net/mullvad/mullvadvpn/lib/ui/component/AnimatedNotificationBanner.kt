@@ -223,7 +223,7 @@ private fun NotificationAction(
         onClick = onClick,
     ) {
         Icon(
-            modifier = Modifier.padding(Dimens.notificationIconPadding),
+            modifier = Modifier.padding(Dimens.smallPadding),
             imageVector = imageVector,
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onSurface,

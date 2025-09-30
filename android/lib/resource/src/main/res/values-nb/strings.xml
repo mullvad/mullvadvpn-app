@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Tilsløring</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>
     <string name="filter">Filter</string>
-    <string name="filters">Filtre:</string>
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til pålogging</string>
