@@ -26,7 +26,7 @@ pub enum Error {
     SetLoggerError(#[from] log::SetLoggerError),
 }
 
-pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto"];
+pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto", "quinn_udp"];
 pub const SILENCED_CRATES: &[&str] = &[
     "h2",
     "tokio_core",
