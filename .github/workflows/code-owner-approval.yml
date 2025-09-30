@@ -5,7 +5,7 @@ on:
   pull_request_review:
 
 jobs:
-  check-team-approvals:
+  check-code-owner-approvals:
     runs-on: ubuntu-latest
     permissions:
       contents: read
