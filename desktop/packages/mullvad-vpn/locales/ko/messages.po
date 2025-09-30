@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-09-03 14:39\n"
+"PO-Revision-Date: 2025-09-30 07:30\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -240,6 +240,10 @@ msgstr "종료"
 
 msgid "Reconnect"
 msgstr "다시 연결"
+
+#. Button label in confirmation dialog that confirms a remove action.
+msgid "Remove"
+msgstr "제거"
 
 msgid "Required"
 msgstr "필수"
@@ -1484,17 +1488,29 @@ msgctxt "login-view"
 msgid "Checking account number"
 msgstr "계정 번호 확인 중"
 
+#. Text in button that allows user to create a new account.
 msgctxt "login-view"
-msgid "Create account"
-msgstr "계정 생성"
+msgid "Create a new account"
+msgstr "새 계정 생성"
+
+#. Button which confirms the action to create a new account.
+msgctxt "login-view"
+msgid "Create new account"
+msgstr "새 계정 생성"
 
 msgctxt "login-view"
 msgid "Creating account..."
 msgstr "계정 생성 중..."
 
+#. Text that asks the user if they really want to create a new account.
 msgctxt "login-view"
-msgid "Don’t have an account number?"
-msgstr "계정 번호가 없으신가요?"
+msgid "Do you want to create a new account?"
+msgstr "새 계정을 만들고 싶으신가요?"
+
+#. Text that asks the user if they really want to remove the saved account.
+msgctxt "login-view"
+msgid "Do you want to remove the saved account number?"
+msgstr "저장된 계정 번호를 삭제하고 싶으신가요?"
 
 msgctxt "login-view"
 msgid "Enter your account number"
@@ -1532,6 +1548,7 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr "로그인 중..."
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr "로그인"
@@ -1539,6 +1556,13 @@ msgstr "로그인"
 msgctxt "login-view"
 msgid "Login failed"
 msgstr "로그인 실패"
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
+msgstr "또는"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1549,6 +1573,12 @@ msgstr "현재 킬 스위치가 연결을 차단하고 있습니다."
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "기다려주세요"
+
+#. Text that informs the user about the consequences of clearing the saved
+#. account number.
+msgctxt "login-view"
+msgid "Removing the saved account number from this device cannot be undone."
+msgstr "이 장치에서 저장된 계정 번호를 삭제하면 되돌릴 수 없습니다."
 
 #. Error message shown above login input when trying to login to an account
 #. with too many registered devices.
@@ -1567,6 +1597,11 @@ msgstr "업그레이드 중..."
 msgctxt "login-view"
 msgid "Valid account number"
 msgstr "유효한 계정 번호"
+
+#. Text that informs the users about consequences of creating a new account.
+msgctxt "login-view"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "저장한 계정 번호가 이미 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2939,8 +2974,8 @@ msgstr "복사"
 msgid "Create"
 msgstr "생성"
 
-msgid "Create new account"
-msgstr "새 계정 생성"
+msgid "Create account"
+msgstr "계정 생성"
 
 msgid "Create new list"
 msgstr "새 목록 생성"
@@ -2996,8 +3031,8 @@ msgstr "연결 해제 중..."
 msgid "Dismiss"
 msgstr "해제"
 
-msgid "Do you want to create a new account?"
-msgstr "새 계정을 만들고 싶으신가요?"
+msgid "Don’t have an account number?"
+msgstr "계정 번호가 없으신가요?"
 
 msgid "Edit custom lists"
 msgstr "사용자 지정 목록 편집"
@@ -3209,9 +3244,6 @@ msgstr "최근 항목이 비활성화되고 내역이 삭제되었습니다"
 msgid "Recursion limit"
 msgstr "반복 제한"
 
-msgid "Remove"
-msgstr "제거"
-
 msgid "Remove %1$s from %2$s"
 msgstr "%2$s에서 %1$s 제거"
 
@@ -3403,9 +3435,6 @@ msgstr "WireGuard 난독화"
 
 msgid "WireGuard port"
 msgstr "WireGuard 포트"
-
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "이미 저장한 계정 번호가 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\"이(가) 생성되었습니다"
