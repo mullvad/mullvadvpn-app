@@ -106,35 +106,38 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroPar
     let mut skip = false;
 
     for attribute in attributes {
-        // we only use name-value attributes
-        let NestedMeta::Meta(Meta::NameValue(nv)) = attribute else {
-            bail!(attribute, "unknown attribute");
-        };
-        let lit = &nv.lit;
-
-        match &nv.path {
-            path if path.is_ident("priority") => match lit {
-                Lit::Int(lit_int) => priority = Some(lit_int.base10_parse().unwrap()),
-                _ => bail!(nv, "'priority' should have an integer value"),
-            },
-            path if path.is_ident("target_os") => {
-                let Lit::Str(lit_str) = lit else {
-                    bail!(nv, "'target_os' should have a string value");
-                };
-
-                let target = match lit_str.value().parse() {
-                    Ok(os) => os,
-                    Err(e) => bail!(lit_str, "{e}"),
-                };
-
-                if targets.contains(&target) {
-                    bail!(nv, "Duplicate target");
-                }
-
-                targets.push(target);
+        match attribute {
+            NestedMeta::Meta(Meta::Path(path)) if path.is_ident("skip") => {
+                skip = true;
             }
-            path if path.is_ident("skip") => skip = true,
-            _ => bail!(nv, "unknown attribute"),
+            NestedMeta::Meta(Meta::NameValue(nv)) => {
+                let lit = &nv.lit;
+
+                match &nv.path {
+                    path if path.is_ident("priority") => match lit {
+                        Lit::Int(lit_int) => priority = Some(lit_int.base10_parse().unwrap()),
+                        _ => bail!(nv, "'priority' should have an integer value"),
+                    },
+                    path if path.is_ident("target_os") => {
+                        let Lit::Str(lit_str) = lit else {
+                            bail!(nv, "'target_os' should have a string value");
+                        };
+
+                        let target = match lit_str.value().parse() {
+                            Ok(os) => os,
+                            Err(e) => bail!(lit_str, "{e}"),
+                        };
+
+                        if targets.contains(&target) {
+                            bail!(nv, "Duplicate target");
+                        }
+
+                        targets.push(target);
+                    }
+                    _ => bail!(nv, "unknown attribute"),
+                }
+            }
+            _ => bail!(attribute, "unknown attribute"),
         }
     }
 
