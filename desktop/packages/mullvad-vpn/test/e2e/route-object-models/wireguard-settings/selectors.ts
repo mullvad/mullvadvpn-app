@@ -7,4 +7,6 @@ export const createSelectors = (page: Page) => ({
     page
       .getByRole('listbox', { name: 'Obfuscation' })
       .getByRole('option', { name: 'Automatic', exact: true }),
+  shadowsocksSettingsButton: () => page.getByRole('button', { name: 'Shadowsocks settings' }),
+  shadowsocksOption: () => page.getByRole('option', { name: 'Shadowsocks' }),
 });
