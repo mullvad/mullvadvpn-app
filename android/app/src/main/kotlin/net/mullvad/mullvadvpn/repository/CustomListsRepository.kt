@@ -26,7 +26,7 @@ class CustomListsRepository(
 ) {
     val customLists: StateFlow<List<CustomList>?> =
         managementService.settings
-            .mapNotNull { it.customLists }
+            .mapNotNull { it.customLists.sortedByName() }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
     suspend fun createCustomList(
@@ -75,4 +75,7 @@ class CustomListsRepository(
             GetCustomListError(id)
         }
     }
+
+    private fun List<CustomList>.sortedByName() =
+        this.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name.value })
 }
