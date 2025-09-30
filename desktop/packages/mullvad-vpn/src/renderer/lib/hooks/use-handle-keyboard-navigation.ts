@@ -1,14 +1,23 @@
 import React from 'react';
 
-import { useListboxContext } from '../../../';
 import { getOptions } from '../utils';
-import { useFocusOptionByIndex } from './useFocusOptionByIndex';
-import { useGetInitialFocusIndex } from './useGetInitialFocusIndex';
+import { useFocusOptionByIndex } from './use-focus-option-by-index';
+import { useGetInitialFocusIndex } from './use-get-initial-focus-index';
 
-export const useHandleKeyboardNavigation = () => {
-  const { optionsRef } = useListboxContext();
-  const getInitialFocusIndex = useGetInitialFocusIndex();
-  const focusOptionByIndex = useFocusOptionByIndex();
+export const useHandleKeyboardNavigation = ({
+  optionsRef,
+  focusedIndex,
+  setFocusedIndex,
+}: {
+  optionsRef: React.RefObject<HTMLUListElement | null>;
+  focusedIndex?: number;
+  setFocusedIndex: (index: number) => void;
+}) => {
+  const getInitialFocusIndex = useGetInitialFocusIndex({ optionsRef, focusedIndex });
+  const focusOptionByIndex = useFocusOptionByIndex({
+    optionsRef,
+    setFocusedIndex,
+  });
 
   return React.useCallback(
     (event: React.KeyboardEvent) => {
