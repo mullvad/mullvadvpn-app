@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 
@@ -31,7 +32,7 @@ class MtuDialogViewModel(
         combine(_mtuInput, _isValidMtu, ::createState)
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 createState(_mtuInput.value, _isValidMtu.value),
             )
 

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.Udp2TcpSettingsUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -26,7 +27,7 @@ class Udp2TcpSettingsViewModel(private val repository: SettingsRepository) : Vie
             }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
+                started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 initialValue = Lc.Loading(Unit),
             )
 

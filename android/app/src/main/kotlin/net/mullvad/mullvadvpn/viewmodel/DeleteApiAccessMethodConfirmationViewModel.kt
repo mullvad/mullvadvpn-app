@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeleteApiAccessMethodUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -34,7 +35,7 @@ class DeleteApiAccessMethodConfirmationViewModel(
             .map { DeleteApiAccessMethodUiState(it) }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 DeleteApiAccessMethodUiState(null),
             )
 

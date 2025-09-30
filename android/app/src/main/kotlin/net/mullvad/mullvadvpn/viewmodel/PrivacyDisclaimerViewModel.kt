@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 
 data class PrivacyDisclaimerViewState(val isStartingService: Boolean, val isPlayBuild: Boolean)
@@ -31,7 +32,7 @@ class PrivacyDisclaimerViewModel(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 PrivacyDisclaimerViewState(false, isPlayBuild),
             )
 

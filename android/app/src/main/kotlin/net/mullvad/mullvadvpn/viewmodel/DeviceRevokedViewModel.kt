@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
@@ -32,7 +33,7 @@ class DeviceRevokedViewModel(
             }
             .stateIn(
                 scope = CoroutineScope(dispatcher),
-                started = SharingStarted.WhileSubscribed(),
+                started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 initialValue = DeviceRevokedUiState.UNKNOWN,
             )
 

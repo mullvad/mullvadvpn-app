@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
@@ -116,7 +117,11 @@ class ConnectViewModel(
                     accountRepository.refreshAccountData(ignoreTimeout = false)
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_0000), ConnectUiState.INITIAL)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                ConnectUiState.INITIAL,
+            )
 
     init {
         viewModelScope.launch {

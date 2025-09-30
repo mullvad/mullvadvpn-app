@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -38,7 +39,11 @@ class CreateCustomListDialogViewModel(
     val uiState =
         _error
             .map { CreateCustomListUiState(it) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CreateCustomListUiState())
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                CreateCustomListUiState(),
+            )
 
     fun createCustomList(name: String) {
         viewModelScope.launch {

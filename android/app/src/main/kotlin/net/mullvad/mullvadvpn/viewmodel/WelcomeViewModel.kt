@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -55,7 +56,11 @@ class WelcomeViewModel(
                     )
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                Lc.Loading(Unit),
+            )
 
     init {
         viewModelScope.launch {

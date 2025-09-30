@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -41,5 +42,9 @@ class SettingsViewModel(
                     )
                     .toLc<Unit, SettingsUiState>()
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                Lc.Loading(Unit),
+            )
 }

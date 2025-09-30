@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.util.Lc
@@ -31,7 +32,11 @@ class AppInfoViewModel(
     val uiState: StateFlow<Lc<Unit, AppInfoUiState>> =
         appVersionInfoRepository.versionInfo
             .map { versionInfo -> Lc.Content(AppInfoUiState(versionInfo, isPlayBuild)) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                Lc.Loading(Unit),
+            )
 
     fun openAppListing() =
         viewModelScope.launch {

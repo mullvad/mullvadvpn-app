@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
@@ -50,7 +51,11 @@ class ReportProblemViewModel(
                     description = userReport.description,
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ReportProblemUiState())
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                ReportProblemUiState(),
+            )
 
     private val _uiSideEffect = Channel<ReportProblemSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

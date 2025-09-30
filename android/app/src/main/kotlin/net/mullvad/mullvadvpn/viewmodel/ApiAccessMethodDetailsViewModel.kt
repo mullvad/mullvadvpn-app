@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
 import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -54,7 +55,7 @@ class ApiAccessMethodDetailsViewModel(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId),
             )
 

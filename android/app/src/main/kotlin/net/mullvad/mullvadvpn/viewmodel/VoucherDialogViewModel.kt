@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.model.ParseVoucherCodeError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
@@ -27,7 +28,11 @@ class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) :
         combine(vmState, voucherInput) { state, input ->
                 VoucherDialogUiState(voucherInput = input, voucherState = state)
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), VoucherDialogUiState.INITIAL)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                VoucherDialogUiState.INITIAL,
+            )
 
     fun onRedeem(voucherInput: String) {
         vmState.update { VoucherDialogState.Verifying }

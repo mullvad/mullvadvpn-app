@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
@@ -23,7 +24,7 @@ class CustomListsViewModel(
             .map(CustomListsUiState::Content)
             .stateIn(
                 viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
+                started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 CustomListsUiState.Loading,
             )
 

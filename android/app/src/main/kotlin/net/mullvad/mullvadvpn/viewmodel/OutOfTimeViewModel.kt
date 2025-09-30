@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
@@ -49,7 +50,11 @@ class OutOfTimeViewModel(
                     verificationPending = paymentAvailability.hasPendingPayment(),
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), OutOfTimeUiState())
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                OutOfTimeUiState(),
+            )
 
     init {
         viewModelScope.launch {

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewModel() {
@@ -19,5 +20,9 @@ class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewMod
                     apiAccessMethodSettings = apiAccessMethods ?: emptyList(),
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ApiAccessListUiState())
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                ApiAccessListUiState(),
+            )
 }

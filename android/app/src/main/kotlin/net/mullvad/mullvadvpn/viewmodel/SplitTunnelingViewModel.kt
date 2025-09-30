@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.util.Lc
@@ -45,7 +46,7 @@ class SplitTunnelingViewModel(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 SplitTunnelingViewModelState(),
             )
 
@@ -54,7 +55,7 @@ class SplitTunnelingViewModel(
             .map { it.toUiState(navArgs.isModal) }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 Lc.Loading(Loading(enabled = false, isModal = navArgs.isModal)),
             )
 

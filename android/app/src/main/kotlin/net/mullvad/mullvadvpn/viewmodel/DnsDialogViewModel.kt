@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
@@ -91,7 +92,7 @@ class DnsDialogViewModel(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.Lazily,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
                 DnsDialogViewState(
                     input = _ipAddressInput.value,
                     validationError = null,

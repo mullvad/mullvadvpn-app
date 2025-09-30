@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
@@ -55,7 +56,11 @@ class AccountViewModel(
                     .toLc<Unit, AccountUiState>()
             }
             .onStart { viewModelScope.launch { updateAccountExpiry() } }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Lc.Loading(Unit))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                Lc.Loading(Unit),
+            )
 
     init {
         verifyPurchases()

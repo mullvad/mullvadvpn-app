@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
@@ -73,7 +74,11 @@ class LoginViewModel(
     val uiState: StateFlow<LoginUiState> =
         _uiState
             .onStart { viewModelScope.launch { accountRepository.fetchAccountHistory() } }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                LoginUiState.INITIAL,
+            )
 
     fun clearAccountHistory() =
         viewModelScope.launch {

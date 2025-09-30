@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -55,7 +56,11 @@ class SelectLocationListViewModel(
                     )
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.Lazily, Lce.Loading(Unit))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                Lce.Loading(Unit),
+            )
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
         _expandedItems.onToggleExpandSet(item, parent, expand)

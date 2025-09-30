@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
@@ -120,7 +121,11 @@ class SearchLocationViewModel(
                     )
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lce.Loading(Unit))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT_MS),
+                Lce.Loading(Unit),
+            )
 
     private val _uiSideEffect = Channel<SearchLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
