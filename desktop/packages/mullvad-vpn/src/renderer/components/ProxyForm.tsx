@@ -26,6 +26,7 @@ import {
 } from './cell/SettingsTextInput';
 
 interface ProxyFormContext {
+  isNew: boolean;
   proxy?: CustomProxy;
   setProxy: (proxy: CustomProxy) => void;
   onSave: () => void;
@@ -34,6 +35,9 @@ interface ProxyFormContext {
 }
 
 const proxyFormContext = React.createContext<ProxyFormContext>({
+  get isNew(): boolean {
+    throw new Error('Missing ProxyFromContext provider');
+  },
   get proxy(): CustomProxy {
     throw new Error('Missing ProxyFromContext provider');
   },
@@ -62,6 +66,7 @@ function ProxyFormContextProvider(props: React.PropsWithChildren<ProxyFormContex
   const { onSave: propsOnSave } = props;
 
   const [proxy, setProxy] = useState<CustomProxy | undefined>(props.proxy);
+  const isNew = props.proxy === undefined;
 
   const onSave = useCallback(() => {
     if (proxy !== undefined) {
@@ -70,8 +75,8 @@ function ProxyFormContextProvider(props: React.PropsWithChildren<ProxyFormContex
   }, [proxy, propsOnSave]);
 
   const value = useMemo(
-    () => ({ proxy, setProxy, onSave, onCancel: props.onCancel, onDelete: props.onDelete }),
-    [proxy, onSave, props.onCancel, props.onDelete],
+    () => ({ isNew, proxy, setProxy, onSave, onCancel: props.onCancel, onDelete: props.onDelete }),
+    [isNew, proxy, onSave, props.onCancel, props.onDelete],
   );
 
   return <proxyFormContext.Provider value={value}>{props.children}</proxyFormContext.Provider>;
