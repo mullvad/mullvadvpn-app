@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.lib.shared
 
 import arrow.core.Either
-import arrow.core.raise.nullable
 import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,6 +26,7 @@ class AccountRepository(
     private val deviceRepository: DeviceRepository,
     val scope: CoroutineScope,
 ) {
+    private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
 
     private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
 
@@ -43,7 +43,10 @@ class AccountRepository(
                 managementService.deviceState.map { deviceState ->
                     when (deviceState) {
                         is DeviceState.LoggedIn -> {
-                            managementService.getAccountData(deviceState.accountNumber).getOrNull()
+                            managementService
+                                .getAccountData(deviceState.accountNumber)
+                                .getOrNull()
+                                ?.also { lastSuccessfulAccountDataFetch = ZonedDateTime.now() }
                         }
                         DeviceState.LoggedOut,
                         DeviceState.Revoked -> null
@@ -72,15 +75,27 @@ class AccountRepository(
     suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
         managementService.clearAccountHistory().onRight { _mutableAccountHistory.value = null }
 
-    suspend fun getAccountData(): AccountData? = nullable {
-        val deviceState = ensureNotNull(deviceRepository.deviceState.value as? DeviceState.LoggedIn)
+    /*
+     * Fetches the account data from the server, and updates the cache.
+     * Unless force is true, it will only fetch if no fetch was made in the last minute.
+     */
+    suspend fun refreshAccountData(ignoreTimeout: Boolean = true) {
+        // Only refresh if logged in
+        val deviceState = deviceRepository.deviceState.value as? DeviceState.LoggedIn ?: return
 
-        val accountData =
-            managementService.getAccountData(deviceState.accountNumber).getOrNull().bind()
+        if (ignoreTimeout || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
+            val accountData =
+                managementService.getAccountData(deviceState.accountNumber).getOrNull()
+            lastSuccessfulAccountDataFetch = ZonedDateTime.now()
 
-        // Update stateflow cache
-        _mutableAccountDataCache.emit(accountData)
-        accountData
+            // Update stateflow cache, only update if device state is still logged in and using the
+            // same account number
+            deviceRepository.deviceState.value?.let {
+                if (it is DeviceState.LoggedIn && it.accountNumber == accountData?.accountNumber) {
+                    _mutableAccountDataCache.emit(accountData)
+                }
+            }
+        }
     }
 
     suspend fun getWebsiteAuthToken(): WebsiteAuthToken? =
@@ -93,4 +108,7 @@ class AccountRepository(
     fun resetIsNewAccount() {
         _isNewAccount.value = false
     }
+
+    private fun ZonedDateTime?.canFetchAccountData(): Boolean =
+        this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))
 }

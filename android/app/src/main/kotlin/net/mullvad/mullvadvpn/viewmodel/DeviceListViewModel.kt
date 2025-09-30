@@ -10,6 +10,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
@@ -58,7 +60,11 @@ class DeviceListViewModel(
                 }
             }
             .onStart { fetchDevices() }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.Loading)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
+                DeviceListUiState.Loading,
+            )
 
     fun fetchDevices() =
         viewModelScope.launch {

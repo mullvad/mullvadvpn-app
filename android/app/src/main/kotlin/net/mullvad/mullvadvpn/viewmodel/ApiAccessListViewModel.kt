@@ -3,9 +3,11 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewModel() {
@@ -19,5 +21,9 @@ class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewMod
                     apiAccessMethodSettings = apiAccessMethods ?: emptyList(),
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ApiAccessListUiState())
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
+                ApiAccessListUiState(),
+            )
 }

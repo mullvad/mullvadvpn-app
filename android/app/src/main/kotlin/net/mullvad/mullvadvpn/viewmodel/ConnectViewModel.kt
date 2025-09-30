@@ -9,15 +9,18 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
@@ -110,12 +113,21 @@ class ConnectViewModel(
                     isPlayBuild = isPlayBuild,
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
+            .onStart {
+                viewModelScope.launch {
+                    accountRepository.refreshAccountData(ignoreTimeout = false)
+                }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
+                ConnectUiState.INITIAL,
+            )
 
     init {
         viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().isSuccess()) {
-                accountRepository.getAccountData()
+                accountRepository.refreshAccountData()
             }
         }
         viewModelScope.launch { deviceRepository.updateDevice() }

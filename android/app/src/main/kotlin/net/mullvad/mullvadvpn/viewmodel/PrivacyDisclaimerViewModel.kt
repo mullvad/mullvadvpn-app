@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 
 data class PrivacyDisclaimerViewState(val isStartingService: Boolean, val isPlayBuild: Boolean)
@@ -31,7 +33,7 @@ class PrivacyDisclaimerViewModel(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 PrivacyDisclaimerViewState(false, isPlayBuild),
             )
 
