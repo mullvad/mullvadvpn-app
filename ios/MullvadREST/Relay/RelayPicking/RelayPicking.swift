@@ -21,53 +21,68 @@ extension RelayPicking {
     func findBestMatch(
         from candidates: [RelayWithLocation<REST.ServerRelay>],
         closeTo location: Location? = nil,
-        useObfuscatedPortIfAvailable: Bool
+        applyObfuscatedIps: Bool
     ) throws -> SelectedRelay {
-        var match = try RelaySelector.WireGuard.pickCandidate(
+        let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
             wireguard: obfuscation.allRelays.wireguard,
-            portConstraint: useObfuscatedPortIfAvailable
+            portConstraint: applyObfuscatedIps
                 ? obfuscation.port
                 : tunnelSettings.relayConstraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
             closeTo: location
         )
 
-        if useObfuscatedPortIfAvailable && obfuscation.method == .shadowsocks {
-            match = applyShadowsocksIpAddress(in: match)
+        var ipv4Address = match.endpoint.ipv4Relay.ip
+        if applyObfuscatedIps {
+            switch obfuscation.method {
+            // If the currently selected obfuscation port is not within the allowed range (as specified
+            // in the relay list), we should use one of the extra Shadowsocks IP addresses instead of
+            // the default one.
+            case .shadowsocks where !shadowsocksPortIsWithinRange(match.endpoint.ipv4Relay.port):
+                ipv4Address = applyShadowsocksIpAddress(in: match)
+            case .quic:
+                ipv4Address = applyQuicIpAddress(in: match)
+            case .automatic, .off, .on, .udpOverTcp, .shadowsocks:
+                break
+            }
         }
 
         return SelectedRelay(
-            endpoint: match.endpoint,
+            endpoint: match.endpoint.override(
+                ipv4Relay: IPv4Endpoint(
+                    ip: ipv4Address,
+                    port: match.endpoint.ipv4Relay.port
+                )),
             hostname: match.relay.hostname,
             location: match.location,
             features: match.relay.features
         )
     }
 
-    private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> RelaySelectorMatch {
-        let port = match.endpoint.ipv4Relay.port
+    private func shadowsocksPortIsWithinRange(_ port: UInt16) -> Bool {
         let portRanges = RelaySelector.parseRawPortRanges(obfuscation.allRelays.wireguard.shadowsocksPortRanges)
-        let portIsWithinRange = portRanges.contains(where: { $0.contains(port) })
+        return portRanges.contains(where: { $0.contains(port) })
+    }
 
-        var endpoint = match.endpoint
+    private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> IPv4Address {
+        let ipv4Address = match.endpoint.ipv4Relay.ip
 
-        // If the currently selected obfuscation port is not within the allowed range (as specified
-        // in the relay list), we should use one of the extra Shadowsocks IP addresses instead of
-        // the default one.
-        if !portIsWithinRange {
-            var ipv4Address = match.endpoint.ipv4Relay.ip
-            if let shadowsocksAddress = match.relay.shadowsocksExtraAddrIn?.randomElement() {
-                ipv4Address = IPv4Address(shadowsocksAddress) ?? ipv4Address
-            }
-
-            endpoint = match.endpoint.override(
-                ipv4Relay: IPv4Endpoint(
-                    ip: ipv4Address,
-                    port: port
-                ))
+        return if let shadowsocksAddress = match.relay.shadowsocksExtraAddrIn?.randomElement() {
+            IPv4Address(shadowsocksAddress) ?? ipv4Address
+        } else {
+            ipv4Address
         }
+    }
 
-        return RelaySelectorMatch(endpoint: endpoint, relay: match.relay, location: match.location)
+    private func applyQuicIpAddress(in match: RelaySelectorMatch) -> IPv4Address {
+        let ipv4Address = match.endpoint.ipv4Relay.ip
+
+        // According to spec, first address is always IPv4 and second is IPv6.
+        return if let quicAddress = match.relay.features?.quic?.addrIn.first {
+            IPv4Address(quicAddress) ?? ipv4Address
+        } else {
+            ipv4Address
+        }
     }
 }
