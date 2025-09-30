@@ -2,9 +2,10 @@ import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../../../../../../shared/constants';
 import { messages } from '../../../../../../../../shared/gettext';
-import { Icon, Link } from '../../../../../../../lib/components';
+import { Icon } from '../../../../../../../lib/components';
 import { FlexColumn } from '../../../../../../../lib/components/flex-column';
 import { FlexRow } from '../../../../../../../lib/components/flex-row';
+import { Link } from '../../../../../../../lib/components/link';
 import { useLinuxSettingsContext } from '../../LinuxSettingsContext';
 import { useShowUnsupportedDialog } from './hooks';
 
@@ -38,7 +39,7 @@ export function HeaderDescription() {
               aria-description={message}
               as="button"
               onClick={showUnsupportedDialog}
-              variant="labelTiny">
+              variant="labelTinySemiBold">
               <Link.Text>
                 {
                   // TRANSLATORS: Link for learning more

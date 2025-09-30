@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
-import { LabelTiny, Link } from '../lib/components';
+import { LabelTinySemiBold } from '../lib/components';
+import { Link } from '../lib/components/link';
 import { formatHtml } from '../lib/html-formatter';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
@@ -19,20 +20,20 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
     switch (subtitle.action.type) {
       case 'navigate-internal':
         return (
-          <InternalLink variant="labelTiny" {...subtitle.action.link}>
+          <InternalLink variant="labelTinySemiBold" {...subtitle.action.link}>
             <InternalLink.Text>{content}</InternalLink.Text>
           </InternalLink>
         );
       case 'navigate-external':
         return (
-          <ExternalLink variant="labelTiny" {...subtitle.action.link}>
+          <ExternalLink variant="labelTinySemiBold" {...subtitle.action.link}>
             <ExternalLink.Text>{content}</ExternalLink.Text>
             <ExternalLink.Icon icon="external" />
           </ExternalLink>
         );
       case 'run-function':
         return (
-          <StyledLink forwardedAs="button" variant="labelTiny" {...subtitle.action.button}>
+          <StyledLink forwardedAs="button" variant="labelTinySemiBold" {...subtitle.action.button}>
             <StyledLink.Text>{content}</StyledLink.Text>
           </StyledLink>
         );
@@ -51,14 +52,14 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
 
   if (!Array.isArray(subtitle)) {
     return (
-      <LabelTiny color="whiteAlpha60" {...props}>
+      <LabelTinySemiBold color="whiteAlpha60" {...props}>
         {formatHtml(subtitle)}
-      </LabelTiny>
+      </LabelTinySemiBold>
     );
   }
 
   return (
-    <LabelTiny color="whiteAlpha60" {...props}>
+    <LabelTinySemiBold color="whiteAlpha60" {...props}>
       {subtitle.map((subtitle, index, arr) => {
         const content = formatSubtitle(subtitle);
 
@@ -69,6 +70,6 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
           </React.Fragment>
         );
       })}
-    </LabelTiny>
+    </LabelTinySemiBold>
   );
 };
