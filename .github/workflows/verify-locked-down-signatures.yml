@@ -3,14 +3,16 @@ name: Verify git signatures on important files
 on:
   pull_request:
     paths:
-      - .github/workflows/verify-locked-down-signatures.yml
       - .github/workflows/android-audit.yml
+      - .github/workflows/code-owner-approval.yml
       - .github/workflows/unicop.yml
+      - .github/workflows/verify-locked-down-signatures.yml
       - .github/CODEOWNERS
       - Cargo.toml
       - test/Cargo.toml
       - Cargo.lock
       - test/Cargo.lock
+      - code-owners.json
       - deny.toml
       - test/deny.toml
       - mullvad-ios/deny.toml
