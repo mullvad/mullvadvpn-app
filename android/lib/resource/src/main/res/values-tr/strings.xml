@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Gizleme</string>
     <string name="feature_quantum_resistant">Kuantum direnci</string>
     <string name="filter">Filtrele</string>
-    <string name="filters">Filtreler:</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="go_to_login">Giriş sayfasına git</string>

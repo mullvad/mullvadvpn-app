@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">混淆</string>
     <string name="feature_quantum_resistant">抗量子</string>
     <string name="filter">篩選</string>
-    <string name="filters">篩選器：</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
     <string name="go_to_login">前往登入</string>

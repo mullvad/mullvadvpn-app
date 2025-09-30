@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Obfuscatie</string>
     <string name="feature_quantum_resistant">Kwantumbestendigheid</string>
     <string name="filter">Filter</string>
-    <string name="filters">Filters:</string>
     <string name="foreground_notification_channel_description">Toont de huidige status van de VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="go_to_login">Ga naar aanmelden</string>

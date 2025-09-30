@@ -382,7 +382,6 @@
     <string name="clear_input">Clear input</string>
     <string name="x_entry">%s (Entry)</string>
     <string name="x_exit">%s (Exit)</string>
-    <string name="filters">Filters:</string>
     <string name="removed_provider">%s (removed)</string>
     <string name="daita_description_slide_1_first_paragraph">Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) hides patterns in your encrypted VPN traffic.</string>
