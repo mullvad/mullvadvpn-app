@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
     <string name="filter">ตัวกรอง</string>
-    <string name="filters">ตัวกรอง:</string>
     <string name="foreground_notification_channel_description">แสดงสถานะอุโมงค์ VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะอุโมงค์ VPN</string>
     <string name="go_to_login">ไปเข้าสู่ระบบ</string>

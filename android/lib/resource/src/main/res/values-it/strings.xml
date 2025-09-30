@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Offuscamento</string>
     <string name="feature_quantum_resistant">Resistenza ad attacchi quantistici</string>
     <string name="filter">Filtra</string>
-    <string name="filters">Filtri:</string>
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
     <string name="foreground_notification_channel_name">Stato del tunnel VPN</string>
     <string name="go_to_login">Vai al login</string>

@@ -197,7 +197,6 @@
     <string name="feature_obfuscation">Obfuscation</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>
     <string name="filter">စစ်ထုတ်မှု</string>
-    <string name="filters">စစ်ထုတ်မှုများ-</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
     <string name="go_to_login">ဝင်ရောက်ရန် သွားပါ</string>
