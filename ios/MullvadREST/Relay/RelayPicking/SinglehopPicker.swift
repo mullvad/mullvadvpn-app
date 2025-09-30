@@ -58,7 +58,7 @@ struct SinglehopPicker: RelayPicking {
             daitaEnabled: daitaSettings.daitaState.isEnabled
         )
 
-        let match = try findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: true)
+        let match = try findBestMatch(from: exitCandidates, applyObfuscatedIps: true)
         return SelectedRelays(
             entry: nil,
             exit: match,
