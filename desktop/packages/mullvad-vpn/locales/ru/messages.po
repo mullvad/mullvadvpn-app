@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2025-09-03 14:39\n"
+"PO-Revision-Date: 2025-09-30 07:30\n"
 
 msgid "%(amount)d more..."
 msgstr "Еще %(amount)d..."
@@ -258,6 +258,10 @@ msgstr "Выйти"
 
 msgid "Reconnect"
 msgstr "Переподключить"
+
+#. Button label in confirmation dialog that confirms a remove action.
+msgid "Remove"
+msgstr "Удалить"
 
 msgid "Required"
 msgstr "Обязательно"
@@ -1502,17 +1506,29 @@ msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Проверка номера учетной записи"
 
+#. Text in button that allows user to create a new account.
 msgctxt "login-view"
-msgid "Create account"
+msgid "Create a new account"
+msgstr "Создать учетную запись"
+
+#. Button which confirms the action to create a new account.
+msgctxt "login-view"
+msgid "Create new account"
 msgstr "Создать учетную запись"
 
 msgctxt "login-view"
 msgid "Creating account..."
 msgstr "Создание учетной записи..."
 
+#. Text that asks the user if they really want to create a new account.
 msgctxt "login-view"
-msgid "Don’t have an account number?"
-msgstr "У вас нет номера учетной записи?"
+msgid "Do you want to create a new account?"
+msgstr "Создать учетную запись?"
+
+#. Text that asks the user if they really want to remove the saved account.
+msgctxt "login-view"
+msgid "Do you want to remove the saved account number?"
+msgstr "Удалить сохраненный номер учетной записи?"
 
 msgctxt "login-view"
 msgid "Enter your account number"
@@ -1550,6 +1566,7 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr "Выполняется вход..."
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr "Вход"
@@ -1557,6 +1574,13 @@ msgstr "Вход"
 msgctxt "login-view"
 msgid "Login failed"
 msgstr "Ошибка входа"
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
+msgstr "или"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1567,6 +1591,12 @@ msgstr "Функция аварийного отключения блокиру�
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "Подождите"
+
+#. Text that informs the user about the consequences of clearing the saved
+#. account number.
+msgctxt "login-view"
+msgid "Removing the saved account number from this device cannot be undone."
+msgstr "Удаление с этого устройства сохраненного номера учетной записи нельзя будет отменить."
 
 #. Error message shown above login input when trying to login to an account
 #. with too many registered devices.
@@ -1585,6 +1615,11 @@ msgstr "Обновление…"
 msgctxt "login-view"
 msgid "Valid account number"
 msgstr "Действительный номер учетной записи"
+
+#. Text that informs the users about consequences of creating a new account.
+msgctxt "login-view"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2957,8 +2992,8 @@ msgstr "Копировать"
 msgid "Create"
 msgstr "Создать"
 
-msgid "Create new account"
-msgstr "Создать новую учетную запись"
+msgid "Create account"
+msgstr "Создать учетную запись"
 
 msgid "Create new list"
 msgstr "Создание нового списка"
@@ -3014,8 +3049,8 @@ msgstr "Отключение..."
 msgid "Dismiss"
 msgstr "Закрыть"
 
-msgid "Do you want to create a new account?"
-msgstr "Создать новую учетную запись?"
+msgid "Don’t have an account number?"
+msgstr "Нет номера учетной записи?"
 
 msgid "Edit custom lists"
 msgstr "Изменение своих списков"
@@ -3227,9 +3262,6 @@ msgstr "Недавние отключены, история очищена"
 msgid "Recursion limit"
 msgstr "Предел рекурсии"
 
-msgid "Remove"
-msgstr "Удалить"
-
 msgid "Remove %1$s from %2$s"
 msgstr "Удалить местоположение %1$s из списка «%2$s»"
 
@@ -3421,9 +3453,6 @@ msgstr "Обфускация WireGuard"
 
 msgid "WireGuard port"
 msgstr "Порт WireGuard"
-
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер будет удален с этого устройства. Это действие нельзя отменить."
 
 msgid "\"%s\" was created"
 msgstr "Список «%s» создан"

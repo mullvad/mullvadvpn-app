@@ -94,7 +94,7 @@
     <string name="create_account">建立帳戶</string>
     <string name="create_custom_list_message">已建立「%1$s」</string>
     <string name="create_new_account">建立新帳戶</string>
-    <string name="create_new_account_warning_paragraph1">您已經儲存了一個帳號，如果建立新帳號，則已儲存的帳號將會從此裝置中移除，此動作無法復原。</string>
+    <string name="create_new_account_warning_paragraph1">您已儲存一組帳號。若建立新帳戶，該已儲存的帳號將會從此裝置移除；此動作無法復原。</string>
     <string name="create_new_account_warning_paragraph2">要建立新帳戶嗎？</string>
     <string name="create_new_list">建立新清單</string>
     <string name="created_x">建立日期：%1$s</string>
@@ -154,7 +154,7 @@
     <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
     <string name="dns_content_blockers_subtitle">停用下方的「%1$s」以啟動這些設定。</string>
     <string name="dns_content_blockers_warning">這可能會導致某些網站、服務和應用程式出現問題。</string>
-    <string name="dont_have_an_account">沒有帳號？</string>
+    <string name="dont_have_an_account">沒有帳號嗎？</string>
     <string name="duplicate_address_warning">此地址已輸入過。</string>
     <string name="edit_custom_lists">編輯自訂清單</string>
     <string name="edit_list">編輯清單</string>
