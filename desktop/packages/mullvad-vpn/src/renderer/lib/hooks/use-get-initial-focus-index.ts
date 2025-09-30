@@ -1,10 +1,14 @@
 import React from 'react';
 
-import { useListboxContext } from '../../../ListboxContext';
 import { getOptions, getSelectedOptionIndex } from '../utils';
 
-export const useGetInitialFocusIndex = () => {
-  const { focusedIndex, optionsRef } = useListboxContext();
+export const useGetInitialFocusIndex = ({
+  focusedIndex,
+  optionsRef,
+}: {
+  focusedIndex?: number;
+  optionsRef: React.RefObject<HTMLUListElement | null>;
+}) => {
   return React.useCallback(() => {
     const options = getOptions(optionsRef.current);
     if (focusedIndex !== undefined) {
