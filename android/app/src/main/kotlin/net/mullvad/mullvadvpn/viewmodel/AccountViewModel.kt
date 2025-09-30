@@ -54,10 +54,10 @@ class AccountViewModel(
                     )
                     .toLc<Unit, AccountUiState>()
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
+            .onStart { viewModelScope.launch { updateAccountExpiry() } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Lc.Loading(Unit))
 
     init {
-        updateAccountExpiry(force = true)
         verifyPurchases()
     }
 
@@ -87,14 +87,14 @@ class AccountViewModel(
         viewModelScope.launch { _uiSideEffect.send(UiSideEffect.CopyAccountNumber(accountNumber)) }
     }
 
-    private fun updateAccountExpiry(force: Boolean) {
-        viewModelScope.launch { accountRepository.getAccountData(force = force) }
+    private fun updateAccountExpiry() {
+        viewModelScope.launch { accountRepository.refreshAccountData() }
     }
 
     private fun verifyPurchases() {
         viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().isSuccess()) {
-                updateAccountExpiry(force = true)
+                updateAccountExpiry()
             }
         }
     }

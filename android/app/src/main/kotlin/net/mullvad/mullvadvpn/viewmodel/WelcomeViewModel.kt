@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -55,6 +56,7 @@ class WelcomeViewModel(
                     )
                 )
             }
+            .onStart {}
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
 
     init {
@@ -105,7 +107,7 @@ class WelcomeViewModel(
     }
 
     private suspend fun updateAccountExpiry() {
-        accountRepository.getAccountData(force = true)
+        accountRepository.refreshAccountData()
     }
 
     sealed interface UiSideEffect {
