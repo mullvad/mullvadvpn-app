@@ -93,7 +93,7 @@
     <string name="create">Opprett</string>
     <string name="create_account">Opprett konto</string>
     <string name="create_custom_list_message">«%1$s» ble opprettet</string>
-    <string name="create_new_account">Opprett ny konto</string>
+    <string name="create_new_account">Opprett en ny konto</string>
     <string name="create_new_account_warning_paragraph1">Du har allerede et lagret kontonummer. Når du oppretter en ny konto, blir det lagrede kontonummeret fjernet fra denne enheten. Dette kan ikke angres.</string>
     <string name="create_new_account_warning_paragraph2">Vil du opprette en ny konto?</string>
     <string name="create_new_list">Opprett ny liste</string>

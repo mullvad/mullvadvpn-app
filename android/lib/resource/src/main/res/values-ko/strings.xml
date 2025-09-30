@@ -94,7 +94,7 @@
     <string name="create_account">계정 생성</string>
     <string name="create_custom_list_message">\"%1$s\"이(가) 생성되었습니다</string>
     <string name="create_new_account">새 계정 생성</string>
-    <string name="create_new_account_warning_paragraph1">이미 저장한 계정 번호가 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
+    <string name="create_new_account_warning_paragraph1">저장한 계정 번호가 이미 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
     <string name="create_new_account_warning_paragraph2">새 계정을 만들고 싶으신가요?</string>
     <string name="create_new_list">새 목록 생성</string>
     <string name="created_x">생성 날짜: %1$s</string>

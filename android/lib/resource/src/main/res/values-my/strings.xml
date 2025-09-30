@@ -91,11 +91,11 @@
     <string name="copy">ကူးယူရန်</string>
     <string name="copy_account_number">အကောင့်နံပါတ်ကို ကူးရန်</string>
     <string name="create">ဖန်တီးမည်</string>
-    <string name="create_account">အကောင့် ဖန်တီးရန်</string>
+    <string name="create_account">အကောင့် ဖွင့်ရန်</string>
     <string name="create_custom_list_message">\"%1$s\" ကို ဖန်တီးလိုက်ပြီ</string>
-    <string name="create_new_account">အကောင့်သစ် ဖန်တီးရန်</string>
-    <string name="create_new_account_warning_paragraph1">သင့်တွင် သိမ်းဆည်းထားသော အကောင့်နံပါတ်တစ်ခုရှိပြီး အကောင့်အသစ်တစ်ခုဖန်တီးခြင်းဖြင့် သိမ်းဆည်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖယ်ရှားမည်ဖြစ်သည်။ ၎င်းကို ပြန်ပြင်လို့ မရပါ။</string>
-    <string name="create_new_account_warning_paragraph2">အကောင့်သစ်တစ်ခု ဖန်တီးလိုပါသလား။</string>
+    <string name="create_new_account">အကောင့်သစ် ဖွင့်ရန်</string>
+    <string name="create_new_account_warning_paragraph1">သင့်တွင် အကောင့်နံပါတ်တစ်ခု သိမ်းထားပြီးသားဖြစ်သောကြောင့် အကောင့်သစ်ဖွင့်လျှင် သိမ်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖြုတ်ပစ်ပါမည်။ ၎င်းကို ပြန်ယူ၍မရပါ။</string>
+    <string name="create_new_account_warning_paragraph2">အကောင့်သစ် ဖွင့်လိုပါသလား။</string>
     <string name="create_new_list">စာရင်းသစ် ဖန်တီးမည်</string>
     <string name="created_x">ဖန်တီးသည့် အချိန်- %1$s</string>
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
@@ -154,7 +154,7 @@
     <string name="dns_content_blockers_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</string>
     <string name="dns_content_blockers_subtitle">ဤဆက်တင်များကို ဖွင့်ရန် အောက်ပါ \"%1$s\" ကို ပိတ်ပါ။</string>
     <string name="dns_content_blockers_warning">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</string>
-    <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။</string>
+    <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိသေးဘူးလား။</string>
     <string name="duplicate_address_warning">ဤလိပ်စာကို ရိုက်ထည့်ထားပြီး ဖြစ်ပါသည်။</string>
     <string name="edit_custom_lists">စိတ်ကြိုက် စာရင်းများ ဖန်တီးရန်</string>
     <string name="edit_list">စာရင်းကို တည်းဖြတ်ရန်</string>

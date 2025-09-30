@@ -94,7 +94,7 @@
     <string name="create_account">Luo tili</string>
     <string name="create_custom_list_message">\"%1$s\" luotiin</string>
     <string name="create_new_account">Luo uusi tili</string>
-    <string name="create_new_account_warning_paragraph1">Laitteellesi on jo tallennettu tilinumero, ja jos luot uuden tilin, numero poistetaan laitteelta. Toimintoa ei voi kumota.</string>
+    <string name="create_new_account_warning_paragraph1">Sinulla on jo tallennettu tilin numero. Kun luot uuden tilin, tallennettu tilin numero poistetaan tältä laitteelta. Toimintoa ei voi kumota.</string>
     <string name="create_new_account_warning_paragraph2">Haluatko luoda uuden tilin?</string>
     <string name="create_new_list">Luo uusi luettelo</string>
     <string name="created_x">Luotu: %1$s</string>
@@ -154,7 +154,7 @@
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
     <string name="dns_content_blockers_subtitle">Ota nämä asetukset käyttöön poistamalla \"%1$s\" käytöstä alta.</string>
     <string name="dns_content_blockers_warning">Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa.</string>
-    <string name="dont_have_an_account">Eikö sinulla ole tilinumeroa?</string>
+    <string name="dont_have_an_account">Eikö sinulla ole tilin numeroa?</string>
     <string name="duplicate_address_warning">Tämä osoite on annettu jo.</string>
     <string name="edit_custom_lists">Muokkaa mukautettuja luetteloita</string>
     <string name="edit_list">Muokkaa luetteloa</string>
