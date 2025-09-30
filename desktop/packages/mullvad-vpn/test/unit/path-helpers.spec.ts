@@ -20,7 +20,8 @@ describe('E2E test path helper', () => {
     expect(matchPaths('/a/b/c', 'a/b/c')).to.be.false;
     expect(matchPaths('/a/b/:param', '/a/b')).to.be.false;
 
-    expect(() => matchPaths('/a/b/c', '/a/b/:param')).to.throw();
+    expect(() => matchPaths('/a/b/c', '/a/b/:clock')).to.throw();
+    expect(() => matchPaths('/a/b/:clock', '/a/b/20:00')).not.to.throw();
   });
 
   it('should correctly replace parameters', () => {
