@@ -53,7 +53,7 @@ class AccountRepositoryTest {
 
         // Act
         mockDeviceStateFlow.emit(DeviceState.LoggedIn(accountNumber, mockk(relaxed = true)))
-        val result = accountRepository.getAccountData(force = true)
+        val result = accountRepository.refreshAccountData(ignoreTimeout = true)
 
         // Assert
         Assertions.assertEquals(accountData, result)
@@ -72,7 +72,7 @@ class AccountRepositoryTest {
 
             // Act
             mockDeviceStateFlow.emit(DeviceState.LoggedIn(accountNumber, mockk(relaxed = true)))
-            val result = accountRepository.getAccountData(force = false)
+            val result = accountRepository.refreshAccountData(ignoreTimeout = false)
 
             // Assert
             Assertions.assertEquals(accountData, result)

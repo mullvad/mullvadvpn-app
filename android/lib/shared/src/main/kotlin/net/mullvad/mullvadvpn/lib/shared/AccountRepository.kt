@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.lib.shared
 
 import arrow.core.Either
-import arrow.core.raise.nullable
 import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -9,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
@@ -28,7 +26,7 @@ class AccountRepository(
     private val deviceRepository: DeviceRepository,
     val scope: CoroutineScope,
 ) {
-    private var latestAccountDataFetch: ZonedDateTime? = null
+    private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
 
     private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
 
@@ -45,7 +43,10 @@ class AccountRepository(
                 managementService.deviceState.map { deviceState ->
                     when (deviceState) {
                         is DeviceState.LoggedIn -> {
-                            managementService.getAccountData(deviceState.accountNumber).getOrNull()
+                            managementService
+                                .getAccountData(deviceState.accountNumber)
+                                .getOrNull()
+                                ?.also { lastSuccessfulAccountDataFetch = ZonedDateTime.now() }
                         }
                         DeviceState.LoggedOut,
                         DeviceState.Revoked -> null
@@ -78,26 +79,22 @@ class AccountRepository(
      * Fetches the account data from the server, and updates the cache.
      * Unless force is true, it will only fetch if no fetch was made in the last minute.
      */
-    suspend fun getAccountData(force: Boolean = false): AccountData? = nullable {
-        val deviceState = ensureNotNull(deviceRepository.deviceState.value as? DeviceState.LoggedIn)
+    suspend fun refreshAccountData(ignoreTimeout: Boolean = true) {
+        // Only refresh if logged in
+        val deviceState = deviceRepository.deviceState.value as? DeviceState.LoggedIn ?: return
 
-        if (force || latestAccountDataFetch.canFetchAccountData()) {
+        if (ignoreTimeout || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
             val accountData =
-                managementService.getAccountData(deviceState.accountNumber).getOrNull().bind()
-            latestAccountDataFetch = ZonedDateTime.now()
+                managementService.getAccountData(deviceState.accountNumber).getOrNull()
+            lastSuccessfulAccountDataFetch = ZonedDateTime.now()
 
             // Update stateflow cache, only update if device state is still logged in and using the
             // same account number
             deviceRepository.deviceState.value?.let {
-                if (it is DeviceState.LoggedIn && it.accountNumber == accountData.accountNumber) {
+                if (it is DeviceState.LoggedIn && it.accountNumber == accountData?.accountNumber) {
                     _mutableAccountDataCache.emit(accountData)
-                    accountData
-                } else {
-                    null
                 }
             }
-        } else {
-            _mutableAccountDataCache.firstOrNull()
         }
     }
 

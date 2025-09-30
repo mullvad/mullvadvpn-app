@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -110,13 +111,13 @@ class ConnectViewModel(
                     isPlayBuild = isPlayBuild,
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
+            .onStart { viewModelScope.launch { accountRepository.refreshAccountData() } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_0000), ConnectUiState.INITIAL)
 
     init {
-        viewModelScope.launch { accountRepository.getAccountData(force = false) }
         viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().isSuccess()) {
-                accountRepository.getAccountData(force = true)
+                accountRepository.refreshAccountData()
             }
         }
         viewModelScope.launch { deviceRepository.updateDevice() }

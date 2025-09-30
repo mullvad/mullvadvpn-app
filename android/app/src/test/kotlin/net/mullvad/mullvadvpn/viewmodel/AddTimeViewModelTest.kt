@@ -56,7 +56,7 @@ class AddTimeViewModelTest {
             VerificationResult.NothingToVerify.right()
         coEvery { mockPaymentUseCase.queryPaymentAvailability() } just Runs
         coEvery { mockPaymentUseCase.resetPurchaseResult() } just Runs
-        coEvery { mockAccountRepository.getAccountData(any()) } returns null
+        coEvery { mockAccountRepository.refreshAccountData(any()) } just Runs
 
         viewModel =
             AddTimeViewModel(
@@ -151,7 +151,7 @@ class AddTimeViewModelTest {
         purchaseResult.emit(purchaseResultData)
 
         // Assert
-        coVerify { mockAccountRepository.getAccountData(force = true) }
+        coVerify { mockAccountRepository.refreshAccountData(ignoreTimeout = true) }
     }
 
     @Test
