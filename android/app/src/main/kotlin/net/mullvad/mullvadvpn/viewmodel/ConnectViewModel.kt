@@ -111,7 +111,11 @@ class ConnectViewModel(
                     isPlayBuild = isPlayBuild,
                 )
             }
-            .onStart { viewModelScope.launch { accountRepository.refreshAccountData() } }
+            .onStart {
+                viewModelScope.launch {
+                    accountRepository.refreshAccountData(ignoreTimeout = false)
+                }
+            }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_0000), ConnectUiState.INITIAL)
 
     init {
