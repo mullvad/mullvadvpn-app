@@ -122,7 +122,8 @@ pub fn get_filtered_tests(
     tests.sort_by_key(|test| test.priority.unwrap_or(0));
 
     let mut tests = if specified_tests.is_empty() {
-        // Keep all tests
+        // Include all but tests labelled with 'skip'
+        tests.retain(|test| !test.skip);
         tests
     } else {
         specified_tests
@@ -142,19 +143,8 @@ pub fn get_filtered_tests(
             .iter()
             .any(|skip| skip.eq_ignore_ascii_case(test.name))
     };
-    let on_include_list = |test: &TestMetadata| {
-        specified_tests
-            .iter()
-            .any(|skip| skip.eq_ignore_ascii_case(test.name))
-    };
-    // If a test is explicitly run, the `skip` attribute of the `test_function` macro should be overriden.
-    let intended_to_be_run = |test: &TestMetadata| !test.skip || on_include_list(test);
 
-    tests.retain(|test| {
-        should_run_on_os(test.targets, TEST_CONFIG.os)
-            && !on_skip_list(test)
-            && intended_to_be_run(test)
-    });
+    tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os) && !on_skip_list(test));
 
     Ok(tests)
 }
