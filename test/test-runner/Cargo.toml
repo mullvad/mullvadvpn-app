@@ -40,7 +40,7 @@ socket2 = { workspace = true, features = ["all"] }
 talpid-windows = { path = "../../talpid-windows" }
 
 windows-service = "0.6"
-winreg = "0.50"
+winreg = "0.55"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.45.0"
