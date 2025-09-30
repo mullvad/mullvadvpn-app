@@ -168,3 +168,19 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
         )
     }
 }
+
+class RecentConnectionLocationNode : LocationNode, @unchecked Sendable {
+    let recentConnection: RecentConnection
+    
+    init(
+        name: String,
+        code: String,
+        recentConnection: RecentConnection,
+        isActive: Bool = true,
+        parent: LocationNode? = nil,
+        children: [LocationNode] = []
+    ) {
+        self.recentConnection = recentConnection
+        super.init(name: name, code: code)
+    }
+}

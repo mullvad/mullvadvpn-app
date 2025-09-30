@@ -8,8 +8,8 @@
 import MullvadTypes
 
 public struct RecentConnection: Codable, Sendable, Equatable {
-    let entry: UserSelectedRelays?
-    let exit: UserSelectedRelays
+    public let entry: UserSelectedRelays?
+    public let exit: UserSelectedRelays
     var lastSelected: Date
 
     public init(entry: UserSelectedRelays? = nil, exit: UserSelectedRelays, lastSelected: Date = Date()) {

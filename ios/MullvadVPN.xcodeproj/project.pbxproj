@@ -1005,6 +1005,8 @@
 		F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */; };
 		F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */; };
 		F062B94D2C16E09700B6D47A /* TunnelSettingsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062B94C2C16E09700B6D47A /* TunnelSettingsManagerTests.swift */; };
+		F0725D8A2E8BCA0F00932541 /* RecentsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0725D892E8BC9FB00932541 /* RecentsDataSource.swift */; };
+		F0725D8C2E8BD4CA00932541 /* RecentConnectionLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0725D8B2E8BD49F00932541 /* RecentConnectionLocationNodeBuilder.swift */; };
 		F072D3CF2C07122400906F64 /* SettingsUpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */; };
 		F072D3D22C071AD100906F64 /* ShadowsocksLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */; };
 		F073FCB32C6617D70062EA1D /* TunnelStore+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F073FCB22C6617D70062EA1D /* TunnelStore+Stubs.swift */; };
@@ -2488,6 +2490,8 @@
 		F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Helpers.swift"; sourceTree = "<group>"; };
 		F062B94C2C16E09700B6D47A /* TunnelSettingsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManagerTests.swift; sourceTree = "<group>"; };
 		F06DB5F22E4A329B0003A363 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		F0725D892E8BC9FB00932541 /* RecentsDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentsDataSource.swift; sourceTree = "<group>"; };
+		F0725D8B2E8BD49F00932541 /* RecentConnectionLocationNodeBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdaterTests.swift; sourceTree = "<group>"; };
 		F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderTests.swift; sourceTree = "<group>"; };
 		F073FCB22C6617D70062EA1D /* TunnelStore+Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TunnelStore+Stubs.swift"; sourceTree = "<group>"; };
@@ -3273,7 +3277,6 @@
 		583FE01729C196F3006E85F9 /* SelectLocation */ = {
 			isa = PBXGroup;
 			children = (
-				F900524C2E6B04470085C80E /* New Group */,
 				F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */,
 				F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */,
 				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
@@ -3289,6 +3292,9 @@
 				F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */,
 				5888AD86227B17950051EB06 /* LocationViewController.swift */,
 				7AB3BEB42BD7A6CB00E34384 /* LocationViewControllerWrapper.swift */,
+				F900524C2E6B04470085C80E /* New Group */,
+				F0725D8B2E8BD49F00932541 /* RecentConnectionLocationNodeBuilder.swift */,
+				F0725D892E8BC9FB00932541 /* RecentsDataSource.swift */,
 				F01DAE322C2B032A00521E46 /* RelaySelection.swift */,
 			);
 			path = SelectLocation;
@@ -6473,6 +6479,7 @@
 				7AFBE3892D089163002335FC /* TunnelViewController.swift in Sources */,
 				7A11DD0B2A9495D400098CD8 /* AppRoutes.swift in Sources */,
 				5827B0902B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift in Sources */,
+				F0725D8C2E8BD4CA00932541 /* RecentConnectionLocationNodeBuilder.swift in Sources */,
 				F97C38E52DEEDFD6006DCB08 /* Image+Assets.swift in Sources */,
 				5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
@@ -6798,6 +6805,7 @@
 				7A27E3C92CAE85710088BCFF /* SettingsInfoButtonItem.swift in Sources */,
 				58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
+				F0725D8A2E8BCA0F00932541 /* RecentsDataSource.swift in Sources */,
 				586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */,
 				F92C658A2E7A922F00B8E107 /* ActiveFilterView.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
