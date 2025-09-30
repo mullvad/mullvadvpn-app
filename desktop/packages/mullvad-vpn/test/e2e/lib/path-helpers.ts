@@ -29,16 +29,16 @@ function trimTrailingSlash(value: string): string {
 
 // Match b against a where a can contain parameters
 export function matchPaths(a: string | null, b: string | null): boolean {
-  if (b?.includes(':')) {
-    throw new Error('Only a is allowed to contain parameters');
-  }
-
   if (a === null || b === null) {
     return a === b;
   }
 
   const aParts = trimTrailingSlash(a).split('/');
   const bParts = trimTrailingSlash(b).split('/');
+
+  if (bParts.some((part) => part.startsWith(':'))) {
+    throw new Error('Only first argument is allowed to contain dynamic route path segments');
+  }
 
   return (
     aParts.length >= bParts.length &&
