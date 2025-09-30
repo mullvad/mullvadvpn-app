@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2025-09-03 14:39\n"
+"PO-Revision-Date: 2025-09-30 07:30\n"
 
 msgid "%(amount)d more..."
 msgstr "Nog %(amount)d..."
@@ -246,6 +246,10 @@ msgstr "Afsluiten"
 
 msgid "Reconnect"
 msgstr "Opnieuw verbinden"
+
+#. Button label in confirmation dialog that confirms a remove action.
+msgid "Remove"
+msgstr "Verwijderen"
 
 msgid "Required"
 msgstr "Verplicht"
@@ -1490,17 +1494,29 @@ msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Accountnummer wordt gecontroleerd"
 
+#. Text in button that allows user to create a new account.
 msgctxt "login-view"
-msgid "Create account"
-msgstr "Account aanmaken"
+msgid "Create a new account"
+msgstr "Nieuw account aanmaken"
+
+#. Button which confirms the action to create a new account.
+msgctxt "login-view"
+msgid "Create new account"
+msgstr "Nieuw account aanmaken"
 
 msgctxt "login-view"
 msgid "Creating account..."
 msgstr "Account aanmaken..."
 
+#. Text that asks the user if they really want to create a new account.
 msgctxt "login-view"
-msgid "Don’t have an account number?"
-msgstr "Hebt u geen accountnummer?"
+msgid "Do you want to create a new account?"
+msgstr "Wilt u een nieuw account aanmaken?"
+
+#. Text that asks the user if they really want to remove the saved account.
+msgctxt "login-view"
+msgid "Do you want to remove the saved account number?"
+msgstr "Wilt u het opgeslagen accountnummer verwijderen?"
 
 msgctxt "login-view"
 msgid "Enter your account number"
@@ -1538,6 +1554,7 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr "Aanmelden..."
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr "Aanmelden"
@@ -1545,6 +1562,13 @@ msgstr "Aanmelden"
 msgctxt "login-view"
 msgid "Login failed"
 msgstr "Aanmelden mislukt"
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
+msgstr "of"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1555,6 +1579,12 @@ msgstr "Uw verbinding wordt momenteel geblokkeerd door onze kill-switch."
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "Een moment geduld"
+
+#. Text that informs the user about the consequences of clearing the saved
+#. account number.
+msgctxt "login-view"
+msgid "Removing the saved account number from this device cannot be undone."
+msgstr "Als u het opgeslagen accountnummer van dit apparaat verwijdert, kan dat niet ongedaan worden gemaakt."
 
 #. Error message shown above login input when trying to login to an account
 #. with too many registered devices.
@@ -1573,6 +1603,11 @@ msgstr "Upgraden..."
 msgctxt "login-view"
 msgid "Valid account number"
 msgstr "Geldig accountnummer"
+
+#. Text that informs the users about consequences of creating a new account.
+msgctxt "login-view"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "U hebt al een opgeslagen accountnummer. Als u een nieuw account aanmaakt, wordt het opgeslagen accountnummer verwijderd van dit apparaat. Dit kan niet ongedaan worden gemaakt."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2945,8 +2980,8 @@ msgstr "Kopiëren"
 msgid "Create"
 msgstr "Maken"
 
-msgid "Create new account"
-msgstr "Nieuw account aanmaken"
+msgid "Create account"
+msgstr "Account aanmaken"
 
 msgid "Create new list"
 msgstr "Nieuwe lijst maken"
@@ -3002,8 +3037,8 @@ msgstr "Verbinding wordt verbroken..."
 msgid "Dismiss"
 msgstr "Negeren"
 
-msgid "Do you want to create a new account?"
-msgstr "Wilt u een nieuw account aanmaken?"
+msgid "Don’t have an account number?"
+msgstr "Hebt u geen accountnummer?"
 
 msgid "Edit custom lists"
 msgstr "Aangepaste lijsten bewerken"
@@ -3215,9 +3250,6 @@ msgstr "Recente uitgeschakeld en geschiedenis gewist"
 msgid "Recursion limit"
 msgstr "Recursielimiet"
 
-msgid "Remove"
-msgstr "Verwijderen"
-
 msgid "Remove %1$s from %2$s"
 msgstr "%1$s verwijderen uit %2$s"
 
@@ -3409,9 +3441,6 @@ msgstr "WireGuard-obfuscatie"
 
 msgid "WireGuard port"
 msgstr "WireGuard-poort"
-
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "U hebt al een opgeslagen accountnummer. Als u een nieuw account aanmaakt, wordt het opgeslagen accountnummer verwijderd van dit apparaat. Dit kan niet ongedaan worden gemaakt."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" is gemaakt"

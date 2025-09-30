@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-09-03 14:39\n"
+"PO-Revision-Date: 2025-09-30 07:30\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -240,6 +240,10 @@ msgstr "終了"
 
 msgid "Reconnect"
 msgstr "再接続"
+
+#. Button label in confirmation dialog that confirms a remove action.
+msgid "Remove"
+msgstr "削除"
 
 msgid "Required"
 msgstr "必須"
@@ -1484,17 +1488,29 @@ msgctxt "login-view"
 msgid "Checking account number"
 msgstr "アカウント番号を確認中"
 
+#. Text in button that allows user to create a new account.
 msgctxt "login-view"
-msgid "Create account"
-msgstr "アカウントを作成する"
+msgid "Create a new account"
+msgstr "新規アカウントを作成"
+
+#. Button which confirms the action to create a new account.
+msgctxt "login-view"
+msgid "Create new account"
+msgstr "新規アカウントを作成"
 
 msgctxt "login-view"
 msgid "Creating account..."
 msgstr "アカウントを作成中..."
 
+#. Text that asks the user if they really want to create a new account.
 msgctxt "login-view"
-msgid "Don’t have an account number?"
-msgstr "アカウント番号を持っていませんか？"
+msgid "Do you want to create a new account?"
+msgstr "新規アカウントを作成しますか？"
+
+#. Text that asks the user if they really want to remove the saved account.
+msgctxt "login-view"
+msgid "Do you want to remove the saved account number?"
+msgstr "保存済みのアカウント番号を削除しますか？"
 
 msgctxt "login-view"
 msgid "Enter your account number"
@@ -1532,6 +1548,7 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr "ログイン中..."
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr "ログイン"
@@ -1539,6 +1556,13 @@ msgstr "ログイン"
 msgctxt "login-view"
 msgid "Login failed"
 msgstr "ログインに失敗しました"
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
+msgstr "または"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1549,6 +1573,12 @@ msgstr "現在、キルスイッチが接続をブロックしています。"
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "お待ちください"
+
+#. Text that informs the user about the consequences of clearing the saved
+#. account number.
+msgctxt "login-view"
+msgid "Removing the saved account number from this device cannot be undone."
+msgstr "このデバイスから保存済みのアカウント番号を削除すると、元には戻せません。"
 
 #. Error message shown above login input when trying to login to an account
 #. with too many registered devices.
@@ -1567,6 +1597,11 @@ msgstr "アップグレード中..."
 msgctxt "login-view"
 msgid "Valid account number"
 msgstr "有効なアカウント番号"
+
+#. Text that informs the users about consequences of creating a new account.
+msgctxt "login-view"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "すでに保存済みのアカウント番号があります。新規アカウントを作成すると、保存済みのアカウント番号がこのデバイスから削除されます。この操作は取り消せません。"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2939,8 +2974,8 @@ msgstr "コピー"
 msgid "Create"
 msgstr "作成"
 
-msgid "Create new account"
-msgstr "新規アカウントを作成"
+msgid "Create account"
+msgstr "アカウントを作成"
 
 msgid "Create new list"
 msgstr "リストの新規作成"
@@ -2996,8 +3031,8 @@ msgstr "接続解除中..."
 msgid "Dismiss"
 msgstr "閉じる"
 
-msgid "Do you want to create a new account?"
-msgstr "新規アカウントを作成しますか？"
+msgid "Don’t have an account number?"
+msgstr "アカウント番号を持っていませんか？"
 
 msgid "Edit custom lists"
 msgstr "カスタムリストを編集する"
@@ -3209,9 +3244,6 @@ msgstr "最近の項目を無効化し、履歴を消去しました"
 msgid "Recursion limit"
 msgstr "繰り返しの制限"
 
-msgid "Remove"
-msgstr "削除"
-
 msgid "Remove %1$s from %2$s"
 msgstr "%1$sを%2$sから削除する"
 
@@ -3403,9 +3435,6 @@ msgstr "WireGuardの難読化"
 
 msgid "WireGuard port"
 msgstr "WireGuardポート"
-
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "すでに保存済みのアカウント番号があります。新規アカウントを作成すると、保存済みのアカウント番号がこのデバイスから削除されます。この操作は取り消せません。"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" が作成されました"
