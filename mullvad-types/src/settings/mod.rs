@@ -20,7 +20,7 @@ mod dns;
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V11;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V12;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -35,6 +35,7 @@ pub enum SettingsVersion {
     V9 = 9,
     V10 = 10,
     V11 = 11,
+    V12 = 12,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -53,6 +54,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V9 as u32 => Ok(SettingsVersion::V9),
             v if v == SettingsVersion::V10 as u32 => Ok(SettingsVersion::V10),
             v if v == SettingsVersion::V11 as u32 => Ok(SettingsVersion::V11),
+            v if v == SettingsVersion::V12 as u32 => Ok(SettingsVersion::V12),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
@@ -88,7 +90,7 @@ pub struct Settings {
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
     #[cfg(not(target_os = "android"))]
-    pub block_when_disconnected: bool,
+    pub lockdown_mode: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
     pub auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
@@ -270,7 +272,7 @@ impl Default for Settings {
             api_access_methods: access_method::Settings::default(),
             allow_lan: false,
             #[cfg(not(target_os = "android"))]
-            block_when_disconnected: false,
+            lockdown_mode: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             relay_overrides: vec![],

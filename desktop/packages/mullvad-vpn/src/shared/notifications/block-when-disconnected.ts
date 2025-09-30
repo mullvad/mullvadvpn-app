@@ -12,21 +12,20 @@ import {
   SystemNotificationSeverityType,
 } from './notification';
 
-interface BlockWhenDisconnectedNotificationContext {
+interface LockdownModeNotificationContext {
   tunnelState: TunnelState;
-  blockWhenDisconnectedSetting: boolean;
+  lockdownModeSetting: boolean;
   hasExcludedApps: boolean;
 }
 
-export class BlockWhenDisconnectedNotificationProvider
+export class LockdownModeNotificationProvider
   implements InAppNotificationProvider, SystemNotificationProvider
 {
-  public constructor(private context: BlockWhenDisconnectedNotificationContext) {}
+  public constructor(private context: LockdownModeNotificationContext) {}
 
   public mayDisplay() {
     return (
-      (this.context.tunnelState.state === 'disconnecting' &&
-        this.context.blockWhenDisconnectedSetting) ||
+      (this.context.tunnelState.state === 'disconnecting' && this.context.lockdownModeSetting) ||
       (this.context.tunnelState.state === 'disconnected' && this.context.tunnelState.lockedDown)
     );
   }
