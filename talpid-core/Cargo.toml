@@ -70,7 +70,7 @@ talpid-net = { path = "../talpid-net" }
 bitflags = "2.6"
 csv = "1.3.1"
 widestring = "1.0"
-winreg = { version = "0.51", features = ["transactions"] }
+winreg = { workspace = true, features = ["transactions"] }
 memoffset = "0.6"
 once_cell = { workspace = true }
 windows-service = "0.6.0"
