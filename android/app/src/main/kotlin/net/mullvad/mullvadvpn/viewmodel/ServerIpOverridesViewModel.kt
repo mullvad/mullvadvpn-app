@@ -10,12 +10,14 @@ import java.io.InputStreamReader
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.util.Lc
@@ -41,7 +43,11 @@ class ServerIpOverridesViewModel(
                     )
                     .toLc<Boolean, ServerIpOverridesUiState>()
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(navArgs.isModal))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
+                Lc.Loading(navArgs.isModal),
+            )
 
     fun importFile(uri: Uri) =
         viewModelScope.launch {
