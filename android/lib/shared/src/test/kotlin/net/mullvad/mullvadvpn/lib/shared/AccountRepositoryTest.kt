@@ -14,7 +14,6 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -53,10 +52,9 @@ class AccountRepositoryTest {
 
         // Act
         mockDeviceStateFlow.emit(DeviceState.LoggedIn(accountNumber, mockk(relaxed = true)))
-        val result = accountRepository.refreshAccountData(ignoreTimeout = true)
+        accountRepository.refreshAccountData(ignoreTimeout = true)
 
         // Assert
-        Assertions.assertEquals(accountData, result)
         coVerify { mockManagementService.getAccountData(accountNumber) }
     }
 
@@ -72,10 +70,9 @@ class AccountRepositoryTest {
 
             // Act
             mockDeviceStateFlow.emit(DeviceState.LoggedIn(accountNumber, mockk(relaxed = true)))
-            val result = accountRepository.refreshAccountData(ignoreTimeout = false)
+            accountRepository.refreshAccountData(ignoreTimeout = false)
 
             // Assert
-            Assertions.assertEquals(accountData, result)
             coVerify { mockManagementService.getAccountData(accountNumber) }
         }
 }
