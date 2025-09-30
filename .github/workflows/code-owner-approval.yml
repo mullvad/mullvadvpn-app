@@ -2,8 +2,6 @@
 name: Code Owner Approval
 description: Ensure that someone from each team that owns code changed in the PR has approved the PR
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
   pull_request_review:
 
 jobs:
