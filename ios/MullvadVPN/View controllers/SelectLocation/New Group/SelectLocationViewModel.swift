@@ -4,12 +4,27 @@ import MullvadSettings
 import MullvadTypes
 
 @MainActor
+protocol SelectLocationViewModel: ObservableObject {
+    var activeLocationContext: LocationContext { get set }
+    var multihopContext: MultihopContext? { get set }
+    var searchText: String { get set }
+    var showDAITAInfo: Bool { get }
+    var showFilterView: (() -> Void)? { get }
+    var showEditCustomListView: (([LocationNode]) -> Void)? { get }
+    var showAddCustomListView: (([LocationNode]) -> Void)? { get }
+    var didFinish: (() -> Void)? { get }
+    func onFilterTapped(_ filter: SelectLocationFilter)
+    func onFilterRemoved(_ filter: SelectLocationFilter)
+    func refreshCustomLists()
+}
+
+@MainActor
 class SelectLocationViewModelImpl: SelectLocationViewModel {
     var activeLocationContext: LocationContext {
         get {
             switch multihopContext {
             case .entry:
-                entryContext!
+                entryContext
             case .exit, nil:
                 exitContext
             }
@@ -27,9 +42,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     @Published var multihopContext: MultihopContext?
 
     @Published private var exitContext: LocationContext
-    @Published private var entryContext: LocationContext?
+    @Published private var entryContext: LocationContext
     @Published var searchText: String = ""
-    @Published var context: LocationContext?
+    @Published var showDAITAInfo: Bool
 
     private let exitLocationsDataSource = AllLocationDataSource()
     private let entryLocationsDataSource = AllLocationDataSource()
@@ -73,6 +88,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         self.customListsDataSource = CustomListsDataSource(
             repository: customListRepository
         )
+
         func getUserSelectedRelays(_ location: LocationNode) -> UserSelectedRelays {
             var customListSelection: UserSelectedRelays.CustomListSelection?
             if let topmostNode = location.root as? CustomListLocationNode {
@@ -94,6 +110,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             self.multihopContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
                 .blockedState?.reason { .entry } else { .exit }
         }
+
+        showDAITAInfo = tunnelManager.settings.daita.isAutomaticRouting
+
         self.exitContext = LocationContext(
             locations: [],
             customLists: [],
@@ -124,23 +143,23 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 didUpdateTunnelSettings: { [weak self] _, settings in
                     guard let self else { return }
                     fetchLocations(settings: settings)
-                    let isMultihop = settings.tunnelMultihopState.isEnabled
-                    if isMultihop {
+                    if settings.tunnelMultihopState.isEnabled {
                         if multihopContext == nil {
                             multihopContext = .exit
                         }
+                        showDAITAInfo = settings.daita.isAutomaticRouting
                     } else {
                         multihopContext = nil
                     }
                     exitContext.filter = SelectLocationViewModelImpl
                         .getActiveExitFilters(settings)
-                    entryContext?.filter = SelectLocationViewModelImpl
+                    entryContext.filter = SelectLocationViewModelImpl
                         .getActiveEntryFilters(settings)
                 }
             )
 
         $searchText.receive(on: RunLoop.main).sink { [weak self] _ in
-            self?.filterBySearch()
+            self?.fetchLocations(settings: tunnelManager.settings)
         }.store(in: &cancellables)
 
         tunnelManager.addObserver(tunnelObserver)
@@ -214,9 +233,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         if isObfuscation {
             if isMultihop {
                 activeFilter
-                    .append(
-                        .obfuscation
-                    )
+                    .append(.obfuscation)
             }
         }
         return activeFilter
@@ -264,9 +281,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             self.exitContext.connectedRelayHostname = nil
         }
         if let hostname = status.state.relays?.entry?.hostname {
-            self.entryContext?.connectedRelayHostname = hostname
+            self.entryContext.connectedRelayHostname = hostname
         } else {
-            self.entryContext?.connectedRelayHostname = nil
+            self.entryContext.connectedRelayHostname = nil
         }
     }
 
@@ -281,16 +298,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             if let entryRelays = relaysCandidates.entryRelays {
                 entryLocationsDataSource
                     .reload(entryRelays.toLocationRelays())
-                entryContext?.locations = entryLocationsDataSource
+                entryContext.locations = entryLocationsDataSource
                     .search(by: searchText)
             }
         }
         customListsDataSource.reload(allLocationNodes: exitContext.locations)
         exitContext.customLists = customListsDataSource.search(by: searchText)
-        if let entryContext {
-            customListsDataSource.reload(allLocationNodes: entryContext.locations)
-            self.entryContext?.customLists = customListsDataSource.search(by: searchText)
-        }
+        customListsDataSource.reload(allLocationNodes: entryContext.locations)
+        entryContext.customLists = customListsDataSource.search(by: searchText)
 
         if let exitLocations = settings.relayConstraints.exitLocations.value {
             setSelection(
@@ -316,16 +331,16 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         if let selectedEntryRelays {
             if let customListSelection = selectedEntryRelays.customListSelection,
                let customList = customListsDataSource.customList(by: customListSelection.listId) {
-                entryContext?.selectedLocation = customListsDataSource
+                entryContext.selectedLocation = customListsDataSource
                     .node(by: selectedEntryRelays, for: customList)
             } else if let location = selectedEntryRelays.locations.first {
-                entryContext?.selectedLocation = entryLocationsDataSource
+                entryContext.selectedLocation = entryLocationsDataSource
                     .node(by: location)
             } else {
-                entryContext?.selectedLocation = nil
+                entryContext.selectedLocation = nil
             }
         } else {
-            entryContext?.selectedLocation = nil
+            entryContext.selectedLocation = nil
         }
         expandSelectedLocation()
     }
@@ -337,16 +352,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 selectedExitLocation = parent
             }
         }
-        if var selectedEntryLocation = entryContext?.selectedLocation {
+        if var selectedEntryLocation = entryContext.selectedLocation {
             while let parent = selectedEntryLocation.parent {
                 parent.showsChildren = true
                 selectedEntryLocation = parent
             }
         }
-    }
-
-    func filterBySearch() {
-        fetchLocations(settings: tunnelManager.settings)
     }
 }
 

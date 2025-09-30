@@ -11,48 +11,45 @@ import SwiftUI
 struct SegmentedControl<Segment>: View where Segment: CustomStringConvertible, Segment: Hashable {
     let segments: [Segment]
     @Binding var selectedSegment: Segment
-
-    func isSelected(segment: Segment) -> Bool {
-        segment == selectedSegment
-    }
-
+    @State private var id: UUID = .init()
+    @Namespace var animation
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(segments, id: \.self) { segment in
-                // The segments are expected to be already localised
-                Button {
-                    withAnimation {
-                        selectedSegment = segment
-                    }
-                } label : {
-                    Text(LocalizedStringKey(segment.description))
-                        .padding()
-                        .font(.mullvadSmallSemiBold)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity) // Makes the text take all the available space
-                        .contentShape(Rectangle()) // Makes the tappable area extend beyond just the text
-                        .background(
-                            Group {
-                                if isSelected(segment: segment) {
-                                    Capsule()
-                                        .fill(UIColor.SegmentedControl.selectedColor.color)
-                                        .id("selected")
-                                } else {
-                                    Capsule()
-                                        .fill(.clear)
-                                }
-                            }
-                        )
-                        .padding(4)
-                        .frame(maxWidth: .infinity)
-                }
-                .disabled(isSelected(segment: segment))
-            }
-        }
-        .background(
+        ZStack {
             Capsule(style: .circular)
                 .fill(UIColor.SegmentedControl.backgroundColor.color)
-        )
+            HStack(spacing: 0) {
+                ForEach(segments, id: \.self) { segment in
+                    // The segments are expected to be already localised
+                    Button {
+                        withAnimation {
+                            selectedSegment = segment
+                        }
+                    } label: {
+                        Text(LocalizedStringKey(segment.description))
+                            .padding()
+                            .font(.mullvadSmallSemiBold)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity) // Makes the text take all the available space
+                            .contentShape(Rectangle()) // Makes the tappable area extend beyond just the text
+                            .background(
+                                Group {
+                                    if segment == selectedSegment {
+                                        Capsule()
+                                            .fill(UIColor.SegmentedControl.selectedColor.color)
+                                            .matchedGeometryEffect(id: id, in: animation)
+                                    } else {
+                                        Capsule()
+                                            .fill(.clear)
+                                    }
+                                }
+                            )
+                            .frame(maxWidth: .infinity)
+                    }
+                    .disabled(segment == selectedSegment)
+                }
+            }
+            .padding(4)
+        }
     }
 }
 
