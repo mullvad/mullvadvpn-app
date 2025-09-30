@@ -162,7 +162,7 @@ export function ProxyFormNameField(props: ProxyFormNameFieldProps) {
 }
 
 export function ProxyFormButtons() {
-  const { onSave, onCancel, onDelete, proxy } = useContext(proxyFormContext);
+  const { isNew, onSave, onCancel, onDelete } = useContext(proxyFormContext);
 
   // Contains form submittability to know whether or not to enable the Add/Save button.
   const formSubmittable = useSettingsFormSubmittable();
@@ -180,7 +180,7 @@ export function ProxyFormButtons() {
           <Button.Text>{messages.gettext('Cancel')}</Button.Text>
         </Button>
         <Button onClick={onSave} disabled={!formSubmittable}>
-          <Button.Text>{proxy ? messages.gettext('Save') : messages.gettext('Add')}</Button.Text>
+          <Button.Text>{isNew ? messages.gettext('Add') : messages.gettext('Save')}</Button.Text>
         </Button>
       </FlexRow>
     </Flex>
