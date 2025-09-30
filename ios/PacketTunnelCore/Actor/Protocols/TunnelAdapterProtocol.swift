@@ -47,6 +47,6 @@ public struct TunnelPeer {
 
 extension TunnelAdapterConfiguration: CustomDebugStringConvertible {
     public var debugDescription: String {
-        "interfaceAddresses: \(interfaceAddresses) peerEndpoint: \(peer?.endpoint) allowedIPs: \(allowedIPs)"
+        "interfaceAddresses: \(interfaceAddresses) peerEndpoint: \(peer?.endpoint.description ?? "") allowedIPs: \(allowedIPs)"
     }
 }

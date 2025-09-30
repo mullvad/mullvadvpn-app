@@ -36,7 +36,7 @@ extension Task where Success == Never, Failure == Never {
      */
     @available(iOS, introduced: 15.0, obsoleted: 16.0, message: "Replace with Task.sleep(for:tolerance:clock:).")
     static func sleepUsingContinuousClock(for duration: Duration) async throws {
-        nonisolated(unsafe) let timer = DispatchSource.makeTimerSource()
+        let timer = DispatchSource.makeTimerSource()
 
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in

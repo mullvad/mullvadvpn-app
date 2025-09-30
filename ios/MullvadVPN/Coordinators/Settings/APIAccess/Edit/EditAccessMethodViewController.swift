@@ -395,4 +395,4 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     private func onCancelTest() {
         interactor.cancelProxyConfigurationTest()
     }
-} // swiftlint:disable:this file_length
+}
