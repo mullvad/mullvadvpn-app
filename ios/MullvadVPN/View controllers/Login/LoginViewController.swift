@@ -443,4 +443,4 @@ private extension LoginState {
             return .hidden
         }
     }
-}
+}  // swiftlint:disable:this file_length
