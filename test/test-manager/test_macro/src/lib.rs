@@ -18,13 +18,15 @@ use test_rpc::meta::Os;
 ///
 /// # Arguments
 ///
-/// The `test_function` macro takes 4 optional arguments
+/// The `test_function` macro takes 3 optional arguments
 ///
 /// * `priority` - The order in which tests will be run where low numbers run before high numbers
 ///   and tests with the same number run in undefined order. `priority` defaults to 0.
 ///
 /// * `target_os` - The test should only run on the specified OS. This can currently be set to
 ///   `linux`, `windows`, or `macos`.
+///
+/// * `skip` - The test should not be run.
 ///
 /// # Examples
 ///
@@ -101,6 +103,7 @@ fn parse_marked_test_function(
 fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroParameters> {
     let mut priority = None;
     let mut targets = vec![];
+    let mut skip = false;
 
     for attribute in attributes {
         // we only use name-value attributes
@@ -109,32 +112,37 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroPar
         };
         let lit = &nv.lit;
 
-        if nv.path.is_ident("priority") {
-            match lit {
+        match &nv.path {
+            path if path.is_ident("priority") => match lit {
                 Lit::Int(lit_int) => priority = Some(lit_int.base10_parse().unwrap()),
                 _ => bail!(nv, "'priority' should have an integer value"),
+            },
+            path if path.is_ident("target_os") => {
+                let Lit::Str(lit_str) = lit else {
+                    bail!(nv, "'target_os' should have a string value");
+                };
+
+                let target = match lit_str.value().parse() {
+                    Ok(os) => os,
+                    Err(e) => bail!(lit_str, "{e}"),
+                };
+
+                if targets.contains(&target) {
+                    bail!(nv, "Duplicate target");
+                }
+
+                targets.push(target);
             }
-        } else if nv.path.is_ident("target_os") {
-            let Lit::Str(lit_str) = lit else {
-                bail!(nv, "'target_os' should have a string value");
-            };
-
-            let target = match lit_str.value().parse() {
-                Ok(os) => os,
-                Err(e) => bail!(lit_str, "{e}"),
-            };
-
-            if targets.contains(&target) {
-                bail!(nv, "Duplicate target");
-            }
-
-            targets.push(target);
-        } else {
-            bail!(nv, "unknown attribute");
+            path if path.is_ident("skip") => skip = true,
+            _ => bail!(nv, "unknown attribute"),
         }
     }
 
-    Ok(MacroParameters { priority, targets })
+    Ok(MacroParameters {
+        priority,
+        targets,
+        skip,
+    })
 }
 
 fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
@@ -149,6 +157,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             Os::Windows => quote! { ::test_rpc::meta::Os::Windows, },
         })
         .collect();
+    let skip = test_function.macro_parameters.skip;
 
     let func_name = test_function.name;
     let wrapper_closure = quote! {
@@ -170,6 +179,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             func: #wrapper_closure,
             priority: #test_function_priority,
             location: None,
+            skip: #skip,
         });
     }
 }
@@ -182,4 +192,5 @@ struct TestFunction {
 struct MacroParameters {
     priority: Option<i32>,
     targets: Vec<Os>,
+    skip: bool,
 }
