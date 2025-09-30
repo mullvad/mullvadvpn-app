@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
-"PO-Revision-Date: 2025-09-03 14:39\n"
+"PO-Revision-Date: 2025-09-30 07:30\n"
 
 msgid "%(amount)d more..."
 msgstr "Jeszcze %(amount)d"
@@ -258,6 +258,10 @@ msgstr "Wyjdź"
 
 msgid "Reconnect"
 msgstr "Połącz ponownie"
+
+#. Button label in confirmation dialog that confirms a remove action.
+msgid "Remove"
+msgstr "Usuń"
 
 msgid "Required"
 msgstr "Wymagane"
@@ -1502,17 +1506,29 @@ msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Sprawdzanie numeru konta"
 
+#. Text in button that allows user to create a new account.
 msgctxt "login-view"
-msgid "Create account"
-msgstr "Utwórz konto"
+msgid "Create a new account"
+msgstr "Utwórz nowe konto"
+
+#. Button which confirms the action to create a new account.
+msgctxt "login-view"
+msgid "Create new account"
+msgstr "Utwórz nowe konto"
 
 msgctxt "login-view"
 msgid "Creating account..."
 msgstr "Tworzenie konta..."
 
+#. Text that asks the user if they really want to create a new account.
 msgctxt "login-view"
-msgid "Don’t have an account number?"
-msgstr "Nie masz numeru konta?"
+msgid "Do you want to create a new account?"
+msgstr "Czy chcesz utworzyć nowe konto?"
+
+#. Text that asks the user if they really want to remove the saved account.
+msgctxt "login-view"
+msgid "Do you want to remove the saved account number?"
+msgstr "Czy chcesz usunąć zapisany numer konta?"
 
 msgctxt "login-view"
 msgid "Enter your account number"
@@ -1550,6 +1566,7 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr "Logowanie..."
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr "Logowanie"
@@ -1557,6 +1574,13 @@ msgstr "Logowanie"
 msgctxt "login-view"
 msgid "Login failed"
 msgstr "Błąd logowania"
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
+msgstr "Lub"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1567,6 +1591,12 @@ msgstr "Nasz kill switch blokuje połączenie."
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "Czekaj"
+
+#. Text that informs the user about the consequences of clearing the saved
+#. account number.
+msgctxt "login-view"
+msgid "Removing the saved account number from this device cannot be undone."
+msgstr "Usunięcia zapisanego numeru konta z tego urządzenia nie można cofnąć."
 
 #. Error message shown above login input when trying to login to an account
 #. with too many registered devices.
@@ -1585,6 +1615,11 @@ msgstr "Uaktualnianie..."
 msgctxt "login-view"
 msgid "Valid account number"
 msgstr "Prawidłowy numer konta"
+
+#. Text that informs the users about consequences of creating a new account.
+msgctxt "login-view"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "Masz już zapisany numer konta. Zapisany numer w takiej sytuacji zostanie usunięty z tego urządzenia. Nie można tego cofnąć."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2957,8 +2992,8 @@ msgstr "Kopiuj"
 msgid "Create"
 msgstr "Utwórz"
 
-msgid "Create new account"
-msgstr "Utwórz nowe konto"
+msgid "Create account"
+msgstr "Utwórz konto"
 
 msgid "Create new list"
 msgstr "Utwórz nową listę"
@@ -3014,8 +3049,8 @@ msgstr "Rozłączanie..."
 msgid "Dismiss"
 msgstr "Odrzuć"
 
-msgid "Do you want to create a new account?"
-msgstr "Czy chcesz utworzyć nowe konto?"
+msgid "Don’t have an account number?"
+msgstr "Nie masz numeru konta?"
 
 msgid "Edit custom lists"
 msgstr "Edytuj listy niestandardowe"
@@ -3227,9 +3262,6 @@ msgstr "Ostatnie: wyłączono i wyczyszczono historię"
 msgid "Recursion limit"
 msgstr "Limit rekursji"
 
-msgid "Remove"
-msgstr "Usuń"
-
 msgid "Remove %1$s from %2$s"
 msgstr "Usuń %1$s z %2$s"
 
@@ -3421,9 +3453,6 @@ msgstr "Zaciemnianie WireGuard"
 
 msgid "WireGuard port"
 msgstr "Port WireGuard"
-
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "Masz już zapisany numer konta, a wskutek utworzenia nowego konta zostanie on usunięty z tego urządzenia. Nie można tego cofnąć."
 
 msgid "\"%s\" was created"
 msgstr "Utworzono „%s”"

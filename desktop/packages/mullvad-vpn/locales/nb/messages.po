@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2025-09-03 14:39\n"
+"PO-Revision-Date: 2025-09-30 07:30\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -246,6 +246,10 @@ msgstr "Avslutt"
 
 msgid "Reconnect"
 msgstr "Koble til på nytt"
+
+#. Button label in confirmation dialog that confirms a remove action.
+msgid "Remove"
+msgstr "Fjern"
 
 msgid "Required"
 msgstr "Nødvendig"
@@ -1490,17 +1494,29 @@ msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Kontrollerer kontonummer"
 
+#. Text in button that allows user to create a new account.
 msgctxt "login-view"
-msgid "Create account"
-msgstr "Opprett konto"
+msgid "Create a new account"
+msgstr "Opprett en ny konto"
+
+#. Button which confirms the action to create a new account.
+msgctxt "login-view"
+msgid "Create new account"
+msgstr "Opprett en ny konto"
 
 msgctxt "login-view"
 msgid "Creating account..."
 msgstr "Oppretter konto ..."
 
+#. Text that asks the user if they really want to create a new account.
 msgctxt "login-view"
-msgid "Don’t have an account number?"
-msgstr "Har du ikke et kontonummer?"
+msgid "Do you want to create a new account?"
+msgstr "Vil du opprette en ny konto?"
+
+#. Text that asks the user if they really want to remove the saved account.
+msgctxt "login-view"
+msgid "Do you want to remove the saved account number?"
+msgstr "Vil du fjerne det lagrede kontonummeret?"
 
 msgctxt "login-view"
 msgid "Enter your account number"
@@ -1538,6 +1554,7 @@ msgctxt "login-view"
 msgid "Logging in..."
 msgstr "Logger inn ..."
 
+#. Label for the login button.
 msgctxt "login-view"
 msgid "Login"
 msgstr "Logg inn"
@@ -1545,6 +1562,13 @@ msgstr "Logg inn"
 msgctxt "login-view"
 msgid "Login failed"
 msgstr "Kunne ikke logge inn"
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
+msgstr "Eller"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1555,6 +1579,12 @@ msgstr "Vår avbruddsbryter blokkerer tilkoblingen din for øyeblikket."
 msgctxt "login-view"
 msgid "Please wait"
 msgstr "Vennligst vent"
+
+#. Text that informs the user about the consequences of clearing the saved
+#. account number.
+msgctxt "login-view"
+msgid "Removing the saved account number from this device cannot be undone."
+msgstr "Hvis du fjerner det lagrede kontonummeret fra denne enheten, kan det ikke angres."
 
 #. Error message shown above login input when trying to login to an account
 #. with too many registered devices.
@@ -1573,6 +1603,11 @@ msgstr "Oppgraderer …"
 msgctxt "login-view"
 msgid "Valid account number"
 msgstr "Gyldig kontonummer"
+
+#. Text that informs the users about consequences of creating a new account.
+msgctxt "login-view"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "Du har allerede et lagret kontonummer. Når du oppretter en ny konto, blir det lagrede kontonummeret fjernet fra denne enheten. Dette kan ikke angres."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2945,8 +2980,8 @@ msgstr "Kopier"
 msgid "Create"
 msgstr "Opprett"
 
-msgid "Create new account"
-msgstr "Opprett ny konto"
+msgid "Create account"
+msgstr "Opprett konto"
 
 msgid "Create new list"
 msgstr "Opprett ny liste"
@@ -3002,8 +3037,8 @@ msgstr "Kobler fra …"
 msgid "Dismiss"
 msgstr "Ignorer"
 
-msgid "Do you want to create a new account?"
-msgstr "Vil du opprette en ny konto?"
+msgid "Don’t have an account number?"
+msgstr "Har du ikke et kontonummer?"
 
 msgid "Edit custom lists"
 msgstr "Endre egendefinerte lister"
@@ -3215,9 +3250,6 @@ msgstr "Nylige er deaktivert og historikken er slettet"
 msgid "Recursion limit"
 msgstr "Rekursjonsgrense"
 
-msgid "Remove"
-msgstr "Fjern"
-
 msgid "Remove %1$s from %2$s"
 msgstr "Fjern %1$s fra %2$s"
 
@@ -3409,9 +3441,6 @@ msgstr "Tilsløring av WireGuard"
 
 msgid "WireGuard port"
 msgstr "WireGuard-port"
-
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "Du har allerede et lagret kontonummer. Når du oppretter en ny konto, blir det lagrede kontonummeret fjernet fra denne enheten. Dette kan ikke angres."
 
 msgid "\"%s\" was created"
 msgstr "«%s» ble opprettet"
