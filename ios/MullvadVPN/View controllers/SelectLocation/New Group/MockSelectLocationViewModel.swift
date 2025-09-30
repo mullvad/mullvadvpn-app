@@ -1,6 +1,7 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
+    var showDAITAInfo = false
 
     var activeLocationContext: LocationContext = .init(
         locations: [
@@ -93,11 +94,11 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
             .provider(12),
         ],
         selectedLocation: nil,
-        connectedRelayHostname: nil) { _ in
+        connectedRelayHostname: nil
+    ) { _ in
+    }
 
-        }
-
-    var multihopContext: MultihopContext? = .entry
+    @Published var multihopContext: MultihopContext? = .entry
 
     func onFilterTapped(_ filter: SelectLocationFilter) {
         print("show filter: \(filter)")
