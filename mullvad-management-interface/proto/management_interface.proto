@@ -580,7 +580,6 @@ message RelaySettings {
 message NormalRelaySettings {
   LocationConstraint location = 1;
   repeated string providers = 2;
-  TunnelType tunnel_type = 3;
   WireguardConstraints wireguard_constraints = 4;
   OpenvpnConstraints openvpn_constraints = 5;
   Ownership ownership = 6;

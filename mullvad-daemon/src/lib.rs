@@ -2712,13 +2712,11 @@ impl Daemon {
         match result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_enabled response");
-                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                if let RelaySettings::CustomTunnelEndpoint(_) = &self.settings.relay_settings {
                     return; // DAITA is not supported for custom relays
-                };
+                }
 
-                let wireguard_enabled = constraints.tunnel_protocol == TunnelType::Wireguard;
-
-                if settings_changed && wireguard_enabled {
+                if settings_changed {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
@@ -2750,15 +2748,13 @@ impl Daemon {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_use_multihop_if_necessary response");
 
-                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                if let RelaySettings::CustomTunnelEndpoint(_) = &self.settings.relay_settings {
                     return; // DAITA is not supported for custom relays
-                };
-
-                let wireguard_enabled = constraints.tunnel_protocol == TunnelType::Wireguard;
+                }
 
                 let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
 
-                if settings_changed && wireguard_enabled && daita_enabled {
+                if settings_changed && daita_enabled {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
@@ -2783,7 +2779,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
-                if settings_changed && self.get_target_tunnel_type() != Some(TunnelType::OpenVpn) {
+                if settings_changed {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }

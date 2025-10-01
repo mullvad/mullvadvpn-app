@@ -78,6 +78,7 @@ pub struct Settings {
     pub relay_settings: RelaySettings,
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
+    // TODO: remove
     pub bridge_state: BridgeState,
     /// All of the custom relay lists
     pub custom_lists: CustomListsSettings,

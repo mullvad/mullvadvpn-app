@@ -18,7 +18,7 @@ use std::{
     io::BufRead,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use talpid_types::net::{Endpoint, IpVersion, TransportProtocol, TunnelType, openvpn, wireguard};
+use talpid_types::net::{Endpoint, IpVersion, TransportProtocol, openvpn, wireguard};
 
 use super::{BooleanOption, relay_constraints::LocationArgs};
 use crate::{cmds::receive_confirmation, print_option};
@@ -93,9 +93,6 @@ pub enum SetCommands {
     /// Set tunnel protocol specific constraints
     #[clap(subcommand)]
     Tunnel(SetTunnelCommands),
-
-    /// Set tunnel protocol to use: 'wireguard', or 'openvpn'.
-    TunnelProtocol { protocol: TunnelType },
 
     /// Set a custom VPN relay to use
     #[clap(subcommand)]
@@ -291,8 +288,6 @@ impl Relay {
                         }),
                 );
 
-                print_option!("Tunnel protocol", constraints.tunnel_protocol,);
-
                 print_option!("Provider(s)", constraints.providers,);
                 print_option!("Ownership", constraints.ownership,);
 
@@ -423,7 +418,6 @@ impl Relay {
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
             SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
-            SetCommands::TunnelProtocol { protocol } => Self::set_tunnel_protocol(protocol).await,
         }
     }
 
@@ -554,28 +548,15 @@ impl Relay {
     async fn set_location(location_constraint_args: LocationArgs) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let relay_settings = rpc.get_settings().await?.get_relay_settings();
-        let constraints = match relay_settings {
-            RelaySettings::Normal(constraints) => constraints,
-            RelaySettings::CustomTunnelEndpoint(_custom) => {
-                bail!("Cannot change location while custom endpoint is set")
-            }
-        };
+        if let RelaySettings::CustomTunnelEndpoint(_custom) = relay_settings {
+            bail!("Cannot change location while custom endpoint is set");
+        }
 
-        // Depending on the current configured tunnel protocol, we filter only the relevant hosts
-        let location_constraint = match constraints.tunnel_protocol {
-            TunnelType::OpenVpn => {
-                resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
-                    relay.active && relay.endpoint_data == RelayEndpointData::Openvpn
-                })
-                .await
-            }
-            TunnelType::Wireguard => {
-                resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
-                    relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                })
-                .await
-            }
-        }?;
+        let location_constraint =
+            resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
+                relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+            })
+            .await?;
 
         Self::update_constraints(|constraints| {
             constraints.location = location_constraint.map(LocationConstraint::from);
@@ -708,13 +689,6 @@ impl Relay {
                 Ok(WireguardConstraints::default())
             }
         }
-    }
-
-    async fn set_tunnel_protocol(protocol: TunnelType) -> Result<()> {
-        Self::update_constraints(|constraints| {
-            constraints.tunnel_protocol = protocol;
-        })
-        .await
     }
 
     async fn update_override(
