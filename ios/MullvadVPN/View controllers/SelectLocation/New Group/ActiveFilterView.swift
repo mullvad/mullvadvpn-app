@@ -35,6 +35,7 @@ struct ActiveFilterView: View {
                             .foregroundStyle(Color.MullvadButton.primary)
                     }
                 }
+                .accessibilityIdentifier(filter.accessibilityIdentifier)
             }
         }
     }
