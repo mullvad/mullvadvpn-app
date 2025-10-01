@@ -239,6 +239,42 @@ class CustomListsRepositoryTest {
             assertEquals(expectedResult, result)
         }
 
+    @Test
+    fun `custom lists should be sorted alphabetically by name`() = runTest {
+        // Arrange
+        val customListId1 = CustomListId("1")
+        val customListId2 = CustomListId("2")
+        val customListId3 = CustomListId("3")
+        val customList1 =
+            CustomList(
+                id = customListId1,
+                name = CustomListName.fromString("Z List"),
+                locations = emptyList(),
+            )
+        val customList2 =
+            CustomList(
+                id = customListId2,
+                name = CustomListName.fromString("A List"),
+                locations = emptyList(),
+            )
+        val customList3 =
+            CustomList(
+                id = customListId3,
+                name = CustomListName.fromString("M List"),
+                locations = emptyList(),
+            )
+        val mockSettings: Settings = mockk()
+        every { mockSettings.customLists } returns listOf(customList1, customList2, customList3)
+        settingsFlow.value = mockSettings
+
+        // Act
+        val result = customListsRepository.customLists.value
+
+        // Assert
+        val expectedOrder = listOf(customList2, customList3, customList1)
+        assertEquals(expectedOrder, result)
+    }
+
     companion object {
         private const val RELAY_LIST_EXTENSIONS =
             "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
