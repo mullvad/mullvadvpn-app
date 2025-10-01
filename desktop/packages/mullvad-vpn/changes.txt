@@ -1,4 +1,1 @@
-[macOS] Fix some DNS-related issues.
-Add warnings before clearing account history.
-Login button has been moved from inside the account number input to under account number.
-[Windows] Improve QUIC download speeds.
+QUIC obfuscation will now use different in-addresses on consecutive connection attempts.
