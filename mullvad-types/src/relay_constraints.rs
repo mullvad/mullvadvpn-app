@@ -15,7 +15,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{IpVersion, TransportProtocol, TunnelType, proxy::CustomProxy};
+use talpid_types::net::{IpVersion, TransportProtocol, proxy::CustomProxy};
 
 /// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
 /// relay.
@@ -123,8 +123,8 @@ pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
-    pub tunnel_protocol: TunnelType,
     pub wireguard_constraints: WireguardConstraints,
+    // TODO: remove
     pub openvpn_constraints: OpenVpnConstraints,
 }
 
@@ -137,8 +137,7 @@ impl fmt::Display for RelayConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
             f,
-            "Tunnel protocol: {}\nOpenVPN constraints: {}\nWireguard constraints: {}",
-            self.constraints.tunnel_protocol,
+            "Tunnel protocol: wireguard\nOpenVPN constraints: {}\nWireguard constraints: {}",
             self.constraints.openvpn_constraints,
             WireguardConstraintsFormatter {
                 constraints: &self.constraints.wireguard_constraints,

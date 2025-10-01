@@ -59,7 +59,6 @@ import {
   RelaySettings,
   SocksAuth,
   TunnelParameterError,
-  TunnelProtocol,
   TunnelState,
   TunnelType,
   wrapConstraint,
@@ -386,8 +385,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.quantumResistance;
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
-    case grpcTypes.FeatureIndicator.BRIDGE_MODE:
-      return FeatureIndicator.bridgeMode;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
       return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
@@ -404,8 +401,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.serverIpOverride;
     case grpcTypes.FeatureIndicator.CUSTOM_MTU:
       return FeatureIndicator.customMtu;
-    case grpcTypes.FeatureIndicator.CUSTOM_MSS_FIX:
-      return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
     case grpcTypes.FeatureIndicator.DAITA_MULTIHOP:
@@ -537,7 +532,6 @@ function convertFromRelaySettings(
         const normal = relaySettings.getNormal()!;
         const locationConstraint = convertFromLocationConstraint(normal.getLocation());
         const location = wrapConstraint(locationConstraint);
-        const tunnelProtocol = convertFromTunnelType(normal.getTunnelType());
         const providers = normal.getProvidersList();
         const ownership = convertFromOwnership(normal.getOwnership());
         const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
@@ -548,7 +542,7 @@ function convertFromRelaySettings(
         return {
           normal: {
             location,
-            tunnelProtocol,
+            tunnelProtocol: 'wireguard',
             providers,
             ownership,
             wireguardConstraints,
@@ -955,7 +949,6 @@ export function convertToRelayConstraints(
 ): grpcTypes.NormalRelaySettings {
   const relayConstraints = new grpcTypes.NormalRelaySettings();
 
-  relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol));
   relayConstraints.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
   relayConstraints.setWireguardConstraints(
     convertToWireguardConstraints(constraints.wireguardConstraints),
@@ -1009,15 +1002,6 @@ function convertToGeographicConstraint(
   }
 
   return relayLocation;
-}
-
-function convertToTunnelType(tunnelProtocol: TunnelProtocol): grpcTypes.TunnelType {
-  switch (tunnelProtocol) {
-    case 'wireguard':
-      return grpcTypes.TunnelType.WIREGUARD;
-    case 'openvpn':
-      return grpcTypes.TunnelType.OPENVPN;
-  }
 }
 
 function convertToOpenVpnConstraints(
