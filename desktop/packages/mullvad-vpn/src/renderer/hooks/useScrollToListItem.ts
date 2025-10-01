@@ -3,7 +3,7 @@ import React from 'react';
 import { ScrollToAnchorId } from '../../shared/ipc-types';
 import { ListItemAnimation } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
-import { useFocusReference } from './useFocusReference';
+import { useFocusReferenceBeforePaint } from './useFocusReferenceBeforePaint';
 import { useScrollToReference } from './useScrollToReference';
 
 export const useScrollToListItem = <T extends HTMLElement = HTMLDivElement>(
@@ -36,7 +36,7 @@ export const useScrollToListItem = <T extends HTMLElement = HTMLDivElement>(
   }, [history, location, scrollToAnchorOption?.id, state]);
 
   useScrollToReference(ref, shouldScroll, handleScrolled);
-  useFocusReference(ref, shouldScroll);
+  useFocusReferenceBeforePaint(ref, shouldScroll);
 
   if (scrollToAnchorOption === undefined) {
     return {
@@ -44,6 +44,7 @@ export const useScrollToListItem = <T extends HTMLElement = HTMLDivElement>(
       animation: undefined,
     };
   }
+
   return {
     ref,
     animation: shouldScroll ? 'flash' : 'dim',
