@@ -72,12 +72,12 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.LoginUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.state.LoginUiStateError
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -332,7 +332,7 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         when (loginState) {
             is Idle ->
-                if (loginState.loginError != null) {
+                if (loginState.loginUiStateError != null) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_fail),
                         contentDescription = stringResource(id = R.string.login_fail_title),
@@ -356,8 +356,8 @@ private fun LoginState.title(): String =
         id =
             when (this) {
                 is Idle ->
-                    when (this.loginError) {
-                        is LoginError -> R.string.login_fail_title
+                    when (this.loginUiStateError) {
+                        is LoginUiStateError -> R.string.login_fail_title
                         null -> R.string.login_title
                     }
                 is Loading -> R.string.logging_in_title
@@ -370,11 +370,23 @@ private fun LoginState.supportingText(): String? {
     val res =
         when (this) {
             is Idle -> {
-                when (loginError) {
-                    LoginError.InvalidCredentials -> R.string.login_fail_description
-                    LoginError.UnableToCreateAccount -> R.string.failed_to_create_account
-                    LoginError.NoInternetConnection -> R.string.no_internet_connection
-                    is LoginError.Unknown -> R.string.error_occurred
+                when (loginUiStateError) {
+                    LoginUiStateError.LoginError.InvalidCredentials ->
+                        R.string.login_fail_description
+                    is LoginUiStateError.LoginError.InvalidInput ->
+                        R.string.login_error_invalid_input
+                    LoginUiStateError.LoginError.NoInternetConnection,
+                    LoginUiStateError.CreateAccountError.NoInternetConnection ->
+                        R.string.no_internet_connection
+                    LoginUiStateError.LoginError.ApiUnreachable,
+                    LoginUiStateError.CreateAccountError.ApiUnreachable ->
+                        R.string.login_error_api_unreachable
+                    LoginUiStateError.LoginError.TooManyAttempts,
+                    LoginUiStateError.CreateAccountError.TooManyAttempts ->
+                        R.string.login_error_too_many_attempts
+                    is LoginUiStateError.LoginError.Unknown -> R.string.error_occurred
+                    LoginUiStateError.CreateAccountError.Unknown ->
+                        R.string.failed_to_create_account
                     null -> return null
                 }
             }

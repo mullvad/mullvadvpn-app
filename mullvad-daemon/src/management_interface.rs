@@ -1489,8 +1489,19 @@ fn map_rest_error(error: &RestError) -> Status {
         {
             Status::new(Code::Unauthenticated, message)
         }
+        RestError::ApiError(status, message)
+        if *status == StatusCode::BAD_REQUEST =>
+        {
+            Status::new(Code::InvalidArgument, message)
+        }
+        RestError::ApiError(status, message)
+        if *status == StatusCode::TOO_MANY_REQUESTS =>
+            {
+                Status::new(Code::OutOfRange, message)
+            }
         RestError::TimeoutError => Status::deadline_exceeded("API request timed out"),
         RestError::HyperError(_) => Status::unavailable("Cannot reach the API"),
+        RestError::LegacyHyperError(_) => Status::unavailable("Cannot reach the API"),
         error => Status::unknown(format!("REST error: {error}")),
     }
 }
