@@ -226,7 +226,6 @@ export enum FeatureIndicator {
   daitaMultihop,
   quantumResistance,
   multihop,
-  bridgeMode,
   splitTunneling,
   lockdownMode,
   udp2tcp,
@@ -238,7 +237,6 @@ export enum FeatureIndicator {
   customDns,
   serverIpOverride,
   customMtu,
-  customMssFix,
 }
 
 export type DisconnectedState = {
@@ -309,12 +307,10 @@ export type TunnelProtocol = 'wireguard' | 'openvpn';
 
 export type IpVersion = 'ipv4' | 'ipv6';
 
-export interface IRelaySettingsNormal<OpenVpn, Wireguard> {
+export interface IRelaySettingsNormal<Wireguard> {
   location: Constraint<RelayLocation>;
-  tunnelProtocol: TunnelProtocol;
   providers: string[];
   ownership: Ownership;
-  openvpnConstraints: OpenVpn;
   wireguardConstraints: Wireguard;
 }
 
@@ -353,7 +349,7 @@ export interface IRelaySettingsCustom {
 }
 export type RelaySettings =
   | {
-      normal: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
+      normal: IRelaySettingsNormal<IWireguardConstraints>;
     }
   | {
       customTunnelEndpoint: IRelaySettingsCustom;
@@ -411,9 +407,6 @@ export type Quic = {
 export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 
 export interface ITunnelOptions {
-  openvpn: {
-    mssfix?: number;
-  };
   wireguard: {
     mtu?: number;
     quantumResistant?: boolean;

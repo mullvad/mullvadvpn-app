@@ -10,7 +10,6 @@ import {
   AccountDataResponse,
   AccountNumber,
   BridgeSettings,
-  BridgeState,
   CustomListError,
   CustomProxy,
   DaemonAppUpgradeEvent,
@@ -301,18 +300,6 @@ export class DaemonRpc extends GrpcClient {
     await this.callBool(this.client.setLockdownMode, lockdownMode);
   }
 
-  public async setBridgeState(bridgeState: BridgeState): Promise<void> {
-    const bridgeStateMap = {
-      auto: grpcTypes.BridgeState.State.AUTO,
-      on: grpcTypes.BridgeState.State.ON,
-      off: grpcTypes.BridgeState.State.OFF,
-    };
-
-    const grpcBridgeState = new grpcTypes.BridgeState();
-    grpcBridgeState.setState(bridgeStateMap[bridgeState]);
-    await this.call<grpcTypes.BridgeState, Empty>(this.client.setBridgeState, grpcBridgeState);
-  }
-
   public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
     const grpcBridgeSettings = new grpcTypes.BridgeSettings();
 
@@ -391,10 +378,6 @@ export class DaemonRpc extends GrpcClient {
       this.client.setObfuscationSettings,
       grpcObfuscationSettings,
     );
-  }
-
-  public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
-    await this.callNumber(this.client.setOpenvpnMssfix, mssfix);
   }
 
   public async setWireguardMtu(mtu?: number): Promise<void> {

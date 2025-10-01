@@ -19,7 +19,6 @@ export enum RoutePath {
   daitaSettings = '/settings/daita',
   udpOverTcp = '/settings/advanced/wireguard/udp-over-tcp',
   shadowsocks = '/settings/advanced/shadowsocks',
-  openVpnSettings = '/settings/advanced/openvpn',
   splitTunneling = '/settings/split-tunneling',
   apiAccessMethods = '/settings/api-access-methods',
   settingsImport = '/settings/settings-import',

@@ -264,13 +264,7 @@ msgstr ""
 msgid "System default"
 msgstr ""
 
-msgid "TCP"
-msgstr ""
-
 msgid "Test"
-msgstr ""
-
-msgid "This setting increases latency. Use only if needed."
 msgstr ""
 
 msgid "Troubleshoot"
@@ -280,9 +274,6 @@ msgid "Try a different search."
 msgstr ""
 
 msgid "Type"
-msgstr ""
-
-msgid "UDP"
 msgstr ""
 
 msgid "Unblock"
@@ -344,17 +335,6 @@ msgstr ""
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
-msgstr ""
-
-#. Accessibility label for link to blog post about OpenVPN support ending.
-msgctxt "accessibility"
-msgid "Go to blog post to read more, opens externally"
-msgstr ""
-
-#. Accessibility label for link to VPN settings where
-#. the user can change tunnel protocol.
-msgctxt "accessibility"
-msgid "Go to VPN settings to change tunnel protocol"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe
@@ -1194,29 +1174,6 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr ""
 
-#. First part of notification subtitle when there are no openVPN servers available.
-#. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support has ended. Please update the app or"
-msgstr ""
-
-#. Notification title indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s SUPPORT IS ENDING"
-msgstr ""
-
-#. First part of notification subtitle when there are no openVPN servers
-#. matching current settings. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support is ending. Switch location or"
-msgstr ""
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1245,14 +1202,6 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr ""
-
-#. Link following the first part of the notification subtitle.
-#. Will navigate the user to the VPN settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "change tunnel protocol to %(wireGuard)s."
 msgstr ""
 
 #. Notification subtitle when the app upgrade is ready to install.
@@ -1334,35 +1283,8 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr ""
 
-#. Notification title when there are no openVPN servers
-#. matching current settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVER AVAILABLE"
-msgstr ""
-
-#. Notification title when there are no openVPN servers available.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVERS AVAILABLE"
-msgstr ""
-
-#. Notification subtitle indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "Please change tunnel protocol to %(wireGuard)s."
-msgstr ""
-
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
-msgstr ""
-
-#. Link in notication to a blog post about OpenVPN support ending.
-msgctxt "in-app-notifications"
-msgid "Read more"
 msgstr ""
 
 #. Notification title when the app upgrade is ready to install.
@@ -1826,86 +1748,6 @@ msgstr ""
 #. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
-msgstr ""
-
-#. Title label in navigation bar
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-nav"
-msgid "%(openvpn)s settings"
-msgstr ""
-
-#. %(openvpn)s will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr ""
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "openvpn-settings-view"
-msgid "%(portType)s port"
-msgstr ""
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr ""
-
-#. This is used as a description for the bridge mode
-#. setting.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
-msgstr ""
-
-msgctxt "openvpn-settings-view"
-msgid "Mssfix"
-msgstr ""
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with "OpenVPN"
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
-msgstr ""
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automatic)s - the translation of "Automatic"
-#. %(tcp)s - the translation of "TCP"
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
-msgstr ""
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
-msgstr ""
-
-#. This is used to instruct users how to make UDP mode
-#. available.
-msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
-msgstr ""
-
-#. This text is shown beneath the bridge mode setting to instruct users how to
-#. configure the feature further.
-msgctxt "openvpn-settings-view"
-msgid "To select a specific bridge server, go to the Select location view."
-msgstr ""
-
-msgctxt "openvpn-settings-view"
-msgid "Transport protocol"
 msgstr ""
 
 #. Cancel button label for voucher redemption.
@@ -2515,11 +2357,6 @@ msgctxt "user-interface-settings-view"
 msgid "User interface settings"
 msgstr ""
 
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr ""
-
 #. %(wireguard)s will be replaced with the string "WireGuard"
 msgctxt "vpn-settings-view"
 msgid "%(wireguard)s settings"
@@ -2550,13 +2387,6 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
-msgstr ""
-
-#. Footer text for tunnel protocol selector when OpenVPN is selected.
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with OpenVPN
-msgctxt "vpn-settings-view"
-msgid "Attention: We are removing support for %(openVpn)s."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2633,12 +2463,6 @@ msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr ""
 
-#. Link in tunnel protocol selector footer to blog post
-#. about OpenVPN support ending.
-msgctxt "vpn-settings-view"
-msgid "Read more"
-msgstr ""
-
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
 msgstr ""
@@ -2674,10 +2498,6 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
 msgstr ""
 
 #. Label for settings that enables tracker blocking.
@@ -3400,6 +3220,9 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
+msgid "TCP"
+msgstr ""
+
 msgid "Test method"
 msgstr ""
 
@@ -3464,6 +3287,9 @@ msgid "Toggle VPN"
 msgstr ""
 
 msgid "Too many attempts, please try again later"
+msgstr ""
+
+msgid "UDP"
 msgstr ""
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."

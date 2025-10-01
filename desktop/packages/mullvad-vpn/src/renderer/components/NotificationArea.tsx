@@ -30,12 +30,9 @@ import {
   AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
-  NoOpenVpnServerAvailableNotificationProvider,
-  OpenVpnSupportEndingNotificationProvider,
   UnsupportedWireGuardPortNotificationProvider,
 } from '../lib/notifications';
 import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
-import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { useMounted } from '../lib/utility-hooks';
 import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
@@ -66,8 +63,6 @@ export default function NotificationArea(props: IProps) {
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
   const connection = useSelector((state: IReduxState) => state.connection);
   const version = useSelector((state: IReduxState) => state.version);
-  const tunnelProtocol = useTunnelProtocol();
-  const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
@@ -142,15 +137,9 @@ export default function NotificationArea(props: IProps) {
       appUpgradeEventType,
       appUpgradeDownloadProgressValue,
     }),
-    new NoOpenVpnServerAvailableNotificationProvider({
-      connection,
-      tunnelProtocol,
-      relayLocations: fullRelayList,
-    }),
     new UnsupportedWireGuardPortNotificationProvider({
       connection,
       relaySettings,
-      tunnelProtocol,
       allowedPortRanges,
     }),
     new ErrorNotificationProvider({
@@ -188,7 +177,6 @@ export default function NotificationArea(props: IProps) {
       updateDismissedForVersion,
       close: setDismissedUpgrade,
     }),
-    new OpenVpnSupportEndingNotificationProvider({ tunnelProtocol }),
   );
 
   const notificationProvider = notificationProviders.find((notification) =>

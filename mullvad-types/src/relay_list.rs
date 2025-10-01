@@ -14,8 +14,6 @@ use vec1::Vec1;
 pub struct RelayList {
     pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
-    #[serde(rename = "openvpn")]
-    pub openvpn: OpenVpnEndpointData,
     pub bridge: BridgeEndpointData,
     pub wireguard: WireguardEndpointData,
 }
@@ -134,7 +132,7 @@ impl Relay {
             RelayEndpointData::Wireguard(wireguard_relay_endpoint_data) => {
                 Some(wireguard_relay_endpoint_data)
             }
-            RelayEndpointData::Openvpn | RelayEndpointData::Bridge => None,
+            RelayEndpointData::Bridge => None,
         }
     }
 }
@@ -220,10 +218,6 @@ impl Relay {
     pub const fn is_wireguard(&self) -> bool {
         matches!(self.endpoint_data, RelayEndpointData::Wireguard(_))
     }
-
-    pub const fn is_openvpn(&self) -> bool {
-        matches!(self.endpoint_data, RelayEndpointData::Openvpn)
-    }
 }
 
 impl PartialEq for Relay {
@@ -297,7 +291,6 @@ impl std::hash::Hash for Relay {
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RelayEndpointData {
-    Openvpn,
     Bridge,
     Wireguard(WireguardRelayEndpointData),
 }
