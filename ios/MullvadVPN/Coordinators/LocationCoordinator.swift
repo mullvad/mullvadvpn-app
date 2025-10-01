@@ -17,7 +17,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private var tunnelObserver: TunnelObserver?
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let customListRepository: CustomListRepositoryProtocol
-
+    private let recentConnectionsRepository: RecentConnectionRepositoryProtocol
     let navigationController: UINavigationController
 
     var presentedViewController: UIViewController {
@@ -42,12 +42,14 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController: UINavigationController,
         tunnelManager: TunnelManager,
         relaySelectorWrapper: RelaySelectorWrapper,
-        customListRepository: CustomListRepositoryProtocol
+        customListRepository: CustomListRepositoryProtocol,
+        recentConnectionsRepository: RecentConnectionRepositoryProtocol
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
         self.relaySelectorWrapper = relaySelectorWrapper
         self.customListRepository = customListRepository
+        self.recentConnectionsRepository = recentConnectionsRepository
     }
 
     func start() {
@@ -57,6 +59,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                     tunnelManager: tunnelManager,
                     relaySelectorWrapper: relaySelectorWrapper,
                     customListRepository: customListRepository,
+                    recentConnectionsRepository: recentConnectionsRepository,
                     didSelectExitRelayLocations: { [weak self] relays in
                         guard let self else { return }
                         self.didSelectExitRelays(relays)

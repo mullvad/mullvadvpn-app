@@ -527,7 +527,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             navigationController: navigationController,
             tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
-            customListRepository: CustomListRepository()
+            customListRepository: CustomListRepository(),
+            recentConnectionsRepository: RecentConnectionRepository()
         )
 
         locationCoordinator.didFinish = { [weak self] _ in

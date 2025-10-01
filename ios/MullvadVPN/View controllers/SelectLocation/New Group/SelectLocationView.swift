@@ -56,7 +56,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     selectedLocation: viewModel.activeLocationContext.selectedLocation,
                     connectedRelayHostname: viewModel.activeLocationContext.connectedRelayHostname
                 ) { location in
-                    viewModel.activeLocationContext.selectLocation(location)
+                    (viewModel.activeLocationContext.selectLocation ?? <#default value#>)(location)
                 } contextMenu: { location in
                     VStack {
                         Button("Remove") {
@@ -143,6 +143,9 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 }
             )
+        }
+        .onDisappear {
+            viewModel.saveRecentConnections()
         }
     }
 }
@@ -238,15 +241,17 @@ protocol SelectLocationViewModel: ObservableObject {
     func onFilterTapped(_ filter: SelectLocationFilter)
     func onFilterRemoved(_ filter: SelectLocationFilter)
     func refreshCustomLists()
+    func saveRecentConnections()
 }
 
 struct LocationContext {
+    var recentConnections: [RecentConnectionLocationNode] = []
     var locations: [LocationNode]
     var customLists: [LocationNode]
     var filter: [SelectLocationFilter]
     var selectedLocation: LocationNode?
     var connectedRelayHostname: String?
-    let selectLocation: (LocationNode) -> Void
+    let selectLocation: ((LocationNode) -> Void)?
 
     init(
         locations: [LocationNode],
@@ -254,7 +259,7 @@ struct LocationContext {
         filter: [SelectLocationFilter],
         selectedLocation: LocationNode?,
         connectedRelayHostname: String?,
-        selectLocation: @escaping (LocationNode) -> Void
+        selectLocation: ((LocationNode) -> Void)? = nil
     ) {
         self.locations = locations
         self.customLists = customLists

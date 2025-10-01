@@ -10,6 +10,8 @@ import MullvadLogging
 public actor RecentConnectionRepository: RecentConnectionRepositoryProtocol {
     private let logger = Logger(label: "RecentConnectionRepository")
 
+    public init() {}
+
     private let settingsParser: SettingsParser = {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }()

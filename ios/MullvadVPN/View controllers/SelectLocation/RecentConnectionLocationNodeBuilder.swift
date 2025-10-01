@@ -24,17 +24,17 @@ struct RecentConnectionLocationNodeBuilder {
         self.userSelectedLocationFinder = userSelectedLocationFinder
     }
 
-    var recentConnectionLocationNode: RecentConnectionLocationNode? {
+    var node: RecentConnectionLocationNode? {
         let entrySelectedNode: LocationNode? = if let entryNode = recentConnection.entry {
             userSelectedLocationFinder.node(entryNode)
         } else {
             nil
         }
-        
+
         guard let exitSelectedNode = userSelectedLocationFinder.node(recentConnection.exit) else {
             return nil
         }
-        
+
         if !settings.tunnelMultihopState.isEnabled {
             return RecentConnectionLocationNode(
                 name: exitSelectedNode.name,
@@ -43,7 +43,7 @@ struct RecentConnectionLocationNodeBuilder {
                 entryLocation: nil,
                 exitLocation: exitSelectedNode
             )
-        } else if let entrySelectedNode{
+        } else if let entrySelectedNode {
             return RecentConnectionLocationNode(
                 name: "\(exitSelectedNode.name) via \(entrySelectedNode.name)",
                 code: "",
