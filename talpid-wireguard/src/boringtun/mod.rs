@@ -91,13 +91,16 @@ impl BoringTun {
     ) -> Result<Self, TunnelError> {
         let tun_dev = TunSusan::from_tun_device(tun_dev)
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+
         let devices = create_devices(
             &config,
+            None,
             tun_dev.clone(),
             #[cfg(target_os = "android")]
             android_tun.clone(),
         )
         .await?;
+
         Ok(Self {
             config,
             interface_name,
@@ -255,8 +258,13 @@ pub async fn open_boringtun_tunnel(
     Ok(boringtun)
 }
 
+/// Create and configure boringtun devices.
+///
+/// Will create an [EntryDevice] and an [ExitDevice] if `config` is a multihop config,
+/// and a [SingleHopConfig] otherwise.
 async fn create_devices(
-    config: &Config,
+    config: &Config, // TODO: do not include config to reduce confusion
+    daita: Option<&DaitaSettings>,
     tun_dev: TunSusan,
     #[cfg(target_os = "android")] tun: Arc<Tun>,
 ) -> Result<Devices, TunnelError> {
@@ -265,9 +273,8 @@ async fn create_devices(
         api: Some(entry_api_server),
     };
 
-    if let Some(exit_peer) = &config.exit_peer {
-        // multihop
-
+    let multihop = config.exit_peer.is_some();
+    let mut devices = if multihop {
         let source_v4 = config
             .tunnel
             .addresses
@@ -324,6 +331,59 @@ async fn create_devices(
         )
         .await;
 
+        Devices::Multihop {
+            entry_device,
+            entry_api,
+            exit_device,
+            exit_api,
+        }
+    } else {
+        #[cfg(target_os = "android")]
+        let factory = AndroidUdpSocketFactory { tun: tun_dev };
+
+        #[cfg(not(target_os = "android"))]
+        let factory = UdpSocketFactory;
+
+        let device =
+            SinglehopDevice::new(factory, tun_dev.clone(), tun_dev, boringtun_entry_config).await;
+
+        Devices::Singlehop {
+            device,
+            api: entry_api,
+        }
+    };
+
+    configure_devices(&mut devices, config, daita).await?;
+
+    Ok(devices)
+}
+
+/// (Re)Configure boringtun devices.
+///
+/// # Panic
+/// Panics if `config` is a multihop config and `devices` is [Devices::Singlehop].
+/// Panics if `config` is a singlehop config and `devices` is [Devices::Multihop].
+// TODO: don't panic
+async fn configure_devices(
+    devices: &mut Devices,
+    config: &Config,
+    daita: Option<&DaitaSettings>,
+) -> Result<(), TunnelError> {
+    if let Some(exit_peer) = &config.exit_peer {
+        log::info!(
+            "configuring boringtun multihop device (daita={})",
+            daita.is_some()
+        );
+
+        let Devices::Multihop {
+            entry_api,
+            exit_api,
+            ..
+        } = devices
+        else {
+            panic!("Single devices were provided with a multihop config");
+        };
+
         let private_key = &config.tunnel.private_key;
         let peer = &config.entry_peer;
         let set_cmd = create_set_command(
@@ -331,6 +391,7 @@ async fn create_devices(
             config.fwmark,
             private_key,
             peer,
+            daita,
         );
         entry_api.send(set_cmd).await.map_err(|err| {
             log::error!("Failed to set boringtun config: {err:#}");
@@ -342,29 +403,22 @@ async fn create_devices(
             config.fwmark,
             private_key,
             exit_peer,
+            None, // exit peer never has daita
         );
         exit_api.send(set_cmd).await.map_err(|err| {
             log::error!("Failed to set boringtun config: {err:#}");
             TunnelError::SetConfigError
         })?;
-
-        Ok(Devices::Multihop {
-            entry_device,
-            entry_api,
-            exit_device,
-            exit_api,
-        })
     } else {
-        #[cfg(target_os = "android")]
-        let factory = AndroidUdpSocketFactory { tun: tun_dev };
+        log::info!(
+            "configuring boringtun singlehop device (daita={})",
+            daita.is_some()
+        );
 
-        #[cfg(not(target_os = "android"))]
-        let factory = UdpSocketFactory;
+        let Devices::Singlehop { api, .. } = devices else {
+            panic!("Multihop devices were provided with a single config");
+        };
 
-        let device =
-            SinglehopDevice::new(factory, tun_dev.clone(), tun_dev, boringtun_entry_config).await;
-
-        log::info!("configuring boringtun device");
         let private_key = &config.tunnel.private_key;
         let peer = &config.entry_peer;
         let set_cmd = create_set_command(
@@ -372,18 +426,15 @@ async fn create_devices(
             config.fwmark,
             private_key,
             peer,
+            daita,
         );
-
-        entry_api.send(set_cmd).await.map_err(|err| {
+        api.send(set_cmd).await.map_err(|err| {
             log::error!("Failed to set boringtun config: {err:#}");
             TunnelError::SetConfigError
         })?;
-
-        Ok(Devices::Singlehop {
-            device,
-            api: entry_api,
-        })
     }
+
+    Ok(())
 }
 
 #[async_trait::async_trait]
@@ -448,11 +499,17 @@ impl Tunnel for BoringTun {
     fn set_config<'a>(
         &'a mut self,
         config: Config,
+        daita: Option<DaitaSettings>,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
+        dbg!(&config);
         Box::pin(async move {
-            let _old_config = std::mem::replace(&mut self.config, config);
-            if old_config.is_multihop() != self.config.is_multihop() {
-                // TODO: Update existing tunnels?
+            let old_config = std::mem::replace(&mut self.config, config);
+
+            // if we're switching too/from multihop, we'll need to tear down the old device(s)
+            // and set them up with the new DeviceTransports
+            let recreate_devices = old_config.is_multihop() != self.config.is_multihop();
+
+            if recreate_devices {
                 match self.devices.take().unwrap() {
                     Devices::Singlehop { device, .. } => {
                         device.stop().await;
@@ -466,60 +523,28 @@ impl Tunnel for BoringTun {
                         entry_device.stop().await;
                     }
                 }
-
-                self.devices = Some(
-                    create_devices(
-                        &self.config,
-                        self.tun_dev.clone(),
-                        #[cfg(target_os = "android")]
-                        self.android_tun.clone(),
-                    )
-                    .await?,
-                );
             }
-            self.devices = Some(
-                create_devices(
-                    &self.config,
-                    self.tun.clone(),
-                    #[cfg(target_os = "android")]
-                    self.android_tun.clone(),
-                )
-                .await?,
-            );
+
+            match &mut self.devices {
+                Some(devices) => {
+                    configure_devices(devices, &self.config, daita.as_ref()).await?;
+                }
+                None => {
+                    self.devices = Some(
+                        create_devices(
+                            &self.config,
+                            daita.as_ref(),
+                            self.tun_dev.clone(),
+                            #[cfg(target_os = "android")]
+                            self.android_tun.clone(),
+                        )
+                        .await?,
+                    )
+                }
+            };
+
             Ok(())
         })
-    }
-
-    async fn start_daita(&mut self, settings: DaitaSettings) -> Result<(), TunnelError> {
-        log::error!("start_daita");
-
-        let api = match &self.devices {
-            Some(devices) => match devices {
-                Devices::Singlehop { api, .. } => api,
-                Devices::Multihop { entry_api, .. } => entry_api,
-            },
-            None => todo!(),
-        };
-
-        let response = api.send(Get::default()).await.unwrap();
-
-        let get = match response {
-            Response::Get(get) => get,
-            Response::Set(..) => unreachable!(),
-        };
-
-        let mut set = Set::builder().build();
-        for peer in get.peers {
-            set = set.peer(
-                SetPeer::builder()
-                    .peer(peer.peer)
-                    .maybenot_machines(settings.client_machines.clone())
-                    .build(),
-            );
-        }
-        api.send(set).await.unwrap(); // TODO
-
-        Ok(())
     }
 }
 
@@ -527,6 +552,7 @@ fn create_set_command(
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
     private_key: &talpid_types::net::wireguard::PrivateKey,
     peer: &talpid_types::net::wireguard::PeerConfig,
+    daita: Option<&DaitaSettings>,
 ) -> Set {
     let mut set_cmd = Set::builder()
         .private_key(private_key.to_bytes())
@@ -557,11 +583,19 @@ fn create_set_command(
         boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
     }
 
-    let _ = peer.constant_packet_size; // TODO
+    let mut set_peer = SetPeer::builder().peer(boring_peer).build();
 
-    set_cmd
-        .peers
-        .push(SetPeer::builder().peer(boring_peer).build());
+    if let Some(daita) = daita {
+        let DaitaSettings {
+            client_machines,
+            max_padding_frac,
+            max_blocking_frac,
+        } = daita;
+
+        set_peer.maybenot_machines = Some(client_machines.clone());
+    }
+
+    set_cmd.peers.push(set_peer);
 
     set_cmd
 }

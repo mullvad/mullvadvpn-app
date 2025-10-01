@@ -120,10 +120,16 @@ impl Tunnel for NetlinkTunnel {
     fn set_config(
         &mut self,
         config: Config,
+        daita: Option<DaitaSettings>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
         let mut wg = self.netlink_connections.wg_handle.clone();
         let interface_index = self.interface_index;
         Box::pin(async move {
+            if daita.is_some() {
+                // Outright fail to start - this tunnel type does not support DAITA.
+                return Err(TunnelError::DaitaNotSupported);
+            }
+
             wg.set_config(interface_index, &config)
                 .await
                 .map_err(|err| {
@@ -131,10 +137,5 @@ impl Tunnel for NetlinkTunnel {
                     TunnelError::SetConfigError
                 })
         })
-    }
-
-    /// Outright fail to start - this tunnel type does not support DAITA.
-    async fn start_daita(&mut self, _: DaitaSettings) -> std::result::Result<(), TunnelError> {
-        Err(TunnelError::DaitaNotSupported)
     }
 }
