@@ -385,8 +385,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.quantumResistance;
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
-    case grpcTypes.FeatureIndicator.BRIDGE_MODE:
-      return FeatureIndicator.bridgeMode;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
       return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
@@ -403,8 +401,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.serverIpOverride;
     case grpcTypes.FeatureIndicator.CUSTOM_MTU:
       return FeatureIndicator.customMtu;
-    case grpcTypes.FeatureIndicator.CUSTOM_MSS_FIX:
-      return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
     case grpcTypes.FeatureIndicator.DAITA_MULTIHOP:
