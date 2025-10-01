@@ -30,4 +30,14 @@ enum SelectLocationFilter: Hashable {
             return "Providers: \(count)"
         }
     }
+
+    var accessibilityIdentifier: AccessibilityIdentifier? {
+        switch self {
+        case .daita:
+            .daitaFilterPill
+        case .obfuscation:
+            .obfuscationFilterPill
+        default: nil
+        }
+    }
 }
