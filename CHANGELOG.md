@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.10-beta2] - 2025-10-01
 ### Fixed
 - QUIC obfuscation only using one in-address when connecting. It will now randomly select one of
   the available in-addresses for each connection attempt.
