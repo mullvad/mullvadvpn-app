@@ -226,7 +226,6 @@ export enum FeatureIndicator {
   daitaMultihop,
   quantumResistance,
   multihop,
-  bridgeMode,
   splitTunneling,
   lockdownMode,
   udp2tcp,
@@ -238,7 +237,6 @@ export enum FeatureIndicator {
   customDns,
   serverIpOverride,
   customMtu,
-  customMssFix,
 }
 
 export type DisconnectedState = {

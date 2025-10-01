@@ -59,7 +59,6 @@ import {
   RelaySettings,
   SocksAuth,
   TunnelParameterError,
-  TunnelProtocol,
   TunnelState,
   TunnelType,
   wrapConstraint,
