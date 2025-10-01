@@ -52,6 +52,14 @@ fun ApiAccessMethodTextField(
                 keyboardType = keyboardType,
                 imeAction = imeAction,
             ),
-        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
+        supportingText =
+            errorText?.let {
+                {
+                    ErrorSupportingText(
+                        errorText,
+                        modifier = Modifier.padding(top = Dimens.miniPadding),
+                    )
+                }
+            },
     )
 }

@@ -346,9 +346,13 @@ class ManagementService(
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
+                    Status.Code.RESOURCE_EXHAUSTED if it.status.isTooManyRequests() ->
+                        LoginAccountError.TooManyAttempts
                     Status.Code.RESOURCE_EXHAUSTED ->
                         LoginAccountError.MaxDevicesReached(accountNumber)
-                    Status.Code.UNAVAILABLE -> LoginAccountError.RpcError
+                    Status.Code.DEADLINE_EXCEEDED -> LoginAccountError.Timeout
+                    Status.Code.INVALID_ARGUMENT -> LoginAccountError.InvalidInput(accountNumber)
+                    Status.Code.UNAVAILABLE -> LoginAccountError.ApiUnreachable
                     else -> {
                         Logger.e("Unknown login account error")
                         LoginAccountError.Unknown(it)
@@ -403,7 +407,16 @@ class ManagementService(
                 AccountNumber(accountNumberStringValue.value)
             }
             .onLeft { Logger.e("Create account error") }
-            .mapLeft(CreateAccountError::Unknown)
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.RESOURCE_EXHAUSTED -> CreateAccountError.TooManyAttempts
+                    Status.Code.UNAVAILABLE -> CreateAccountError.ApiUnreachable
+                    Status.Code.DEADLINE_EXCEEDED -> CreateAccountError.TimeOut
+                    else -> {
+                        CreateAccountError.Unknown(it)
+                    }
+                }
+            }
 
     suspend fun updateDnsContentBlockers(
         update: (DefaultDnsOptions) -> DefaultDnsOptions
@@ -900,8 +913,12 @@ class ManagementService(
         }
     }
 
+    private fun Status.isTooManyRequests() = description == TOO_MANY_REQUESTS
+
     companion object {
         const val ENABLE_TRACE_LOGGING = false
+
+        const val TOO_MANY_REQUESTS = "429 Too Many Requests"
     }
 }
 

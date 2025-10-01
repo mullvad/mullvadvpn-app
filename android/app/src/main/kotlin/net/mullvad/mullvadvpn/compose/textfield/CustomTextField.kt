@@ -113,8 +113,8 @@ fun CustomTextField(
 }
 
 @Composable
-fun ErrorSupportingText(text: String) {
-    Row(modifier = Modifier.padding(top = Dimens.miniPadding)) {
+fun ErrorSupportingText(text: String, modifier: Modifier = Modifier) {
+    Row(modifier = modifier) {
         Icon(
             imageVector = Icons.Default.Error,
             contentDescription = null,
