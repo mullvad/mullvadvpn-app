@@ -13,9 +13,6 @@ extension ConnectionView {
         @ObservedObject var viewModel: ConnectionViewViewModel
         @Binding var isExpanded: Bool
 
-        @State var titleForCountryAndCity: LocalizedStringKey?
-        @State var titleForServer: LocalizedStringKey?
-
         var body: some View {
             Button {
                 withAnimation {
@@ -46,41 +43,7 @@ extension ConnectionView {
                         }
                         .showIf(viewModel.showsConnectionDetails)
                     }
-                    if let titleForCountryAndCity {
-                        Text(titleForCountryAndCity)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(UIColor.primaryTextColor.color)
-                            .padding(.top, 4)
-                    }
-                    if let titleForServer {
-                        Text(titleForServer)
-                            .font(.body)
-                            .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                            .padding(.top, 2)
-                            .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelServerLabel.asString)
-                            .multilineTextAlignment(.leading)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
                 }
-                .onAppear {
-                    titleForServer = viewModel.titleForServer
-                    titleForCountryAndCity = viewModel.titleForCountryAndCity
-                }
-                .onChange(
-                    of: viewModel.titleForCountryAndCity,
-                    perform: { newValue in
-                        withAnimation {
-                            titleForCountryAndCity = newValue
-                        }
-                    }
-                )
-                .onChange(
-                    of: viewModel.titleForServer,
-                    perform: { newValue in
-                        withAnimation {
-                            titleForServer = newValue
-                        }
-                    })
             }
             .disabled(!viewModel.showsConnectionDetails)
         }
