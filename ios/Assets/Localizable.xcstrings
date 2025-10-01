@@ -174,6 +174,9 @@
         }
       }
     },
+    "+ New list" : {
+
+    },
     "A custom list with this name exists, please choose a unique name." : {
 
     },
@@ -262,6 +265,7 @@
 
     },
     "Account deletion" : {
+
     },
     "Account number" : {
       "localizations" : {
@@ -360,6 +364,12 @@
     "Add access method" : {
 
     },
+    "Add country to list" : {
+
+    },
+    "Add element" : {
+
+    },
     "Add locations" : {
       "localizations" : {
         "de" : {
@@ -408,6 +418,9 @@
       }
     },
     "Add Time" : {
+
+    },
+    "Add to list" : {
 
     },
     "Ads" : {
@@ -696,6 +709,12 @@
       }
     },
     "Back to editing" : {
+
+    },
+    "Bla" : {
+
+    },
+    "Blabla daita blabla" : {
 
     },
     "Blocked connection" : {
@@ -999,6 +1018,9 @@
         }
       }
     },
+    "Connected server" : {
+
+    },
     "Connected to %@, %@" : {
       "localizations" : {
         "en" : {
@@ -1282,6 +1304,7 @@
 
     },
     "Delete Account" : {
+
     },
     "Delete list" : {
       "localizations" : {
@@ -1328,6 +1351,7 @@
       }
     },
     "Deleting account..." : {
+
     },
     "Device is inactive" : {
       "localizations" : {
@@ -1598,6 +1622,9 @@
     "Done" : {
 
     },
+    "Edit" : {
+
+    },
     "Edit custom list" : {
 
     },
@@ -1812,6 +1839,7 @@
       }
     },
     "Entry" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1834,6 +1862,7 @@
       }
     },
     "Exit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2472,6 +2501,7 @@
       }
     },
     "Last four digits of the account number are incorrect" : {
+
     },
     "Last used account" : {
 
@@ -3303,6 +3333,9 @@
     "Providers: %d" : {
 
     },
+    "Providers: %lld" : {
+
+    },
     "Quantum resistance" : {
       "localizations" : {
         "de" : {
@@ -3489,6 +3522,9 @@
         }
       }
     },
+    "Remove element" : {
+
+    },
     "Remove last used account" : {
 
     },
@@ -3587,6 +3623,9 @@
       }
     },
     "Save anyway" : {
+
+    },
+    "Save locations by adding them to a custom list." : {
 
     },
     "Saving changes..." : {
@@ -3795,6 +3834,12 @@
 
     },
     "Setting: %@" : {
+
+    },
+    "Setting: Daita" : {
+
+    },
+    "Setting: Obfuscation" : {
 
     },
     "Settings" : {
@@ -4297,6 +4342,9 @@
 
     },
     "Time left: %@" : {
+
+    },
+    "To add locations to a list, press the pen or long press on a country, city, or server." : {
 
     },
     "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
