@@ -1,4 +1,4 @@
-use crate::types::{FromProtobufTypeError, conversions::net::try_tunnel_type_from_i32, proto};
+use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::Id,
@@ -57,23 +57,6 @@ impl TryFrom<&proto::WireguardConstraints>
     }
 }
 
-impl TryFrom<&proto::OpenvpnConstraints> for mullvad_types::relay_constraints::OpenVpnConstraints {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(
-        constraints: &proto::OpenvpnConstraints,
-    ) -> Result<mullvad_types::relay_constraints::OpenVpnConstraints, Self::Error> {
-        use mullvad_types::relay_constraints as mullvad_constraints;
-
-        Ok(mullvad_constraints::OpenVpnConstraints {
-            port: Constraint::from(match &constraints.port {
-                Some(port) => Some(mullvad_constraints::TransportPort::try_from(*port)?),
-                None => None,
-            }),
-        })
-    }
-}
-
 impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySettings {
     type Error = FromProtobufTypeError;
 
@@ -111,14 +94,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                     .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
-                let tunnel_protocol = try_tunnel_type_from_i32(settings.tunnel_type)?;
 
-                let openvpn_constraints =
-                    mullvad_constraints::OpenVpnConstraints::try_from(
-                        &settings.openvpn_constraints.ok_or(
-                            FromProtobufTypeError::InvalidArgument("missing openvpn constraints"),
-                        )?,
-                    )?;
                 let mut wireguard_constraints =
                     mullvad_constraints::WireguardConstraints::try_from(
                         &settings.wireguard_constraints.ok_or(
@@ -140,25 +116,10 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                         location,
                         providers,
                         ownership,
-                        tunnel_protocol,
                         wireguard_constraints,
-                        openvpn_constraints,
                     },
                 ))
             }
-        }
-    }
-}
-
-impl From<mullvad_types::relay_constraints::BridgeState> for proto::BridgeState {
-    fn from(state: mullvad_types::relay_constraints::BridgeState) -> Self {
-        use mullvad_types::relay_constraints::BridgeState;
-        Self {
-            state: i32::from(match state {
-                BridgeState::Auto => proto::bridge_state::State::Auto,
-                BridgeState::On => proto::bridge_state::State::On,
-                BridgeState::Off => proto::bridge_state::State::Off,
-            }),
         }
     }
 }
@@ -253,7 +214,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
             MullvadRelaySettings::CustomTunnelEndpoint(endpoint) => {
                 relay_settings::Endpoint::Custom(proto::CustomRelaySettings {
                     host: endpoint.host,
-                    config: Some(proto::ConnectionConfig::from(endpoint.config)),
+                    config: Some(proto::WireguardConfig::from(endpoint.config)),
                 })
             }
             MullvadRelaySettings::Normal(constraints) => {
@@ -264,7 +225,6 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                         .map(proto::LocationConstraint::from),
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
-                    tunnel_type: constraints.tunnel_protocol as i32,
 
                     wireguard_constraints: Some(proto::WireguardConstraints {
                         port: constraints
@@ -297,14 +257,6 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                         entry_ownership: convert_ownership_constraint(
                             &constraints.wireguard_constraints.entry_ownership,
                         ) as i32,
-                    }),
-
-                    openvpn_constraints: Some(proto::OpenvpnConstraints {
-                        port: constraints
-                            .openvpn_constraints
-                            .port
-                            .option()
-                            .map(proto::TransportPort::from),
                     }),
                 })
             }
@@ -536,27 +488,6 @@ impl TryFrom<&proto::ShadowsocksSettings>
         Ok(Self {
             port: Constraint::from(settings.port.map(|port| port as u16)),
         })
-    }
-}
-
-impl TryFrom<proto::BridgeState> for mullvad_types::relay_constraints::BridgeState {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(state: proto::BridgeState) -> Result<Self, Self::Error> {
-        match proto::bridge_state::State::try_from(state.state) {
-            Ok(proto::bridge_state::State::Auto) => {
-                Ok(mullvad_types::relay_constraints::BridgeState::Auto)
-            }
-            Ok(proto::bridge_state::State::On) => {
-                Ok(mullvad_types::relay_constraints::BridgeState::On)
-            }
-            Ok(proto::bridge_state::State::Off) => {
-                Ok(mullvad_types::relay_constraints::BridgeState::Off)
-            }
-            Err(_) => Err(FromProtobufTypeError::InvalidArgument(
-                "invalid bridge state",
-            )),
-        }
     }
 }
 

@@ -29,8 +29,7 @@ export type ScrollToAnchorId =
   | 'port-setting'
   | 'bridge-mode-setting'
   | 'mss-fix-setting'
-  | 'quantum-resistant-setting'
-  | 'tunnel-protocol-setting';
+  | 'quantum-resistant-setting';
 
 export type ScrollToAnchorOption = {
   type: 'scroll-to-anchor';
