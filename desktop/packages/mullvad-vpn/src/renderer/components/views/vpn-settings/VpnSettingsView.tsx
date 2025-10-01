@@ -22,8 +22,6 @@ import {
   IpOverrideSettings,
   KillSwitchSetting,
   LockdownModeSetting,
-  OpenVpnSettings,
-  TunnelProtocolSetting,
   WireguardSettings,
 } from './components';
 
@@ -72,12 +70,7 @@ export function VpnSettingsView() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <TunnelProtocolSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
                     <WireguardSettings />
-                    <OpenVpnSettings />
                   </SettingsGroup>
 
                   <SettingsGroup>
