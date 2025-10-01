@@ -17,11 +17,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.state.LoginUiStateError
 import net.mullvad.mullvadvpn.data.mock
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -76,7 +76,7 @@ class LoginViewModelTest {
 
             // Assert
             assertEquals(
-                Idle(loginError = LoginError.NoInternetConnection),
+                Idle(loginUiStateError = LoginUiStateError.NoInternetConnection),
                 uiStates.awaitItem().loginState,
             )
         }
@@ -153,7 +153,10 @@ class LoginViewModelTest {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
-            assertEquals(Idle(loginError = LoginError.InvalidCredentials), awaitItem().loginState)
+            assertEquals(
+                Idle(loginUiStateError = LoginUiStateError.InvalidCredentials),
+                awaitItem().loginState,
+            )
         }
     }
 
@@ -191,7 +194,7 @@ class LoginViewModelTest {
             loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             assertEquals(
-                Idle(LoginError.Unknown(EXPECTED_RPC_ERROR_MESSAGE)),
+                Idle(LoginUiStateError.Unknown(EXPECTED_RPC_ERROR_MESSAGE)),
                 awaitItem().loginState,
             )
         }
@@ -210,7 +213,7 @@ class LoginViewModelTest {
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             val loginState = awaitItem().loginState
             assertIs<Idle>(loginState)
-            assertIs<LoginError.Unknown>(loginState.loginError)
+            assertIs<LoginUiStateError.Unknown>(loginState.loginUiStateError)
         }
     }
 

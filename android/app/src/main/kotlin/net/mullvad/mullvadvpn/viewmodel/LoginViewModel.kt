@@ -20,21 +20,24 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.state.LoginUiStateError
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.util.delayAtLeast
 import net.mullvad.mullvadvpn.util.getOrDefault
+import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect.NavigateToWelcome
+import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect.TooManyDevices
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
 
@@ -108,17 +111,20 @@ class LoginViewModel(
             accountRepository
                 .createAccount()
                 .fold(
-                    { _loginState.value = Idle(LoginError.UnableToCreateAccount) },
-                    { _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome) },
+                    {
+                        _loginState.value =
+                            if (!isInternetAvailable()) {
+                                Idle(LoginUiStateError.LoginError.NoInternetConnection)
+                            } else {
+                                it.toUiState()
+                            }
+                    },
+                    { _uiSideEffect.send(NavigateToWelcome) },
                 )
         }
     }
 
     fun login(accountNumber: String) {
-        if (!isInternetAvailable()) {
-            _loginState.value = Idle(LoginError.NoInternetConnection)
-            return
-        }
         _loginState.value = Loading.LoggingIn
         viewModelScope.launch(dispatcher) {
             val uiState =
@@ -128,7 +134,13 @@ class LoginViewModel(
                         accountRepository.login(AccountNumber(accountNumber))
                     }
                     .fold(
-                        { it.toUiState() },
+                        {
+                            if (!isInternetAvailable()) {
+                                Idle(LoginUiStateError.LoginError.NoInternetConnection)
+                            } else {
+                                it.toUiState()
+                            }
+                        },
                         {
                             onSuccessfulLogin()
                             Success
@@ -172,14 +184,31 @@ class LoginViewModel(
 
     private suspend fun LoginAccountError.toUiState(): LoginState =
         when (this) {
-            LoginAccountError.InvalidAccount -> Idle(LoginError.InvalidCredentials)
+            LoginAccountError.InvalidAccount ->
+                Idle(LoginUiStateError.LoginError.InvalidCredentials)
             is LoginAccountError.MaxDevicesReached ->
-                Idle().also { _uiSideEffect.send(LoginUiSideEffect.TooManyDevices(accountNumber)) }
-            LoginAccountError.RpcError ->
-                Idle(LoginError.Unknown(this.toString())).also { Logger.w("RPC Error") }
+                Idle().also { _uiSideEffect.send(TooManyDevices(accountNumber)) }
+            is LoginAccountError.InvalidInput ->
+                Idle(LoginUiStateError.LoginError.InvalidInput(accountNumber))
+            LoginAccountError.TimeOut,
+            LoginAccountError.ApiUnreachable -> Idle(LoginUiStateError.LoginError.ApiUnreachable)
+            LoginAccountError.TooManyAttempts -> Idle(LoginUiStateError.LoginError.TooManyAttempts)
             is LoginAccountError.Unknown ->
-                Idle(LoginError.Unknown(this.toString())).also {
+                Idle(LoginUiStateError.LoginError.Unknown(this.toString())).also {
                     Logger.w("Login failed with error: $this", error)
+                }
+        }
+
+    private fun CreateAccountError.toUiState(): LoginState =
+        when (this) {
+            CreateAccountError.ApiUnreachable ->
+                Idle(LoginUiStateError.CreateAccountError.ApiUnreachable)
+            CreateAccountError.TimeOut -> Idle(LoginUiStateError.CreateAccountError.ApiUnreachable)
+            CreateAccountError.TooManyAttempts ->
+                Idle(LoginUiStateError.CreateAccountError.TooManyAttempts)
+            is CreateAccountError.Unknown ->
+                Idle(LoginUiStateError.CreateAccountError.Unknown).also {
+                    Logger.w("Create account failed with error: $this", error)
                 }
         }
 
