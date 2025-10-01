@@ -4,7 +4,6 @@ import { getDefaultRelaySettingsNormal } from '../../main/default-settings';
 import {
   BridgeSettings,
   IBridgeConstraints,
-  IOpenVpnConstraints,
   IRelaySettingsNormal,
   IWireguardConstraints,
   Ownership,
@@ -21,24 +20,16 @@ import { useNormalRelaySettings } from './relay-settings-hooks';
 
 export function wrapRelaySettingsOrDefault(
   relaySettings?: NormalRelaySettingsRedux,
-): IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints> {
+): IRelaySettingsNormal<IWireguardConstraints> {
   if (relaySettings) {
-    const openvpnPort = wrapConstraint(relaySettings.openvpn.port);
-    const openvpnProtocol = wrapConstraint(relaySettings.openvpn.protocol);
     const wgPort = wrapConstraint(relaySettings.wireguard.port);
     const wgIpVersion = wrapConstraint(relaySettings.wireguard.ipVersion);
     const wgEntryLocation = wrapConstraint(relaySettings.wireguard.entryLocation);
     const location = wrapConstraint(relaySettings.location);
-    const tunnelProtocol = relaySettings.tunnelProtocol;
 
     return {
       providers: [...relaySettings.providers],
       ownership: relaySettings.ownership,
-      tunnelProtocol,
-      openvpnConstraints: {
-        port: openvpnPort,
-        protocol: openvpnProtocol,
-      },
       wireguardConstraints: {
         port: wgPort,
         ipVersion: wgIpVersion,
@@ -55,8 +46,8 @@ export function wrapRelaySettingsOrDefault(
 }
 
 type RelaySettingsUpdateFunction = (
-  settings: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>,
-) => IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
+  settings: IRelaySettingsNormal<IWireguardConstraints>,
+) => IRelaySettingsNormal<IWireguardConstraints>;
 
 export function useRelaySettingsModifier() {
   const relaySettings = useNormalRelaySettings();

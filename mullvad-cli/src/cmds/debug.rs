@@ -20,10 +20,10 @@ pub enum DebugCommands {
 #[derive(clap::Subcommand, Debug)]
 pub enum RelayDebugCommands {
     /// Inactivate this _category of relays_ - a category can be one of the following: a relay, a
-    /// city, a country or a tunnel protocol (`openvpn` or `wireguard`).
+    /// city, a country.
     Disable { relay: String },
     /// (Re)Activate this _category of relays_ - a category can be one of the following: a relay, a
-    /// city, a country or a tunnel protocol (`openvpn` or `wireguard`).
+    /// city, a country.
     Enable { relay: String },
 }
 

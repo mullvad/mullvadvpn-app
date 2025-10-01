@@ -7,6 +7,4 @@ export * from './enable-ipv6-setting';
 export * from './ip-override-settings';
 export * from './kill-switch-setting';
 export * from './lockdown-mode-setting';
-export * from './open-vpn-settings';
-export * from './tunnel-protocol-setting';
 export * from './wireguard-settings';
