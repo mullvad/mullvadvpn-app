@@ -39,7 +39,8 @@ pub fn filter_matching_relay_list_include_all(
     let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
     relays
             // Filter on tunnel type
-            .filter(|relay| filter_tunnel_type(&query.tunnel_protocol(), relay))
+            // TODO: Remove
+            .filter(|relay| filter_tunnel_type(&TunnelType::Wireguard, relay))
             // Filter on active relays
             .filter(|relay| filter_on_active(relay))
             // Filter by location
