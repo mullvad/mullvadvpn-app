@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - QUIC obfuscation only using one in-address when connecting. It will now randomly select one of
   the available in-addresses for each connection attempt.
+- `quinn_udp` crate flooding `mullvad-daemon.log` with warnings.
 
 
 ## [2025.10-beta1] - 2025-09-16
