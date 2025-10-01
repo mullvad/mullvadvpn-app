@@ -16,7 +16,7 @@ import {
 } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
-import { useNormalRelaySettings, useTunnelProtocol } from '../../lib/relay-settings-hooks';
+import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
 import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
@@ -30,12 +30,8 @@ import CustomLists from './CustomLists';
 import { useRelayListContext } from './RelayListContext';
 import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
-import {
-  useOnSelectBridgeLocation,
-  useOnSelectEntryLocation,
-  useOnSelectExitLocation,
-} from './select-location-hooks';
-import { LocationType, SpecialBridgeLocationType, SpecialLocation } from './select-location-types';
+import { useOnSelectEntryLocation, useOnSelectExitLocation } from './select-location-hooks';
+import { LocationType, SpecialLocation } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 import {
   StyledContent,
@@ -46,11 +42,7 @@ import {
   StyledSelectionUnavailableText,
 } from './SelectLocationStyles';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
-import {
-  AutomaticLocationRow,
-  CustomBridgeLocationRow,
-  CustomExitLocationRow,
-} from './SpecialLocationList';
+import { CustomExitLocationRow } from './SpecialLocationList';
 
 export default function SelectLocation() {
   const history = useHistory();
@@ -61,7 +53,6 @@ export default function SelectLocation() {
   const { expandSearchResults } = useRelayListContext();
 
   const relaySettings = useNormalRelaySettings();
-  const tunnelProtocol = useTunnelProtocol();
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
@@ -74,25 +65,16 @@ export default function SelectLocation() {
   const lwo = useSelector(
     (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.lwo,
   );
-  const showQuicFilter = quicFilterActive(quic, locationType, tunnelProtocol, multihop);
-  const showLwoFilter = lwoFilterActive(lwo, locationType, tunnelProtocol, multihop);
-  const showDaitaFilter = daitaFilterActive(
-    daita,
-    directOnly,
-    locationType,
-    tunnelProtocol,
-    multihop,
-  );
+  const showQuicFilter = quicFilterActive(quic, locationType, multihop);
+  const showLwoFilter = lwoFilterActive(lwo, locationType, multihop);
+  const showDaitaFilter = daitaFilterActive(daita, directOnly, locationType, multihop);
 
   const [searchValue, setSearchValue] = useState('');
 
   const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
 
-  const bridgeState = useSelector((state) => state.settings.bridgeState);
-  const allowEntrySelection =
-    (tunnelProtocol === 'openvpn' && bridgeState === 'on') ||
-    (tunnelProtocol !== 'openvpn' && relaySettings?.wireguard.useMultihop);
+  const allowEntrySelection = relaySettings?.wireguard.useMultihop;
 
   const onClearProviders = useCallback(async () => {
     resetScrollPositions();
@@ -291,13 +273,11 @@ function SelectLocationContent() {
   const { relayList, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
   const [onSelectExitRelay, onSelectExitSpecial] = useOnSelectExitLocation();
   const [onSelectEntryRelay, onSelectEntrySpecial] = useOnSelectEntryLocation();
-  const [onSelectBridgeRelay, onSelectBridgeSpecial] = useOnSelectBridgeLocation();
 
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
   const relaySettings = useNormalRelaySettings();
-  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
 
   const allowAddToCustomList = useSelector((state) => state.settings.customLists.length > 0);
 
@@ -333,7 +313,7 @@ function SelectLocationContent() {
         <NoSearchResult specialLocationsLength={specialLocations.length} />
       </>
     );
-  } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
+  } else {
     if (daita && !directOnly && relaySettings?.wireguard.useMultihop) {
       return <DisabledEntrySelection />;
     }
@@ -354,44 +334,6 @@ function SelectLocationContent() {
           allowAddToCustomList={allowAddToCustomList}
         />
         <NoSearchResult specialLocationsLength={0} />
-      </>
-    );
-  } else {
-    // Add the "Automatic" item
-    const specialList: Array<SpecialLocation<SpecialBridgeLocationType>> = [
-      {
-        label: messages.pgettext('select-location-view', 'Custom bridge'),
-        value: SpecialBridgeLocationType.custom,
-        selected: bridgeSettings?.type === 'custom',
-        disabled: bridgeSettings?.custom === undefined,
-        component: CustomBridgeLocationRow,
-      },
-      {
-        label: messages.gettext('Automatic'),
-        value: SpecialBridgeLocationType.closestToExit,
-        selected: bridgeSettings?.type === 'normal' && bridgeSettings.normal?.location === 'any',
-        component: AutomaticLocationRow,
-      },
-    ];
-
-    const specialLocations = filterSpecialLocations(searchTerm, specialList);
-    return (
-      <>
-        <CustomLists selectedElementRef={selectedLocationRef} onSelect={onSelectBridgeRelay} />
-        <LocationList
-          key={locationType}
-          relayLocations={relayList}
-          specialLocations={specialLocations}
-          selectedElementRef={selectedLocationRef}
-          onSelectRelay={onSelectBridgeRelay}
-          onSelectSpecial={onSelectBridgeSpecial}
-          onExpand={expandLocation}
-          onCollapse={collapseLocation}
-          onWillExpand={onBeforeExpand}
-          onTransitionEnd={resetHeight}
-          allowAddToCustomList={allowAddToCustomList}
-        />
-        <NoSearchResult specialLocationsLength={specialLocations.length} />
       </>
     );
   }
