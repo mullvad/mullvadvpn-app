@@ -4,6 +4,7 @@ import { Page } from 'playwright';
 import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
+import { linuxApplicationsList } from './helpers';
 
 let page: Page;
 let util: MockedTestUtils;
@@ -30,32 +31,7 @@ test.describe('Split tunneling', () => {
 
     test.beforeAll(async () => {
       await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(false);
-      await util.ipc.linuxSplitTunneling.getApplications.handle([
-        {
-          absolutepath: '/app',
-          exec: 'app',
-          name: 'app',
-          type: 'app',
-          icon: '',
-          warning: undefined,
-        },
-        {
-          absolutepath: '/launches-elsewhere',
-          exec: 'launches-elsewhere',
-          name: 'launches-elsewhere',
-          type: 'launches-elsewhere',
-          icon: '',
-          warning: 'launches-elsewhere',
-        },
-        {
-          absolutepath: '/launches-in-existing-process',
-          exec: 'launches-in-existing-process',
-          name: 'launches-in-existing-process',
-          type: 'launches-in-existing-process',
-          icon: '',
-          warning: 'launches-in-existing-process',
-        },
-      ]);
+      await util.ipc.linuxSplitTunneling.getApplications.handle(linuxApplicationsList);
     });
 
     test('App should show unsupported dialog when link in header is clicked', async () => {
