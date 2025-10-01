@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const useIsDefaultActiveElementAfterMount = () => {
+export const useIsDefaultActiveElementAfterPaint = () => {
   const [isDefaultActiveElementAfterMount, setIsDefaultActiveElementAfterMount] = React.useState<
     boolean | undefined
   >(undefined);
