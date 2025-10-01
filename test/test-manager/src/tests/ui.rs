@@ -1,7 +1,6 @@
 use super::{Error, TestContext, config::TEST_CONFIG, helpers};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-use mullvad_types::relay_constraints::RelaySettings;
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -114,28 +113,6 @@ pub async fn test_ui_tunnel_settings(
     .unwrap();
     assert!(ui_result.success());
 
-    Ok(())
-}
-
-/// Test how various tunnel settings for OpenVPN are handled and displayed by the GUI
-#[test_function]
-pub async fn test_ui_openvpn_tunnel_settings(
-    _: TestContext,
-    rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> anyhow::Result<()> {
-    // openvpn-tunnel-state.spec precondition: OpenVPN needs to be selected
-    let relay_settings = mullvad_client.get_settings().await?.get_relay_settings();
-    let RelaySettings::Normal(mut constraints) = relay_settings else {
-        unimplemented!()
-    };
-    constraints.tunnel_protocol = talpid_types::net::TunnelType::OpenVpn;
-    mullvad_client
-        .set_relay_settings(RelaySettings::Normal(constraints))
-        .await?;
-
-    let ui_result = run_test(&rpc, &["openvpn-tunnel-state.spec"]).await?;
-    assert!(ui_result.success());
     Ok(())
 }
 
