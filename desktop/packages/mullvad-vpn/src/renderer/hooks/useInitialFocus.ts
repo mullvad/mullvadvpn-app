@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useFocusReference } from './useFocusReference';
+import { useFocusReferenceAfterPaint } from './useFocusReferenceAfterPaint';
 import { useIsDefaultActiveElementAfterMount } from './useIsDefaultActiveElementAfterMount';
 
 export const useInitialFocus = <T extends HTMLElement = HTMLDivElement>(): {
@@ -11,7 +11,7 @@ export const useInitialFocus = <T extends HTMLElement = HTMLDivElement>(): {
   const isDefaultFocus = useIsDefaultActiveElementAfterMount();
   const shouldFocus = isDefaultFocus === true;
 
-  useFocusReference(ref, shouldFocus);
+  useFocusReferenceAfterPaint(ref, shouldFocus);
 
   if (!isDefaultFocus)
     return {
