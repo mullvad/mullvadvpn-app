@@ -10,7 +10,7 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayEndpointData, RelayList, WireguardRelayEndpointData},
 };
-use talpid_types::net::{IpVersion, TunnelType};
+use talpid_types::net::IpVersion;
 
 use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
 
@@ -38,8 +38,8 @@ pub fn filter_matching_relay_list_include_all(
     let relays = relay_list.relays();
     let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
     relays
-            // Filter on tunnel type
-            .filter(|relay| filter_tunnel_type(&query.tunnel_protocol(), relay))
+            // Filter on relay type (ignore bridge relays)
+            .filter(|relay| filter_wireguard(relay))
             // Filter on active relays
             .filter(|relay| filter_on_active(relay))
             // Filter by location
@@ -209,27 +209,6 @@ fn filter_on_include_in_country(
             }
         }
     }
-}
-
-/// Returns whether the relay is an OpenVPN relay.
-pub const fn filter_openvpn(relay: &Relay) -> bool {
-    matches!(relay.endpoint_data, RelayEndpointData::Openvpn)
-}
-
-/// Returns whether the relay matches the tunnel constraint `filter`
-#[cfg(not(target_os = "android"))]
-pub const fn filter_tunnel_type(filter: &TunnelType, relay: &Relay) -> bool {
-    match filter {
-        TunnelType::OpenVpn => filter_openvpn(relay),
-        TunnelType::Wireguard => filter_wireguard(relay),
-    }
-}
-
-/// Returns whether the relay matches the tunnel constraint `filter`
-#[cfg(target_os = "android")]
-pub const fn filter_tunnel_type(_: &TunnelType, relay: &Relay) -> bool {
-    // Only keep Wireguard relays on Android (i.e. filter out OpenVPN relays)
-    filter_wireguard(relay)
 }
 
 /// Returns whether the relay is a Wireguard relay.
