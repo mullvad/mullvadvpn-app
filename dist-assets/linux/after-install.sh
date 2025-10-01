@@ -7,18 +7,15 @@ systemctl enable "/usr/lib/systemd/system/mullvad-daemon.service"
 systemctl start mullvad-daemon.service || echo "Failed to start mullvad-daemon.service"
 systemctl enable "/usr/lib/systemd/system/mullvad-early-boot-blocking.service"
 
-# return 0 if version $1 is greater than or equal to $2
-function version_is_ge {
-    [ "$1" = "$2" ] && return 0
-    printf '%s\n' "$2" "$1" | sort -C -V
+# Check if the system supports a new-enough AppArmor version.
+function supported_apparmor() {
+    [[ -e /etc/apparmor.d/abi/4.0 ]]
 }
 
-# Ubuntu 24.04 or newer: Install apparmor profile to allow Electron sandbox to work
-# This disables user namespace restrictions
-os=$(grep -oP '^ID=\K.+' /etc/os-release | tr -d '"')
-version=$(grep -oP '^VERSION_ID=\K.+' /etc/os-release | tr -d '"')
-
-if [[ "$os" == "ubuntu" ]] && version_is_ge "$version" "24.04"; then
+if supported_apparmor; then
+    # Install our AppArmor profile and try to reload AppArmor.
+    # The AppArmor profile allow Electron sandbox to work.
+    # This disables user namespace restrictions.
     echo "Creating apparmor profile"
     cp /opt/Mullvad\ VPN/resources/apparmor_mullvad /etc/apparmor.d/mullvad
     apparmor_parser -r /etc/apparmor.d/mullvad || echo "Failed to reload apparmor profile"

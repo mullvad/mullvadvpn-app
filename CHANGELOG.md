@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add validation for API access methods to only allow unique names. Access methods with
   duplicated names will be renamed.
 
+#### Linux
+- Install AppArmor profile on all Linux distributions that support AppArmor abi 4.0.
+
+
 ## [2025.10-beta1] - 2025-09-16
 ### Added
 - Add helpful warnings when clearing account history. This helps users not lose their account
