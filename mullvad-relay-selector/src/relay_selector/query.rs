@@ -3,20 +3,20 @@
 //! A query is a set of constraints that the [`crate::RelaySelector`] will use when filtering out
 //! potential relays that the daemon should connect to. It supports filtering relays by geographic
 //! location, provider, ownership, and tunnel protocol, along with protocol-specific settings for
-//! WireGuard and OpenVPN.
+//! WireGuard.
 //!
 //! The main components of this module include:
 //!
 //! - [`RelayQuery`]: The core struct for specifying a query to select relay servers. It aggregates
 //!   constraints on location, providers, ownership, tunnel protocol, and protocol-specific
-//!   constraints for WireGuard and OpenVPN.
-//! - [`WireguardRelayQuery`] and [`OpenVpnRelayQuery`]: Structs that define protocol-specific
-//!   constraints for selecting WireGuard and OpenVPN relays, respectively.
+//!   constraints for WireGuard.
+//! - [`WireguardRelayQuery`]: Struct that defines protocol-specific constraints for selecting
+//!   WireGuard relays.
 //! - [`Intersection`]: A trait implemented by the different query types that support intersection
 //!   logic, which allows for combining two queries into a single query that represents the common
 //!   constraints of both.
 //! - [Builder patterns][builder]: The module also provides builder patterns for creating instances
-//!   of `RelayQuery`, `WireguardRelayQuery`, and `OpenVpnRelayQuery` with a fluent API.
+//!   of `RelayQuery`, and `WireguardRelayQuery` with a fluent API.
 //!
 //! ## Design
 //!
@@ -28,25 +28,23 @@
 //! queries and ensure that queries are built in a type-safe manner, reducing the risk
 //! of runtime errors and improving code readability.
 
-use crate::Error;
 use mullvad_types::{
     Intersection,
     constraints::Constraint,
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, BridgeType, LocationConstraint,
-        ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
-        RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
+        BridgeConstraints, LocationConstraint, ObfuscationSettings, Ownership, Providers,
+        RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings,
         Udp2TcpObfuscationSettings, WireguardConstraints, allowed_ip::AllowedIps,
     },
     wireguard::QuantumResistantState,
 };
-use talpid_types::net::{IpVersion, TunnelType, proxy::CustomProxy};
+use talpid_types::net::{IpVersion, proxy::CustomProxy};
 
 /// Represents a query for a relay based on various constraints.
 ///
 /// This struct contains constraints for the location, providers, ownership,
-/// tunnel protocol, and additional protocol-specific constraints for WireGuard
-/// and OpenVPN. These constraints are used by the [`crate::RelaySelector`] to
+/// tunnel protocol, and additional protocol-specific constraints for WireGuard.
+/// These constraints are used by the [`crate::RelaySelector`] to
 /// filter and select suitable relay servers that match the specified criteria.
 ///
 /// A [`RelayQuery`] is best constructed via the fluent builder API exposed by
@@ -78,61 +76,31 @@ pub struct RelayQuery {
     location: Constraint<LocationConstraint>,
     providers: Constraint<Providers>,
     ownership: Constraint<Ownership>,
-    tunnel_protocol: TunnelType,
     wireguard_constraints: WireguardRelayQuery,
-    openvpn_constraints: OpenVpnRelayQuery,
 }
 
 impl RelayQuery {
-    /// Create a new [`RelayQuery`], and fail if the combination of constraints is invalid.
+    /// Create a new [`RelayQuery`].
     pub fn new(
         location: Constraint<LocationConstraint>,
         providers: Constraint<Providers>,
         ownership: Constraint<Ownership>,
-        tunnel_protocol: TunnelType,
         wireguard_constraints: WireguardRelayQuery,
-        openvpn_constraints: OpenVpnRelayQuery,
-    ) -> Result<RelayQuery, Error> {
-        let mut query = RelayQuery {
+    ) -> RelayQuery {
+        RelayQuery {
             location,
             providers,
             ownership,
-            tunnel_protocol,
             wireguard_constraints,
-            openvpn_constraints,
-        };
-        query.validate()?;
-        Ok(query)
-    }
-
-    fn validate(&mut self) -> Result<(), Error> {
-        if self.core_privacy_feature_enabled() {
-            if self.tunnel_protocol == TunnelType::OpenVpn {
-                log::error!(
-                    "Cannot use OpenVPN with a core privacy feature enabled (DAITA = {}, PQ = {}, or multihop = {})",
-                    self.wireguard_constraints.daita,
-                    self.wireguard_constraints.quantum_resistant,
-                    self.wireguard_constraints.multihop()
-                );
-                return Err(Error::InvalidConstraints);
-            }
-            self.tunnel_protocol = TunnelType::Wireguard;
         }
-        Ok(())
-    }
-
-    fn core_privacy_feature_enabled(&self) -> bool {
-        self.wireguard_constraints.daita == Constraint::Only(true)
-            || self.wireguard_constraints.multihop()
-            || self.wireguard_constraints.quantum_resistant == QuantumResistantState::On
     }
 
     pub fn location(&self) -> &Constraint<LocationConstraint> {
         &self.location
     }
 
-    pub fn set_location(&mut self, location: Constraint<LocationConstraint>) -> Result<(), Error> {
-        self.set_if_valid(|query| query.location = location)
+    pub fn set_location(&mut self, location: Constraint<LocationConstraint>) {
+        self.location = location;
     }
 
     pub fn providers(&self) -> &Constraint<Providers> {
@@ -151,29 +119,6 @@ impl RelayQuery {
         self.ownership = ownership;
     }
 
-    pub fn tunnel_protocol(&self) -> TunnelType {
-        self.tunnel_protocol
-    }
-
-    pub fn set_tunnel_protocol(&mut self, tunnel_protocol: TunnelType) -> Result<(), Error> {
-        self.set_if_valid(|query| query.tunnel_protocol = tunnel_protocol)
-    }
-
-    pub fn openvpn_constraints(&self) -> &OpenVpnRelayQuery {
-        &self.openvpn_constraints
-    }
-
-    pub fn into_openvpn_constraints(self) -> OpenVpnRelayQuery {
-        self.openvpn_constraints
-    }
-
-    pub fn set_openvpn_constraints(
-        &mut self,
-        openvpn_constraints: OpenVpnRelayQuery,
-    ) -> Result<(), Error> {
-        self.set_if_valid(|query| query.openvpn_constraints = openvpn_constraints)
-    }
-
     pub fn wireguard_constraints(&self) -> &WireguardRelayQuery {
         &self.wireguard_constraints
     }
@@ -182,20 +127,8 @@ impl RelayQuery {
         self.wireguard_constraints
     }
 
-    pub fn set_wireguard_constraints(
-        &mut self,
-        wireguard_constraints: WireguardRelayQuery,
-    ) -> Result<(), Error> {
-        self.set_if_valid(|query| query.wireguard_constraints = wireguard_constraints)
-    }
-
-    fn set_if_valid(&mut self, set_fn: impl FnOnce(&mut Self)) -> Result<(), Error> {
-        let mut new = self.clone();
-        (set_fn)(&mut new);
-        new.validate()?;
-        *self = new;
-
-        Ok(())
+    pub fn set_wireguard_constraints(&mut self, wireguard_constraints: WireguardRelayQuery) {
+        self.wireguard_constraints = wireguard_constraints;
     }
 
     /// The mapping from [`RelayQuery`] to all underlying settings types.
@@ -204,19 +137,7 @@ impl RelayQuery {
     /// still want use of the builder for convenience. For example in
     /// end to end tests where you must use the management interface
     /// to apply settings to the daemon.
-    pub fn into_settings(
-        self,
-    ) -> (
-        RelayConstraints,
-        BridgeState,
-        BridgeSettings,
-        ObfuscationSettings,
-    ) {
-        let (bridge_state, bridge_settings) = self
-            .openvpn_constraints
-            .bridge_settings
-            .clone()
-            .into_settings();
+    pub fn into_settings(self) -> (RelayConstraints, ObfuscationSettings) {
         let obfuscation = self
             .wireguard_constraints
             .obfuscation
@@ -226,12 +147,10 @@ impl RelayQuery {
             location: self.location,
             providers: self.providers,
             ownership: self.ownership,
-            tunnel_protocol: self.tunnel_protocol,
             wireguard_constraints: self.wireguard_constraints.into_constraints(),
-            openvpn_constraints: self.openvpn_constraints.into_constraints(),
         };
 
-        (constraints, bridge_state, bridge_settings, obfuscation)
+        (constraints, obfuscation)
     }
 }
 
@@ -254,9 +173,7 @@ impl Default for RelayQuery {
             location: Constraint::Any,
             providers: Constraint::Any,
             ownership: Constraint::Any,
-            tunnel_protocol: TunnelType::default(),
             wireguard_constraints: WireguardRelayQuery::new(),
-            openvpn_constraints: OpenVpnRelayQuery::new(),
         }
     }
 }
@@ -429,38 +346,6 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
     }
 }
 
-/// A query for a relay with OpenVPN-specific properties, such as `bridge_settings`.
-///
-/// This struct may look a lot like [`OpenVpnConstraints`], and that is the point!
-/// This struct is meant to be that type in the "universe of relay queries". The difference
-/// between them may seem subtle, but in a [`OpenVpnRelayQuery`] every field is represented
-/// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
-#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
-pub struct OpenVpnRelayQuery {
-    pub port: Constraint<TransportPort>,
-    pub bridge_settings: BridgeQuery,
-}
-
-impl OpenVpnRelayQuery {
-    pub const fn new() -> OpenVpnRelayQuery {
-        OpenVpnRelayQuery {
-            port: Constraint::Any,
-            bridge_settings: BridgeQuery::Auto,
-        }
-    }
-
-    /// The mapping from [`OpenVpnRelayQuery`] to [`OpenVpnConstraints`].
-    fn into_constraints(self) -> OpenVpnConstraints {
-        OpenVpnConstraints { port: self.port }
-    }
-}
-
-impl Default for OpenVpnRelayQuery {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 /// This is the reflection of [`BridgeState`] + [`BridgeSettings`] in the "universe of relay
 /// queries".
 ///
@@ -492,29 +377,6 @@ impl BridgeQuery {
         match settings {
             BridgeQuery::Normal(_) | BridgeQuery::Custom(_) => true,
             BridgeQuery::Off | BridgeQuery::Auto => false,
-        }
-    }
-
-    fn into_settings(self) -> (BridgeState, BridgeSettings) {
-        match self {
-            BridgeQuery::Off => (BridgeState::Off, Default::default()),
-            BridgeQuery::Auto => (BridgeState::Auto, Default::default()),
-            BridgeQuery::Normal(constraints) => (
-                BridgeState::On,
-                BridgeSettings {
-                    bridge_type: BridgeType::Normal,
-                    normal: constraints,
-                    custom: None,
-                },
-            ),
-            BridgeQuery::Custom(custom) => (
-                BridgeState::On,
-                BridgeSettings {
-                    bridge_type: BridgeType::Normal,
-                    normal: Default::default(),
-                    custom,
-                },
-            ),
         }
     }
 }
@@ -577,7 +439,7 @@ pub mod builder {
     pub struct Any;
 
     // This impl-block is quantified over all configurations, e.g. [`Any`],
-    // [`WireguardRelayQuery`] & [`OpenVpnRelayQuery`]
+    // or [`WireguardRelayQuery`]
     impl<VpnProtocol> RelayQueryBuilder<VpnProtocol> {
         /// Configure the [`LocationConstraint`] to use.
         pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
@@ -600,7 +462,6 @@ pub mod builder {
         /// Assemble the final [`RelayQuery`] that has been configured
         /// through `self`.
         pub fn build(mut self) -> RelayQuery {
-            debug_assert!(self.query.validate().is_ok());
             self.query
         }
     }
@@ -612,6 +473,7 @@ pub mod builder {
         /// which is used to guide the [`RelaySelector`]
         ///
         /// [`RelaySelector`]: crate::RelaySelector
+        // TODO: remove protocol parameter?
         pub fn wireguard() -> RelayQueryBuilder<Wireguard<Any, Any, Any, Any>> {
             let protocol = Wireguard {
                 multihop: Any,
@@ -619,29 +481,7 @@ pub mod builder {
                 daita: Any,
                 quantum_resistant: Any,
             };
-            let query = RelayQuery {
-                tunnel_protocol: TunnelType::Wireguard,
-                ..Default::default()
-            };
-            // Update the type state
-            RelayQueryBuilder { query, protocol }
-        }
-
-        /// Create a new [`RelayQueryBuilder`] for OpenVPN.
-        ///
-        /// Call [`Self::build`] to convert the builder into a [`RelayQuery`],
-        /// which is used to guide the [`RelaySelector`]
-        ///
-        /// [`RelaySelector`]: crate::RelaySelector
-        pub fn openvpn() -> RelayQueryBuilder<OpenVPN<Any, Any>> {
-            let protocol = OpenVPN {
-                transport_port: Any,
-                bridge_settings: Any,
-            };
-            let query = RelayQuery {
-                tunnel_protocol: TunnelType::OpenVpn,
-                ..Default::default()
-            };
+            let query = RelayQuery::default();
             // Update the type state
             RelayQueryBuilder { query, protocol }
         }
@@ -891,115 +731,6 @@ pub mod builder {
             self
         }
     }
-
-    // Type-safe builder pattern for OpenVPN relay constraints.
-
-    /// Internal builder state for a [`OpenVpnRelayQuery`] configuration.
-    ///
-    /// - The type parameter `TransportPort` keeps track of which [`TransportProtocol`] & port-combo
-    ///   to use. [`TransportProtocol`] has to be set first before the option to select a specific
-    ///   port is exposed.
-    ///
-    /// [`OpenVpnRelayQuery`]: super::OpenVpnRelayQuery
-    pub struct OpenVPN<TransportPort, Bridge> {
-        transport_port: TransportPort,
-        bridge_settings: Bridge,
-    }
-
-    // This impl-block is quantified over all configurations
-    impl<Transport, Bridge> RelayQueryBuilder<OpenVPN<Transport, Bridge>> {
-        /// Configure what [`TransportProtocol`] to use. Calling this
-        /// function on a builder will expose the option to select which
-        /// port to use in combination with `protocol`.
-        pub fn transport_protocol(
-            mut self,
-            protocol: TransportProtocol,
-        ) -> RelayQueryBuilder<OpenVPN<TransportProtocol, Bridge>> {
-            let transport_port = TransportPort {
-                protocol,
-                port: Constraint::Any,
-            };
-            self.query.openvpn_constraints.port = Constraint::Only(transport_port);
-            // Update the type state
-            RelayQueryBuilder {
-                query: self.query,
-                protocol: OpenVPN {
-                    transport_port: protocol,
-                    bridge_settings: self.protocol.bridge_settings,
-                },
-            }
-        }
-    }
-
-    impl<Bridge> RelayQueryBuilder<OpenVPN<TransportProtocol, Bridge>> {
-        /// Configure what port to use when connecting to a relay.
-        pub fn port(mut self, port: u16) -> RelayQueryBuilder<OpenVPN<TransportPort, Bridge>> {
-            let port = Constraint::Only(port);
-            let transport_port = TransportPort {
-                protocol: self.protocol.transport_port,
-                port,
-            };
-            self.query.openvpn_constraints.port = Constraint::Only(transport_port);
-            // Update the type state
-            RelayQueryBuilder {
-                query: self.query,
-                protocol: OpenVPN {
-                    transport_port,
-                    bridge_settings: self.protocol.bridge_settings,
-                },
-            }
-        }
-    }
-
-    impl<Transport> RelayQueryBuilder<OpenVPN<Transport, Any>> {
-        /// Enable Bridges. This also sets the transport protocol to TCP and resets any
-        /// previous port settings.
-        pub fn bridge(
-            mut self,
-        ) -> RelayQueryBuilder<OpenVPN<TransportProtocol, BridgeConstraints>> {
-            let bridge_settings = BridgeConstraints {
-                location: Constraint::Any,
-                providers: Constraint::Any,
-                ownership: Constraint::Any,
-            };
-
-            let protocol = OpenVPN {
-                transport_port: self.protocol.transport_port,
-                bridge_settings: bridge_settings.clone(),
-            };
-
-            self.query.openvpn_constraints.bridge_settings = BridgeQuery::Normal(bridge_settings);
-
-            let builder = RelayQueryBuilder {
-                query: self.query,
-                protocol,
-            };
-
-            builder.transport_protocol(TransportProtocol::Tcp)
-        }
-    }
-
-    impl<Transport> RelayQueryBuilder<OpenVPN<Transport, BridgeConstraints>> {
-        /// Constraint the geographical location of the selected bridge.
-        pub fn bridge_location(mut self, location: impl Into<LocationConstraint>) -> Self {
-            self.protocol.bridge_settings.location = Constraint::Only(location.into());
-            self.query.openvpn_constraints.bridge_settings =
-                BridgeQuery::Normal(self.protocol.bridge_settings.clone());
-            self
-        }
-        /// Constrain the [`Providers`] of the selected bridge.
-        pub fn bridge_providers(mut self, providers: Providers) -> Self {
-            self.protocol.bridge_settings.providers = Constraint::Only(providers);
-            self.query.openvpn_constraints.bridge_settings =
-                BridgeQuery::Normal(self.protocol.bridge_settings.clone());
-            self
-        }
-        /// Constrain the [`Ownership`] of the selected bridge.
-        pub fn bridge_ownership(mut self, ownership: Ownership) -> Self {
-            self.protocol.bridge_settings.ownership = Constraint::Only(ownership);
-            self
-        }
-    }
 }
 
 /// This trait defines a bunch of helper methods on [`RelayQuery`].
@@ -1040,9 +771,8 @@ mod test {
         },
     };
     use proptest::prelude::*;
-    use talpid_types::net::TunnelType;
 
-    use super::{Intersection, ObfuscationQuery, RelayQuery, builder::RelayQueryBuilder};
+    use super::{Intersection, ObfuscationQuery};
 
     // Define proptest combinators for the `Constraint` type.
 
@@ -1135,41 +865,5 @@ mod test {
             });
             assert_eq!(query, ObfuscationQuery::Auto);
         }
-    }
-
-    /// Test whether the default relay query is valid
-    #[test]
-    fn test_relay_query_default_valid() {
-        RelayQuery::default().validate().unwrap();
-    }
-
-    /// OpenVPN queries with DAITA enabled are invalid
-    /// DAITA is a core privacy feature.
-    #[test]
-    fn test_relay_query_daita_openvpn() {
-        let mut query = RelayQueryBuilder::wireguard().daita().build();
-        query
-            .set_tunnel_protocol(TunnelType::OpenVpn)
-            .expect_err("expected query to be invalid for OpenVPN");
-    }
-
-    /// OpenVPN queries with multihop enabled are invalid
-    /// Multihop is a core privacy feature.
-    #[test]
-    fn test_relay_query_multihop_openvpn() {
-        let mut query = RelayQueryBuilder::wireguard().multihop().build();
-        query
-            .set_tunnel_protocol(TunnelType::OpenVpn)
-            .expect_err("expected query to be invalid for OpenVPN");
-    }
-
-    /// OpenVPN queries with PQ enabled are invalid
-    /// PQ is a core privacy feature.
-    #[test]
-    fn test_relay_query_quantum_resistant_openvpn() {
-        let mut query = RelayQueryBuilder::wireguard().quantum_resistant().build();
-        query
-            .set_tunnel_protocol(TunnelType::OpenVpn)
-            .expect_err("expected query to be invalid for OpenVPN");
     }
 }
