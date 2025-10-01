@@ -18,6 +18,7 @@
     "gl-matrix": "^3.4.3",
     "google-protobuf": "^3.21.0",
     "management-interface": "0.0.0",
+    "motion": "^12.23.22",
     "node-gettext": "^3.0.0",
     "nseventforwarder": "0.0.0",
     "react": "^19.1.1",
