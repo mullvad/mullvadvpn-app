@@ -4,6 +4,8 @@ import { expect } from '@playwright/test';
 import fs from 'fs';
 import { _electron as electron, ElectronApplication, Locator, Page } from 'playwright';
 
+const forceMotion = process.env.TEST_FORCE_MOTION === '1';
+
 export interface StartAppResponse {
   app: ElectronApplication;
   page: Page;
@@ -23,6 +25,11 @@ type LaunchOptions = NonNullable<Parameters<typeof electron.launch>[0]>;
 export const startApp = async (options: LaunchOptions): Promise<StartAppResponse> => {
   const app = await launch(options);
   const page = await app.firstWindow();
+
+  if (!forceMotion) {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+  }
+
   await page.waitForEvent('load');
 
   page.on('pageerror', (error) => console.log(error));
