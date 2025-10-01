@@ -16,7 +16,6 @@ test.describe('Split tunneling', () => {
 
     await util.expectRoute(RoutePath.main);
     await routes.main.gotoSettings();
-    await routes.settings.gotoSplitTunnelingSettings();
   });
 
   test.afterAll(async () => {
@@ -56,6 +55,9 @@ test.describe('Split tunneling', () => {
           warning: 'launches-in-existing-process',
         },
       ]);
+
+      // Needs to be run after the handlers are setup.
+      await routes.settings.gotoSplitTunnelingSettings();
     });
 
     test('App should show unsupported dialog when link in header is clicked', async () => {
