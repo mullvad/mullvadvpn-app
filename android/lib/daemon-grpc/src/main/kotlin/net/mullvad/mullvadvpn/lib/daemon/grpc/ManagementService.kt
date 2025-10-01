@@ -348,7 +348,10 @@ class ManagementService(
                     Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
                     Status.Code.RESOURCE_EXHAUSTED ->
                         LoginAccountError.MaxDevicesReached(accountNumber)
-                    Status.Code.UNAVAILABLE -> LoginAccountError.RpcError
+                    Status.Code.DEADLINE_EXCEEDED -> LoginAccountError.TimeOut
+                    Status.Code.INVALID_ARGUMENT -> LoginAccountError.InvalidInput(accountNumber)
+                    Status.Code.OUT_OF_RANGE -> LoginAccountError.TooManyAttempts
+                    Status.Code.UNAVAILABLE -> LoginAccountError.ApiUnreachable
                     else -> {
                         Logger.e("Unknown login account error")
                         LoginAccountError.Unknown(it)
@@ -403,7 +406,16 @@ class ManagementService(
                 AccountNumber(accountNumberStringValue.value)
             }
             .onLeft { Logger.e("Create account error") }
-            .mapLeft(CreateAccountError::Unknown)
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.OUT_OF_RANGE -> CreateAccountError.TooManyAttempts
+                    Status.Code.UNAVAILABLE -> CreateAccountError.ApiUnreachable
+                    Status.Code.DEADLINE_EXCEEDED -> CreateAccountError.TimeOut
+                    else -> {
+                        CreateAccountError.Unknown(it)
+                    }
+                }
+            }
 
     suspend fun updateDnsContentBlockers(
         update: (DefaultDnsOptions) -> DefaultDnsOptions
