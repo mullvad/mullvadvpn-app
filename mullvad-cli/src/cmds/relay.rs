@@ -90,43 +90,48 @@ pub enum SetCommands {
         ownership: Constraint<Ownership>,
     },
 
-    /// Set tunnel protocol specific constraints
-    #[clap(subcommand)]
-    Tunnel(SetTunnelCommands),
-
-    /// Set a custom VPN relay to use
-    #[clap(subcommand)]
-    Custom(SetCustomCommands),
-}
-
-#[derive(Subcommand, Debug, Clone)]
-pub enum SetTunnelCommands {
-    /// Set WireGuard-specific constraints
-    #[clap(arg_required_else_help = true)]
-    Wireguard {
+    /// Set tunnel port constraint
+    Port {
         /// Port to use, or 'any'
-        #[arg(long, short = 'p')]
-        port: Option<Constraint<u16>>,
+        port: Constraint<u16>,
+    },
 
+    /// Set tunnel IP version constraint
+    IpVersion {
         /// IP protocol to use, or 'any'
-        #[arg(long, short = 'i')]
-        ip_version: Option<Constraint<IpVersion>>,
+        ip_version: Constraint<IpVersion>,
+    },
 
+    /// Enable or disable multihop
+    Multihop {
         /// Whether to enable multihop. The location constraints are specified with
         /// 'entry-location'.
-        #[arg(long, short = 'm')]
-        use_multihop: Option<BooleanOption>,
-
-        #[clap(subcommand)]
-        entry: Option<EntryCommands>,
+        use_multihop: BooleanOption,
     },
-}
 
-#[derive(Subcommand, Debug, Clone)]
-pub enum EntryCommands {
-    /// Set wireguard entry relay constraints
+    /// Set entry location constraints for multihop
     #[clap(subcommand)]
     Entry(EntryArgs),
+
+    /// Set a custom WireGuard relay
+    Custom {
+        /// Hostname or IP
+        host: String,
+        /// Remote port
+        port: u16,
+        /// Base64 encoded public key of remote peer
+        #[arg(value_parser = wireguard::PublicKey::from_base64)]
+        peer_pubkey: wireguard::PublicKey,
+        /// IP addresses of local tunnel interface
+        #[arg(required = true, num_args = 1..)]
+        tunnel_ip: Vec<IpAddr>,
+        /// IPv4 gateway address
+        #[arg(long)]
+        v4_gateway: Ipv4Addr,
+        /// IPv6 gateway address
+        #[arg(long)]
+        v6_gateway: Option<Ipv6Addr>,
+    },
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -155,30 +160,6 @@ pub enum EntryArgs {
     Location(LocationArgs),
     /// Name of custom list to use to pick entry endpoint.
     CustomList { custom_list_name: String },
-}
-
-#[derive(Subcommand, Debug, Clone)]
-pub enum SetCustomCommands {
-    /// Use a custom WireGuard relay
-    #[clap(arg_required_else_help = true)]
-    Wireguard {
-        /// Hostname or IP
-        host: String,
-        /// Remote port
-        port: u16,
-        /// Base64 encoded public key of remote peer
-        #[arg(value_parser = wireguard::PublicKey::from_base64)]
-        peer_pubkey: wireguard::PublicKey,
-        /// IP addresses of local tunnel interface
-        #[arg(required = true, num_args = 1..)]
-        tunnel_ip: Vec<IpAddr>,
-        /// IPv4 gateway address
-        #[arg(long)]
-        v4_gateway: Ipv4Addr,
-        /// IPv6 gateway address
-        #[arg(long)]
-        v6_gateway: Option<Ipv6Addr>,
-    },
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -369,34 +350,91 @@ impl Relay {
 
     async fn set(subcmd: SetCommands) -> Result<()> {
         match subcmd {
-            SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
             SetCommands::CustomList { custom_list_name } => {
                 Self::set_custom_list(custom_list_name).await
             }
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
-            SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
-        }
-    }
+            SetCommands::Port { port } => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let wireguard = rpc.get_relay_locations().await?.wireguard;
+                let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
 
-    async fn set_tunnel(subcmd: SetTunnelCommands) -> Result<()> {
-        match subcmd {
-            SetTunnelCommands::Wireguard {
-                port,
-                ip_version,
-                use_multihop,
-                entry,
-            } => {
-                let entry = entry.map(|EntryCommands::Entry(entry)| entry);
-                Self::set_wireguard_constraints(port, ip_version, use_multihop, entry).await
+                wireguard_constraints.port = match port {
+                    Constraint::Any => Constraint::Any,
+                    Constraint::Only(specific_port) => {
+                        let is_valid_port = wireguard
+                            .port_ranges
+                            .into_iter()
+                            .any(|range| range.contains(&specific_port));
+                        if !is_valid_port {
+                            return Err(anyhow!("The specified port is invalid"));
+                        }
+                        Constraint::Only(specific_port)
+                    }
+                };
+
+                Self::update_constraints(|constraints| {
+                    constraints.wireguard_constraints = wireguard_constraints;
+                })
+                .await
             }
-        }
-    }
+            SetCommands::IpVersion { ip_version } => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
 
-    async fn set_custom(subcmd: SetCustomCommands) -> Result<()> {
-        let custom_endpoint = match subcmd {
-            SetCustomCommands::Wireguard {
+                wireguard_constraints.ip_version = ip_version;
+
+                Self::update_constraints(|constraints| {
+                    constraints.wireguard_constraints = wireguard_constraints;
+                })
+                .await
+            }
+            SetCommands::Multihop { use_multihop } => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
+
+                wireguard_constraints.use_multihop(*use_multihop);
+
+                Self::update_constraints(|constraints| {
+                    constraints.wireguard_constraints = wireguard_constraints;
+                })
+                .await
+            }
+            SetCommands::Entry(entry_args) => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
+
+                match entry_args {
+                    EntryArgs::Location(location_args) => {
+                        let relay_filter = |relay: &mullvad_types::relay_list::Relay| {
+                            relay.active
+                                && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+                        };
+                        let location_constraint =
+                            resolve_location_constraint(&mut rpc, location_args, relay_filter)
+                                .await?;
+
+                        wireguard_constraints.entry_location =
+                            location_constraint.map(LocationConstraint::from);
+                    }
+                    EntryArgs::CustomList { custom_list_name } => {
+                        let list_id =
+                            super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
+                                .await?
+                                .id();
+                        wireguard_constraints.entry_location =
+                            Constraint::Only(LocationConstraint::CustomList { list_id });
+                    }
+                }
+
+                Self::update_constraints(|constraints| {
+                    constraints.wireguard_constraints = wireguard_constraints;
+                })
+                .await
+            }
+            SetCommands::Custom {
                 host,
                 port,
                 peer_pubkey,
@@ -404,7 +442,7 @@ impl Relay {
                 v4_gateway,
                 v6_gateway,
             } => {
-                Self::read_custom_wireguard_relay(
+                let custom_endpoint = Self::read_custom_wireguard_relay(
                     host,
                     port,
                     peer_pubkey,
@@ -412,14 +450,14 @@ impl Relay {
                     v4_gateway,
                     v6_gateway,
                 )
-                .await?
+                .await?;
+                let mut rpc = MullvadProxyClient::new().await?;
+                rpc.set_relay_settings(RelaySettings::CustomTunnelEndpoint(custom_endpoint))
+                    .await?;
+                println!("Relay constraints updated");
+                Ok(())
             }
-        };
-        let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_relay_settings(RelaySettings::CustomTunnelEndpoint(custom_endpoint))
-            .await?;
-        println!("Relay constraints updated");
-        Ok(())
+        }
     }
 
     async fn read_custom_wireguard_relay(
@@ -516,65 +554,6 @@ impl Relay {
     async fn set_ownership(ownership: Constraint<Ownership>) -> Result<()> {
         Self::update_constraints(|constraints| {
             constraints.ownership = ownership;
-        })
-        .await
-    }
-
-    async fn set_wireguard_constraints(
-        port: Option<Constraint<u16>>,
-        ip_version: Option<Constraint<IpVersion>>,
-        use_multihop: Option<BooleanOption>,
-        entry_location: Option<EntryArgs>,
-    ) -> Result<()> {
-        let mut rpc = MullvadProxyClient::new().await?;
-        let wireguard = rpc.get_relay_locations().await?.wireguard;
-        let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
-
-        if let Some(port) = port {
-            wireguard_constraints.port = match port {
-                Constraint::Any => Constraint::Any,
-                Constraint::Only(specific_port) => {
-                    let is_valid_port = wireguard
-                        .port_ranges
-                        .into_iter()
-                        .any(|range| range.contains(&specific_port));
-                    if !is_valid_port {
-                        return Err(anyhow!("The specified port is invalid"));
-                    }
-                    Constraint::Only(specific_port)
-                }
-            }
-        }
-
-        if let Some(ipv) = ip_version {
-            wireguard_constraints.ip_version = ipv;
-        }
-        if let Some(use_multihop) = use_multihop {
-            wireguard_constraints.use_multihop(*use_multihop);
-        }
-        match entry_location {
-            Some(EntryArgs::Location(location_args)) => {
-                let relay_filter = |relay: &mullvad_types::relay_list::Relay| {
-                    relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                };
-                let location_constraint =
-                    resolve_location_constraint(&mut rpc, location_args, relay_filter).await?;
-
-                wireguard_constraints.entry_location =
-                    location_constraint.map(LocationConstraint::from);
-            }
-            Some(EntryArgs::CustomList { custom_list_name }) => {
-                let list_id = super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
-                    .await?
-                    .id();
-                wireguard_constraints.entry_location =
-                    Constraint::Only(LocationConstraint::CustomList { list_id });
-            }
-            None => (),
-        }
-
-        Self::update_constraints(|constraints| {
-            constraints.wireguard_constraints = wireguard_constraints;
         })
         .await
     }
