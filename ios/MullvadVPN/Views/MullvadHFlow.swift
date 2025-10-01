@@ -1,6 +1,7 @@
 import SwiftUI
 
-struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Content: View, Data.Element: Hashable, Data.Element: Sendable {
+struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Content: View, Data.Element: Hashable,
+    Data.Element: Sendable {
     let spacing: CGFloat
     let alignment: HorizontalAlignment
     let items: Data
@@ -67,7 +68,8 @@ struct MullvadHFlow<Data, Content>: View where Data: RandomAccessCollection, Con
                     let safeContentSize = contentSize
                     if let position = positions.first(
                         where: { $0.item == item
-                        }) {
+                        }
+                    ) {
                         content(item)
                             .sizeOfView { size in
                                 let currSizeIndex = contentSize.firstIndex { $0.item == item }

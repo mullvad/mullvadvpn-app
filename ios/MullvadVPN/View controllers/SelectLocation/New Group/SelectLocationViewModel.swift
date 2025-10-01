@@ -28,7 +28,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     @Published private var exitContext: LocationContext
     @Published private var entryContext: LocationContext?
-    @Published var searchText: String = ""
+    @Published var searchText = ""
     @Published var context: LocationContext?
 
     private let exitLocationsDataSource = AllLocationDataSource()
@@ -91,7 +91,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         // If multihop is enabled, we should check if there's a DAITA related error when opening the location
         // view. If there is, help the user by showing the entry instead of the exit view.
         if tunnelManager.settings.tunnelMultihopState.isEnabled {
-            self.multihopContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
+            self.multihopContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus
+                .observedState
                 .blockedState?.reason { .entry } else { .exit }
         }
         self.exitContext = LocationContext(

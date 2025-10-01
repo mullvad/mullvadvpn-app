@@ -24,7 +24,7 @@ struct SegmentedControl<Segment>: View where Segment: CustomStringConvertible, S
                     withAnimation {
                         selectedSegment = segment
                     }
-                } label : {
+                } label: {
                     Text(LocalizedStringKey(segment.description))
                         .padding()
                         .font(.mullvadSmallSemiBold)

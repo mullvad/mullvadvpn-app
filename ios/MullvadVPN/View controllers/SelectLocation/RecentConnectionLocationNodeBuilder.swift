@@ -10,55 +10,48 @@ import MullvadSettings
 import MullvadTypes
 
 struct RecentConnectionLocationNodeBuilder {
-    let recentConnection: RecentConnection
-    let allLocations: [LocationNode]
     let settings: LatestTunnelSettings
-    
-    init(recentConnection: RecentConnection, allLocations: [LocationNode], settings: LatestTunnelSettings) {
-        self.recentConnection = recentConnection
-        self.allLocations = allLocations
+    let recentConnection: RecentConnection
+    let userSelectedLocationFinder: UserSelectedLocationFinder
+
+    init(
+        userSelectedLocationFinder: UserSelectedLocationFinder,
+        settings: LatestTunnelSettings,
+        recentConnection: RecentConnection
+    ) {
         self.settings = settings
+        self.recentConnection = recentConnection
+        self.userSelectedLocationFinder = userSelectedLocationFinder
     }
-    
-    var recentConnectionLocationNode: RecentConnectionLocationNode {
-        let name = settings.tunnelMultihopState.isEnabled ? self.recentConnection.entry?.customListSelection.name
-        let recentConnectionLocationNode = RecentConnectionLocationNode(
-//        let rece = CustomListLocationNode(
-//            name: customList.name,
-//            code: customList.name,
-//            locations: customList.locations,
-//            isActive: true, // Defaults to true, updated after children have been populated.
-//            customList: customList
-//        )
-//
-//        listNode.children = listNode.locations.compactMap { location in
-//            let rootNode = RootLocationNode(children: allLocations)
-//
-//            return switch location {
-//            case let .country(countryCode):
-//                rootNode
-//                    .countryFor(code: countryCode)?
-//                    .copy(withParent: listNode)
-//
-//            case let .city(countryCode, cityCode):
-//                rootNode
-//                    .countryFor(code: countryCode)?
-//                    .cityFor(codes: [countryCode, cityCode])?
-//                    .copy(withParent: listNode)
-//
-//            case let .hostname(countryCode, cityCode, hostCode):
-//                rootNode
-//                    .countryFor(code: countryCode)?
-//                    .cityFor(codes: [countryCode, cityCode])?
-//                    .hostFor(code: hostCode)?
-//                    .copy(withParent: listNode)
-//            }
-//        }
-//
-//        listNode.isActive = !listNode.children.isEmpty
-//        listNode.sort()
-//
-//        return listNode
+
+    var recentConnectionLocationNode: RecentConnectionLocationNode? {
+        let entrySelectedNode: LocationNode? = if let entryNode = recentConnection.entry {
+            userSelectedLocationFinder.node(entryNode)
+        } else {
+            nil
+        }
+        
+        guard let exitSelectedNode = userSelectedLocationFinder.node(recentConnection.exit) else {
+            return nil
+        }
+        
+        if !settings.tunnelMultihopState.isEnabled {
+            return RecentConnectionLocationNode(
+                name: exitSelectedNode.name,
+                code: exitSelectedNode.code,
+                isActive: true,
+                entryLocation: nil,
+                exitLocation: exitSelectedNode
+            )
+        } else if let entrySelectedNode{
+            return RecentConnectionLocationNode(
+                name: "\(exitSelectedNode.name) via \(entrySelectedNode.name)",
+                code: "",
+                isActive: true,
+                entryLocation: entrySelectedNode,
+                exitLocation: exitSelectedNode
+            )
+        }
+        return nil
     }
-    
 }

@@ -6,22 +6,22 @@
 ////  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 ////
 //
-//import MullvadREST
-//import MullvadSettings
-//import MullvadTypes
-//import SwiftUI
-//import UIKit
+// import MullvadREST
+// import MullvadSettings
+// import MullvadTypes
+// import SwiftUI
+// import UIKit
 //
-//protocol LocationViewControllerWrapperDelegate: AnyObject {
+// protocol LocationViewControllerWrapperDelegate: AnyObject {
 //    func navigateToCustomLists(nodes: [LocationNode])
 //    func navigateToFilter()
 //    func navigateToDaitaSettings()
 //    func didSelectEntryRelays(_ relays: UserSelectedRelays)
 //    func didSelectExitRelays(_ relays: UserSelectedRelays)
 //    func didUpdateFilter(_ filter: RelayFilter)
-//}
+// }
 //
-//final class LocationViewControllerWrapper: UIViewController {
+// final class LocationViewControllerWrapper: UIViewController {
 //
 //    private var entryLocationViewController: LocationViewController?
 //    private let exitLocationViewController: LocationViewController
@@ -250,9 +250,9 @@
 //            newViewController?.view.alpha = 1
 //        }
 //    }
-//}
+// }
 //
-//extension LocationViewControllerWrapper: @preconcurrency LocationViewControllerDelegate {
+// extension LocationViewControllerWrapper: @preconcurrency LocationViewControllerDelegate {
 //    func navigateToCustomLists(nodes: [LocationNode]) {
 //        delegate?.navigateToCustomLists(nodes: nodes)
 //    }
@@ -277,9 +277,9 @@
 //    func didUpdateFilter(filter: RelayFilter) {
 //        delegate?.didUpdateFilter(filter)
 //    }
-//}
+// }
 //
-//private extension WireGuardObfuscationState {
+// private extension WireGuardObfuscationState {
 //    /// This flag affects whether the "Setting: Obfuscation" pill is shown when selecting a location
 //    var affectsRelaySelection: Bool {
 //        switch self {
@@ -288,4 +288,4 @@
 //        default: false
 //        }
 //    }
-//}
+// }

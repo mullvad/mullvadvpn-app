@@ -1,7 +1,6 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
-
     var activeLocationContext: LocationContext = .init(
         locations: [
             LocationNode(name: "Sweden", code: "se", children: [
@@ -44,8 +43,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                     LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
                 ]),
             ]),
-        ]
-,
+        ],
+
         customLists: [
             LocationNode(name: "MyList1", code: "mylist1", children: [
                 LocationNode(name: "Sweden", code: "se", children: [
@@ -83,8 +82,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
                 name: "Stockholm",
                 code: "sth",
             ),
-        ]
-,
+        ],
+
         filter: [
             .daita,
             .obfuscation,
@@ -93,9 +92,9 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
             .provider(12),
         ],
         selectedLocation: nil,
-        connectedRelayHostname: nil) { _ in
-
-        }
+        connectedRelayHostname: nil
+    ) { _ in
+    }
 
     var multihopContext: MultihopContext? = .entry
 
@@ -107,7 +106,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         print("remove filter: \(filter)")
     }
 
-    var searchText: String = ""
+    var searchText = ""
 
     var showFilterView: (() -> Void)?
 

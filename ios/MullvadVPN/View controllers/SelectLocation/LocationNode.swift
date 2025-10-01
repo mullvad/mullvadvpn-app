@@ -9,7 +9,7 @@
 import MullvadSettings
 import MullvadTypes
 
-class LocationNode: @unchecked Sendable {
+class LocationNode: @unchecked Sendable, ExpandableLocationNodeRepresentable {
     let name: String
     var code: String
     var locations: [RelayLocation]
@@ -137,50 +137,5 @@ extension LocationNode: Comparable {
 class RootLocationNode: LocationNode, @unchecked Sendable {
     init(name: String = "", code: String = "", children: [LocationNode] = []) {
         super.init(name: name, code: code, children: children)
-    }
-}
-
-class CustomListLocationNode: LocationNode, @unchecked Sendable {
-    let customList: CustomList
-
-    init(
-        name: String,
-        code: String,
-        locations: [RelayLocation] = [],
-        isActive: Bool = true,
-        parent: LocationNode? = nil,
-        children: [LocationNode] = [],
-        showsChildren: Bool = false,
-        isHiddenFromSearch: Bool = false,
-        customList: CustomList
-    ) {
-        self.customList = customList
-
-        super.init(
-            name: name,
-            code: code,
-            locations: locations,
-            isActive: isActive,
-            parent: parent,
-            children: children,
-            showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch
-        )
-    }
-}
-
-class RecentConnectionLocationNode : LocationNode, @unchecked Sendable {
-    let recentConnection: RecentConnection
-    
-    init(
-        name: String,
-        code: String,
-        recentConnection: RecentConnection,
-        isActive: Bool = true,
-        parent: LocationNode? = nil,
-        children: [LocationNode] = []
-    ) {
-        self.recentConnection = recentConnection
-        super.init(name: name, code: code)
     }
 }

@@ -11,10 +11,11 @@ import MullvadREST
 import MullvadTypes
 
 protocol LocationDataSourceProtocol {
-    var nodes: [LocationNode] { get }
+    associatedtype Node: LocationNodeRepresentable
+    var nodes: [Node] { get }
 }
 
-extension LocationDataSourceProtocol {
+extension LocationDataSourceProtocol where Node == LocationNode {
     private func match(name: String, searchText: String) -> Bool {
         name.lowercased().hasPrefix(searchText.lowercased())
     }

@@ -1,5 +1,5 @@
 //
-//  RecentsDataSource.swift
+//  RecentsConnectionDataSource.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2025-09-30.
@@ -9,20 +9,16 @@
 import MullvadSettings
 import MullvadTypes
 
-
-class RecentsDataSource : LocationDataSourceProtocol {
+class RecentsConnectionDataSource: LocationDataSourceProtocol {
     private(set) var nodes = [LocationNode]()
     let repository: RecentConnectionRepositoryProtocol
-    
+
     init(repository: RecentConnectionRepositoryProtocol) {
         self.repository = repository
     }
-    
-    
-    
+
     func reload(allLocationNodes: [LocationNode]) {
         self.nodes = repository.all().map { recentConnection in
-            
         }
 //        let expandedRelays = nodes.flatMap { [$0] + $0.flattened }.filter { $0.showsChildren }.map { $0.code }
 //        nodes = repository.fetchAll().map { list in

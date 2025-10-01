@@ -7,11 +7,12 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             VStack(alignment: .leading, spacing: 16) {
                 if !viewModel.activeLocationContext.filter.isEmpty {
                     ActiveFilterView(
-                        activeFilter: viewModel.activeLocationContext.filter) { filter in
-                            viewModel.onFilterTapped(filter)
-                        } onRemove: { filter in
-                            viewModel.onFilterRemoved(filter)
-                        }
+                        activeFilter: viewModel.activeLocationContext.filter
+                    ) { filter in
+                        viewModel.onFilterTapped(filter)
+                    } onRemove: { filter in
+                        viewModel.onFilterRemoved(filter)
+                    }
                 }
                 if let multihopContext = viewModel.multihopContext {
                     SegmentedControl(
@@ -33,7 +34,8 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     Button {
                         viewModel.showAddCustomListView?(
                             viewModel.activeLocationContext
-                                .locations)
+                                .locations
+                        )
                     } label: {
                         Image.mullvadIconAdd
                             .padding(12)
@@ -218,7 +220,7 @@ enum SelectLocationFilter: Hashable {
             return "Owned"
         case .rented:
             return "Rented"
-        case .provider(let count):
+        case let .provider(count):
             return "Providers: \(count)"
         }
     }
