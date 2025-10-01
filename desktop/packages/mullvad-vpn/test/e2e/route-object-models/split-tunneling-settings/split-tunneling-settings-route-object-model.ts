@@ -19,6 +19,14 @@ export class SplitTunnelingSettingsRouteObjectModel {
     await this.utils.expectRoute(RoutePath.splitTunneling);
   }
 
+  async fillSearchInput(value: string) {
+    await this.selectors.searchInput().fill(value);
+  }
+
+  async clearSearchInput() {
+    await this.selectors.searchInput().clear();
+  }
+
   getLinuxApplications() {
     return this.selectors.linuxApplications();
   }
@@ -27,8 +35,28 @@ export class SplitTunnelingSettingsRouteObjectModel {
     return this.selectors.splitTunnelingUnsupportedDialogText();
   }
 
+  openFindAnotherApp() {
+    return this.selectors.findAnotherAppButton().click();
+  }
+
   closeUnsupportedDialog() {
     return this.selectors.splitTunnelingUnsupportedDialogCloseButton().click();
+  }
+
+  cancelLinuxApplicationWarningDialog() {
+    return this.selectors.linuxApplicationWarningDialogCancelButton().click();
+  }
+
+  openLinuxApplicationFromWarningDialog() {
+    return this.selectors.linuxApplicationWarningDialogLaunchButton().click();
+  }
+
+  getLinuxApplicationWarningDialogText(applicationName: string) {
+    return this.selectors.applicationWarningDialogText(applicationName);
+  }
+
+  openLinuxApplication(applicationName: string) {
+    return this.selectors.linuxApplication(applicationName).click();
   }
 
   openUnsupportedDialog() {
