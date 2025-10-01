@@ -52,6 +52,7 @@ struct MultihopPicker: RelayPicking {
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount
         )
+
         /*
          Relay selection is prioritised in the following order:
          1. Both entry and exit constraints match only a single relay. Both relays are selected.
