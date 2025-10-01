@@ -24,11 +24,15 @@ enum class ProviderCacheDirectory(val directoryName: String) {
     LOGS("logs")
 }
 
-fun Context.getLogsShareIntent(logContent: String): Intent {
+fun Context.createShareLogFile(logContent: String): Uri {
     val fileName = createShareLogFileName()
     val cacheFile = createCacheFile(ProviderCacheDirectory.LOGS, fileName)
     cacheFile.writeText(logContent)
-    val logsUri = MullvadFileProvider.uriForFile(this, cacheFile)
+    return MullvadFileProvider.uriForFile(this, cacheFile)
+}
+
+fun Context.getLogsShareIntent(logContent: String): Intent {
+    val logsUri = this.createShareLogFile(logContent)
 
     val sendIntent: Intent =
         Intent().apply {
@@ -40,7 +44,7 @@ fun Context.getLogsShareIntent(logContent: String): Intent {
     return Intent.createChooser(sendIntent, null)
 }
 
-fun Context.createCacheFile(directory: ProviderCacheDirectory, fileName: String): File {
+private fun Context.createCacheFile(directory: ProviderCacheDirectory, fileName: String): File {
     // Path to log file
     val logsPath = File(cacheDir, directory.directoryName)
 

@@ -2942,6 +2942,9 @@ msgstr ""
 msgid "Account credit expires soon"
 msgstr ""
 
+msgid "Account number is too long, please enter a valid number"
+msgstr ""
+
 msgid "Account time reminders"
 msgstr ""
 
@@ -3038,6 +3041,9 @@ msgstr ""
 msgid "Connect on device start-up"
 msgstr ""
 
+msgid "Connect to a different network"
+msgstr ""
+
 msgid "Connecting..."
 msgstr ""
 
@@ -3057,6 +3063,9 @@ msgid "Create account"
 msgstr ""
 
 msgid "Create new list"
+msgstr ""
+
+msgid "Creating account failed"
 msgstr ""
 
 msgid "Critical error (your attention is required)"
@@ -3125,6 +3134,12 @@ msgstr ""
 msgid "Enable %1$s"
 msgstr ""
 
+msgid "Enable all & retry"
+msgstr ""
+
+msgid "Enable all access methods in the app"
+msgstr ""
+
 msgid "Enable method"
 msgstr ""
 
@@ -3188,6 +3203,9 @@ msgstr ""
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr ""
 
+msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
+msgstr ""
+
 msgid "Import new overrides by"
 msgstr ""
 
@@ -3249,6 +3267,9 @@ msgid "No changelog was added for this version"
 msgstr ""
 
 msgid "No custom lists available"
+msgstr ""
+
+msgid "No email app available on the device"
 msgstr ""
 
 msgid "No internet connection"
@@ -3338,7 +3359,13 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
+msgid "Restart your device"
+msgstr ""
+
 msgid "Search"
+msgstr ""
+
+msgid "Send email"
 msgstr ""
 
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
@@ -3389,6 +3416,9 @@ msgstr ""
 msgid "The app is blocking internet, please disconnect first"
 msgstr ""
 
+msgid "The app was unable to %s due to not being able to reach the Mullvad API. This might be due to censorship or network issues. Please try to:"
+msgstr ""
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr ""
 
@@ -3422,10 +3452,19 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
+msgid "Too many attempts, please try again later"
+msgstr ""
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
 msgid "Unable to parse patch"
+msgstr ""
+
+msgid "Unable to reach API"
+msgstr ""
+
+msgid "Unable to reach API, %s"
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
@@ -3521,10 +3560,19 @@ msgstr ""
 msgid "click here"
 msgstr ""
 
+msgid "create an account"
+msgstr ""
+
 msgid "here"
 msgstr ""
 
 msgid "less than one day"
+msgstr ""
+
+msgid "login"
+msgstr ""
+
+msgid "read more here"
 msgstr ""
 
 msgid "%d day"
