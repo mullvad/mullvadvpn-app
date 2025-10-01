@@ -195,9 +195,8 @@ impl WireguardMonitor {
             );
         }
 
-        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test
-        // the implementation, as DAITA is not currently supported by boringtun.
-        // TODO: Remove `cfg!(feature = "boringtun")`.
+        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test it
+        // TODO: Consider removing `cfg!(feature = "boringtun")`
         let userspace_wireguard =
             *FORCE_USERSPACE_WIREGUARD || config.daita || cfg!(feature = "boringtun");
 
@@ -1051,21 +1050,18 @@ enum CloseMsg {
 }
 
 #[allow(unused)]
+// TODO regular async?
 #[async_trait::async_trait]
 pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
+    // TODO regular async?
     fn set_config<'a>(
         &'a mut self,
         _config: Config,
+        _daita: Option<DaitaSettings>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
-    #[cfg(daita)]
-    /// A [`Tunnel`] capable of using DAITA.
-    async fn start_daita(
-        &mut self,
-        settings: DaitaSettings,
-    ) -> std::result::Result<(), TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
