@@ -35,8 +35,11 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
   const reduceMotion = getReduceMotion();
 
   const updateView = useEffectEvent((location: Location<LocationState>) => {
-    setNavigationHistory(history.asObject);
     setCurrentLocation(location);
+    setTimeout(() => {
+      setNavigationHistory(history.asObject);
+      onTransition?.();
+    });
   });
 
   const transitionToView = useEffectEvent(
