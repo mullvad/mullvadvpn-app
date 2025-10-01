@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
@@ -101,7 +101,7 @@ export default function SearchBar(props: ISearchBarProps) {
   // Enable these rules again when eslint can lint useEffectEvent properly.
   // eslint-disable-next-line react-compiler/react-compiler
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => focusInput(), []);
+  useLayoutEffect(() => focusInput(), []);
 
   return (
     <StyledSearchContainer className={props.className}>
