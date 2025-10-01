@@ -7,9 +7,9 @@ use mullvad_types::{
     constraints::{Constraint, Match},
     location::CountryCode,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
-        OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
-        RelaySettings, TransportPort, WireguardConstraints, allowed_ip::AllowedIps,
+        GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter, Ownership,
+        Provider, Providers, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
+        allowed_ip::AllowedIps,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
 };
@@ -18,7 +18,7 @@ use std::{
     io::BufRead,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use talpid_types::net::{Endpoint, IpVersion, TransportProtocol, openvpn, wireguard};
+use talpid_types::net::{IpVersion, wireguard};
 
 use super::{BooleanOption, relay_constraints::LocationArgs};
 use crate::{cmds::receive_confirmation, print_option};
@@ -101,18 +101,6 @@ pub enum SetCommands {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SetTunnelCommands {
-    /// Set OpenVPN-specific constraints
-    #[clap(arg_required_else_help = true)]
-    Openvpn {
-        /// Port to use, or 'any'
-        #[arg(long, short = 'p', requires = "transport_protocol")]
-        port: Option<Constraint<u16>>,
-
-        /// Transport protocol to use, or 'any'
-        #[arg(long, short = 't')]
-        transport_protocol: Option<Constraint<TransportProtocol>>,
-    },
-
     /// Set WireGuard-specific constraints
     #[clap(arg_required_else_help = true)]
     Wireguard {
@@ -171,22 +159,6 @@ pub enum EntryArgs {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SetCustomCommands {
-    /// Use a custom OpenVPN relay
-    #[clap(arg_required_else_help = true)]
-    Openvpn {
-        /// Hostname or IP
-        host: String,
-        /// Remote port
-        port: u16,
-        /// Username for authentication
-        username: String,
-        /// Password for authentication
-        password: String,
-        /// Transport protocol to use
-        #[arg(default_value_t = TransportProtocol::Udp)]
-        transport_protocol: TransportProtocol,
-    },
-
     /// Use a custom WireGuard relay
     #[clap(arg_required_else_help = true)]
     Wireguard {
@@ -290,19 +262,6 @@ impl Relay {
 
                 print_option!("Provider(s)", constraints.providers,);
                 print_option!("Ownership", constraints.ownership,);
-
-                println!("OpenVPN constraints");
-
-                match constraints.openvpn_constraints.port {
-                    Constraint::Any => {
-                        print_option!("Port", "any",);
-                        print_option!("Transport", "any",);
-                    }
-                    Constraint::Only(transport_port) => {
-                        print_option!("Port", transport_port.port,);
-                        print_option!("Transport", transport_port.protocol,);
-                    }
-                }
 
                 println!("WireGuard constraints");
 
@@ -423,10 +382,6 @@ impl Relay {
 
     async fn set_tunnel(subcmd: SetTunnelCommands) -> Result<()> {
         match subcmd {
-            SetTunnelCommands::Openvpn {
-                port,
-                transport_protocol,
-            } => Self::set_openvpn_constraints(port, transport_protocol).await,
             SetTunnelCommands::Wireguard {
                 port,
                 ip_version,
@@ -441,15 +396,6 @@ impl Relay {
 
     async fn set_custom(subcmd: SetCustomCommands) -> Result<()> {
         let custom_endpoint = match subcmd {
-            SetCustomCommands::Openvpn {
-                host,
-                port,
-                username,
-                password,
-                transport_protocol,
-            } => {
-                Self::read_custom_openvpn_relay(host, port, username, password, transport_protocol)
-            }
             SetCustomCommands::Wireguard {
                 host,
                 port,
@@ -474,26 +420,6 @@ impl Relay {
             .await?;
         println!("Relay constraints updated");
         Ok(())
-    }
-
-    fn read_custom_openvpn_relay(
-        host: String,
-        port: u16,
-        username: String,
-        password: String,
-        protocol: TransportProtocol,
-    ) -> CustomTunnelEndpoint {
-        CustomTunnelEndpoint {
-            host,
-            config: ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
-                endpoint: Endpoint::from_socket_address(
-                    SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
-                    protocol,
-                ),
-                username,
-                password,
-            }),
-        }
     }
 
     async fn read_custom_wireguard_relay(
@@ -592,32 +518,6 @@ impl Relay {
             constraints.ownership = ownership;
         })
         .await
-    }
-
-    async fn set_openvpn_constraints(
-        port: Option<Constraint<u16>>,
-        protocol: Option<Constraint<TransportProtocol>>,
-    ) -> Result<()> {
-        let mut openvpn_constraints = {
-            let mut rpc = MullvadProxyClient::new().await?;
-            Self::get_openvpn_constraints(&mut rpc).await?
-        };
-        openvpn_constraints.port = parse_transport_port(port, protocol, &openvpn_constraints.port);
-
-        Self::update_constraints(|constraints| {
-            constraints.openvpn_constraints = openvpn_constraints;
-        })
-        .await
-    }
-
-    async fn get_openvpn_constraints(rpc: &mut MullvadProxyClient) -> Result<OpenVpnConstraints> {
-        match rpc.get_settings().await?.relay_settings {
-            RelaySettings::Normal(settings) => Ok(settings.openvpn_constraints),
-            RelaySettings::CustomTunnelEndpoint(_settings) => {
-                println!("Clearing custom tunnel constraints");
-                Ok(OpenVpnConstraints::default())
-            }
-        }
     }
 
     async fn set_wireguard_constraints(
@@ -851,32 +751,6 @@ impl Relay {
             }
         }
         Ok(())
-    }
-}
-
-fn parse_transport_port(
-    port: Option<Constraint<u16>>,
-    protocol: Option<Constraint<TransportProtocol>>,
-    current_constraint: &Constraint<TransportPort>,
-) -> Constraint<TransportPort> {
-    let port = match port {
-        Some(port) => port,
-        None => current_constraint
-            .map(|p| p.port)
-            .unwrap_or(Constraint::Any),
-    };
-    let protocol = match protocol {
-        Some(protocol) => protocol,
-        None => current_constraint.map(|p| p.protocol),
-    };
-    match (port, protocol) {
-        (port, Constraint::Any) => {
-            if port.is_only() {
-                println!("The port constraint was set to 'any'");
-            }
-            Constraint::Any
-        }
-        (port, Constraint::Only(protocol)) => Constraint::Only(TransportPort { protocol, port }),
     }
 }
 
