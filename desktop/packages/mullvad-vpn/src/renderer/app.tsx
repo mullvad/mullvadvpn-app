@@ -15,7 +15,6 @@ import {
   AccessMethodSetting,
   AccountNumber,
   BridgeSettings,
-  BridgeState,
   CustomProxy,
   DeviceEvent,
   IAccountData,
@@ -586,22 +585,10 @@ export default class AppRenderer {
     actions.settings.updateEnableIpv6(enableIpv6);
   };
 
-  public setBridgeState = async (bridgeState: BridgeState) => {
-    const actions = this.reduxActions;
-    await IpcRendererEventChannel.settings.setBridgeState(bridgeState);
-    actions.settings.updateBridgeState(bridgeState);
-  };
-
   public setLockdownMode = async (lockdownMode: boolean) => {
     const actions = this.reduxActions;
     await IpcRendererEventChannel.settings.setLockdownMode(lockdownMode);
     actions.settings.updateLockdownMode(lockdownMode);
-  };
-
-  public setOpenVpnMssfix = async (mssfix?: number) => {
-    const actions = this.reduxActions;
-    actions.settings.updateOpenVpnMssfix(mssfix);
-    await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
   };
 
   public setWireguardMtu = async (mtu?: number) => {
@@ -744,31 +731,19 @@ export default class AppRenderer {
     const actions = this.reduxActions;
 
     if ('normal' in relaySettings) {
-      const {
-        location,
-        openvpnConstraints,
-        wireguardConstraints,
-        tunnelProtocol,
-        providers,
-        ownership,
-      } = relaySettings.normal;
+      const { location, wireguardConstraints, providers, ownership } = relaySettings.normal;
 
       actions.settings.updateRelay({
         normal: {
           location: liftConstraint(location),
           providers,
           ownership,
-          openvpn: {
-            port: liftConstraint(openvpnConstraints.port),
-            protocol: liftConstraint(openvpnConstraints.protocol),
-          },
           wireguard: {
             port: liftConstraint(wireguardConstraints.port),
             ipVersion: liftConstraint(wireguardConstraints.ipVersion),
             useMultihop: wireguardConstraints.useMultihop,
             entryLocation: liftConstraint(wireguardConstraints.entryLocation),
           },
-          tunnelProtocol,
         },
       });
     } else if ('customTunnelEndpoint' in relaySettings) {
@@ -862,13 +837,11 @@ export default class AppRenderer {
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
     reduxSettings.updateLockdownMode(newSettings.lockdownMode);
     reduxSettings.updateShowBetaReleases(newSettings.showBetaReleases);
-    reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
     reduxSettings.updateWireguardQuantumResistant(
       newSettings.tunnelOptions.wireguard.quantumResistant,
     );
     reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.wireguard.daita);
-    reduxSettings.updateBridgeState(newSettings.bridgeState);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
