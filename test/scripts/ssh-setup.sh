@@ -140,12 +140,16 @@ function install_packages_apt {
     if ! which ping &>/dev/null; then
         robust_apt install iputils-ping
     fi
+}
+
+function install_docker {
     curl -fsSL https://get.docker.com | sh
 }
 
 # Install required packages
 if which apt &>/dev/null; then
     install_packages_apt
+    install_docker || echo "Failed to install docker" # Be a bit lenient on this - If it fails to install, the container tests will simply fail.
 elif which dnf &>/dev/null; then
     dnf install -y xorg-x11-server-Xvfb wireguard-tools podman
 fi
