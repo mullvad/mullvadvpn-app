@@ -311,6 +311,7 @@ export type IpVersion = 'ipv4' | 'ipv6';
 
 export interface IRelaySettingsNormal<OpenVpn, Wireguard> {
   location: Constraint<RelayLocation>;
+  // TODO: Remove tunnel protocol
   tunnelProtocol: TunnelProtocol;
   providers: string[];
   ownership: Ownership;
