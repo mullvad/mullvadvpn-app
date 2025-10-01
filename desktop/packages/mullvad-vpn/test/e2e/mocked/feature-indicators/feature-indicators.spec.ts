@@ -17,6 +17,7 @@ type FeatureIndicatorTestOption = {
   featureIndicator: FeatureIndicator;
   featureIndicatorLabel: string;
   route: RoutePath;
+  handleIpcCalls?: () => Promise<void> | void;
 };
 
 type FeatureIndicatorWithOptionTestOption = FeatureIndicatorTestOption & {
@@ -38,6 +39,10 @@ const featureIndicatorWithoutOption: FeatureIndicatorTestOption[] = [
     featureIndicator: FeatureIndicator.splitTunneling,
     route: RoutePath.splitTunneling,
     featureIndicatorLabel: 'Split tunneling',
+    handleIpcCalls: async () => {
+      await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(true);
+      await util.ipc.linuxSplitTunneling.getApplications.ignore();
+    },
   },
   {
     testId: 'server ip override',
@@ -249,8 +254,10 @@ test.describe('Feature indicators', () => {
   };
 
   featureIndicatorWithoutOption.forEach(
-    ({ testId, featureIndicator, route, featureIndicatorLabel }) => {
+    ({ testId, featureIndicator, route, featureIndicatorLabel, handleIpcCalls }) => {
       test(`Should navigate to setting when clicking on ${testId} feature indicator`, async () => {
+        await handleIpcCalls?.();
+
         await helpers.connectWithFeatures([featureIndicator]);
         await clickFeatureIndicator(featureIndicatorLabel, route);
 
