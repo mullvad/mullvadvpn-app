@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Add validation for API access methods to only allow unique names. Access methods with
   duplicated names will be renamed.
+- Change how externally triggered navigation is handled in the UI. This could potentially reduce
+  issues where users get stuck in the out-of-time view.
+
 
 ## [2025.10-beta1] - 2025-09-16
 ### Added
