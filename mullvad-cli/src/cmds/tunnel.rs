@@ -4,7 +4,7 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{AllowedIps, RelaySettings, WireguardConstraints},
-    wireguard::{DEFAULT_ROTATION_INTERVAL, QuantumResistantState, RotationInterval},
+    wireguard::{QuantumResistantState, RotationInterval},
 };
 
 use super::BooleanOption;
@@ -22,55 +22,38 @@ pub enum Tunnel {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum TunnelOptions {
-    /// Manage options for OpenVPN tunnels
-    #[clap(arg_required_else_help = true)]
-    Openvpn {
-        /// Configure the mssfix parameter, or 'any'
-        #[arg(long, short = 'm')]
-        mssfix: Option<Constraint<u16>>,
+    /// Configure the tunnel MTU, or 'any'
+    Mtu { mtu: Constraint<u16> },
+
+    /// Configure quantum-resistant key exchange
+    QuantumResistant { state: QuantumResistantState },
+
+    /// Configure whether to enable DAITA
+    Daita { state: BooleanOption },
+
+    /// Configure whether to enable DAITA direct only
+    DaitaDirectOnly { state: BooleanOption },
+
+    /// Specify custom allowed IPs for WireGuard tunnels. Use comma-separated values of IPs and IP ranges in CIDR notation.
+    /// A empty string resets to the default value, where all traffic is allowed, i.e. (0.0.0.0/0,::/0).
+    /// For CIDR ranges, host bits must be zero (e.g., "10.0.0.0/24" is valid, "10.0.0.1/24" is not).
+    ///
+    /// Example: "10.0.0.0/24,192.168.1.1,fd00::/8"
+    ///
+    /// WARNING: Setting this value incorrectly may cause internet access to be blocked or the app to not work properly.
+    AllowedIps { allowed_ips: String },
+
+    /// The key rotation interval. Number of hours, or 'any'
+    RotationInterval {
+        interval: Constraint<RotationInterval>,
     },
 
-    /// Manage options for WireGuard tunnels
-    #[clap(arg_required_else_help = true)]
-    Wireguard {
-        /// Configure the tunnel MTU, or 'any'
-        #[arg(long, short = 'm')]
-        mtu: Option<Constraint<u16>>,
-        /// Configure quantum-resistant key exchange
-        #[arg(long)]
-        quantum_resistant: Option<QuantumResistantState>,
-        /// Configure whether to enable DAITA
-        #[arg(long)]
-        daita: Option<BooleanOption>,
-        /// Configure whether to enable DAITA direct only
-        #[arg(long)]
-        daita_direct_only: Option<BooleanOption>,
-        /// Specify custom allowed IPs for WireGuard tunnels. Use comma-separated values of IPs and IP ranges in CIDR notation.
-        /// A empty string resets to the default value, where all traffic is allowed, i.e. (0.0.0.0/0,::/0).
-        /// For CIDR ranges, host bits must be zero (e.g., "10.0.0.0/24" is valid, "10.0.0.1/24" is not).
-        ///
-        /// Example: "10.0.0.0/24,192.168.1.1,fd00::/8"
-        ///
-        /// WARNING: Setting this value incorrectly may cause internet access to be blocked or the app to not work properly.
-        #[arg(long)]
-        allowed_ips: Option<String>,
-        /// The key rotation interval. Number of hours, or 'any'
-        #[arg(long)]
-        rotation_interval: Option<Constraint<RotationInterval>>,
-        /// Rotate WireGuard key
-        #[clap(subcommand)]
-        rotate_key: Option<RotateKey>,
-    },
+    /// Replace the WireGuard key with a new one
+    RotateKey,
 
     /// Enable or disable IPv6 in the tunnel
     #[clap(arg_required_else_help = true)]
     Ipv6 { state: BooleanOption },
-}
-
-#[derive(Subcommand, Debug, Clone)]
-pub enum RotateKey {
-    /// Replace the WireGuard key with a new one
-    RotateKey,
 }
 
 impl Tunnel {
@@ -84,17 +67,6 @@ impl Tunnel {
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let tunnel_options = rpc.get_settings().await?.tunnel_options;
-
-        println!("OpenVPN options");
-
-        print_option!(
-            "mssfix",
-            tunnel_options
-                .openvpn
-                .mssfix
-                .map(|val| val.to_string())
-                .unwrap_or("unset".to_string()),
-        );
 
         println!("WireGuard options");
 
@@ -158,91 +130,31 @@ impl Tunnel {
     }
 
     async fn set(options: TunnelOptions) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+
         match options {
-            TunnelOptions::Openvpn { mssfix } => Self::handle_openvpn(mssfix).await,
-            TunnelOptions::Wireguard {
-                mtu,
-                quantum_resistant,
-                daita,
-                daita_direct_only,
-                allowed_ips,
-                rotation_interval,
-                rotate_key,
-            } => {
-                Self::handle_wireguard(
-                    mtu,
-                    quantum_resistant,
-                    daita,
-                    daita_direct_only,
-                    allowed_ips,
-                    rotation_interval,
-                    rotate_key,
-                )
-                .await
+            TunnelOptions::Mtu { mtu } => {
+                rpc.set_wireguard_mtu(mtu.option()).await?;
+                println!("MTU parameter has been updated");
             }
-            TunnelOptions::Ipv6 { state } => Self::handle_ipv6(state).await,
-        }
-    }
-
-    async fn handle_ipv6(state: BooleanOption) -> Result<()> {
-        let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_enable_ipv6(*state).await?;
-        println!("IPv6: {state}");
-        Ok(())
-    }
-
-    async fn handle_openvpn(mssfix: Option<Constraint<u16>>) -> Result<()> {
-        let mut rpc = MullvadProxyClient::new().await?;
-
-        if let Some(mssfix) = mssfix {
-            rpc.set_openvpn_mssfix(mssfix.option()).await?;
-            println!("mssfix parameter has been updated");
-        }
-
-        Ok(())
-    }
-
-    async fn handle_wireguard(
-        mtu: Option<Constraint<u16>>,
-        quantum_resistant: Option<QuantumResistantState>,
-        daita: Option<BooleanOption>,
-        daita_direct_only: Option<BooleanOption>,
-        allowed_ips: Option<String>,
-        rotation_interval: Option<Constraint<RotationInterval>>,
-        rotate_key: Option<RotateKey>,
-    ) -> Result<()> {
-        let mut rpc = MullvadProxyClient::new().await?;
-
-        if let Some(mtu) = mtu {
-            rpc.set_wireguard_mtu(mtu.option()).await?;
-            println!("MTU parameter has been updated");
-        }
-
-        if let Some(quantum_resistant) = quantum_resistant {
-            rpc.set_quantum_resistant_tunnel(quantum_resistant).await?;
-            println!("Quantum resistant setting has been updated");
-        }
-
-        if let Some(allowed_ips_str) = allowed_ips {
-            let ips = AllowedIps::parse(allowed_ips_str.split(','))?;
-
-            rpc.set_wireguard_allowed_ips(ips).await?;
-            println!("WireGuard allowed IPs have been updated")
-        }
-
-        if let Some(enable_daita) = daita {
-            rpc.set_enable_daita(*enable_daita).await?;
-            println!("DAITA setting has been updated");
-            println!("Direct only setting has been updated");
-        }
-
-        if let Some(daita_direct_only) = daita_direct_only {
-            rpc.set_daita_direct_only(*daita_direct_only).await?;
-            println!("Direct only setting has been updated");
-        }
-
-        if let Some(interval) = rotation_interval {
-            match interval {
+            TunnelOptions::QuantumResistant { state } => {
+                rpc.set_quantum_resistant_tunnel(state).await?;
+                println!("Quantum resistant setting has been updated");
+            }
+            TunnelOptions::Daita { state } => {
+                rpc.set_enable_daita(*state).await?;
+                println!("DAITA setting has been updated");
+            }
+            TunnelOptions::DaitaDirectOnly { state } => {
+                rpc.set_daita_direct_only(*state).await?;
+                println!("Direct only setting has been updated");
+            }
+            TunnelOptions::AllowedIps { allowed_ips } => {
+                let ips = AllowedIps::parse(allowed_ips.split(','))?;
+                rpc.set_wireguard_allowed_ips(ips).await?;
+                println!("WireGuard allowed IPs have been updated");
+            }
+            TunnelOptions::RotationInterval { interval } => match interval {
                 Constraint::Only(interval) => {
                     rpc.set_wireguard_rotation_interval(interval).await?;
                     println!("Set key rotation interval to {interval}");
@@ -251,15 +163,18 @@ impl Tunnel {
                     rpc.reset_wireguard_rotation_interval().await?;
                     println!(
                         "Reset key rotation interval to {}",
-                        RotationInterval::new(DEFAULT_ROTATION_INTERVAL).unwrap()
+                        RotationInterval::default()
                     );
                 }
+            },
+            TunnelOptions::RotateKey => {
+                rpc.rotate_wireguard_key().await?;
+                println!("Rotated WireGuard key");
             }
-        }
-
-        if matches!(rotate_key, Some(RotateKey::RotateKey)) {
-            rpc.rotate_wireguard_key().await?;
-            println!("Rotated WireGuard key");
+            TunnelOptions::Ipv6 { state } => {
+                rpc.set_enable_ipv6(*state).await?;
+                println!("IPv6: {state}");
+            }
         }
 
         Ok(())

@@ -139,30 +139,6 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
-  const gotoBridgeMode = React.useCallback(() => {
-    history.push(RoutePath.openVpnSettings, {
-      transition: TransitionType.show,
-      options: [
-        {
-          type: 'scroll-to-anchor',
-          id: 'bridge-mode-setting',
-        },
-      ],
-    });
-  }, [history]);
-
-  const goToMssFix = React.useCallback(() => {
-    history.push(RoutePath.openVpnSettings, {
-      transition: TransitionType.show,
-      options: [
-        {
-          type: 'scroll-to-anchor',
-          id: 'mss-fix-setting',
-        },
-      ],
-    });
-  }, [history]);
-
   const featureMap: Record<FeatureIndicator, { label: string; onClick?: () => void }> = {
     [FeatureIndicator.daita]: { label: strings.daita, onClick: gotoEnableDaitaFeature },
     [FeatureIndicator.daitaMultihop]: {
@@ -212,17 +188,9 @@ export const useGetFeatureIndicator = () => {
       label: messages.pgettext('wireguard-settings-view', 'MTU'),
       onClick: gotoMtuFeature,
     },
-    [FeatureIndicator.bridgeMode]: {
-      label: messages.pgettext('openvpn-settings-view', 'Bridge mode'),
-      onClick: gotoBridgeMode,
-    },
     [FeatureIndicator.lanSharing]: {
       label: messages.pgettext('vpn-settings-view', 'Local network sharing'),
       onClick: gotoLanSharingFeature,
-    },
-    [FeatureIndicator.customMssFix]: {
-      label: messages.pgettext('openvpn-settings-view', 'Mssfix'),
-      onClick: goToMssFix,
     },
     [FeatureIndicator.lockdownMode]: {
       label: messages.pgettext('vpn-settings-view', 'Lockdown mode'),

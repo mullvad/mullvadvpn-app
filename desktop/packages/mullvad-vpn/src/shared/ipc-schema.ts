@@ -197,7 +197,6 @@ export const ipcSchema = {
     setEnableIpv6: invoke<boolean, void>(),
     setLockdownMode: invoke<boolean, void>(),
     setBridgeState: invoke<BridgeState, void>(),
-    setOpenVpnMssfix: invoke<number | undefined, void>(),
     setWireguardMtu: invoke<number | undefined, void>(),
     setWireguardQuantumResistant: invoke<boolean | undefined, void>(),
     setRelaySettings: invoke<RelaySettings, void>(),
