@@ -4,8 +4,6 @@ import { expect } from '@playwright/test';
 import fs from 'fs';
 import { _electron as electron, ElectronApplication, Locator, Page } from 'playwright';
 
-import { RoutePath } from '../../src/shared/routes';
-
 export interface StartAppResponse {
   app: ElectronApplication;
   page: Page;
@@ -16,7 +14,7 @@ type TriggerFn = () => Promise<void> | void;
 
 export interface TestUtils {
   getCurrentRoute: () => Promise<string | null>;
-  expectRoute: (route: RoutePath) => Promise<void>;
+  expectRoute: (route: string) => Promise<void>;
   expectRouteChange: (trigger: TriggerFn) => Promise<void>;
 }
 
@@ -32,7 +30,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
 
   const util: TestUtils = {
     getCurrentRoute: () => getCurrentRoute(page),
-    expectRoute: (route: RoutePath) => expectRoute(page, route),
+    expectRoute: (route: string) => expectRoute(page, route),
     expectRouteChange: (trigger: TriggerFn) => expectRouteChange(page, trigger),
   };
 
@@ -49,7 +47,7 @@ function getCurrentRoute(page: Page): Promise<string | null> {
 }
 
 // Returns a promise which resolves when the provided route is reached.
-async function expectRoute(page: Page, expectedRoute: RoutePath): Promise<void> {
+async function expectRoute(page: Page, expectedRoute: string): Promise<void> {
   await expect.poll(async () => getCurrentRoute(page)).toMatchPath(expectedRoute);
 }
 

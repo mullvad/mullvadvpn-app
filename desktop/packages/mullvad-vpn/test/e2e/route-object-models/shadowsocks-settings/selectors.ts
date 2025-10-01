@@ -6,8 +6,6 @@ export const createSelectors = (page: Page) => ({
       .getByRole('listbox', { name: 'Port' })
       .getByRole('option', { name: 'Automatic', exact: true }),
   customPortOption: () =>
-    page
-      .getByRole('listbox', { name: 'Port' })
-      .getByRole('option', { name: 'Custom', exact: true }),
+    page.getByRole('listbox', { name: 'Port' }).getByRole('option', { name: 'Custom' }),
   portInput: () => page.getByPlaceholder('Port'),
 });

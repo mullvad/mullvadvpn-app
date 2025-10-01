@@ -3,6 +3,7 @@ import { exec as execAsync } from 'child_process';
 import { Page } from 'playwright';
 import { promisify } from 'util';
 
+import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
 import { expectConnected, expectDisconnected, expectError } from '../../shared/tunnel-state';
 import { escapeRegExp, TestUtils } from '../../utils';
@@ -106,10 +107,6 @@ test.describe('Tunnel state and settings', () => {
       await exec('mullvad connect --wait');
     });
 
-    test.afterAll(async () => {
-      await routes.wireguardSettings.gotoRoot();
-    });
-
     test('App should show UDP', async () => {
       await expectConnected(page);
       await routes.main.expandConnectionPanel();
@@ -126,7 +123,7 @@ test.describe('Tunnel state and settings', () => {
       await routes.wireguardSettings.selectUdpOverTcp();
       await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'true');
 
-      await routes.wireguardSettings.gotoRoot();
+      await routes.wireguardSettings.goBackToRoute(RoutePath.main);
 
       await expectConnected(page);
 
@@ -140,7 +137,9 @@ test.describe('Tunnel state and settings', () => {
       test(`App should show port ${port}`, async () => {
         await gotoUdpOverTcpSettings();
         await routes.udpOverTcpSettings.selectPort(port);
-        await routes.udpOverTcpSettings.gotoRoot();
+
+        await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
+
         await routes.main.expandConnectionPanel();
 
         const inValue = await routes.main.getInIpText();
@@ -154,6 +153,7 @@ test.describe('Tunnel state and settings', () => {
 
       const automaticOption = routes.wireguardSettings.getAutomaticObfuscationOption();
       await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
+      await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
     });
   });
 
