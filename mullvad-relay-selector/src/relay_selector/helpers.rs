@@ -150,7 +150,7 @@ pub fn get_quic_obfuscator(relay: Relay, ip_version: IpVersion) -> Option<Select
             IpVersion::V4 => quic.in_ipv4().map(IpAddr::from).collect(),
             IpVersion::V6 => quic.in_ipv6().map(IpAddr::from).collect(),
         };
-        let &in_ip = addrs.iter().choose(&mut rand::rng())?;
+        let &in_ip = addrs.iter().choose(&mut thread_rng())?;
         let endpoint = SocketAddr::from((in_ip, quic.port()));
         let auth_token = quic.auth_token().to_string();
         ObfuscatorConfig::Quic {
