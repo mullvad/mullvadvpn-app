@@ -3,21 +3,17 @@ import React from 'react';
 import { getInitialOption, getOptions } from '../utils';
 import { useHandleKeyboardNavigation } from './use-handle-keyboard-navigation';
 
-export type UseOptionsProps = {
-  optionsRef: React.RefObject<HTMLUListElement | null>;
+export type UseOptionsProps<T extends HTMLElement> = {
+  optionsRef: React.RefObject<T | null>;
   focusedIndex?: number;
   setFocusedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
-export type UseOptionsFieldState = {
-  tabIndex: number;
-  handleFocus: (event: React.FocusEvent) => void;
-  optionsRef: React.RefObject<HTMLUListElement | null>;
-  handleKeyboardNavigation: (event: React.KeyboardEvent) => void;
-  handleBlur: (event: React.FocusEvent<HTMLUListElement>) => void;
-};
-
-export function useOptions({ optionsRef, focusedIndex, setFocusedIndex }: UseOptionsProps) {
+export function useOptions<T extends HTMLElement>({
+  optionsRef,
+  focusedIndex,
+  setFocusedIndex,
+}: UseOptionsProps<T>) {
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const handleFocus = React.useCallback(
     (event: React.FocusEvent) => {
@@ -42,7 +38,7 @@ export function useOptions({ optionsRef, focusedIndex, setFocusedIndex }: UseOpt
   });
 
   const handleBlur = React.useCallback(
-    (event: React.FocusEvent<HTMLUListElement>) => {
+    (event: React.FocusEvent<T>) => {
       const container = optionsRef.current;
       const nextFocus = event.relatedTarget as Node | null;
 
