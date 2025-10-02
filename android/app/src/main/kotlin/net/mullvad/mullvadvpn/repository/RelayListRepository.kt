@@ -84,6 +84,8 @@ class RelayListRepository(
     suspend fun updateSelectedRelayLocationMultihop(entry: RelayItemId, exit: RelayItemId) =
         managementService.setRelayLocationMultihop(entry, exit)
 
+    suspend fun refreshRelayList() = managementService.refreshRelayList()
+
     fun find(geoLocationId: GeoLocationId) = relayList.value.findByGeoLocationId(geoLocationId)
 
     private fun defaultWireguardEndpointData() = WireguardEndpointData(emptyList(), emptyList())

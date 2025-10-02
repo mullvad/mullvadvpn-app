@@ -882,6 +882,9 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
+    suspend fun refreshRelayList() =
+        Either.catch { grpc.updateRelayLocations(Empty.getDefaultInstance()) }.mapEmpty()
+
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
     private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
