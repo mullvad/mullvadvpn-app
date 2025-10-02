@@ -69,7 +69,11 @@ export function ObfuscationSettings() {
           {messages.gettext('Automatic')}
         </SettingsListbox.BaseOption>
         <SettingsListbox.SplitOption value={ObfuscationType.shadowsocks}>
-          <SettingsListbox.SplitOption.Item>
+          <SettingsListbox.SplitOption.Item
+            aria-description={messages.pgettext(
+              'accessibility',
+              'Use the right arrow key to focus the settings button.',
+            )}>
             <FlexColumn>
               <SettingsListbox.SplitOption.Label>
                 {messages.pgettext('wireguard-settings-view', 'Shadowsocks')}
@@ -87,7 +91,11 @@ export function ObfuscationSettings() {
           />
         </SettingsListbox.SplitOption>
         <SettingsListbox.SplitOption value={ObfuscationType.udp2tcp}>
-          <SettingsListbox.SplitOption.Item>
+          <SettingsListbox.SplitOption.Item
+            aria-description={messages.pgettext(
+              'accessibility',
+              'Use the right arrow key to focus the settings button.',
+            )}>
             <FlexColumn>
               <SettingsListbox.SplitOption.Label>
                 {messages.pgettext('wireguard-settings-view', 'UDP-over-TCP')}
