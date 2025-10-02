@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
+import { useFocusReferenceBeforePaint } from '../hooks';
 import { Icon, IconButton } from '../lib/components';
 import { colors } from '../lib/foundations';
-import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
+import { useStyledRef } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
 
 export const StyledSearchContainer = styled.div({
@@ -76,6 +77,7 @@ export default function SearchBar(props: ISearchBarProps) {
   const { disabled, onSearch } = props;
 
   const inputRef = useStyledRef<HTMLInputElement>();
+  useFocusReferenceBeforePaint(inputRef, !props.disableAutoFocus);
 
   const onInput = useCallback(
     (event: React.FormEvent) => {
@@ -89,19 +91,6 @@ export default function SearchBar(props: ISearchBarProps) {
     onSearch('');
     inputRef.current?.blur();
   }, [inputRef, onSearch]);
-
-  const focusInput = useEffectEvent(() => {
-    if (!props.disableAutoFocus) {
-      inputRef.current?.focus({ preventScroll: true });
-    }
-  });
-
-  // These lint rules are disabled for now because the react plugin for eslint does
-  // not understand that useEffectEvent should not be added to the dependency array.
-  // Enable these rules again when eslint can lint useEffectEvent properly.
-  // eslint-disable-next-line react-compiler/react-compiler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => focusInput(), []);
 
   return (
     <StyledSearchContainer className={props.className}>
