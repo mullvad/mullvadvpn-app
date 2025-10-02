@@ -681,10 +681,6 @@ export default class AppRenderer {
 
   public setNavigationHistory(history: IHistoryObject) {
     IpcRendererEventChannel.navigation.setHistory(history);
-
-    if (window.env.e2e) {
-      window.e2e.location = history.entries[history.index].pathname;
-    }
   }
 
   // If the installer has just been downloaded and verified we want to automatically
