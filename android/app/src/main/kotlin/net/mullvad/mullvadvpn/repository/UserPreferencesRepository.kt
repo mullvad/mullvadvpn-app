@@ -48,4 +48,9 @@ class UserPreferencesRepository(
             if (expiryTime == 0L) return null
             Instant.ofEpochSecond(expiryTime).atZone(ZoneId.systemDefault())
         }
+
+    suspend fun setShowAndroid16ConnectWarning(show: Boolean) =
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setShowAndroid16ConnectWarning(show).build()
+        }
 }

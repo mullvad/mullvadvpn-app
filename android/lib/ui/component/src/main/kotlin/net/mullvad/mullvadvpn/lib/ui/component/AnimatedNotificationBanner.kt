@@ -49,9 +49,11 @@ fun AnimatedNotificationBanner(
     contentFocusRequester: FocusRequester,
     onClickShowAccount: () -> Unit,
     onClickShowChangelog: () -> Unit,
+    onClickShowAndroid16UpgradeInfo: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onClickDismissAndroid16UpgradeWarning: () -> Unit,
 ) {
     // Fix for animating to invisible state
     val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
@@ -81,9 +83,11 @@ fun AnimatedNotificationBanner(
                     openAppListing,
                     onClickShowAccount,
                     onClickShowChangelog,
+                    onClickShowAndroid16UpgradeInfo,
                     onClickDismissChangelog,
                     onClickDismissNewDevice,
                     onClickShowWireguardPortSettings,
+                    onClickDismissAndroid16UpgradeWarning,
                 ),
             )
     }

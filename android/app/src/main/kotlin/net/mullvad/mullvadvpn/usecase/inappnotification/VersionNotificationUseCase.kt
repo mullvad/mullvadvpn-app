@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.usecase
+package net.mullvad.mullvadvpn.usecase.inappnotification
 
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -9,11 +9,11 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 class VersionNotificationUseCase(
     private val appVersionInfoRepository: AppVersionInfoRepository,
     private val isVersionInfoNotificationEnabled: Boolean,
-) {
+) : InAppNotificationUseCase {
 
-    operator fun invoke() =
+    override operator fun invoke() =
         appVersionInfoRepository.versionInfo
-            .map { versionInfo -> listOfNotNull(unsupportedVersionNotification(versionInfo)) }
+            .map { versionInfo -> unsupportedVersionNotification(versionInfo) }
             .distinctUntilChanged()
 
     private fun unsupportedVersionNotification(versionInfo: VersionInfo): InAppNotification? {
