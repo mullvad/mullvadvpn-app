@@ -57,32 +57,42 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                     tunnelManager: tunnelManager,
                     relaySelectorWrapper: relaySelectorWrapper,
                     customListRepository: customListRepository,
-                    didSelectExitRelayLocations: { [weak self] relays in
-                        guard let self else { return }
-                        self.didSelectExitRelays(relays)
-                        self.didFinish?(self)
-                    },
-                    didSelectEntryRelayLocations: { [weak self] relays in
-                        guard let self else { return }
-                        self.didSelectEntryRelays(relays)
-                        self.didFinish?(self)
-                    },
-                    showFilterView: { [weak self] in
-                        guard let self else { return }
-                        self.navigateToFilter()
-                    },
-                    showEditCustomListView: { [weak self] locations in
-                        guard let self else { return }
-                        self.showEditCustomLists(nodes: locations)
-                    },
-                    showAddCustomListView: { [weak self] locations in
-                        guard let self else { return }
-                        self.showAddCustomList(nodes: locations)
-                    },
-                    didFinish: { [weak self] in
-                        guard let self else { return }
-                        self.didFinish?(self)
-                    }
+                    delegate: .init(
+                        showDaitaSettings: { [weak self] in
+                            guard let self else { return }
+                            self.navigateToDaitaSettings()
+                        },
+                        showObfuscationSettings: { [weak self] in
+                            guard let self else { return }
+                            self.navigateToObfuscationSettings()
+                        },
+                        showFilterView: { [weak self] in
+                            guard let self else { return }
+                            self.navigateToFilter()
+                        },
+                        showEditCustomListView: { [weak self] locations in
+                            guard let self else { return }
+                            self.showEditCustomLists(nodes: locations)
+                        },
+                        showAddCustomListView: { [weak self] locations in
+                            guard let self else { return }
+                            self.showAddCustomList(nodes: locations)
+                        },
+                        didSelectExitRelayLocations: { [weak self] relays in
+                            guard let self else { return }
+                            self.didSelectExitRelays(relays)
+                            self.didFinish?(self)
+                        },
+                        didSelectEntryRelayLocations: { [weak self] relays in
+                            guard let self else { return }
+                            self.didSelectEntryRelays(relays)
+                            self.didFinish?(self)
+                        },
+                        didFinish: { [weak self] in
+                            guard let self else { return }
+                            self.didFinish?(self)
+                        }
+                    )
                 )
             )
         )
@@ -178,6 +188,10 @@ extension LocationCoordinator {
 
     func navigateToDaitaSettings() {
         applicationRouter?.present(.daita)
+    }
+
+    func navigateToObfuscationSettings() {
+        applicationRouter?.present(.vpnSettings(.obfuscation))
     }
 
     func didSelectExitRelays(_ relays: UserSelectedRelays) {

@@ -1,6 +1,27 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
+    func didFinish() {
+
+    }
+
+    func showDaitaSettings() {
+
+    }
+
+    func showEditCustomListView(locations: [LocationNode]) {
+
+    }
+
+    func showAddCustomListView(locations: [LocationNode]) {
+
+    }
+
+    func showFilterView() {
+
+    }
+
+
     var showDAITAInfo = false
 
     var activeLocationContext: LocationContext = .init(
@@ -140,13 +161,11 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
 
     var searchText: String = ""
 
-    var showFilterView: (() -> Void)?
-
-    var showEditCustomListView: (([LocationNode]) -> Void)?
-
-    var showAddCustomListView: (([LocationNode]) -> Void)?
-
-    var didFinish: (() -> Void)?
 
     func refreshCustomLists() {}
+
+    func addLocationToCustomList(
+        location: LocationNode,
+        customListName: String
+    ) {}
 }

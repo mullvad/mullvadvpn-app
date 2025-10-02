@@ -9,13 +9,26 @@ protocol SelectLocationViewModel: ObservableObject {
     var multihopContext: MultihopContext? { get set }
     var searchText: String { get set }
     var showDAITAInfo: Bool { get }
-    var showFilterView: (() -> Void)? { get }
-    var showEditCustomListView: (([LocationNode]) -> Void)? { get }
-    var showAddCustomListView: (([LocationNode]) -> Void)? { get }
-    var didFinish: (() -> Void)? { get }
     func onFilterTapped(_ filter: SelectLocationFilter)
     func onFilterRemoved(_ filter: SelectLocationFilter)
     func refreshCustomLists()
+    func addLocationToCustomList(location: LocationNode, customListName: String)
+    func didFinish()
+    func showDaitaSettings()
+    func showEditCustomListView(locations: [LocationNode])
+    func showAddCustomListView(locations: [LocationNode])
+    func showFilterView()
+}
+
+struct SelectLocationDelegate {
+    let showDaitaSettings: () -> Void
+    let showObfuscationSettings: () -> Void
+    let showFilterView: () -> Void
+    let showEditCustomListView: ([LocationNode]) -> Void
+    let showAddCustomListView: ([LocationNode]) -> Void
+    let didSelectExitRelayLocations: (UserSelectedRelays) -> Void
+    let didSelectEntryRelayLocations: (UserSelectedRelays) -> Void
+    let didFinish: () -> Void
 }
 
 @MainActor
@@ -54,14 +67,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private let tunnelManager: TunnelManager
     private let customListRepository: CustomListRepositoryProtocol
 
-    private let didSelectExitRelayLocations: (UserSelectedRelays) -> Void
-    private let didSelectEntryRelayLocations: (UserSelectedRelays) -> Void
-    let showFilterView: (() -> Void)?
-    let showEditCustomListView: (([LocationNode]) -> Void)?
-    let showAddCustomListView: (([LocationNode]) -> Void)?
-    let didFinish: (() -> Void)?
-
     private var tunnelObserver: TunnelBlockObserver?
+
+    let delegate: SelectLocationDelegate
 
     var cancellables: [Combine.AnyCancellable] = []
 
@@ -69,22 +77,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         tunnelManager: TunnelManager,
         relaySelectorWrapper: RelaySelectorWrapper,
         customListRepository: CustomListRepositoryProtocol,
-        didSelectExitRelayLocations: @escaping (UserSelectedRelays) -> Void,
-        didSelectEntryRelayLocations: @escaping (UserSelectedRelays) -> Void,
-        showFilterView: @escaping (() -> Void),
-        showEditCustomListView: @escaping (([LocationNode]) -> Void),
-        showAddCustomListView: @escaping (([LocationNode]) -> Void),
-        didFinish: @escaping (() -> Void)
+        delegate: SelectLocationDelegate
     ) {
         self.tunnelManager = tunnelManager
         self.relaySelectorWrapper = relaySelectorWrapper
         self.customListRepository = customListRepository
-        self.didSelectExitRelayLocations = didSelectExitRelayLocations
-        self.didSelectEntryRelayLocations = didSelectEntryRelayLocations
-        self.showFilterView = showFilterView
-        self.showEditCustomListView = showEditCustomListView
-        self.showAddCustomListView = showAddCustomListView
-        self.didFinish = didFinish
+        self.delegate = delegate
         self.customListsDataSource = CustomListsDataSource(
             repository: customListRepository
         )
@@ -124,7 +122,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             selectedLocation: nil,
             connectedRelayHostname: nil,
             selectLocation: { location in
-                didSelectExitRelayLocations(getUserSelectedRelays(location))
+                delegate.didSelectExitRelayLocations(getUserSelectedRelays(location))
             }
         )
         self.entryContext = LocationContext(
@@ -136,7 +134,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             selectedLocation: nil,
             connectedRelayHostname: nil,
             selectLocation: { location in
-                didSelectEntryRelayLocations(getUserSelectedRelays(location))
+                delegate.didSelectEntryRelayLocations(getUserSelectedRelays(location))
             }
         )
         let tunnelObserver =
@@ -183,9 +181,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     func onFilterTapped(_ filter: SelectLocationFilter) {
         switch filter {
         case .owned, .rented, .provider:
-            showFilterView?()
-        default:
-            break
+            delegate.showFilterView()
+        case .daita:
+            delegate.showDaitaSettings()
+        case .obfuscation:
+            delegate.showObfuscationSettings()
         }
     }
 
@@ -357,7 +357,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         expandSelectedLocation()
     }
 
-    func expandSelectedLocation() {
+    private func expandSelectedLocation() {
         if var selectedExitLocation = exitContext.selectedLocation {
             while let parent = selectedExitLocation.parent {
                 parent.showsChildren = true
@@ -370,6 +370,53 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 selectedEntryLocation = parent
             }
         }
+    }
+
+    func addLocationToCustomList(location: LocationNode, customListName: String) {
+        let customList = customListRepository.fetchAll().first { $0.name == customListName }
+        guard let customList else {
+            return
+        }
+        let allLocations = (customList.locations + location.locations)
+        let locations: [RelayLocation] =
+            allLocations
+            .filter { $0.ancestors.allSatisfy { !allLocations.contains($0) } }
+            .reduce(
+                [],
+                { partialResult, location in
+                    if !partialResult.contains(location) {
+                        return partialResult + [location]
+                    } else {
+                        return partialResult
+                    }
+                })
+        let newCustomList = CustomList(
+            id: customList.id,
+            name: customList.name,
+            locations: locations
+        )
+        try? customListRepository.save(list: newCustomList)
+        fetchLocations(settings: tunnelManager.settings)
+    }
+
+    func didFinish() {
+        delegate.didFinish()
+    }
+
+    func showDaitaSettings() {
+        delegate.showFilterView()
+    }
+
+    func showEditCustomListView(locations: [LocationNode]) {
+        delegate.showEditCustomListView(locations)
+    }
+
+    func showAddCustomListView(locations: [LocationNode]) {
+        delegate.showAddCustomListView(locations)
+    }
+
+    func showFilterView() {
+        delegate.showFilterView()
     }
 }
 
