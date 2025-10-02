@@ -7,6 +7,7 @@
 //
 
 import Routing
+import SwiftUI
 import UIKit
 
 final class RevokedCoordinator: Coordinator {
@@ -22,13 +23,21 @@ final class RevokedCoordinator: Coordinator {
 
     func start(animated: Bool) {
         let interactor = RevokedDeviceInteractor(tunnelManager: tunnelManager)
-        let controller = RevokedDeviceViewController(interactor: interactor)
+//        let controller = RevokedDeviceViewController(interactor: interactor)
 
-        controller.didFinish = { [weak self] in
+        var view = RevokedDeviceView()
+        view.onButtonTap = { [weak self] in
             guard let self else { return }
-
             didFinish?(self)
         }
+
+        let controller = UIHostingController(rootView: view)
+
+//        controller.didFinish = { [weak self] in
+//            guard let self else { return }
+//
+//            didFinish?(self)
+//        }
 
         navigationController.pushViewController(controller, animated: animated)
     }
