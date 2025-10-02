@@ -1,6 +1,7 @@
-export const getOptions = (container: HTMLElement | null) => {
+export const getOptions = (container: HTMLElement | null, selector?: string) => {
+  const querySelector = selector ?? '[data-option="true"]';
   const options = container?.querySelectorAll<HTMLElement>(
-    '[role="option"]:not([aria-disabled="true"])',
+    `${querySelector}:not([aria-disabled="true"])`,
   );
 
   if (options) {

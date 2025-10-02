@@ -1,18 +1,22 @@
 import React from 'react';
 
 import { getInitialOption, getOptions } from '../utils';
-import { useHandleKeyboardNavigation } from './use-handle-keyboard-navigation';
+import { Orientation, useHandleKeyboardNavigation } from './use-handle-keyboard-navigation';
 
 export type UseOptionsProps<T extends HTMLElement> = {
   optionsRef: React.RefObject<T | null>;
   focusedIndex?: number;
   setFocusedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
+  selector?: string;
+  orientation?: Orientation;
 };
 
 export function useOptions<T extends HTMLElement>({
   optionsRef,
   focusedIndex,
   setFocusedIndex,
+  selector,
+  orientation = 'vertical',
 }: UseOptionsProps<T>) {
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const handleFocus = React.useCallback(
@@ -34,6 +38,8 @@ export function useOptions<T extends HTMLElement>({
     optionsRef,
     setFocusedIndex,
     focusedIndex,
+    selector,
+    orientation,
   });
 
   const handleBlur = React.useCallback(
