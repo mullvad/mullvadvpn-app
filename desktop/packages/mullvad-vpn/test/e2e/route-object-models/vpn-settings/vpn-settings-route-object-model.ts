@@ -2,16 +2,17 @@ import { Page } from 'playwright';
 
 import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
+import { NavigationObjectModel } from '../navigation';
 import { createSelectors } from './selectors';
 
-export class VpnSettingsRouteObjectModel {
-  readonly page: Page;
-  readonly utils: TestUtils;
+export class VpnSettingsRouteObjectModel extends NavigationObjectModel {
   readonly selectors: ReturnType<typeof createSelectors>;
 
-  constructor(page: Page, utils: TestUtils) {
-    this.page = page;
-    this.utils = utils;
+  constructor(
+    public readonly page: Page,
+    public readonly utils: TestUtils,
+  ) {
+    super(page, utils);
     this.selectors = createSelectors(page);
   }
 
