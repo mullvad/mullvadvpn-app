@@ -2,6 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors, Radius, spacings } from '../../foundations';
+import { TransientProps } from '../../types';
 import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
@@ -42,11 +43,11 @@ const styles = {
   },
 };
 
-export const StyledButton = styled.button<ButtonProps>`
-  ${({ width: sizeProp = 'fill', variant: variantProp = 'primary' }) => {
-    const variant = styles.variants[variantProp];
-    const size = styles.flex[sizeProp];
-    const width = styles.widths[sizeProp];
+export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'variant' | 'width'>>>`
+  ${({ $width = 'fill', $variant = 'primary' }) => {
+    const variant = styles.variants[$variant];
+    const size = styles.flex[$width];
+    const width = styles.widths[$width];
 
     return css`
       --background: ${variant.background};
@@ -123,10 +124,10 @@ export const StyledButton = styled.button<ButtonProps>`
   }}
 `;
 
-function Button({ children, disabled = false, ...props }: ButtonProps) {
+function Button({ children, variant, width, disabled = false, ...props }: ButtonProps) {
   return (
     <ButtonProvider disabled={disabled}>
-      <StyledButton disabled={disabled} {...props}>
+      <StyledButton disabled={disabled} $variant={variant} $width={width} {...props}>
         {children}
       </StyledButton>
     </ButtonProvider>
