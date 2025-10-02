@@ -17,11 +17,11 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
-import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.NewChangelogNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.NewChangelogNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.TunnelStateNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.VersionNotificationUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,12 +32,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 class InAppNotificationControllerTest {
 
     private lateinit var inAppNotificationController: InAppNotificationController
-    private val accountExpiryNotifications = MutableStateFlow(emptyList<InAppNotification>())
-    private val newDeviceNotifications = MutableStateFlow(emptyList<InAppNotification.NewDevice>())
+    private val accountExpiryNotifications =
+        MutableStateFlow<InAppNotification.AccountExpiry?>(null)
+    private val newDeviceNotifications = MutableStateFlow<InAppNotification.NewDevice?>(null)
     private val newVersionChangelogNotifications =
-        MutableStateFlow(emptyList<InAppNotification.NewVersionChangelog>())
-    private val versionNotifications = MutableStateFlow(emptyList<InAppNotification>())
-    private val tunnelStateNotifications = MutableStateFlow(emptyList<InAppNotification>())
+        MutableStateFlow<InAppNotification.NewVersionChangelog?>(null)
+    private val versionNotifications = MutableStateFlow<InAppNotification.UnsupportedVersion?>(null)
+    private val tunnelStateNotifications = MutableStateFlow<InAppNotification?>(null)
 
     private lateinit var job: Job
 
@@ -60,11 +61,13 @@ class InAppNotificationControllerTest {
 
         inAppNotificationController =
             InAppNotificationController(
-                accountExpiryInAppNotificationUseCase,
-                newDeviceNotificationUseCase,
-                newVersionChangelogUseCase,
-                versionNotificationUseCase,
-                tunnelStateNotificationUseCase,
+                listOf(
+                    accountExpiryInAppNotificationUseCase,
+                    newDeviceNotificationUseCase,
+                    newVersionChangelogUseCase,
+                    versionNotificationUseCase,
+                    tunnelStateNotificationUseCase,
+                ),
                 CoroutineScope(job + UnconfinedTestDispatcher()),
             )
     }
@@ -78,29 +81,27 @@ class InAppNotificationControllerTest {
     @Test
     fun `ensure all notifications have the right priority`() = runTest {
         val newDevice = InAppNotification.NewDevice("")
-        newDeviceNotifications.value = listOf(newDevice)
+        newDeviceNotifications.value = newDevice
 
         val newVersionChangelog = InAppNotification.NewVersionChangelog
-        newVersionChangelogNotifications.value = listOf(newVersionChangelog)
+        newVersionChangelogNotifications.value = newVersionChangelog
 
         val errorState: ErrorState = mockk()
         every { errorState.cause } returns mockk()
         val tunnelStateBlocked = InAppNotification.TunnelStateBlocked
-        val tunnelStateError = InAppNotification.TunnelStateError(errorState)
-        tunnelStateNotifications.value = listOf(tunnelStateBlocked, tunnelStateError)
+        tunnelStateNotifications.value = tunnelStateBlocked
 
         val unsupportedVersion = InAppNotification.UnsupportedVersion(mockk())
-        versionNotifications.value = listOf(unsupportedVersion)
+        versionNotifications.value = unsupportedVersion
 
         val accountExpiry = InAppNotification.AccountExpiry(Duration.ZERO)
-        accountExpiryNotifications.value = listOf(accountExpiry)
+        accountExpiryNotifications.value = accountExpiry
 
         inAppNotificationController.notifications.test {
             val notifications = awaitItem()
 
             assertEquals(
                 listOf(
-                    tunnelStateError,
                     tunnelStateBlocked,
                     unsupportedVersion,
                     accountExpiry,

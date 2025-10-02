@@ -2929,6 +2929,9 @@ msgstr ""
 msgid "Adding method..."
 msgstr ""
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr ""
+
 msgid "Agree and continue"
 msgstr ""
 
@@ -2942,6 +2945,9 @@ msgid "Always-on VPN assigned to %s"
 msgstr ""
 
 msgid "Always-on VPN assigned to other VPN"
+msgstr ""
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr ""
 
 msgid "At least one method needs to be enabled"
@@ -2975,6 +2981,9 @@ msgid "Blocking internet (device offline)"
 msgstr ""
 
 msgid "Blocking..."
+msgstr ""
+
+msgid "Can't connect?"
 msgstr ""
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
@@ -3253,6 +3262,9 @@ msgstr ""
 msgid "Please press connect to request VPN permission"
 msgstr ""
 
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr ""
+
 msgid "Please try changing your filters."
 msgstr ""
 
@@ -3473,6 +3485,9 @@ msgid "\"%s\" was created"
 msgstr ""
 
 msgid "\"%s\" was deleted"
+msgstr ""
+
+msgid "click here"
 msgstr ""
 
 msgid "here"

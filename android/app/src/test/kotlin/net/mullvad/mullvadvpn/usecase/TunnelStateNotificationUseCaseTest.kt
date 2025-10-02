@@ -8,7 +8,6 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
@@ -23,11 +22,13 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.usecase.inappnotification.TunnelStateNotificationUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
@@ -66,20 +67,20 @@ class TunnelStateNotificationUseCaseTest {
     @Test
     fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
-        tunnelStateNotificationUseCase().test { assertTrue(awaitItem().isEmpty()) }
+        tunnelStateNotificationUseCase().test { assertNull(awaitItem()) }
     }
 
     @Test
     fun `when TunnelState is error use case should emit TunnelStateError notification`() = runTest {
         tunnelStateNotificationUseCase().test {
             // Arrange, Act
-            assertLists(emptyList(), awaitItem())
+            assertNull(awaitItem())
             val errorState: ErrorState = mockk()
             every { errorState.cause } returns mockk()
             tunnelState.emit(TunnelState.Error(errorState))
 
             // Assert
-            assertEquals(listOf(InAppNotification.TunnelStateError(errorState)), awaitItem())
+            assertEquals(InAppNotification.TunnelStateError(errorState), awaitItem())
         }
     }
 
@@ -88,11 +89,11 @@ class TunnelStateNotificationUseCaseTest {
         runTest {
             tunnelStateNotificationUseCase().test {
                 // Arrange, Act
-                assertLists(emptyList(), awaitItem())
+                assertNull(awaitItem())
                 tunnelState.emit(TunnelState.Disconnecting(ActionAfterDisconnect.Block))
 
                 // Assert
-                assertEquals(listOf(InAppNotification.TunnelStateBlocked), awaitItem())
+                assertEquals(InAppNotification.TunnelStateBlocked, awaitItem())
             }
         }
 
@@ -101,7 +102,7 @@ class TunnelStateNotificationUseCaseTest {
         runTest {
             tunnelStateNotificationUseCase().test {
                 // Arrange, Act
-                assertLists(emptyList(), awaitItem())
+                assertNull(awaitItem())
                 val errorState: ErrorState = mockk()
                 every { errorState.isBlocking } returns true
                 every { errorState.cause } returns
@@ -117,7 +118,7 @@ class TunnelStateNotificationUseCaseTest {
                 // Assert
                 val item = awaitItem()
                 assertTrue {
-                    (item.first() as InAppNotification.TunnelStateError).error.cause is
+                    (item as InAppNotification.TunnelStateError).error.cause is
                         NoRelaysMatchSelectedPort
                 }
             }
@@ -128,7 +129,7 @@ class TunnelStateNotificationUseCaseTest {
         runTest {
             tunnelStateNotificationUseCase().test {
                 // Arrange, Act
-                assertLists(emptyList(), awaitItem())
+                assertNull(awaitItem())
                 val errorState: ErrorState = mockk()
                 every { errorState.isBlocking } returns true
                 every { errorState.cause } returns
@@ -143,10 +144,9 @@ class TunnelStateNotificationUseCaseTest {
 
                 // Assert
                 val item = awaitItem()
-                assertEquals(listOf(InAppNotification.TunnelStateError(errorState)), item)
+                assertEquals(InAppNotification.TunnelStateError(errorState), item)
                 assertTrue {
-                    (item.first() as InAppNotification.TunnelStateError).error.cause is
-                        TunnelParameterError
+                    (item as InAppNotification.TunnelStateError).error.cause is TunnelParameterError
                 }
             }
         }
