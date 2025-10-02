@@ -24,9 +24,11 @@ fun PreviewNotificationBannerTv() {
             openAppListing = {},
             onClickShowAccount = {},
             onClickShowChangelog = {},
+            onClickShowAndroid16UpgradeInfo = {},
             onClickDismissChangelog = {},
             onClickDismissNewDevice = {},
             onClickShowWireguardPortSettings = {},
+            onClickDismissAndroid16UpgradeWarning = {},
         )
     }
 }
@@ -40,9 +42,11 @@ fun NotificationBannerTv(
     contentFocusRequester: FocusRequester = FocusRequester(),
     onClickShowAccount: () -> Unit,
     onClickShowChangelog: () -> Unit,
+    onClickShowAndroid16UpgradeInfo: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onClickDismissAndroid16UpgradeWarning: () -> Unit,
 ) {
     AnimatedNotificationBanner(
         modifier = modifier,
@@ -63,8 +67,10 @@ fun NotificationBannerTv(
         contentFocusRequester = contentFocusRequester,
         onClickShowAccount = onClickShowAccount,
         onClickShowChangelog = onClickShowChangelog,
+        onClickShowAndroid16UpgradeInfo = onClickShowAndroid16UpgradeInfo,
         onClickDismissChangelog = onClickDismissChangelog,
         onClickDismissNewDevice = onClickDismissNewDevice,
         onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
+        onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
     )
 }
