@@ -80,7 +80,6 @@ pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
             .ip_version(IpVersion::V6)
             .build(),
         // 7
-        #[cfg(not(target_os = "android"))]
         RelayQueryBuilder::wireguard().lwo().build(),
     ]
 });
