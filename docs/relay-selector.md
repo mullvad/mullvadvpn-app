@@ -59,6 +59,7 @@ constraints the following default ones will take effect
 - The fourth attempt will connect to a Wireguard relay using QUIC for obfuscation
 - The fifth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
 - The sixth attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
+- The seventh attempt will connect to a Wireguard relay using LWO
 
 #### Tunnel protocol is OpenVPN
 
@@ -136,8 +137,7 @@ have bridges that support UDP tunnels over TCP bridges, this behavior should be 
 changing the tunnel constraints to ones that do not support bridges (WireGuard, OpenVPN over UDP)
 will indirectly change the bridge state to _Auto_ if it was previously set to _On_.
 
-
 ### Obfuscator caveats
 
-There are three types of obfuscators - _udp2tcp_, _shadowsocks_ and _quic_.
+There are four types of obfuscators - _udp2tcp_, _shadowsocks_, _quic_, and _lwo_.
 They are used if the obfuscation mode is set _Auto_ and the user has selected WireGuard to be the only tunnel protocol to be used.
