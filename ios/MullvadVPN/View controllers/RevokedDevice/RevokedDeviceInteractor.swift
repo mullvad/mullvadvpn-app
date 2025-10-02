@@ -8,7 +8,12 @@
 
 import Foundation
 
-final class RevokedDeviceInteractor {
+protocol RevokedDeviceInteractorProtocol {
+    var didUpdateTunnelStatus: ((TunnelStatus) -> Void)? { get set }
+    var tunnelStatus: TunnelStatus { get }
+}
+
+final class RevokedDeviceInteractor: RevokedDeviceInteractorProtocol {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
 
@@ -29,5 +34,14 @@ final class RevokedDeviceInteractor {
         tunnelManager.addObserver(tunnelObserver)
 
         self.tunnelObserver = tunnelObserver
+    }
+}
+
+class MockRevokedDeviceInteractor: RevokedDeviceInteractorProtocol {
+    var tunnelStatus: TunnelStatus
+    var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
+
+    init(tunnelStatus: TunnelStatus) {
+        self.tunnelStatus = tunnelStatus
     }
 }
