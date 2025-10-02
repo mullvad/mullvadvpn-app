@@ -272,8 +272,9 @@ async fn create_devices(
         let factory = UdpSocketFactory;
 
         // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
+        // See docs on wrap_in_pcap_sniffer for an explanation.
         #[cfg(all(feature = "pcap", target_os = "linux"))]
-        let (tun_tx, tun_rx) = wrap_in_pcap_sniffer((tun_tx, tun_rx));
+        let (tun_tx, tun_rx) = wrap_in_pcap_sniffer(tun_tx, tun_rx);
 
         let entry_device = EntryDevice::new(factory, tun_tx, tun_rx, boringtun_entry_config).await;
 
@@ -585,19 +586,30 @@ pub fn get_tunnel_for_userspace(
     ))
 }
 
-/// Debugging function that sets up a unix socket and writes packets to it using the pcap file format.
+/// Wrap `ip_send` and `ip_recv` in [PcapSniffer]s for use with Wireshark.
 ///
-/// The unix socket can be opened in wireshark to inspect the traffic.
+/// With userspace multihop, the [ExitDevice] communicates with the network through the
+/// [EntryDevice], without going through the kernel. That means there is no network interface
+/// for wireshark to sniff. By interposing [PcapSniffer]s, any packets that are sent to `ip_send`,
+/// or received from `ip_recv`, will _also_ be written to a unix socket, encoded using the pcap
+/// file format.
+///
+/// The unix socket can be opened in wireshark to inspect communication with the [ExitDevice]s peer.
 /// ```sh
 /// wireshark -k -i /tmp/mullvad-multihop.pcap
 /// ```
 #[cfg(all(feature = "pcap", target_os = "linux"))]
-fn wrap_in_pcap_sniffer<A, B>(
-    (a, b): (A, B),
+fn wrap_in_pcap_sniffer<S, R>(
+    ip_send: S,
+    ip_recv: R,
 ) -> (
-    boringtun::tun::pcap::PcapSniffer<A>,
-    boringtun::tun::pcap::PcapSniffer<B>,
-) {
+    boringtun::tun::pcap::PcapSniffer<S>,
+    boringtun::tun::pcap::PcapSniffer<R>,
+)
+where
+    S: boringtun::tun::IpSend,
+    R: boringtun::tun::IpRecv,
+{
     const SOCKET_PATH: &str = "/tmp/mullvad-multihop.pcap";
 
     use boringtun::tun::pcap::{PcapSniffer, PcapStream};
@@ -627,10 +639,10 @@ fn wrap_in_pcap_sniffer<A, B>(
     let start_time = Instant::now();
 
     let w = WRITER.clone();
-    let a = PcapSniffer::new(a, w, start_time);
+    let ip_send = PcapSniffer::new(ip_send, w, start_time);
 
     let w = WRITER.clone();
-    let b = PcapSniffer::new(b, w, start_time);
+    let ip_recv = PcapSniffer::new(ip_recv, w, start_time);
 
-    (a, b)
+    (ip_send, ip_recv)
 }
