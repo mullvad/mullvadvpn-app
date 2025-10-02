@@ -10,6 +10,15 @@ let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
+const startup = async () => {
+  ({ page, util } = await startMockedApp());
+  routes = new RoutesObjectModel(page, util);
+
+  await util.expectRoute(RoutePath.main);
+  await routes.main.gotoSettings();
+  await routes.settings.gotoSplitTunnelingSettings();
+};
+
 test.describe('Linux Split tunneling unsupported', () => {
   if (process.platform !== 'linux') {
     test.skip();
@@ -20,12 +29,7 @@ test.describe('Linux Split tunneling unsupported', () => {
   });
 
   test.beforeAll(async () => {
-    ({ page, util } = await startMockedApp());
-    routes = new RoutesObjectModel(page, util);
-
-    await util.expectRoute(RoutePath.main);
-    await routes.main.gotoSettings();
-    await routes.settings.gotoSplitTunnelingSettings();
+    await startup();
   });
 
   test.beforeAll(async () => {
