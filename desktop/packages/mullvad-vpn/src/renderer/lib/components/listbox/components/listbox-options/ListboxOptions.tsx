@@ -13,6 +13,7 @@ export function ListboxOptions({ children }: ListboxOptionsProps) {
     focusedIndex,
     optionsRef,
     setFocusedIndex,
+    selector: '[data-option="true"]:not([aria-disabled="true"])',
   });
 
   const onKeyDown = React.useCallback(
