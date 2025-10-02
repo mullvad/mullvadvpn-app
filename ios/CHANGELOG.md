@@ -21,15 +21,17 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## Unreleased
+## UNRELEASED
+
+## [2025.6 - 2025-09-23]
 ### Added
-- Add support for obfuscating WireGuard tunnel traffic as the QUIC protocol. This helps 
+- Add support for obfuscating WireGuard tunnel traffic as the QUIC protocol. This helps
   circumvent censorship.
 - Make feature indicators clickable shortcuts to their corresponding settings.
 - Let users cancel sending a problem report.
 - Add possibility to manage devices from account view.
 - Add support for Dynamic Type to allow fonts to scale according to user's system settings.
-- Add notification that shows when the user is connected to WireGuard with a port that is not 
+- Add notification that shows when the user is connected to WireGuard with a port that is not
   supported.
 
 ### Changed
