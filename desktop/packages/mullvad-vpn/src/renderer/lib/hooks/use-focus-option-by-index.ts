@@ -2,11 +2,11 @@ import React from 'react';
 
 import { getOptions } from '../utils';
 
-export const useFocusOptionByIndex = ({
+export const useFocusOptionByIndex = <T extends HTMLElement>({
   optionsRef,
   setFocusedIndex,
 }: {
-  optionsRef: React.RefObject<HTMLUListElement | null>;
+  optionsRef: React.RefObject<T | null>;
   setFocusedIndex: (index: number) => void;
 }) => {
   return React.useCallback(
