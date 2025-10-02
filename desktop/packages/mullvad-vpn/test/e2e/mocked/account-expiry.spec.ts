@@ -162,6 +162,7 @@ test.describe('Account expiry', () => {
           },
         },
       });
+      await page.clock.fastForward(1000);
       await routes.expired.waitForRoute();
     });
 
