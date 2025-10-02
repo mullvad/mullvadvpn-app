@@ -4,14 +4,18 @@ import { getOptions } from '../utils';
 import { useFocusOptionByIndex } from './use-focus-option-by-index';
 import { useGetInitialFocusIndex } from './use-get-initial-focus-index';
 
+type Orientation = 'horizontal' | 'vertical';
+
 export const useHandleKeyboardNavigation = <T extends HTMLElement>({
   optionsRef,
   focusedIndex,
   setFocusedIndex,
+  orientation = 'vertical',
 }: {
   optionsRef: React.RefObject<T | null>;
   focusedIndex?: number;
   setFocusedIndex: (index: number) => void;
+  orientation?: Orientation;
 }) => {
   const getInitialFocusIndex = useGetInitialFocusIndex({ optionsRef, focusedIndex });
   const focusOptionByIndex = useFocusOptionByIndex({
@@ -19,19 +23,22 @@ export const useHandleKeyboardNavigation = <T extends HTMLElement>({
     setFocusedIndex,
   });
 
+  const nextKey = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
+  const previousKey = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
+
   return React.useCallback(
     (event: React.KeyboardEvent) => {
       const options = getOptions(optionsRef.current);
 
       const initialFocusedIndex = getInitialFocusIndex();
 
-      if (event.key === 'ArrowUp') {
+      if (event.key === previousKey) {
         event.preventDefault();
         if (initialFocusedIndex > 0) {
           const newFocusedIndex = initialFocusedIndex - 1;
           focusOptionByIndex(newFocusedIndex);
         }
-      } else if (event.key === 'ArrowDown') {
+      } else if (event.key === nextKey) {
         event.preventDefault();
         if (initialFocusedIndex < options.length - 1) {
           const newFocusedIndex = initialFocusedIndex + 1;
@@ -45,6 +52,6 @@ export const useHandleKeyboardNavigation = <T extends HTMLElement>({
         focusOptionByIndex(options.length - 1);
       }
     },
-    [focusOptionByIndex, getInitialFocusIndex, optionsRef],
+    [focusOptionByIndex, getInitialFocusIndex, nextKey, optionsRef, previousKey],
   );
 };
