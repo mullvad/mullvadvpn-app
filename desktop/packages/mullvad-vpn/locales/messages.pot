@@ -3399,6 +3399,12 @@ msgstr ""
 msgid "Update list name"
 msgstr ""
 
+msgid "Update server list"
+msgstr ""
+
+msgid "Updating server list in the background..."
+msgstr ""
+
 msgid "Use method"
 msgstr ""
 
