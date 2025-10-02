@@ -331,7 +331,6 @@ fn assert_wireguard_retry_order() {
         // 3
         RelayQueryBuilder::wireguard().shadowsocks().build(),
         // 4
-        #[cfg(not(target_os = "android"))]
         RelayQueryBuilder::wireguard().quic().build(),
         // 5
         RelayQueryBuilder::wireguard().udp2tcp().build(),
