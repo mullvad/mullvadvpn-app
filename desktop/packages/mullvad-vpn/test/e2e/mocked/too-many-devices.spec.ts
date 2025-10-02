@@ -8,6 +8,12 @@ let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
+const START_DATE = new Date('2025-01-01T13:37:00');
+
+const NON_EXPIRED_EXPIRY = {
+  expiry: new Date(START_DATE.getTime() + 60 * 60 * 1000).toISOString(),
+};
+
 test.describe('Too many devices', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
@@ -20,6 +26,10 @@ test.describe('Too many devices', () => {
     });
 
     await routes.login.waitForRoute();
+  });
+
+  test.beforeEach(async () => {
+    await page.clock.install({ time: START_DATE });
   });
 
   test.afterAll(async () => {
@@ -60,7 +70,8 @@ test.describe('Too many devices', () => {
         type: 'logged in',
         deviceState: { type: 'logged in', accountAndDevice: { accountNumber: '1234123412341234' } },
       });
-      await util.ipc.account[''].notify({ expiry: new Date(Date.now() + 60 * 1000).toISOString() });
+      await util.ipc.account[''].notify(NON_EXPIRED_EXPIRY);
+      await page.clock.fastForward(1000);
 
       await routes.main.waitForRoute();
     });

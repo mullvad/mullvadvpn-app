@@ -4,6 +4,12 @@ import { Page } from 'playwright';
 import { RoutesObjectModel } from '../route-object-models';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
+const START_DATE = new Date('2025-01-01T13:37:00');
+
+const NON_EXPIRED_EXPIRY = {
+  expiry: new Date(START_DATE.getTime() + 60 * 60 * 1000).toISOString(),
+};
+
 let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
@@ -31,6 +37,7 @@ test.describe('Login view', () => {
   });
 
   test.beforeEach(async () => {
+    await page.clock.install({ time: START_DATE });
     await logout();
   });
 
@@ -54,9 +61,10 @@ test.describe('Login view', () => {
       type: 'logged in',
       deviceState: { type: 'logged in', accountAndDevice: { accountNumber: '1234123412341234' } },
     });
-    await util.ipc.account[''].notify({ expiry: new Date(Date.now() + 60 * 1000).toISOString() });
+    await util.ipc.account[''].notify(NON_EXPIRED_EXPIRY);
 
     await expect(header).toHaveText('Logged in');
+    await page.clock.fastForward(1000);
     await routes.main.waitForRoute();
   });
 
