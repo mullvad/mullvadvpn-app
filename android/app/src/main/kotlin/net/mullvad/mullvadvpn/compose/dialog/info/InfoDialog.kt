@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
@@ -44,8 +45,10 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 
 @Composable
 fun InfoDialog(
+    title: String? = null,
     message: String,
-    additionalInfo: String? = null,
+    additionalInfo: CharSequence? = null,
+    showIcon: Boolean = true,
     onDismiss: () -> Unit,
     confirmButton: @Composable () -> Unit = {
         PrimaryButton(
@@ -58,14 +61,23 @@ fun InfoDialog(
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        icon = {
-            Icon(
-                modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
-                imageVector = Icons.Default.Info,
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-        },
+        icon =
+            if (showIcon) {
+                {
+                    Icon(
+                        modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            } else null,
+        title =
+            if (title != null) {
+                @Composable { Text(title) }
+            } else {
+                null
+            },
         text = {
             val scrollState = rememberScrollState()
             Column(
@@ -84,13 +96,27 @@ fun InfoDialog(
                 )
                 if (additionalInfo != null) {
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-                    val htmlFormattedString =
-                        HtmlCompat.fromHtml(additionalInfo, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                    val annotated = htmlFormattedString.toAnnotatedString(FontWeight.Bold)
-                    // fromHtml may add a trailing newline when using HTML tags, so we remove it
-                    val trimmed = annotated.substring(0, annotated.trimEnd().length)
+                    val annotated: AnnotatedString =
+                        when (additionalInfo) {
+                            is AnnotatedString -> additionalInfo
+                            is String -> {
+                                val htmlAnnotated =
+                                    HtmlCompat.fromHtml(
+                                            additionalInfo,
+                                            HtmlCompat.FROM_HTML_MODE_COMPACT,
+                                        )
+                                        .toAnnotatedString(FontWeight.Bold)
+                                // fromHtml may add a trailing newline when using HTML tags, so we
+                                // remove it
+                                AnnotatedString(
+                                    htmlAnnotated.substring(0, htmlAnnotated.trimEnd().length)
+                                )
+                            }
+                            else ->
+                                error("Unsupported additionalInfo type ${additionalInfo::class}")
+                        }
                     Text(
-                        text = trimmed,
+                        text = annotated,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.fillMaxWidth(),
