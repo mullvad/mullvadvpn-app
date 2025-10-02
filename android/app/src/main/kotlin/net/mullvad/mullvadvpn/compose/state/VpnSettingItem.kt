@@ -106,6 +106,8 @@ sealed interface VpnSettingItem {
 
         data class Quic(override val selected: Boolean) : ObfuscationItem
 
+        data class Lwo(override val selected: Boolean) : ObfuscationItem
+
         data class Off(override val selected: Boolean) : ObfuscationItem
     }
 

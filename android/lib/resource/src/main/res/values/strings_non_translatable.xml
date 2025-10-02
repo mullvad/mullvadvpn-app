@@ -12,6 +12,7 @@
     <string name="socks5_remote" translatable="false">SOCKS5</string>
     <string name="shadowsocks" translatable="false">Shadowsocks</string>
     <string name="quic" translatable="false">QUIC</string>
+    <string name="lwo" translatable="false">LWO</string>
     <string name="local_network_sharing_ip_ranges" translatable="false">
         <![CDATA[<ul><li>10.0.0.0/8</li><li>172.16.0.0/12</li><li>192.168.0.0/16</li><li>169.254.0.0/16</li><li>fe80::/10</li><li>fc00::/7</li></ul>]]>
     </string>
