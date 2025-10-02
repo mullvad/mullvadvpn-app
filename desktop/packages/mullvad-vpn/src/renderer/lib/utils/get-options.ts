@@ -1,7 +1,5 @@
-export const getOptions = (container: HTMLElement | null) => {
-  const options = container?.querySelectorAll<HTMLElement>(
-    '[role="option"]:not([aria-disabled="true"])',
-  );
+export const getOptions = (container: HTMLElement | null, selector: string) => {
+  const options = container?.querySelectorAll<HTMLElement>(selector);
 
   if (options) {
     return Array.from(options);
