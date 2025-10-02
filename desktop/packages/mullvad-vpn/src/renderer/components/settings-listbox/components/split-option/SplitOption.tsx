@@ -22,6 +22,7 @@ function SplitOption<T>({ children, ...props }: SplitOptionProps<T>) {
   return (
     <Listbox.Option
       level={1}
+      role="group"
       onKeyDown={handleKeyboardNavigation}
       onFocus={handleFocus}
       onBlur={handleBlur}
