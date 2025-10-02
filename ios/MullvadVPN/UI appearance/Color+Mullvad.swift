@@ -55,6 +55,7 @@ extension Color {
     enum MullvadText {
         static let inputPlaceholder: Color = MullvadWhite._60
         static let disabled: Color = MullvadWhite._20
+        static let onBackground: Color = MullvadWhite._60
         static let onBackgroundEmphasis100: Color = MullvadWhite._100
     }
 
