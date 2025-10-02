@@ -131,7 +131,8 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.SPLIT_TUNNELING -> R.string.split_tunneling
             FeatureIndicator.SHADOWSOCKS,
             FeatureIndicator.UDP_2_TCP,
-            FeatureIndicator.QUIC -> R.string.feature_obfuscation
+            FeatureIndicator.QUIC,
+            FeatureIndicator.LWO -> R.string.feature_obfuscation
             FeatureIndicator.LAN_SHARING -> R.string.local_network_sharing
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
