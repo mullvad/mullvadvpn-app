@@ -4,12 +4,12 @@ import { getOptions } from '../utils';
 import { useFocusOptionByIndex } from './use-focus-option-by-index';
 import { useGetInitialFocusIndex } from './use-get-initial-focus-index';
 
-export const useHandleKeyboardNavigation = ({
+export const useHandleKeyboardNavigation = <T extends HTMLElement>({
   optionsRef,
   focusedIndex,
   setFocusedIndex,
 }: {
-  optionsRef: React.RefObject<HTMLUListElement | null>;
+  optionsRef: React.RefObject<T | null>;
   focusedIndex?: number;
   setFocusedIndex: (index: number) => void;
 }) => {

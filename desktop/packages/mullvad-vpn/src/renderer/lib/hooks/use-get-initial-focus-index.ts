@@ -2,12 +2,12 @@ import React from 'react';
 
 import { getOptions, getSelectedOptionIndex } from '../utils';
 
-export const useGetInitialFocusIndex = ({
+export const useGetInitialFocusIndex = <T extends HTMLElement>({
   focusedIndex,
   optionsRef,
 }: {
   focusedIndex?: number;
-  optionsRef: React.RefObject<HTMLUListElement | null>;
+  optionsRef: React.RefObject<T | null>;
 }) => {
   return React.useCallback(() => {
     const options = getOptions(optionsRef.current);
