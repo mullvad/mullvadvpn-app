@@ -32,20 +32,23 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
   const queuedLocationRef = useRef<QueueItem>(undefined);
   const { setNavigationHistory } = useAppContext();
 
-  const reduceMotion = getReduceMotion();
-
   const updateView = useEffectEvent((location: Location<LocationState>) => {
     setCurrentLocation(location);
-    setTimeout(() => {
-      setNavigationHistory(history.asObject);
-      onTransition?.();
-    });
+    setNavigationHistory(history.asObject);
+  });
+
+  const onTransitionEnd = useEffectEvent((location: Location<LocationState>) => {
+    if (window.env.e2e) {
+      window.e2e.location = location.pathname;
+    }
+    onTransition?.();
   });
 
   const transitionToView = useEffectEvent(
     (location: Location<LocationState>, transition: TransitionType) => {
-      if (reduceMotion) {
+      if (getReduceMotion()) {
         updateView(location);
+        setTimeout(() => onTransitionEnd(location));
         return;
       }
 
@@ -63,7 +66,7 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
         if (queueLocation) {
           transitionToView(queueLocation.location, queueLocation.transition);
         } else {
-          onTransition?.();
+          onTransitionEnd?.(location);
         }
       });
     },
