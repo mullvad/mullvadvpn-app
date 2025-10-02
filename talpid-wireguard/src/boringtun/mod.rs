@@ -603,31 +603,10 @@ fn wrap_in_pcap_sniffer<A, B>(
     use boringtun::tun::pcap::{PcapSniffer, PcapStream};
     use std::{
         fs,
-        io::{self, Write},
         os::unix::{fs::PermissionsExt, net::UnixListener},
-        sync::{LazyLock, mpsc},
+        sync::LazyLock,
         time::Instant,
     };
-
-    /// A dumb cloneable [Write]. This is used for forwarding data between the [PcapSniffer]s,
-    /// and the thread which holds the UnixStream.
-    #[derive(Clone)]
-    struct ChannelWrite {
-        tx: mpsc::Sender<Box<[u8]>>,
-    }
-
-    impl Write for ChannelWrite {
-        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-            self.tx
-                .send(buf.into())
-                .map_err(|_| io::ErrorKind::BrokenPipe)?;
-            Ok(buf.len())
-        }
-
-        fn flush(&mut self) -> io::Result<()> {
-            Ok(())
-        }
-    }
 
     /// The global pcap writer. We initialize it once so that we can re-use the same unix socket
     /// for the entire lifetime of the application.
@@ -638,23 +617,11 @@ fn wrap_in_pcap_sniffer<A, B>(
         let _ = fs::set_permissions(SOCKET_PATH, fs::Permissions::from_mode(0o777));
 
         log::warn!("Waiting for connection to pcap socket");
-        let (mut stream, _) = listener
+        let (stream, _) = listener
             .accept()
             .expect("Error while waiting for pcap listener");
 
-        let (tx, rx) = mpsc::channel::<Box<[u8]>>();
-
-        // Forward data between the channel and the UnixStream.
-        std::thread::spawn::<_, Option<()>>(move || {
-            loop {
-                let data = rx.recv().ok()?;
-                stream.write_all(&data[..]).ok()?;
-            }
-        });
-
-        let writer = ChannelWrite { tx };
-
-        PcapStream::new(Box::new(writer))
+        PcapStream::new(Box::new(stream))
     });
 
     let start_time = Instant::now();
