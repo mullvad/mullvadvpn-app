@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -121,13 +122,14 @@ private fun PreviewSelectLocationScreen(
             onDeleteCustomList = {},
             onSelectRelayList = {},
             openDaitaSettings = {},
+            onRefreshRelayList = {},
         )
     }
 }
 
 @SuppressLint("CheckResult")
 @Destination<RootGraph>(style = TopLevelTransition::class)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun SelectLocation(
     navigator: DestinationsNavigator,
@@ -202,6 +204,12 @@ fun SelectLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = context.getString(R.string.entry_and_exit_are_same)
+                    )
+                }
+            SelectLocationSideEffect.RelayListUpdating ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = context.getString(R.string.updating_server_list_in_the_background)
                     )
                 }
             is SelectLocationSideEffect.FocusExitList ->
@@ -292,6 +300,7 @@ fun SelectLocation(
         onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
+        onRefreshRelayList = vm::refreshRelayList,
     )
 }
 
@@ -317,6 +326,7 @@ fun SelectLocationScreen(
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
+    onRefreshRelayList: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
 
@@ -364,6 +374,7 @@ fun SelectLocationScreen(
                     }
                     onRecentsToggleEnableClick()
                 },
+                onRefreshRelayList = onRefreshRelayList,
             )
         },
     ) { modifier ->
@@ -454,6 +465,7 @@ private fun SelectLocationDropdownMenu(
     onFilterClick: () -> Unit,
     recentsEnabled: Boolean,
     onRecentsToggleEnableClick: () -> Unit,
+    onRefreshRelayList: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -506,6 +518,16 @@ private fun SelectLocationDropdownMenu(
             },
             colors = colors,
             leadingIcon = { Icon(Icons.Filled.History, contentDescription = null) },
+        )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(R.string.refresh_server_list)) },
+            onClick = {
+                showMenu = false
+                onRefreshRelayList()
+            },
+            colors = colors,
+            leadingIcon = { Icon(Icons.Filled.Refresh, contentDescription = null) },
         )
     }
 }

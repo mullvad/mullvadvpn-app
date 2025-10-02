@@ -438,4 +438,6 @@
     <string name="open_app_details">Open app details</string>
     <string name="no_matching_servers_found_first_line">No matching servers found.</string>
     <string name="no_matching_servers_found_second_line">Please try changing your filters.</string>
+    <string name="refresh_server_list">Update server list</string>
+    <string name="updating_server_list_in_the_background">Updating server list in the background...</string>
 </resources>

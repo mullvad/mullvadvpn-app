@@ -47,7 +47,7 @@ class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val customListsRepository: CustomListsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
-    relayListRepository: RelayListRepository,
+    private val relayListRepository: RelayListRepository,
     wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val filterChipUseCase: FilterChipUseCase,
     private val settingsRepository: SettingsRepository,
@@ -204,6 +204,13 @@ class SelectLocationViewModel(
         }
     }
 
+    fun refreshRelayList() {
+        viewModelScope.launch {
+            relayListRepository.refreshRelayList()
+            _uiSideEffect.send(SelectLocationSideEffect.RelayListUpdating)
+        }
+    }
+
     private fun ModifyMultihopError.toSideEffect(
         multihopRelayListType: MultihopRelayListType
     ): SelectLocationSideEffect =
@@ -244,6 +251,8 @@ sealed interface SelectLocationSideEffect {
     data class ExitAlreadySelected(val relayItem: RelayItem) : SelectLocationSideEffect
 
     data object EntryAndExitAreSame : SelectLocationSideEffect
+
+    data object RelayListUpdating : SelectLocationSideEffect
 
     data class FocusExitList(val relayItem: RelayItem) : SelectLocationSideEffect
 }
