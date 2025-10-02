@@ -27,6 +27,11 @@ struct ConnectionView: View {
                     HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
                         .padding(.bottom, 4)
 
+                    Divider()
+                        .background(UIColor.secondaryTextColor.color)
+                        .padding(.bottom, 8)
+                        .showIf(isExpanded)
+
                     ScrollView {
                         VStack(alignment: .leading, spacing: 2) {
                             if let titleForCountryAndCity = connectionViewModel.titleForCountryAndCity {
@@ -46,11 +51,6 @@ struct ConnectionView: View {
                                     .multilineTextAlignment(.leading)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
-                            Divider()
-                                .background(UIColor.secondaryTextColor.color)
-                                .padding(.top, 6)
-                                .padding(.bottom, 14)
-                                .showIf(isExpanded)
                             HStack {
                                 VStack(alignment: .leading, spacing: 0) {
                                     Text(LocalizedStringKey("Active features"))
