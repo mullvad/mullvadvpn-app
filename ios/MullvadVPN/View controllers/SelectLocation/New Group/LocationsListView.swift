@@ -30,7 +30,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
                         count: filteredLocationIndices.count
                     ),
                     onSelect: onSelectLocation,
-                    contextMenu: { contextMenu(location.wrappedValue) }
+                    contextMenu: { location in contextMenu(location) }
                 )
             }
         }
@@ -43,7 +43,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     let connectedRelayHostname: String?
     let position: ItemPosition
     let onSelect: (LocationNode) -> Void
-    let contextMenu: () -> ContextMenu
+    let contextMenu: (LocationNode) -> ContextMenu
     var level = 0
     var shouldBeExpanded: Bool {
         if let selectedLocation {
@@ -103,7 +103,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                                     count: filteredChildrenIndices.count + 1
                                 ),
                             onSelect: onSelect,
-                            contextMenu: { contextMenu() },
+                            contextMenu: { location in contextMenu(location) },
                             level: level + 1,
                         )
                     }
@@ -485,7 +485,7 @@ private struct LocationDisclosureGroup<Label: View, Content: View>: View {
             connectedRelayHostname: nil,
             position: .only,
             onSelect: { _ in },
-            contextMenu: { Text("Add to list") },
+            contextMenu: { _ in Text("Add to list") },
             level: 0
         )
     }

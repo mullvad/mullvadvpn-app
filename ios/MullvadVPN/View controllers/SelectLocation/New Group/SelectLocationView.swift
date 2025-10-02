@@ -15,7 +15,8 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             },
                             set: { newContext in
                                 viewModel.multihopContext = newContext
-                            })
+                            }
+                        )
                     )
                 }
                 if let animatedFilters,
@@ -75,7 +76,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 placement: .topBarTrailing,
                 content: {
                     Button("Done") {
-                        viewModel.didFinish?()
+                        viewModel.didFinish()
                     }
                     .foregroundStyle(Color.mullvadTextPrimary)
                 }
@@ -85,7 +86,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 content: {
                     Menu {
                         Button {
-                            viewModel.showFilterView?()
+                            viewModel.showFilterView()
                         } label: {
                             HStack {
                                 Image(systemName: "line.3.horizontal.decrease")
@@ -124,8 +125,8 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             HStack {
                 ListHeader(title: "Custom lists")
                 Button {
-                    viewModel.showAddCustomListView?(
-                        viewModel.activeLocationContext
+                    viewModel.showAddCustomListView(
+                        locations: viewModel.activeLocationContext
                             .locations)
                 } label: {
                     Image.mullvadIconAdd
@@ -133,8 +134,8 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 }
                 if !viewModel.activeLocationContext.customLists.isEmpty {
                     Button {
-                        viewModel.showEditCustomListView?(
-                            viewModel.activeLocationContext.locations
+                        viewModel.showEditCustomListView(
+                            locations: viewModel.activeLocationContext.locations
                         )
                     } label: {
                         Image.mullvadIconEdit
@@ -183,9 +184,23 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         viewModel.activeLocationContext.customLists,
                         id: \.code
                     ) { customList in
-                        Button(customList.name) {
-                            print("Add \(location.name) to \(customList.name)")
+                        var isAlreadyInList: Bool {
+                            var isAlreadyInList = false
+                            customList.forEachDescendant {
+                                if $0.locations == location.locations {
+                                    isAlreadyInList = true
+                                }
+                            }
+                            return isAlreadyInList
                         }
+                        Button(customList.name) {
+                            viewModel
+                                .addLocationToCustomList(
+                                    location: location,
+                                    customListName: customList.name
+                                )
+                        }
+                        .disabled(isAlreadyInList)
                     }
                     Button("+ New list") {
                         print("Create new list with \(location.name)")
