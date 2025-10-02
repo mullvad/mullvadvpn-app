@@ -129,7 +129,7 @@ private fun PreviewSelectLocationScreen(
 
 @SuppressLint("CheckResult")
 @Destination<RootGraph>(style = TopLevelTransition::class)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun SelectLocation(
     navigator: DestinationsNavigator,

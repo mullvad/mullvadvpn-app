@@ -125,6 +125,7 @@ import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.lib.model.UpdateRelayLocationsError
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
@@ -882,8 +883,10 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
-    suspend fun refreshRelayList() =
-        Either.catch { grpc.updateRelayLocations(Empty.getDefaultInstance()) }.mapEmpty()
+    suspend fun updateRelayLocations(): Either<UpdateRelayLocationsError, Unit> =
+        Either.catch { grpc.updateRelayLocations(Empty.getDefaultInstance()) }
+            .mapLeft(UpdateRelayLocationsError::Unknown)
+            .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
