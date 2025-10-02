@@ -93,6 +93,7 @@ internal fun ObfuscationMode.fromDomain():
         ObfuscationMode.Shadowsocks ->
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS
         ObfuscationMode.Quic -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC
+        ObfuscationMode.Lwo -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO
         ObfuscationMode.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
         ObfuscationMode.Off -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF
     }
