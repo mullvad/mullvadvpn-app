@@ -16,7 +16,7 @@ use boringtun::{
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
         channel::{TunChannelRx, TunChannelTx},
-        tun_async_device::TunSusan,
+        tun_async_device::TunDevice as GotaTunDevice,
         IpRecv,
     },
     udp::{
@@ -51,8 +51,8 @@ type UdpFactory = AndroidUdpSocketFactory;
 #[cfg(not(target_os = "android"))]
 type UdpFactory = UdpSocketFactory;
 
-type SinglehopDevice = DeviceHandle<(UdpFactory, TunSusan)>;
-type ExitDevice = DeviceHandle<(UdpChannelFactory, TunSusan)>;
+type SinglehopDevice = DeviceHandle<(UdpFactory, GotaTunDevice)>;
+type ExitDevice = DeviceHandle<(UdpChannelFactory, GotaTunDevice)>;
 
 #[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
 type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
@@ -70,7 +70,7 @@ pub struct BoringTun {
     // TODO: Can we not store this in an option?
     devices: Option<Devices>,
 
-    tun_dev: TunSusan,
+    tun_dev: GotaTunDevice,
 
     #[cfg(target_os = "android")]
     android_tun: Arc<Tun>,
@@ -89,7 +89,7 @@ impl BoringTun {
         config: Config,
         interface_name: String,
     ) -> Result<Self, TunnelError> {
-        let tun_dev = TunSusan::from_tun_device(tun_dev)
+        let tun_dev = GotaTunDevice::from_tun_device(tun_dev)
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
         let devices = create_devices(
@@ -265,7 +265,7 @@ pub async fn open_boringtun_tunnel(
 async fn create_devices(
     config: &Config, // TODO: do not include config to reduce confusion
     daita: Option<&DaitaSettings>,
-    tun_dev: TunSusan,
+    tun_dev: GotaTunDevice,
     #[cfg(target_os = "android")] tun: Arc<Tun>,
 ) -> Result<Devices, TunnelError> {
     let (entry_api, entry_api_server) = ApiServer::new();
