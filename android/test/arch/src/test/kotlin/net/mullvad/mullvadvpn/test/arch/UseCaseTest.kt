@@ -25,5 +25,7 @@ class UseCaseTest {
         Konsist.scopeFromProduction().files.filter { it.resideInPath("..usecase..") }
 
     private fun allUseCases() =
-        Konsist.scopeFromProduction().classes().filter { it.resideInPackage("..usecase..") }
+        Konsist.scopeFromProduction().classes(includeNested = false).filter {
+            it.resideInPackage("..usecase..")
+        }
 }
