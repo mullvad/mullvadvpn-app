@@ -148,7 +148,7 @@ fn client_config_tls12() -> rustls::ClientConfig {
 
     // Ensure CryptoProvider is set for this process.
 
-    let crypto_provider = rustls::crypto::aws_lc_rs::default_provider();
+    let crypto_provider = rustls::crypto::ring::default_provider();
 
     if let Err(e) = crypto_provider.install_default() {
         log::error!("Crypto provider has already been installed: {e:?}");

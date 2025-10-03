@@ -108,7 +108,7 @@ ipnetwork = "0.21.1"
 tun = { version = "0.5.5", features = ["async"] }
 socket2 = "0.5.7"
 reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
-rustls = "0.23.23"
+rustls = { version = "0.23.23", default-features = false }
 rustls-pki-types = "1.10"
 webpki-roots = "0.26"
 
