@@ -4,7 +4,6 @@ import { Route, Switch } from 'react-router';
 import { RoutePath } from '../../shared/routes';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
 import { useViewTransitions } from '../lib/transition-hooks';
-import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
@@ -25,9 +24,9 @@ import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import Support from './Support';
-import TooManyDevices from './TooManyDevices';
 import UserInterfaceSettings from './UserInterfaceSettings';
 import {
+  Account,
   AppInfoView,
   AppUpgradeView,
   ChangelogView,
@@ -35,11 +34,13 @@ import {
   LaunchView,
   LoginView,
   MainView,
+  ManageDevicesView,
   MultihopSettingsView,
   OpenVpnSettingsView,
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingView,
+  TooManyDevicesView,
   UdpOverTcpSettingsView,
   VpnSettingsView,
   WireguardSettingsView,
@@ -60,7 +61,7 @@ export default function AppRouter() {
         <Switch key={currentLocation.key} location={currentLocation}>
           <Route exact path={RoutePath.launch} component={LaunchView} />
           <Route exact path={RoutePath.login} component={LoginView} />
-          <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
+          <Route exact path={RoutePath.tooManyDevices} component={TooManyDevicesView} />
           <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
           <Route exact path={RoutePath.main} component={MainView} />
           <Route exact path={RoutePath.expired} component={ExpiredAccountErrorView} />
@@ -93,6 +94,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.appInfo} component={AppInfoView} />
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
+          <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
         </Switch>
       </Focus>
     </>

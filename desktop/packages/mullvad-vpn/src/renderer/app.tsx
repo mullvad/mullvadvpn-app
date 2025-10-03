@@ -1,3 +1,4 @@
+import { MotionConfig } from 'motion/react';
 import { StrictMode } from 'react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router';
@@ -349,7 +350,9 @@ export default class AppRenderer {
                     <ErrorBoundary>
                       <ModalContainer>
                         <KeyboardNavigation>
-                          <AppRouter />
+                          <MotionConfig reducedMotion="user">
+                            <AppRouter />
+                          </MotionConfig>
                         </KeyboardNavigation>
                         {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                       </ModalContainer>
