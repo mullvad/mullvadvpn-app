@@ -6,6 +6,7 @@
     "!ci/buildserver-build-android.sh",
     "!ci/ios/**",
     "desktop/**",
+    "!desktop/packages/mullvad-vpn/locales",
     "installer-downloader/**",
     "mullvad-*/**",
     "!mullvad-ios/**",
