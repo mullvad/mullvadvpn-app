@@ -12,7 +12,7 @@ workspace = true
 
 [features]
 boringtun = ["talpid-wireguard/boringtun"]
-pcap = ["talpid-wireguard/pcap"]
+multihop-pcap = ["talpid-wireguard/multihop-pcap"]
 
 [dependencies]
 anyhow = { workspace = true }

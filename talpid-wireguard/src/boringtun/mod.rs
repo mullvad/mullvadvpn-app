@@ -3,8 +3,6 @@ use crate::{
     config::Config,
     stats::{Stats, StatsMap},
 };
-#[cfg(all(feature = "pcap", target_os = "linux"))]
-use boringtun::tun::pcap::PcapSniffer;
 #[cfg(target_os = "android")]
 use boringtun::udp::UdpTransportFactory;
 use boringtun::{
@@ -33,6 +31,12 @@ use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use tun07::{AbstractDevice, AsyncDevice};
 
+#[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
+use boringtun::tun::{
+    IpRecv, IpSend,
+    pcap::{PcapSniffer, PcapStream},
+};
+
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
 
@@ -42,9 +46,9 @@ type UdpFactory = UdpSocketFactory;
 type SinglehopDevice = DeviceHandle<(UdpFactory, Arc<tun07::AsyncDevice>, Arc<tun07::AsyncDevice>)>;
 type ExitDevice = DeviceHandle<(PacketChannelUdp, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
 
-#[cfg(not(all(feature = "pcap", target_os = "linux")))]
+#[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
 type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
-#[cfg(all(feature = "pcap", target_os = "linux"))]
+#[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
 type EntryDevice = DeviceHandle<(
     UdpFactory,
     PcapSniffer<TunChannelTx>,
@@ -273,7 +277,7 @@ async fn create_devices(
 
         // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
         // See docs on wrap_in_pcap_sniffer for an explanation.
-        #[cfg(all(feature = "pcap", target_os = "linux"))]
+        #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
         let (tun_tx, tun_rx) = wrap_in_pcap_sniffer(tun_tx, tun_rx);
 
         let entry_device = EntryDevice::new(factory, tun_tx, tun_rx, boringtun_entry_config).await;
@@ -598,27 +602,20 @@ pub fn get_tunnel_for_userspace(
 /// ```sh
 /// wireshark -k -i /tmp/mullvad-multihop.pcap
 /// ```
-#[cfg(all(feature = "pcap", target_os = "linux"))]
-fn wrap_in_pcap_sniffer<S, R>(
-    ip_send: S,
-    ip_recv: R,
-) -> (
-    boringtun::tun::pcap::PcapSniffer<S>,
-    boringtun::tun::pcap::PcapSniffer<R>,
-)
+#[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
+fn wrap_in_pcap_sniffer<S, R>(ip_send: S, ip_recv: R) -> (PcapSniffer<S>, PcapSniffer<R>)
 where
-    S: boringtun::tun::IpSend,
-    R: boringtun::tun::IpRecv,
+    S: IpSend,
+    R: IpRecv,
 {
-    const SOCKET_PATH: &str = "/tmp/mullvad-multihop.pcap";
-
-    use boringtun::tun::pcap::{PcapSniffer, PcapStream};
     use std::{
         fs,
         os::unix::{fs::PermissionsExt, net::UnixListener},
         sync::LazyLock,
         time::Instant,
     };
+
+    const SOCKET_PATH: &str = "/tmp/mullvad-multihop.pcap";
 
     /// The global pcap writer. We initialize it once so that we can re-use the same unix socket
     /// for the entire lifetime of the application.
