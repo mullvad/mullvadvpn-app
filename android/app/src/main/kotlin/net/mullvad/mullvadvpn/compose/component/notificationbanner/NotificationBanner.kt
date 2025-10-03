@@ -54,9 +54,11 @@ private fun PreviewNotificationBanner() {
                     openAppListing = {},
                     onClickShowAccount = {},
                     onClickShowChangelog = {},
+                    onClickShowAndroid16UpgradeInfo = {},
                     onClickDismissChangelog = {},
                     onClickDismissNewDevice = {},
                     onClickShowWireguardPortSettings = {},
+                    onClickDismissAndroid16UpgradeWarning = {},
                 )
                 Spacer(modifier = Modifier.size(16.dp))
             }
@@ -73,9 +75,11 @@ fun NotificationBanner(
     openAppListing: () -> Unit,
     onClickShowAccount: () -> Unit,
     onClickShowChangelog: () -> Unit,
+    onClickShowAndroid16UpgradeInfo: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onClickDismissAndroid16UpgradeWarning: () -> Unit,
 ) {
     if (isTv()) {
         NotificationBannerTv(
@@ -86,9 +90,11 @@ fun NotificationBanner(
             contentFocusRequester = contentFocusRequester,
             onClickShowAccount = onClickShowAccount,
             onClickShowChangelog = onClickShowChangelog,
+            onClickShowAndroid16UpgradeInfo = onClickShowAndroid16UpgradeInfo,
             onClickDismissChangelog = onClickDismissChangelog,
             onClickDismissNewDevice = onClickDismissNewDevice,
             onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
+            onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
         )
     } else {
         AnimatedNotificationBanner(
@@ -100,9 +106,11 @@ fun NotificationBanner(
             contentFocusRequester = contentFocusRequester,
             onClickShowAccount = onClickShowAccount,
             onClickShowChangelog = onClickShowChangelog,
+            onClickShowAndroid16UpgradeInfo = onClickShowAndroid16UpgradeInfo,
             onClickDismissChangelog = onClickDismissChangelog,
             onClickDismissNewDevice = onClickDismissNewDevice,
             onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
+            onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
         )
     }
 }

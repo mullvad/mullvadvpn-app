@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -50,6 +51,7 @@ class ConnectViewModel(
     private val changelogRepository: ChangelogRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceRepository: NewDeviceRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     selectedLocationTitleUseCase: SelectedLocationTitleUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentUseCase,
@@ -212,6 +214,9 @@ class ConnectViewModel(
     fun dismissNewDeviceNotification() {
         newDeviceRepository.clearNewDeviceCreatedNotification()
     }
+
+    fun dismissAndroid16UpgradeWarning() =
+        viewModelScope.launch { userPreferencesRepository.setShowAndroid16ConnectWarning(false) }
 
     fun dismissNewChangelogNotification() =
         viewModelScope.launch { changelogRepository.setDismissNewChangelogNotification() }

@@ -66,6 +66,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
+import com.ramcosta.composedestinations.generated.destinations.Android16UpgradeWarningInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
@@ -164,6 +165,8 @@ private fun PreviewAccountScreen(
             onDismissNewDeviceClick = {},
             onNavigateToFeature = {},
             onClickShowWireguardPortSettings = {},
+            onClickDismissAndroid16UpgradeWarning = {},
+            onClickShowAndroid16UpgradeInfo = {},
         )
     }
 }
@@ -306,6 +309,10 @@ fun Connect(
                 },
             onClickShowWireguardPortSettings =
                 dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
+            onClickDismissAndroid16UpgradeWarning =
+                connectViewModel::dismissAndroid16UpgradeWarning,
+            onClickShowAndroid16UpgradeInfo =
+                dropUnlessResumed { navigator.navigate(Android16UpgradeWarningInfoDestination()) },
         )
     }
 }
@@ -330,6 +337,8 @@ fun ConnectScreen(
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowAndroid16UpgradeInfo: () -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
 
@@ -351,6 +360,8 @@ fun ConnectScreen(
                 onDismissNewDeviceClick,
                 onNavigateToFeature,
                 onClickShowWireguardPortSettings,
+                onClickDismissAndroid16UpgradeWarning,
+                onClickShowAndroid16UpgradeInfo,
             )
         }
 
@@ -406,6 +417,8 @@ private fun Content(
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowAndroid16UpgradeInfo: () -> Unit,
 ) {
     val screenHeight =
         with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
@@ -454,9 +467,11 @@ private fun Content(
                 openAppListing = onOpenAppListing,
                 onClickShowAccount = onManageAccountClick,
                 onClickShowChangelog = onChangelogClick,
+                onClickShowAndroid16UpgradeInfo = onClickShowAndroid16UpgradeInfo,
                 onClickDismissChangelog = onDismissChangelogClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,
                 onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
+                onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
             )
             ConnectionCard(
                 state = state,

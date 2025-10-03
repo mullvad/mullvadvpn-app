@@ -17,7 +17,7 @@ private const val IS_SENSITIVE_FLAG = "android.content.extra.IS_SENSITIVE"
 
 @Composable
 fun createCopyToClipboardHandle(
-    snackbarHostState: SnackbarHostState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     isSensitive: Boolean,
 ): CopyToClipboardHandle {
     val scope = rememberCoroutineScope()

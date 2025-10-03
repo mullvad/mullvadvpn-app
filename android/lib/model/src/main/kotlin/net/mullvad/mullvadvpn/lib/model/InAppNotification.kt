@@ -20,12 +20,17 @@ sealed class InAppNotification {
             } else {
                 StatusLevel.Error
             }
-        override val priority: Long = 1004
+        override val priority: Long = 1005
+    }
+
+    data object Android16UpgradeWarning : InAppNotification() {
+        override val statusLevel = StatusLevel.Warning
+        override val priority: Long = 1005
     }
 
     data object TunnelStateBlocked : InAppNotification() {
         override val statusLevel = StatusLevel.None
-        override val priority: Long = 1003
+        override val priority: Long = 1004
     }
 
     data class UnsupportedVersion(val versionInfo: VersionInfo) : InAppNotification() {

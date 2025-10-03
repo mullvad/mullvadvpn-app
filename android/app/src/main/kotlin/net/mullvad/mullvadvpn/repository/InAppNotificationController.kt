@@ -5,30 +5,18 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.NewChangelogNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.usecase.inappnotification.InAppNotificationUseCase
 
 class InAppNotificationController(
-    accountExpiryInAppNotificationUseCase: AccountExpiryInAppNotificationUseCase,
-    newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
-    newChangelogNotificationUseCase: NewChangelogNotificationUseCase,
-    versionNotificationUseCase: VersionNotificationUseCase,
-    tunnelStateNotificationUseCase: TunnelStateNotificationUseCase,
+    inAppNotificationUseCases: List<InAppNotificationUseCase>,
     scope: CoroutineScope,
 ) {
 
     val notifications =
-        combine(
-                tunnelStateNotificationUseCase(),
-                versionNotificationUseCase(),
-                accountExpiryInAppNotificationUseCase(),
-                newDeviceNotificationUseCase(),
-                newChangelogNotificationUseCase(),
-            ) { a, b, c, d, e ->
-                a + b + c + d + e
+        combine(inAppNotificationUseCases.map { it.invoke() }) {
+                notifications: Array<InAppNotification?> ->
+                notifications.filterNotNull()
             }
             .map {
                 it.sortedWith(

@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.di
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
+import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
@@ -30,7 +31,6 @@ import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
@@ -38,8 +38,6 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.NewChangelogNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
@@ -49,12 +47,17 @@ import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
-import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.Android16UpdateWarningUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.InAppNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.NewChangelogNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.TunnelStateNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.inappnotification.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
@@ -106,6 +109,7 @@ import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val uiModule = module {
@@ -150,11 +154,18 @@ val uiModule = module {
     }
     single { WireguardConstraintsRepository(get()) }
 
-    single { AccountExpiryInAppNotificationUseCase(get()) }
-    single { TunnelStateNotificationUseCase(get(), get(), get()) }
-    single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
-    single { NewDeviceNotificationUseCase(get(), get()) }
-    single { NewChangelogNotificationUseCase(get()) }
+    single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
+    single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
+        InAppNotificationUseCase::class
+    single {
+        VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS)
+    } bind InAppNotificationUseCase::class
+    single { NewDeviceNotificationUseCase(get(), get()) } bind InAppNotificationUseCase::class
+    single { NewChangelogNotificationUseCase(get()) } bind InAppNotificationUseCase::class
+    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.BAKLAVA) {
+        single { Android16UpdateWarningUseCase(get(), get()) } bind InAppNotificationUseCase::class
+    }
+
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { InternetAvailableUseCase(get()) }
     single { SystemVpnSettingsAvailableUseCase(androidContext()) }
@@ -180,7 +191,7 @@ val uiModule = module {
         )
     }
 
-    single { InAppNotificationController(get(), get(), get(), get(), get(), MainScope()) }
+    single { InAppNotificationController(getAll(), MainScope()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
@@ -219,6 +230,7 @@ val uiModule = module {
             changelogRepository = get(),
             inAppNotificationController = get(),
             newDeviceRepository = get(),
+            userPreferencesRepository = get(),
             selectedLocationTitleUseCase = get(),
             outOfTimeUseCase = get(),
             paymentUseCase = get(),

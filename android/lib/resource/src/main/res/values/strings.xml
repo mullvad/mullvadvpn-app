@@ -440,4 +440,9 @@
     <string name="no_matching_servers_found_second_line">Please try changing your filters.</string>
     <string name="refresh_server_list">Update server list</string>
     <string name="updating_server_list_in_the_background">Updating server list in the background...</string>
+    <string name="android_16_upgrade_warning_title">Can\'t connect?</string>
+    <string name="android_16_upgrade_warning_message">Android 16 has a known issue. Please restart your device and try again. To learn more, </string>
+    <string name="android_16_upgrade_warning_dialog_first_message">After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English.</string>
+    <string name="click_here">click here</string>
 </resources>
