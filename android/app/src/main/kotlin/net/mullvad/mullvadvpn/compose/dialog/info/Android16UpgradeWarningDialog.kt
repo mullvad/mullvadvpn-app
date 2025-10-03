@@ -11,8 +11,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.dialog.info.InfoDialog
-import net.mullvad.mullvadvpn.compose.util.ClickableAnnotatedString
+import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
@@ -38,7 +37,7 @@ fun Android16UpgradeWarningInfoDialog(onDismiss: () -> Unit, onClickEmail: (Stri
         title = stringResource(id = R.string.android_16_upgrade_warning_title),
         message = stringResource(id = R.string.android_16_upgrade_warning_dialog_first_message),
         additionalInfo =
-            ClickableAnnotatedString(
+            clickableAnnotatedString(
                 text = stringResource(R.string.android_16_upgrade_warning_dialog_second_message),
                 linkStyle =
                     SpanStyle(

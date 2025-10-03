@@ -25,7 +25,8 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
-import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.*
+import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.ClickableText
+import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.Text
 
 data class NotificationData(
     val title: AnnotatedString,
@@ -71,6 +72,7 @@ data class NotificationAction(
     val contentDescription: String,
 )
 
+@Suppress("LongMethod")
 @Composable
 fun InAppNotification.toNotificationData(
     isPlayBuild: Boolean,

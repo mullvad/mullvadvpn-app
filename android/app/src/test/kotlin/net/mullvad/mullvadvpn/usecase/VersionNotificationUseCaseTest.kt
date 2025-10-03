@@ -6,7 +6,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -17,6 +16,7 @@ import net.mullvad.mullvadvpn.usecase.inappnotification.VersionNotificationUseCa
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
@@ -47,7 +47,7 @@ class VersionNotificationUseCaseTest {
     @Test
     fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
-        versionNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
+        versionNotificationUseCase().test { assertNull(awaitItem()) }
     }
 
     @Test
@@ -60,10 +60,7 @@ class VersionNotificationUseCaseTest {
                 versionInfo.value = upgradeVersionInfo
 
                 // Assert
-                assertEquals(
-                    awaitItem(),
-                    listOf(InAppNotification.UnsupportedVersion(upgradeVersionInfo)),
-                )
+                assertEquals(awaitItem(), InAppNotification.UnsupportedVersion(upgradeVersionInfo))
             }
         }
 }
