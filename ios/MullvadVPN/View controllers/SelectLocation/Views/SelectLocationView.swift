@@ -205,7 +205,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         .disabled(isAlreadyInList)
                     }
                     Button("+ New list") {
-                        print("Create new list with \(location.name)")
+                        //                        viewModel.createNewListWithLocation()
                     }
                 }
             }

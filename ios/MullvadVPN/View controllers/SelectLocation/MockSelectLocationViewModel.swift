@@ -21,7 +21,6 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
 
     }
 
-
     var showDAITAInfo = false
 
     var activeLocationContext: LocationContext = .init(
@@ -160,7 +159,6 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
     }
 
     var searchText: String = ""
-
 
     func refreshCustomLists() {}
 
