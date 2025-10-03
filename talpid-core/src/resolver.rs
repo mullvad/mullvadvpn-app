@@ -33,10 +33,10 @@ use hickory_server::{
         rr::{Record, domain::Name, rdata, record_data::RData},
     },
     resolver::{
-        TokioAsyncResolver,
+        ResolveError, TokioResolver,
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
-        error::{ResolveError, ResolveErrorKind},
         lookup::Lookup,
+        name_server::TokioConnectionProvider,
     },
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
 };
@@ -199,7 +199,7 @@ enum Resolver {
 
     /// Forward DNS queries to a configured server
     Forwarding {
-        resolver: TokioAsyncResolver,
+        resolver: TokioResolver,
         filter_out_aaaa: bool,
     },
 }
@@ -237,12 +237,14 @@ impl Resolver {
         }
 
         let return_query = query.original().clone();
-        let mut return_record = Record::with(
-            return_query.name().clone(),
-            return_query.query_type(),
-            TTL_SECONDS,
-        );
-        return_record.set_data(Some(RData::A(rdata::A(RESOLVED_ADDR))));
+        let return_record = {
+            let name = return_query.name().clone();
+            let ttl = TTL_SECONDS;
+            let rr_type = return_query.query_type();
+            let mut record = Record::update0(name, ttl, rr_type);
+            record.set_data(RData::A(rdata::A(RESOLVED_ADDR)));
+            record
+        };
 
         log::debug!(
             "Spoofing query for captive portal domain: {}",
@@ -265,7 +267,7 @@ impl Resolver {
 
     /// Forward DNS queries to the specified DNS resolver.
     async fn resolve_forward(
-        resolver: TokioAsyncResolver,
+        resolver: TokioResolver,
         query: LowerQuery,
         filter_out_aaaa: bool,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
@@ -593,7 +595,10 @@ impl LocalResolver {
         let forward_config = ResolverConfig::from_parts(None, vec![], forward_server_config);
         let resolver_opts = ResolverOpts::default();
 
-        let resolver = TokioAsyncResolver::tokio(forward_config, resolver_opts);
+        let resolver =
+            TokioResolver::builder_with_config(forward_config, TokioConnectionProvider::default())
+                .with_options(resolver_opts)
+                .build();
 
         self.inner_resolver = Resolver::Forwarding {
             resolver,
@@ -704,7 +709,14 @@ impl ResolverImpl {
     async fn lookup<R: ResponseHandler>(&self, message: &Request, mut response_handler: R) {
         if let Some(tx_ref) = self.tx.upgrade() {
             let mut tx = (*tx_ref).clone();
-            let query = message.query();
+            let request_info = match message.request_info() {
+                Ok(query) => query,
+                Err(err) => {
+                    log::trace!("There's more than one query: {err}");
+                    return;
+                }
+            };
+            let query = request_info.query;
             let (response_tx, response_rx) = oneshot::channel();
             let _ = tx
                 .send(ResolverMessage::Query {
@@ -720,12 +732,19 @@ impl ResolverImpl {
                     response_handler.send_response(response).await
                 }
                 Err(_error) => return,
-                Ok(Err(resolve_err)) => match resolve_err.kind() {
-                    ResolveErrorKind::NoRecordsFound { response_code, .. } => {
-                        let response = MessageResponseBuilder::from_message_request(message)
-                            .error_msg(message.header(), *response_code);
-                        response_handler.send_response(response).await
-                    }
+                Ok(Err(resolve_err)) => match resolve_err.proto() {
+                    Some(proto) => match proto.kind() {
+                        // TODO: What's the value of matching on this error kind?
+                        hickory_proto::ProtoErrorKind::NoRecordsFound { response_code, .. } => {
+                            let response = MessageResponseBuilder::from_message_request(message)
+                                .error_msg(message.header(), *response_code);
+                            response_handler.send_response(response).await
+                        }
+                        _ => {
+                            let response = Self::build_response(message, &EmptyLookup);
+                            response_handler.send_response(response).await
+                        }
+                    },
                     _other => {
                         let response = Self::build_response(message, &EmptyLookup);
                         response_handler.send_response(response).await
@@ -787,7 +806,7 @@ impl LookupObject for ForwardLookup {
 mod test {
     use super::*;
     use hickory_server::resolver::{
-        TokioAsyncResolver,
+        TokioResolver,
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
     };
     use std::{net::UdpSocket, sync::Mutex, thread};
@@ -807,13 +826,13 @@ mod test {
         .unwrap()
     }
 
-    fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioAsyncResolver {
+    fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioResolver {
         let resolver_config = ResolverConfig::from_parts(
             None,
             vec![],
             NameServerConfigGroup::from_ips_clear(&[addr.ip()], addr.port(), true),
         );
-        TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
+        TokioResolver::tokio(resolver_config, ResolverOpts::default())
     }
 
     /// Test whether we can successfully bind the socket even if the address is already used to
