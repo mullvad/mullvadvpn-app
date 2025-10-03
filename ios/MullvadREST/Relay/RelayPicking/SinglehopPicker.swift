@@ -62,7 +62,7 @@ struct SinglehopPicker: RelayPicking {
             daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
         )
 
-        let match = try findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: true)
+        let match = try findBestMatch(from: exitCandidates, applyObfuscatedIps: true)
 
         return SelectedRelays(
             entry: nil,

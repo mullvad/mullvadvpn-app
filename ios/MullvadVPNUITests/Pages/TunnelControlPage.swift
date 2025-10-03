@@ -121,7 +121,11 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func tapRelayStatusExpandCollapseButton() -> Self {
-        app.buttons[AccessibilityIdentifier.relayStatusCollapseButton].tap()
+        let button = app.buttons[AccessibilityIdentifier.relayStatusCollapseButton]
+
+        _ = button.waitForExistence(timeout: BaseUITestCase.defaultTimeout)
+        button.tap()
+
         return self
     }
 

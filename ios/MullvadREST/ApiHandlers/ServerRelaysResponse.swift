@@ -97,16 +97,7 @@ extension REST {
                 publicKey: publicKey,
                 includeInCountry: includeInCountry,
                 daita: daita,
-                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn?.filter { address in
-                    return switch address {
-                    case let ip where IPv4Address(ip) != nil:
-                        ipv4AddrIn == nil
-                    case let ip where IPv6Address(ip) != nil:
-                        ipv6AddrIn == nil
-                    default:
-                        true
-                    }
-                },
+                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
                 features: features
             )
         }

@@ -30,6 +30,7 @@ class FirewallClient: TestRouterAPIClient {
             "to": firewallRule.toIPAddress,  // Deprectated, replaced by "dst"
             "src": firewallRule.fromIPAddress,
             "dst": firewallRule.toIPAddress,
+            "block_all_except_dst": firewallRule.inverted,
             "protocols": firewallRule.protocolsAsStringArray(),
         ]
 

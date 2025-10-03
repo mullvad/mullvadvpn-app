@@ -12,15 +12,18 @@ import XCTest
 struct FirewallRule {
     let fromIPAddress: String
     let toIPAddress: String
+    let inverted: Bool
     let protocols: [TransportProtocol]
 
     /// - Parameters:
     ///     - fromIPAddress: Block traffic originating from this source IP address.
     ///     - toIPAddress: Block traffic to this destination IP address.
+    ///     - inverted: Invert IP range to block, ie all traffic NOT going to the IP will be blocked.
     ///     - protocols: Protocols which should be blocked. If none is specified all will be blocked.
-    private init(fromIPAddress: String, toIPAddress: String, protocols: [TransportProtocol]) {
+    private init(fromIPAddress: String, toIPAddress: String, inverted: Bool = false, protocols: [TransportProtocol]) {
         self.fromIPAddress = fromIPAddress
         self.toIPAddress = toIPAddress
+        self.inverted = inverted
         self.protocols = protocols
     }
 
@@ -39,12 +42,13 @@ struct FirewallRule {
         )
     }
 
-    public static func makeBlockAllTrafficRule(toIPAddress: String) throws -> FirewallRule {
+    public static func makeBlockAllTrafficRule(toIPAddress: String, inverted: Bool = false) throws -> FirewallRule {
         let deviceIPAddress = try FirewallClient().getDeviceIPAddress()
 
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
             toIPAddress: toIPAddress,
+            inverted: inverted,
             protocols: [.transport(.ICMP), .transport(.TCP), .transport(.UDP)]
         )
     }
@@ -60,12 +64,13 @@ struct FirewallRule {
         )
     }
 
-    public static func makeBlockUDPTrafficRule(toIPAddress: String) throws -> FirewallRule {
+    public static func makeBlockUDPTrafficRule(toIPAddress: String, inverted: Bool = false) throws -> FirewallRule {
         let deviceIPAddress = try FirewallClient().getDeviceIPAddress()
 
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
             toIPAddress: toIPAddress,
+            inverted: inverted,
             protocols: [.transport(.UDP)]
         )
     }
