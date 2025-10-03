@@ -63,13 +63,6 @@ enum Cli {
         wait: bool,
     },
 
-    /// Manage use of bridges, socks proxies and Shadowsocks for OpenVPN.
-    /// Can make OpenVPN tunnels use Shadowsocks via one of the Mullvad bridge servers.
-    /// Can also make OpenVPN connect through any custom SOCKS5 proxy.
-    /// These settings also affect how the app reaches the API over Shadowsocks.
-    #[clap(subcommand)]
-    Bridge(bridge::Bridge),
-
     /// Manage relay and tunnel constraints
     #[clap(subcommand)]
     Relay(relay::Relay),
@@ -169,7 +162,6 @@ async fn main() -> Result<()> {
 
     match Cli::parse() {
         Cli::Account(cmd) => cmd.handle().await,
-        Cli::Bridge(cmd) => cmd.handle().await,
         Cli::Connect { wait } => tunnel_state::connect(wait).await,
         Cli::Reconnect { wait } => tunnel_state::reconnect(wait).await,
         Cli::Debug(cmd) => cmd.handle().await,

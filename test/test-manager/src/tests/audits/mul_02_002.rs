@@ -3,8 +3,7 @@
 //! Fail to leak traffic to verify that mitigation "Firewall allows deanonymization by eavesdropper" works.
 //!
 //! # Vulnerability
-//! 1. Connect to a relay on port 443. Record this relay's IP address (the new gateway of the
-//!    client)
+//! 1. Connect to a relay. Record this relay's IP address (the new gateway of the client)
 //! 2. Start listening for unencrypted traffic on the outbound network interface
 //!    (Choose some human-readable, identifiable payload to look for in the outgoing TCP packets)
 //! 3. Start a rogue program which performs a GET request\* containing the payload defined in step 2
@@ -16,7 +15,7 @@
 
 use anyhow::{bail, ensure};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_relay_selector::query::builder::{RelayQueryBuilder, TransportProtocol};
+use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::states::TunnelState;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -36,10 +35,7 @@ pub async fn test_mul_02_002(
     // Step 1 - Choose a relay
     constrain_to_relay(
         &mut mullvad_client,
-        RelayQueryBuilder::openvpn()
-            .transport_protocol(TransportProtocol::Tcp)
-            .port(443)
-            .build(),
+        RelayQueryBuilder::wireguard().udp2tcp().build(),
     )
     .await?;
 

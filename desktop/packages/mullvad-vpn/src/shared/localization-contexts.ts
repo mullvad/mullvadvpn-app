@@ -27,8 +27,6 @@ export type LocalizationContexts =
   | 'vpn-settings-view'
   | 'wireguard-settings-view'
   | 'wireguard-settings-nav'
-  | 'openvpn-settings-view'
-  | 'openvpn-settings-nav'
   | 'split-tunneling-view'
   | 'split-tunneling-nav'
   | 'api-access-methods-view'
