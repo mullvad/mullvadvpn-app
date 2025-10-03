@@ -29,6 +29,7 @@ struct ConnectionView: View {
 
                     Divider()
                         .background(UIColor.secondaryTextColor.color)
+                        .padding(.top, 4)
                         .padding(.bottom, 8)
                         .showIf(isExpanded)
 
