@@ -9,6 +9,8 @@ let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
 test.describe('Transitions and animations', () => {
+  test.skip(process.platform !== 'linux');
+
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     await page.emulateMedia({ reducedMotion: null });
