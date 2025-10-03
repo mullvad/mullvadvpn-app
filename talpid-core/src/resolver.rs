@@ -199,7 +199,7 @@ enum Resolver {
 
     /// Forward DNS queries to a configured server
     Forwarding {
-        resolver: TokioResolver,
+        resolver: Box<TokioResolver>,
         filter_out_aaaa: bool,
     },
 }
@@ -221,7 +221,7 @@ impl Resolver {
                 let resolver = resolver.clone();
                 let filter_out_aaaa = *filter_out_aaaa && !*NEVER_FILTER_AAAA_QUERIES;
                 tokio::spawn(async move {
-                    let lookup = Self::resolve_forward(resolver, query, filter_out_aaaa);
+                    let lookup = Self::resolve_forward(&resolver, query, filter_out_aaaa);
                     let _ = tx.send(lookup.await);
                 });
             }
@@ -267,7 +267,7 @@ impl Resolver {
 
     /// Forward DNS queries to the specified DNS resolver.
     async fn resolve_forward(
-        resolver: TokioResolver,
+        resolver: &TokioResolver,
         query: LowerQuery,
         filter_out_aaaa: bool,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
@@ -599,6 +599,8 @@ impl LocalResolver {
             TokioResolver::builder_with_config(forward_config, TokioConnectionProvider::default())
                 .with_options(resolver_opts)
                 .build();
+
+        let resolver = Box::new(resolver);
 
         self.inner_resolver = Resolver::Forwarding {
             resolver,
