@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
   duplicated names will be renamed.
 - Change how externally triggered navigation is handled in the UI. This could potentially reduce
   issues where users get stuck in the out-of-time view.
+- Upgrade `hickory-*` crates to `0.25`.
 
 
 #### Linux
