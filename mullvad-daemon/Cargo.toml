@@ -15,6 +15,7 @@ workspace = true
 api-override = ["mullvad-api/api-override"]
 boringtun = ["talpid-core/boringtun"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
+multihop-pcap = ["talpid-core/multihop-pcap"]
 
 [dependencies]
 anyhow = { workspace = true }

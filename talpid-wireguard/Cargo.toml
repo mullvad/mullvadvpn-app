@@ -12,6 +12,7 @@ workspace = true
 
 [features]
 boringtun = ["dep:boringtun", "dep:tun07", "talpid-tunnel/boringtun"]
+multihop-pcap = ["boringtun/pcap"]
 
 [dependencies]
 async-trait = "0.1"
