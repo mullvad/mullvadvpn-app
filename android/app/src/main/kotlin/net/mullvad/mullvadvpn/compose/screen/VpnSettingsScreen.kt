@@ -121,6 +121,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
@@ -479,7 +480,8 @@ fun VpnSettingsContent(
         when (initialScrollToFeature) {
             FeatureIndicator.UDP_2_TCP,
             FeatureIndicator.SHADOWSOCKS,
-            FeatureIndicator.QUIC -> VpnSettingItem.ObfuscationHeader::class
+            FeatureIndicator.QUIC,
+            FeatureIndicator.LWO -> VpnSettingItem.ObfuscationHeader::class
             FeatureIndicator.LAN_SHARING -> VpnSettingItem.LocalNetworkSharingSetting::class
             FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistanceHeader::class
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> VpnSettingItem.DnsContentBlockersHeader::class
@@ -864,6 +866,17 @@ fun VpnSettingsContent(
                             modifier = Modifier.animateItem(),
                             testTag = WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG,
                             onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Quic) },
+                        )
+                    }
+
+                is VpnSettingItem.ObfuscationItem.Lwo ->
+                    item(key = it::class.simpleName) {
+                        SelectableCell(
+                            title = stringResource(id = R.string.lwo),
+                            isSelected = it.selected,
+                            modifier = Modifier.animateItem(),
+                            testTag = WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG,
+                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
                         )
                     }
 

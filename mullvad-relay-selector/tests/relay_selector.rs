@@ -340,7 +340,6 @@ fn assert_wireguard_retry_order() {
             .ip_version(IpVersion::V6)
             .build(),
         // 7
-        #[cfg(not(target_os = "android"))]
         RelayQueryBuilder::wireguard().lwo().build(),
     ];
 

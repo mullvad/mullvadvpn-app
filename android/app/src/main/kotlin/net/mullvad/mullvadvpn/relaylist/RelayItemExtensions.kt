@@ -60,17 +60,18 @@ fun RelayItem.CustomList.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    lwo: Boolean,
     ipVersion: Constraint<IpVersion>,
 ): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
             when (it) {
                 is RelayItem.Location.Country ->
-                    it.filter(ownership, providers, daita, quic, ipVersion)
+                    it.filter(ownership, providers, daita, quic, lwo, ipVersion)
                 is RelayItem.Location.City ->
-                    it.filter(ownership, providers, daita, quic, ipVersion)
+                    it.filter(ownership, providers, daita, quic, lwo, ipVersion)
                 is RelayItem.Location.Relay ->
-                    it.filter(ownership, providers, daita, quic, ipVersion)
+                    it.filter(ownership, providers, daita, quic, lwo, ipVersion)
             }
         }
     return copy(locations = newLocations)
@@ -81,9 +82,10 @@ fun RelayItem.Location.Country.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    lwo: Boolean,
     ipVersion: Constraint<IpVersion>,
 ): RelayItem.Location.Country? {
-    val cities = cities.mapNotNull { it.filter(ownership, providers, daita, quic, ipVersion) }
+    val cities = cities.mapNotNull { it.filter(ownership, providers, daita, quic, lwo, ipVersion) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
     } else {
@@ -96,9 +98,10 @@ private fun RelayItem.Location.City.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    lwo: Boolean,
     ipVersion: Constraint<IpVersion>,
 ): RelayItem.Location.City? {
-    val relays = relays.mapNotNull { it.filter(ownership, providers, daita, quic, ipVersion) }
+    val relays = relays.mapNotNull { it.filter(ownership, providers, daita, quic, lwo, ipVersion) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
     } else {
@@ -109,12 +112,16 @@ private fun RelayItem.Location.City.filter(
 private fun RelayItem.Location.Relay.requiredFeatures(
     requireDaita: Boolean,
     requireQuic: Boolean,
+    requireLwo: Boolean,
     ipVersion: Constraint<IpVersion>,
 ): Boolean =
     when {
+        // Can not require LWO and require QUIC at the same time
         requireDaita && requireQuic -> daita && quic?.supports(ipVersion) == true
+        requireDaita && requireLwo -> daita && lwo
         requireDaita -> daita
         requireQuic -> quic?.supports(ipVersion) == true
+        requireLwo -> lwo
         else -> true
     }
 
@@ -130,10 +137,11 @@ private fun RelayItem.Location.Relay.filter(
     providers: Constraint<Providers>,
     daita: Boolean,
     quic: Boolean,
+    lwo: Boolean,
     ipVersion: Constraint<IpVersion>,
 ): RelayItem.Location.Relay? =
     if (
-        requiredFeatures(daita, quic, ipVersion) &&
+        requiredFeatures(daita, quic, lwo, ipVersion) &&
             hasOwnership(ownership) &&
             hasProvider(providers)
     )

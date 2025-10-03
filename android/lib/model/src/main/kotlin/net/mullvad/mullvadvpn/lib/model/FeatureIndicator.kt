@@ -10,6 +10,7 @@ enum class FeatureIndicator {
     UDP_2_TCP,
     SHADOWSOCKS,
     QUIC,
+    LWO,
     LAN_SHARING,
     DNS_CONTENT_BLOCKERS,
     CUSTOM_DNS,

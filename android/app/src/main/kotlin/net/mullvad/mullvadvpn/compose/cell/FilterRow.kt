@@ -57,6 +57,7 @@ fun FilterRow(
                 is FilterChip.Entry -> EntryFilterChip()
                 is FilterChip.Exit -> ExitFilterChip()
                 is FilterChip.Quic -> QuicFilterChip()
+                is FilterChip.Lwo -> LwoFilterChip()
             }
         }
     }
@@ -114,6 +115,11 @@ fun QuicFilterChip() {
         onRemoveClick = {},
         enabled = false,
     )
+}
+
+@Composable
+fun LwoFilterChip() {
+    MullvadFilterChip(text = stringResource(id = R.string.lwo), onRemoveClick = {}, enabled = false)
 }
 
 private fun Ownership.stringResources(): Int =

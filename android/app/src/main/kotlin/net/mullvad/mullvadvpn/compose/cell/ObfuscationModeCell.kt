@@ -123,6 +123,7 @@ private fun ObfuscationMode.toTitle() =
         ObfuscationMode.Udp2Tcp -> stringResource(id = R.string.upd_over_tcp)
         ObfuscationMode.Shadowsocks -> stringResource(id = R.string.shadowsocks)
         ObfuscationMode.Quic -> stringResource(id = R.string.quic)
+        ObfuscationMode.Lwo -> stringResource(id = R.string.lwo)
     }
 
 @Composable

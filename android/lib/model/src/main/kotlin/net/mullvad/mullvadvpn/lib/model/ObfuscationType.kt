@@ -4,4 +4,5 @@ enum class ObfuscationType {
     Udp2Tcp,
     Shadowsocks,
     Quic,
+    Lwo,
 }

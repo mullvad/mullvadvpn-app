@@ -365,6 +365,7 @@ class CustomListLocationsViewModelTest {
                                             ownership = Ownership.MullvadOwned,
                                             daita = false,
                                             quic = null,
+                                            lwo = false,
                                         )
                                     ),
                             )
@@ -383,6 +384,7 @@ class CustomListLocationsViewModelTest {
                 ownership = Ownership.MullvadOwned,
                 daita = false,
                 quic = null,
+                lwo = false,
             )
     }
 }

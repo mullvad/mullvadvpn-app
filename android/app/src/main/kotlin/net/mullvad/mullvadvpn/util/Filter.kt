@@ -16,3 +16,10 @@ fun shouldFilterByQuic(isQuicEnabled: Boolean, relayListType: RelayListType) =
         is RelayListType.Multihop ->
             isQuicEnabled && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
     }
+
+fun shouldFilterByLwo(isLwoEnable: Boolean, relayListType: RelayListType) =
+    when (relayListType) {
+        RelayListType.Single -> isLwoEnable
+        is RelayListType.Multihop ->
+            isLwoEnable && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+    }

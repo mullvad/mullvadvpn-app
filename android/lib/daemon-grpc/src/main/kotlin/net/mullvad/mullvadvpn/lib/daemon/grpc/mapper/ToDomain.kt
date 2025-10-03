@@ -226,8 +226,7 @@ internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain():
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
             ObfuscationType.Shadowsocks
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC -> ObfuscationType.Quic
-        ManagementInterface.ObfuscationEndpoint.ObfuscationType.LWO ->
-            throw IllegalArgumentException("Unsupported obfuscation type")
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.LWO -> ObfuscationType.Lwo
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
     }
@@ -434,8 +433,7 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
-        ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO ->
-            throw IllegalArgumentException("Unsupported obfuscation type")
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -606,6 +604,7 @@ internal fun ManagementInterface.Relay.toDomain(
             } else {
                 null
             },
+        lwo = endpointData.wireguard.lwo,
     )
 
 private fun ManagementInterface.Relay.RelayData.Wireguard.Quic.toDomain(): Quic =
@@ -730,7 +729,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.MULTIHOP -> FeatureIndicator.MULTIHOP
         ManagementInterface.FeatureIndicator.DAITA_MULTIHOP -> FeatureIndicator.DAITA_MULTIHOP
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
-        ManagementInterface.FeatureIndicator.LWO,
+        ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,

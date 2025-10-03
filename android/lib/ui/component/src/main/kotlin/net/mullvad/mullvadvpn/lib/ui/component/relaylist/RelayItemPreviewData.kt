@@ -52,6 +52,7 @@ private fun generateRelayItemRelay(
         ownership = Ownership.MullvadOwned,
         daita = daita,
         quic = null,
+        lwo = false,
     )
 
 private fun String.generateCountryCode() =
