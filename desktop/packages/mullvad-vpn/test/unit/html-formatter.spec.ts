@@ -1,0 +1,62 @@
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import React from 'react';
+
+import { formatHtml } from '../../src/renderer/lib/html-formatter';
+
+type WithChildren = React.ReactElement<{ children?: React.ReactNode }>;
+
+describe('Format html', () => {
+  const expectChildrenToMatch = (element: React.ReactElement, expectedParts: string[]) => {
+    const kids = React.Children.toArray((element as WithChildren).props.children);
+
+    expect(kids).to.have.lengthOf(expectedParts.length);
+    kids.forEach((kid, index) => {
+      expect((kid as WithChildren).props.children).to.equal(expectedParts[index]);
+    });
+  };
+
+  it('should format middle bold tag', () => {
+    expectChildrenToMatch(formatHtml('Some <b>bold</b> text'), ['Some ', 'bold', ' text']);
+  });
+  it('should format starting bold tag', () => {
+    expectChildrenToMatch(formatHtml('<b>Some</b> bold text'), ['Some', ' bold text']);
+  });
+  it('should format ending bold tag', () => {
+    expectChildrenToMatch(formatHtml('Some bold <b>text</b>'), ['Some bold ', 'text']);
+  });
+  it('should format multiple bold tags', () => {
+    expectChildrenToMatch(formatHtml('Some <b>bold</b> and <b>more bold</b> text'), [
+      'Some ',
+      'bold',
+      ' and ',
+      'more bold',
+      ' text',
+    ]);
+  });
+  it('should format middle emphasis tag', () => {
+    expectChildrenToMatch(formatHtml('Some <em>emphasized</em> text'), [
+      'Some ',
+      'emphasized',
+      ' text',
+    ]);
+  });
+  it('should format starting emphasis tag', () => {
+    expectChildrenToMatch(formatHtml('<em>Some</em> emphasized text'), [
+      'Some',
+      ' emphasized text',
+    ]);
+  });
+  it('should format ending emphasis tag', () => {
+    expectChildrenToMatch(formatHtml('Some emphasized <em>text</em>'), [
+      'Some emphasized ',
+      'text',
+    ]);
+  });
+  it('should format multiple emphasis tags', () => {
+    expectChildrenToMatch(
+      formatHtml('Some <em>emphasized</em> and <em>more emphasized</em> text'),
+      ['Some ', 'emphasized', ' and ', 'more emphasized', ' text'],
+    );
+  });
+});
