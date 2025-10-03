@@ -187,10 +187,12 @@ class MullvadTileService : TileService() {
             if (newState == Tile.STATE_ACTIVE) {
                 state = Tile.STATE_ACTIVE
                 icon = securedIcon
+                label = resources.getString(R.string.app_name)
                 setSubtitleIfSupported(resources.getText(R.string.connected))
             } else {
                 state = Tile.STATE_INACTIVE
                 icon = unsecuredIcon
+                label = resources.getString(R.string.app_name)
                 setSubtitleIfSupported(resources.getText(R.string.disconnected))
             }
             updateTile()
