@@ -102,11 +102,9 @@ impl ShadowsocksService {
                 ));
             }
         };
-        let server_config = ServerInstanceConfig::with_server_config(ServerConfig::new(
-            bridge_socket_addr,
-            password,
-            cipher,
-        ));
+        let server_config = ServerInstanceConfig::with_server_config(
+            ServerConfig::new(bridge_socket_addr, password, cipher).map_err(io::Error::other)?,
+        );
 
         cfg.server = vec![server_config];
 
