@@ -13,7 +13,7 @@ use boringtun::{
         peer::AllowedIP,
         DeviceConfig, DeviceHandle,
     },
-    packet::WgData,
+    packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
         channel::{TunChannelRx, TunChannelTx},
         tun_async_device::TunSusan,
@@ -273,8 +273,9 @@ async fn create_devices(
         api: Some(entry_api_server),
     };
 
-    let multihop = config.exit_peer.is_some();
-    let mut devices = if multihop {
+    let mut devices = if let Some(exit_peer) = &config.exit_peer {
+        // Multihop setup
+
         let source_v4 = config
             .tunnel
             .addresses
@@ -295,8 +296,14 @@ async fn create_devices(
             })
             .unwrap_or(Ipv6Addr::UNSPECIFIED);
 
+        // Calculate length of extra headers, assuming no optional header fields (i.e. IP options)
+        let multihop_overhead = match exit_peer.endpoint.ip() {
+            IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+            IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+        };
+
         let exit_mtu = tun_dev.mtu();
-        let entry_mtu = exit_mtu.add(WgData::OVERHEAD as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
+        let entry_mtu = exit_mtu.add(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
 
         let (tun_channel_tx, tun_channel_rx, udp_channels) =
             new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
@@ -338,6 +345,8 @@ async fn create_devices(
             exit_api,
         }
     } else {
+        // Singlehop setup
+
         #[cfg(target_os = "android")]
         let factory = AndroidUdpSocketFactory { tun: tun_dev };
 
