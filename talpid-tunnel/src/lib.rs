@@ -24,8 +24,8 @@ use tun_provider::TunProvider;
 pub const IPV4_HEADER_SIZE: u16 = 20;
 /// Size of IPv6 header in bytes
 pub const IPV6_HEADER_SIZE: u16 = 40;
-/// Size of wireguard header in bytes
-pub const WIREGUARD_HEADER_SIZE: u16 = 40;
+/// WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
+pub const WIREGUARD_HEADER_SIZE: u16 = 8 + 32;
 /// Size of ICMP header in bytes
 pub const ICMP_HEADER_SIZE: u16 = 8;
 /// Smallest allowed MTU for IPv4 in bytes
