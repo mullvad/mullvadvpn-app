@@ -18,6 +18,8 @@ import { ICurrentAppVersionInfo } from '../../../src/shared/ipc-types';
 import { mockData } from '../mock-data';
 
 const DEBUG = false;
+const TEST_SHOW_WINDOW = process.env.TEST_SHOW_WINDOW === '1';
+const CI_E2E = process.env.CI === 'e2e';
 
 class ApplicationMain {
   private guiSettings: IGuiSettingsState = {
@@ -97,6 +99,7 @@ class ApplicationMain {
       show: DEBUG,
       frame: true,
       webPreferences: {
+        offscreen: CI_E2E && !TEST_SHOW_WINDOW,
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,

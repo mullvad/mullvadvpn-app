@@ -8,7 +8,7 @@ import { startApp, TestUtils } from '../utils';
 // This option can be removed in the future when/if we're able to tun the tests with the sandbox
 // enabled in GitHub actions (frontend.yml).
 const noSandbox = process.env.NO_SANDBOX === '1';
-const showWindow = process.env.SHOW_WINDOW === '1';
+const showWindow = process.env.TEST_SHOW_WINDOW === '1';
 
 interface StartMockedAppResponse extends Awaited<ReturnType<typeof startApp>> {
   util: MockedTestUtils;
