@@ -629,6 +629,7 @@ where
         let _ = fs::set_permissions(SOCKET_PATH, fs::Permissions::from_mode(0o777));
 
         log::warn!("Waiting for connection to pcap socket");
+        log::warn!("    wireshark -k -i {SOCKET_PATH:?}");
         let (stream, _) = listener
             .accept()
             .expect("Error while waiting for pcap listener");
