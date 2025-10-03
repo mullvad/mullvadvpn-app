@@ -1,7 +1,10 @@
 # Mullvad VPN app security
 
-This document describes the security properties of the Mullvad VPN app. It describes it for all
-platforms and their differences. Individual platforms might have slightly different properties and
+This document describes the security properties of the Mullvad VPN app.
+For the security policy on this code repository, see [SECURITY.md](../SECURITY.md).
+
+This document describes the security for all platforms, and their differences.
+Individual platforms might have slightly different properties and
 allow or block network traffic a bit differently, but all such deviations are described here.
 
 This document does not describe in detail *how* we reach and uphold these properties, just what
