@@ -3,30 +3,28 @@
 //! Note: It is important not to connect to the shadowsocks endpoint right away. The remote socket
 //! must be protected in `VpnService` so that the socket is not routed through the tunnel.
 
-use crate::socket::create_remote_socket;
-
-use super::Obfuscator;
-use async_trait::async_trait;
-use shadowsocks::{
-    ProxySocket,
-    config::{ServerConfig, ServerType},
-    context::Context,
-    crypto::CipherKind,
-    relay::{
-        Address,
-        udprelay::proxy_socket::{ProxySocketError, UdpSocketType},
-    },
-};
-use std::{io, net::SocketAddr, sync::Arc};
-use tokio::{net::UdpSocket, sync::oneshot};
-
 #[cfg(target_os = "android")]
 use std::os::fd::AsRawFd;
+use std::{io, net::SocketAddr, sync::Arc};
+
+use async_trait::async_trait;
+use shadowsocks::ProxySocket;
+use shadowsocks::config::{ServerConfig, ServerConfigError, ServerType};
+use shadowsocks::context::Context;
+use shadowsocks::crypto::CipherKind;
+use shadowsocks::net::UdpSocket;
+use shadowsocks::relay::Address;
+use shadowsocks::relay::udprelay::proxy_socket::{ProxySocketError, UdpSocketType};
+use tokio::sync::oneshot;
+
+use super::Obfuscator;
+use crate::socket::create_remote_socket;
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
 const SHADOWSOCKS_PASSWORD: &str = "mullvad";
 
 type Result<T> = std::result::Result<T, Error>;
+type ShadowsocksSocket = ProxySocket<UdpSocket>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -39,6 +37,9 @@ pub enum Error {
     /// Failed to wait for UDP client
     #[error("Failed to wait for UDP client")]
     WaitForUdpClient(#[source] io::Error),
+    /// Invalid password
+    #[error("Invalid Shadowsocks password")]
+    InvalidPassword(#[source] ServerConfigError),
 }
 
 pub struct Shadowsocks {
@@ -70,12 +71,15 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let remote_socket = create_remote_socket(
-            settings.shadowsocks_endpoint.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        let remote_socket = {
+            let socket = create_remote_socket(
+                settings.shadowsocks_endpoint.is_ipv4(),
+                #[cfg(target_os = "linux")]
+                settings.fwmark,
+            )
+            .await?;
+            UdpSocket::from(socket)
+        };
 
         #[cfg(target_os = "android")]
         let outbound_fd = remote_socket.as_raw_fd();
@@ -109,11 +113,10 @@ async fn run_forwarding(
     wait_for_local_udp_client(&local_udp_socket)
         .await
         .map_err(Error::WaitForUdpClient)?;
-
-    let shadowsocks = connect_shadowsocks(remote_socket, shadowsocks_endpoint);
-    let shadowsocks = Arc::new(shadowsocks);
-
     let local_udp = Arc::new(local_udp_socket);
+
+    let shadowsocks = connect_shadowsocks(remote_socket, shadowsocks_endpoint)?;
+    let shadowsocks = Arc::new(shadowsocks);
 
     let wg_addr = Address::SocketAddress(wireguard_endpoint);
 
@@ -144,14 +147,21 @@ async fn run_forwarding(
     Ok(())
 }
 
-fn connect_shadowsocks(remote_socket: UdpSocket, shadowsocks_endpoint: SocketAddr) -> ProxySocket {
+fn connect_shadowsocks(
+    remote_socket: UdpSocket,
+    shadowsocks_endpoint: SocketAddr,
+) -> Result<ShadowsocksSocket> {
     let ss_context = Context::new_shared(ServerType::Local);
     let ss_config: ServerConfig = ServerConfig::new(
         shadowsocks_endpoint,
         SHADOWSOCKS_PASSWORD,
         SHADOWSOCKS_CIPHER,
-    );
-    ProxySocket::from_socket(UdpSocketType::Client, ss_context, &ss_config, remote_socket)
+    )
+    .map_err(Error::InvalidPassword)?;
+    let socket =
+        ProxySocket::from_socket(UdpSocketType::Client, ss_context, &ss_config, remote_socket);
+
+    Ok(socket)
 }
 
 async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> {
@@ -160,7 +170,7 @@ async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> 
     } else {
         SocketAddr::new("::1".parse().unwrap(), 0)
     };
-    let local_udp_socket = UdpSocket::bind(random_bind_addr)
+    let local_udp_socket = UdpSocket::bind(&random_bind_addr)
         .await
         .map_err(Error::BindUdp)?;
     let udp_client_addr = local_udp_socket
@@ -180,7 +190,7 @@ async fn wait_for_local_udp_client(udp_listener: &UdpSocket) -> io::Result<()> {
 }
 
 async fn handle_outgoing(
-    ss_write: Arc<ProxySocket>,
+    ss_write: Arc<ShadowsocksSocket>,
     local_udp_read: Arc<UdpSocket>,
     ss_addr: SocketAddr,
     wg_addr: Address,
@@ -210,7 +220,7 @@ async fn handle_outgoing(
 }
 
 async fn handle_incoming(
-    ss_read: Arc<ProxySocket>,
+    ss_read: Arc<ShadowsocksSocket>,
     local_udp_write: Arc<UdpSocket>,
     ss_addr: SocketAddr,
     wg_addr: Address,
