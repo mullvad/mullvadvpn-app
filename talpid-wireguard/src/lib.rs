@@ -22,12 +22,16 @@ use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
+use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 
 #[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     BoxedError, ErrorExt,
-    net::{AllowedTunnelTraffic, Endpoint, TransportProtocol, wireguard::TunnelParameters},
+    net::{
+        AllowedTunnelTraffic, Endpoint, TransportProtocol,
+        wireguard::{PeerConfig, TunnelParameters},
+    },
 };
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -162,8 +166,16 @@ impl WireguardMonitor {
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
 
+        let userspace_multihop = true; // TODO
+
         let tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
-            clamp_tunnel_mtu(params, route_mtu.saturating_sub(wireguard_overhead(params)))
+            let mut overhead = wireguard_overhead(&params.connection.peer);
+            if let Some(exit_peer) = &params.connection.exit_peer
+                && userspace_multihop
+            {
+                overhead += wireguard_overhead(exit_peer);
+            }
+            clamp_tunnel_mtu(params, route_mtu.saturating_sub(dbg!(overhead)))
         });
 
         let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
@@ -195,9 +207,8 @@ impl WireguardMonitor {
             );
         }
 
-        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test
-        // the implementation, as DAITA is not currently supported by boringtun.
-        // TODO: Remove `cfg!(feature = "boringtun")`.
+        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test it
+        // TODO: Consider removing `cfg!(feature = "boringtun")`
         let userspace_wireguard =
             *FORCE_USERSPACE_WIREGUARD || config.daita || cfg!(feature = "boringtun");
 
@@ -1050,18 +1061,18 @@ enum CloseMsg {
 }
 
 #[allow(unused)]
+// TODO regular async?
 #[async_trait::async_trait]
 pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
+    // TODO regular async?
     fn set_config<'a>(
         &'a mut self,
         _config: Config,
+        _daita: Option<DaitaSettings>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
-    #[cfg(daita)]
-    /// A [`Tunnel`] capable of using DAITA.
-    fn start_daita(&mut self, settings: DaitaSettings) -> std::result::Result<(), TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
@@ -1213,17 +1224,16 @@ fn clamp_tunnel_mtu(params: &TunnelParameters, mtu: u16) -> u16 {
     const MTU_SAFETY_MARGIN: u16 = 60;
 
     // The largest peer MTU that we allow
-    let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - wireguard_overhead(params);
+    // TODO: userspace multihop?
+    let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - wireguard_overhead(&params.connection.peer);
 
     mtu.clamp(min_mtu, max_peer_mtu)
 }
 
-/// Calculates total overhead due to WireGuard
-const fn wireguard_overhead(params: &TunnelParameters) -> u16 {
-    use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
-    WIREGUARD_HEADER_SIZE
-        + match params.connection.peer.endpoint.is_ipv6() {
-            false => IPV4_HEADER_SIZE,
-            true => IPV6_HEADER_SIZE,
-        }
+/// Calculates WireGuard per-packet overhead
+const fn wireguard_overhead(peer: &PeerConfig) -> u16 {
+    match peer.endpoint.ip() {
+        IpAddr::V4(..) => IPV4_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
+        IpAddr::V6(..) => IPV6_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
+    }
 }
