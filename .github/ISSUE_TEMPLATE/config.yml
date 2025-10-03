@@ -1,6 +1,9 @@
 ---
 blank_issues_enabled: false
 contact_links:
+  - name: 💡 Feature requests & Ideas
+    url: https://github.com/mullvad/mullvadvpn-app/discussions/new/choose
+    about: Discuss and suggest new features in the Mullvad VPN app.
   - name: Questions and issues not directly related to our VPN application
     about: >
       If your question is not related to our VPN application specifically,
