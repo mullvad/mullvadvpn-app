@@ -20,7 +20,7 @@ pub fn is_admin_owned<T: AsRawHandle>(handle: T) -> io::Result<bool> {
     // SAFETY: `handle` is a valid handle
     let result = unsafe {
         GetSecurityInfo(
-            handle.as_raw_handle() as isize,
+            handle.as_raw_handle(),
             SE_FILE_OBJECT,
             OWNER_SECURITY_INFORMATION,
             (&mut owner) as *mut *mut SID as *mut *mut c_void,

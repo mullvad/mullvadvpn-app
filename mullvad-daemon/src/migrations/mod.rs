@@ -243,11 +243,12 @@ mod windows {
     use talpid_types::ErrorExt;
     use tokio::fs;
     use windows_sys::Win32::{
-        Foundation::{ERROR_SUCCESS, LocalFree, PSID},
+        Foundation::{ERROR_SUCCESS, LocalFree},
         Security::{
             Authorization::{GetNamedSecurityInfoW, SE_FILE_OBJECT, SE_OBJECT_TYPE},
-            IsWellKnownSid, OWNER_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR, SECURITY_DESCRIPTOR,
-            SID, WELL_KNOWN_SID_TYPE, WinBuiltinAdministratorsSid, WinLocalSystemSid,
+            IsWellKnownSid, OWNER_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR, PSID,
+            SECURITY_DESCRIPTOR, SID, WELL_KNOWN_SID_TYPE, WinBuiltinAdministratorsSid,
+            WinLocalSystemSid,
         },
     };
 
