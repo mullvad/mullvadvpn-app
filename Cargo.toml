@@ -145,8 +145,8 @@ log = "0.4"
 fern = { version = "0.6", default-features = false }
 
 # Shadowsocks
-shadowsocks = "1.22"
-shadowsocks-service = "1.22"
+shadowsocks = "1.23"
+shadowsocks-service = "1.23"
 
 itertools = "0.14"
 

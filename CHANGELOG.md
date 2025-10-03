@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Change how externally triggered navigation is handled in the UI. This could potentially reduce
   issues where users get stuck in the out-of-time view.
 - Upgrade `hickory-*` crates to `0.25`.
+- Upgrade `shadowsocks-rust` to `1.23`.
 
 
 #### Linux
