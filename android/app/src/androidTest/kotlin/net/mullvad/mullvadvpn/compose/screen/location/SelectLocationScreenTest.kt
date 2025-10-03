@@ -81,6 +81,7 @@ class SelectLocationScreenTest {
         onSelectRelayList: (MultihopRelayListType) -> Unit = {},
         openDaitaSettings: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
+        onRefreshRelayList: () -> Unit = {},
     ) {
 
         setContentWithTheme {
@@ -103,6 +104,7 @@ class SelectLocationScreenTest {
                 onSelectRelayList = onSelectRelayList,
                 openDaitaSettings = openDaitaSettings,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
+                onRefreshRelayList = onRefreshRelayList,
             )
         }
     }
