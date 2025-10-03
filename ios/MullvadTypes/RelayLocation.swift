@@ -130,14 +130,3 @@ extension UserSelectedRelays {
         }
     }
 }
-
-@available(*, deprecated, message: "Use UserSelectedRelays instead.")
-public struct RelayLocations: Codable, Equatable {
-    public let locations: [RelayLocation]
-    public let customListId: UUID?
-
-    public init(locations: [RelayLocation], customListId: UUID? = nil) {
-        self.locations = locations
-        self.customListId = customListId
-    }
-}
