@@ -11,7 +11,7 @@ import androidx.compose.ui.text.withStyle
  * Creates an [AnnotatedString] from a localized string with a clickable part. The [text] parameter
  * should contain a single "%s" placeholder where the [argument] will be inserted.
  */
-fun ClickableAnnotatedString(
+fun clickableAnnotatedString(
     text: String,
     argument: String,
     linkStyle: SpanStyle,

@@ -152,7 +152,7 @@
          https://issuetracker.google.com/issues/441315112
          -->
         <receiver
-            android:name=".receiver.WarnAndroid16UserUpdateReceiver"
+            android:name=".receiver.Android16UpdateWarningReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
