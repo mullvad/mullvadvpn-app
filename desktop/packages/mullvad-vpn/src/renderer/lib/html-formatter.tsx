@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { colors } from './foundations';
 
 const Bold = styled.span({ fontWeight: 700 });
-const Emphasis = styled.em({ color: colors.white });
+const Emphasis = styled.em({ color: colors.white, fontWeight: 600 });
 
 // When a new tag is added here, it must also be added to allowed tags in
 // our verify translations script.
