@@ -22,12 +22,16 @@ use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
+use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 
 #[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     BoxedError, ErrorExt,
-    net::{AllowedTunnelTraffic, Endpoint, TransportProtocol, wireguard::TunnelParameters},
+    net::{
+        AllowedTunnelTraffic, Endpoint, TransportProtocol,
+        wireguard::{PeerConfig, TunnelParameters},
+    },
 };
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -162,8 +166,16 @@ impl WireguardMonitor {
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
 
+        let userspace_multihop = true; // TODO
+
         let tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
-            clamp_tunnel_mtu(params, route_mtu.saturating_sub(wireguard_overhead(params)))
+            let mut overhead = wireguard_overhead(&params.connection.peer);
+            if let Some(exit_peer) = &params.connection.exit_peer
+                && userspace_multihop
+            {
+                overhead += wireguard_overhead(exit_peer);
+            }
+            clamp_tunnel_mtu(params, route_mtu.saturating_sub(dbg!(overhead)))
         });
 
         let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
@@ -1213,17 +1225,16 @@ fn clamp_tunnel_mtu(params: &TunnelParameters, mtu: u16) -> u16 {
     const MTU_SAFETY_MARGIN: u16 = 60;
 
     // The largest peer MTU that we allow
-    let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - wireguard_overhead(params);
+    // TODO: userspace multihop?
+    let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - wireguard_overhead(&params.connection.peer);
 
     mtu.clamp(min_mtu, max_peer_mtu)
 }
 
-/// Calculates total overhead due to WireGuard
-const fn wireguard_overhead(params: &TunnelParameters) -> u16 {
-    use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
-    WIREGUARD_HEADER_SIZE
-        + match params.connection.peer.endpoint.is_ipv6() {
-            false => IPV4_HEADER_SIZE,
-            true => IPV6_HEADER_SIZE,
-        }
+/// Calculates WireGuard per-packet overhead
+const fn wireguard_overhead(peer: &PeerConfig) -> u16 {
+    match peer.endpoint.ip() {
+        IpAddr::V4(..) => IPV4_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
+        IpAddr::V6(..) => IPV6_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
+    }
 }

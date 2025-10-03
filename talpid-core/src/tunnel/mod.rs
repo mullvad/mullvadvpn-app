@@ -46,10 +46,6 @@ pub enum Error {
     /// There was an error listening for events from the Wireguard tunnel
     #[error("Failed while listening for events from the Wireguard tunnel")]
     WireguardTunnelMonitoringError(#[from] talpid_wireguard::Error),
-
-    /// Could not detect and assign the correct mtu
-    #[error("Could not detect and assign a correct MTU for the Wireguard tunnel")]
-    AssignMtuError,
 }
 
 impl From<Error> for ErrorStateCause {
