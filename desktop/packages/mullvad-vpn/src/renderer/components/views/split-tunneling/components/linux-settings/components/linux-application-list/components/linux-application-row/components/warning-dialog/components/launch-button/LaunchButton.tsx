@@ -1,12 +1,12 @@
 import { messages } from '../../../../../../../../../../../../../../shared/gettext';
 import { Button } from '../../../../../../../../../../../../../lib/components';
-import { useLaunchApplication } from '../../../../hooks';
+import { useHandleClick } from './hooks';
 
 export function LaunchButton() {
-  const launchApplication = useLaunchApplication();
+  const handleClick = useHandleClick();
 
   return (
-    <Button onClick={launchApplication}>
+    <Button onClick={handleClick}>
       <Button.Text>
         {
           // TRANSLATORS: Button label for launching an application with split tunneling.

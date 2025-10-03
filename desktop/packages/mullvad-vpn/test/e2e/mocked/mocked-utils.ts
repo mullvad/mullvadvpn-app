@@ -94,9 +94,9 @@ export const createMockIpcExpect = (
 ) => {
   const type = 'type' in spec ? spec.type : 'invoke';
 
-  return <T>(): Promise<T> => {
+  return <T>(response: T): Promise<T> => {
     return electronApp.evaluate(
-      ({ ipcMain }, { event, type }) => {
+      ({ ipcMain }, { event, type, response }) => {
         return new Promise<T>((resolve) => {
           if (type === 'send') {
             ipcMain.once(event, (_event, arg) => resolve(arg));
@@ -105,13 +105,13 @@ export const createMockIpcExpect = (
               resolve(arg);
               return {
                 type: 'success',
-                value: null,
+                value: response,
               };
             });
           }
         });
       },
-      { event, type },
+      { event, type, response },
     );
   };
 };
@@ -155,14 +155,14 @@ type IpcMockedTestExtraHandlerKey<
 
 type IpcMockedTestFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
   ? Async<NonNullable<ReturnType<I['send']>>>
-  : (response: Awaited<ReturnType<Parameters<ReturnType<I['receive']>>[0]>>) => Promise<void>;
+  : (response?: Awaited<ReturnType<Parameters<ReturnType<I['receive']>>[0]>>) => Promise<void>;
 
 export type IpcMockedTest<S extends Schema> = {
   [G in keyof S]: {
     [K in keyof S[G]]: {
       [C in IpcMockedTestKey<S[G][K]>]: IpcMockedTestFn<S[G][K]>;
     } & {
-      [C in IpcMockedTestExtraHandlerKey<S[G][K], 'expect'>]: () => Promise<void>;
+      [C in IpcMockedTestExtraHandlerKey<S[G][K], 'expect'>]: IpcMockedTestFn<S[G][K]>;
     } & {
       [C in IpcMockedTestExtraHandlerKey<S[G][K], 'ignore'>]: () => Promise<void>;
     } & {
