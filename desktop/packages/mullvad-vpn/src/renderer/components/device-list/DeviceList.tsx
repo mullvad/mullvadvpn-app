@@ -1,10 +1,7 @@
-import { IDevice } from '../../../shared/daemon-rpc-types';
 import { Flex, Spinner } from '../../lib/components';
+import { AnimatedList } from '../../lib/components/animated-list';
 import { DeviceListItem } from '../device-list-item';
-import List from '../List';
 import { useGetDevices } from './hooks';
-
-const getDeviceKey = (device: IDevice): string => device.id;
 
 export function DeviceList() {
   const devices = useGetDevices();
@@ -12,9 +9,13 @@ export function DeviceList() {
   return (
     <Flex $flexDirection="column" $alignItems="center">
       {showList ? (
-        <List items={devices} getKey={getDeviceKey} skipInitialAddTransition>
-          {(device) => <DeviceListItem device={device} />}
-        </List>
+        <AnimatedList>
+          {devices.map((device) => (
+            <AnimatedList.Item key={device.id}>
+              <DeviceListItem device={device} />
+            </AnimatedList.Item>
+          ))}
+        </AnimatedList>
       ) : (
         <Spinner size="big" />
       )}
