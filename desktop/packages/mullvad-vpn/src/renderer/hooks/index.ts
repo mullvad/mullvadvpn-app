@@ -10,4 +10,5 @@ export * from './useMeasure';
 export * from './useScrollToReference';
 export * from './useScrollToListItem';
 export * from './useInitialFocus';
-export * from './useFocusReference';
+export * from './useFocusReferenceAfterPaint';
+export * from './useFocusReferenceBeforePaint';

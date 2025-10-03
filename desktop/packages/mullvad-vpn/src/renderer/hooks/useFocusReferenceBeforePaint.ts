@@ -1,10 +1,10 @@
 import React from 'react';
 
-export const useFocusReference = <T extends HTMLElement>(
+export const useFocusReferenceBeforePaint = <T extends HTMLElement>(
   ref?: React.RefObject<T | null>,
   focus?: boolean,
 ) => {
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (focus) {
       ref?.current?.focus({ preventScroll: true });
     }
