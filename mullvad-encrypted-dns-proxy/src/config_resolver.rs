@@ -1,11 +1,15 @@
 //! Resolve valid proxy configurations via DoH.
 //!
-use crate::config;
 use core::fmt;
-use hickory_resolver::{TokioAsyncResolver, config::*, error::ResolveError};
-use rustls::ClientConfig;
-use std::{net::IpAddr, sync::Arc, time::Duration};
+use std::net::IpAddr;
+use std::time::Duration;
+
+use hickory_resolver::config::*;
+use hickory_resolver::name_server::TokioConnectionProvider;
+use hickory_resolver::{ResolveError, TokioResolver};
 use tokio::time::error::Elapsed;
+
+use crate::config;
 
 /// The port to connect to the DoH resolvers over.
 const RESOLVER_PORT: u16 = 443;
@@ -82,10 +86,12 @@ pub async fn resolve_configs(
         }
     }
 
-    nameservers.set_tls_client_config(Arc::new(client_config_tls12()));
-    let mut resolver_config: ResolverOpts = Default::default();
-
-    resolver_config.timeout = Duration::from_secs(5);
+    let resolver_config = {
+        let mut config = ResolverOpts::default();
+        config.tls_config = client_config_tls12();
+        config.timeout = Duration::from_secs(5);
+        config
+    };
     resolve_config_with_resolverconfig(nameservers, resolver_config, domain, DEFAULT_TIMEOUT).await
 }
 
@@ -95,7 +101,10 @@ pub async fn resolve_config_with_resolverconfig(
     domain: &str,
     timeout: Duration,
 ) -> Result<Vec<config::ProxyConfig>, Error> {
-    let resolver = TokioAsyncResolver::tokio(resolver_config, options);
+    let resolver =
+        TokioResolver::builder_with_config(resolver_config, TokioConnectionProvider::default())
+            .with_options(options)
+            .build();
     let lookup = tokio::time::timeout(timeout, resolver.ipv6_lookup(domain))
         .await
         .map_err(Error::Timeout)?
@@ -117,22 +126,35 @@ pub async fn resolve_config_with_resolverconfig(
     Ok(proxy_configs)
 }
 
-fn client_config_tls12() -> ClientConfig {
-    use rustls::RootCertStore;
-    let mut root_store = RootCertStore::empty();
-    root_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
-        rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
-            ta.subject,
-            ta.spki,
-            ta.name_constraints,
-        )
-    }));
+fn client_config_tls12() -> rustls::ClientConfig {
+    let root_store = {
+        let mut root_store = rustls::RootCertStore::empty();
 
-    ClientConfig::builder()
-        .with_safe_default_cipher_suites()
-        .with_safe_default_kx_groups()
-        .with_safe_default_protocol_versions() // this enables TLS 1.2 and 1.3
-        .unwrap()
+        let trust_anchors =
+            webpki_roots::TLS_SERVER_ROOTS
+                .iter()
+                .map(|root_ca| rustls::pki_types::TrustAnchor {
+                    subject: root_ca.subject.clone(),
+
+                    subject_public_key_info: root_ca.subject_public_key_info.clone(),
+
+                    name_constraints: root_ca.name_constraints.clone(),
+                });
+
+        root_store.extend(trust_anchors);
+
+        root_store
+    };
+
+    // Ensure CryptoProvider is set for this process.
+
+    let crypto_provider = rustls::crypto::aws_lc_rs::default_provider();
+
+    if let Err(e) = crypto_provider.install_default() {
+        log::error!("Crypto provider has already been installed: {e:?}");
+    };
+
+    rustls::ClientConfig::builder()
         .with_root_certificates(root_store)
         .with_no_client_auth()
 }
