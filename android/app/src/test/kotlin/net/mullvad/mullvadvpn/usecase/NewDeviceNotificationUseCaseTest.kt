@@ -7,7 +7,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.data.UUID
@@ -23,6 +22,7 @@ import net.mullvad.mullvadvpn.usecase.inappnotification.NewDeviceNotificationUse
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
@@ -70,7 +70,7 @@ class NewDeviceNotificationUseCaseTest {
     @Test
     fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
-        newDeviceNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
+        newDeviceNotificationUseCase().test { assertNull(awaitItem()) }
     }
 
     @Test
@@ -82,7 +82,7 @@ class NewDeviceNotificationUseCaseTest {
             isNewDeviceState.value = true
 
             // Assert
-            assertEquals(awaitItem(), listOf(InAppNotification.NewDevice(deviceName)))
+            assertEquals(awaitItem(), InAppNotification.NewDevice(deviceName))
         }
     }
 
@@ -97,7 +97,7 @@ class NewDeviceNotificationUseCaseTest {
             isNewDeviceState.value = false
 
             // Assert
-            assertEquals(awaitItem(), emptyList())
+            assertNull(awaitItem())
         }
     }
 }
