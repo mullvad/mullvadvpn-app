@@ -54,7 +54,7 @@ export function SplitOptionNavigateButton({
   }, [history, to]);
 
   return (
-    <StyledSplitOptionNavigateButton onClick={navigate} {...props}>
+    <StyledSplitOptionNavigateButton data-split-button onClick={navigate} tabIndex={-1} {...props}>
       <StyledFlex $justifyContent="center" $alignItems="center" $padding={{ horizontal: 'medium' }}>
         <Icon icon={'chevron-right'} aria-hidden="true" />
       </StyledFlex>

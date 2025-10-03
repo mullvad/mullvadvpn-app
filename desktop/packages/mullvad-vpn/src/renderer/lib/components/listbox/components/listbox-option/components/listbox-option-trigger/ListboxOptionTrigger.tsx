@@ -91,6 +91,7 @@ export const ListboxOptionTrigger = ({ children, ...props }: ListboxOptionTrigge
   return (
     <StyledListItemOptionTrigger
       ref={triggerRef}
+      data-option
       role="option"
       aria-selected={selected}
       aria-disabled={disabled}

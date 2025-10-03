@@ -63,6 +63,7 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
   return (
     <StyledInputOptionTrigger
       role="option"
+      data-option
       aria-selected={selected}
       tabIndex={-1}
       onFocus={handleFocus}
