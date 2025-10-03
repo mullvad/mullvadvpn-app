@@ -13,7 +13,7 @@ workspace = true
 [dependencies]
 tokio = { workspace = true, features = [ "macros" ] }
 log = { workspace = true }
-hickory-resolver = { workspace = true, features = ["https-aws-lc-rs"] }
+hickory-resolver = { workspace = true, features = ["https-ring"] }
 serde = { workspace = true, features = ["derive"] }
 webpki-roots = { workspace = true }
 rustls = { workspace = true }
