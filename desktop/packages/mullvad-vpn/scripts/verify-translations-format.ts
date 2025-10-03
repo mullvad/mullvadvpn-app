@@ -4,7 +4,7 @@ import path from 'path';
 
 const LOCALES_DIR = path.join('locales');
 
-const ALLOWED_TAGS = ['b', 'br'];
+const ALLOWED_TAGS = ['b', 'br', 'em'];
 const ALLOWED_VOID_TAGS = ['br'];
 
 // Make sure to report these strings to crowdin. View this as a temporary escape
