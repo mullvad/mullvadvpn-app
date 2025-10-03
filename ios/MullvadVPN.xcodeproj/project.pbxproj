@@ -1146,6 +1146,7 @@
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 		F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E32412E7AA109004A7EFE /* MultihopContext.swift */; };
 		F9BDE1192E73027E005A8AD9 /* MullvadHFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BDE1182E73027E005A8AD9 /* MullvadHFlow.swift */; };
+		F9C579BD2E8E9AEE00C90C50 /* DaitaWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 /* End PBXBuildFile section */
 
@@ -2606,6 +2607,7 @@
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
 		F99E32412E7AA109004A7EFE /* MultihopContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopContext.swift; sourceTree = "<group>"; };
 		F9BDE1182E73027E005A8AD9 /* MullvadHFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadHFlow.swift; sourceTree = "<group>"; };
+		F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaWarningView.swift; sourceTree = "<group>"; };
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -4983,6 +4985,7 @@
 		F900524C2E6B04470085C80E /* New Group */ = {
 			isa = PBXGroup;
 			children = (
+				F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */,
 				F92C65892E7A922F00B8E107 /* ActiveFilterView.swift */,
 				F95A28302E8A8FC300C3F75D /* LocationContext.swift */,
 				F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */,
@@ -6681,6 +6684,7 @@
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
 				F95A28312E8A8FC300C3F75D /* LocationContext.swift in Sources */,
+				F9C579BD2E8E9AEE00C90C50 /* DaitaWarningView.swift in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,

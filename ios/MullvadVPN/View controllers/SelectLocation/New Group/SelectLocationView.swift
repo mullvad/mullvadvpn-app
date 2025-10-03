@@ -108,7 +108,9 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
 
         var body: some View {
             if viewModel.showDAITAInfo {
-                Text("Blabla daita blabla")
+                DaitaWarningView {
+                    viewModel.showDaitaSettings()
+                }
             } else {
                 ExitLocationView(viewModel: viewModel)
             }
