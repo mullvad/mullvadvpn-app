@@ -17,6 +17,8 @@ boringtun = ["talpid-core/boringtun"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
 
+default = ["boringtun"]
+
 [dependencies]
 anyhow = { workspace = true }
 chrono = { workspace = true }
