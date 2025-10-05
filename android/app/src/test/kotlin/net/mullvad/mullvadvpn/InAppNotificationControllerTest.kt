@@ -89,7 +89,6 @@ class InAppNotificationControllerTest {
         val errorState: ErrorState = mockk()
         every { errorState.cause } returns mockk()
         val tunnelStateBlocked = InAppNotification.TunnelStateBlocked
-        val tunnelStateError = InAppNotification.TunnelStateError(errorState)
         tunnelStateNotifications.value = tunnelStateBlocked
 
         val unsupportedVersion = InAppNotification.UnsupportedVersion(mockk())
