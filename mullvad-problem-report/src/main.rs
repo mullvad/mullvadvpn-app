@@ -76,6 +76,7 @@ fn run() -> Result<(), Error> {
             send_problem_report(
                 &email.unwrap_or_default(),
                 &message.unwrap_or_default(),
+                None,
                 &report,
             )?;
         }
@@ -87,12 +88,14 @@ fn run() -> Result<(), Error> {
 fn send_problem_report(
     user_email: &str,
     user_message: &str,
+    account_token: Option<&str>,
     report_path: &Path,
 ) -> Result<(), Error> {
     let cache_dir = mullvad_paths::get_cache_dir().map_err(Error::ObtainCacheDirectory)?;
     mullvad_problem_report::send_problem_report(
         user_email,
         user_message,
+        account_token,
         report_path,
         &cache_dir,
         ApiEndpoint::from_env_vars(),

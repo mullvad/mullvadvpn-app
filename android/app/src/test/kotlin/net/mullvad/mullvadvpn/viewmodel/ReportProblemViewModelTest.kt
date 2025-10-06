@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -27,6 +28,8 @@ class ReportProblemViewModelTest {
 
     @MockK(relaxed = true) private lateinit var mockProblemReportRepository: ProblemReportRepository
 
+    @MockK(relaxed = true) private lateinit var mockAccountRepository: AccountRepository
+
     private val problemReportFlow = MutableStateFlow(UserReport("", ""))
 
     private lateinit var viewModel: ReportProblemViewModel
@@ -36,7 +39,13 @@ class ReportProblemViewModelTest {
         MockKAnnotations.init(this)
         coEvery { mockMullvadProblemReport.collectLogs() } returns true
         coEvery { mockProblemReportRepository.problemReport } returns problemReportFlow
-        viewModel = ReportProblemViewModel(mockMullvadProblemReport, mockProblemReportRepository)
+        coEvery { mockAccountRepository.accountData } returns MutableStateFlow(null)
+        viewModel =
+            ReportProblemViewModel(
+                mockMullvadProblemReport,
+                mockProblemReportRepository,
+                mockAccountRepository,
+            )
     }
 
     @AfterEach
@@ -48,7 +57,7 @@ class ReportProblemViewModelTest {
     fun `when sendReport returns CollectLog error then uiState should emit sendingState with CollectLog error`() =
         runTest {
             // Arrange
-            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+            coEvery { mockMullvadProblemReport.sendReport(any(), any()) } returns
                 SendProblemReportResult.Error.CollectLog
             val email = "my@email.com"
 
@@ -68,7 +77,7 @@ class ReportProblemViewModelTest {
     fun `when sendReport returns SendReport error then uiState should emit sendingState with SendReport error`() =
         runTest {
             // Arrange
-            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+            coEvery { mockMullvadProblemReport.sendReport(any(), any()) } returns
                 SendProblemReportResult.Error.SendReport
             val email = "my@email.com"
 
@@ -88,7 +97,7 @@ class ReportProblemViewModelTest {
     fun `when sendReport with no email returns Success then uiState should emit sendingState with Success`() =
         runTest {
             // Arrange
-            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+            coEvery { mockMullvadProblemReport.sendReport(any(), any()) } returns
                 SendProblemReportResult.Success
             val email = ""
             val description = "My description"
@@ -121,7 +130,7 @@ class ReportProblemViewModelTest {
         runTest {
             // Arrange
             coEvery { mockMullvadProblemReport.collectLogs() } returns true
-            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+            coEvery { mockMullvadProblemReport.sendReport(any(), any()) } returns
                 SendProblemReportResult.Success
             val email = "my@email.com"
             val description = "My description"

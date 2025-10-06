@@ -43,6 +43,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     _: JObject<'_>,
     userEmail: JString<'_>,
     userMessage: JString<'_>,
+    accountToken: JString<'_>,
     outputPath: JString<'_>,
     cacheDirectory: JString<'_>,
     endpoint: JObject<'_>,
@@ -50,6 +51,11 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     let env = JnixEnv::from(env);
     let user_email = String::from_java(&env, userEmail);
     let user_message = String::from_java(&env, userMessage);
+    let account_token = if accountToken.is_null() {
+        None
+    } else {
+        Some(String::from_java(&env, accountToken))
+    };
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
     let cache_directory_string = String::from_java(&env, cacheDirectory);
@@ -60,6 +66,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     let send_result = mullvad_problem_report::send_problem_report(
         &user_email,
         &user_message,
+        account_token.as_deref(),
         output_path,
         cache_directory,
         api_endpoint,

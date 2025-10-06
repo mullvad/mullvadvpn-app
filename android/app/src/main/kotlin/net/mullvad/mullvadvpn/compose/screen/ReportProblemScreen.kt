@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,13 +13,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,9 +63,9 @@ import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
-import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
@@ -83,6 +86,7 @@ private fun PreviewReportProblemScreen(
             onNavigateToViewLogs = {},
             onEmailChanged = {},
             onDescriptionChanged = {},
+            onIncludeAccountIdCheckChange = {},
             onBackClick = {},
         )
     }
@@ -121,6 +125,7 @@ fun ReportProblem(
             },
         onEmailChanged = vm::updateEmail,
         onDescriptionChanged = vm::updateDescription,
+        onIncludeAccountIdCheckChange = vm::onIncludeAccountIdCheckChange,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -133,6 +138,7 @@ private fun ReportProblemScreen(
     onNavigateToViewLogs: () -> Unit,
     onEmailChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
+    onIncludeAccountIdCheckChange: (Boolean) -> Unit,
     onBackClick: () -> Unit,
 ) {
 
@@ -169,10 +175,9 @@ private fun ReportProblemScreen(
                         .height(IntrinsicSize.Max),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
             ) {
-                Text(
-                    text = stringResource(id = R.string.problem_report_description),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelLarge,
+                Description(
+                    state = state,
+                    onIncludeAccountIdCheckChange = onIncludeAccountIdCheckChange,
                 )
 
                 TextField(
@@ -215,7 +220,58 @@ private fun ReportProblemScreen(
 }
 
 @Composable
-fun ProblemMessageTextField(
+private fun Description(
+    state: ReportProblemUiState,
+    onIncludeAccountIdCheckChange: (Boolean) -> Unit,
+) {
+    Column {
+        Text(
+            text = stringResource(id = R.string.problem_report_description),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
+        )
+
+        if (state.showIncludeAccountId) {
+            IncludeAccountInformationCheckBox(
+                includeAccountInformation = state.includeAccountId,
+                onIncludeAccountInformationCheckChange = onIncludeAccountIdCheckChange,
+            )
+        }
+    }
+}
+
+@Composable
+private fun IncludeAccountInformationCheckBox(
+    includeAccountInformation: Boolean,
+    onIncludeAccountInformationCheckChange: (Boolean) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier.clickable {
+                    onIncludeAccountInformationCheckChange(!includeAccountInformation)
+                }
+                .padding(vertical = Dimens.smallPadding)
+                .fillMaxWidth(),
+    ) {
+        // To align the checkbox with the text
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            Checkbox(
+                modifier = Modifier.padding(end = Dimens.smallPadding),
+                checked = includeAccountInformation,
+                onCheckedChange = onIncludeAccountInformationCheckChange,
+            )
+            Text(
+                text = stringResource(R.string.include_account_token_checkbox_text),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelLarge,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProblemMessageTextField(
     modifier: Modifier = Modifier,
     value: String,
     onDescriptionChanged: (String) -> Unit,
