@@ -373,19 +373,15 @@ pub async fn run_nft(input: &str) -> Result<()> {
 }
 
 async fn enable_forwarding() -> Result<()> {
-    let mut cmd = Command::new("sysctl");
-    cmd.arg("net.ipv4.ip_forward=1");
-    let output = cmd.output().await.map_err(Error::SysctlStart)?;
-    if !output.status.success() {
-        return Err(Error::SysctlFailed(output.status.code().unwrap()));
-    }
-
-    let mut cmd = Command::new("sysctl");
-    cmd.arg("net.ipv6.conf.all.forwarding=1");
-    let output = cmd.output().await.map_err(Error::SysctlStart)?;
-    if !output.status.success() {
-        return Err(Error::SysctlFailed(output.status.code().unwrap()));
-    }
-
+    let sysctl = "/usr/sbin/sysctl";
+    let run = async |cmd: &mut Command| {
+        let exit_status = cmd.output().await.map_err(Error::SysctlStart)?.status;
+        match exit_status.success() {
+            true => Ok(()),
+            false => Err(Error::SysctlFailed(exit_status.code().unwrap())),
+        }
+    };
+    run(Command::new(sysctl).arg("net.ipv4.ip_forward=1")).await?;
+    run(Command::new(sysctl).arg("net.ipv6.conf.all.forwarding=1")).await?;
     Ok(())
 }
