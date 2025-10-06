@@ -254,7 +254,7 @@ jobs:
           read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Wait for other jobs (native, relay list)
-        uses: kachick/wait-other-jobs@v3.6.0
+        uses: kachick/wait-other-jobs@v3.8.1
         with:
           wait-seconds-before-first-polling: '0'
           wait-list: |
