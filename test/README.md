@@ -54,11 +54,18 @@ This lets us monitor traffic on network interfaces without root access.
 
 For running tests on Linux and Windows guests, you will need these tools and libraries:
 
+#### Fedora
 ```bash
 dnf install git gcc protobuf-devel libpcap-devel qemu \
     podman golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
     dbus-devel pkgconf-pkg-config swtpm edk2-ovmf \
     wireguard-tools
+```
+
+
+#### Debian / Ubuntu
+```bash
+apt install qemu-utils qemu-system-x86 libpcap-dev slirp4netns rootlesskit dnsmasq
 ```
 
 ## Setting up testing environment
