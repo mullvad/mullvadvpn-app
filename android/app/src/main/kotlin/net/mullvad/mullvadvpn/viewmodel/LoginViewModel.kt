@@ -190,7 +190,7 @@ class LoginViewModel(
                 Idle().also { _uiSideEffect.send(TooManyDevices(accountNumber)) }
             is LoginAccountError.InvalidInput ->
                 Idle(LoginUiStateError.LoginError.InvalidInput(accountNumber))
-            LoginAccountError.TimeOut,
+            LoginAccountError.Timeout,
             LoginAccountError.ApiUnreachable -> Idle(LoginUiStateError.LoginError.ApiUnreachable)
             LoginAccountError.TooManyAttempts -> Idle(LoginUiStateError.LoginError.TooManyAttempts)
             is LoginAccountError.Unknown ->
