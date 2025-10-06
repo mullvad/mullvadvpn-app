@@ -17,12 +17,15 @@ import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 
 data class ReportProblemUiState(
     val sendingState: SendingReportUiState? = null,
     val email: String = "",
     val description: String = "",
+    val showIncludeAccountToken: Boolean = false,
+    val includeAccountToken: Boolean = false,
 )
 
 sealed interface SendingReportUiState {
@@ -40,16 +43,25 @@ sealed interface ReportProblemSideEffect {
 class ReportProblemViewModel(
     private val mullvadProblemReporter: MullvadProblemReport,
     private val problemReportRepository: ProblemReportRepository,
+    accountRepository: AccountRepository,
 ) : ViewModel() {
 
     private val sendingState: MutableStateFlow<SendingReportUiState?> = MutableStateFlow(null)
+    private val includeAccountTokenState: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     val uiState =
-        combine(sendingState, problemReportRepository.problemReport) { pendingState, userReport ->
+        combine(
+                sendingState,
+                includeAccountTokenState,
+                problemReportRepository.problemReport,
+                accountRepository.accountData,
+            ) { sendingState, includeAccountToken, userReport, accountData ->
                 ReportProblemUiState(
-                    sendingState = pendingState,
+                    sendingState = sendingState,
                     email = userReport.email ?: "",
                     description = userReport.description,
+                    showIncludeAccountToken = accountData != null,
+                    includeAccountToken = includeAccountToken,
                 )
             }
             .stateIn(
@@ -72,7 +84,10 @@ class ReportProblemViewModel(
 
                 // Ensure we show loading for at least MINIMUM_LOADING_TIME_MILLIS
                 val deferredResult = async {
-                    mullvadProblemReporter.sendReport(UserReport(nullableEmail, description))
+                    mullvadProblemReporter.sendReport(
+                        UserReport(nullableEmail, description),
+                        includeAccountTokenState.value,
+                    )
                 }
                 delay(MINIMUM_LOADING_TIME_MILLIS)
 
@@ -97,6 +112,10 @@ class ReportProblemViewModel(
 
     fun updateDescription(description: String) {
         problemReportRepository.setDescription(description)
+    }
+
+    fun onIncludeAccountTokenCheckChange(checked: Boolean) {
+        includeAccountTokenState.tryEmit(checked)
     }
 
     private fun shouldShowConfirmNoEmail(userEmail: String?): Boolean =
