@@ -13,7 +13,7 @@ sealed class LoginAccountError : Parcelable {
 
     data object TooManyAttempts : LoginAccountError()
 
-    data object TimeOut : LoginAccountError()
+    data object Timeout : LoginAccountError()
 
     data object ApiUnreachable : LoginAccountError()
 

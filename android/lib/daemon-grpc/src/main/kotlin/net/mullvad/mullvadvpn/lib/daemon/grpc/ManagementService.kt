@@ -348,7 +348,7 @@ class ManagementService(
                     Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
                     Status.Code.RESOURCE_EXHAUSTED ->
                         LoginAccountError.MaxDevicesReached(accountNumber)
-                    Status.Code.DEADLINE_EXCEEDED -> LoginAccountError.TimeOut
+                    Status.Code.DEADLINE_EXCEEDED -> LoginAccountError.Timeout
                     Status.Code.INVALID_ARGUMENT -> LoginAccountError.InvalidInput(accountNumber)
                     Status.Code.OUT_OF_RANGE -> LoginAccountError.TooManyAttempts
                     Status.Code.UNAVAILABLE -> LoginAccountError.ApiUnreachable
