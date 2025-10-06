@@ -350,11 +350,9 @@ where
 }
 
 pub async fn run_nft(input: &str) -> Result<()> {
-    let mut cmd = Command::new("nft");
-    cmd.args(["-f", "-"]);
-
-    cmd.stdin(Stdio::piped());
-
+    let nft = "/usr/sbin/nft";
+    let mut cmd = Command::new(nft);
+    cmd.args(["-f", "-"]).stdin(Stdio::piped());
     let mut child = cmd.spawn().map_err(Error::NftStart)?;
     let mut stdin = child.stdin.take().unwrap();
 
