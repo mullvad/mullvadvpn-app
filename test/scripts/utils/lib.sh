@@ -98,7 +98,7 @@ function get_e2e_filename {
         version="${BUILD_VERSION}${COMMIT_HASH}"
     fi
     case $os in
-    debian* | ubuntu* | fedora*)
+    debian* | ubuntu* | fedora* | mint*)
         echo "app-e2e-tests-${version}-x86_64-unknown-linux-gnu"
         ;;
     windows*)
@@ -122,7 +122,7 @@ function get_app_filename {
         version="${BUILD_VERSION}${COMMIT_HASH}${TAG:-}"
     fi
     case $os in
-    debian* | ubuntu*)
+    debian* | ubuntu* | mint*)
         echo "MullvadVPN-${version}_amd64.deb"
         ;;
     fedora*)
