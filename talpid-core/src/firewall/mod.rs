@@ -4,7 +4,6 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    sync::LazyLock,
 };
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
@@ -41,13 +40,10 @@ const ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 const SOLICITED_NODE_MULTICAST: Ipv6Network =
     Ipv6Network::new_checked(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap();
-
-static LOOPBACK_NETS: LazyLock<[IpNetwork; 2]> = LazyLock::new(|| {
-    [
-        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
-        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap()),
-    ]
-});
+const LOOPBACK_NETS: [IpNetwork; 2] = [
+    IpNetwork::V4(Ipv4Network::new_checked(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
+    IpNetwork::V6(Ipv6Network::new_checked(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap()),
+];
 
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV4_SERVER_PORT: u16 = 67;
@@ -64,7 +60,7 @@ const ROOT_UID: u32 = 0;
 pub fn is_local_address(address: IpAddr) -> bool {
     ALLOWED_LAN_NETS
         .iter()
-        .chain(&*LOOPBACK_NETS)
+        .chain(&LOOPBACK_NETS)
         .any(|net| net.contains(address))
 }
 
