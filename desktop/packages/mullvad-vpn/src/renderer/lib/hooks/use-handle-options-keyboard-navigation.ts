@@ -4,9 +4,9 @@ import { getOptions } from '../utils';
 import { useFocusOptionByIndex } from './use-focus-option-by-index';
 import { useGetInitialFocusIndex } from './use-get-initial-focus-index';
 
-export type Orientation = 'horizontal' | 'vertical';
+export type KeyboardNavigationOrientation = 'horizontal' | 'vertical';
 
-export const useHandleKeyboardNavigation = <T extends HTMLElement>({
+export const useHandleOptionsKeyboardNavigation = <T extends HTMLElement>({
   optionsRef,
   focusedIndex,
   setFocusedIndex,
@@ -16,7 +16,7 @@ export const useHandleKeyboardNavigation = <T extends HTMLElement>({
   optionsRef: React.RefObject<T | null>;
   focusedIndex?: number;
   setFocusedIndex: (index: number) => void;
-  orientation?: Orientation;
+  orientation?: KeyboardNavigationOrientation;
   selector: string;
 }) => {
   const getInitialFocusIndex = useGetInitialFocusIndex({ optionsRef, focusedIndex, selector });
