@@ -80,7 +80,6 @@ pub enum FeatureIndicator {
     CustomDns,
     ServerIpOverride,
     CustomMtu,
-    CustomMssFix,
 
     /// Whether DAITA (without multihop) is in use.
     /// Mutually exclusive with [FeatureIndicator::DaitaMultihop].
@@ -108,7 +107,6 @@ impl FeatureIndicator {
             FeatureIndicator::CustomDns => "Custom Dns",
             FeatureIndicator::ServerIpOverride => "Server Ip Override",
             FeatureIndicator::CustomMtu => "Custom MTU",
-            FeatureIndicator::CustomMssFix => "Custom MSS",
             FeatureIndicator::Daita => "DAITA",
             FeatureIndicator::DaitaMultihop => "DAITA: Multihop",
         }
@@ -163,12 +161,8 @@ pub fn compute_feature_indicators(
     let protocol_features = match endpoint.tunnel_type {
         TunnelType::OpenVpn => {
             let bridge_mode = endpoint.proxy.is_some();
-            let mss_fix = settings.tunnel_options.openvpn.mssfix.is_some();
 
-            vec![
-                (bridge_mode, FeatureIndicator::BridgeMode),
-                (mss_fix, FeatureIndicator::CustomMssFix),
-            ]
+            vec![(bridge_mode, FeatureIndicator::BridgeMode)]
         }
         TunnelType::Wireguard => {
             let quantum_resistant = endpoint.quantum_resistant;
@@ -303,15 +297,7 @@ mod tests {
             expected_indicators
         );
 
-        settings.tunnel_options.openvpn.mssfix = Some(1300);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators,
-            "Setting mssfix without having an openVPN endpoint should not result in an indicator"
-        );
-
         endpoint.tunnel_type = TunnelType::OpenVpn;
-        expected_indicators.0.insert(FeatureIndicator::CustomMssFix);
 
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
@@ -333,9 +319,6 @@ mod tests {
         );
 
         endpoint.tunnel_type = TunnelType::Wireguard;
-        expected_indicators
-            .0
-            .remove(&FeatureIndicator::CustomMssFix);
         expected_indicators.0.remove(&FeatureIndicator::BridgeMode);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
@@ -469,7 +452,6 @@ mod tests {
             FeatureIndicator::CustomDns => {}
             FeatureIndicator::ServerIpOverride => {}
             FeatureIndicator::CustomMtu => {}
-            FeatureIndicator::CustomMssFix => {}
             FeatureIndicator::Daita => {}
             FeatureIndicator::DaitaMultihop => {}
         }

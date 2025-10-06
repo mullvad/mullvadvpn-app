@@ -328,9 +328,8 @@ enum FeatureIndicator {
   CUSTOM_DNS = 11;
   SERVER_IP_OVERRIDE = 12;
   CUSTOM_MTU = 13;
-  CUSTOM_MSS_FIX = 14;
-  DAITA = 15;
-  DAITA_MULTIHOP = 16;
+  DAITA = 14;
+  DAITA_MULTIHOP = 15;
 }
 
 message ObfuscationInfo {
