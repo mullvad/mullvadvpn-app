@@ -96,8 +96,8 @@ class AlertViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
 
         view.layoutIfNeeded()
         scrollViewHeightConstraint.constant = scrollView.contentSize.height
