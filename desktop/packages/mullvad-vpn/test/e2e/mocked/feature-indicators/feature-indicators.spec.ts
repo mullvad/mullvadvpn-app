@@ -198,7 +198,6 @@ test.describe('Feature indicators', () => {
     await helpers.connectWithFeatures([
       FeatureIndicator.daita,
       FeatureIndicator.udp2tcp,
-      FeatureIndicator.customMssFix,
       FeatureIndicator.customMtu,
       FeatureIndicator.lanSharing,
       FeatureIndicator.serverIpOverride,
@@ -216,7 +215,6 @@ test.describe('Feature indicators', () => {
     await expectFeatureIndicators([
       'DAITA',
       'Quantum resistance',
-      'Mssfix',
       'MTU',
       'Obfuscation',
       'Local network sharing',
