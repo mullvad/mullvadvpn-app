@@ -28,10 +28,7 @@ use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     BoxedError, ErrorExt,
-    net::{
-        AllowedTunnelTraffic, Endpoint, TransportProtocol,
-        wireguard::{PeerConfig, TunnelParameters},
-    },
+    net::{AllowedTunnelTraffic, Endpoint, TransportProtocol, wireguard::TunnelParameters},
 };
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -162,21 +159,16 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
+        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test it
+        // TODO: Consider removing `cfg!(feature = "boringtun")`
+        let userspace_wireguard =
+            *FORCE_USERSPACE_WIREGUARD || params.options.daita || cfg!(feature = "boringtun");
+        let userspace_multihop = userspace_wireguard && cfg!(feature = "boringtun");
+
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
-
-        let userspace_multihop = true; // TODO
-
-        let tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
-            let mut overhead = wireguard_overhead(&params.connection.peer);
-            if let Some(exit_peer) = &params.connection.exit_peer
-                && userspace_multihop
-            {
-                overhead += wireguard_overhead(exit_peer);
-            }
-            clamp_tunnel_mtu(params, route_mtu.saturating_sub(dbg!(overhead)))
-        });
+        let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_multihop);
 
         let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
@@ -206,11 +198,6 @@ impl WireguardMonitor {
                 config.mtu.saturating_sub(obfuscator.packet_overhead()),
             );
         }
-
-        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test it
-        // TODO: Consider removing `cfg!(feature = "boringtun")`
-        let userspace_wireguard =
-            *FORCE_USERSPACE_WIREGUARD || config.daita || cfg!(feature = "boringtun");
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
@@ -437,11 +424,12 @@ impl WireguardMonitor {
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
 
-        let tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
-            clamp_tunnel_mtu(params, route_mtu.saturating_sub(wireguard_overhead(params)))
-        });
+        // TODO: previously, we didn't account for userspace multihop on android.
+        // but it seems correct to do so.
+        let userspace_multihop = true;
 
-        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
+        let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_multihop);
+        let mut config = crate::config::Config::from_parameters(params, calculate_tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
 
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
@@ -995,6 +983,7 @@ impl WireguardMonitor {
         config: &Config,
         userspace_wireguard: bool,
     ) -> RequiredRoute {
+        // TODO: surely this applies to all kinds of userspace multihop, not just gotatun?
         // For userspace multihop, per-route MTU is unnecessary. Packets are not sent back to
         // the tunnel interface, so we're not constrained by its MTU.
         let using_boringtun = userspace_wireguard && cfg!(feature = "boringtun");
@@ -1002,18 +991,16 @@ impl WireguardMonitor {
         if !config.is_multihop() || using_boringtun {
             route
         } else {
-            use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
-
+            // FIXME: this presumably refers to the fact that wireguard can pad data packet
+            //        payload lengths to a multiple of 16 bytes, but that number musn't,
+            //        according to wg spec, exceed the MTU anyway, so why do we subtract 15 here?
+            //
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU. Plus
             // some margin to make room for padding bytes.
-            let ip_overhead = match route.prefix.is_ipv4() {
-                true => IPV4_HEADER_SIZE,
-                false => IPV6_HEADER_SIZE,
-            };
             const PADDING_BYTES_MARGIN: u16 = 15;
-            let mtu = config.mtu - ip_overhead - WIREGUARD_HEADER_SIZE - PADDING_BYTES_MARGIN;
+            let mtu = config.mtu - wireguard_overhead(route.prefix.ip()) - PADDING_BYTES_MARGIN;
 
-            route.mtu(mtu)
+            route.with_mtu(mtu)
         }
     }
 
@@ -1184,13 +1171,12 @@ const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
     1380
 };
 
-/// Get MTU based on the physical interface route
+/// Get the link-MTU of the route to the (entry) peer.
 #[cfg(any(target_os = "linux", target_os = "windows"))]
 async fn get_route_mtu(
     params: &TunnelParameters,
     route_manager: &talpid_routing::RouteManagerHandle,
 ) -> u16 {
-    // Get the MTU of the device/route
     route_manager
         .get_mtu_for_route(params.connection.peer.endpoint.ip())
         .await
@@ -1206,6 +1192,28 @@ async fn get_route_mtu(
     route_manager: &talpid_routing::RouteManagerHandle,
 ) -> u16 {
     DEFAULT_MTU
+}
+
+/// Calculate what the MTU on the tunnel link should be.
+fn calculate_tunnel_mtu(
+    link_mtu_for_peer: u16,
+    params: &TunnelParameters,
+    userspace_multihop: bool,
+) -> u16 {
+    if let Some(mtu) = params.options.mtu {
+        return mtu;
+    }
+
+    let mut overhead = wireguard_overhead(params.connection.peer.endpoint.ip());
+
+    // only reduce tunnel_mtu for *userspace* multihop.
+    // For kernel-multihop, traffic to the exit peer is routed back through the tunnel link,
+    // so the MTU on that link must be larger to account for multihop overhead
+    if userspace_multihop && let Some(exit_peer) = &params.connection.exit_peer {
+        overhead += wireguard_overhead(exit_peer.endpoint.ip());
+    }
+
+    clamp_tunnel_mtu(params, link_mtu_for_peer.saturating_sub(overhead))
 }
 
 /// Clamp WireGuard tunnel MTU to reasonable values
@@ -1226,14 +1234,15 @@ fn clamp_tunnel_mtu(params: &TunnelParameters, mtu: u16) -> u16 {
 
     // The largest peer MTU that we allow
     // TODO: userspace multihop?
-    let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - wireguard_overhead(&params.connection.peer);
+    let max_peer_mtu: u16 =
+        1500 - MTU_SAFETY_MARGIN - wireguard_overhead(params.connection.peer.endpoint.ip());
 
     mtu.clamp(min_mtu, max_peer_mtu)
 }
 
 /// Calculates WireGuard per-packet overhead
-const fn wireguard_overhead(peer: &PeerConfig) -> u16 {
-    match peer.endpoint.ip() {
+const fn wireguard_overhead(ip_version: IpAddr) -> u16 {
+    match ip_version {
         IpAddr::V4(..) => IPV4_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
         IpAddr::V6(..) => IPV6_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
     }
