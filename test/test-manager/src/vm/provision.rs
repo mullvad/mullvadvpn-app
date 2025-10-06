@@ -114,7 +114,11 @@ fn blocking_ssh(
         OsType::Macos | OsType::Linux => r"/tmp/",
     };
 
-    let stream = TcpStream::connect(SocketAddr::new(guest_ip, 22)).context("TCP connect failed")?;
+    let stream = {
+        let ssh = SocketAddr::new(guest_ip, 22);
+        log::debug!("Connecting to {user}@{ssh} over ssh");
+        TcpStream::connect(ssh).context("TCP connect failed")?
+    };
 
     let mut session = Session::new().context("Failed to connect to SSH server")?;
     session.set_tcp_stream(stream);
