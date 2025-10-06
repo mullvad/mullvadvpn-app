@@ -267,7 +267,7 @@ pub async fn open_boringtun_tunnel(
 /// Create and configure boringtun devices.
 ///
 /// Will create an [EntryDevice] and an [ExitDevice] if `config` is a multihop config,
-/// and a [SingleHopConfig] otherwise.
+/// and a [SinglehopDevice] otherwise.
 async fn create_devices(
     config: &Config, // TODO: do not include config to reduce confusion
     daita: Option<&DaitaSettings>,
