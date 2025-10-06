@@ -68,7 +68,6 @@ impl FromIterator<FeatureIndicator> for FeatureIndicators {
 pub enum FeatureIndicator {
     QuantumResistance,
     Multihop,
-    BridgeMode,
     SplitTunneling,
     LockdownMode,
     Udp2Tcp,
@@ -95,7 +94,6 @@ impl FeatureIndicator {
         match self {
             FeatureIndicator::QuantumResistance => "Quantum Resistance",
             FeatureIndicator::Multihop => "Multihop",
-            FeatureIndicator::BridgeMode => "Bridge Mode",
             FeatureIndicator::SplitTunneling => "Split Tunneling",
             FeatureIndicator::LockdownMode => "Lockdown Mode",
             FeatureIndicator::Udp2Tcp => "Udp2Tcp",
@@ -159,11 +157,7 @@ pub fn compute_feature_indicators(
 
     // Pick protocol-specific features and whether they are currently enabled.
     let protocol_features = match endpoint.tunnel_type {
-        TunnelType::OpenVpn => {
-            let bridge_mode = endpoint.proxy.is_some();
-
-            vec![(bridge_mode, FeatureIndicator::BridgeMode)]
-        }
+        TunnelType::OpenVpn => vec![],
         TunnelType::Wireguard => {
             let quantum_resistant = endpoint.quantum_resistant;
 
@@ -312,14 +306,12 @@ mod tests {
             proxy_type: ProxyType::Shadowsocks,
         });
 
-        expected_indicators.0.insert(FeatureIndicator::BridgeMode);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
         endpoint.tunnel_type = TunnelType::Wireguard;
-        expected_indicators.0.remove(&FeatureIndicator::BridgeMode);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
@@ -440,7 +432,6 @@ mod tests {
         match FeatureIndicator::QuantumResistance {
             FeatureIndicator::QuantumResistance => {}
             FeatureIndicator::Multihop => {}
-            FeatureIndicator::BridgeMode => {}
             FeatureIndicator::SplitTunneling => {}
             FeatureIndicator::LockdownMode => {}
             FeatureIndicator::Udp2Tcp => {}
