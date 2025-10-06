@@ -65,8 +65,11 @@ dnf install git gcc protobuf-devel libpcap-devel qemu \
 
 #### Debian / Ubuntu
 ```bash
-apt install qemu-utils qemu-system-x86 libpcap-dev slirp4netns rootlesskit dnsmasq
+apt install qemu-utils qemu-system-x86 libpcap-dev slirp4netns rootlesskit dnsmasq nftables
 ```
+
+##### Note for Debian
+By default `sysctl` is only invokable by root.
 
 ## Setting up testing environment
 
