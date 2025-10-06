@@ -288,6 +288,5 @@ class LoginViewModelTest {
 
     companion object {
         private val DUMMY_ACCOUNT_NUMBER = AccountNumber("DUMMY")
-        private const val EXPECTED_RPC_ERROR_MESSAGE = "RpcError"
     }
 }
