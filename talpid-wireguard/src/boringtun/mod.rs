@@ -519,7 +519,7 @@ impl Tunnel for BoringTun {
         Box::pin(async move {
             let old_config = std::mem::replace(&mut self.config, config);
 
-            // if we're switching too/from multihop, we'll need to tear down the old device(s)
+            // if we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
             let recreate_devices = old_config.is_multihop() != self.config.is_multihop();
 
