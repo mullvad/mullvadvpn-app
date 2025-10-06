@@ -467,7 +467,7 @@ impl<'a> PolicyBatch<'a> {
         for chain in &[&self.out_chain, &self.forward_chain] {
             for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
                 let mut out_v6 = Rule::new(chain);
-                check_net(&mut out_v6, End::Src, *super::IPV6_LINK_LOCAL);
+                check_net(&mut out_v6, End::Src, super::IPV6_LINK_LOCAL);
                 check_port(&mut out_v6, Udp, End::Src, super::DHCPV6_CLIENT_PORT);
                 check_ip(&mut out_v6, End::Dst, *dhcpv6_server);
                 check_port(&mut out_v6, Udp, End::Dst, super::DHCPV6_SERVER_PORT);
@@ -477,9 +477,9 @@ impl<'a> PolicyBatch<'a> {
         }
         for chain in &[&self.in_chain, &self.forward_chain] {
             let mut in_v6 = Rule::new(chain);
-            check_net(&mut in_v6, End::Src, *super::IPV6_LINK_LOCAL);
+            check_net(&mut in_v6, End::Src, super::IPV6_LINK_LOCAL);
             check_port(&mut in_v6, Udp, End::Src, super::DHCPV6_SERVER_PORT);
-            check_net(&mut in_v6, End::Dst, *super::IPV6_LINK_LOCAL);
+            check_net(&mut in_v6, End::Dst, super::IPV6_LINK_LOCAL);
             check_port(&mut in_v6, Udp, End::Dst, super::DHCPV6_CLIENT_PORT);
             add_verdict(&mut in_v6, &Verdict::Accept);
             self.batch.add(&in_v6, nftnl::MsgType::Add);
@@ -505,7 +505,7 @@ impl<'a> PolicyBatch<'a> {
         // Incoming Router advertisement (part of NDP)
         for chain in &[&self.in_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Src, *super::IPV6_LINK_LOCAL);
+            check_net(&mut rule, End::Src, super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 134, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
@@ -513,7 +513,7 @@ impl<'a> PolicyBatch<'a> {
         // Incoming Redirect (part of NDP)
         for chain in &[&self.in_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Src, *super::IPV6_LINK_LOCAL);
+            check_net(&mut rule, End::Src, super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 137, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
@@ -528,7 +528,7 @@ impl<'a> PolicyBatch<'a> {
         }
         for chain in &[&self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Dst, *super::IPV6_LINK_LOCAL);
+            check_net(&mut rule, End::Dst, super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 135, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
@@ -536,7 +536,7 @@ impl<'a> PolicyBatch<'a> {
         // Incoming Neighbor solicitation (part of NDP)
         for chain in &[&self.in_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Src, *super::IPV6_LINK_LOCAL);
+            check_net(&mut rule, End::Src, super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 135, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
@@ -544,7 +544,7 @@ impl<'a> PolicyBatch<'a> {
         // Outgoing Neighbor advertisement (part of NDP)
         for chain in &[&self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Dst, *super::IPV6_LINK_LOCAL);
+            check_net(&mut rule, End::Dst, super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 136, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);

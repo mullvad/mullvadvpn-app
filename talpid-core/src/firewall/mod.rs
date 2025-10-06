@@ -27,8 +27,8 @@ mod imp;
 pub use self::imp::Error;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static IPV6_LINK_LOCAL: LazyLock<Ipv6Network> =
-    LazyLock::new(|| Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
+const IPV6_LINK_LOCAL: Ipv6Network =
+    Ipv6Network::new_checked(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
 /// The allowed target addresses of outbound DHCPv6 requests
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 static DHCPV6_SERVER_ADDRS: LazyLock<[Ipv6Addr; 2]> = LazyLock::new(|| {
