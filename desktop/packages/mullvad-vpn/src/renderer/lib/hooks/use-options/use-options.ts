@@ -1,10 +1,7 @@
 import React from 'react';
 
-import { getInitialOption, getOptions } from '../utils';
-import {
-  KeyboardNavigationOrientation,
-  useHandleOptionsKeyboardNavigation,
-} from './use-handle-options-keyboard-navigation';
+import { type KeyboardNavigationOrientation, useHandleOptionsKeyboardNavigation } from './hooks';
+import { getInitialOption, getOptions } from './utils';
 
 export type UseOptionsProps<T extends HTMLElement> = {
   optionsRef: React.RefObject<T | null>;

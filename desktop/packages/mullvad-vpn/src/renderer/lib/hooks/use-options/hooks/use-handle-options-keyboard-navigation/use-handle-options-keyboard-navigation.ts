@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { getOptions } from '../utils';
-import { useFocusOptionByIndex } from './use-focus-option-by-index';
-import { useGetInitialFocusIndex } from './use-get-initial-focus-index';
+import { getOptions } from '../../utils';
+import { useFocusOptionByIndex, useGetInitialFocusIndex } from './hooks';
 
 export type KeyboardNavigationOrientation = 'horizontal' | 'vertical';
 
