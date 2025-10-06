@@ -6,7 +6,6 @@ impl From<mullvad_types::features::FeatureIndicator> for proto::FeatureIndicator
         match feature {
             mullvad_types::features::FeatureIndicator::QuantumResistance => QuantumResistance,
             mullvad_types::features::FeatureIndicator::Multihop => Multihop,
-            mullvad_types::features::FeatureIndicator::BridgeMode => BridgeMode,
             mullvad_types::features::FeatureIndicator::SplitTunneling => SplitTunneling,
             mullvad_types::features::FeatureIndicator::LockdownMode => LockdownMode,
             mullvad_types::features::FeatureIndicator::Udp2Tcp => Udp2Tcp,
@@ -29,7 +28,6 @@ impl From<proto::FeatureIndicator> for mullvad_types::features::FeatureIndicator
         match feature {
             proto::FeatureIndicator::QuantumResistance => Self::QuantumResistance,
             proto::FeatureIndicator::Multihop => Self::Multihop,
-            proto::FeatureIndicator::BridgeMode => Self::BridgeMode,
             proto::FeatureIndicator::SplitTunneling => Self::SplitTunneling,
             proto::FeatureIndicator::LockdownMode => Self::LockdownMode,
             proto::FeatureIndicator::Udp2Tcp => Self::Udp2Tcp,
