@@ -357,7 +357,9 @@ private fun LoginState.title(): String =
             when (this) {
                 is Idle ->
                     when (this.loginUiStateError) {
-                        is LoginUiStateError -> R.string.login_fail_title
+                        is LoginUiStateError.LoginError -> R.string.login_fail_title
+                        is LoginUiStateError.CreateAccountError ->
+                            R.string.create_account_fail_title
                         null -> R.string.login_title
                     }
                 is Loading -> R.string.logging_in_title

@@ -446,6 +446,7 @@
     <string name="android_16_upgrade_warning_dialog_second_message">Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English.</string>
     <string name="click_here">click here</string>
     <string name="login_error_api_unreachable">Unable to reach the api</string>
-    <string name="login_error_too_many_attempts">Too many login attempts, try again later</string>
+    <string name="login_error_too_many_attempts">Too many attempts, try again later</string>
     <string name="login_error_invalid_input">Account number is too long</string>
+    <string name="create_account_fail_title">Creating account failed</string>
 </resources>
