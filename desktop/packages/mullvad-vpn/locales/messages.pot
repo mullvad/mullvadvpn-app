@@ -2942,6 +2942,9 @@ msgstr ""
 msgid "Account credit expires soon"
 msgstr ""
 
+msgid "Account number is too long"
+msgstr ""
+
 msgid "Account time reminders"
 msgstr ""
 
@@ -3422,10 +3425,16 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
+msgid "Too many login attempts, try again later"
+msgstr ""
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
 msgid "Unable to parse patch"
+msgstr ""
+
+msgid "Unable to reach the api"
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
