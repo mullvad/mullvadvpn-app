@@ -15,7 +15,8 @@ import kotlinx.coroutines.runBlocking
 class TrafficGenerator(val destinationHost: String, val destinationPort: Int) {
     private var sendTrafficJob: Job? = null
 
-    suspend fun generateTraffic(interval: Duration, block: suspend () -> Unit) = runBlocking {
+    // runBlocking is intended so we don't skip delay when running tests.
+    fun generateTraffic(interval: Duration, block: suspend () -> Unit) = runBlocking {
         startGeneratingUDPTraffic(interval)
         block()
         stopGeneratingUDPTraffic()
