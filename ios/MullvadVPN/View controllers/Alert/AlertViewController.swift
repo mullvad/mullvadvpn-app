@@ -98,11 +98,12 @@ class AlertViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        refreshLayout()
+    }
 
-        view.layoutIfNeeded()
-        scrollViewHeightConstraint.constant = scrollView.contentSize.height
-
-        adjustButtonMargins()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        refreshLayout()
     }
 
     override func viewDidLoad() {
@@ -184,6 +185,13 @@ class AlertViewController: UIViewController {
                 trailingConstraint
             }
         }
+    }
+
+    private func refreshLayout() {
+        view.layoutIfNeeded()
+        scrollViewHeightConstraint.constant = scrollView.contentSize.height
+
+        adjustButtonMargins()
     }
 
     private func adjustButtonMargins() {
