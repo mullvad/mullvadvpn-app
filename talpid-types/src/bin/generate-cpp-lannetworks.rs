@@ -15,12 +15,12 @@ fn generate_allowed_nets_cpp_header(mut w: impl Write) -> io::Result<()> {
     writeln!(w)?;
 
     let (ipv4_nets, ipv6_nets): (Vec<IpNetwork>, _) =
-        (*ALLOWED_LAN_NETS).iter().partition(|net| net.is_ipv4());
+        ALLOWED_LAN_NETS.iter().partition(|net| net.is_ipv4());
     generate_ip_network_cpp_definitions(&mut w, "g_ipv4LanNets", &ipv4_nets)?;
     generate_ip_network_cpp_definitions(&mut w, "g_ipv6LanNets", &ipv6_nets)?;
 
     let (ipv4_multicast_nets, ipv6_multicast_nets): (Vec<IpNetwork>, _) =
-        (*ALLOWED_LAN_MULTICAST_NETS)
+        ALLOWED_LAN_MULTICAST_NETS
             .iter()
             .partition(|net| net.is_ipv4());
     generate_ip_network_cpp_definitions(&mut w, "g_ipv4MulticastNets", &ipv4_multicast_nets)?;

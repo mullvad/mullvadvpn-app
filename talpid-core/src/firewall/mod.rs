@@ -63,9 +63,8 @@ const DHCPV6_CLIENT_PORT: u16 = 546;
 const ROOT_UID: u32 = 0;
 
 /// Returns whether an address belongs to a private subnet.
-pub fn is_local_address(address: &IpAddr) -> bool {
-    let address = *address;
-    (*ALLOWED_LAN_NETS)
+pub fn is_local_address(address: IpAddr) -> bool {
+    ALLOWED_LAN_NETS
         .iter()
         .chain(&*LOOPBACK_NETS)
         .any(|net| net.contains(address))
