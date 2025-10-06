@@ -37,12 +37,11 @@ const DHCPV6_SERVER_ADDRS: [Ipv6Addr; 2] = [
 ];
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static ROUTER_SOLICITATION_OUT_DST_ADDR: LazyLock<Ipv6Addr> =
-    LazyLock::new(|| Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));
+const ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static SOLICITED_NODE_MULTICAST: LazyLock<Ipv6Network> = LazyLock::new(|| {
-    Ipv6Network::new(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap()
-});
+const SOLICITED_NODE_MULTICAST: Ipv6Network =
+    Ipv6Network::new_checked(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap();
+
 static LOOPBACK_NETS: LazyLock<[IpNetwork; 2]> = LazyLock::new(|| {
     [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
