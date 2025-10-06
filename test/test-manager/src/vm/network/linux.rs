@@ -219,7 +219,8 @@ impl NetworkHandle {
 /// dnsmasq will serve IPv4 addresses within the range [TEST_SUBNET_IPV4_DHCP] using regular DHCP.
 /// It will also advertise SLAAC for IPv6 within [TEST_SUBNET_IPV6].
 async fn start_dnsmasq() -> Result<DhcpProcHandle> {
-    let mut cmd = Command::new("dnsmasq");
+    let dnsmasq = "/usr/sbin/dnsmasq";
+    let mut cmd = Command::new(dnsmasq);
 
     cmd.kill_on_drop(true);
     cmd.stdout(Stdio::piped());
