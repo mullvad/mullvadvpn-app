@@ -31,12 +31,11 @@ const IPV6_LINK_LOCAL: Ipv6Network =
     Ipv6Network::new_checked(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
 /// The allowed target addresses of outbound DHCPv6 requests
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static DHCPV6_SERVER_ADDRS: LazyLock<[Ipv6Addr; 2]> = LazyLock::new(|| {
-    [
-        Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
-        Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
-    ]
-});
+const DHCPV6_SERVER_ADDRS: [Ipv6Addr; 2] = [
+    Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
+    Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
+];
+
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 static ROUTER_SOLICITATION_OUT_DST_ADDR: LazyLock<Ipv6Addr> =
     LazyLock::new(|| Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));

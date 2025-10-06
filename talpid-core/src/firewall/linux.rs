@@ -465,11 +465,11 @@ impl<'a> PolicyBatch<'a> {
         }
 
         for chain in &[&self.out_chain, &self.forward_chain] {
-            for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
+            for dhcpv6_server in super::DHCPV6_SERVER_ADDRS {
                 let mut out_v6 = Rule::new(chain);
                 check_net(&mut out_v6, End::Src, super::IPV6_LINK_LOCAL);
                 check_port(&mut out_v6, Udp, End::Src, super::DHCPV6_CLIENT_PORT);
-                check_ip(&mut out_v6, End::Dst, *dhcpv6_server);
+                check_ip(&mut out_v6, End::Dst, dhcpv6_server);
                 check_port(&mut out_v6, Udp, End::Dst, super::DHCPV6_SERVER_PORT);
                 add_verdict(&mut out_v6, &Verdict::Accept);
                 self.batch.add(&out_v6, nftnl::MsgType::Add);
