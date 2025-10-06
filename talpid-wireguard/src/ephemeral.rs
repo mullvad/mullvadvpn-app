@@ -145,7 +145,6 @@ async fn config_ephemeral_peers_inner(
         )
         .await?;
 
-        log::info!("request_ephemeral_peer");
         let entry_ephemeral_peer = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
@@ -161,7 +160,8 @@ async fn config_ephemeral_peers_inner(
     }
 
     config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
-    if config.daita && cfg!(not(feature = "boringtun")) {
+    if config.daita {
+        // NOTE: this option does nothing for GotaTun, and should be removed in future.
         log::trace!("Enabling constant packet size for entry peer");
         config.entry_peer.constant_packet_size = true;
     }
