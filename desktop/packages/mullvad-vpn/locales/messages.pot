@@ -3062,6 +3062,9 @@ msgstr ""
 msgid "Create new list"
 msgstr ""
 
+msgid "Creating account failed"
+msgstr ""
+
 msgid "Critical error (your attention is required)"
 msgstr ""
 
@@ -3425,7 +3428,7 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
-msgid "Too many login attempts, try again later"
+msgid "Too many attempts, try again later"
 msgstr ""
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
