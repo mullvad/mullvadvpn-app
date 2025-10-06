@@ -137,6 +137,7 @@ val uiModule = module {
             context = androidContext(),
             apiEndpointOverride = getOrNull(),
             apiEndpointFromIntentHolder = get(),
+            accountRepository = get(),
         )
     }
     single { RelayOverridesRepository(get()) }
@@ -268,7 +269,7 @@ val uiModule = module {
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { ReportProblemViewModel(get(), get()) }
+    viewModel { ReportProblemViewModel(get(), get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { FilterViewModel(get(), get()) }
