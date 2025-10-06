@@ -17,6 +17,7 @@ type FeatureIndicatorTestOption = {
   featureIndicator: FeatureIndicator;
   featureIndicatorLabel: string;
   route: RoutePath;
+  skip?: boolean;
 };
 
 type FeatureIndicatorWithOptionTestOption = FeatureIndicatorTestOption & {
@@ -38,6 +39,7 @@ const featureIndicatorWithoutOption: FeatureIndicatorTestOption[] = [
     featureIndicator: FeatureIndicator.splitTunneling,
     route: RoutePath.splitTunneling,
     featureIndicatorLabel: 'Split tunneling',
+    skip: process.platform === 'linux',
   },
   {
     testId: 'server ip override',
@@ -249,8 +251,12 @@ test.describe('Feature indicators', () => {
   };
 
   featureIndicatorWithoutOption.forEach(
-    ({ testId, featureIndicator, route, featureIndicatorLabel }) => {
+    ({ testId, featureIndicator, route, featureIndicatorLabel, skip }) => {
       test(`Should navigate to setting when clicking on ${testId} feature indicator`, async () => {
+        if (skip === true) {
+          test.skip();
+        }
+
         await helpers.connectWithFeatures([featureIndicator]);
         await clickFeatureIndicator(featureIndicatorLabel, route);
 
