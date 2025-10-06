@@ -1,14 +1,17 @@
 import React from 'react';
 
 import { getInitialOption, getOptions } from '../utils';
-import { Orientation, useHandleKeyboardNavigation } from './use-handle-keyboard-navigation';
+import {
+  KeyboardNavigationOrientation,
+  useHandleOptionsKeyboardNavigation,
+} from './use-handle-options-keyboard-navigation';
 
 export type UseOptionsProps<T extends HTMLElement> = {
   optionsRef: React.RefObject<T | null>;
   focusedIndex?: number;
   setFocusedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
   selector: string;
-  orientation?: Orientation;
+  orientation?: KeyboardNavigationOrientation;
 };
 
 export function useOptions<T extends HTMLElement>({
@@ -35,7 +38,7 @@ export function useOptions<T extends HTMLElement>({
     [optionsRef, selector],
   );
 
-  const handleKeyboardNavigation = useHandleKeyboardNavigation({
+  const handleKeyboardNavigation = useHandleOptionsKeyboardNavigation({
     optionsRef,
     setFocusedIndex,
     focusedIndex,
