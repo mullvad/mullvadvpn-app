@@ -65,7 +65,7 @@ dnf install git gcc protobuf-devel libpcap-devel qemu \
 
 #### Debian / Ubuntu
 ```bash
-apt install qemu-utils qemu-system-x86 libpcap-dev slirp4netns dnsmasq
+apt install qemu-utils qemu-system-x86 libpcap-dev slirp4netns rootlesskit dnsmasq
 ```
 
 ## Setting up testing environment
