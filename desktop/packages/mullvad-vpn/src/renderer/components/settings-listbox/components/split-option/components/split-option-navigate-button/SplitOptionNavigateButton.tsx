@@ -17,6 +17,7 @@ const StyledFlex = styled(Flex)`
 
 const StyledSplitOptionNavigateButton = styled.button`
   position: relative;
+  margin-bottom: 1px;
   &&::before {
     content: '';
     position: absolute;
