@@ -190,7 +190,7 @@ impl RequiredRoute {
 
     /// Set route MTU to the given value.
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    pub fn mtu(mut self, mtu: u16) -> Self {
+    pub fn with_mtu(mut self, mtu: u16) -> Self {
         self.mtu = Some(mtu);
         self
     }
