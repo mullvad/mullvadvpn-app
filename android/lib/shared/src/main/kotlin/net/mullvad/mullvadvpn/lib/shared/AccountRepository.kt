@@ -109,6 +109,8 @@ class AccountRepository(
         _isNewAccount.value = false
     }
 
+    fun getAccountToken(): String? = accountData.value?.id?.value?.toString()
+
     private fun ZonedDateTime?.canFetchAccountData(): Boolean =
         this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))
 }

@@ -1,5 +1,5 @@
 use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
-use regex::Regex;
+use regex::{Regex, Replacer};
 use std::{
     borrow::Cow,
     cmp::min,
@@ -259,6 +259,7 @@ fn write_logcat_to_file(log_dir: &Path) -> Result<PathBuf, io::Error> {
 pub fn send_problem_report(
     user_email: &str,
     user_message: &str,
+    account_token: &Option<&str>,
     report_path: &Path,
     cache_dir: &Path,
     endpoint: ApiEndpoint,
@@ -280,6 +281,7 @@ pub fn send_problem_report(
     runtime.block_on(send_problem_report_inner(
         user_email,
         user_message,
+        account_token,
         &report_content,
         cache_dir,
         &endpoint,
@@ -289,6 +291,7 @@ pub fn send_problem_report(
 async fn send_problem_report_inner(
     user_email: &str,
     user_message: &str,
+    account_token: &Option<&str>,
     report_content: &str,
     cache_dir: &Path,
     endpoint: &ApiEndpoint,
@@ -309,9 +312,19 @@ async fn send_problem_report_inner(
         api_runtime.mullvad_rest_handle(connection_mode.into_provider()),
     );
 
+    let message: String = match account_token {
+        Some(account_token) => {
+            let mut user_message_with_account_token = user_message.to_string();
+            user_message_with_account_token.push_str("\nAccountToken: ");
+            user_message_with_account_token.push_str(account_token);
+            user_message_with_account_token
+        }
+        None => user_message.to_string(),
+    };
+
     for _attempt in 0..MAX_SEND_ATTEMPTS {
         match api_client
-            .problem_report(user_email, user_message, report_content, &metadata)
+            .problem_report(user_email, message.as_str(), report_content, &metadata)
             .await
         {
             Ok(()) => {
