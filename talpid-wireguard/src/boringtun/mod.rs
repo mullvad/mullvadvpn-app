@@ -266,12 +266,18 @@ async fn create_devices(
     config: &Config, // TODO: do not include config to reduce confusion
     daita: Option<&DaitaSettings>,
     tun_dev: GotaTunDevice,
-    #[cfg(target_os = "android")] tun: Arc<Tun>,
+    #[cfg(target_os = "android")] android_tun: Arc<Tun>,
 ) -> Result<Devices, TunnelError> {
     let (entry_api, entry_api_server) = ApiServer::new();
     let boringtun_entry_config = DeviceConfig {
         api: Some(entry_api_server),
     };
+
+    #[cfg(target_os = "android")]
+    let udp_factory = AndroidUdpSocketFactory { tun: android_tun };
+
+    #[cfg(not(target_os = "android"))]
+    let udp_factory = UdpSocketFactory;
 
     let mut devices = if let Some(exit_peer) = &config.exit_peer {
         // Multihop setup
@@ -319,19 +325,13 @@ async fn create_devices(
         )
         .await;
 
-        #[cfg(target_os = "android")]
-        let factory = AndroidUdpSocketFactory { tun: tun_dev };
-
-        #[cfg(not(target_os = "android"))]
-        let factory = UdpSocketFactory;
-
         // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
         // See docs on wrap_in_pcap_sniffer for an explanation.
         #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
         let (tun_channel_tx, tun_channel_rx) = wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
 
         let entry_device = EntryDevice::new(
-            factory,
+            udp_factory,
             tun_channel_tx,
             tun_channel_rx,
             boringtun_entry_config,
@@ -347,14 +347,13 @@ async fn create_devices(
     } else {
         // Singlehop setup
 
-        #[cfg(target_os = "android")]
-        let factory = AndroidUdpSocketFactory { tun: tun_dev };
-
-        #[cfg(not(target_os = "android"))]
-        let factory = UdpSocketFactory;
-
-        let device =
-            SinglehopDevice::new(factory, tun_dev.clone(), tun_dev, boringtun_entry_config).await;
+        let device = SinglehopDevice::new(
+            udp_factory,
+            tun_dev.clone(),
+            tun_dev,
+            boringtun_entry_config,
+        )
+        .await;
 
         Devices::Singlehop {
             device,
