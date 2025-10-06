@@ -9,10 +9,9 @@ use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
 #[cfg(windows)]
 use std::io;
-#[cfg(not(target_os = "android"))]
-use std::net::IpAddr;
 use std::{
     convert::Infallible,
+    net::IpAddr,
     path::Path,
     pin::Pin,
     sync::{Arc, mpsc as sync_mpsc},
@@ -429,7 +428,7 @@ impl WireguardMonitor {
         let userspace_multihop = true;
 
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_multihop);
-        let mut config = crate::config::Config::from_parameters(params, calculate_tunnel_mtu)
+        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
 
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.

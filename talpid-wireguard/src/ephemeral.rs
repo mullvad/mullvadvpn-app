@@ -189,6 +189,7 @@ async fn config_ephemeral_peers_inner(
 async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     mut config: Config,
+    daita: Option<DaitaSettings>,
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -212,7 +213,7 @@ async fn reconfigure_tunnel(
         let mut tunnel = shared_tunnel.take().expect("tunnel was None");
 
         tunnel
-            .set_config(config.clone())
+            .set_config(config.clone(), daita)
             .await
             .map_err(Error::TunnelError)
             .map_err(CloseMsg::SetupError)?;
