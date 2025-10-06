@@ -25,6 +25,8 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
+import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.ClickableText
+import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.Text
 
 data class NotificationData(
     val title: AnnotatedString,
@@ -70,15 +72,18 @@ data class NotificationAction(
     val contentDescription: String,
 )
 
+@Suppress("LongMethod")
 @Composable
 fun InAppNotification.toNotificationData(
     isPlayBuild: Boolean,
     openAppListing: () -> Unit,
     onClickShowAccount: () -> Unit,
     onClickShowChangelog: () -> Unit,
+    onClickShowAndroid16UpgradeInfo: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onClickDismissAndroid16UpgradeWarning: () -> Unit,
 ) =
     when (this) {
         is InAppNotification.NewDevice ->
@@ -86,7 +91,7 @@ fun InAppNotification.toNotificationData(
                 title =
                     AnnotatedString(stringResource(id = R.string.new_device_notification_title)),
                 message =
-                    NotificationMessage.Text(
+                    Text(
                         stringResource(id = R.string.new_device_notification_message, deviceName)
                             .formatWithHtml()
                     ),
@@ -135,7 +140,7 @@ fun InAppNotification.toNotificationData(
             NotificationData(
                 title = stringResource(id = R.string.new_changelog_notification_title),
                 message =
-                    NotificationMessage.ClickableText(
+                    ClickableText(
                         text =
                             buildAnnotatedString {
                                 withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
@@ -155,6 +160,40 @@ fun InAppNotification.toNotificationData(
                     NotificationAction(
                         Icons.Default.Clear,
                         onClickDismissChangelog,
+                        stringResource(id = R.string.dismiss),
+                    ),
+            )
+
+        InAppNotification.Android16UpgradeWarning ->
+            NotificationData(
+                title = stringResource(id = R.string.android_16_upgrade_warning_title),
+                message =
+                    ClickableText(
+                        text =
+                            buildAnnotatedString {
+                                append(
+                                    stringResource(id = R.string.android_16_upgrade_warning_message)
+                                )
+                                append(SPACE_CHAR)
+                                withStyle(
+                                    SpanStyle(
+                                        textDecoration = TextDecoration.Underline,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                ) {
+                                    append(stringResource(R.string.click_here))
+                                }
+                                append(DOT_CHAR)
+                            },
+                        onClick = onClickShowAndroid16UpgradeInfo,
+                        contentDescription =
+                            stringResource(id = R.string.new_changelog_notification_message),
+                    ),
+                statusLevel = statusLevel,
+                action =
+                    NotificationAction(
+                        Icons.Default.Clear,
+                        onClickDismissAndroid16UpgradeWarning,
                         stringResource(id = R.string.dismiss),
                     ),
             )

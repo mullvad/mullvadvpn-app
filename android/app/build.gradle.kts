@@ -147,7 +147,8 @@ android {
             freeCompilerArgs =
                 listOf(
                     // Opt-in option for Koin annotation of KoinComponent.
-                    "-opt-in=kotlin.RequiresOptIn"
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-XXLanguage:+WhenGuards",
                 )
         }
     }

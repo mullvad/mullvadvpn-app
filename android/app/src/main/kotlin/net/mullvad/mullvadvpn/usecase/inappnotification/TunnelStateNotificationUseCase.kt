@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.usecase
+package net.mullvad.mullvadvpn.usecase.inappnotification
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -25,9 +25,9 @@ class TunnelStateNotificationUseCase(
     private val connectionProxy: ConnectionProxy,
     private val relayListRepository: RelayListRepository,
     private val settingsRepository: SettingsRepository,
-) {
+) : InAppNotificationUseCase {
     @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke(): Flow<List<InAppNotification>> =
+    override operator fun invoke(): Flow<InAppNotification?> =
         connectionProxy.tunnelState
             .distinctUntilChanged()
             .map(::tunnelStateNotification)
@@ -41,7 +41,6 @@ class TunnelStateNotificationUseCase(
                     )
                 }
             }
-            .map(::listOfNotNull)
             .distinctUntilChanged()
 
     private fun tunnelStateNotification(tunnelUiState: TunnelState): InAppNotification? =

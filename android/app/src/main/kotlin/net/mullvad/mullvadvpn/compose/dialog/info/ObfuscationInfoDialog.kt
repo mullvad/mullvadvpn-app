@@ -10,7 +10,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
+import net.mullvad.mullvadvpn.lib.ui.component.NEWLINE_STRING
 
 @Preview
 @Composable

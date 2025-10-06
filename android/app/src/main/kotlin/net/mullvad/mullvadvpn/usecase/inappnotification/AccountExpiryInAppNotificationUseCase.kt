@@ -1,5 +1,6 @@
-package net.mullvad.mullvadvpn.usecase
+package net.mullvad.mullvadvpn.usecase.inappnotification
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -11,10 +12,11 @@ import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.InAppAccountExpiryTicker
 
-class AccountExpiryInAppNotificationUseCase(private val accountRepository: AccountRepository) {
+class AccountExpiryInAppNotificationUseCase(private val accountRepository: AccountRepository) :
+    InAppNotificationUseCase {
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    operator fun invoke(): Flow<List<InAppNotification>> =
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override operator fun invoke(): Flow<InAppNotification?> =
         accountRepository.accountData
             .flatMapLatest { accountData ->
                 if (accountData != null) {
@@ -25,13 +27,13 @@ class AccountExpiryInAppNotificationUseCase(private val accountRepository: Accou
                         )
                         .map { tick ->
                             when (tick) {
-                                InAppAccountExpiryTicker.NotWithinThreshold -> emptyList()
+                                InAppAccountExpiryTicker.NotWithinThreshold -> null
                                 is InAppAccountExpiryTicker.Tick ->
-                                    listOf(InAppNotification.AccountExpiry(tick.expiresIn))
+                                    InAppNotification.AccountExpiry(tick.expiresIn)
                             }
                         }
                 } else {
-                    flowOf(emptyList())
+                    flowOf(null)
                 }
             }
             .distinctUntilChanged()

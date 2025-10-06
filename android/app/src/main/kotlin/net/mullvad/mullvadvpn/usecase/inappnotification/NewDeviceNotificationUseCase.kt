@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.usecase
+package net.mullvad.mullvadvpn.usecase.inappnotification
 
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -10,8 +10,8 @@ import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 class NewDeviceNotificationUseCase(
     private val newDeviceRepository: NewDeviceRepository,
     private val deviceRepository: DeviceRepository,
-) {
-    operator fun invoke() =
+) : InAppNotificationUseCase {
+    override operator fun invoke() =
         combine(
                 deviceRepository.deviceState.map { it?.displayName() },
                 newDeviceRepository.isNewDevice,
@@ -20,6 +20,5 @@ class NewDeviceNotificationUseCase(
                     InAppNotification.NewDevice(deviceName)
                 } else null
             }
-            .map(::listOfNotNull)
             .distinctUntilChanged()
 }

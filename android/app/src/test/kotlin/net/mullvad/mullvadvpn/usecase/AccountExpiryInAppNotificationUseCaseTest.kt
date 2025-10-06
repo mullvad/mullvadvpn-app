@@ -22,9 +22,11 @@ import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL
+import net.mullvad.mullvadvpn.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
@@ -55,14 +57,14 @@ class AccountExpiryInAppNotificationUseCaseTest {
     }
 
     @Test
-    fun `initial state should be empty`() = runTest {
-        accountExpiryInAppNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
+    fun `initial state should be null`() = runTest {
+        accountExpiryInAppNotificationUseCase().test { assertNull(awaitItem()) }
     }
 
     @Test
     fun `account that expires within the threshold should emit a notification`() = runTest {
         accountExpiryInAppNotificationUseCase().test {
-            assertTrue { awaitItem().isEmpty() }
+            assertNull(awaitItem())
             val expiry = setExpiry(notificationThreshold.minusHours(1))
             assertExpiryNotificationDuration(expiry, expectMostRecentItem())
             expectNoEvents()
@@ -72,7 +74,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
     @Test
     fun `account that expires after the threshold should not emit a notification`() = runTest {
         accountExpiryInAppNotificationUseCase().test {
-            assertTrue { awaitItem().isEmpty() }
+            assertNull(awaitItem())
             setExpiry(notificationThreshold.plusDays(1))
             expectNoEvents()
         }
@@ -81,7 +83,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
     @Test
     fun `should emit when the threshold is passed`() = runTest {
         accountExpiryInAppNotificationUseCase().test {
-            assertTrue { awaitItem().isEmpty() }
+            assertNull(awaitItem())
             val expiry = setExpiry(notificationThreshold.plusMinutes(1))
             expectNoEvents()
 
@@ -99,7 +101,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
     @Test
     fun `should emit zero duration when the time expires`() = runTest {
         accountExpiryInAppNotificationUseCase().test {
-            assertTrue { awaitItem().isEmpty() }
+            assertNull(awaitItem())
 
             // Set expiry to to be in the final update interval.
             val inLastUpdate =
@@ -124,7 +126,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
             setExpiry(
                 ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusDays(1)
             )
-            assertEquals(emptyList(), expectMostRecentItem())
+            assertNull(expectMostRecentItem())
         }
     }
 
@@ -139,20 +141,18 @@ class AccountExpiryInAppNotificationUseCaseTest {
     // ZonedDateTime.now)
     private fun assertExpiryNotificationDuration(
         expiry: ZonedDateTime,
-        notifications: List<InAppNotification>,
+        notification: InAppNotification?,
     ) {
-        val notificationDuration = getExpiryNotificationDuration(notifications)
+        val notificationDuration = getExpiryNotificationDuration(notification)
         val expiresFromNow = Duration.between(ZonedDateTime.now(), expiry)
         assertTrue(expiresFromNow <= notificationDuration)
         assertTrue(expiresFromNow.plus(Duration.ofSeconds(5)) > notificationDuration)
     }
 
-    private fun getExpiryNotificationDuration(notifications: List<InAppNotification>): Duration {
-        assertTrue(notifications.size == 1, "Expected a single notification")
-        val n = notifications[0]
-        if (n !is InAppNotification.AccountExpiry) {
+    private fun getExpiryNotificationDuration(notification: InAppNotification?): Duration {
+        if (notification !is InAppNotification.AccountExpiry) {
             error("Expected an AccountExpiry notification")
         }
-        return n.expiry
+        return notification.expiry
     }
 }

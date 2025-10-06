@@ -149,5 +149,17 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <!--
+         Receiver to warn Android 16 users about VPN upgrade issue
+         https://issuetracker.google.com/issues/441315112
+         -->
+        <receiver
+            android:name=".receiver.Android16UpdateWarningReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
