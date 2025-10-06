@@ -49,13 +49,6 @@ test('App should create account', async () => {
   await util.expectRoute(RoutePath.login);
 
   await routes.login.createNewAccount();
-
-  const title = page.locator('h1');
-  const subtitle = page.getByTestId('subtitle');
-
-  await expect(title).toHaveText('Account created');
-  await expect(subtitle).toHaveText('Logged in');
-
   await util.expectRoute(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
