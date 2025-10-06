@@ -25,39 +25,60 @@ struct ConnectionView: View {
             VStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 0) {
                     HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
-                        .padding(.bottom, 8)
+                        .padding(.bottom, 4)
+
                     Divider()
                         .background(UIColor.secondaryTextColor.color)
-                        .padding(.bottom, 16)
+                        .padding(.top, 4)
+                        .padding(.bottom, 8)
                         .showIf(isExpanded)
 
                     ScrollView {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text(LocalizedStringKey("Active features"))
-                                    .font(.footnote.weight(.semibold))
+                        VStack(alignment: .leading, spacing: 2) {
+                            if let titleForCountryAndCity = connectionViewModel.titleForCountryAndCity {
+                                Text(titleForCountryAndCity)
+                                    .lineLimit(isExpanded ? 2 : 1)
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundStyle(UIColor.primaryTextColor.color)
+                            }
+                            if let titleForServer = connectionViewModel.titleForServer {
+                                Text(titleForServer)
+                                    .lineLimit(isExpanded ? 3 : 1)
+                                    .font(.body)
                                     .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                                    .showIf(isExpanded && hasFeatureIndicators)
-
-                                ChipContainerView(
-                                    viewModel: indicatorsViewModel,
-                                    tunnelState: connectionViewModel.tunnelStatus.state,
-                                    isExpanded: $isExpanded
-                                )
-                                .padding(.bottom, isExpanded ? 16 : 0)
-                                .showIf(hasFeatureIndicators)
-
-                                DetailsView(viewModel: connectionViewModel)
-                                    .padding(.bottom, 8)
-                                    .showIf(isExpanded)
+                                    .accessibilityIdentifier(
+                                        AccessibilityIdentifier.connectionPanelServerLabel.asString
+                                    )
+                                    .multilineTextAlignment(.leading)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            Spacer()
-                        }
-                        .sizeOfView { size in
-                            withAnimation {
-                                scrollViewHeight = size.height
+                            HStack {
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text(LocalizedStringKey("Active features"))
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                                        .showIf(isExpanded && hasFeatureIndicators)
+
+                                    ChipContainerView(
+                                        viewModel: indicatorsViewModel,
+                                        tunnelState: connectionViewModel.tunnelStatus.state,
+                                        isExpanded: $isExpanded
+                                    )
+                                    .padding(.bottom, isExpanded ? 16 : 0)
+                                    .showIf(hasFeatureIndicators)
+
+                                    DetailsView(viewModel: connectionViewModel)
+                                        .padding(.bottom, 8)
+                                        .showIf(isExpanded)
+                                }
+                                Spacer()
                             }
-                        }
+                        }.frame(maxWidth: .infinity, alignment: .leading)
+                            .sizeOfView { size in
+                                withAnimation {
+                                    scrollViewHeight = size.height
+                                }
+                            }
                     }
                     .frame(maxHeight: scrollViewHeight)
                     .apply {
