@@ -698,29 +698,29 @@ impl Firewall {
 
     fn get_allow_lan_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = vec![];
-        for net in &*ALLOWED_LAN_NETS {
+        for net in ALLOWED_LAN_NETS {
             let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
             rule_builder.quick(true);
             let allow_out = rule_builder
                 .direction(pfctl::Direction::Out)
                 .from(pfctl::Ip::Any)
                 .keep_state(pfctl::StatePolicy::Keep)
-                .to(pfctl::Ip::from(*net))
+                .to(pfctl::Ip::from(net))
                 .build()?;
             let allow_in = rule_builder
                 .direction(pfctl::Direction::In)
-                .from(pfctl::Ip::from(*net))
+                .from(pfctl::Ip::from(net))
                 .to(pfctl::Ip::Any)
                 .build()?;
             rules.push(allow_out);
             rules.push(allow_in);
         }
-        for multicast_net in &*ALLOWED_LAN_MULTICAST_NETS {
+        for multicast_net in ALLOWED_LAN_MULTICAST_NETS {
             let allow_multicast_out = self
                 .create_rule_builder(FilterRuleAction::Pass)
                 .quick(true)
                 .direction(pfctl::Direction::Out)
-                .to(pfctl::Ip::from(*multicast_net))
+                .to(pfctl::Ip::from(multicast_net))
                 .build()?;
             rules.push(allow_multicast_out);
         }
@@ -800,15 +800,15 @@ impl Firewall {
 
         // DHCPv6
         dhcp_rule_builder.af(pfctl::AddrFamily::Ipv6);
-        for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
+        for dhcpv6_server in super::DHCPV6_SERVER_ADDRS {
             let allow_outgoing_dhcp_v6 = dhcp_rule_builder
                 .direction(pfctl::Direction::Out)
                 .from(pfctl::Endpoint::new(
-                    IpNetwork::V6(*super::IPV6_LINK_LOCAL),
+                    IpNetwork::V6(super::IPV6_LINK_LOCAL),
                     pfctl::Port::from(super::DHCPV6_CLIENT_PORT),
                 ))
                 .to(pfctl::Endpoint::new(
-                    *dhcpv6_server,
+                    dhcpv6_server,
                     pfctl::Port::from(super::DHCPV6_SERVER_PORT),
                 ))
                 .build()?;
@@ -817,11 +817,11 @@ impl Firewall {
         let allow_incoming_dhcp_v6 = dhcp_rule_builder
             .direction(pfctl::Direction::In)
             .from(pfctl::Endpoint::new(
-                pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)),
+                pfctl::Ip::from(IpNetwork::V6(super::IPV6_LINK_LOCAL)),
                 pfctl::Port::from(super::DHCPV6_SERVER_PORT),
             ))
             .to(pfctl::Endpoint::new(
-                pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)),
+                pfctl::Ip::from(IpNetwork::V6(super::IPV6_LINK_LOCAL)),
                 pfctl::Port::from(super::DHCPV6_CLIENT_PORT),
             ))
             .build()?;
@@ -843,21 +843,21 @@ impl Firewall {
                 .clone()
                 .direction(pfctl::Direction::Out)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::RouterSol))
-                .to(*super::ROUTER_SOLICITATION_OUT_DST_ADDR)
+                .to(super::ROUTER_SOLICITATION_OUT_DST_ADDR)
                 .build()?,
             // Incoming router advertisement from `fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::In)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::RouterAdv))
-                .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .from(pfctl::Ip::from(IpNetwork::V6(super::IPV6_LINK_LOCAL)))
                 .build()?,
             // Incoming Redirect from `fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::In)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::Redir))
-                .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .from(pfctl::Ip::from(IpNetwork::V6(super::IPV6_LINK_LOCAL)))
                 .build()?,
             // Outgoing neighbor solicitation to `ff02::1:ff00:0/104` and `fe80::/10`
             ndp_rule_builder
@@ -865,28 +865,28 @@ impl Firewall {
                 .direction(pfctl::Direction::Out)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
                 .to(pfctl::Ip::from(IpNetwork::V6(
-                    *super::SOLICITED_NODE_MULTICAST,
+                    super::SOLICITED_NODE_MULTICAST,
                 )))
                 .build()?,
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::Out)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
-                .to(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .to(pfctl::Ip::from(IpNetwork::V6(super::IPV6_LINK_LOCAL)))
                 .build()?,
             // Incoming neighbor solicitation from `fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::In)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
-                .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .from(pfctl::Ip::from(IpNetwork::V6(super::IPV6_LINK_LOCAL)))
                 .build()?,
             // Outgoing neighbor advertisement to fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::Out)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrAdv))
-                .to(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .to(pfctl::Ip::from(IpNetwork::V6(super::IPV6_LINK_LOCAL)))
                 .build()?,
             // Incoming neighbor advertisement from anywhere
             ndp_rule_builder

@@ -54,8 +54,9 @@ pub fn addresses_from_options(options: &DnsOptions) -> DnsConfig {
                 .custom_options
                 .addresses
                 .iter()
+                .copied()
                 // Private IP ranges should not be tunneled
-                .partition(|&addr| is_local_address(addr));
+                .partition(|addr| is_local_address(*addr));
             DnsConfig::from_addresses(&tunnel_config, &non_tunnel_config)
         }
     }

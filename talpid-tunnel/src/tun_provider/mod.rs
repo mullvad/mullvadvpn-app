@@ -1,11 +1,8 @@
 #[cfg(target_os = "android")]
 use crate::tun_provider::imp::VpnServiceConfig;
 use cfg_if::cfg_if;
-use ipnetwork::IpNetwork;
-use std::{
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    sync::LazyLock,
-};
+use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 cfg_if! {
     if #[cfg(target_os = "android")] {
@@ -113,20 +110,16 @@ pub fn blocking_config() -> TunConfig {
         mtu: 1380,
         ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
         ipv6_gateway: None,
-        routes: DEFAULT_ROUTES.clone(),
+        routes: DEFAULT_ROUTES.to_vec(),
         allow_lan: false,
         dns_servers: None,
         excluded_packages: vec![],
     }
 }
 
-static DEFAULT_ROUTES: LazyLock<Vec<IpNetwork>> =
-    LazyLock::new(|| vec![*IPV4_DEFAULT_ROUTE, *IPV6_DEFAULT_ROUTE]);
-static IPV4_DEFAULT_ROUTE: LazyLock<IpNetwork> = LazyLock::new(|| {
-    IpNetwork::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0)
-        .expect("Invalid IP network prefix for IPv4 address")
-});
-static IPV6_DEFAULT_ROUTE: LazyLock<IpNetwork> = LazyLock::new(|| {
-    IpNetwork::new(IpAddr::V6(Ipv6Addr::UNSPECIFIED), 0)
-        .expect("Invalid IP network prefix for IPv6 address")
-});
+const DEFAULT_ROUTES: [IpNetwork; 2] = [
+    IpNetwork::V4(IPV4_DEFAULT_ROUTE),
+    IpNetwork::V6(IPV6_DEFAULT_ROUTE),
+];
+const IPV4_DEFAULT_ROUTE: Ipv4Network = Ipv4Network::new_checked(Ipv4Addr::UNSPECIFIED, 0).unwrap();
+const IPV6_DEFAULT_ROUTE: Ipv6Network = Ipv6Network::new_checked(Ipv6Addr::UNSPECIFIED, 0).unwrap();
