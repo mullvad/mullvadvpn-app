@@ -190,7 +190,7 @@ async fn wait_for_daemon_reconnect(
     helpers::find_daemon_event(&mut event_stream, |event| match event {
         DaemonEvent::TunnelState(state) => Some(match state {
             TunnelState::Connecting { .. }
-            | TunnelState::Disconnecting(ActionAfterDisconnect::Reconnect) => Ok::<_, Error>(state),
+            | TunnelState::Disconnecting(ActionAfterDisconnect::Reconnect) => Ok(state),
             TunnelState::Error(state) => Err(Error::UnexpectedErrorState(state)),
             _ => return None,
         }),
