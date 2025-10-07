@@ -4,13 +4,13 @@ import styled, { css } from 'styled-components';
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { capitalizeEveryWord } from '../../../shared/string-helpers';
-import { IconButton, Text } from '../../lib/components';
+import { Text } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
 import { spacings } from '../../lib/foundations';
 import { useBoolean } from '../../lib/utility-hooks';
 import { DeviceListItemProvider, useDeviceListItemContext } from './';
-import { ConfirmDialog, ErrorDialog } from './components';
+import { ConfirmDialog, ErrorDialog, RemoveButton } from './components';
 import { useIsCurrentDevice } from './hooks';
 
 export type SettingsToggleListItemProps = {
@@ -31,8 +31,7 @@ const StyledListItem = styled(ListItem)<{ $isCurrentDevice: boolean }>(
 );
 
 function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'device'>) {
-  const { device, deleting, showConfirmDialog, confirmDialogVisible, error } =
-    useDeviceListItemContext();
+  const { device, deleting, confirmDialogVisible, error } = useDeviceListItemContext();
   const isCurrentDevice = useIsCurrentDevice();
   const deviceName = capitalizeEveryWord(device.name);
   const createdDate = device.created.toISOString().split('T')[0];
@@ -65,20 +64,7 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
                   }
                 </Text>
               ) : (
-                <IconButton
-                  variant="secondary"
-                  onClick={showConfirmDialog}
-                  disabled={deleting}
-                  aria-label={sprintf(
-                    // TRANSLATORS: Button action description provided to accessibility tools such as screen
-                    // TRANSLATORS: readers.
-                    // TRANSLATORS: Available placeholders:
-                    // TRANSLATORS: %(deviceName)s - The device name to remove.
-                    messages.pgettext('accessibility', 'Remove device named %(deviceName)s'),
-                    { deviceName: device.name },
-                  )}>
-                  <IconButton.Icon icon="cross-circle" />
-                </IconButton>
+                <RemoveButton />
               )}
             </ListItem.Group>
           </ListItem.Content>
