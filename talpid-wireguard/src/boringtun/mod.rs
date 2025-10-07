@@ -201,14 +201,19 @@ pub async fn open_boringtun_tunnel(
     log::info!("passing tunnel dev to boringtun");
     let async_tun = Arc::new(async_tun);
 
+    let config = config.clone();
     #[cfg(target_os = "android")]
-    let config = patch_allowed_ips(config, gateway_only).into_owned();
+    let config = if gateway_only {
+        patch_allowed_ips(config)
+    } else {
+        config
+    };
 
     let boringtun = BoringTun::new(
         async_tun,
         #[cfg(target_os = "android")]
         tun.clone(),
-        config.clone(),
+        config,
         interface_name,
     )
     .await
