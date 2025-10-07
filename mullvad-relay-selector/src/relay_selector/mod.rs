@@ -46,7 +46,7 @@ use talpid_types::{
     net::{
         IpAvailability, IpVersion, TransportProtocol,
         obfuscation::{ObfuscatorConfig, Obfuscators},
-        proxy::{CustomProxy, Shadowsocks},
+        proxy::Shadowsocks,
     },
 };
 
@@ -200,35 +200,6 @@ pub enum GetRelay {
         inner: WireguardConfig,
     },
     Custom(CustomTunnelEndpoint),
-}
-
-#[derive(Clone, Debug)]
-pub enum SelectedBridge {
-    Normal {
-        // Mullvad operated bridges will always be Shadowsocks proxies.
-        settings: Shadowsocks,
-        relay: Relay,
-    },
-    Custom(CustomProxy),
-}
-
-impl SelectedBridge {
-    /// Get the bridge settings.
-    pub fn to_proxy(self) -> CustomProxy {
-        match self {
-            SelectedBridge::Normal { settings, .. } => CustomProxy::Shadowsocks(settings),
-            SelectedBridge::Custom(settings) => settings,
-        }
-    }
-
-    /// Get the relay acting as a bridge.
-    /// This is not applicable if `self` is a [custom bridge][`SelectedBridge::Custom`].
-    pub fn relay(&self) -> Option<&Relay> {
-        match self {
-            SelectedBridge::Normal { relay, .. } => Some(relay),
-            _ => None,
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
