@@ -192,6 +192,7 @@ async fn wait_for_daemon_reconnect(
             TunnelState::Connecting { .. }
             | TunnelState::Disconnecting(ActionAfterDisconnect::Reconnect) => Ok(state),
             TunnelState::Error(state) => Err(Error::UnexpectedErrorState(state)),
+            TunnelState::Disconnected { .. } => Err(Error::UnexpectedTunnelState(Box::new(state))),
             _ => return None,
         }),
         _ => None,
@@ -203,7 +204,8 @@ async fn wait_for_daemon_reconnect(
         DaemonEvent::TunnelState(state) => match state {
             TunnelState::Connected { .. } => Some(Ok(state)),
             TunnelState::Connecting { .. } | TunnelState::Disconnecting(_) => None,
-            TunnelState::Disconnected { .. } | TunnelState::Error(_) => {
+            TunnelState::Error(state) => Some(Err(Error::UnexpectedErrorState(state))),
+            TunnelState::Disconnected { .. } => {
                 Some(Err(Error::UnexpectedTunnelState(Box::new(state))))
             }
         },
