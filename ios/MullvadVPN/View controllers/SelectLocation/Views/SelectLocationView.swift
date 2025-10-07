@@ -119,6 +119,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
 
     struct ExitLocationView: View {
         @ObservedObject var viewModel: ViewModel
+        @State var newCustomListAlert: MullvadInputAlert?
         var body: some View {
             MullvadSecondaryTextField(
                 placeholder: "Search for locations or servers...",
@@ -153,11 +154,30 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 viewModel.activeLocationContext.selectLocation(location)
             } contextMenu: { location in
                 VStack {
-                    Button("Remove") {
-                        print("Remove \(location.name)")
-                    }
-                    Button("Edit") {
-                        print("Edit \(location.name)")
+                    switch location {
+                    case let location as CustomListLocationNode:
+                        Button("Edit") {
+                            //                            viewModel
+                            //                                .deleteCustomList(name: location.name)
+                        }
+                        Button("Delete") {
+                            //                            viewModel
+                            //                                .deleteCustomList(name: location.name)
+                        }
+
+                    default:
+                        if let customListNode = location.parent as? CustomListLocationNode {
+                            Button("Remove") {
+                                viewModel
+                                    .removeLocationFromCustomList(
+                                        location: location,
+                                        customListName: customListNode.name
+                                    )
+                            }
+                        } else {
+                            // Only top level nodes can be removed from a custom list
+                            EmptyView()
+                        }
                     }
                 }
             }
@@ -205,10 +225,32 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         .disabled(isAlreadyInList)
                     }
                     Button("+ New list") {
+                        newCustomListAlert = .init(
+                            title: "Add new list",
+                            placeholder: "List name",
+                            action: .init(
+                                type: .default,
+                                title: "Create",
+                                identifier: nil,
+                                handler: { listName in
+                                    viewModel
+                                        .addLocationToCustomList(
+                                            location: location,
+                                            customListName: listName
+                                        )
+                                    newCustomListAlert = nil
+                                }
+                            ),
+                            validate: { listName in
+                                !listName.isEmpty && listName.count <= 32
+                            },
+                            dismissButtonTitle: "Cancel"
+                        )
                         //                        viewModel.createNewListWithLocation()
                     }
                 }
             }
+            .mullvadInputAlert(item: $newCustomListAlert)
         }
     }
 }
