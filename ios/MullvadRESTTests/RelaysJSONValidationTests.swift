@@ -1,9 +1,9 @@
-//
+// 
 //  RelaysJSONValidationTests.swift
 //  MullvadRESTTests
-//
+// 
 //  Created by Test Suite on 2025-10-07.
-//
+// 
 
 import Foundation
 import Testing
@@ -24,10 +24,10 @@ struct RelaysJSONValidationTests {
             Issue.record("Root JSON is not a dictionary")
             return
         }
-        #expect(json["locations"] \!= nil)
-        #expect(json["wireguard"] \!= nil)
-        #expect(json["bridge"] \!= nil)
-        #expect(json["openvpn"] \!= nil)
+        #expect(json["locations"] != nil)
+        #expect(json["wireguard"] != nil)
+        #expect(json["bridge"] != nil)
+        #expect(json["openvpn"] != nil)
     }
 }
 

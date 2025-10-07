@@ -43,7 +43,7 @@ struct AlertViewControllerTests {
         )
         let vc = makeVC(presentation)
         let header = findView(withAccessibilityId: AccessibilityIdentifier.alertTitle.asString, in: vc.view)
-        #expect(header \!= nil)
+        #expect(header != nil)
     }
 
     @Test("Spinner icon is present in view hierarchy")
@@ -55,7 +55,7 @@ struct AlertViewControllerTests {
         )
         let vc = makeVC(presentation)
         let spinner = findSubview(ofType: SpinnerActivityIndicatorView.self, in: vc.view)
-        #expect(spinner \!= nil)
+        #expect(spinner != nil)
     }
 
     @Test("Button tap invokes onDismiss and action handler")
@@ -69,7 +69,7 @@ struct AlertViewControllerTests {
 
         let buttons: [AppButton] = findAllSubviews(ofType: AppButton.self, in: vc.view)
         let okButton = buttons.first { $0.title(for: .normal) == "OK" }
-        #expect(okButton \!= nil)
+        #expect(okButton != nil)
         okButton?.sendActions(for: .touchUpInside)
 
         #expect(tapped)
@@ -88,7 +88,7 @@ struct AlertViewControllerTests {
             vc.view.layoutIfNeeded()
         }
         let scroll = findSubview(ofType: UIScrollView.self, in: vc.view)
-        #expect(scroll \!= nil)
+        #expect(scroll != nil)
         #expect((scroll?.contentSize.height ?? 0) > 0)
     }
 
@@ -104,8 +104,8 @@ struct AlertViewControllerTests {
         let buttons: [AppButton] = findAllSubviews(ofType: AppButton.self, in: vc.view)
         let defaultButton = buttons.first { $0.title(for: .normal) == "Default" }
         let deleteButton = buttons.first { $0.title(for: .normal) == "Delete" }
-        #expect(defaultButton \!= nil)
-        #expect(deleteButton \!= nil)
+        #expect(defaultButton != nil)
+        #expect(deleteButton != nil)
 
         #expect(defaultButton?.style == .default)
         #expect(deleteButton?.style == .danger)
