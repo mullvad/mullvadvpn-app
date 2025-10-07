@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useOptions } from '../../../../hooks';
+import { useRovingFocus } from '../../../../hooks';
 import { useListboxContext } from '../../';
 
 export type ListboxOptionsProps = {
@@ -9,7 +9,7 @@ export type ListboxOptionsProps = {
 
 export function ListboxOptions({ children }: ListboxOptionsProps) {
   const { labelId, optionsRef, focusedIndex, setFocusedIndex } = useListboxContext();
-  const { handleFocus, handleKeyboardNavigation, handleBlur, tabIndex } = useOptions({
+  const { handleFocus, handleKeyboardNavigation, handleBlur, tabIndex } = useRovingFocus({
     focusedIndex,
     optionsRef,
     setFocusedIndex,

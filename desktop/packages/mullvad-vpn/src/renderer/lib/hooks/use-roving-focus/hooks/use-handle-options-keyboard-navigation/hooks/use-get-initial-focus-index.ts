@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getOptions, getSelectedOptionIndex } from '../utils';
+import { getOptions, getSelectedOptionIndex } from '../../../utils';
 
 export const useGetInitialFocusIndex = <T extends HTMLElement>({
   focusedIndex,

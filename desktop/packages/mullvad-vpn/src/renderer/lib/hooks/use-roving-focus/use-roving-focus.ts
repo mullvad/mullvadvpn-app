@@ -1,12 +1,9 @@
 import React from 'react';
 
-import { getInitialOption, getOptions } from '../utils';
-import {
-  KeyboardNavigationOrientation,
-  useHandleOptionsKeyboardNavigation,
-} from './use-handle-options-keyboard-navigation';
+import { type KeyboardNavigationOrientation, useHandleOptionsKeyboardNavigation } from './hooks';
+import { getInitialOption, getOptions } from './utils';
 
-export type UseOptionsProps<T extends HTMLElement> = {
+export type UseRovingFocusProps<T extends HTMLElement> = {
   optionsRef: React.RefObject<T | null>;
   focusedIndex?: number;
   setFocusedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
@@ -14,13 +11,13 @@ export type UseOptionsProps<T extends HTMLElement> = {
   orientation?: KeyboardNavigationOrientation;
 };
 
-export function useOptions<T extends HTMLElement>({
+export function useRovingFocus<T extends HTMLElement>({
   optionsRef,
   focusedIndex,
   setFocusedIndex,
   selector,
   orientation = 'vertical',
-}: UseOptionsProps<T>) {
+}: UseRovingFocusProps<T>) {
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const handleFocus = React.useCallback(
     (event: React.FocusEvent) => {

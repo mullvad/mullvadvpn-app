@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getOptions } from '../utils';
+import { getOptions } from '../../../utils';
 
 export const useFocusOptionByIndex = <T extends HTMLElement>({
   optionsRef,
