@@ -153,15 +153,13 @@ pub struct WindowsVer {
 /// Write OS version into `version_out` when `Status::Ok` is returned.
 ///
 /// # Safety
-/// `version_out` should point to a valid `WindowsVer`
+/// `version_out` must point to a valid `WindowsVer`
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_system_version_struct(version_out: *mut WindowsVer) -> Status {
     use talpid_platform_metadata::WindowsVersion;
     catch_and_log_unwind(|| {
-        // Try to retrieve the version based on the kernel image. Use normal method as fallback.
-        let winver = WindowsVersion::from_ntoskrnl()
-            .or_else(|_| WindowsVersion::new())
-            .unwrap();
+        // Try to retrieve the version based on the kernel image
+        let winver = WindowsVersion::from_ntoskrnl().unwrap();
         let c_ver = WindowsVer {
             major_version: winver.major_version(),
             minor_version: winver.minor_version(),
