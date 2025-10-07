@@ -28,6 +28,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var relaySelector: RelaySelectorWrapper!
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
     private let tunnelSettingsUpdater: SettingsUpdater!
+    private let pathObserver: PacketTunnelPathObserver!
     private var encryptedDNSTransport: EncryptedDNSTransport!
     private var migrationManager: MigrationManager!
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
@@ -56,6 +57,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
         tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
         migrationManager = MigrationManager(cacheDirectory: containerURL)
+
+        pathObserver = PacketTunnelPathObserver(eventQueue: internalQueue)
 
         super.init()
 
@@ -102,7 +105,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             timings: PacketTunnelActorTimings(),
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
-            defaultPathObserver: PacketTunnelPathObserver(eventQueue: internalQueue),
+            defaultPathObserver: pathObserver,
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: relaySelector,
             settingsReader: TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in
@@ -446,8 +449,12 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
     }
 
     func ephemeralPeerExchangeFailed() {
-        // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
-        // and it will not try to reconnect
-        actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+        // Do not retry connection unless there's network reachability. Doing so will lead to a hot loop where
+        // connections are retried every time peer exchange fails, which it will if reachability is not satisfied.
+        if pathObserver.currentPathStatus.networkReachability == .reachable {
+            // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
+            // and it will not try to reconnect
+            actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+        }
     }
 }
