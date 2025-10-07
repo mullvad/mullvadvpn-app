@@ -24,7 +24,7 @@ test.describe('Multihop settings', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.afterEach(async () => {

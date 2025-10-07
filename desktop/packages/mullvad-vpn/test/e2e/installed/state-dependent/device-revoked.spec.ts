@@ -15,7 +15,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await page.close();
+  await util?.closePage();
 });
 
 test('App should fail to login', async () => {

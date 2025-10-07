@@ -33,7 +33,7 @@ test.describe('Too many devices', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.describe('Navigation', () => {

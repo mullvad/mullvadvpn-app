@@ -50,7 +50,7 @@ test.describe('App upgrade', () => {
   };
 
   const restart = async () => {
-    await page.close();
+    await util?.closePage();
     await startup();
   };
 
@@ -59,7 +59,7 @@ test.describe('App upgrade', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.describe('Should display changelog', () => {

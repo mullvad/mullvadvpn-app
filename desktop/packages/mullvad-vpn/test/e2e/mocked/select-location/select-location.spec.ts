@@ -33,7 +33,7 @@ test.describe('Select location', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test('Should focus search input on load', async () => {

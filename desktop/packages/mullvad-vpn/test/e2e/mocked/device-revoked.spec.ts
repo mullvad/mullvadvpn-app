@@ -16,7 +16,7 @@ test.describe('Device revoked', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   async function revokeDevice() {

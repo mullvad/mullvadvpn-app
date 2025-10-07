@@ -17,7 +17,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await page.close();
+  await util?.closePage();
 });
 
 /**
