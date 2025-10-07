@@ -708,6 +708,7 @@ impl fmt::Display for BridgeConstraintsFormatter<'_> {
 }
 
 /// Setting indicating whether to connect to a bridge server, or to handle it automatically.
+// TODO: remove
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]

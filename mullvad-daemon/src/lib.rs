@@ -62,7 +62,7 @@ use mullvad_types::{
     features::{FeatureIndicator, FeatureIndicators, compute_feature_indicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
-        BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
+        BridgeSettings, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
         allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
@@ -278,8 +278,6 @@ pub enum DaemonCommand {
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
     /// Set proxy details for OpenVPN
     SetBridgeSettings(ResponseTx<(), Error>, BridgeSettings),
-    /// Set proxy state
-    SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set if recents should be enabled
@@ -1435,7 +1433,6 @@ impl Daemon {
             SetBridgeSettings(tx, bridge_settings) => {
                 self.on_set_bridge_settings(tx, bridge_settings).await
             }
-            SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
             SetEnableRecents(tx, enable_recents) => {
                 self.on_set_enable_recents(tx, enable_recents).await
@@ -2566,34 +2563,6 @@ impl Daemon {
                 Self::oneshot_send(tx, Err(err), "set_obfuscation_settings");
             }
         }
-    }
-
-    async fn on_set_bridge_state(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        bridge_state: BridgeState,
-    ) {
-        let result = match self
-            .settings
-            .update(move |settings| settings.bridge_state = bridge_state)
-            .await
-        {
-            Ok(settings_changed) => {
-                if settings_changed {
-                    log::info!("Initiating tunnel restart because bridge state changed");
-                    self.reconnect_tunnel();
-                }
-                Ok(())
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to set new bridge state")
-                );
-                Err(error)
-            }
-        };
-        Self::oneshot_send(tx, result, "on_set_bridge_state response");
     }
 
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {

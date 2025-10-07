@@ -32,7 +32,6 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
             bridge_settings: Some(proto::BridgeSettings::from(
                 settings.bridge_settings.clone(),
             )),
-            bridge_state: Some(proto::BridgeState::from(settings.bridge_state)),
             allow_lan: settings.allow_lan,
             #[cfg(not(target_os = "android"))]
             lockdown_mode: settings.lockdown_mode,
@@ -127,12 +126,6 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing bridge settings",
                 ))?;
-        let bridge_state = settings
-            .bridge_state
-            .ok_or(FromProtobufTypeError::InvalidArgument(
-                "missing bridge state",
-            ))
-            .and_then(|state| try_bridge_state_from_i32(state.state))?;
         let tunnel_options =
             settings
                 .tunnel_options
@@ -171,7 +164,6 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             bridge_settings: mullvad_types::relay_constraints::BridgeSettings::try_from(
                 bridge_settings,
             )?,
-            bridge_state,
             allow_lan: settings.allow_lan,
             #[cfg(not(target_os = "android"))]
             lockdown_mode: settings.lockdown_mode,
@@ -200,23 +192,6 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             recents: Some(vec![]),
             update_default_location: settings.update_default_location,
         })
-    }
-}
-
-pub fn try_bridge_state_from_i32(
-    bridge_state: i32,
-) -> Result<mullvad_types::relay_constraints::BridgeState, FromProtobufTypeError> {
-    match proto::bridge_state::State::try_from(bridge_state) {
-        Ok(proto::bridge_state::State::Auto) => {
-            Ok(mullvad_types::relay_constraints::BridgeState::Auto)
-        }
-        Ok(proto::bridge_state::State::On) => Ok(mullvad_types::relay_constraints::BridgeState::On),
-        Ok(proto::bridge_state::State::Off) => {
-            Ok(mullvad_types::relay_constraints::BridgeState::Off)
-        }
-        Err(_) => Err(FromProtobufTypeError::InvalidArgument(
-            "invalid bridge state",
-        )),
     }
 }
 

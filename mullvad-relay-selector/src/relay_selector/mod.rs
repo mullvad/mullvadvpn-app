@@ -29,9 +29,8 @@ use mullvad_types::{
     endpoint::MullvadWireguardEndpoint,
     location::{Coordinates, Location},
     relay_constraints::{
-        BridgeSettings, BridgeState, InternalBridgeConstraints, ObfuscationSettings,
-        RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
-        WireguardConstraints,
+        BridgeSettings, InternalBridgeConstraints, ObfuscationSettings, RelayConstraints,
+        RelayOverride, RelaySettings, ResolvedBridgeSettings, WireguardConstraints,
     },
     relay_list::{Relay, RelayList},
     settings::Settings,
@@ -98,7 +97,6 @@ pub struct SelectorConfig {
     // Wireguard specific data
     pub obfuscation_settings: ObfuscationSettings,
     // OpenVPN specific data
-    pub bridge_state: BridgeState,
     pub bridge_settings: BridgeSettings,
 }
 
@@ -127,7 +125,6 @@ impl SelectorConfig {
         Self {
             relay_settings: settings.relay_settings.clone(),
             additional_constraints,
-            bridge_state: settings.bridge_state,
             bridge_settings: settings.bridge_settings.clone(),
             obfuscation_settings: settings.obfuscation_settings.clone(),
             custom_lists: settings.custom_lists.clone(),
@@ -257,7 +254,6 @@ impl Default for SelectorConfig {
             additional_constraints: AdditionalRelayConstraints::default(),
             bridge_settings: default_settings.bridge_settings,
             obfuscation_settings: default_settings.obfuscation_settings,
-            bridge_state: default_settings.bridge_state,
             custom_lists: default_settings.custom_lists,
             relay_overrides: default_settings.relay_overrides,
         }

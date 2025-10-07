@@ -112,19 +112,6 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
     }
 }
 
-impl From<mullvad_types::relay_constraints::BridgeState> for proto::BridgeState {
-    fn from(state: mullvad_types::relay_constraints::BridgeState) -> Self {
-        use mullvad_types::relay_constraints::BridgeState;
-        Self {
-            state: i32::from(match state {
-                BridgeState::Auto => proto::bridge_state::State::Auto,
-                BridgeState::On => proto::bridge_state::State::On,
-                BridgeState::Off => proto::bridge_state::State::Off,
-            }),
-        }
-    }
-}
-
 impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::ObfuscationSettings {
     fn from(settings: &mullvad_types::relay_constraints::ObfuscationSettings) -> Self {
         use mullvad_types::relay_constraints::SelectedObfuscation;
@@ -483,27 +470,6 @@ impl TryFrom<&proto::ShadowsocksSettings>
         Ok(Self {
             port: Constraint::from(settings.port.map(|port| port as u16)),
         })
-    }
-}
-
-impl TryFrom<proto::BridgeState> for mullvad_types::relay_constraints::BridgeState {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(state: proto::BridgeState) -> Result<Self, Self::Error> {
-        match proto::bridge_state::State::try_from(state.state) {
-            Ok(proto::bridge_state::State::Auto) => {
-                Ok(mullvad_types::relay_constraints::BridgeState::Auto)
-            }
-            Ok(proto::bridge_state::State::On) => {
-                Ok(mullvad_types::relay_constraints::BridgeState::On)
-            }
-            Ok(proto::bridge_state::State::Off) => {
-                Ok(mullvad_types::relay_constraints::BridgeState::Off)
-            }
-            Err(_) => Err(FromProtobufTypeError::InvalidArgument(
-                "invalid bridge state",
-            )),
-        }
     }
 }
 

@@ -22,7 +22,7 @@ use mullvad_types::{
     device::{Device, DeviceId, DeviceState},
     features::FeatureIndicators,
     relay_constraints::{
-        AllowedIps, BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        AllowedIps, BridgeSettings, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     settings::DnsOptions,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
@@ -230,12 +230,6 @@ impl MullvadProxyClient {
     pub async fn set_bridge_settings(&mut self, settings: BridgeSettings) -> Result<()> {
         let settings = types::BridgeSettings::from(settings);
         self.0.set_bridge_settings(settings).await?;
-        Ok(())
-    }
-
-    pub async fn set_bridge_state(&mut self, state: BridgeState) -> Result<()> {
-        let state = types::BridgeState::from(state);
-        self.0.set_bridge_state(state).await?;
         Ok(())
     }
 

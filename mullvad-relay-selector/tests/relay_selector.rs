@@ -20,9 +20,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::Location,
-    relay_constraints::{
-        BridgeState, GeographicLocationConstraint, Ownership, Providers, RelayOverride,
-    },
+    relay_constraints::{GeographicLocationConstraint, Ownership, Providers, RelayOverride},
     relay_list::{
         BridgeEndpointData, Quic, Relay, RelayEndpointData, RelayList, RelayListCity,
         RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
@@ -1007,10 +1005,7 @@ fn test_include_in_country() {
 fn ignore_bridge_state_when_wireguard_is_used() {
     // A wireguard query should ignore the bridge state
     let query = RelayQueryBuilder::wireguard().build();
-    let config = SelectorConfig {
-        bridge_state: BridgeState::On,
-        ..SelectorConfig::default()
-    };
+    let config = SelectorConfig::default();
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     for _ in 0..100 {
         let _relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
