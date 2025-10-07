@@ -17,16 +17,11 @@ let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 let helpers: SelectLocationHelpers;
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Select location', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers(page, routes, util);
-
-    await util.ipc.tunnel.connect.ignore();
-    await util.ipc.settings.setRelaySettings.ignore();
 
     await util.expectRoute(RoutePath.main);
   });
@@ -135,6 +130,9 @@ test.describe('Select location', () => {
     });
 
     test('Should disable entry server in exit list', async () => {
+      await util.ipc.tunnel.connect.ignore();
+      await util.ipc.settings.setRelaySettings.ignore();
+
       const settings = await helpers.updateMockSettings({
         multihop: true,
         daita: true,
@@ -305,7 +303,8 @@ test.describe('Select location', () => {
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
       });
-
+    });
+    test.describe('Filter by LWO', () => {
       test('Should apply filter when LWO obfuscation is selected', async () => {
         const settings = getDefaultSettings();
         if ('normal' in settings.relaySettings) {
