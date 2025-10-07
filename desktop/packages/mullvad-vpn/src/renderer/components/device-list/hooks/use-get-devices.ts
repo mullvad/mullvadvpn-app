@@ -10,11 +10,7 @@ export const useGetDevices = () => {
   const devices = useSortedDevices();
 
   React.useEffect(() => {
-    try {
-      void fetchDevices(accountNumber);
-    } catch {
-      /* no-op */
-    }
+    void fetchDevices(accountNumber);
   }, [accountNumber, fetchDevices]);
 
   return devices;

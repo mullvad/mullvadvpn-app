@@ -23,14 +23,12 @@ export const useHandleRemoveDeviceError = () => {
       let devices: Array<IDevice> | undefined = undefined;
       try {
         devices = await fetchDevices(accountNumber);
-      } catch {
-        /* no-op */
-      }
-
-      if (devices === undefined || devices.some((device) => device.id === deviceId)) {
-        hideConfirmDialog();
-        resetDeleting();
-        setError();
+      } finally {
+        if (devices === undefined || devices.some((device) => device.id === deviceId)) {
+          hideConfirmDialog();
+          resetDeleting();
+          setError();
+        }
       }
     },
     [fetchDevices, accountNumber, deviceId, hideConfirmDialog, resetDeleting, setError],
