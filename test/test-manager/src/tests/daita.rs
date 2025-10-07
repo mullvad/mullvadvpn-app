@@ -6,6 +6,7 @@ use mullvad_types::{
     constraints::Constraint, relay_constraints::GeographicLocationConstraint,
     relay_list::RelayEndpointData, states::TunnelState,
 };
+use talpid_types::tunnel::ActionAfterDisconnect;
 use talpid_types::{net::TunnelEndpoint, tunnel::ErrorStateCause};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -188,11 +189,10 @@ async fn wait_for_daemon_reconnect(
     // wait until the daemon informs us that it's trying to connect
     helpers::find_daemon_event(&mut event_stream, |event| match event {
         DaemonEvent::TunnelState(state) => Some(match state {
-            TunnelState::Connecting { .. } => Ok(state),
-            TunnelState::Connected { .. } => return None,
-            TunnelState::Disconnecting { .. } => return None,
-            TunnelState::Disconnected { .. } => Err(Error::UnexpectedTunnelState(Box::new(state))),
+            TunnelState::Connecting { .. }
+            | TunnelState::Disconnecting(ActionAfterDisconnect::Reconnect) => Ok::<_, Error>(state),
             TunnelState::Error(state) => Err(Error::UnexpectedErrorState(state)),
+            _ => return None,
         }),
         _ => None,
     })
@@ -201,9 +201,11 @@ async fn wait_for_daemon_reconnect(
     // then wait until the daemon informs us that it connected (or failed)
     helpers::find_daemon_event(&mut event_stream, |event| match event {
         DaemonEvent::TunnelState(state) => match state {
-            TunnelState::Connecting { .. } => None,
             TunnelState::Connected { .. } => Some(Ok(state)),
-            _ => Some(Err(Error::UnexpectedTunnelState(Box::new(state)))),
+            TunnelState::Connecting { .. } | TunnelState::Disconnecting(_) => None,
+            TunnelState::Disconnected { .. } | TunnelState::Error(_) => {
+                Some(Err(Error::UnexpectedTunnelState(Box::new(state))))
+            }
         },
         _ => None,
     })
