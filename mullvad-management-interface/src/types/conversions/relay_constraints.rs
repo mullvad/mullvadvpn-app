@@ -105,7 +105,6 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                         providers,
                         ownership,
                         wireguard_constraints,
-                        openvpn_constraints: mullvad_constraints::OpenVpnConstraints::default(),
                     },
                 ))
             }

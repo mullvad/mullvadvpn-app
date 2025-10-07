@@ -26,27 +26,6 @@ pub enum RelaySettings {
     Normal(RelayConstraints),
 }
 
-impl RelaySettings {
-    /// Returns false if the specified relay settings update explicitly do not allow for bridging
-    /// (i.e. use UDP instead of TCP)
-    pub fn supports_bridge(&self) -> bool {
-        match &self {
-            RelaySettings::CustomTunnelEndpoint(endpoint) => {
-                endpoint.endpoint().protocol == TransportProtocol::Tcp
-            }
-            RelaySettings::Normal(update) => !matches!(
-                &update.openvpn_constraints,
-                OpenVpnConstraints {
-                    port: Constraint::Only(TransportPort {
-                        protocol: TransportProtocol::Udp,
-                        ..
-                    })
-                }
-            ),
-        }
-    }
-}
-
 impl From<CustomTunnelEndpoint> for RelaySettings {
     fn from(value: CustomTunnelEndpoint) -> Self {
         Self::CustomTunnelEndpoint(value)
@@ -124,8 +103,6 @@ pub struct RelayConstraints {
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub wireguard_constraints: WireguardConstraints,
-    // TODO: remove
-    pub openvpn_constraints: OpenVpnConstraints,
 }
 
 pub struct RelayConstraintsFormatter<'a> {
@@ -137,8 +114,7 @@ impl fmt::Display for RelayConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
             f,
-            "Tunnel protocol: wireguard\nOpenVPN constraints: {}\nWireguard constraints: {}",
-            self.constraints.openvpn_constraints,
+            "Tunnel protocol: wireguard\nWireguard constraints: {}",
             WireguardConstraintsFormatter {
                 constraints: &self.constraints.wireguard_constraints,
                 custom_lists: self.custom_lists,
@@ -377,27 +353,6 @@ impl fmt::Display for GeographicLocationConstraint {
 pub struct TransportPort {
     pub protocol: TransportProtocol,
     pub port: Constraint<u16>,
-}
-
-/// [`Constraint`]s applicable to OpenVPN relays.
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub struct OpenVpnConstraints {
-    pub port: Constraint<TransportPort>,
-}
-
-impl fmt::Display for OpenVpnConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self.port {
-            Constraint::Any => write!(f, "any port"),
-            Constraint::Only(port) => {
-                match port.port {
-                    Constraint::Any => write!(f, "any port")?,
-                    Constraint::Only(port) => write!(f, "port {port}")?,
-                }
-                write!(f, "/{}", port.protocol)
-            }
-        }
-    }
 }
 
 /// [`Constraint`]s applicable to WireGuard relays.

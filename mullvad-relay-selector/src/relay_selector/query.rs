@@ -140,7 +140,6 @@ impl RelayQuery {
             providers: self.providers,
             ownership: self.ownership,
             wireguard_constraints: self.wireguard_constraints.into_constraints(),
-            openvpn_constraints: Default::default(),
         };
 
         (constraints, obfuscation)

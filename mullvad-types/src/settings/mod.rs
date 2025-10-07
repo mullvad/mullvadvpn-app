@@ -299,10 +299,6 @@ impl Settings {
         self.update_recents(&new_settings);
 
         if self.relay_settings != new_settings {
-            if !new_settings.supports_bridge() && BridgeState::On == self.bridge_state {
-                self.bridge_state = BridgeState::Auto;
-            }
-
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
                 RelaySettingsFormatter {
