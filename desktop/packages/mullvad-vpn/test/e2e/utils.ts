@@ -15,6 +15,7 @@ export interface StartAppResponse {
 type TriggerFn = () => Promise<void> | void;
 
 export interface TestUtils {
+  closePage: () => Promise<void>;
   getCurrentRoute: () => Promise<string | null>;
   expectRoute: (route: string) => Promise<void>;
   expectRouteChange: (trigger: TriggerFn) => Promise<void>;
@@ -30,12 +31,13 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
     await page.emulateMedia({ reducedMotion: 'reduce' });
   }
 
-  await page.waitForEvent('load');
+  await promiseTimeout(page.waitForEvent('load'));
 
   page.on('pageerror', (error) => console.log(error));
   page.on('console', (msg) => console.log(msg.text()));
 
   const util: TestUtils = {
+    closePage: () => closePage(page),
     getCurrentRoute: () => getCurrentRoute(page),
     expectRoute: (route: string) => expectRoute(page, route),
     expectRouteChange: (trigger: TriggerFn) => expectRouteChange(page, trigger),
@@ -48,6 +50,15 @@ export const launch = (options: LaunchOptions): Promise<ElectronApplication> => 
   process.env.CI = 'e2e';
   return electron.launch(options);
 };
+
+function promiseTimeout<T>(promise: Promise<T>): Promise<T | void> {
+  const timeoutPromise = new Promise<void>((resolve) => setTimeout(resolve, 1000));
+  return Promise.any([timeoutPromise, promise]);
+}
+
+async function closePage(page: Page) {
+  await promiseTimeout(page?.close());
+}
 
 function getCurrentRoute(page: Page): Promise<string | null> {
   return page.evaluate('window.e2e.location');
