@@ -61,8 +61,7 @@ const PACKET_CHANNEL_CAPACITY: usize = 100;
 
 pub struct BoringTun {
     /// Device handles
-    // TODO: Can we not store this in an option?
-    devices: Option<Devices>,
+    devices: Devices,
 
     tun: Arc<AsyncDevice>,
 
@@ -96,7 +95,7 @@ impl BoringTun {
             tun,
             #[cfg(target_os = "android")]
             android_tun,
-            devices: Some(devices),
+            devices,
         })
     }
 }
@@ -366,10 +365,10 @@ impl Tunnel for BoringTun {
         self.interface_name.clone()
     }
 
-    fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
+    fn stop(self: Box<Self>) -> Result<(), TunnelError> {
         log::info!("BoringTun::stop"); // remove me
         tokio::runtime::Handle::current().block_on(async {
-            match self.devices.take().unwrap() {
+            match self.devices {
                 Devices::Singlehop { device, .. } => {
                     device.stop().await;
                 }
@@ -390,7 +389,7 @@ impl Tunnel for BoringTun {
     async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
         let mut stats = StatsMap::default();
 
-        let apis = match self.devices.as_ref().unwrap() {
+        let apis = match &self.devices {
             Devices::Singlehop { api, .. } => [Some(api), None],
             Devices::Multihop {
                 entry_api,
@@ -435,7 +434,18 @@ impl Tunnel for BoringTun {
         Box::pin(async move {
             let _old_config = std::mem::replace(&mut self.config, config);
             // TODO: diff with _old_config to see if devices need to be recreated.
-            match self.devices.take().unwrap() {
+            // TODO: Check if it is valid to create new devices before stopping the previous ones.
+            let new_devices = create_devices(
+                &self.config,
+                self.tun.clone(),
+                #[cfg(target_os = "android")]
+                self.android_tun.clone(),
+            )
+            .await?;
+
+            let old_devices = std::mem::replace(&mut self.devices, new_devices);
+
+            match old_devices {
                 Devices::Singlehop { device, .. } => {
                     device.stop().await;
                 }
@@ -449,15 +459,6 @@ impl Tunnel for BoringTun {
                 }
             }
 
-            self.devices = Some(
-                create_devices(
-                    &self.config,
-                    self.tun.clone(),
-                    #[cfg(target_os = "android")]
-                    self.android_tun.clone(),
-                )
-                .await?,
-            );
             Ok(())
         })
     }
