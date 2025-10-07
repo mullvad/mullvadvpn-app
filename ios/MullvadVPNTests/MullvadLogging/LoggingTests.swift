@@ -42,11 +42,10 @@ class LoggingTests: XCTestCase {
 
     func testLogHeader() throws {
         let expectedHeader = "Header of a log file"
+        let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
 
         var builder = LoggerBuilder(header: expectedHeader)
-        let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
         builder.addFileOutput(fileURL: fileURL)
-
         builder.install()
 
         Logger(label: "test").info(":-P")

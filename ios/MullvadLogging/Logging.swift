@@ -18,6 +18,7 @@ private enum LoggerOutput {
 public struct LoggerBuilder {
     private(set) var logRotationErrors: [Error] = []
     private var outputs: [LoggerOutput] = []
+    private let _swiftLogBootstrapGuard = SwiftLogBootstrap.shared
 
     public var metadata: Logger.Metadata = [:]
     public var logLevel: Logger.Level = .debug
@@ -55,7 +56,7 @@ public struct LoggerBuilder {
     }
 
     public func install() {
-        LoggingSystem.bootstrap { label -> LogHandler in
+        let didInstall = _swiftLogBootstrapGuard.installIfNeeded { label -> LogHandler in
             let logHandlers: [LogHandler] = outputs.map { output in
                 switch output {
                 case let .fileOutput(stream):
@@ -75,6 +76,7 @@ public struct LoggerBuilder {
                 return multiplex
             }
         }
+        guard didInstall else { return }
 
         if !logRotationErrors.isEmpty {
             let rotationLogger = Logger(label: "LogRotation")
@@ -83,5 +85,21 @@ public struct LoggerBuilder {
                 rotationLogger.error(error: error, message: error.localizedDescription)
             }
         }
+    }
+}
+
+private final class SwiftLogBootstrap: @unchecked Sendable {
+    static let shared = SwiftLogBootstrap()
+
+    private let lock = NSLock()
+    private var installed = false
+
+    func installIfNeeded(_ factory: @escaping (String) -> LogHandler) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        if installed { return false }
+        installed = true
+        LoggingSystem.bootstrap(factory)
+        return true
     }
 }
