@@ -23,6 +23,7 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
     /// Interval used for reopening the log file descriptor in the event of failure to open it in
     /// the first place, or when writing to it.
     private let reopenFileLogInterval: Duration
+    private var fileHandle: FileHandle?
 
     private var state: State = .closed {
         didSet {
@@ -69,10 +70,23 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
         self.newLineChunkReadSize = newLineChunkReadSize
 
         baseFileURL = fileURL.deletingPathExtension()
+
+        if !FileManager.default.fileExists(atPath: fileURL.path) {
+            _ = FileManager.default.createFile(
+                atPath: fileURL.path,
+                contents: headerData,
+                attributes: nil
+            )
+        }
     }
 
     deinit {
         stopTimer()
+        if let handle = fileHandle {
+            do { try handle.close() } catch {
+                print("Failed to close file handle at \(fileURL.path) due to \(error.localizedDescription)")
+            }
+        }
     }
 
     func write(_ string: String) {
@@ -95,9 +109,10 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
         switch state {
         case .closed:
             do {
-                let fileHandle = try openFileWithHeader(fileHeader)
+                let fileHandle = try openExistingFile()
                 state = .opened(fileHandle)
                 try write(fileHandle: fileHandle, data: data)
+                self.fileHandle = fileHandle
             } catch {
                 bufferData(data)
                 state = .waitingToReopen
@@ -106,6 +121,7 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
         case let .opened(fileHandle):
             do {
                 try write(fileHandle: fileHandle, data: data)
+                self.fileHandle = fileHandle
             } catch {
                 bufferData(data)
                 state = .waitingToReopen
@@ -113,6 +129,32 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
 
         case .waitingToReopen:
             bufferData(data)
+        }
+    }
+
+    private func openExistingFile() throws -> FileHandle {
+        let fileHandle = try openFile()
+
+        let currentOffset = try fileHandle.seekToEnd()
+        if currentOffset == 0 {
+            try fileHandle.write(contentsOf: headerData)
+        }
+        try fileHandle.seekToEnd()
+        return fileHandle
+    }
+
+    private func reopenFile() {
+        do {
+            let fileHandle = try openExistingFile()
+
+            if !buffer.isEmpty {
+                try write(fileHandle: fileHandle, data: buffer)
+                buffer.removeAll()
+            }
+
+            state = .opened(fileHandle)
+        } catch {
+            state = .waitingToReopen
         }
     }
 
@@ -194,24 +236,6 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
         try write(fileHandle: fileHandle, data: headerData)
 
         return fileHandle
-    }
-
-    private func reopenFile() {
-        do {
-            // Write a message indicating that the file was reopened.
-            let fileHandle =
-                try openFileWithHeader("<Log file re-opened after failure. Buffered \(buffer.count) bytes of messages>")
-
-            // Write all buffered messages.
-            if !buffer.isEmpty {
-                try write(fileHandle: fileHandle, data: buffer)
-                buffer.removeAll()
-            }
-
-            state = .opened(fileHandle)
-        } catch {
-            state = .waitingToReopen
-        }
     }
 
     private func bufferData(_ data: Data) {
