@@ -436,7 +436,7 @@ impl Tunnel for BoringTun {
         Box::pin(async move {
             let old_config = std::mem::replace(&mut self.config, config);
 
-            if old_config.is_multihop() != self.config.is_multihop() {
+            if old_config.is_multihop() != self.config.is_multihop() || true {
                 // TODO: Update existing tunnels?
                 match self.devices.take().unwrap() {
                     Devices::Singlehop { device, .. } => {
