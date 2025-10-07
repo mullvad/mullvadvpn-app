@@ -93,10 +93,6 @@ test.describe('Connection states', () => {
       });
     });
 
-    test.afterEach(async () => {
-      await util.ipc.tunnel[''].notify({ state: 'disconnecting', details: 'nothing' });
-    });
-
     test('App should show connected tunnel state', async () => {
       await expectConnected(page);
     });
