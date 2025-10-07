@@ -359,6 +359,23 @@ async fn create_devices(
     }
 }
 
+/// Stop borintun devices.
+async fn stop_devices(devices: Devices) {
+    match devices {
+        Devices::Singlehop { device, .. } => {
+            device.stop().await;
+        }
+        Devices::Multihop {
+            entry_device,
+            exit_device,
+            ..
+        } => {
+            exit_device.stop().await;
+            entry_device.stop().await;
+        }
+    }
+}
+
 #[async_trait::async_trait]
 impl Tunnel for BoringTun {
     fn get_interface_name(&self) -> String {
@@ -368,21 +385,8 @@ impl Tunnel for BoringTun {
     fn stop(self: Box<Self>) -> Result<(), TunnelError> {
         log::info!("BoringTun::stop"); // remove me
         tokio::runtime::Handle::current().block_on(async {
-            match self.devices {
-                Devices::Singlehop { device, .. } => {
-                    device.stop().await;
-                }
-                Devices::Multihop {
-                    entry_device,
-                    exit_device,
-                    ..
-                } => {
-                    exit_device.stop().await;
-                    entry_device.stop().await;
-                }
-            }
+            stop_devices(self.devices).await;
         });
-
         Ok(())
     }
 
@@ -441,23 +445,8 @@ impl Tunnel for BoringTun {
                 self.android_tun.clone(),
             )
             .await?;
-
             let old_devices = std::mem::replace(&mut self.devices, new_devices);
-
-            match old_devices {
-                Devices::Singlehop { device, .. } => {
-                    device.stop().await;
-                }
-                Devices::Multihop {
-                    entry_device,
-                    exit_device,
-                    ..
-                } => {
-                    exit_device.stop().await;
-                    entry_device.stop().await;
-                }
-            }
-
+            stop_devices(old_devices).await;
             Ok(())
         })
     }
