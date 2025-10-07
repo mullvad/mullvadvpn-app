@@ -312,20 +312,6 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn set_openvpn_mssfix(&self, request: Request<u32>) -> ServiceResult<()> {
-        let mssfix = request.into_inner();
-        let mssfix = if mssfix != 0 {
-            Some(mssfix as u16)
-        } else {
-            None
-        };
-        log::debug!("set_openvpn_mssfix({:?})", mssfix);
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))?;
-        self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
-    }
-
     async fn set_wireguard_mtu(&self, request: Request<u32>) -> ServiceResult<()> {
         let mtu = request.into_inner();
         let mtu = if mtu != 0 { Some(mtu as u16) } else { None };

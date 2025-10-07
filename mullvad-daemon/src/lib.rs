@@ -276,8 +276,6 @@ pub enum DaemonCommand {
     SetLockdownMode(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
-    /// Set the mssfix argument for OpenVPN
-    SetOpenVpnMssfix(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set proxy details for OpenVPN
     SetBridgeSettings(ResponseTx<(), Error>, BridgeSettings),
     /// Set proxy state
@@ -1434,7 +1432,6 @@ impl Daemon {
                 self.on_set_lockdown_mode(tx, lockdown_mode).await
             }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect).await,
-            SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg).await,
             SetBridgeSettings(tx, bridge_settings) => {
                 self.on_set_bridge_settings(tx, bridge_settings).await
             }
@@ -2498,32 +2495,6 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set auto-connect response");
-            }
-        }
-    }
-
-    async fn on_set_openvpn_mssfix(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        mssfix: Option<u16>,
-    ) {
-        match self
-            .settings
-            .update(move |settings| settings.tunnel_options.openvpn.mssfix = mssfix)
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
-                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
-                    log::info!(
-                        "Initiating tunnel restart because the OpenVPN mssfix setting changed"
-                    );
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_openvpn_mssfix response");
             }
         }
     }

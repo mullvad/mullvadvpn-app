@@ -55,23 +55,6 @@ impl TryFrom<&proto::WireguardConstraints>
     }
 }
 
-impl TryFrom<&proto::OpenvpnConstraints> for mullvad_types::relay_constraints::OpenVpnConstraints {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(
-        constraints: &proto::OpenvpnConstraints,
-    ) -> Result<mullvad_types::relay_constraints::OpenVpnConstraints, Self::Error> {
-        use mullvad_types::relay_constraints as mullvad_constraints;
-
-        Ok(mullvad_constraints::OpenVpnConstraints {
-            port: Constraint::from(match &constraints.port {
-                Some(port) => Some(mullvad_constraints::TransportPort::try_from(*port)?),
-                None => None,
-            }),
-        })
-    }
-}
-
 impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySettings {
     type Error = FromProtobufTypeError;
 
@@ -110,12 +93,6 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
 
-                let openvpn_constraints =
-                    mullvad_constraints::OpenVpnConstraints::try_from(
-                        &settings.openvpn_constraints.ok_or(
-                            FromProtobufTypeError::InvalidArgument("missing openvpn constraints"),
-                        )?,
-                    )?;
                 let wireguard_constraints = mullvad_constraints::WireguardConstraints::try_from(
                     &settings.wireguard_constraints.ok_or(
                         FromProtobufTypeError::InvalidArgument("missing wireguard constraints"),
@@ -128,7 +105,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                         providers,
                         ownership,
                         wireguard_constraints,
-                        openvpn_constraints,
+                        openvpn_constraints: mullvad_constraints::OpenVpnConstraints::default(),
                     },
                 ))
             }
@@ -239,7 +216,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
             MullvadRelaySettings::CustomTunnelEndpoint(endpoint) => {
                 relay_settings::Endpoint::Custom(proto::CustomRelaySettings {
                     host: endpoint.host,
-                    config: Some(proto::ConnectionConfig::from(endpoint.config)),
+                    config: Some(proto::WireguardConfig::from(endpoint.config)),
                 })
             }
             MullvadRelaySettings::Normal(constraints) => {
@@ -276,14 +253,6 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .entry_location
                             .option()
                             .map(proto::LocationConstraint::from),
-                    }),
-
-                    openvpn_constraints: Some(proto::OpenvpnConstraints {
-                        port: constraints
-                            .openvpn_constraints
-                            .port
-                            .option()
-                            .map(proto::TransportPort::from),
                     }),
                 })
             }

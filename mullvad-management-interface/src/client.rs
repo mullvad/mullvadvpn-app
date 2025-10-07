@@ -275,13 +275,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
-        self.0
-            .set_openvpn_mssfix(mssfix.map(u32::from).unwrap_or(0))
-            .await?;
-        Ok(())
-    }
-
     pub async fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<()> {
         self.0
             .set_wireguard_mtu(mtu.map(u32::from).unwrap_or(0))
