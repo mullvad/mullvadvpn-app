@@ -61,6 +61,15 @@ class AllLocationsDataSourceTests: XCTestCase {
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["es", "mad"])?.isHiddenFromSearch == false)
     }
 
+    func testSearch3() throws {
+        let nodes = dataSource.search(by: "Sweden")
+        let rootNode = RootLocationNode(children: nodes)
+
+        rootNode.countryFor(code: "se")?.forEachAncestor { location in
+            XCTAssertFalse(location.isHiddenFromSearch)
+        }
+    }
+
     func testSearchWithEmptyText() throws {
         let nodes = dataSource.search(by: "")
         XCTAssertEqual(nodes, dataSource.nodes)
