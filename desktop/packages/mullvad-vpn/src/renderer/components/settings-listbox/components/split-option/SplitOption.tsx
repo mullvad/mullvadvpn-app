@@ -1,14 +1,33 @@
+import React from 'react';
+
 import { Flex } from '../../../../lib/components';
 import { Listbox } from '../../../../lib/components/listbox';
 import { ListboxOptionProps } from '../../../../lib/components/listbox/components';
+import { useRovingFocus } from '../../../../lib/hooks';
 import { SplitOptionItem, SplitOptionNavigateButton } from './components';
 
 export type SplitOptionProps<T> = ListboxOptionProps<T>;
 
 function SplitOption<T>({ children, ...props }: SplitOptionProps<T>) {
+  const optionsRef = React.useRef<HTMLDivElement>(null);
+  const [focusedIndex, setFocusedIndex] = React.useState<number | undefined>(undefined);
+  const { handleKeyboardNavigation, handleBlur, handleFocus } = useRovingFocus({
+    optionsRef,
+    orientation: 'horizontal',
+    selector: '[data-split-button="true"]:not([aria-disabled="true"])',
+    focusedIndex,
+    setFocusedIndex,
+  });
+
   return (
-    <Listbox.Option level={1} {...props}>
-      <Flex>{children}</Flex>
+    <Listbox.Option
+      level={1}
+      role="group"
+      onKeyDown={handleKeyboardNavigation}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      {...props}>
+      <Flex ref={optionsRef}>{children}</Flex>
     </Listbox.Option>
   );
 }
