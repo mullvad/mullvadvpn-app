@@ -10,6 +10,9 @@ name: Desktop - End-to-end tests
 on:
   schedule:
     - cron: '0 0 * * *'
+  pull_request:
+    paths-ignore:
+      - '*'
   workflow_dispatch:
     inputs:
       oses:
