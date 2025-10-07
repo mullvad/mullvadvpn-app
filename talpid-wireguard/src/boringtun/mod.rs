@@ -169,7 +169,6 @@ pub async fn open_boringtun_tunnel(
     #[cfg(target_os = "android")]
     let (tun, async_tun) = {
         let _ = routes; // TODO: do we need this?
-        // See `wireguard_go` module for why this is needed.
         let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), &config)?;
         let is_new_tunnel = tun.is_new;
 
@@ -203,10 +202,10 @@ pub async fn open_boringtun_tunnel(
 
     let config = config.clone();
     #[cfg(target_os = "android")]
-    let config = if gateway_only {
-        patch_allowed_ips(config)
-    } else {
-        config
+    let config = match gateway_only {
+        // See `wireguard_go` module for why this is needed.
+        true => patch_allowed_ips(config),
+        false => config,
     };
 
     let boringtun = BoringTun::new(
