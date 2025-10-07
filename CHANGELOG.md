@@ -32,6 +32,11 @@ Line wrap the file at 100 chars.                                              Th
   duplicated names will be renamed.
 - Change how externally triggered navigation is handled in the UI. This could potentially reduce
   issues where users get stuck in the out-of-time view.
+- Update Electron from 36.5.0 to 37.6.0.
+
+### Fixed
+#### macOS
+- Fix high CPU usage on macOS 26 by updating Electron. This affected the app when it was visible.
 
 
 #### Linux
