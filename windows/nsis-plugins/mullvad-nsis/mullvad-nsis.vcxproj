@@ -53,50 +53,6 @@
     <NMakeReBuildCommandLine>powershell.exe -Command "&amp; { Remove-Item Env:VSTEL_MSBuildProjectFullPath; cargo build --target i686-pc-windows-msvc --release -p mullvad-nsis --locked }"</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>powershell.exe -Command "&amp; { Remove-Item Env:VSTEL_MSBuildProjectFullPath; cargo clean --target i686-pc-windows-msvc --release -p mullvad-nsis --locked }"</NMakeCleanCommandLine>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>powershell.exe -Command "&amp; { Remove-Item Env:VSTEL_MSBuildProjectFullPath; cargo build --target i686-pc-windows-msvc --release -p mullvad-nsis }"</Command>
-    </CustomBuildStep>
-    <CustomBuildStep>
-      <Message>Building mullvad-nsis library</Message>
-    </CustomBuildStep>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>powershell.exe -Command "&amp; { Remove-Item Env:VSTEL_MSBuildProjectFullPath; cargo build --target i686-pc-windows-msvc --release --locked -p mullvad-nsis }"</Command>
-      <Message>Building mullvad-nsis library</Message>
-    </CustomBuildStep>
-  </ItemDefinitionGroup>
   <ItemGroup>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
