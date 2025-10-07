@@ -512,6 +512,7 @@ impl Display for SettingsSummary<'_> {
                     .custom_options
                     .addresses
                     .iter()
+                    .copied()
                     .any(is_local_address);
                 let contains_public = self
                     .settings
@@ -520,6 +521,7 @@ impl Display for SettingsSummary<'_> {
                     .custom_options
                     .addresses
                     .iter()
+                    .copied()
                     .any(|addr| !is_local_address(addr));
 
                 match (contains_public, contains_local) {

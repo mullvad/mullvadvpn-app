@@ -4,7 +4,6 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    sync::LazyLock,
 };
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
@@ -27,29 +26,24 @@ mod imp;
 pub use self::imp::Error;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static IPV6_LINK_LOCAL: LazyLock<Ipv6Network> =
-    LazyLock::new(|| Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
+const IPV6_LINK_LOCAL: Ipv6Network =
+    Ipv6Network::new_checked(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
 /// The allowed target addresses of outbound DHCPv6 requests
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static DHCPV6_SERVER_ADDRS: LazyLock<[Ipv6Addr; 2]> = LazyLock::new(|| {
-    [
-        Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
-        Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
-    ]
-});
+const DHCPV6_SERVER_ADDRS: [Ipv6Addr; 2] = [
+    Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
+    Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
+];
+
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static ROUTER_SOLICITATION_OUT_DST_ADDR: LazyLock<Ipv6Addr> =
-    LazyLock::new(|| Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));
+const ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static SOLICITED_NODE_MULTICAST: LazyLock<Ipv6Network> = LazyLock::new(|| {
-    Ipv6Network::new(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap()
-});
-static LOOPBACK_NETS: LazyLock<[IpNetwork; 2]> = LazyLock::new(|| {
-    [
-        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
-        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap()),
-    ]
-});
+const SOLICITED_NODE_MULTICAST: Ipv6Network =
+    Ipv6Network::new_checked(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap();
+const LOOPBACK_NETS: [IpNetwork; 2] = [
+    IpNetwork::V4(Ipv4Network::new_checked(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
+    IpNetwork::V6(Ipv6Network::new_checked(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap()),
+];
 
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV4_SERVER_PORT: u16 = 67;
@@ -63,11 +57,10 @@ const DHCPV6_CLIENT_PORT: u16 = 546;
 const ROOT_UID: u32 = 0;
 
 /// Returns whether an address belongs to a private subnet.
-pub fn is_local_address(address: &IpAddr) -> bool {
-    let address = *address;
-    (*ALLOWED_LAN_NETS)
+pub fn is_local_address(address: IpAddr) -> bool {
+    ALLOWED_LAN_NETS
         .iter()
-        .chain(&*LOOPBACK_NETS)
+        .chain(&LOOPBACK_NETS)
         .any(|net| net.contains(address))
 }
 
