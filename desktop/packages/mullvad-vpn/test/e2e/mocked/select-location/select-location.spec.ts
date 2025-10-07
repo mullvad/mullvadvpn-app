@@ -303,8 +303,7 @@ test.describe('Select location', () => {
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
       });
-    });
-    test.describe('Filter by LWO', () => {
+
       test('Should apply filter when LWO obfuscation is selected', async () => {
         const settings = getDefaultSettings();
         if ('normal' in settings.relaySettings) {
