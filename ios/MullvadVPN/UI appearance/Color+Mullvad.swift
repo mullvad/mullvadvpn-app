@@ -9,6 +9,7 @@ extension Color {
 
     static let mullvadBackground: Color = .mullvadSecondaryColor
     static let mullvadTextPrimary: Color = UIColor.primaryTextColor.color
+    static let mullvadTextSecondary: Color = MullvadWhite._60
     static let mullvadTextPrimaryDisabled: Color = .mullvadTextPrimary.opacity(
         0.2
     )
