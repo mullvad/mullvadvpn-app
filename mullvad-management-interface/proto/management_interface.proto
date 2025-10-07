@@ -701,7 +701,6 @@ message RelayListCity {
 
 message Relay {
   message RelayData {
-    message OpenVPN {}
     message Bridge {}
     message Wireguard {
       message Quic {
@@ -719,8 +718,7 @@ message Relay {
 
     oneof data {
       Wireguard wireguard = 1;
-      OpenVPN openvpn = 2;
-      Bridge bridge = 3;
+      Bridge bridge = 2;
     }
   }
 
@@ -764,16 +762,8 @@ message DaemonEvent {
 
 message RelayList {
   repeated RelayListCountry countries = 1;
-  OpenVpnEndpointData openvpn = 2;
-  BridgeEndpointData bridge = 3;
-  WireguardEndpointData wireguard = 4;
-}
-
-message OpenVpnEndpointData { repeated OpenVpnEndpoint endpoints = 1; }
-
-message OpenVpnEndpoint {
-  uint32 port = 1;
-  TransportProtocol protocol = 2;
+  BridgeEndpointData bridge = 2;
+  WireguardEndpointData wireguard = 3;
 }
 
 message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }

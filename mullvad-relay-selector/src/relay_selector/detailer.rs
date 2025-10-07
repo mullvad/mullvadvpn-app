@@ -1,5 +1,5 @@
-//! This module implements functions for producing a [`MullvadEndpoint`] given a Wireguard or
-//! OpenVPN relay chosen by the relay selector.
+//! This module implements functions for producing a [`MullvadEndpoint`] given a Wireguard
+//! relay chosen by the relay selector.
 //!
 //! [`MullvadEndpoint`] contains all the necessary information for establishing a connection
 //! between the client and Mullvad VPN. It is the daemon's responsibility to establish this
@@ -27,11 +27,9 @@ use super::{WireguardConfig, query::WireguardRelayQuery};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("No OpenVPN endpoint could be derived")]
-    NoOpenVpnEndpoint,
     #[error("No bridge endpoint could be derived")]
     NoBridgeEndpoint,
-    #[error("OpenVPN relays and bridges does not have a public key. Expected a Wireguard relay")]
+    #[error("Bridges do not have a public key. Expected a Wireguard relay")]
     MissingPublicKey,
     #[error("The selected relay does not support IPv6")]
     NoIPv6(Box<Relay>),
@@ -193,7 +191,7 @@ fn get_port_for_wireguard_relay(
 const fn get_public_key(relay: &Relay) -> Result<&PublicKey, Error> {
     match &relay.endpoint_data {
         RelayEndpointData::Wireguard(endpoint) => Ok(&endpoint.public_key),
-        RelayEndpointData::Openvpn | RelayEndpointData::Bridge => Err(Error::MissingPublicKey),
+        RelayEndpointData::Bridge => Err(Error::MissingPublicKey),
     }
 }
 

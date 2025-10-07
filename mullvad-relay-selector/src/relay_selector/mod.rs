@@ -45,7 +45,7 @@ use std::{
 use talpid_types::{
     ErrorExt,
     net::{
-        Endpoint, IpAvailability, IpVersion, TransportProtocol,
+        IpAvailability, IpVersion, TransportProtocol,
         obfuscation::{ObfuscatorConfig, Obfuscators},
         proxy::{CustomProxy, Shadowsocks},
     },
@@ -201,13 +201,6 @@ pub enum GetRelay {
         endpoint: MullvadWireguardEndpoint,
         obfuscator: Option<SelectedObfuscator>,
         inner: WireguardConfig,
-    },
-    // TODO: Remove
-    #[cfg(not(target_os = "android"))]
-    OpenVpn {
-        endpoint: Endpoint,
-        exit: Relay,
-        bridge: Option<SelectedBridge>,
     },
     Custom(CustomTunnelEndpoint),
 }

@@ -292,7 +292,6 @@ impl Relay {
                 );
                 for relay in &city.relays {
                     let support_msg = match relay.endpoint_data {
-                        RelayEndpointData::Openvpn => "OpenVPN",
                         RelayEndpointData::Wireguard(_) => "WireGuard",
                         _ => unreachable!("Bug in relay filtering earlier on"),
                     };

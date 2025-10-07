@@ -24,8 +24,8 @@ use mullvad_types::{
         BridgeState, GeographicLocationConstraint, Ownership, Providers, RelayOverride,
     },
     relay_list::{
-        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Quic, Relay, RelayEndpointData,
-        RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
+        BridgeEndpointData, Quic, Relay, RelayEndpointData, RelayList, RelayListCity,
+        RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
         WireguardRelayEndpointData,
     },
 };
@@ -119,34 +119,6 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
-                    hostname: "se-got-001".to_string(),
-                    ipv4_addr_in: "185.213.154.131".parse().unwrap(),
-                    ipv6_addr_in: None,
-                    overridden_ipv4: false,
-                    overridden_ipv6: false,
-                    include_in_country: true,
-                    active: true,
-                    owned: true,
-                    provider: "provider2".to_string(),
-                    weight: 1,
-                    endpoint_data: RelayEndpointData::Openvpn,
-                    location: DUMMY_LOCATION.clone(),
-                },
-                Relay {
-                    hostname: "se-got-002".to_string(),
-                    ipv4_addr_in: "1.2.3.4".parse().unwrap(),
-                    ipv6_addr_in: None,
-                    overridden_ipv4: false,
-                    overridden_ipv6: false,
-                    include_in_country: true,
-                    active: true,
-                    owned: true,
-                    provider: "provider0".to_string(),
-                    weight: 1,
-                    endpoint_data: RelayEndpointData::Openvpn,
-                    location: DUMMY_LOCATION.clone(),
-                },
-                Relay {
                     hostname: "se-got-br-001".to_string(),
                     ipv4_addr_in: "1.3.3.7".parse().unwrap(),
                     ipv6_addr_in: None,
@@ -164,22 +136,6 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
             ],
         }],
     }],
-    openvpn: OpenVpnEndpointData {
-        ports: vec![
-            OpenVpnEndpoint {
-                port: 1194,
-                protocol: Udp,
-            },
-            OpenVpnEndpoint {
-                port: 443,
-                protocol: Tcp,
-            },
-            OpenVpnEndpoint {
-                port: 80,
-                protocol: Tcp,
-            },
-        ],
-    },
     bridge: BridgeEndpointData {
         shadowsocks: vec![
             ShadowsocksEndpointData {
@@ -261,7 +217,6 @@ fn unwrap_relay(get_result: GetRelay) -> Relay {
             crate::WireguardConfig::Singlehop { exit } => exit,
             crate::WireguardConfig::Multihop { exit, .. } => exit,
         },
-        GetRelay::OpenVpn { exit, .. } => exit,
         GetRelay::Custom(custom) => {
             panic!("Can not extract regular relay from custom relay: {custom}")
         }
@@ -274,7 +229,6 @@ fn unwrap_entry_relay(get_result: GetRelay) -> Relay {
             crate::WireguardConfig::Singlehop { exit } => exit,
             crate::WireguardConfig::Multihop { entry, .. } => entry,
         },
-        GetRelay::OpenVpn { exit, .. } => exit,
         GetRelay::Custom(custom) => {
             panic!("Can not extract regular relay from custom relay: {custom}")
         }
@@ -284,7 +238,6 @@ fn unwrap_entry_relay(get_result: GetRelay) -> Relay {
 fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     match get_result {
         GetRelay::Wireguard { endpoint, .. } => MullvadEndpoint::Wireguard(endpoint),
-        GetRelay::OpenVpn { endpoint, .. } => MullvadEndpoint::OpenVpn(endpoint),
         GetRelay::Custom(custom) => {
             panic!("Can not extract Mullvad endpoint from custom relay: {custom}")
         }
@@ -447,7 +400,6 @@ fn test_wireguard_entry() {
                 ],
             }],
         }],
-        openvpn: OpenVpnEndpointData { ports: vec![] },
         bridge: BridgeEndpointData {
             shadowsocks: vec![],
         },
@@ -1014,22 +966,6 @@ fn test_include_in_country() {
                 ],
             }],
         }],
-        openvpn: OpenVpnEndpointData {
-            ports: vec![
-                OpenVpnEndpoint {
-                    port: 1194,
-                    protocol: Udp,
-                },
-                OpenVpnEndpoint {
-                    port: 443,
-                    protocol: Tcp,
-                },
-                OpenVpnEndpoint {
-                    port: 80,
-                    protocol: Tcp,
-                },
-            ],
-        },
         bridge: BridgeEndpointData {
             shadowsocks: vec![],
         },
