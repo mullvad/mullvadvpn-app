@@ -433,34 +433,31 @@ impl Tunnel for BoringTun {
         config: Config,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
-            let old_config = std::mem::replace(&mut self.config, config);
-
-            if old_config.is_multihop() != self.config.is_multihop() || true {
-                // TODO: Update existing tunnels?
-                match self.devices.take().unwrap() {
-                    Devices::Singlehop { device, .. } => {
-                        device.stop().await;
-                    }
-                    Devices::Multihop {
-                        entry_device,
-                        exit_device,
-                        ..
-                    } => {
-                        exit_device.stop().await;
-                        entry_device.stop().await;
-                    }
+            let _old_config = std::mem::replace(&mut self.config, config);
+            // TODO: diff with _old_config to see if devices need to be recreated.
+            match self.devices.take().unwrap() {
+                Devices::Singlehop { device, .. } => {
+                    device.stop().await;
                 }
-
-                self.devices = Some(
-                    create_devices(
-                        &self.config,
-                        self.tun.clone(),
-                        #[cfg(target_os = "android")]
-                        self.android_tun.clone(),
-                    )
-                    .await?,
-                );
+                Devices::Multihop {
+                    entry_device,
+                    exit_device,
+                    ..
+                } => {
+                    exit_device.stop().await;
+                    entry_device.stop().await;
+                }
             }
+
+            self.devices = Some(
+                create_devices(
+                    &self.config,
+                    self.tun.clone(),
+                    #[cfg(target_os = "android")]
+                    self.android_tun.clone(),
+                )
+                .await?,
+            );
             Ok(())
         })
     }
