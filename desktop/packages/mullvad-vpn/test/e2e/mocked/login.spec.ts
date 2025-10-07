@@ -40,7 +40,7 @@ test.describe('Login view', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   const setAccountHistory = async () => {

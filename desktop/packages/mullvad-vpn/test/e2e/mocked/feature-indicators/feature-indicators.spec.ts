@@ -165,7 +165,7 @@ test.describe('Feature indicators', () => {
   });
 
   test.afterAll(async () => {
-    await page?.close();
+    await util?.closePage();
   });
 
   async function expectFeatureIndicators(expectedIndicators: Array<string>, only = true) {

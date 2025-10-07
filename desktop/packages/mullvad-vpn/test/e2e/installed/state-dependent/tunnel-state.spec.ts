@@ -36,7 +36,7 @@ test.describe('Tunnel state and settings', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test('App should show disconnected tunnel state', async () => {

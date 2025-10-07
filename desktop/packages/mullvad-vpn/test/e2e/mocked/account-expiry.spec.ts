@@ -32,7 +32,7 @@ test.describe('Account expiry', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.beforeEach(async () => {

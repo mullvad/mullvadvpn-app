@@ -13,7 +13,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await page.close();
+  await util?.closePage();
 });
 
 test('Account button should be displayed correctly', async () => {

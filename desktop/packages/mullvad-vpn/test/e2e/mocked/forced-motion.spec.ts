@@ -20,7 +20,7 @@ test.describe('Transitions and animations', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test('Should navigate with transitions', async () => {

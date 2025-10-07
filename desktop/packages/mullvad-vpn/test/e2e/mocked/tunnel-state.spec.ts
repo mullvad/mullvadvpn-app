@@ -34,7 +34,7 @@ test.describe('Connection states', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   /**

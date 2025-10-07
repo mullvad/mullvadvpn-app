@@ -19,7 +19,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await page.close();
+  await util?.closePage();
 });
 
 test('App should show too many devices', async () => {

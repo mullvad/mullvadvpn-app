@@ -25,7 +25,7 @@ test.describe('DAITA settings', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.afterEach(async () => {

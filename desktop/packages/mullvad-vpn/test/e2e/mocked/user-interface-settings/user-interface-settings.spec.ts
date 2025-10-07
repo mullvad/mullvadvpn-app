@@ -24,7 +24,7 @@ test.describe('User interface settings', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.describe('Select language', () => {

@@ -28,7 +28,7 @@ test.describe('Linux Split tunneling unsupported', () => {
   }
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.beforeAll(async () => {
@@ -74,7 +74,7 @@ test.describe('Linux Split tunneling supported', () => {
   }
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.beforeAll(async () => {
