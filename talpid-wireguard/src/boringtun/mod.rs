@@ -434,7 +434,6 @@ impl Tunnel for BoringTun {
         Box::pin(async move {
             let _old_config = std::mem::replace(&mut self.config, config);
             // TODO: diff with _old_config to see if devices need to be recreated.
-            // TODO: Check if it is valid to create new devices before stopping the previous ones.
             let new_devices = create_devices(
                 &self.config,
                 self.tun.clone(),
