@@ -1,9 +1,8 @@
 /**
  * CHANGELOG.md Validation Tests
- * 
+ *
  * Tests for validating the CHANGELOG.md structure and content
  */
-
 import { expect } from 'chai';
 import { describe, it, before, after } from 'mocha';
 import fs from 'fs/promises';
