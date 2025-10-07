@@ -13,6 +13,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func onFilterRemoved(_ filter: SelectLocationFilter)
     func refreshCustomLists()
     func addLocationToCustomList(location: LocationNode, customListName: String)
+    func removeLocationFromCustomList(location: LocationNode, customListName: String)
     func didFinish()
     func showDaitaSettings()
     func showEditCustomListView(locations: [LocationNode])
@@ -310,9 +311,52 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             }
         }
         customListsDataSource.reload(allLocationNodes: exitContext.locations)
-        exitContext.customLists = customListsDataSource.search(by: searchText)
+
+        exitContext.customLists =
+            customListsDataSource
+            .search(by: searchText)
+            .map {
+                newCustomList in
+                let oldCustomList =
+                    exitContext.customLists
+                    .first { existingCustomList in
+                        existingCustomList.code == newCustomList.code
+                    }
+                newCustomList.showsChildren = oldCustomList?.showsChildren ?? false
+                newCustomList.children = newCustomList.children.map { newLocation in
+                    let existingLocation = exitContext.customLists
+                        .first {
+                            oldLocation in
+                            oldLocation.code == newLocation.code
+                        }
+                    newLocation.showsChildren = existingLocation?.showsChildren ?? false
+                    return newLocation
+                }
+                return newCustomList
+            }
         customListsDataSource.reload(allLocationNodes: entryContext.locations)
-        entryContext.customLists = customListsDataSource.search(by: searchText)
+        entryContext.customLists =
+            customListsDataSource
+            .search(by: searchText)
+            .map {
+                newCustomList in
+                let oldCustomList =
+                    entryContext.customLists
+                    .first { existingCustomList in
+                        existingCustomList.code == newCustomList.code
+                    }
+                newCustomList.showsChildren = oldCustomList?.showsChildren ?? false
+                newCustomList.children = newCustomList.children.map { newLocation in
+                    let existingLocation = exitContext.customLists
+                        .first {
+                            oldLocation in
+                            oldLocation.code == newLocation.code
+                        }
+                    newLocation.showsChildren = existingLocation?.showsChildren ?? false
+                    return newLocation
+                }
+                return newCustomList
+            }
 
         if let exitLocations = settings.relayConstraints.exitLocations.value {
             setSelection(
@@ -373,10 +417,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func addLocationToCustomList(location: LocationNode, customListName: String) {
-        let customList = customListRepository.fetchAll().first { $0.name == customListName }
-        guard let customList else {
-            return
-        }
+        var customList = customListRepository.fetchAll().first { $0.name == customListName } ?? CustomList(
+            name: customListName,
+            locations: []
+        )
+
         let allLocations = (customList.locations + location.locations)
         let locations: [RelayLocation] =
             allLocations
@@ -394,6 +439,24 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             id: customList.id,
             name: customList.name,
             locations: locations
+        )
+        try? customListRepository.save(list: newCustomList)
+        fetchLocations(settings: tunnelManager.settings)
+    }
+
+    func removeLocationFromCustomList(
+        location: LocationNode,
+        customListName: String
+    ) {
+        let customList = customListRepository.fetchAll().first { $0.name == customListName }
+        guard let customList else {
+            return
+        }
+        let allLocations = customList.locations.filter { !location.locations.contains($0) }
+        let newCustomList = CustomList(
+            id: customList.id,
+            name: customList.name,
+            locations: allLocations
         )
         try? customListRepository.save(list: newCustomList)
         fetchLocations(settings: tunnelManager.settings)

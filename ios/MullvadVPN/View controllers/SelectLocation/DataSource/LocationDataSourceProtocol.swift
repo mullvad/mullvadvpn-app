@@ -26,21 +26,22 @@ extension LocationDataSourceProtocol {
             childMatches = true
         }
         if matchesSelf && !childMatches {
-            node.children.forEach { $0.isHiddenFromSearch = false }
+            resetChildren(node: node)
         }
         node.isHiddenFromSearch = !matchesSelf && !childMatches
         node.showsChildren = childMatches
         return node.isHiddenFromSearch
     }
 
-    private func reset() {
-        func resetChildren(node: LocationNode) {
-            node.children.forEach { child in
-                child.isHiddenFromSearch = false
-                child.showsChildren = false
-                resetChildren(node: child)
-            }
+    private func resetChildren(node: LocationNode) {
+        node.children.forEach { child in
+            child.isHiddenFromSearch = false
+            child.showsChildren = false
+            resetChildren(node: child)
         }
+    }
+
+    private func reset() {
         nodes.forEach { node in
             node.isHiddenFromSearch = false
             node.showsChildren = false
