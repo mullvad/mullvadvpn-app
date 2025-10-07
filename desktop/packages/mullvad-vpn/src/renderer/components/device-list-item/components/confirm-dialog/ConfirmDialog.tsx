@@ -2,7 +2,7 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
 import { capitalizeEveryWord } from '../../../../../shared/string-helpers';
-import { Button } from '../../../../lib/components';
+import { Button, Text } from '../../../../lib/components';
 import { formatHtml } from '../../../../lib/html-formatter';
 import { IModalAlertProps, ModalAlert, ModalAlertType, ModalMessage } from '../../../Modal';
 import { useDeviceListItemContext } from '../../DeviceListItemContext';
@@ -41,14 +41,17 @@ export function ConfirmDialog({ isOpen }: ConfirmDialogProps) {
             // TRANSLATORS: The text enclosed in "<b></b>" will appear bold.
             // TRANSLATORS: Available placeholders:
             // TRANSLATORS: %(deviceName)s - The name of the device to log out.
-            messages.pgettext(
-              'device-management',
-              'Remove <b>%(deviceName)s?</b> The device will be removed from the list and logged out.',
-            ),
+            messages.pgettext('device-management', 'Remove <em>%(deviceName)s?</em>'),
             { deviceName },
           ),
         )}
       </ModalMessage>
+      <Text variant="labelTinySemiBold" color="whiteAlpha60">
+        {messages.pgettext(
+          'device-management',
+          'The device will be removed from the list and logged out.',
+        )}
+      </Text>
     </ModalAlert>
   );
 }
