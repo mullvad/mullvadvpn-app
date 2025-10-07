@@ -72,7 +72,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                 } label: {
                     Image.mullvadIconChevron
                         .rotationEffect(.degrees(isExpanded ? -90 : 90))
-                        .animation(.default, value: isExpanded)
+//                        .animation(.default, value: isExpanded)
                         .padding(16)
                         .frame(maxHeight: .infinity)
                         .background {
