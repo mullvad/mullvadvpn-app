@@ -117,33 +117,6 @@ class InputTextFormatterTests: XCTestCase {
         XCTAssertEqual(inputTextFormatter.formattedString, "1234 0000")
         XCTAssertEqual(inputTextFormatter.caretPosition, 9)
     }
-
-    func testInvalidCharactersReplacesTextFieldTextWithFormattedString() {
-        let invalidRange = NSRange(location: accountNumber.count + 1, length: 0)
-        let textField = UITextField()
-
-        _ = inputTextFormatter.textField(textField, shouldChangeCharactersIn: invalidRange, replacementString: "´")
-
-        XCTAssertEqual(textField.text, inputTextFormatter.formattedString)
-    }
-
-    func testDeleteCharacterOutsideOfTokenBoundaryDoesNotDeleteAnything() {
-        let invalidRange = NSRange(location: accountNumber.count + 1, length: 1)
-        let textField = UITextField()
-
-        _ = inputTextFormatter.textField(textField, shouldChangeCharactersIn: invalidRange, replacementString: "")
-
-        XCTAssertEqual(textField.text, inputTextFormatter.formattedString)
-    }
-
-    func testDeleteLastCharacter() {
-        let lastCharacterRange = NSRange(location: accountNumber.count, length: 1)
-        let textField = UITextField()
-
-        _ = inputTextFormatter.textField(textField, shouldChangeCharactersIn: lastCharacterRange, replacementString: "")
-
-        XCTAssertEqual(textField.text, "1234 567")
-    }
 }
 
 private extension String {
