@@ -150,8 +150,6 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   },
 ];
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Feature indicators', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());

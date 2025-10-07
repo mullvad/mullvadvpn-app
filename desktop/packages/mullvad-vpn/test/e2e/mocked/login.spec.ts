@@ -14,8 +14,6 @@ let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Login view', () => {
   const startup = async () => {
     ({ page, util } = await startMockedApp());
