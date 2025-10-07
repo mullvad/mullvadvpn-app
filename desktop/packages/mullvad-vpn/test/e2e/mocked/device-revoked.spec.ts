@@ -8,8 +8,6 @@ let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Device revoked', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());

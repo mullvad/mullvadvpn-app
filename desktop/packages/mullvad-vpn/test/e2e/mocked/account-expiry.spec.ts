@@ -20,8 +20,6 @@ const FUTURE_EXPIRY = {
   expiry: new Date(START_DATE.getTime() + FUTURE_EXPIRY_DIFF).toISOString(),
 };
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Account expiry', () => {
   const startup = async () => {
     ({ page, util } = await startMockedApp());
