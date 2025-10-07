@@ -125,13 +125,12 @@ impl Daemon {
             need_to_reconnect |= custom_list_id.map(|id| &id == list_id).unwrap_or(true);
         }
 
-        if self.tunnel_state.endpoint().is_some() {
-            if relay_settings.wireguard_constraints.multihop()
-                && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
-                    &relay_settings.wireguard_constraints.entry_location
-            {
-                need_to_reconnect |= custom_list_id.map(|id| &id == list_id).unwrap_or(true);
-            }
+        if self.tunnel_state.endpoint().is_some()
+            && relay_settings.wireguard_constraints.multihop()
+            && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                &relay_settings.wireguard_constraints.entry_location
+        {
+            need_to_reconnect |= custom_list_id.map(|id| &id == list_id).unwrap_or(true);
         }
 
         need_to_reconnect
