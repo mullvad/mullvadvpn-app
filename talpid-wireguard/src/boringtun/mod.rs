@@ -569,7 +569,7 @@ pub fn get_tunnel_for_userspace(
     tun_config.ipv6_gateway = config.ipv6_gateway;
     tun_config.mtu = config.mtu;
 
-    // Route everything into the tunnel and have wireguard-go act as a firewall when
+    // Route everything into the tunnel and have WireGuard act as a firewall when
     // blocking. These will not necessarily be the actual routes used by android. Those will
     // be generated at a later stage e.g. if Local Network Sharing is enabled.
     tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
