@@ -698,7 +698,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	# Best effort only. Ignore errors
 	IntCmp $0 -1 customInit_compatibleWinVer customInit_compatibleWinVer +1
 
-	MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Windows versions below 10 are unsupported. The last version to support Windows 7 and 8/8.1 is 2021.6."
+	MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Windows versions below 10 are unsupported."
 	Abort
 
 	customInit_compatibleWinVer:
