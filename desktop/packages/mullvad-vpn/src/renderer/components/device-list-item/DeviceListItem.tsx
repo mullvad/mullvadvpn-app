@@ -3,11 +3,11 @@ import styled, { css } from 'styled-components';
 
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { capitalizeEveryWord } from '../../../shared/string-helpers';
 import { Text } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
 import { spacings } from '../../lib/foundations';
+import { useFormattedDeviceName } from '../../lib/hooks';
 import { useBoolean } from '../../lib/utility-hooks';
 import { DeviceListItemProvider, useDeviceListItemContext } from './';
 import { ConfirmDialog, ErrorDialog, RemoveButton } from './components';
@@ -34,7 +34,7 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
   const { device, deleting, confirmDialogVisible, error } = useDeviceListItemContext();
   const createdDate = useFormattedDate(device.created);
   const isCurrentDevice = useIsCurrentDevice();
-  const deviceName = capitalizeEveryWord(device.name);
+  const deviceName = useFormattedDeviceName(device.name);
 
   return (
     <>

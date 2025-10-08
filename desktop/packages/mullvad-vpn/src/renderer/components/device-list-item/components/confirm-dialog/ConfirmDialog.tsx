@@ -1,8 +1,8 @@
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
-import { capitalizeEveryWord } from '../../../../../shared/string-helpers';
 import { Button, Text } from '../../../../lib/components';
+import { useFormattedDeviceName } from '../../../../lib/hooks';
 import { formatHtml } from '../../../../lib/html-formatter';
 import { IModalAlertProps, ModalAlert, ModalAlertType, ModalMessage } from '../../../Modal';
 import { useDeviceListItemContext } from '../../DeviceListItemContext';
@@ -14,7 +14,7 @@ export function ConfirmDialog({ isOpen }: ConfirmDialogProps) {
   const { device, hideConfirmDialog, deleting } = useDeviceListItemContext();
   const handleRemoveDevice = useHandleRemoveDevice();
 
-  const deviceName = capitalizeEveryWord(device.name);
+  const deviceName = useFormattedDeviceName(device.name);
 
   return (
     <ModalAlert

@@ -5,11 +5,11 @@ import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { RoutePath } from '../../shared/routes';
-import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
 import { useHistory } from '../lib/history';
+import { useFormattedDeviceName } from '../lib/hooks';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
@@ -113,6 +113,7 @@ function ExpiredAccountErrorViewComponent() {
 function WelcomeView() {
   const account = useSelector((state) => state.account);
   const { recoveryMessage } = useRecoveryAction();
+  const deviceName = useFormattedDeviceName(account.deviceName ?? '');
 
   return (
     <>
@@ -138,7 +139,7 @@ function WelcomeView() {
             // TRANSLATORS: %(deviceName)s - The name of the current device
             messages.pgettext('device-management', 'Device name: %(deviceName)s'),
             {
-              deviceName: capitalizeEveryWord(account.deviceName ?? ''),
+              deviceName,
             },
           )}
         </StyledDeviceLabel>

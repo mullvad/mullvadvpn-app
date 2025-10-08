@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 import { closeToExpiry, formatRemainingTime, hasExpired } from '../../../../shared/account-expiry';
 import { messages } from '../../../../shared/gettext';
-import { capitalizeEveryWord } from '../../../../shared/string-helpers';
 import { Flex, FootnoteMini } from '../../../lib/components';
+import { useFormattedDeviceName } from '../../../lib/hooks';
 import { useSelector } from '../../../redux/store';
 
 const StyledTimeLeftLabel = styled(FootnoteMini)({
@@ -22,7 +22,8 @@ const StyledFlex = styled(Flex)({
 });
 
 export const AppMainHeaderDeviceInfo = () => {
-  const deviceName = useSelector((state) => state.account.deviceName);
+  const stateDeviceName = useSelector((state) => state.account.deviceName);
+  const deviceName = useFormattedDeviceName(stateDeviceName ?? '');
   const accountExpiry = useSelector((state) => state.account.expiry);
   const isOutOfTime = accountExpiry ? hasExpired(accountExpiry) : false;
   const formattedExpiry = isOutOfTime
@@ -41,7 +42,7 @@ export const AppMainHeaderDeviceInfo = () => {
           // TRANSLATORS: %(deviceName)s - The name of the current device
           messages.pgettext('device-management', 'Device name: %(deviceName)s'),
           {
-            deviceName: capitalizeEveryWord(deviceName ?? ''),
+            deviceName,
           },
         )}
       </StyledDeviceLabel>
