@@ -83,7 +83,6 @@ test.describe('Connection states', () => {
         address: 'wg10:80',
         protocol: 'tcp',
         quantumResistant: false,
-        tunnelType: 'wireguard',
         daita: false,
       };
       await util.ipc.tunnel[''].notify({
