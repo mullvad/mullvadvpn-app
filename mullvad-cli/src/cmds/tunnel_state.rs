@@ -4,6 +4,7 @@ use futures::{Stream, StreamExt};
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_types::{device::DeviceState, states::TunnelState};
 
+/// If `wait` is true, `connect` will return once an out-IP has been assigned.
 pub async fn connect(wait: bool) -> Result<()> {
     let mut rpc = MullvadProxyClient::new().await?;
 
@@ -19,12 +20,7 @@ pub async fn connect(wait: bool) -> Result<()> {
     if rpc.connect_tunnel().await?
         && let Some(receiver) = listener
     {
-        wait_for_tunnel_state(receiver, |state| match state {
-            TunnelState::Connected { .. } => Ok(true),
-            TunnelState::Error(_) => Err(anyhow!("Failed to connect")),
-            _ => Ok(false),
-        })
-        .await?;
+        wait_for_out_ip(receiver).await?;
     }
 
     Ok(())
@@ -63,15 +59,27 @@ pub async fn reconnect(wait: bool) -> Result<()> {
     if rpc.reconnect_tunnel().await?
         && let Some(receiver) = listener
     {
-        wait_for_tunnel_state(receiver, |state| match state {
-            TunnelState::Connected { .. } => Ok(true),
-            TunnelState::Error(_) => Err(anyhow!("Failed to reconnect")),
-            _ => Ok(false),
-        })
-        .await?;
+        wait_for_out_ip(receiver).await?;
     }
 
     Ok(())
+}
+
+/// Wait until a Connected event containing an out-IP is seen.
+async fn wait_for_out_ip(
+    event_stream: impl Stream<
+        Item = std::result::Result<DaemonEvent, mullvad_management_interface::Error>,
+    > + Unpin,
+) -> Result<()> {
+    wait_for_tunnel_state(event_stream, |state| match state {
+        TunnelState::Connected {
+            location: Some(location),
+            ..
+        } if location.ipv4.is_some() || location.ipv6.is_some() => Ok(true),
+        TunnelState::Error(_) => Err(anyhow!("Failed to connect")),
+        _ => Ok(false),
+    })
+    .await
 }
 
 async fn wait_for_tunnel_state(
