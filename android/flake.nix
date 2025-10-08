@@ -104,7 +104,7 @@
             pkgs.gnumake
             pkgs.protobuf
             pkgs.jdk17
-            pkgs.python3Full
+            pkgs.python314
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [pkgs.libiconv];
 
