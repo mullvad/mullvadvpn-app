@@ -8,7 +8,7 @@
 
 extension TimeInterval {
     struct UnitTest {
-        static let timeout: TimeInterval = 60
+        static let timeout: TimeInterval = 10
         static let invertedTimeout: TimeInterval = 0.5
     }
 }
