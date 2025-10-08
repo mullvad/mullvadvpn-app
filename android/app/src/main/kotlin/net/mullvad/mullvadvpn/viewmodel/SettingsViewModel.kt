@@ -37,8 +37,7 @@ class SettingsViewModel(
                         appVersion = versionInfo.currentVersion,
                         isSupportedVersion = versionInfo.isSupported,
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
-                        isDaitaEnabled =
-                            settings?.tunnelOptions?.wireguard?.daitaSettings?.enabled == true,
+                        isDaitaEnabled = settings?.tunnelOptions?.daitaSettings?.enabled == true,
                         isPlayBuild = isPlayBuild,
                     )
                     .toLc<Unit, SettingsUiState>()
