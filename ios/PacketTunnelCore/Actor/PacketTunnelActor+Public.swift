@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadTypes
+import Network
 import WireGuardKitTypes
 
 /**
@@ -32,6 +33,13 @@ extension PacketTunnelActor {
      */
     nonisolated public func stop() {
         eventChannel.send(.stop)
+    }
+
+    /**
+     Tell actor to update its network reachability.
+     */
+    nonisolated public func updateNetworkReachability(networkPathStatus: NWPath.Status) {
+        eventChannel.send(.networkReachability(networkPathStatus))
     }
 
     /**
