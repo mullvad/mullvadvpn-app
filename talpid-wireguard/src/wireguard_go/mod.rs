@@ -112,7 +112,10 @@ pub(crate) async fn open_wireguard_go_tunnel(
     //
     // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
     #[cfg(target_os = "android")]
-    let config = config::patch_allowed_ips(config, gateway_only);
+    let config = match gateway_only {
+        true => config::patch_allowed_ips(config.clone()),
+        false => config.clone(),
+    };
 
     #[cfg(target_os = "android")]
     let tunnel = if let Some(exit_peer) = &config.exit_peer {
