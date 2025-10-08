@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Change how externally triggered navigation is handled in the UI. This could potentially reduce
   issues where users get stuck in the out-of-time view.
 
+### Fixed
+- Fix `mullvad connect --wait` returning before out-IP is known.
+
 
 #### Linux
 - Install AppArmor profile on all Linux distributions that support AppArmor abi 4.0.
