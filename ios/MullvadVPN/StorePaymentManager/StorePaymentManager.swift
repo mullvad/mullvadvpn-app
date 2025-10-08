@@ -324,6 +324,136 @@ final actor StorePaymentManager: @unchecked Sendable {
             }
         }
     }
+
+    private func transactionHasBeenProcessed(_ verificationResult: VerificationResult<Transaction>) -> Bool {
+        guard let transactionId = try? verificationResult.payloadValue.id else {
+            return true
+        }
+
+        return processedTransactionIdslock.withLock {
+            processedTransactionIds.contains(transactionId)
+        }
+    }
+
+    private func addToProcessedTransactions(_ verificationResult: VerificationResult<Transaction>) {
+        guard let transactionId = try? verificationResult.payloadValue.id else {
+            return
+        }
+
+        processedTransactionIdslock.withLock {
+            _ = processedTransactionIds.insert(transactionId)
+        }
+    }
+
+    // Returns time added, in seconds.
+    private func timeFromProduct(id: String) -> TimeInterval {
+        let product = ProductId(rawValue: id)
+
+        return switch product {
+        case .thirtyDays: Duration.days(30).timeInterval
+        case .ninetyDays: Duration.days(90).timeInterval
+        case .none: 0
+        }
+    }
+
+    private func shouldProcessPayment(verification: VerificationResult<Transaction>) -> Bool {
+        guard case VerificationResult<Transaction>.verified = verification else {
+            return false
+        }
+
+        let revocationDate = try? verification.payloadValue.revocationDate
+        return (revocationDate == nil) && !transactionHasBeenProcessed(verification)
+    }
+
+    // MARK: Notifications
+
+    /// Purchase was successful.
+    private func didPurchaseMoreTime(outcome: StorePaymentOutcome) {
+        notifyObservers(of: .successfulPayment(outcome))
+    }
+
+    /// User cancelled purchase before it was completed.
+    private func userDidCancel() {
+        notifyObservers(of: .userCancelled)
+    }
+
+    /// Purchase is still pending, transaction may be delivered asynchronously.
+    private func didSuspendPurchase() {
+        notifyObservers(of: .pending)
+    }
+
+    /// Handle failure to fetch a payment token
+    ///
+    /// - Parameter error: error thrown by the API client
+    private func didFailFetchingToken(error: Error) {
+        notifyObservers(of: .failed(.getPaymentToken(error)))
+    }
+
+    /// Handle failure to upload a payment receipt to the API. This transaction should be uploaded again.
+    ///
+    /// - Parameter error: error thrown by the API client
+    private func didFailUploadingReceipt(error: Error) {
+        notifyObservers(of: .failed(.receiptUpload(error)))
+    }
+
+    /// Handle failure to verify the payment transaction.
+    ///
+    /// - Parameter error: error thrown by the API client
+    private func didFailVerification(transaction: Transaction, error: VerificationResult<Transaction>.VerificationError)
+    {
+        Task {
+            await transaction.finish()
+        }
+
+        notifyObservers(of: .failed(.verification(error)))
+    }
+
+    /// Handle an error thrown from the Product.purchase call
+    ///
+    /// - Parameter error: the error that was thrown by the Product.purchase call
+    private func didFailPurchase(error: Error) {
+        let failure: StorePaymentError
+        switch error {
+        case let storeKitError as StoreKitError:
+            failure = .storeKitError(storeKitError)
+
+        case let purchaseError as Product.PurchaseError:
+            failure = .purchaseError(purchaseError)
+
+        default:
+            logger.error("Caught unknown error during purchase call: \(error)")
+            failure = .unknown(error)
+        }
+
+        notifyObservers(of: .failed(failure))
+    }
+
+    private func notifyObservers(of storeKitEvent: StorePaymentEvent) {
+        observerList.notify { observer in
+            observer.storePaymentManager(didReceiveEvent: storeKitEvent)
+        }
+    }
+}
+
+// Proxy functions for legacy payment
+extension StorePaymentManager {
+    func requestProducts(
+        with productIdentifiers: Set<StoreSubscription>,
+        completionHandler: @escaping @Sendable (Result<SKProductsResponse, Error>) -> Void
+    ) -> Cancellable {
+        legacyStorePaymentManager.requestProducts(with: productIdentifiers, completionHandler: completionHandler)
+    }
+
+    func addPayment(_ payment: SKPayment, for accountNumber: String) {
+        legacyStorePaymentManager.addPayment(payment, for: accountNumber)
+    }
+
+    func restorePurchases(
+        for accountNumber: String,
+        completionHandler: @escaping @Sendable (Result<REST.CreateApplePaymentResponse, Error>) -> Void
+    ) -> Cancellable {
+        legacyStorePaymentManager.restorePurchases(for: accountNumber, completionHandler: completionHandler)
+    }
 }
 
 // Proxy functions for legacy payment
