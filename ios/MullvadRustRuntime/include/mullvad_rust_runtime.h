@@ -792,8 +792,6 @@ struct SwiftCancelHandle mullvad_ios_init_storekit_payment(struct SwiftApiContex
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
  *
- * `account_number` must be a pointer to a null terminated string.
- *
  * `body` must be a pointer to a contiguous memory segment
  *
  * `body_size` must be the size of the body
@@ -803,7 +801,6 @@ struct SwiftCancelHandle mullvad_ios_init_storekit_payment(struct SwiftApiContex
 struct SwiftCancelHandle mullvad_ios_check_storekit_payment(struct SwiftApiContext api_context,
                                                             void *completion_cookie,
                                                             struct SwiftRetryStrategy retry_strategy,
-                                                            const char *account_number,
                                                             const uint8_t *body,
                                                             uintptr_t body_size);
 

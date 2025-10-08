@@ -23,9 +23,9 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable
 
-    func legacyStorekitPayment(
+    func legacyStoreKitPayment(
         accountNumber: String,
-        request: LegacyStorekitRequest,
+        request: LegacyStoreKitRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.CreateApplePaymentResponse>
     ) -> Cancellable
@@ -43,15 +43,14 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.SubmitVoucherResponse>
     ) -> Cancellable
 
-    func initStorekitPayment(
+    func initStoreKitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<String>
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<UUID>
     ) -> Cancellable
 
-    func checkStorekitPayment(
-        accountNumber: String,
-        transaction: StorekitTransaction,
+    func checkStoreKitPayment(
+        transaction: StoreKitTransaction,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
     ) -> Cancellable
@@ -169,9 +168,9 @@ extension REST {
             }
         }
 
-        public func legacyStorekitPayment(
+        public func legacyStoreKitPayment(
             accountNumber: String,
-            request: LegacyStorekitRequest,
+            request: LegacyStoreKitRequest,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
         ) -> Cancellable {
@@ -208,13 +207,13 @@ extension REST {
             )
         }
 
-        public func initStorekitPayment(
+        public func initStoreKitPayment(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<String>
+            completionHandler: @escaping ProxyCompletionHandler<UUID>
         ) -> Cancellable {
             struct InitStorekitPaymentResponse: Codable {
-                let paymentToken: String
+                let paymentToken: UUID
             }
 
             let responseHandler = rustResponseHandler(
@@ -230,9 +229,8 @@ extension REST {
             )
         }
 
-        public func checkStorekitPayment(
-            accountNumber: String,
-            transaction: StorekitTransaction,
+        public func checkStoreKitPayment(
+            transaction: StoreKitTransaction,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
@@ -242,7 +240,6 @@ extension REST {
                 request:
                     .checkStorekitPayment(
                         retryStrategy: retryStrategy,
-                        accountNumber: accountNumber,
                         transaction: transaction
                     ),
                 responseHandler: responseHandler,
