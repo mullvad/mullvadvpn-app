@@ -81,8 +81,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
   const ipVersion = relaySettings?.wireguard.ipVersion ?? 'any';
 
-  // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
-  // "openvpn" or "bridge"
+  // Filters the relays to only keep the ones of the desired endpoint type: "wireguard"
   const relayListForEndpointType = useMemo(() => {
     return filterLocationsByEndPointType(fullRelayList);
   }, [fullRelayList]);
