@@ -21183,6 +21183,12 @@
     "Failed to verify transaction receipt" : {
 
     },
+    "Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." : {
+
+    },
+    "Failed to verify transaction receipt" : {
+
+    },
     "FAQs & Guides" : {
       "localizations" : {
         "da" : {
@@ -61125,6 +61131,9 @@
           }
         }
       }
+    },
+    "Your previous purchases have been added to your account." : {
+
     },
     "Your previous purchases have been added to your account." : {
 
