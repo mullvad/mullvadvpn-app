@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 
+### Changed
+- Quantum-resistan tunnel setting is now on by default through the "Automatic" setting.
+
 ### Fixed
 - Fix IP overrides breaking certain obfuscation methods.
 
