@@ -875,7 +875,7 @@ function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
 }
 
 export function convertToRelayConstraints(
-  constraints: IRelaySettingsNormal<IWireguardConstraints>,
+  constraints: IRelaySettingsNormal,
 ): grpcTypes.NormalRelaySettings {
   const relayConstraints = new grpcTypes.NormalRelaySettings();
 
