@@ -4,7 +4,7 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Settings
 
-fun Settings.quantumResistant() = tunnelOptions.wireguard.quantumResistant
+fun Settings.quantumResistant() = tunnelOptions.quantumResistant
 
 fun Settings.isCustomDnsEnabled() = tunnelOptions.dnsOptions.state == DnsState.Custom
 
@@ -33,4 +33,4 @@ fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 fun Settings.isMultihopEnabled() =
     relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
 
-private fun Settings.daitaSettings() = tunnelOptions.wireguard.daitaSettings
+private fun Settings.daitaSettings() = tunnelOptions.daitaSettings
