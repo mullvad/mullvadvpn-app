@@ -302,33 +302,21 @@ export interface IRelaySettingsNormal {
   wireguardConstraints: IWireguardConstraints;
 }
 
-export type ConnectionConfig =
-  | {
-      openvpn: {
-        endpoint: {
-          ip: string;
-          port: number;
-          protocol: RelayProtocol;
-        };
-        username: string;
-      };
-    }
-  | {
-      wireguard: {
-        tunnel: {
-          privateKey: string;
-          addresses: string[];
-        };
-        peer: {
-          publicKey: string;
-          addresses: string[];
-          endpoint: string;
-        };
-
-        ipv4Gateway: string;
-        ipv6Gateway?: string;
-      };
+export type ConnectionConfig = {
+  wireguard: {
+    tunnel: {
+      privateKey: string;
+      addresses: string[];
     };
+    peer: {
+      publicKey: string;
+      addresses: string[];
+      endpoint: string;
+    };
+    ipv4Gateway: string;
+    ipv6Gateway?: string;
+  };
+};
 
 // types describing the structure of RelaySettings
 export interface IRelaySettingsCustom {
