@@ -2,7 +2,7 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
-import { capitalizeEveryWord } from '../../../shared/string-helpers';
+import { formatDeviceName } from '../utils';
 
 interface NewDeviceNotificationContext {
   shouldDisplay: boolean;
@@ -27,7 +27,7 @@ export class NewDeviceNotificationProvider implements InAppNotificationProvider 
           'in-app-notifications',
           'This device is now named <em>%(deviceName)s</em>. See more under "Manage devices" in Account.',
         ),
-        { deviceName: capitalizeEveryWord(this.context.deviceName) },
+        { deviceName: formatDeviceName(this.context.deviceName) },
       ),
       action: { type: 'close', close: this.context.close },
     };

@@ -3,12 +3,12 @@ import styled, { css } from 'styled-components';
 
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { capitalizeEveryWord } from '../../../shared/string-helpers';
 import { Text } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { ListItem, ListItemProps } from '../../lib/components/list-item';
 import { spacings } from '../../lib/foundations';
 import { useBoolean } from '../../lib/utility-hooks';
+import { formatDeviceName } from '../../lib/utils';
 import { DeviceListItemProvider, useDeviceListItemContext } from './';
 import { ConfirmDialog, ErrorDialog, RemoveButton } from './components';
 import { useFormattedDate, useIsCurrentDevice } from './hooks';
@@ -34,7 +34,6 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
   const { device, deleting, confirmDialogVisible, error } = useDeviceListItemContext();
   const createdDate = useFormattedDate(device.created);
   const isCurrentDevice = useIsCurrentDevice();
-  const deviceName = capitalizeEveryWord(device.name);
 
   return (
     <>
@@ -42,7 +41,7 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
         <ListItem.Item>
           <ListItem.Content>
             <FlexColumn>
-              <ListItem.Label>{deviceName}</ListItem.Label>
+              <ListItem.Label>{formatDeviceName(device.name)}</ListItem.Label>
               <ListItem.Text variant="footnoteMini">
                 {sprintf(
                   // TRANSLATORS: Label informing the user when a device was created.
