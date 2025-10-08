@@ -2,12 +2,11 @@ import {
   ApiAccessMethodSettings,
   IRelaySettingsNormal,
   ISettings,
-  IWireguardConstraints,
   ObfuscationType,
   Ownership,
 } from '../shared/daemon-rpc-types';
 
-export function getDefaultRelaySettingsNormal(): IRelaySettingsNormal<IWireguardConstraints> {
+export function getDefaultRelaySettingsNormal(): IRelaySettingsNormal {
   return {
     location: 'any',
     providers: [],
