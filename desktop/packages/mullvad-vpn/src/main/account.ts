@@ -125,6 +125,14 @@ export default class Account {
 
     this.deviceStateValue = deviceEvent.deviceState;
 
+    void this.updateAccountHistory();
+    this.delegate.onDeviceEvent();
+
+    // When logging out the renderer process needs to receive the device update before the account
+    // data update. This means that the ipc-call `account.notifyDevice` needs to be called before
+    // invalidating the accountDateCache since that triggers the ipc-call `account.notify`.
+    IpcMainEventChannel.account.notifyDevice?.(deviceEvent);
+
     switch (deviceEvent.deviceState.type) {
       case 'logged in':
         this.accountDataCache.fetch(deviceEvent.deviceState.accountAndDevice.accountNumber);
@@ -134,11 +142,6 @@ export default class Account {
         this.accountDataCache.invalidate();
         break;
     }
-
-    void this.updateAccountHistory();
-    this.delegate.onDeviceEvent();
-
-    IpcMainEventChannel.account.notifyDevice?.(deviceEvent);
   }
 
   public setAccountHistory(accountHistory?: AccountNumber) {
