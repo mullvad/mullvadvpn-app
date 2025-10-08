@@ -786,7 +786,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
     }
 
-    fileprivate func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
+    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
         nslock.lock()
         defer { nslock.unlock() }
 

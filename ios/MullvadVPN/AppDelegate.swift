@@ -20,6 +20,7 @@ import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate,
+    StoreKit2TransactionListenerDelegate,
     @unchecked Sendable
 {
     nonisolated(unsafe) private var logger: Logger!
@@ -42,6 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var addressCacheTracker: AddressCacheTracker!
     nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
     nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
+    nonisolated(unsafe) private var storeKit2TransactionListener: StoreKit2TransactionListener!
     nonisolated(unsafe) private var transportMonitor: TransportMonitor!
     nonisolated(unsafe) private var apiTransportMonitor: APITransportMonitor!
     private var settingsObserver: TunnelBlockObserver!
@@ -476,6 +478,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func setupPaymentHandler() {
         storePaymentManager.delegate = self
         storePaymentManager.addPaymentObserver(tunnelManager)
+
+        storeKit2TransactionListener = StoreKit2TransactionListener(
+            apiProxy: apiProxy,
+            accountsProxy: accountsProxy
+        )
+        storeKit2TransactionListener.delegate = self
+        storeKit2TransactionListener.start()
     }
 
     private func setupNotifications() {
@@ -674,6 +683,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // app launches, we assume that all successful purchases belong to the active account
         // number.
         tunnelManager.deviceState.accountData?.number
+    }
+
+    // MARK: - StoreKit2TransactionListenerDelegate
+
+    nonisolated func fetchAccountNumber(
+        didRequestAccountNumber: Void
+    ) -> String? {
+        tunnelManager.deviceState.accountData?.number
+    }
+
+    nonisolated func updateAccountData(
+        didUpdateAccountData accountData: Account
+    ) {
+        // Update the tunnel manager's device state with the new account data
+        Task { @MainActor in
+            guard case var .loggedIn(storedAccountData, deviceData) = tunnelManager.deviceState else {
+                return
+            }
+
+            storedAccountData.expiry = accountData.expiry
+            let newDeviceState = DeviceState.loggedIn(storedAccountData, deviceData)
+
+            tunnelManager.setDeviceState(newDeviceState, persist: true)
+        }
     }
 
     // MARK: - UNUserNotificationCenterDelegate
