@@ -61,7 +61,7 @@ final class LegacyStorePaymentManager: NSObject, SKPaymentTransactionObserver, @
         self.interactor = interactor
     }
 
-    func starts() {
+    func start() {
         // Load transaction log from file before starting the payment queue.
         logger.debug("Load transaction log.")
         transactionLog.read()
