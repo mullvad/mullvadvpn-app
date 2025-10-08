@@ -67,24 +67,36 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     // MARK: -
 
     override func main() {
-        startLogoutFlow { [self] in
-            self.accessTokenManager.invalidateAllTokens()
-            switch action {
-            case .new:
+        switch action {
+        case .new:
+            startLogoutFlow { [self] in
+                self.accessTokenManager.invalidateAllTokens()
                 startNewAccountFlow { [self] result in
                     finish(result: result.map { .some($0) })
                 }
+            }
 
-            case let .existing(accountNumber):
+        case let .existing(accountNumber):
+            startLogoutFlow { [self] in
+                self.accessTokenManager.invalidateAllTokens()
                 startExistingAccountFlow(accountNumber: accountNumber) { [self] result in
                     finish(result: result.map { .some($0) })
                 }
+            }
 
-            case .unset:
+        case .unset:
+            startLogoutFlow { [self] in
+                self.accessTokenManager.invalidateAllTokens()
                 finish(result: .success(nil))
+            }
 
-            case let .delete(accountNumber):
-                startDeleteAccountFlow(accountNumber: accountNumber) { [self] result in
+        case let .delete(accountNumber):
+            startDeleteAccountFlow(accountNumber: accountNumber) { [self] result in
+                if result.isSuccess {
+                    unsetDeviceState { [self] in
+                        finish(result: result.map { .none })
+                    }
+                } else {
                     finish(result: result.map { .none })
                 }
             }
