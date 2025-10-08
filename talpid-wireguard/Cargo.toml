@@ -11,7 +11,6 @@ rust-version.workspace = true
 workspace = true
 
 [features]
-default = ["boringtun"]
 boringtun = ["dep:boringtun", "dep:tun07", "talpid-tunnel/boringtun"]
 multihop-pcap = ["boringtun/pcap"]
 
