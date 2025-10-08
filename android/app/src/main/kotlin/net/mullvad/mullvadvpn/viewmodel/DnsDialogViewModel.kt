@@ -87,7 +87,7 @@ class DnsDialogViewModel(
                             .validateDnsEntry(currentIndex, settings.customDnsAddresses())
                             .leftOrNull(),
                     isAllowLanEnabled = settings.allowLan,
-                    isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
+                    isIpv6Enabled = settings.tunnelOptions.enableIpv6,
                     index = currentIndex,
                 )
             }

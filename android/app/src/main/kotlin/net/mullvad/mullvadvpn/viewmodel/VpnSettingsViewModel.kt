@@ -106,7 +106,7 @@ class VpnSettingsViewModel(
                 autoStartAndConnectOnBoot,
                 isContentBlockersExpanded ->
                 VpnSettingsUiState.from(
-                        mtu = settings.tunnelOptions.wireguard.mtu,
+                        mtu = settings.tunnelOptions.mtu,
                         isLocalNetworkSharingEnabled = settings.allowLan,
                         isCustomDnsEnabled = settings.isCustomDnsEnabled(),
                         customDnsItems = settings.customDnsAddresses().asStringAddressList(),
@@ -122,7 +122,7 @@ class VpnSettingsViewModel(
                         systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                         autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
                         deviceIpVersion = settings.deviceIpVersion(),
-                        isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
+                        isIpv6Enabled = settings.tunnelOptions.enableIpv6,
                         isContentBlockersExpanded = isContentBlockersExpanded,
                         isModal = navArgs.isModal,
                     )

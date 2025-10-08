@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.model.GenericOptions
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -80,7 +79,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
@@ -465,16 +463,11 @@ internal fun ManagementInterface.CustomList.toDomain(): CustomList =
 
 internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
     TunnelOptions(
-        wireguard = wireguard.toDomain(),
-        dnsOptions = dnsOptions.toDomain(),
-        genericOptions = generic.toDomain(),
-    )
-
-internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): WireguardTunnelOptions =
-    WireguardTunnelOptions(
         mtu = if (hasMtu()) Mtu(mtu) else null,
         quantumResistant = quantumResistant.toDomain(),
         daitaSettings = daita.toDomain(),
+        dnsOptions = dnsOptions.toDomain(),
+        enableIpv6 = enableIpv6,
     )
 
 internal fun ManagementInterface.DaitaSettings.toDomain(): DaitaSettings =
@@ -710,9 +703,6 @@ internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
 
 internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
     activeFeaturesList.map { it.toDomain() }.sorted()
-
-internal fun ManagementInterface.TunnelOptions.GenericOptions.toDomain(): GenericOptions =
-    GenericOptions(enableIpv6 = enableIpv6)
 
 @Suppress("ComplexMethod")
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
