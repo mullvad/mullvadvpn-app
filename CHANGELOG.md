@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
 - Install AppArmor profile on all Linux distributions that support AppArmor abi 4.0.
 
 
+## [2025.10] - 2025-10-08
+This release is identical to 2025.10-beta2.
+
+
 ## [2025.10-beta2] - 2025-10-01
 ### Fixed
 - QUIC obfuscation only using one in-address when connecting. It will now randomly select one of
