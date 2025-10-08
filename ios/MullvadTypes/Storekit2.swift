@@ -1,4 +1,4 @@
-public struct StorekitTransaction: Codable, Sendable {
+public struct StoreKitTransaction: Codable, Sendable {
     let transaction: String
 
     public init(transaction: String) {
@@ -6,7 +6,7 @@ public struct StorekitTransaction: Codable, Sendable {
     }
 }
 
-public struct LegacyStorekitRequest: Codable, Sendable {
+public struct LegacyStoreKitRequest: Codable, Sendable {
     let receiptString: Data
 
     public init(receiptString: Data) {
