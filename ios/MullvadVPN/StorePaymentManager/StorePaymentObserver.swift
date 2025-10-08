@@ -7,10 +7,9 @@
 //
 
 import Foundation
+import StoreKit
 
 protocol StorePaymentObserver: AnyObject, Sendable {
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didReceiveEvent event: StorePaymentEvent
-    )
+    @MainActor func storePaymentManager(didReceiveEvent event: StorePaymentEvent)
+    @MainActor func storePaymentManager(didReceiveEvent event: LegacyStorePaymentEvent)
 }
