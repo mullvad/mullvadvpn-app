@@ -315,7 +315,7 @@ async fn create_devices(
         };
 
         let exit_mtu = tun_dev.mtu();
-        let entry_mtu = exit_mtu.add(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
+        let entry_mtu = exit_mtu.increase(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
 
         let (tun_channel_tx, tun_channel_rx, udp_channels) =
             new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
