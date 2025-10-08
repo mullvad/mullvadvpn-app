@@ -116,6 +116,24 @@ enum Devices {
     },
 }
 
+impl Devices {
+    async fn stop(self) {
+        match self {
+            Devices::Singlehop { device, .. } => {
+                device.stop().await;
+            }
+            Devices::Multihop {
+                entry_device,
+                exit_device,
+                ..
+            } => {
+                exit_device.stop().await;
+                entry_device.stop().await;
+            }
+        }
+    }
+}
+
 #[cfg(target_os = "android")]
 struct AndroidUdpSocketFactory {
     pub tun: Arc<Tun>,
@@ -369,21 +387,12 @@ impl Tunnel for BoringTun {
     fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
         log::info!("BoringTun::stop"); // remove me
         tokio::runtime::Handle::current().block_on(async {
-            match self.devices.take().unwrap() {
-                Devices::Singlehop { device, .. } => {
-                    device.stop().await;
-                }
-                Devices::Multihop {
-                    entry_device,
-                    exit_device,
-                    ..
-                } => {
-                    exit_device.stop().await;
-                    entry_device.stop().await;
-                }
+            // TODO: devices should never be None while this BoringTun instance is running.
+            debug_assert!(self.devices.is_some());
+            if let Some(devices) = self.devices.take() {
+                devices.stop().await;
             }
         });
-
         Ok(())
     }
 
@@ -435,20 +444,11 @@ impl Tunnel for BoringTun {
         Box::pin(async move {
             let _old_config = std::mem::replace(&mut self.config, config);
             // TODO: diff with _old_config to see if devices need to be recreated.
-            match self.devices.take().unwrap() {
-                Devices::Singlehop { device, .. } => {
-                    device.stop().await;
-                }
-                Devices::Multihop {
-                    entry_device,
-                    exit_device,
-                    ..
-                } => {
-                    exit_device.stop().await;
-                    entry_device.stop().await;
-                }
+            // TODO: devices should never be None while this BoringTun instance is running.
+            debug_assert!(self.devices.is_some());
+            if let Some(devices) = self.devices.take() {
+                devices.stop().await;
             }
-
             self.devices = Some(
                 create_devices(
                     &self.config,
