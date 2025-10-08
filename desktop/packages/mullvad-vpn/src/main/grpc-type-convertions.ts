@@ -344,8 +344,6 @@ function convertFromTunnelStateRelayInfo(
       ...state,
       endpoint: {
         ...state.tunnelEndpoint,
-        // TODO: Remove
-        tunnelType: 'wireguard',
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
         proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
         obfuscationEndpoint:

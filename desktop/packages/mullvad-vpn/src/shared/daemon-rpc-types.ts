@@ -103,8 +103,6 @@ export type ErrorStateDetails =
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
-export type TunnelType = 'wireguard' | 'openvpn';
-
 export type RelayProtocol = 'tcp' | 'udp';
 export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic' | 'lwo';
 
@@ -134,7 +132,6 @@ export enum Ownership {
 export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
-  tunnelType: TunnelType;
   quantumResistant: boolean;
   proxy?: IProxyEndpoint;
   obfuscationEndpoint?: IObfuscationEndpoint;
