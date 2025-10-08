@@ -12,7 +12,6 @@ const endpoint: ITunnelEndpoint = {
   address: 'wg10:80',
   protocol: 'tcp',
   quantumResistant: false,
-  tunnelType: 'wireguard',
   daita: false,
 };
 
