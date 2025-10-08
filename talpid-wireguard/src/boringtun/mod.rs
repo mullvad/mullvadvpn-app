@@ -1,26 +1,26 @@
 #[cfg(target_os = "android")]
 use crate::config::patch_allowed_ips;
 use crate::{
+    Tunnel, TunnelError,
     config::Config,
     stats::{Stats, StatsMap},
-    Tunnel, TunnelError,
 };
 #[cfg(target_os = "android")]
 use boringtun::udp::UdpTransportFactory;
 use boringtun::{
     device::{
-        api::{command::*, ApiClient, ApiServer},
-        peer::AllowedIP,
         DeviceConfig, DeviceHandle,
+        api::{ApiClient, ApiServer, command::*},
+        peer::AllowedIP,
     },
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::{
+        IpRecv,
         channel::{TunChannelRx, TunChannelTx},
         tun_async_device::TunDevice as GotaTunDevice,
-        IpRecv,
     },
     udp::{
-        channel::{new_udp_tun_channel, UdpChannelFactory},
+        channel::{UdpChannelFactory, new_udp_tun_channel},
         socket::UdpSocketFactory,
     },
 };
@@ -41,8 +41,8 @@ use tun07::{AbstractDevice, AsyncDevice};
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
 use boringtun::tun::{
-    pcap::{PcapSniffer, PcapStream},
     IpSend,
+    pcap::{PcapSniffer, PcapStream},
 };
 
 #[cfg(target_os = "android")]
