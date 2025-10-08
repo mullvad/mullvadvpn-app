@@ -207,6 +207,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit4" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose" }
 
 [plugins]
 # Android

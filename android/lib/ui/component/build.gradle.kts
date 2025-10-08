@@ -50,4 +50,5 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.compose.icons.extended)
     implementation(libs.androidx.ktx)
+    implementation(libs.androidx.animation)
 }
