@@ -103,14 +103,6 @@ export type ErrorStateDetails =
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
 export type TunnelType = 'wireguard' | 'openvpn';
-export function tunnelTypeToString(tunnel: TunnelType): string {
-  switch (tunnel) {
-    case 'wireguard':
-      return 'WireGuard';
-    case 'openvpn':
-      return 'OpenVPN';
-  }
-}
 
 export type RelayProtocol = 'tcp' | 'udp';
 export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic' | 'lwo';
