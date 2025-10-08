@@ -4,7 +4,7 @@
   inputs = {
     # Unstable is currently needed for protoc-gen-grpc-java.
     # We should switch to a stable channel once it's avaiable on those.
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "nixpkgs/nixpkgs-unstable";
     devshell.url = "github:numtide/devshell";
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay = {
@@ -31,15 +31,6 @@
         overlays = [
           (import rust-overlay)
           devshell.overlays.default
-          # Fix that disables autoPatchelfHook on macOS.
-          # Should be addressed upstream in nixpkgs.
-          (final: prev: {
-            protoc-gen-grpc-java = prev.protoc-gen-grpc-java.overrideAttrs (old: {
-              nativeBuildInputs =
-                pkgs.lib.remove prev.autoPatchelfHook (old.nativeBuildInputs or [])
-                ++ pkgs.lib.optionals prev.stdenv.isLinux [prev.autoPatchelfHook];
-            });
-          })
         ];
       };
 
@@ -104,7 +95,7 @@
             pkgs.gnumake
             pkgs.protobuf
             pkgs.jdk17
-            pkgs.python3Full
+            pkgs.python314
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [pkgs.libiconv];
 
