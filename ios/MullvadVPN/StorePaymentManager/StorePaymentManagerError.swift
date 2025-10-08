@@ -10,8 +10,8 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-/// An error type emitted by `StorePaymentManager`.
-enum StorePaymentManagerError: LocalizedError, WrappingError {
+/// An error type emitted by `LegacyStorePaymentManager`.
+enum LegacyStorePaymentManagerError: LocalizedError, WrappingError {
     /// Failure to find the account token associated with the transaction.
     case noAccountSet
 

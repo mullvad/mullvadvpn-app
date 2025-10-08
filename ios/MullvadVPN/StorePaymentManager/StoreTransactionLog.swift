@@ -14,7 +14,7 @@ import MullvadLogging
 /// This class is thread safe.
 final class StoreTransactionLog: @unchecked Sendable {
     private let logger = Logger(label: "StoreTransactionLog")
-    private var transactionIdentifiers: Set<String> = []
+    private(set) var transactionIdentifiers: Set<String> = []
     private let stateLock = NSLock()
 
     /// The location of the transaction log file on disk.
@@ -62,6 +62,13 @@ final class StoreTransactionLog: @unchecked Sendable {
 
             transactionIdentifiers.insert(transactionIdentifier)
             persist()
+        }
+    }
+
+    /// Get transaction identifiers from transaction log.
+    func getTransactionIdentifiers() -> Set<String> {
+        stateLock.withLock {
+            transactionIdentifiers
         }
     }
 
