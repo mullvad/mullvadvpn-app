@@ -63,7 +63,7 @@ final class AccountInteractor: Sendable {
     }
 
     // This function is for testing only
-    func getPaymentToken(for accountNumber: String) async -> Result<String, Error> {
+    func getPaymentToken(for accountNumber: String) async -> Result<UUID, Error> {
         await withCheckedContinuation { continuation in
             _ =
                 apiProxy

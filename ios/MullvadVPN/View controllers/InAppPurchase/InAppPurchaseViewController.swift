@@ -51,27 +51,21 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         let productIdentifiers = Set(StoreSubscription.allCases)
         switch paymentAction {
         case .purchase:
-            _ = storePaymentManager.requestProducts(
-                with: productIdentifiers
-            ) { result in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
-                    self.spinnerView.stopAnimating()
-                    switch result {
-                    case let .success(success):
-                        let products = success.products
-                        guard !products.isEmpty else {
-                            return
-                        }
-                        self.showPurchaseOptions(for: products)
-                    case let .failure(failure as StorePaymentManagerError):
-                        self.errorPresenter.showAlertForError(failure, context: .purchase) {
-                            self.didFinish?()
-                        }
-                    case .failure:
+                    var products: [Product]
+                    do {
+                        products = try await storePaymentManager.products()
+                    } catch {
                         self.didFinish?()
+                        self.spinnerView.stopAnimating()
+                        return
                     }
-                }
+                    self.spinnerView.stopAnimating()
+                    guard !products.isEmpty else {
+                        return
+                    }
+                    self.showPurchaseOptions(for: products)
             }
         case .restorePurchase:
             _ = storePaymentManager.restorePurchases(for: accountNumber) { result in
@@ -95,13 +89,55 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         }
     }
 
+    func purchaseStoreKit2(product: Product) async throws{
+        try await storePaymentManager.purchase(product: product, for: accountNumber)
+    }
+    
     func purchase(product: SKProduct) {
         let payment = SKPayment(product: product)
         storePaymentManager.addPayment(payment, for: accountNumber)
     }
 
-    func showPurchaseOptions(for products: [SKProduct]) {
-        let localizedString = NSLocalizedString("Add time", comment: "")
+    func showPurchaseOptions(for products: [Product]) {
+        let localizedString = NSLocalizedString("Add Time", comment: "")
+        let sheetController = UIAlertController(
+            title: localizedString,
+            message: nil,
+            preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
+        )
+        sheetController.overrideUserInterfaceStyle = .dark
+        sheetController.view.tintColor = .AlertController.tintColor
+        products.sorted { $0.price < $1.price }.forEach { product in
+            let title = product.displayName
+            let action = UIAlertAction(
+                title: title, style: .default,
+                handler: { _ in
+                    sheetController.dismiss(
+                        animated: true,
+                        completion: {
+                            self.spinnerView.startAnimating()
+                            Task { @MainActor in
+                                   try await self.purchaseStoreKit2(product: product)
+                            }
+                        })
+                })
+            action
+                .accessibilityIdentifier = action.accessibilityIdentifier
+            sheetController.addAction(action)
+        }
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
+            self.didFinish?()
+        }
+        cancelAction.accessibilityIdentifier = "actoin-sheet-cancel-button"
+        sheetController.addAction(cancelAction)
+        present(sheetController, animated: true)
+    }
+
+
+
+    func oldShowPurchaseOptions(for products: [SKProduct]) {
+        let localizedString = NSLocalizedString("Add Time", comment: "")
         let sheetController = UIAlertController(
             title: localizedString,
             message: nil,
