@@ -48,31 +48,121 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
 
     override func viewDidLoad() {
         spinnerView.startAnimating()
-        let productIdentifiers = Set(StoreSubscription.allCases)
-        switch paymentAction {
+
+        #if DEBUG
+            handleLegacyPaymentAction(paymentAction)
+        #else
+            handlePaymentAction(paymentAction)
+        #endif
+    }
+
+    // MARK: StoreKit 2 flow
+
+    func handlePaymentAction(_ action: PaymentAction) {
+        switch action {
         case .purchase:
-            _ = storePaymentManager.requestProducts(
-                with: productIdentifiers
-            ) { result in
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    self.spinnerView.stopAnimating()
-                    switch result {
-                    case let .success(success):
-                        let products = success.products
-                        guard !products.isEmpty else {
-                            return
-                        }
-                        self.showPurchaseOptions(for: products)
-                    case let .failure(failure as StorePaymentManagerError):
-                        self.errorPresenter.showAlertForError(failure, context: .purchase) {
-                            self.didFinish?()
-                        }
-                    case .failure:
+            startPaymentFlow()
+        case .restorePurchase:
+            Task {
+                do {
+                    let outcome = try await storePaymentManager.processOutstandingTransactions()
+                    spinnerView.stopAnimating()
+                    errorPresenter.showAlertForOutcome(outcome, context: .restoration) {
+                        self.didFinish?()
+                    }
+                } catch {
+                    spinnerView.stopAnimating()
+                    errorPresenter.showAlertForError(.unknown(error), context: .restoration) {
                         self.didFinish?()
                     }
                 }
             }
+        }
+    }
+
+    func startPaymentFlow() {
+        Task {
+            var products: [Product]
+            do {
+                products = try await storePaymentManager.products()
+            } catch {
+                spinnerView.stopAnimating()
+                didFinish?()
+                return
+            }
+
+            spinnerView.stopAnimating()
+
+            guard !products.isEmpty else {
+                return
+            }
+
+            showPurchaseOptions(for: products)
+        }
+    }
+
+    func showPurchaseOptions(for products: [Product]) {
+        let localizedString = NSLocalizedString("Add Time", comment: "")
+        let sheetController = UIAlertController(
+            title: localizedString,
+            message: nil,
+            preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
+        )
+        sheetController.overrideUserInterfaceStyle = .dark
+        sheetController.view.tintColor = .AlertController.tintColor
+        products.sorted { $0.price < $1.price }.forEach { product in
+            let title = product.displayName
+            let action = UIAlertAction(
+                title: title, style: .default,
+                handler: { _ in
+                    sheetController.dismiss(
+                        animated: true,
+                        completion: {
+                            self.spinnerView.startAnimating()
+                            Task { @MainActor in
+                                await self.storePaymentManager.purchase(product: product)
+                            }
+                        })
+                })
+            action
+                .accessibilityIdentifier = action.accessibilityIdentifier
+            sheetController.addAction(action)
+        }
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
+            self.didFinish?()
+        }
+        cancelAction.accessibilityIdentifier = "action-sheet-cancel-button"
+        sheetController.addAction(cancelAction)
+        present(sheetController, animated: true)
+    }
+
+    nonisolated func storePaymentManager(didReceiveEvent event: StorePaymentEvent) {
+        Task { @MainActor in
+            spinnerView.stopAnimating()
+            switch event {
+            case let .successfulPayment(outcome):
+                errorPresenter.showAlertForOutcome(outcome, context: .purchase) {
+                    self.didFinish?()
+                }
+            case .pending, .userCancelled:
+                self.didFinish?()
+            case let .failed(error):
+                errorPresenter.showAlertForError(error, context: .purchase) {
+                    self.didFinish?()
+                }
+            @unknown default:
+                self.didFinish?()
+            }
+        }
+    }
+
+    // MARK: Legacy StoreKit flow
+
+    func handleLegacyPaymentAction(_ action: PaymentAction) {
+        switch paymentAction {
+        case .purchase:
+            startLegacyPaymentFlow()
         case .restorePurchase:
             _ = storePaymentManager.restorePurchases(for: accountNumber) { result in
                 Task { @MainActor [weak self] in
@@ -80,10 +170,11 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                     self.spinnerView.stopAnimating()
                     switch result {
                     case let .success(success):
-                        self.errorPresenter.showAlertForResponse(success, context: .restoration) {
+                        let outcome = StorePaymentOutcome.timeAdded(success.timeAdded)
+                        self.errorPresenter.showAlertForOutcome(outcome, context: .restoration) {
                             self.didFinish?()
                         }
-                    case let .failure(failure as StorePaymentManagerError):
+                    case let .failure(failure as LegacyStorePaymentManagerError):
                         self.errorPresenter.showAlertForError(failure, context: .restoration) {
                             self.didFinish?()
                         }
@@ -95,13 +186,35 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         }
     }
 
-    func purchase(product: SKProduct) {
-        let payment = SKPayment(product: product)
-        storePaymentManager.addPayment(payment, for: accountNumber)
+    func startLegacyPaymentFlow() {
+        let productIdentifiers = Set(StoreSubscription.allCases)
+
+        _ = storePaymentManager.requestProducts(
+            with: productIdentifiers
+        ) { result in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.spinnerView.stopAnimating()
+                switch result {
+                case let .success(success):
+                    let products = success.products
+                    guard !products.isEmpty else {
+                        return
+                    }
+                    self.legacyShowPurchaseOptions(for: products)
+                case let .failure(failure as LegacyStorePaymentManagerError):
+                    self.errorPresenter.showAlertForError(failure, context: .purchase) {
+                        self.didFinish?()
+                    }
+                case .failure:
+                    self.didFinish?()
+                }
+            }
+        }
     }
 
-    func showPurchaseOptions(for products: [SKProduct]) {
-        let localizedString = NSLocalizedString("Add time", comment: "")
+    func legacyShowPurchaseOptions(for products: [SKProduct]) {
+        let localizedString = NSLocalizedString("Add Time", comment: "")
         let sheetController = UIAlertController(
             title: localizedString,
             message: nil,
@@ -117,7 +230,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                     sheetController.dismiss(
                         animated: true,
                         completion: {
-                            self.purchase(product: product)
+                            self.storePaymentManager.addPayment(SKPayment(product: product), for: self.accountNumber)
                             self.spinnerView.startAnimating()
                         })
                 })
@@ -129,17 +242,18 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
             self.didFinish?()
         }
-        cancelAction.accessibilityIdentifier = "actoin-sheet-cancel-button"
+        cancelAction.accessibilityIdentifier = "action-sheet-cancel-button"
         sheetController.addAction(cancelAction)
         present(sheetController, animated: true)
     }
 
-    nonisolated func storePaymentManager(_ manager: StorePaymentManager, didReceiveEvent event: StorePaymentEvent) {
+    nonisolated func storePaymentManager(didReceiveEvent event: LegacyStorePaymentEvent) {
         Task { @MainActor in
             spinnerView.stopAnimating()
             switch event {
             case let .finished(completion):
-                errorPresenter.showAlertForResponse(completion.serverResponse, context: .purchase) {
+                let outcome = StorePaymentOutcome.timeAdded(completion.serverResponse.timeAdded)
+                errorPresenter.showAlertForOutcome(outcome, context: .purchase) {
                     self.didFinish?()
                 }
 

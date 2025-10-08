@@ -83,13 +83,6 @@ extension REST {
             applyJitter: true
         )
 
-        /// Default retry delay.
-        public static let defaultRetryDelay: RetryDelay = .exponentialBackoff(
-            initial: .seconds(2),
-            multiplier: 2,
-            maxDelay: .seconds(8)
-        )
-
         public static let postQuantumKeyExchange = RetryStrategy(
             maxRetryCount: 10,
             delay: .exponentialBackoff(
@@ -108,6 +101,19 @@ extension REST {
                 maxDelay: .minutes(1)
             ),
             applyJitter: true
+        )
+
+        public static let purchaseReceiptUpload = RetryStrategy(
+            maxRetryCount: 3,
+            delay: defaultRetryDelay,
+            applyJitter: true
+        )
+
+        /// Default retry delay.
+        public static let defaultRetryDelay: RetryDelay = .exponentialBackoff(
+            initial: .seconds(2),
+            multiplier: 2,
+            maxDelay: .seconds(8)
         )
     }
 
