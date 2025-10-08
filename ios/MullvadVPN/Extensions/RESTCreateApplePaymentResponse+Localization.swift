@@ -27,7 +27,7 @@ extension REST.CreateApplePaymentResponse {
         switch context {
         case .purchase:
             return String(
-                format: NSLocalizedString("%@ have been added to your account", comment: ""),
+                format: NSLocalizedString("%@ was added to your account.", comment: ""),
                 formattedTimeAdded ?? ""
             )
         case .restoration:
@@ -39,7 +39,7 @@ extension REST.CreateApplePaymentResponse {
                 )
             case .timeAdded:
                 return String(
-                    format: NSLocalizedString("%@ have been added to your account", comment: ""),
+                    format: NSLocalizedString("%@ was added to your account.", comment: ""),
                     formattedTimeAdded ?? ""
                 )
             }

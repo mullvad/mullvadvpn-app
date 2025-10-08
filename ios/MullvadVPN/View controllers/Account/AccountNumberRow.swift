@@ -184,7 +184,7 @@ class AccountNumberRow: UIView {
                 selector: #selector(didTapShowHideAccount)
             ),
             UIAccessibilityCustomAction(
-                name: NSLocalizedString("Copy to pasteboard", comment: ""),
+                name: NSLocalizedString("Copied Mullvad account number to pasteboard", comment: ""),
                 target: self,
                 selector: #selector(didTapCopyAccountNumber)
             ),

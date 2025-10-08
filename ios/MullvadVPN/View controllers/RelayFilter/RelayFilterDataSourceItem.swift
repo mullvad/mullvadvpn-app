@@ -40,7 +40,7 @@ struct RelayFilterDataSourceItem: Hashable, Comparable {
 
     static var allProviders: RelayFilterDataSourceItem {
         RelayFilterDataSourceItem(
-            name: NSLocalizedString("All Providers", comment: ""),
+            name: NSLocalizedString("All providers", comment: ""),
             type: .allProviders,
             isEnabled: true
         )

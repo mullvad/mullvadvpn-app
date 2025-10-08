@@ -18,7 +18,7 @@ public enum CustomRelayListError: LocalizedError, Hashable {
     public var errorDescription: String? {
         switch self {
         case .duplicateName:
-            NSLocalizedString("A custom list with this name exists, please choose a unique name.", comment: "")
+            NSLocalizedString("Name is already taken.", comment: "")
         case .nameTooLong:
             String(
                 format: NSLocalizedString("Name should be no longer than %i characters.", comment: ""),
