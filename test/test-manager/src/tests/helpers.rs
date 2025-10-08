@@ -786,8 +786,7 @@ async fn get_single_relay_location_contraint(
             GetRelay::Wireguard {
                 inner: WireguardConfig::Singlehop { exit },
                 ..
-            }
-            | GetRelay::OpenVpn { exit, .. } => {
+            } => {
                 let location = into_constraint(&exit);
                 let (mut relay_constraints, ..) = query.into_settings();
                 relay_constraints.location = location;
