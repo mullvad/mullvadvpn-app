@@ -24,11 +24,11 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     override func tearDown() async throws {
-        try await super.tearDown()
-
         if removeFirewallRulesInTearDown {
             FirewallClient().removeRules()
         }
+
+        try await super.tearDown()
     }
 
     /// Restore default country by selecting it in location selector and immediately disconnecting when app starts connecting to relay in it
@@ -109,20 +109,19 @@ class RelayTests: LoggedInWithTimeUITestCase {
             self.restoreDefaultCountry()
         }
 
-        // First get relay info
-        let relayInfo = getQuicRelayInfo()
-
         // Run actual test
         try FirewallClient().createRule(
-            FirewallRule.makeBlockAllTrafficRule(toIPAddress: relayInfo.ipAddress)
+            // Block all traffic not going to the router.
+            FirewallRule.makeBlockAllTrafficRule(toIPAddress: "8.8.8.8", inverted: true)
         )
 
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
-            .tapLocationCell(withName: relayInfo.name)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCountryName)
+
+        allowAddVPNConfigurationsIfAsked()
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
@@ -396,7 +395,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 443, assertProtocol: .UDP)
     }
 
-    /// Test automatic switching to TCP is functioning when UDP traffic to relay is blocked. This test first connects to a realy to get the IP address of it, in order to block UDP traffic to this relay.
+    /// Test automatic switching to TCP is functioning when UDP traffic to relays is blocked.
     func testWireGuardOverTCPAutomatically() throws {
         FirewallClient().removeRules()
         removeFirewallRulesInTearDown = true
@@ -405,12 +404,10 @@ class RelayTests: LoggedInWithTimeUITestCase {
             self.restoreDefaultCountry()
         }
 
-        // First get relay info
-        let relayInfo = getQuicRelayInfo()
-
         // Run actual test
         try FirewallClient().createRule(
-            FirewallRule.makeBlockUDPTrafficRule(toIPAddress: relayInfo.ipAddress)
+            // Block all UDP traffic not going to the router.
+            FirewallRule.makeBlockUDPTrafficRule(toIPAddress: "8.8.8.8", inverted: true)
         )
 
         HeaderBar(app)
@@ -431,8 +428,9 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
-            .tapLocationCell(withName: relayInfo.name)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCountryName)
+
+        allowAddVPNConfigurationsIfAsked()
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
