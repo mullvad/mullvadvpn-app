@@ -524,18 +524,10 @@ impl Tunnel for BoringTun {
             let recreate_devices = old_config.is_multihop() != self.config.is_multihop();
 
             if recreate_devices {
-                match self.devices.take().unwrap() {
-                    Devices::Singlehop { device, .. } => {
-                        device.stop().await;
-                    }
-                    Devices::Multihop {
-                        entry_device,
-                        exit_device,
-                        ..
-                    } => {
-                        exit_device.stop().await;
-                        entry_device.stop().await;
-                    }
+                // TODO: devices should never be None while this BoringTun instance is running.
+                debug_assert!(self.devices.is_some());
+                if let Some(devices) = self.devices.take() {
+                    devices.stop().await;
                 }
             }
 
