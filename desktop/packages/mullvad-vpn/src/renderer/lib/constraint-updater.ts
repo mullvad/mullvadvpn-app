@@ -5,7 +5,6 @@ import {
   BridgeSettings,
   IBridgeConstraints,
   IRelaySettingsNormal,
-  IWireguardConstraints,
   Ownership,
   wrapConstraint,
 } from '../../shared/daemon-rpc-types';
@@ -20,7 +19,7 @@ import { useNormalRelaySettings } from './relay-settings-hooks';
 
 export function wrapRelaySettingsOrDefault(
   relaySettings?: NormalRelaySettingsRedux,
-): IRelaySettingsNormal<IWireguardConstraints> {
+): IRelaySettingsNormal {
   if (relaySettings) {
     const wgPort = wrapConstraint(relaySettings.wireguard.port);
     const wgIpVersion = wrapConstraint(relaySettings.wireguard.ipVersion);
@@ -45,9 +44,7 @@ export function wrapRelaySettingsOrDefault(
   return defaultSettings;
 }
 
-type RelaySettingsUpdateFunction = (
-  settings: IRelaySettingsNormal<IWireguardConstraints>,
-) => IRelaySettingsNormal<IWireguardConstraints>;
+type RelaySettingsUpdateFunction = (settings: IRelaySettingsNormal) => IRelaySettingsNormal;
 
 export function useRelaySettingsModifier() {
   const relaySettings = useNormalRelaySettings();
