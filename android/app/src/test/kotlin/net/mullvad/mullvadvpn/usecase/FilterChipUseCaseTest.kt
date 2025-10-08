@@ -106,8 +106,8 @@ class FilterChipUseCaseTest {
             // Arrange
             settings.value =
                 mockk<Settings>(relaxed = true) {
-                    every { this@mockk.tunnelOptions.wireguard.daitaSettings.enabled } returns true
-                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns true
+                    every { this@mockk.tunnelOptions.daitaSettings.enabled } returns true
+                    every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
             filterChipUseCase(RelayListType.Single).test {
@@ -121,8 +121,8 @@ class FilterChipUseCaseTest {
             // Arrange
             settings.value =
                 mockk<Settings>(relaxed = true) {
-                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
-                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+                    every { tunnelOptions.daitaSettings.enabled } returns true
+                    every { tunnelOptions.daitaSettings.directOnly } returns false
                 }
 
             filterChipUseCase(RelayListType.Single).test { assertLists(emptyList(), awaitItem()) }
@@ -134,8 +134,8 @@ class FilterChipUseCaseTest {
             // Arrange
             settings.value =
                 mockk<Settings>(relaxed = true) {
-                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
-                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns true
+                    every { tunnelOptions.daitaSettings.enabled } returns true
+                    every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
             filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
@@ -149,8 +149,8 @@ class FilterChipUseCaseTest {
             // Arrange
             settings.value =
                 mockk<Settings>(relaxed = true) {
-                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
-                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns true
+                    every { tunnelOptions.daitaSettings.enabled } returns true
+                    every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
             filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)).test {
@@ -164,8 +164,8 @@ class FilterChipUseCaseTest {
             // Arrange
             settings.value =
                 mockk<Settings>(relaxed = true) {
-                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
-                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+                    every { tunnelOptions.daitaSettings.enabled } returns true
+                    every { tunnelOptions.daitaSettings.directOnly } returns false
                 }
 
             filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)).test {
