@@ -187,7 +187,7 @@ pub async fn open_boringtun_tunnel(
     #[cfg(target_os = "android")]
     let (tun, async_tun) = {
         let _ = routes; // TODO: do we need this?
-        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), &config)?;
+        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
         let is_new_tunnel = tun.is_new;
 
         // TODO We should also wait for routes before sending any ping / connectivity check
