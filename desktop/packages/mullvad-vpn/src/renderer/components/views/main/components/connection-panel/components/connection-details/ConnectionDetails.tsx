@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { strings } from '../../../../../../../../shared/constants';
 import {
   EndpointObfuscationType,
   ITunnelEndpoint,
@@ -9,7 +10,6 @@ import {
   RelayProtocol,
   TunnelState,
   TunnelType,
-  tunnelTypeToString,
 } from '../../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../../shared/gettext';
 import { colors } from '../../../../../../../lib/foundations';
@@ -94,9 +94,7 @@ export function ConnectionDetails() {
         {messages.pgettext('connect-view', 'Connection details')}
       </StyledConnectionDetailsHeading>
       <StyledConnectionDetailsLabel data-testid="tunnel-protocol">
-        {showDetails &&
-          tunnelState.details !== undefined &&
-          tunnelTypeToString(tunnelState.details.endpoint.tunnelType)}
+        {showDetails && tunnelState.details !== undefined && strings.wireguard}
       </StyledConnectionDetailsLabel>
       <StyledIpTable>
         <StyledConnectionDetailsTitle>
