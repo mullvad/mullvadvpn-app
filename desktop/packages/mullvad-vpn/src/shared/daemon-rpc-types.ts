@@ -279,19 +279,12 @@ export type RelayLocationGeographical =
 
 export type RelayLocation = RelayLocationGeographical | RelayLocationCustomList;
 
-export interface IOpenVpnConstraints {
-  port: Constraint<number>;
-  protocol: Constraint<RelayProtocol>;
-}
-
 export interface IWireguardConstraints {
   port: Constraint<number>;
   ipVersion: Constraint<IpVersion>;
   useMultihop: boolean;
   entryLocation: Constraint<RelayLocation>;
 }
-
-export type TunnelProtocol = 'wireguard' | 'openvpn';
 
 export type IpVersion = 'ipv4' | 'ipv6';
 
