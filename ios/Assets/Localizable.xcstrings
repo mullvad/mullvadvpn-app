@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" : {
       "localizations" : {
         "da" : {
@@ -832,6 +835,9 @@
           }
         }
       }
+    },
+    "%@ have been added to your account." : {
+
     },
     "%@ left on this account" : {
       "localizations" : {
@@ -3561,6 +3567,9 @@
           }
         }
       }
+    },
+    "Add Time" : {
+
     },
     "Adelaide" : {
       "localizations" : {
@@ -19747,7 +19756,6 @@
       }
     },
     "Entry" : {
-      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -19984,7 +19992,6 @@
       }
     },
     "Exit" : {
-      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -20458,6 +20465,9 @@
           }
         }
       }
+    },
+    "Failed to reach Mullvad servers to initiate purchase" : {
+
     },
     "Failed to send" : {
       "localizations" : {
@@ -21167,6 +21177,12 @@
         }
       }
     },
+    "Failed to upload one or more receipts to Mullvad servers. Try again later or contact support for help." : {
+
+    },
+    "Failed to verify transaction receipt" : {
+
+    },
     "FAQs & Guides" : {
       "localizations" : {
         "da" : {
@@ -21522,6 +21538,7 @@
       }
     },
     "Filtered:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -31089,6 +31106,7 @@
       }
     },
     "Make a purchase with StoreKit2" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -40663,6 +40681,7 @@
       }
     },
     "Providers: %d" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -54844,6 +54863,9 @@
         }
       }
     },
+    "Unexpected error occured." : {
+
+    },
     "Unexpected server response: %1$@ (HTTP status: %2$d)" : {
       "localizations" : {
         "da" : {
@@ -61103,6 +61125,9 @@
           }
         }
       }
+    },
+    "Your previous purchases have been added to your account." : {
+
     },
     "Your purchase was successfully refunded." : {
       "localizations" : {
