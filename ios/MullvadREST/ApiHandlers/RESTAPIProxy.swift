@@ -110,63 +110,6 @@ extension REST {
             return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
         }
 
-        public func createApplePayment(
-            accountNumber: String,
-            receiptString: Data
-        ) -> any RESTRequestExecutor<CreateApplePaymentResponse> {
-            let requestHandler = AnyRequestHandler(
-                createURLRequest: { endpoint, authorization in
-                    var requestBuilder = try self.requestFactory.createRequestBuilder(
-                        endpoint: endpoint,
-                        method: .post,
-                        pathTemplate: "create-apple-payment"
-                    )
-                    requestBuilder.setAuthorization(authorization)
-
-                    let body = CreateApplePaymentRequest(
-                        receiptString: receiptString
-                    )
-                    try requestBuilder.setHTTPBody(value: body)
-
-                    return requestBuilder.getRequest()
-                },
-                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
-            )
-
-            let responseHandler =
-                AnyResponseHandler { response, data -> ResponseHandlerResult<CreateApplePaymentResponse> in
-                    if HTTPStatus.isSuccess(response.statusCode) {
-                        return .decoding {
-                            let serverResponse = try self.responseDecoder.decode(
-                                CreateApplePaymentRawResponse.self,
-                                from: data
-                            )
-                            if serverResponse.timeAdded > 0 {
-                                return .timeAdded(
-                                    serverResponse.timeAdded,
-                                    serverResponse.newExpiry
-                                )
-                            } else {
-                                return .noTimeAdded(serverResponse.newExpiry)
-                            }
-                        }
-                    } else {
-                        return .unhandledResponse(
-                            try? self.responseDecoder.decode(
-                                ServerErrorResponse.self,
-                                from: data
-                            )
-                        )
-                    }
-                }
-
-            return makeRequestExecutor(
-                name: "create-apple-payment",
-                requestHandler: requestHandler,
-                responseHandler: responseHandler
-            )
-        }
-
         public func sendProblemReport(
             _ body: ProblemReportRequest,
             retryStrategy: REST.RetryStrategy,
@@ -258,47 +201,38 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
 
         /// Not implemented. Use `MullvadAPIProxy` instead.
         public func initStorekitPayment(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<String>
+            completionHandler: @escaping ProxyCompletionHandler<UUID>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
 
         /// Not implemented. Use `MullvadAPIProxy` instead.
         public func checkStorekitPayment(
-            accountNumber: String,
             transaction: StorekitTransaction,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
 
+        /// Not implemented. Use `MullvadAPIProxy` instead.
         public func checkApiAvailability(
             retryStrategy: REST.RetryStrategy,
             accessMethod: PersistentAccessMethod,
             completion: @escaping ProxyCompletionHandler<Bool>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
     }
 
     // MARK: - Response types
-
-    private struct CreateApplePaymentRequest: Encodable, Sendable {
-        let receiptString: Data
-    }
-
-    private struct CreateApplePaymentRawResponse: Decodable, Sendable {
-        let timeAdded: Int
-        let newExpiry: Date
-    }
 
     private struct SubmitVoucherRequest: Encodable, Sendable {
         let voucherCode: String
@@ -311,5 +245,9 @@ extension REST {
         public var dateComponents: DateComponents {
             DateComponents(second: timeAdded)
         }
+    }
+
+    public struct UUIDParseError: Swift.Error {
+        public let payload: String
     }
 }
