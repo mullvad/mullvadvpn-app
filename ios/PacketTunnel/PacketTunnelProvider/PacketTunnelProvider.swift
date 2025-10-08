@@ -27,10 +27,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
-    private let tunnelSettingsUpdater: SettingsUpdater!
-    private let pathObserver: PacketTunnelPathObserver!
+    private let tunnelSettingsUpdater: SettingsUpdater
+    private let defaultPathObserver: PacketTunnelPathObserver
     private var encryptedDNSTransport: EncryptedDNSTransport!
-    private var migrationManager: MigrationManager!
+    private var migrationManager: MigrationManager
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
     private let tunnelSettingsListener = TunnelSettingsListener()
@@ -58,7 +58,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
         migrationManager = MigrationManager(cacheDirectory: containerURL)
 
-        pathObserver = PacketTunnelPathObserver(eventQueue: internalQueue)
+        defaultPathObserver = PacketTunnelPathObserver(eventQueue: internalQueue)
 
         super.init()
 
@@ -105,7 +105,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             timings: PacketTunnelActorTimings(),
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
-            defaultPathObserver: pathObserver,
+            defaultPathObserver: defaultPathObserver,
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: relaySelector,
             settingsReader: TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in
@@ -114,6 +114,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             },
             protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
         )
+
+        // Since PacketTunnelActor depends on the path observer, start observing after actor has been initalized.
+        startDefaultPathObserver()
 
         let urlRequestProxy = URLRequestProxy(
             dispatchQueue: internalQueue,
@@ -186,11 +189,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     override func stopTunnel(with reason: NEProviderStopReason) async {
         providerLogger.debug("stopTunnel: \(ProviderStopReasonWrapper(reason: reason))")
 
-        stopObservingActorState()
-
         actor.stop()
-
         await actor.waitUntilDisconnected()
+
+        stopObservingActorState()
     }
 
     override func handleAppMessage(_ messageData: Data) async -> Data? {
@@ -203,6 +205,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
     override func wake() {
         actor.onWake()
+    }
+
+    private func startDefaultPathObserver() {
+        providerLogger.trace("Start default path observer.")
+
+        defaultPathObserver.start { [weak self] networkPath in
+            self?.actor.updateNetworkReachability(networkPathStatus: networkPath)
+        }
+    }
+
+    private func stopDefaultPathObserver() {
+        providerLogger.trace("Stop default path observer.")
+
+        defaultPathObserver.stop()
     }
 
     private func performSettingsMigration() {
@@ -370,7 +386,9 @@ extension PacketTunnelProvider {
                         observedConnectionState,
                         privateKey: privateKey
                     )
-                case .initial, .connected, .disconnecting, .disconnected, .error:
+                case .disconnected:
+                    stopDefaultPathObserver()
+                case .initial, .connected, .disconnecting, .error:
                     break
                 }
             }
@@ -451,7 +469,7 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
     func ephemeralPeerExchangeFailed() {
         // Do not retry connection unless there's network reachability. Doing so will lead to a hot loop where
         // connections are retried every time peer exchange fails, which it will if reachability is not satisfied.
-        if pathObserver.currentPathStatus.networkReachability == .reachable {
+        if defaultPathObserver.currentPathStatus.networkReachability == .reachable {
             // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
             // and it will not try to reconnect
             actor.reconnect(to: .random, reconnectReason: .connectionLoss)
