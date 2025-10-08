@@ -41,6 +41,8 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
     if (window.env.e2e) {
       window.e2e.location = location.pathname;
     }
+
+    onTransition?.();
   });
 
   const transitionToView = useEffectEvent(
@@ -65,7 +67,6 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
         if (queueLocation) {
           transitionToView(queueLocation.location, queueLocation.transition);
         } else {
-          onTransition?.();
           onTransitionEnd?.(location);
         }
       });
