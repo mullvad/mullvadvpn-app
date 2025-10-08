@@ -307,11 +307,11 @@ export type TunnelProtocol = 'wireguard' | 'openvpn';
 
 export type IpVersion = 'ipv4' | 'ipv6';
 
-export interface IRelaySettingsNormal<Wireguard> {
+export interface IRelaySettingsNormal {
   location: Constraint<RelayLocation>;
   providers: string[];
   ownership: Ownership;
-  wireguardConstraints: Wireguard;
+  wireguardConstraints: IWireguardConstraints;
 }
 
 export type ConnectionConfig =
@@ -349,7 +349,7 @@ export interface IRelaySettingsCustom {
 }
 export type RelaySettings =
   | {
-      normal: IRelaySettingsNormal<IWireguardConstraints>;
+      normal: IRelaySettingsNormal;
     }
   | {
       customTunnelEndpoint: IRelaySettingsCustom;
