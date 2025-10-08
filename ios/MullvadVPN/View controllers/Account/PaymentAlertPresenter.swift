@@ -13,11 +13,17 @@ import Routing
 struct PaymentAlertPresenter {
     let alertContext: any Presenting
 
-    func showAlertForRefund(completion: (@MainActor @Sendable () -> Void)? = nil) {
+    // MARK: StoreKit 2 flow
+
+    func showAlertForOutcome(
+        _ outcome: StorePaymentOutcome,
+        context: StorePaymentOutcome.Context,
+        completion: (@MainActor @Sendable () -> Void)? = nil
+    ) {
         let presentation = AlertPresentation(
-            id: "payment-refund-alert",
-            title: NSLocalizedString("Refund successful", comment: ""),
-            message: NSLocalizedString("Your purchase was successfully refunded.", comment: ""),
+            id: "payment-outcome-alert",
+            title: context.alertTitle,
+            message: outcome.alertMessage(for: context),
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
@@ -34,8 +40,34 @@ struct PaymentAlertPresenter {
     }
 
     func showAlertForError(
-        _ error: StorePaymentManagerError,
-        context: REST.CreateApplePaymentResponse.Context,
+        _ error: StorePaymentError,
+        context: StorePaymentOutcome.Context,
+        completion: (@MainActor @Sendable () -> Void)? = nil
+    ) {
+        let presentation = AlertPresentation(
+            id: "payment-error-alert",
+            title: context.errorTitle,
+            message: error.description,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Got it!", comment: ""),
+                    style: .default,
+                    handler: {
+                        completion?()
+                    }
+                )
+            ]
+        )
+
+        let presenter = AlertPresenter(context: alertContext)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
+    // MARK: Legacy StoreKit flow
+
+    func showAlertForError(
+        _ error: LegacyStorePaymentManagerError,
+        context: StorePaymentOutcome.Context,
         completion: (@MainActor @Sendable () -> Void)? = nil
     ) {
         let presentation = AlertPresentation(
@@ -57,15 +89,13 @@ struct PaymentAlertPresenter {
         presenter.showAlert(presentation: presentation, animated: true)
     }
 
-    func showAlertForStoreKitError(
-        _ error: any Error,
-        context: REST.CreateApplePaymentResponse.Context,
-        completion: (() -> Void)? = nil
-    ) {
+    // MARK: StoreKit 2 refunds
+
+    func showAlertForRefund(completion: (@MainActor @Sendable () -> Void)? = nil) {
         let presentation = AlertPresentation(
-            id: "payment-error-alert",
-            title: context.errorTitle,
-            message: "\(error)",
+            id: "payment-refund-alert",
+            title: NSLocalizedString("Refund successful", comment: ""),
+            message: NSLocalizedString("Your purchase was successfully refunded.", comment: ""),
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
@@ -81,20 +111,15 @@ struct PaymentAlertPresenter {
         presenter.showAlert(presentation: presentation, animated: true)
     }
 
-    func showAlertForResponse(
-        _ response: REST.CreateApplePaymentResponse,
-        context: REST.CreateApplePaymentResponse.Context,
-        completion: (@MainActor @Sendable () -> Void)? = nil
+    func showAlertForRefundError(
+        _ error: any Error,
+        context: StorePaymentOutcome.Context,
+        completion: (() -> Void)? = nil
     ) {
-        guard case .noTimeAdded = response else {
-            completion?()
-            return
-        }
-
         let presentation = AlertPresentation(
-            id: "payment-response-alert",
-            title: response.alertTitle(context: context),
-            message: response.alertMessage(context: context),
+            id: "payment-refund-error-alert",
+            title: context.errorTitle,
+            message: "\(error)",
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),

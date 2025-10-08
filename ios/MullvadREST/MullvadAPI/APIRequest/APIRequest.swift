@@ -22,14 +22,10 @@ public enum APIRequest: Codable, Sendable {
     case legacyStorekitPayment(
         retryStrategy: REST.RetryStrategy,
         accountNumber: String,
-        request: LegacyStorekitRequest
+        request: LegacyStoreKitRequest
     )
     case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
-    case checkStorekitPayment(
-        retryStrategy: REST.RetryStrategy,
-        accountNumber: String,
-        transaction: StorekitTransaction
-    )
+    case checkStorekitPayment(retryStrategy: REST.RetryStrategy, transaction: StoreKitTransaction)
 
     // Device Proxy
     case getDevice(_ retryStrategy: REST.RetryStrategy, accountNumber: String, identifier: String)
@@ -93,7 +89,7 @@ public enum APIRequest: Codable, Sendable {
             let .rotateDeviceKey(strategy, _, _, _),
             let .legacyStorekitPayment(strategy, _, _),
             let .initStorekitPayment(strategy, _),
-            let .checkStorekitPayment(strategy, _, _),
+            let .checkStorekitPayment(strategy, _),
             let .checkApiAvailability(strategy, _):
             strategy
         }
