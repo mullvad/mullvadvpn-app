@@ -157,7 +157,6 @@ internal fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
         .setNormal(
             ManagementInterface.NormalRelaySettings.newBuilder()
                 .setWireguardConstraints(relayConstraints.wireguardConstraints.fromDomain())
-                .setOpenvpnConstraints(ManagementInterface.OpenvpnConstraints.getDefaultInstance())
                 .setLocation(relayConstraints.location.fromDomain())
                 .setOwnership(relayConstraints.ownership.fromDomain())
                 .addAllProviders(relayConstraints.providers.fromDomain())
