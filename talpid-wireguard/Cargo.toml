@@ -48,7 +48,7 @@ optional = true
 features = ["device", "tun"]
 #path = "../../gotatun/boringtun"
 git = "https://github.com/mullvad/boringtun"
-rev = "f6e192624c3d43f8c41d8359cf7c9266000852eb"
+rev = "5140b8176bd84ea6f803b121a3146ceb329f0a0e"
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["fs"] }
