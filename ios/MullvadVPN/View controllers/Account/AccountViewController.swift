@@ -240,7 +240,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                         .getPaymentToken(for: accountData.number)
                     {
                     case let .success(token):
-                        UUID(uuidString: token)!
+                        token
                     case let .failure(error):
                         throw error
                     }

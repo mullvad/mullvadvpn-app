@@ -21,33 +21,38 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         static let sendStoreReceipt = "StorePaymentManager.sendStoreReceipt"
         static let productsRequest = "StorePaymentManager.productsRequest"
     }
-
+    
+    private let productIds = [
+        "net.mullvad.MullvadVPN.subscription.storekit2.90days",
+        "net.mullvad.MullvadVPN.subscription.storekit2.30days",
+    ]
+    
     private let logger = Logger(label: "StorePaymentManager")
-
+    
     private let operationQueue: OperationQueue = {
         let queue = AsyncOperationQueue()
         queue.name = "StorePaymentManagerQueue"
         return queue
     }()
-
+    
     private let backgroundTaskProvider: BackgroundTaskProviding
     private let paymentQueue: SKPaymentQueue
     private let apiProxy: APIQuerying
     private let accountsProxy: RESTAccountHandling
     private var observerList = ObserverList<StorePaymentObserver>()
     private let transactionLog: StoreTransactionLog
-
+    
     /// Payment manager's delegate.
     weak var delegate: StorePaymentManagerDelegate?
-
+    
     /// A dictionary that maps each payment to account number.
     private var paymentToAccountToken = [SKPayment: String]()
-
+    
     /// Returns true if the device is able to make payments.
     static var canMakePayments: Bool {
         SKPaymentQueue.canMakePayments()
     }
-
+    
     /// Designated initializer
     ///
     /// - Parameters:
@@ -69,15 +74,19 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         self.accountsProxy = accountsProxy
         self.transactionLog = transactionLog
     }
-
+    
     /// Loads transaction log from disk and starts monitoring payment queue.
     func start() {
         // Load transaction log from file before starting the payment queue.
         logger.debug("Load transaction log.")
         transactionLog.read()
-
+        
         logger.debug("Start payment queue monitoring")
         paymentQueue.add(self)
+    }
+    
+    func products() async throws -> [Product] {
+        try await Product.products(for: productIds)
     }
 
     // MARK: - SKPaymentTransactionObserver
@@ -175,6 +184,36 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
                 self.paymentQueue.add(cloned)
             }
         }
+    }
+    
+    // This function is for testing only
+    func getPaymentToken(for accountNumber: String) async throws ->  UUID {
+        let result = try await withCheckedThrowingContinuation { continuation in
+            _ =
+                apiProxy
+                .initStorekitPayment(
+                    accountNumber: accountNumber,
+                    retryStrategy: .noRetry,
+                    completionHandler: { result in
+                        continuation.resume(returning: result)
+                    }
+                )
+        }
+        
+        switch result {
+        case .success(let token): return token
+        case .failure(let error): throw error
+        }
+    }
+    
+    
+    
+    func purchase(product: Product, for accountNumber: String) async throws {
+        
+        let token = try await self.getPaymentToken(for: accountNumber)
+        let result = try await product.purchase(
+            options: [.appAccountToken(token)]
+        )
     }
 
     /// Restore purchases by sending the AppStore receipt to backend.
