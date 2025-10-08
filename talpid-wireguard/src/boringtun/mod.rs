@@ -513,13 +513,16 @@ impl Tunnel for BoringTun {
         config: Config,
         daita: Option<DaitaSettings>,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
-        dbg!(&config);
         Box::pin(async move {
             self.config = config;
 
             // if we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
-            let recreate_devices = old_config.is_multihop() != self.config.is_multihop();
+            // TODO: Debug configure_devices. Currently we need to tear down the old devices
+            // after having exchanged tunnel params with the ephemeral peer. Empirically this
+            // is true for both DAITA & PQ.
+            // let recreate_devices = old_config.is_multihop() != self.config.is_multihop();
+            let recreate_devices = true;
 
             if recreate_devices {
                 // TODO: devices should never be None while this BoringTun instance is running.
