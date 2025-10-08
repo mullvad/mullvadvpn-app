@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useAppContext } from '../../../context';
-import { useSelector } from '../../../redux/store';
+import { useAppContext } from '../../../../context';
+import { useSelector } from '../../../../redux/store';
 import { useSortedDevices } from './use-sorted-devices';
 
 export const useGetDevices = () => {

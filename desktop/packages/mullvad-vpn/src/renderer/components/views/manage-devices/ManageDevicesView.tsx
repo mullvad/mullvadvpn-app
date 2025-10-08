@@ -1,5 +1,5 @@
 import { messages } from '../../../../shared/gettext';
-import { Text } from '../../../lib/components';
+import { Flex, Spinner, Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
@@ -8,9 +8,12 @@ import { DeviceList } from '../../device-list';
 import { BackAction } from '../../KeyboardNavigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
+import { useGetDevices } from './hooks';
 
 export function ManageDevicesView() {
   const { pop } = useHistory();
+  const devices = useGetDevices();
+  const showDeviceList = devices.length > 0;
 
   return (
     <BackAction action={pop}>
@@ -41,7 +44,13 @@ export function ManageDevicesView() {
                   </Text>
                 </FlexColumn>
               </View.Container>
-              <DeviceList />
+              {showDeviceList ? (
+                <DeviceList devices={devices} />
+              ) : (
+                <Flex $flexDirection="column" $alignItems="center">
+                  <Spinner size="big" />
+                </Flex>
+              )}
             </FlexColumn>
           </NavigationScrollbars>
         </NavigationContainer>
