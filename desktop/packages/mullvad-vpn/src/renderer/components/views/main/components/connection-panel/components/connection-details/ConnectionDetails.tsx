@@ -9,7 +9,6 @@ import {
   ProxyType,
   RelayProtocol,
   TunnelState,
-  TunnelType,
 } from '../../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../../shared/gettext';
 import { colors } from '../../../../../../../lib/foundations';
@@ -20,10 +19,6 @@ interface Endpoint {
   ip: string;
   port: number;
   protocol: RelayProtocol;
-}
-
-interface InAddress extends Endpoint {
-  tunnelType: TunnelType;
 }
 
 interface BridgeData extends Endpoint {
@@ -148,19 +143,18 @@ function getEntryPoint(tunnelState: TunnelState): Endpoint | undefined {
   }
 }
 
-function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): InAddress {
+function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): Endpoint {
   const socketAddr = parseSocketAddress(tunnelEndpoint.address);
   return {
     ip: socketAddr.host,
     port: socketAddr.port,
     protocol: tunnelEndpoint.protocol,
-    tunnelType: tunnelEndpoint.tunnelType,
   };
 }
 
 function tunnelEndpointToEntryLocationInAddress(
   tunnelEndpoint: ITunnelEndpoint,
-): InAddress | undefined {
+): Endpoint | undefined {
   if (!tunnelEndpoint.entryEndpoint) {
     return undefined;
   }
@@ -170,7 +164,6 @@ function tunnelEndpointToEntryLocationInAddress(
     ip: socketAddr.host,
     port: socketAddr.port,
     protocol: tunnelEndpoint.entryEndpoint.transportProtocol,
-    tunnelType: tunnelEndpoint.tunnelType,
   };
 }
 
