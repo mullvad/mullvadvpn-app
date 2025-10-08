@@ -341,8 +341,9 @@ final class PacketTunnelActorTests: XCTestCase {
         /// Because of how commands are processed by the actor's `CommandChannel`
         /// `start` and `stop` cannot be chained together, otherwise there is a risk that the `start` command
         /// gets coalesced by the `stop` command, and leaves the actor in its `.initial` state.
-        /// Guarantee here that the actor reaches the `.connecting` state before moving on.
-        let expression: (ObservedState) -> Bool = { if case .connecting = $0 { true } else { false } }
+        /// Guarantee here that the actor reaches the `.negotiatingEphemeralPeer` state before moving on,
+        /// since quantum resistance is enabled by default and peer negotiation therefore happens first.
+        let expression: (ObservedState) -> Bool = { if case .negotiatingEphemeralPeer = $0 { true } else { false } }
         await expect(expression, on: actor) {
             connectingStateExpectation.fulfill()
         }
