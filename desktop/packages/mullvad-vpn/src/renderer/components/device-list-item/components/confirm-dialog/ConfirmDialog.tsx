@@ -1,9 +1,9 @@
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
-import { capitalizeEveryWord } from '../../../../../shared/string-helpers';
 import { Button, Text } from '../../../../lib/components';
 import { formatHtml } from '../../../../lib/html-formatter';
+import { formatDeviceName } from '../../../../lib/utils';
 import { IModalAlertProps, ModalAlert, ModalAlertType, ModalMessage } from '../../../Modal';
 import { useDeviceListItemContext } from '../../DeviceListItemContext';
 import { useHandleRemoveDevice } from './hooks';
@@ -13,8 +13,6 @@ export type ConfirmDialogProps = IModalAlertProps;
 export function ConfirmDialog({ isOpen }: ConfirmDialogProps) {
   const { device, hideConfirmDialog, deleting } = useDeviceListItemContext();
   const handleRemoveDevice = useHandleRemoveDevice();
-
-  const deviceName = capitalizeEveryWord(device.name);
 
   return (
     <ModalAlert
@@ -42,7 +40,7 @@ export function ConfirmDialog({ isOpen }: ConfirmDialogProps) {
             // TRANSLATORS: Available placeholders:
             // TRANSLATORS: %(deviceName)s - The name of the device to log out.
             messages.pgettext('device-management', 'Remove <em>%(deviceName)s?</em>'),
-            { deviceName },
+            { deviceName: formatDeviceName(device.name) },
           ),
         )}
       </ModalMessage>

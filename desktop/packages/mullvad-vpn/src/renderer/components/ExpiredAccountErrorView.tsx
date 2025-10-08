@@ -5,13 +5,13 @@ import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { RoutePath } from '../../shared/routes';
-import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
 import { useHistory } from '../lib/history';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { IconBadge } from '../lib/icon-badge';
+import { formatDeviceName } from '../lib/utils';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
 import * as Cell from './cell';
@@ -138,7 +138,7 @@ function WelcomeView() {
             // TRANSLATORS: %(deviceName)s - The name of the current device
             messages.pgettext('device-management', 'Device name: %(deviceName)s'),
             {
-              deviceName: capitalizeEveryWord(account.deviceName ?? ''),
+              deviceName: formatDeviceName(account.deviceName ?? ''),
             },
           )}
         </StyledDeviceLabel>
