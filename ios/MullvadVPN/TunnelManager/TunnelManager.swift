@@ -602,10 +602,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
     // MARK: - StorePaymentObserver
 
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didReceiveEvent event: StorePaymentEvent
-    ) {
+    func storePaymentManager(didReceiveEvent event: LegacyStorePaymentEvent) {
         guard case let .finished(paymentCompletion) = event else {
             return
         }
@@ -626,6 +623,10 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             },
             completionHandler: nil
         )
+    }
+
+    func storePaymentManager(didReceiveEvent event: StorePaymentEvent) {
+        // Not used.
     }
 
     // MARK: - TunnelInteractor
@@ -786,7 +787,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         }
     }
 
-    fileprivate func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
+    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
         nslock.lock()
         defer { nslock.unlock() }
 

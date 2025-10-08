@@ -19,7 +19,7 @@ struct APIProxyStub: APIQuerying {
     var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
     var submitVoucherResult: Result<REST.SubmitVoucherResponse, Error> = .failure(APIProxyStubError())
     var legacyStorekitPaymentResult: Result<REST.CreateApplePaymentResponse, Error> = .failure(APIProxyStubError())
-    var initStorekitPaymentResult: Result<String, Error> = .failure(APIProxyStubError())
+    var initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError())
     var checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError())
     var checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
 
@@ -38,15 +38,6 @@ struct APIProxyStub: APIQuerying {
     ) -> Cancellable {
         completionHandler(getRelaysResult)
         return AnyCancellable()
-    }
-
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data
-    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse> {
-        RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
-            .timeAdded(42, .distantFuture)
-        })
     }
 
     func sendProblemReport(
@@ -68,9 +59,9 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func legacyStorekitPayment(
+    func legacyStoreKitPayment(
         accountNumber: String,
-        request: LegacyStorekitRequest,
+        request: LegacyStoreKitRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
     ) -> any Cancellable {
@@ -78,18 +69,17 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func initStorekitPayment(
+    func initStoreKitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<String>
+        completionHandler: @escaping ProxyCompletionHandler<UUID>
     ) -> any MullvadTypes.Cancellable {
         completionHandler(initStorekitPaymentResult)
         return AnyCancellable()
     }
 
-    func checkStorekitPayment(
-        accountNumber: String,
-        transaction: StorekitTransaction,
+    func checkStoreKitPayment(
+        transaction: StoreKitTransaction,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> any MullvadTypes.Cancellable {
