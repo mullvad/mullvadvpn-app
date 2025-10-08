@@ -72,22 +72,15 @@ extension REST {
         /// Strategy configured with 2 retry attempts and exponential backoff.
         public static let `default` = RetryStrategy(
             maxRetryCount: 2,
-            delay: defaultRetryDelay,
+            delay: .default,
             applyJitter: true
         )
 
         /// Strategy configured with 10 retry attempts and exponential backoff.
         public static let aggressive = RetryStrategy(
             maxRetryCount: 10,
-            delay: defaultRetryDelay,
+            delay: .default,
             applyJitter: true
-        )
-
-        /// Default retry delay.
-        public static let defaultRetryDelay: RetryDelay = .exponentialBackoff(
-            initial: .seconds(2),
-            multiplier: 2,
-            maxDelay: .seconds(8)
         )
 
         public static let postQuantumKeyExchange = RetryStrategy(
@@ -107,6 +100,12 @@ extension REST {
                 multiplier: UInt64(1),
                 maxDelay: .minutes(1)
             ),
+            applyJitter: true
+        )
+
+        public static let purchaseReceiptUpload = RetryStrategy(
+            maxRetryCount: 3,
+            delay: .default,
             applyJitter: true
         )
     }
@@ -142,6 +141,13 @@ extension REST {
                     ))
             }
         }
+
+        /// Default retry delay.
+        public static let `default`: RetryDelay = .exponentialBackoff(
+            initial: .seconds(2),
+            multiplier: 2,
+            maxDelay: .seconds(8)
+        )
     }
 
     public struct CodableDuration: Codable, Equatable, Sendable {

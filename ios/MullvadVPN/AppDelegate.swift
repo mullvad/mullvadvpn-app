@@ -19,9 +19,7 @@ import UIKit
 import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate,
-    @unchecked Sendable
-{
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, @unchecked Sendable {
     nonisolated(unsafe) private var logger: Logger!
 
     #if targetEnvironment(simulator)
@@ -154,10 +152,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         storePaymentManager = StorePaymentManager(
             backgroundTaskProvider: backgroundTaskProvider,
-            queue: .default(),
-            apiProxy: apiProxy,
-            accountsProxy: accountsProxy,
-            transactionLog: .default
+            interactor: StorePaymentManagerInteractor(
+                tunnelManager: tunnelManager,
+                apiProxy: apiProxy,
+                accountProxy: accountsProxy
+            )
         )
 
         let apiRequestFactory = MullvadApiRequestFactory(
@@ -178,7 +177,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         registerBackgroundTasks()
-        setupPaymentHandler()
         setupNotifications()
         addApplicationNotifications(application: application)
 
@@ -445,11 +443,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
     }
 
-    private func setupPaymentHandler() {
-        storePaymentManager.delegate = self
-        storePaymentManager.addPaymentObserver(tunnelManager)
-    }
-
     private func setupNotifications() {
         NotificationManager.shared.notificationProviders = [
             LatestChangesNotificationProvider(appPreferences: appPreferences),
@@ -551,9 +544,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 self.logger.debug("Finished initialization.")
 
                 NotificationManager.shared.updateNotifications()
-                self.storePaymentManager.start()
 
-                finish(nil)
+                Task {
+                    await self.storePaymentManager.start()
+                    finish(nil)
+                }
             }
         }
     }
@@ -634,18 +629,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
             }
         }
-    }
-
-    // MARK: - StorePaymentManagerDelegate
-
-    nonisolated func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didRequestAccountTokenFor payment: SKPayment
-    ) -> String? {
-        // Since we do not persist the relation between payment and account number between the
-        // app launches, we assume that all successful purchases belong to the active account
-        // number.
-        tunnelManager.deviceState.accountData?.number
     }
 
     // MARK: - UNUserNotificationCenterDelegate

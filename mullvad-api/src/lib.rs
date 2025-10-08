@@ -614,15 +614,13 @@ impl AccountsProxy {
     #[cfg(target_os = "ios")]
     pub async fn check_storekit_payment(
         &self,
-        account: AccountNumber,
         body: Vec<u8>,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
         let request = self
             .handle
             .factory
             .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
-            .expected_status(&[StatusCode::OK])
-            .account(account)?;
+            .expected_status(&[StatusCode::OK]);
         self.handle.service.request(request).await
     }
 
