@@ -742,21 +742,6 @@ export default class AppRenderer {
           },
         },
       });
-    } else if ('customTunnelEndpoint' in relaySettings) {
-      const customTunnelEndpoint = relaySettings.customTunnelEndpoint;
-      const config = customTunnelEndpoint.config;
-
-      if ('openvpn' in config) {
-        actions.settings.updateRelay({
-          customTunnelEndpoint: {
-            host: customTunnelEndpoint.host,
-            port: config.openvpn.endpoint.port,
-            protocol: config.openvpn.endpoint.protocol,
-          },
-        });
-      } else if ('wireguard' in config) {
-        // TODO: handle wireguard
-      }
     }
   }
 
