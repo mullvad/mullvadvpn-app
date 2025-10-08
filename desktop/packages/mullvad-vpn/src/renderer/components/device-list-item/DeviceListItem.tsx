@@ -11,7 +11,7 @@ import { spacings } from '../../lib/foundations';
 import { useBoolean } from '../../lib/utility-hooks';
 import { DeviceListItemProvider, useDeviceListItemContext } from './';
 import { ConfirmDialog, ErrorDialog, RemoveButton } from './components';
-import { useIsCurrentDevice } from './hooks';
+import { useFormattedDate, useIsCurrentDevice } from './hooks';
 
 export type SettingsToggleListItemProps = {
   device: IDevice;
@@ -32,9 +32,9 @@ const StyledListItem = styled(ListItem)<{ $isCurrentDevice: boolean }>(
 
 function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'device'>) {
   const { device, deleting, confirmDialogVisible, error } = useDeviceListItemContext();
+  const createdDate = useFormattedDate(device.created);
   const isCurrentDevice = useIsCurrentDevice();
   const deviceName = capitalizeEveryWord(device.name);
-  const createdDate = device.created.toISOString().split('T')[0];
 
   return (
     <>
