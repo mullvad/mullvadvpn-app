@@ -275,24 +275,15 @@ pub(crate) fn patch_allowed_ips(mut config: Config) -> Config {
         .ipv6_gateway
         .map(|net| IpNetwork::from(IpAddr::from(net)));
     for peer in config.peers_mut() {
-        peer.allowed_ips = peer
-            .allowed_ips
-            .iter()
-            .cloned()
-            .filter_map(|mut allowed_ip| {
-                if allowed_ip.prefix() == 0 {
-                    if allowed_ip.is_ipv4() {
-                        allowed_ip = gateway_net_v4;
-                    } else if let Some(net) = gateway_net_v6 {
-                        allowed_ip = net;
-                    } else {
-                        return None;
-                    }
+        for mut allowed_ips in peer.allowed_ips {
+            if allowed_ips.prefix() == 0 {
+                match (allowed_ips.is_ipv4(), gateway_net_v6) {
+                    (true, _) => allowed_ips = gateway_net_v4,
+                    (_, (Some(net))) => allowed_ips = net,
+                    _ => continue,
                 }
-                Some(allowed_ip)
-            })
-            .collect();
+            }
+        }
     }
-
     config
 }
