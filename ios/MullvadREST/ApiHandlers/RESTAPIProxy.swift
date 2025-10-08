@@ -265,7 +265,7 @@ extension REST {
         public func initStorekitPayment(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<String>
+            completionHandler: @escaping ProxyCompletionHandler<UUID>
         ) -> any Cancellable {
             AnyCancellable()
         }
@@ -311,5 +311,10 @@ extension REST {
         public var dateComponents: DateComponents {
             DateComponents(second: timeAdded)
         }
+    }
+    
+    public struct UUIDParseError : Swift.Error {
+        
+        public let payload: String
     }
 }

@@ -65,7 +65,7 @@ struct APIProxyStub: APIQuerying {
     func initStorekitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<String>
+        completionHandler: @escaping ProxyCompletionHandler<UUID>
     ) -> any MullvadTypes.Cancellable {
         AnyCancellable()
     }
