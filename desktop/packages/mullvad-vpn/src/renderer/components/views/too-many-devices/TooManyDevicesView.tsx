@@ -62,7 +62,7 @@ export function TooManyDevicesView() {
                 </Text>
                 <Text variant="labelTiny">{subtitle}</Text>
               </View.Container>
-              <DeviceList />
+              <DeviceList devices={devices} />
             </>
           )}
 
