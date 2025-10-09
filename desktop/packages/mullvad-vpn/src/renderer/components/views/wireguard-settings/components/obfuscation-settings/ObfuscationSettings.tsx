@@ -68,6 +68,9 @@ export function ObfuscationSettings() {
         <SettingsListbox.BaseOption value={ObfuscationType.auto}>
           {messages.gettext('Automatic')}
         </SettingsListbox.BaseOption>
+        <SettingsListbox.BaseOption value={ObfuscationType.lwo}>
+          {messages.pgettext('wireguard-settings-view', 'LWO')}
+        </SettingsListbox.BaseOption>
         <SettingsListbox.SplitOption value={ObfuscationType.shadowsocks}>
           <SettingsListbox.SplitOption.Item
             aria-description={messages.pgettext(
@@ -114,9 +117,6 @@ export function ObfuscationSettings() {
         </SettingsListbox.SplitOption>
         <SettingsListbox.BaseOption value={ObfuscationType.quic}>
           {messages.pgettext('wireguard-settings-view', 'QUIC')}
-        </SettingsListbox.BaseOption>
-        <SettingsListbox.BaseOption value={ObfuscationType.lwo}>
-          {messages.pgettext('wireguard-settings-view', 'LWO')}
         </SettingsListbox.BaseOption>
         <SettingsListbox.BaseOption value={ObfuscationType.off}>
           {messages.gettext('Off')}
