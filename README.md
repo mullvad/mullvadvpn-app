@@ -51,22 +51,23 @@ in other DEs, but we don't regularly test those.
 Here is a table containing the features of the app across platforms. This is intended to reflect
 the current state of the latest code in git, not necessarily any existing release.
 
-|                               | Windows | Linux | macOS | Android | iOS |
-|-------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
-| OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
-| WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| [DAITA]                       |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| WireGuard multihop            |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| WireGuard over Shadowsocks    |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| WireGuard over QUIC           |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
-| Split tunneling               |    ✓    |   ✓   |   ✓   |    ✓    |     |
-| Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| Content blockers (Ads etc)    |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
-| [Externally audited](./audits)|    ✓    |   ✓   |   ✓   |    ✓    |  ✓ |
+|                                         | Windows | Linux | macOS | Android | iOS |
+|-----------------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
+| OpenVPN                                 |    ✓    |   ✓   |   ✓   |         |     |
+| WireGuard                               |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| Quantum-resistant tunnels               |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| [DAITA]                                 |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| WireGuard multihop                      |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| WireGuard over TCP                      |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| WireGuard over Shadowsocks              |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| WireGuard over QUIC                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| Lightweight WireGuard Obfuscation (LWO) |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| OpenVPN over Shadowsocks                |    ✓    |   ✓   |   ✓   |         |     |
+| Split tunneling                         |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| Custom DNS server                       |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| Content blockers (Ads etc)              |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| Optional local network access           |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
+| [Externally audited](./audits)          |    ✓    |   ✓   |   ✓   |    ✓    |  ✓ |
 
 \* The local network is always accessible on iOS with the current implementation
 
