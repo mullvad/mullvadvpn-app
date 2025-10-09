@@ -180,7 +180,7 @@ pub async fn open_boringtun_tunnel(
     log::info!("BoringTun::start_tunnel");
     let routes = config.get_tunnel_destinations();
 
-    log::info!("calling get_tunnel_for_userspace");
+    log::trace!("calling get_tunnel_for_userspace");
     #[cfg(not(target_os = "android"))]
     let async_tun = {
         let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
@@ -240,7 +240,7 @@ pub async fn open_boringtun_tunnel(
         false => config,
     };
 
-    log::info!("passing tunnel dev to boringtun");
+    log::trace!("passing tunnel dev to boringtun");
     let boringtun = BoringTun::new(
         async_tun,
         #[cfg(target_os = "android")]
@@ -383,7 +383,7 @@ async fn configure_devices(
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
     if let Some(exit_peer) = &config.exit_peer {
-        log::info!(
+        log::trace!(
             "configuring boringtun multihop device (daita={})",
             daita.is_some()
         );
@@ -423,7 +423,7 @@ async fn configure_devices(
             TunnelError::SetConfigError
         })?;
     } else {
-        log::info!(
+        log::trace!(
             "configuring boringtun singlehop device (daita={})",
             daita.is_some()
         );
@@ -457,7 +457,6 @@ impl Tunnel for BoringTun {
     }
 
     fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
-        log::info!("BoringTun::stop"); // remove me
         tokio::runtime::Handle::current().block_on(async {
             // TODO: devices should never be None while this BoringTun instance is running.
             debug_assert!(self.devices.is_some());
