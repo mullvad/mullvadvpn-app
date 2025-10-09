@@ -70,7 +70,7 @@ interface IUpdateAccountHistoryAction {
 interface IUpdateAccountExpiryAction {
   type: 'UPDATE_ACCOUNT_EXPIRY';
   expiry?: string;
-  expired: boolean;
+  expired?: boolean;
 }
 
 interface IUpdateDevicesAction {
@@ -194,7 +194,7 @@ function updateAccountExpiry(expiry?: string): IUpdateAccountExpiryAction {
   return {
     type: 'UPDATE_ACCOUNT_EXPIRY',
     expiry,
-    expired: expiry !== undefined && hasExpired(expiry),
+    expired: expiry === undefined ? undefined : hasExpired(expiry),
   };
 }
 

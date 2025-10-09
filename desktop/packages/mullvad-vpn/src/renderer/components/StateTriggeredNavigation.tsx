@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { RoutePath } from '../../shared/routes';
 import { useScheduler } from '../../shared/scheduler';
@@ -15,6 +15,7 @@ export default function StateTriggeredNavigation() {
 
   const delayScheduler = useScheduler();
 
+  const prevPath = useRef<RoutePath>(getNavigationBase(connectedToDaemon, loginState));
   const nextPath = useMemo(
     () => getNavigationBase(connectedToDaemon, loginState),
     [connectedToDaemon, loginState],
@@ -42,7 +43,10 @@ export default function StateTriggeredNavigation() {
   });
 
   useEffect(() => {
-    updatePath(nextPath);
+    if (nextPath !== prevPath.current) {
+      prevPath.current = nextPath;
+      updatePath(nextPath);
+    }
     // eslint-disable-next-line react-compiler/react-compiler
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextPath]);

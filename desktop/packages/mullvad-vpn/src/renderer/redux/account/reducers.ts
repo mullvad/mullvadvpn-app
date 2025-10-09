@@ -132,7 +132,7 @@ export default function (
           status.expiredState = 'expired';
         } else if (
           status.expiredState === 'expired' &&
-          !action.expired &&
+          action.expired === false &&
           // If the system clock changes from something that makes the expiry out of time, backwards
           // to something that is before the expiry, then the time added view shouldn't be displayed
           // since the expiry hasn't changed.
