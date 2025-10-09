@@ -1,2 +1,2 @@
-export * from './use-get-devices';
+export * from './use-query-devices';
 export * from './use-sorted-devices';
