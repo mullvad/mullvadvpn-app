@@ -154,14 +154,16 @@ impl Quic {
     }
 
     async fn run_forwarding(client: Client, cancel_token: CancellationToken) -> Result<()> {
-        let mut client = tokio::spawn(client.run());
+        let mut client = client.run();
         log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
         tokio::select! {
             _ = cancel_token.cancelled() => log::trace!("Stopping QUIC obfuscation"),
-            _result = &mut client => log::trace!("QUIC client closed"),
+            _result = &mut client.send => log::trace!("QUIC client closed"),
+            _result = &mut client.recv => log::trace!("QUIC client closed"),
+            _result = &mut client.server => log::trace!("QUIC client closed"),
+            _result = &mut client.fragment => log::trace!("QUIC client closed"),
         };
 
-        client.abort();
         Ok(())
     }
 
