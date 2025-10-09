@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use rand::{RngCore, SeedableRng};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket};
-use tokio_util::sync::{CancellationToken, DropGuard};
+use tokio_util::sync::CancellationToken;
 
 use crate::{Obfuscator, socket::create_remote_socket};
 
@@ -45,11 +45,10 @@ pub struct Settings {
 }
 
 pub struct Lwo {
-    task: tokio::task::JoinHandle<Result<(), Error>>,
+    client: Client,
     local_endpoint: SocketAddr,
     #[cfg(target_os = "android")]
     wg_endpoint: Arc<UdpSocket>,
-    _drop_guard: DropGuard,
 }
 
 impl Lwo {
@@ -73,66 +72,97 @@ impl Lwo {
             .map_err(Error::GetUdpLocalAddress)
             .map_err(crate::Error::CreateLwoObfuscator)?;
 
-        let rx_key = settings.client_public_key.clone();
-        let tx_key = settings.server_public_key.clone();
-
-        let server_addr = settings.server_addr;
-
-        let token = CancellationToken::new();
-        let cancel_token = token.child_token();
-        let _drop_guard = token.drop_guard();
-
         #[cfg(target_os = "android")]
-        let wg_endpoint = remote_socket.clone();
+        let wg_endpoint = Arc::clone(remote_socket);
 
-        let task = tokio::spawn(async move {
-            remote_socket
-                .connect(server_addr)
-                .await
-                .map_err(Error::ConnectRemoteUdp)?;
-            log::debug!("Connected to {server_addr}");
-
-            let client_addr = client_socket
-                .peek_sender()
-                .await
-                .map_err(Error::GetUdpLocalAddress)?;
-            client_socket
-                .connect(client_addr)
-                .await
-                .map_err(Error::PeekUdpSender)?;
-            log::debug!("Client socket connected to {client_addr}");
-
-            let rx_socket = client_socket.clone();
-            let tx_socket = remote_socket.clone();
-            let mut send_task = tokio::spawn(async move {
-                run_obfuscation(true, tx_key, rx_socket, tx_socket).await;
-            });
-
-            let rx_socket = remote_socket.clone();
-            let tx_socket = client_socket.clone();
-            let mut recv_task = tokio::spawn(async move {
-                run_obfuscation(false, rx_key, rx_socket, tx_socket).await;
-            });
-
-            tokio::select! {
-                _ = cancel_token.cancelled() => log::debug!("Stopping LWO obfuscation"),
-                _result = &mut recv_task => log::debug!("LWO client closed (recv_task)"),
-                _result = &mut send_task => log::debug!("LWO client closed (send_task)"),
-            };
-
-            send_task.abort();
-            recv_task.abort();
-
-            Ok(())
-        });
+        let client = Client {
+            server_addr: settings.server_addr,
+            rx_key: settings.client_public_key.clone(),
+            tx_key: settings.server_public_key.clone(),
+            remote_socket,
+            client_socket,
+        };
 
         Ok(Self {
-            task,
             local_endpoint,
+            client,
             #[cfg(target_os = "android")]
             wg_endpoint,
-            _drop_guard,
         })
+    }
+
+    async fn run_forwarding(client: Client, cancel_token: CancellationToken) -> Result<(), Error> {
+        let mut client = tokio::spawn(client.run());
+        log::trace!("LWO client is running! 🎉");
+        tokio::select! {
+            _ = cancel_token.cancelled() => log::trace!("Stopping LWO obfuscation"),
+            _result = &mut client => log::trace!("QUIC client closed"),
+        };
+
+        client.abort();
+        Ok(())
+    }
+}
+
+/// TODO(drop me)
+struct Client {
+    server_addr: SocketAddr,
+
+    rx_key: PublicKey,
+    tx_key: PublicKey,
+
+    remote_socket: Arc<UdpSocket>,
+    client_socket: Arc<UdpSocket>,
+}
+
+impl Client {
+    async fn run(self) -> Result<(), Error> {
+        let Client {
+            server_addr,
+            rx_key,
+            tx_key,
+            remote_socket,
+            client_socket,
+        } = self;
+
+        // TODO: Connect in a separate function ?
+        remote_socket
+            .connect(server_addr)
+            .await
+            .map_err(Error::ConnectRemoteUdp)?;
+        log::debug!("Connected to {server_addr}");
+
+        let client_addr = client_socket
+            .peek_sender()
+            .await
+            .map_err(Error::GetUdpLocalAddress)?;
+        client_socket
+            .connect(client_addr)
+            .await
+            .map_err(Error::PeekUdpSender)?;
+        log::debug!("Client socket connected to {client_addr}");
+
+        let rx_socket = client_socket.clone();
+        let tx_socket = remote_socket.clone();
+        let mut send_task = tokio::spawn(async move {
+            run_obfuscation(true, tx_key, rx_socket, tx_socket).await;
+        });
+
+        let rx_socket = remote_socket.clone();
+        let tx_socket = client_socket.clone();
+        let mut recv_task = tokio::spawn(async move {
+            run_obfuscation(false, rx_key, rx_socket, tx_socket).await;
+        });
+
+        tokio::select! {
+            _result = &mut recv_task => log::trace!("LWO client closed (recv_task)"),
+            _result = &mut send_task => log::trace!("LWO client closed (send_task)"),
+        };
+
+        send_task.abort();
+        recv_task.abort();
+
+        Ok(())
     }
 }
 
@@ -257,11 +287,16 @@ impl Obfuscator for Lwo {
     }
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
-        match self.task.await {
-            Ok(result) => result.map_err(crate::Error::RunLwoObfuscator),
-            Err(_err) if _err.is_cancelled() => Ok(()),
-            Err(_err) => panic!("server handle panicked"),
-        }
+        let token = CancellationToken::new();
+        let child_token = token.child_token();
+        // This will always cancel `child_token` as soon as `run` is finished or aborted.
+        let _drop_guard = token.drop_guard();
+
+        let client = self.client;
+        tokio::spawn(Lwo::run_forwarding(client, child_token))
+            .await
+            .unwrap()
+            .map_err(crate::Error::RunLwoObfuscator)
     }
 
     fn packet_overhead(&self) -> u16 {
