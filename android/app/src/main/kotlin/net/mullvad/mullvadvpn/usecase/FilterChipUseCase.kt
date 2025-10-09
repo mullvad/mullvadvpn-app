@@ -11,8 +11,10 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
+import net.mullvad.mullvadvpn.util.isLwoEnabled
 import net.mullvad.mullvadvpn.util.isQuicEnabled
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByLwo
 import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
 typealias ModelOwnership = Ownership
@@ -84,6 +86,11 @@ class FilterChipUseCase(
             ) {
                 add(FilterChip.Quic)
             }
+            if (
+                shouldFilterByLwo(settings?.isLwoEnabled() == true, relayListType = relayListType)
+            ) {
+                add(FilterChip.Lwo)
+            }
         }
     }
 }
@@ -100,4 +107,6 @@ sealed interface FilterChip {
     data object Exit : FilterChip
 
     data object Quic : FilterChip
+
+    data object Lwo : FilterChip
 }

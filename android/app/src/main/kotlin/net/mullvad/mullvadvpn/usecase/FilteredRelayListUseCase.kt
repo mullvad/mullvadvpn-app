@@ -14,8 +14,10 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.util.ipVersionConstraint
 import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
+import net.mullvad.mullvadvpn.util.isLwoEnabled
 import net.mullvad.mullvadvpn.util.isQuicEnabled
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByLwo
 import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
 class FilteredRelayListUseCase(
@@ -42,7 +44,12 @@ class FilteredRelayListUseCase(
                     ),
                 shouldFilterByQuic =
                     shouldFilterByQuic(
-                        settings?.isQuicEnabled() == true,
+                        isQuicEnabled = settings?.isQuicEnabled() == true,
+                        relayListType = relayListType,
+                    ),
+                shouldFilterByLwo =
+                    shouldFilterByLwo(
+                        isLwoEnable = settings?.isLwoEnabled() == true,
                         relayListType = relayListType,
                     ),
                 constraintIpVersion = settings?.ipVersionConstraint() ?: Constraint.Any,
@@ -54,6 +61,7 @@ class FilteredRelayListUseCase(
         providers: Constraint<Providers>,
         shouldFilterByDaita: Boolean,
         shouldFilterByQuic: Boolean,
+        shouldFilterByLwo: Boolean,
         constraintIpVersion: Constraint<IpVersion>,
     ) = mapNotNull {
         it.filter(
@@ -61,6 +69,7 @@ class FilteredRelayListUseCase(
             providers,
             shouldFilterByDaita,
             shouldFilterByQuic,
+            shouldFilterByLwo,
             constraintIpVersion,
         )
     }

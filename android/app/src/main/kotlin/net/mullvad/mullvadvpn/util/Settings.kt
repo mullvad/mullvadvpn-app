@@ -22,6 +22,8 @@ fun Settings.isDaitaAndDirectOnly() = isDaitaEnabled() && isDaitaDirectOnly()
 
 fun Settings.isQuicEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
 
+fun Settings.isLwoEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Lwo
+
 fun Settings.ipVersionConstraint() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
 fun Settings.isDaitaEnabled() = daitaSettings().enabled

@@ -86,6 +86,7 @@ sealed interface RelayItem {
             override val active: Boolean,
             val daita: Boolean,
             val quic: Quic?,
+            val lwo: Boolean,
         ) : Location {
             override val name: String = id.code
             override val hasChildren: Boolean = false
