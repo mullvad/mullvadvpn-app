@@ -72,7 +72,7 @@ else
     exit 2
 fi
 
-$GRADLE_CMD --console plain clean
+#$GRADLE_CMD --console plain clean
 
 $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
 
