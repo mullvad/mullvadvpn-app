@@ -22,8 +22,6 @@ on:
       - 'android/gradle/**'
       - 'android/flake*'
   push:
-    tags:
-      - 'android/**'
 
 permissions: {}
 
