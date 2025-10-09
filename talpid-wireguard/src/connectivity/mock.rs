@@ -31,14 +31,7 @@ pub fn mock_checker(now: Instant, pinger: Box<dyn Pinger>) -> (Check, CancelToke
 pub fn connected_state(timestamp: Instant) -> ConnState {
     const PEER: [u8; 32] = [0u8; 32];
     let mut stats = StatsMap::new();
-    stats.insert(
-        PEER,
-        Stats {
-            tx_bytes: 0,
-            rx_bytes: 0,
-            last_handshake_time: None,
-        },
-    );
+    stats.insert(PEER, Stats::default());
     ConnState::Connected {
         rx_timestamp: timestamp,
         tx_timestamp: timestamp,
@@ -62,14 +55,7 @@ impl MockTunnel {
 
     pub fn always_incrementing() -> Self {
         let mut map = StatsMap::new();
-        map.insert(
-            Self::PEER,
-            Stats {
-                tx_bytes: 0,
-                rx_bytes: 0,
-                last_handshake_time: None,
-            },
-        );
+        map.insert(Self::PEER, Stats::default());
         let peers = std::sync::Mutex::new(map);
         Self {
             on_get_stats: Box::new(move || {
@@ -87,14 +73,7 @@ impl MockTunnel {
         Self {
             on_get_stats: Box::new(|| {
                 let mut map = StatsMap::new();
-                map.insert(
-                    Self::PEER,
-                    Stats {
-                        tx_bytes: 0,
-                        rx_bytes: 0,
-                        last_handshake_time: None,
-                    },
-                );
+                map.insert(Self::PEER, Stats::default());
                 Ok(map)
             }),
         }

@@ -3,7 +3,7 @@ use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
     config::Config,
-    stats::{Stats, StatsMap},
+    stats::{DaitaStats, Stats, StatsMap},
 };
 #[cfg(target_os = "android")]
 use boringtun::udp::UdpTransportFactory;
@@ -502,12 +502,22 @@ impl Tunnel for BoringTun {
                     Some(SystemTime::now() - Duration::new(handshake_sec, handshake_nsec))
                 };
 
+                let daita = || -> Option<DaitaStats> {
+                    Some(DaitaStats {
+                        tx_padding_bytes: peer.tx_padding_bytes?,
+                        tx_padding_packet_bytes: peer.tx_padding_packet_bytes?,
+                        rx_padding_bytes: peer.rx_padding_bytes?,
+                        rx_padding_packet_bytes: peer.rx_padding_packet_bytes?,
+                    })
+                };
+
                 stats.insert(
                     peer.peer.public_key.0,
                     Stats {
                         tx_bytes: peer.tx_bytes.unwrap_or_default(),
                         rx_bytes: peer.rx_bytes.unwrap_or_default(),
                         last_handshake_time: last_handshake(),
+                        daita: daita(),
                     },
                 );
             }
