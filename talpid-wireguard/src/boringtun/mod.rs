@@ -645,6 +645,10 @@ fn get_tunnel_for_userspace(
     #[cfg(target_os = "linux")]
     {
         tun_config.name = Some(crate::config::MULLVAD_INTERFACE_NAME.to_string());
+    }
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    {
+        // GotaTun does not support tun devices with packet information enabled.
         tun_config.packet_information = false;
     }
     tun_config.addresses = config.tunnel.addresses.clone();

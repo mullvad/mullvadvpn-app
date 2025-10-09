@@ -285,6 +285,10 @@ mod tun07_imp {
                         builder.name(name);
                     }
                 }
+                #[cfg(target_os = "macos")]
+                {
+                    builder.packet_information(self.config.packet_information);
+                }
                 builder.mtu(self.config.mtu);
                 builder.create()?
             };
@@ -365,6 +369,16 @@ mod tun07_imp {
                 // NOTE: This function does seemingly have an effect on Linux, despite what the deprecation
                 // warning says.
                 config.packet_information(true);
+            });
+            self
+        }
+
+        /// Enable or disable packet information.
+        /// When enabled the first 4 bytes of each packet is a header with flags and protocol type.
+        #[cfg(target_os = "macos")]
+        pub fn packet_information(&mut self, pi: bool) -> &mut Self {
+            self.config.platform_config(|config| {
+                config.packet_information(pi);
             });
             self
         }
