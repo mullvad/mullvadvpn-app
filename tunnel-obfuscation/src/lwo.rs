@@ -73,7 +73,7 @@ impl Lwo {
             .map_err(crate::Error::CreateLwoObfuscator)?;
 
         #[cfg(target_os = "android")]
-        let wg_endpoint = Arc::clone(remote_socket);
+        let wg_endpoint = Arc::clone(&remote_socket);
 
         let client = Client {
             server_addr: settings.server_addr,
