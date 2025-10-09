@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add LWO obfuscation.
 
 
 ## [android/2025.8] - 2025-09-22
