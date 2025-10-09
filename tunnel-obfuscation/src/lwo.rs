@@ -106,7 +106,6 @@ impl Lwo {
     }
 }
 
-/// TODO(drop me)
 struct Client {
     server_addr: SocketAddr,
 
