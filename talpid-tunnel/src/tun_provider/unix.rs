@@ -342,7 +342,15 @@ mod tun07_imp {
 
     impl TunnelDeviceBuilder {
         /// Create a [`TunnelDevice`] from this builder.
-        pub fn create(self) -> Result<TunnelDevice, Error> {
+        pub fn create(mut self) -> Result<TunnelDevice, Error> {
+            // Always disable automatic route handling (only applicable for macOS (and freebsd))
+            #[cfg(target_os = "macos")]
+            self.config.platform_config(|config| {
+                // TODO: Previously, we did not explicitly disable the 'automatic route handling'
+                // of the tun crate since they introduced it by default in tun ~0.7.
+                // This is a call to bump the tun dependency.
+                config.enable_routing(false);
+            });
             let dev = tun07::create_as_async(&self.config).map_err(Error::CreateDevice)?;
             Ok(TunnelDevice { dev })
         }
