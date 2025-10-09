@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.ui.component
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -72,164 +72,372 @@ enum class RelayList {
 @Composable
 fun ComposableTest() {
     var isMultihop by remember { mutableStateOf(true) }
-    var isCollapsed by remember { mutableStateOf(true) }
     var progress by remember { mutableStateOf(0f) }
-    Column {
-        Slider(
-            modifier = Modifier.padding(16.dp),
-            value = progress,
-            onValueChange = { progress = it },
-        )
-        SimpleHopSelecter(
-            isMultihop,
-            { isMultihop = it },
-            isCollapsed,
-            { isCollapsed = it },
-            progress,
-        )
+    var selected by remember { mutableStateOf(true) }
+
+    AppTheme {
+        Surface {
+            Column {
+                Slider(
+                    modifier = Modifier.padding(16.dp),
+                    value = progress,
+                    onValueChange = { progress = it },
+                )
+                Switch(isMultihop, onCheckedChange = { isMultihop = it })
+                Text("Progress: $progress")
+                AnimatedContent(isMultihop) {
+                    if (it) {
+                        SingleHopSelector(progress)
+                    } else {
+
+                        MultiHopSelecter(selected, onSelect = { selected = it }, progress)
+                    }
+                }
+            }
+        }
     }
 }
 
+private val internetIcon = "internetIcon"
+private val internetText = "internetText"
+private val internetExitDash = "internetExitDash"
+private val exitCenterGuide = "exitCenterGuide"
+private val exit = "exit"
+private val exitDeviceDash = "exitDeviceDash"
+private val deviceIcon = "deviceIcon"
+private val deviceText = "deviceText"
+
 @OptIn(ExperimentalMotionApi::class)
 @Composable
-fun SimpleHopSelecter(
-    isMultihop: Boolean,
-    onToggleMultihop: (Boolean) -> Unit,
-    isCollapsed: Boolean,
-    onToggleCollapsed: (Boolean) -> Unit,
-    progress: Float,
-) {
-    val internet = "header"
-    val exit = "exit"
-    val entry = "entry"
-    val device = "device"
-
-    val tSingle = "tSingle"
-    val tMulti = "tMulti"
-    val tCollapsed = "tCollapsed"
-    val tExpanded = "tExpanded"
+fun SingleHopSelector(progress: Float) {
 
     val scene = MotionScene {
-        val (internet, exit, entry, device) = createRefsFor(internet, exit, entry, device)
+        val (
+            internetIcon,
+            internetText,
+            internetExitDash,
+            exit,
+            exitDeviceDash,
+            exitCenterGuide,
+            deviceIcon,
+            deviceText) =
+            createRefsFor(
+                internetIcon,
+                internetText,
+                internetExitDash,
+                exit,
+                exitDeviceDash,
+                exitCenterGuide,
+                deviceIcon,
+                deviceText,
+            )
 
         val expanded =
             constraintSet("expanded") {
-                createVerticalChain(internet, exit, device)
-                constrain(entry) { centerVerticallyTo(exit) }
+                constrain(internetIcon) {
+                    linkTo(
+                        top = parent.top,
+                        start = parent.start,
+                        end = internetText.start,
+                        bottom = exit.top,
+                        startMargin = 12.dp,
+                    )
+                }
+                constrain(internetText) {
+                    centerVerticallyTo(internetIcon)
+                    width = fillToConstraints
+                    start.linkTo(internetIcon.end, 8.dp)
+                    end.linkTo(parent.end)
+                }
+                val internetBottomBarrier = createBottomBarrier(internetIcon, internetText)
+                constrain(exit) {
+                    top.linkTo(internetBottomBarrier)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                constrain(deviceIcon) {
+                    linkTo(
+                        top = exit.bottom,
+                        start = parent.start,
+                        end = deviceText.start,
+                        bottom = parent.bottom,
+                        startMargin = 12.dp,
+                    )
+                }
+                constrain(deviceText) {
+                    centerVerticallyTo(deviceIcon)
+                    width = fillToConstraints
+                    start.linkTo(deviceIcon.end, 8.dp)
+                    end.linkTo(parent.end)
+                }
+
+                constrain(exitCenterGuide) { centerVerticallyTo(exit) }
+
+                constrain(internetExitDash) {
+                    height = fillToConstraints
+                    linkTo(top = internetIcon.bottom, bottom = exitCenterGuide.top)
+                    centerHorizontallyTo(internetIcon)
+                }
+                constrain(exitDeviceDash) {
+                    height = fillToConstraints
+                    linkTo(top = exitCenterGuide.bottom, bottom = deviceIcon.top)
+                    centerHorizontallyTo(deviceIcon)
+                }
             }
 
         val collapsed =
-            constraintSet("collapsed") {
-                constrain(exit) { centerVerticallyTo(parent) }
-                constrain(entry) { centerVerticallyTo(exit) }
-                constrain(internet) { centerVerticallyTo(exit) }
-                constrain(device) { centerVerticallyTo(exit) }
+            constraintSet("collapsed", expanded) {
+                constrain(exit) {
+                    centerVerticallyTo(parent)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                constrain(
+                    internetIcon,
+                    internetText,
+                    deviceIcon,
+                    deviceText,
+                    internetExitDash,
+                    exitDeviceDash,
+                ) {
+                    centerVerticallyTo(parent)
+                }
             }
 
-        val expandedMulti =
-            constraintSet("expandedMulti") { createVerticalChain(internet, exit, entry, device) }
-        val collapsedMulti =
-            constraintSet("collapsedMulti") {
-                createVerticalChain(exit, entry)
-                constrain(internet) { centerVerticallyTo(exit) }
-                constrain(device) { centerVerticallyTo(entry) }
-            }
-
-        transition(expanded, collapsed, name = tSingle) {
-            keyAttributes(internet, device) {
+        defaultTransition(expanded, collapsed) {
+            keyAttributes(internetIcon, internetText, deviceIcon, deviceText) {
                 frame(0) { alpha = 1f }
+                frame(66) { alpha = 0f }
                 frame(100) { alpha = 0f }
             }
-            keyAttributes(entry) {
-                frame(0) { alpha = 0f }
-                frame(100) { alpha = 0f }
-            }
-        }
-
-        transition(expandedMulti, collapsedMulti, name = tMulti) {
-            keyAttributes(internet, device) {
+            keyAttributes(internetExitDash, exitDeviceDash) {
                 frame(0) { alpha = 1f }
-                frame(100) { alpha = 0f }
-            }
-        }
-
-        transition(expanded, expandedMulti, tExpanded) {
-            keyAttributes(internet, device) {
-                frame(0) { alpha = 1f }
-                frame(100) { alpha = 1f }
-            }
-            keyAttributes(entry) {
-                frame(0) { alpha = 0f }
-                frame(100) { alpha = 1f }
-            }
-        }
-
-        transition(collapsed, collapsedMulti, tCollapsed) {
-            keyAttributes(entry) {
-                frame(0) { alpha = 0f }
-                frame(100) { alpha = 1f }
-            }
-            keyAttributes(internet, device) {
-                frame(0) { alpha = 0f }
+                frame(10) { alpha = 0f }
                 frame(100) { alpha = 0f }
             }
         }
     }
 
-    Column {
-        Text("Multihop")
-        Switch(isMultihop, onToggleMultihop)
-        Text("Collapsed")
-        Switch(isCollapsed, onToggleCollapsed)
-
-        val isAnimating = remember { mutableStateOf(false) }
-        val target = if (isMultihop) 1f else 0f
-        val animateHopChange = animateFloatAsState(target, tween(500), finishedListener = {})
-
-        if (animateHopChange.value != target) {
-            isAnimating.value = true
-        } else {
-            isAnimating.value = false
-        }
-
-        Text("isAnimatingHop = ${isAnimating.value}")
-        Text("animateHopChange = ${animateHopChange.value}")
-        Text("progress = ${progress}")
-
-        MotionLayout(
-            modifier = Modifier.fillMaxWidth().background(Color.Gray),
-            motionScene = scene,
-            transitionName =
-                if (isAnimating.value) {
-                    if (progress == 1f) tCollapsed else tExpanded
-                } else {
-                    if (isMultihop) tMulti else tSingle
-                },
-            progress = if (isAnimating.value) animateHopChange.value else progress,
-        ) {
+    CompositionLocalProvider(LocalContentColor provides deselectedColor) {
+        MotionLayout(modifier = Modifier.fillMaxWidth(), motionScene = scene, progress = progress) {
             Icon(
-                modifier = Modifier.size(40.dp).layoutId(internet),
+                modifier = Modifier.padding(2.dp).size(14.dp).layoutId(internetIcon),
                 imageVector = Icons.Default.Language,
                 contentDescription = null,
             )
-            Text(
-                modifier = Modifier.padding(start = 8.dp).layoutId(exit),
-                text = "Exit",
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            Text(modifier = Modifier.layoutId(internetText), text = "Internet")
 
-            AnimatedVisibility(
-                isMultihop,
-                modifier = Modifier.padding(start = 8.dp).layoutId(entry),
-            ) {
-                Text(text = "Entry", style = MaterialTheme.typography.bodyMedium)
-            }
+            Spacer(modifier = Modifier.size(20.dp).layoutId(exitCenterGuide))
 
             Icon(
-                modifier = Modifier.size(40.dp).layoutId(device),
+                modifier = Modifier.padding(2.dp).size(14.dp).layoutId(deviceIcon),
                 imageVector = Icons.Default.PhoneAndroid,
                 contentDescription = null,
             )
+            Text(modifier = Modifier.layoutId(deviceText), text = "Your device")
+
+            Hop(
+                Modifier.layoutId(exit).padding(4.dp),
+                "Exit Location",
+                Icons.Default.LocationOn,
+                selected = true,
+                onSelect = {},
+            )
+
+            DashedLine(modifier = Modifier.layoutId(internetExitDash))
+            DashedLine(modifier = Modifier.layoutId(exitDeviceDash))
+        }
+    }
+}
+
+private val panel = "panel"
+private val entryCenterGuide = "entryCenterGuide"
+private val entry = "entry"
+private val exitEntryDash = "exitEntryDash"
+private val entryDeviceDash = "entryDeviceDash"
+
+@OptIn(ExperimentalMotionApi::class)
+@Composable
+fun MultiHopSelecter(selected: Boolean, onSelect: (Boolean) -> Unit, progress: Float) {
+    val scene = MotionScene {
+        val (
+            internetIcon,
+            internetText,
+            internetExitDash,
+            exit,
+            exitEntryDash,
+            exitCenterGuide,
+            entry,
+            entryDeviceDash,
+            deviceIcon,
+            deviceText) =
+            createRefsFor(
+                internetIcon,
+                internetText,
+                internetExitDash,
+                exit,
+                exitEntryDash,
+                exitCenterGuide,
+                entry,
+                entryDeviceDash,
+                deviceIcon,
+                deviceText,
+            )
+
+        val (panel, entryCenterGuide) = createRefsFor(panel, entryCenterGuide)
+
+        val expanded =
+            constraintSet("expanded") {
+                constrain(internetIcon) {
+                    linkTo(
+                        top = parent.top,
+                        start = parent.start,
+                        end = internetText.start,
+                        bottom = exit.top,
+                        startMargin = 12.dp,
+                    )
+                }
+                constrain(internetText) {
+                    centerVerticallyTo(internetIcon)
+                    width = fillToConstraints
+                    start.linkTo(internetIcon.end, 8.dp)
+                    end.linkTo(parent.end)
+                }
+                val internetBottomBarrier = createBottomBarrier(internetIcon, internetText)
+
+                constrain(panel) {
+                    width = fillToConstraints
+                    height = fillToConstraints
+                    linkTo(
+                        top = exit.top,
+                        start = exit.start,
+                        end = exit.end,
+                        bottom = entry.bottom,
+                    )
+                }
+                constrain(exit) {
+                    top.linkTo(internetBottomBarrier)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                constrain(exitCenterGuide) { centerVerticallyTo(exit) }
+
+                constrain(entry) {
+                    top.linkTo(exit.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                constrain(entryCenterGuide) { centerVerticallyTo(entry) }
+
+                constrain(deviceIcon) {
+                    linkTo(
+                        top = entry.bottom,
+                        start = parent.start,
+                        end = deviceText.start,
+                        bottom = parent.bottom,
+                        startMargin = 12.dp,
+                    )
+                }
+                constrain(deviceText) {
+                    centerVerticallyTo(deviceIcon)
+                    width = fillToConstraints
+                    start.linkTo(deviceIcon.end, 8.dp)
+                    end.linkTo(parent.end)
+                }
+
+                constrain(internetExitDash) {
+                    height = fillToConstraints
+                    linkTo(top = internetIcon.bottom, bottom = exitCenterGuide.top)
+                    centerHorizontallyTo(internetIcon)
+                }
+                constrain(exitEntryDash) {
+                    height = fillToConstraints
+                    linkTo(top = exitCenterGuide.bottom, bottom = entryCenterGuide.top)
+                    centerHorizontallyTo(deviceIcon)
+                }
+                constrain(entryDeviceDash) {
+                    height = fillToConstraints
+                    linkTo(top = entryCenterGuide.bottom, bottom = deviceIcon.top)
+                    centerHorizontallyTo(deviceIcon)
+                }
+            }
+
+        val collapsed =
+            constraintSet("collapsed", expanded) {
+                constrain(exit) {
+                    centerVerticallyTo(parent)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                constrain(
+                    internetIcon,
+                    internetText,
+                    deviceIcon,
+                    deviceText,
+                    internetExitDash,
+                    exitEntryDash,
+                    entryDeviceDash,
+                ) {
+                    centerVerticallyTo(parent)
+                }
+            }
+
+        defaultTransition(expanded, collapsed) {
+            keyAttributes(internetIcon, internetText, deviceIcon, deviceText) {
+                frame(0) { alpha = 1f }
+                frame(66) { alpha = 0f }
+                frame(100) { alpha = 0f }
+            }
+            keyAttributes(internetExitDash, exitEntryDash, entryDeviceDash) {
+                frame(0) { alpha = 1f }
+                frame(10) { alpha = 0f }
+                frame(100) { alpha = 0f }
+            }
+        }
+    }
+
+    CompositionLocalProvider(LocalContentColor provides deselectedColor) {
+        MotionLayout(modifier = Modifier.fillMaxWidth(), motionScene = scene, progress = progress) {
+            Icon(
+                modifier = Modifier.padding(2.dp).size(14.dp).layoutId(internetIcon),
+                imageVector = Icons.Default.Language,
+                contentDescription = null,
+            )
+            Text(modifier = Modifier.layoutId(internetText), text = "Internet")
+
+            Icon(
+                modifier = Modifier.padding(2.dp).size(14.dp).layoutId(deviceIcon),
+                imageVector = Icons.Default.PhoneAndroid,
+                contentDescription = null,
+            )
+            Text(modifier = Modifier.layoutId(deviceText), text = "Your device")
+
+            Box(
+                Modifier.layoutId(panel)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFF101823))
+            ) {}
+            Spacer(modifier = Modifier.size(20.dp).layoutId(exitCenterGuide))
+            Hop(
+                Modifier.layoutId(exit).padding(4.dp),
+                "Exit Location",
+                Icons.Default.LocationOn,
+                selected = selected,
+                onSelect = { onSelect(true) },
+            )
+
+            Spacer(modifier = Modifier.size(20.dp).layoutId(entryCenterGuide))
+            Hop(
+                Modifier.layoutId(entry).padding(4.dp),
+                "Entry Location",
+                Icons.Default.Storage,
+                selected = !selected,
+                onSelect = { onSelect(false) },
+            )
+
+            DashedLine(modifier = Modifier.layoutId(internetExitDash))
+            DashedLine(modifier = Modifier.layoutId(exitEntryDash))
+            DashedLine(modifier = Modifier.layoutId(entryDeviceDash))
         }
     }
 }
@@ -414,29 +622,24 @@ fun HopSelector(
                     text = "Device",
                     style = MaterialTheme.typography.bodyMedium,
                 )
-
-                val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                Canvas(
-                    Modifier.width(2.dp).constrainAs(dashInternetExit) {
-                        height = fillToConstraints
-                        centerHorizontallyTo(internetIcon)
-                        top.linkTo(internetIcon.bottom)
-                        bottom.linkTo(hopExit.baseline, 0.dp)
-                        bottom.linkTo(hopExit.bottom, margin = (4).dp)
-                    }
-                ) {
-                    val x = size.width / 2
-                    drawLine(
-                        deselectedColor,
-                        start = Offset(x, 0f),
-                        end = Offset(size.width / 2, size.height),
-                        strokeWidth = size.width,
-                        cap = StrokeCap.Round,
-                        pathEffect = pathEffect,
-                    )
-                }
             }
         }
+    }
+}
+
+@Composable
+private fun DashedLine(modifier: Modifier) {
+    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 12f), 0f)
+    Canvas(modifier.width(2.dp)) {
+        val x = size.width / 2
+        drawLine(
+            deselectedColor,
+            start = Offset(x, 0f),
+            end = Offset(size.width / 2, size.height),
+            strokeWidth = size.width,
+            cap = StrokeCap.Round,
+            pathEffect = pathEffect,
+        )
     }
 }
 
