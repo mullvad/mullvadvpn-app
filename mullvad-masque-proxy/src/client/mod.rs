@@ -399,9 +399,9 @@ pub struct RunningClient {
     server_socket_task: JoinHandle<Result<()>>,
 }
 
-impl RunningClient {
-    /// Abort all running Ingress/Egress tasks.
-    pub fn stop(self) {
+impl Drop for RunningClient {
+    // Abort all running Ingress/Egress tasks.
+    fn drop(&mut self) {
         self.client_socket_tx_task.abort();
         self.fragment_reassembly_task.abort();
         self.client_socket_rx_task.abort();
