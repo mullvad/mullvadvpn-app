@@ -25,7 +25,7 @@ sealed interface SendProblemReportResult {
 data class UserReport(val email: String?, val description: String)
 
 class MullvadProblemReport(
-    context: Context,
+    private val context: Context,
     private val apiEndpointOverride: ApiEndpointOverride?,
     private val apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,

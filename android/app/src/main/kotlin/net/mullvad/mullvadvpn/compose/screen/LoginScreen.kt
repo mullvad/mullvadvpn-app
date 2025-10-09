@@ -47,8 +47,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -57,6 +59,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.ApiUnreachableInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.CreateAccountConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceListDestination
@@ -84,6 +87,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
+import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -107,6 +111,7 @@ private fun PreviewLoginScreen(
             onDeleteHistoryClick = {},
             onAccountNumberChange = {},
             onSettingsClick = {},
+            onShowApiUnreachableDialog = {},
         )
     }
 }
@@ -174,6 +179,8 @@ fun Login(
         onDeleteHistoryClick = vm::clearAccountHistory,
         onAccountNumberChange = vm::onAccountNumberChange,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+        onShowApiUnreachableDialog =
+            dropUnlessResumed { navigator.navigate(ApiUnreachableInfoDestination) },
     )
 }
 
@@ -186,6 +193,7 @@ private fun LoginScreen(
     onDeleteHistoryClick: () -> Unit,
     onAccountNumberChange: (String) -> Unit,
     onSettingsClick: () -> Unit,
+    onShowApiUnreachableDialog: () -> Unit,
 ) {
     ScaffoldWithTopBar(
         snackbarHostState = snackbarHostState,
@@ -210,7 +218,13 @@ private fun LoginScreen(
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(bottom = Dimens.largePadding),
             )
-            LoginContent(state, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
+            LoginContent(
+                state,
+                onAccountNumberChange,
+                onLoginClick,
+                onDeleteHistoryClick,
+                onShowApiUnreachableDialog,
+            )
             Spacer(modifier = Modifier.weight(BOTTOM_SPACER_WEIGHT))
             CreateAccountPanel(onCreateAccountClick, isEnabled = state.loginState is Idle)
         }
@@ -223,6 +237,7 @@ private fun LoginContent(
     onAccountNumberChange: (String) -> Unit,
     onLoginClick: (String) -> Unit,
     onDeleteHistoryClick: () -> Unit,
+    onShowApiUnreachableDialog: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)) {
         Text(
@@ -235,7 +250,13 @@ private fun LoginContent(
                     .padding(bottom = Dimens.smallPadding),
         )
 
-        LoginInput(state, onLoginClick, onAccountNumberChange, onDeleteHistoryClick)
+        LoginInput(
+            state,
+            onLoginClick,
+            onAccountNumberChange,
+            onDeleteHistoryClick,
+            onShowApiUnreachableDialog,
+        )
 
         Spacer(modifier = Modifier.size(Dimens.largePadding))
         VariantButton(
@@ -254,17 +275,12 @@ private fun ColumnScope.LoginInput(
     onLoginClick: (String) -> Unit,
     onAccountNumberChange: (String) -> Unit,
     onDeleteHistoryClick: () -> Unit,
+    onShowApiUnreachableDialog: () -> Unit,
 ) {
-    Text(
-        modifier = Modifier.padding(bottom = Dimens.smallPadding),
-        text = state.loginState.supportingText() ?: "",
-        style = MaterialTheme.typography.labelLarge,
-        color =
-            if (state.loginState.isError()) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onPrimary
-            },
+    SupportingText(
+        Modifier.padding(bottom = Dimens.smallPadding),
+        onShowApiUnreachableDialog = onShowApiUnreachableDialog,
+        state = state,
     )
 
     TextField(
@@ -368,36 +384,65 @@ private fun LoginState.title(): String =
     )
 
 @Composable
-private fun LoginState.supportingText(): String? {
-    val res =
-        when (this) {
-            is Idle -> {
-                when (loginUiStateError) {
-                    LoginUiStateError.LoginError.InvalidCredentials ->
-                        R.string.login_fail_description
-                    is LoginUiStateError.LoginError.InvalidInput ->
-                        R.string.login_error_invalid_input
-                    LoginUiStateError.LoginError.NoInternetConnection,
-                    LoginUiStateError.CreateAccountError.NoInternetConnection ->
-                        R.string.no_internet_connection
-                    LoginUiStateError.LoginError.ApiUnreachable,
-                    LoginUiStateError.CreateAccountError.ApiUnreachable ->
-                        R.string.login_error_api_unreachable
-                    LoginUiStateError.LoginError.TooManyAttempts,
-                    LoginUiStateError.CreateAccountError.TooManyAttempts ->
-                        R.string.login_error_too_many_attempts
-                    is LoginUiStateError.LoginError.Unknown -> R.string.error_occurred
-                    LoginUiStateError.CreateAccountError.Unknown ->
-                        R.string.failed_to_create_account
-                    null -> return null
-                }
-            }
-            is Loading.CreatingAccount -> R.string.creating_new_account
-            is Loading.LoggingIn -> R.string.logging_in_description
-            Success -> R.string.logged_in_description
-        }
-    return stringResource(id = res)
+private fun SupportingText(
+    modifier: Modifier = Modifier,
+    state: LoginUiState,
+    onShowApiUnreachableDialog: () -> Unit,
+) {
+    Text(
+        modifier = modifier,
+        text = state.loginState.supportingText(onShowApiUnreachableDialog) ?: AnnotatedString(""),
+        style = MaterialTheme.typography.labelLarge,
+        color =
+            if (state.loginState.isError()) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.onPrimary
+            },
+    )
 }
+
+@Composable
+private fun LoginState.supportingText(onShowApiUnreachableDialog: () -> Unit): AnnotatedString? =
+    when (this) {
+        is Idle if
+            loginUiStateError is LoginUiStateError.LoginError.ApiUnreachable ||
+                loginUiStateError is LoginUiStateError.CreateAccountError.ApiUnreachable
+         ->
+            clickableAnnotatedString(
+                text = stringResource(R.string.login_error_api_unreachable),
+                argument = stringResource(R.string.read_more_here),
+                linkStyle =
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.error,
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                onClick = { onShowApiUnreachableDialog() },
+            )
+        is Idle -> {
+            when (loginUiStateError) {
+                LoginUiStateError.LoginError.InvalidCredentials -> R.string.login_fail_description
+                is LoginUiStateError.LoginError.InvalidInput -> R.string.login_error_invalid_input
+                LoginUiStateError.LoginError.NoInternetConnection,
+                LoginUiStateError.CreateAccountError.NoInternetConnection ->
+                    R.string.no_internet_connection
+                LoginUiStateError.LoginError.ApiUnreachable,
+                LoginUiStateError.CreateAccountError.ApiUnreachable -> R.string.api_unreachable
+                LoginUiStateError.LoginError.TooManyAttempts,
+                LoginUiStateError.CreateAccountError.TooManyAttempts ->
+                    R.string.login_error_too_many_attempts
+                is LoginUiStateError.LoginError.Unknown -> R.string.error_occurred
+                LoginUiStateError.CreateAccountError.Unknown -> R.string.failed_to_create_account
+                null -> null
+            }?.toAnnotatedString()
+        }
+        is Loading.CreatingAccount -> R.string.creating_new_account.toAnnotatedString()
+        is Loading.LoggingIn -> R.string.logging_in_description.toAnnotatedString()
+        Success -> R.string.logged_in_description.toAnnotatedString()
+    }
+
+@Composable
+private fun Int.toAnnotatedString(): AnnotatedString = AnnotatedString(stringResource(this))
 
 @Composable
 private fun AccountDropDownItem(

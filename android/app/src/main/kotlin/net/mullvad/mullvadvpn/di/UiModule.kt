@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
+import net.mullvad.mullvadvpn.usecase.SupportEmailUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
@@ -64,6 +65,7 @@ import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
+import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
@@ -188,6 +190,13 @@ val uiModule = module {
             settingsRepository = get(),
             customListsRepository = get(),
             wireguardConstraintsRepository = get(),
+        )
+    }
+    single {
+        SupportEmailUseCase(
+            context = androidContext(),
+            mullvadProblemReport = get(),
+            buildVersion = get(),
         )
     }
 
@@ -319,6 +328,7 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
+    viewModel { ApiUnreachableViewModel(apiAccessRepository = get(), supportEmailUseCase = get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }
