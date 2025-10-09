@@ -18,4 +18,5 @@
     <string name="daita" translatable="false">DAITA</string>
     <string name="daita_full" translatable="false">Defence against AI-guided Traffic Analysis</string>
     <string name="support_email">support@mullvadvpn.net</string>
+    <string name="api_unreachable_subject">API Unreachable</string>
 </resources>

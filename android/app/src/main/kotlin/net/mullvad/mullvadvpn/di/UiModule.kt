@@ -64,6 +64,7 @@ import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
+import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
@@ -319,6 +320,7 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
+    viewModel { ApiUnreachableViewModel(apiAccessRepository = get(), mullvadProblemReport = get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }
