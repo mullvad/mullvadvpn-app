@@ -1143,6 +1143,11 @@ pub enum TunnelError {
     #[cfg(feature = "boringtun")]
     #[error("Boringtun: {0:?}")]
     BoringTunDevice(::boringtun::device::Error),
+
+    /// Failed to configure GotaTun device.
+    #[cfg(feature = "boringtun")]
+    #[error("Failed to configure the GotaTun device")]
+    ConfigureGotaTunDevice(#[source] boringtun::ConfigureGotaTunDeviceError),
 }
 
 #[cfg(target_os = "linux")]
