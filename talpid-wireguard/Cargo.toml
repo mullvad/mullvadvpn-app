@@ -45,8 +45,8 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 [dependencies.boringtun]
 optional = true
 features = ["device", "tun"]
-git = "https://github.com/mullvad/boringtun"
-rev = "39aab85d26b127cc59ddba8e038efe2fb2eb5231"
+git = "https://github.com/mullvad/gotatun"
+rev = "f42781d2bd25390acde6c603e51f0b1976a5ca24"
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["fs"] }

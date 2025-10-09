@@ -601,13 +601,14 @@ fn create_set_command(
     let mut set_peer = SetPeer::builder().peer(boring_peer).build();
 
     if let Some(daita) = daita {
-        let DaitaSettings {
-            client_machines,
-            max_padding_frac,
-            max_blocking_frac,
-        } = daita;
-
-        set_peer.maybenot_machines = Some(client_machines.clone());
+        set_peer.daita_settings = Some(boringtun::device::daita::api::DaitaSettings {
+            maybenot_machines: daita.client_machines.clone(),
+            max_padding_frac: daita.max_padding_frac,
+            max_blocking_frac: daita.max_blocking_frac,
+            // TODO: tweak to sane values
+            max_blocked_packets: 1024,
+            min_blocking_capacity: 50,
+        });
     }
 
     set_cmd.peers.push(set_peer);
