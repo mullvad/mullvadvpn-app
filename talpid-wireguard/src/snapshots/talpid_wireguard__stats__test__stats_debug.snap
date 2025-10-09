@@ -1,10 +1,10 @@
 ---
 source: talpid-wireguard/src/stats.rs
 expression: "StatsDebug { now, stats: &stats }"
-snapshot_kind: text
 ---
 Stats {
     tx_bytes: 100,
     rx_bytes: 100,
     last_handshake: "60000 ms ago",
+    daita: None,
 }
