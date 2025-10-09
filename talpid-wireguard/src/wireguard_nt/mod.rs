@@ -951,6 +951,7 @@ impl Tunnel for WgNtTunnel {
                         tx_bytes: peer.tx_bytes,
                         rx_bytes: peer.rx_bytes,
                         last_handshake_time,
+                        ..Default::default()
                     },
                 );
             }

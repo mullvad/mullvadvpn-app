@@ -126,14 +126,7 @@ mod test {
         let stop_bytes_rx_inner = stop_bytes_rx.clone();
 
         let mut map = StatsMap::new();
-        map.insert(
-            [0u8; 32],
-            Stats {
-                tx_bytes: 0,
-                rx_bytes: 0,
-                last_handshake_time: None,
-            },
-        );
+        map.insert([0u8; 32], Stats::default());
         let tunnel_stats = std::sync::Mutex::new(map);
 
         let pinger = MockPinger::default();
