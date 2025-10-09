@@ -232,8 +232,6 @@ pub async fn open_boringtun_tunnel(
 
     let interface_name = async_tun.deref().tun_name().unwrap();
 
-    log::info!("passing tunnel dev to boringtun");
-
     let config = config.clone();
     #[cfg(target_os = "android")]
     let config = match gateway_only {
@@ -242,6 +240,7 @@ pub async fn open_boringtun_tunnel(
         false => config,
     };
 
+    log::info!("passing tunnel dev to boringtun");
     let boringtun = BoringTun::new(
         async_tun,
         #[cfg(target_os = "android")]
