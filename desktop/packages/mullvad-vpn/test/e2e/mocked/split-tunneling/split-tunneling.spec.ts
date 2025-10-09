@@ -10,11 +10,14 @@ let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
-const startup = async () => {
+const startup = async (postLaunch?: () => Promise<void>) => {
   ({ page, util } = await startMockedApp());
   routes = new RoutesObjectModel(page, util);
 
   await util.expectRoute(RoutePath.main);
+
+  await postLaunch?.();
+
   await routes.main.gotoSettings();
   await routes.settings.gotoSplitTunnelingSettings();
 };
@@ -25,16 +28,14 @@ test.describe('Linux Split tunneling unsupported', () => {
   }
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.beforeAll(async () => {
-    await startup();
-  });
-
-  test.beforeAll(async () => {
-    await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(false);
-    await util.ipc.linuxSplitTunneling.getApplications.handle(linuxApplicationsList);
+    await startup(async () => {
+      await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(false);
+      await util.ipc.linuxSplitTunneling.getApplications.handle(linuxApplicationsList);
+    });
   });
 
   test('App should show unsupported dialog when link in header is clicked', async () => {
@@ -73,16 +74,14 @@ test.describe('Linux Split tunneling supported', () => {
   }
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.beforeAll(async () => {
-    await startup();
-  });
-
-  test.beforeAll(async () => {
-    await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(true);
-    await util.ipc.linuxSplitTunneling.getApplications.handle(linuxApplicationsList);
+    await startup(async () => {
+      await util.ipc.linuxSplitTunneling.isSplitTunnelingSupported.handle(true);
+      await util.ipc.linuxSplitTunneling.getApplications.handle(linuxApplicationsList);
+    });
   });
 
   test('App list items should be shown', async () => {

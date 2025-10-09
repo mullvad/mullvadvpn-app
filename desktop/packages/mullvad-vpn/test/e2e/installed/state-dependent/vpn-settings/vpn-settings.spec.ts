@@ -27,7 +27,7 @@ test.describe('VPN settings', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test('Should focus header heading on load', async () => {

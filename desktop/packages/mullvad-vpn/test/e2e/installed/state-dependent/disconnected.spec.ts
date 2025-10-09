@@ -22,7 +22,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await page.close();
+  await util?.closePage();
 });
 
 test('App should show disconnected tunnel state', async () => {

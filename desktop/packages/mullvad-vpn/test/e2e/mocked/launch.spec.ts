@@ -19,7 +19,7 @@ test.describe('Launch', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test.describe('Linux', () => {

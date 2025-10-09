@@ -34,7 +34,7 @@ test.describe('Connection states', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   /**
@@ -91,10 +91,6 @@ test.describe('Connection states', () => {
         details: { endpoint, location },
         featureIndicators: undefined,
       });
-    });
-
-    test.afterEach(async () => {
-      await util.ipc.tunnel[''].notify({ state: 'disconnecting', details: 'nothing' });
     });
 
     test('App should show connected tunnel state', async () => {

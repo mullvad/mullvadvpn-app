@@ -150,8 +150,6 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   },
 ];
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Feature indicators', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
@@ -161,13 +159,13 @@ test.describe('Feature indicators', () => {
     await util.expectRoute(RoutePath.main);
   });
 
-  test.afterAll(async () => {
-    await page.close();
-  });
-
-  test.afterEach(async () => {
+  test.beforeEach(async () => {
     await helpers.disconnect();
     await routes.wireguardSettings.goBackToRoute(RoutePath.main);
+  });
+
+  test.afterAll(async () => {
+    await util?.closePage();
   });
 
   async function expectFeatureIndicators(expectedIndicators: Array<string>, only = true) {

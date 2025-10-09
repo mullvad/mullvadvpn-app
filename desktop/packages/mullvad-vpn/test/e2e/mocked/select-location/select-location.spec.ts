@@ -17,16 +17,11 @@ let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 let helpers: SelectLocationHelpers;
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Select location', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers(page, routes, util);
-
-    await util.ipc.tunnel.connect.ignore();
-    await util.ipc.settings.setRelaySettings.ignore();
 
     await util.expectRoute(RoutePath.main);
   });
@@ -38,7 +33,7 @@ test.describe('Select location', () => {
   });
 
   test.afterAll(async () => {
-    await page.close();
+    await util?.closePage();
   });
 
   test('Should focus search input on load', async () => {
@@ -135,6 +130,9 @@ test.describe('Select location', () => {
     });
 
     test('Should disable entry server in exit list', async () => {
+      await util.ipc.tunnel.connect.ignore();
+      await util.ipc.settings.setRelaySettings.ignore();
+
       const settings = await helpers.updateMockSettings({
         multihop: true,
         daita: true,
