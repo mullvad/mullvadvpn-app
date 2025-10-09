@@ -111,14 +111,7 @@ class LoginViewModel(
             accountRepository
                 .createAccount()
                 .fold(
-                    {
-                        _loginState.value =
-                            if (!isInternetAvailable()) {
-                                Idle(LoginUiStateError.LoginError.NoInternetConnection)
-                            } else {
-                                it.toUiState()
-                            }
-                    },
+                    { _loginState.value = it.toUiState() },
                     { _uiSideEffect.send(NavigateToWelcome) },
                 )
         }
@@ -134,13 +127,7 @@ class LoginViewModel(
                         accountRepository.login(AccountNumber(accountNumber))
                     }
                     .fold(
-                        {
-                            if (!isInternetAvailable()) {
-                                Idle(LoginUiStateError.LoginError.NoInternetConnection)
-                            } else {
-                                it.toUiState()
-                            }
-                        },
+                        { it.toUiState() },
                         {
                             onSuccessfulLogin()
                             Success
@@ -191,7 +178,12 @@ class LoginViewModel(
             is LoginAccountError.InvalidInput ->
                 Idle(LoginUiStateError.LoginError.InvalidInput(accountNumber))
             LoginAccountError.Timeout,
-            LoginAccountError.ApiUnreachable -> Idle(LoginUiStateError.LoginError.ApiUnreachable)
+            LoginAccountError.ApiUnreachable ->
+                if (isInternetAvailable()) {
+                    Idle(LoginUiStateError.LoginError.ApiUnreachable)
+                } else {
+                    Idle(LoginUiStateError.LoginError.NoInternetConnection)
+                }
             LoginAccountError.TooManyAttempts -> Idle(LoginUiStateError.LoginError.TooManyAttempts)
             is LoginAccountError.Unknown ->
                 Idle(LoginUiStateError.LoginError.Unknown(this.toString())).also {
@@ -201,9 +193,13 @@ class LoginViewModel(
 
     private fun CreateAccountError.toUiState(): LoginState =
         when (this) {
-            CreateAccountError.ApiUnreachable ->
-                Idle(LoginUiStateError.CreateAccountError.ApiUnreachable)
-            CreateAccountError.TimeOut -> Idle(LoginUiStateError.CreateAccountError.ApiUnreachable)
+            CreateAccountError.ApiUnreachable,
+            CreateAccountError.TimeOut ->
+                if (isInternetAvailable()) {
+                    Idle(LoginUiStateError.CreateAccountError.ApiUnreachable)
+                } else {
+                    Idle(LoginUiStateError.CreateAccountError.NoInternetConnection)
+                }
             CreateAccountError.TooManyAttempts ->
                 Idle(LoginUiStateError.CreateAccountError.TooManyAttempts)
             is CreateAccountError.Unknown ->

@@ -445,8 +445,16 @@
     <string name="android_16_upgrade_warning_dialog_first_message">After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English.</string>
     <string name="click_here">click here</string>
-    <string name="login_error_api_unreachable">Unable to reach the api</string>
+    <string name="login_error_api_unreachable">Unable to reach API, %s</string>
     <string name="login_error_too_many_attempts">Too many attempts, please try again later</string>
     <string name="login_error_invalid_input">Account number is too long, please enter a valid number</string>
     <string name="create_account_fail_title">Creating account failed</string>
+    <string name="read_more_here">read more here</string>
+    <string name="unable_to_reach_api_dialog_title">Unable to reach API</string>
+    <string name="unable_to_reach_api_dialog_message_first">The app was unable to reach the Mullvad API, which is responsible for login requests and more. This might be caused by censorship or network issues. What you can try:</string>
+    <string name="unable_to_reach_api_dialog_message_list_first">Restart your device and retry</string>
+    <string name="unable_to_reach_api_dialog_message_list_second">Enable all API access methods and retry</string>
+    <string name="unable_to_reach_api_dialog_message_second">If these steps doesn\'t work, please send an email to our support with logs attached. You can use the button below to send it via the email app on your device. It will automatically attac the logs which have been anonymized.</string>
+    <string name="enable_all_methods">Enable all &amp; retry</string>
+    <string name="send_email">Send email</string>
 </resources>
