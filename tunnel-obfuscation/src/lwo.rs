@@ -92,7 +92,7 @@ impl Lwo {
     }
 
     async fn run_forwarding(client: Client, cancel_token: CancellationToken) -> Result<(), Error> {
-        let mut running = client.run().await?;
+        let mut running = client.connect().await?;
         log::trace!("LWO client is running! 🎉");
         tokio::select! {
             _ = cancel_token.cancelled() => log::trace!("Stopping LWO obfuscation"),
@@ -133,7 +133,7 @@ impl Drop for RunningClient {
 impl Client {
     /// Returns join handles to the send and receive tasks. These need to be aborted when the
     /// obfuscator is aborted / finished.
-    async fn run(self) -> Result<RunningClient, Error> {
+    async fn connect(self) -> Result<RunningClient, Error> {
         let Client {
             server_addr,
             rx_key,
