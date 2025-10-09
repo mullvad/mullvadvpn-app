@@ -2,14 +2,17 @@
   "appteam-desktop": [
     "building/Dockerfile",
     "building/linux-container-image.txt",
-    "ci/**",
-    "!ci/buildserver-build-android.sh",
-    "!ci/ios/**",
+    "ci/buildserver-build.sh",
+    "ci/buildserver-config.sh",
+    "ci/check-rust.sh",
+    "ci/linux-repository-builder/**",
+    "ci/publish-app-to-repositories.sh",
     "desktop/**",
     "!desktop/packages/mullvad-vpn/locales",
     "installer-downloader/**",
     "mullvad-*/**",
     "!mullvad-ios/**",
+    "!mullvad-jni/**",
     "rustfmt.toml",
     "rust-toolchain.toml",
     "talpid-*/**",
@@ -27,6 +30,7 @@
   "appteam-android": [
     "android/**",
     "building/android-container-image.txt",
-    "ci/buildserver-build-android.sh"
+    "ci/buildserver-build-android.sh",
+    "mullvad-jni/**"
   ]
 }
