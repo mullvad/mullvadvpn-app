@@ -26,8 +26,8 @@ struct SegmentedControl<Segment>: View where Segment: CustomStringConvertible, S
                         }
                     } label: {
                         Text(LocalizedStringKey(segment.description))
-                            .padding()
-                            .font(.mullvadSmallSemiBold)
+                            .padding(5)
+                            .font(.mullvadTinySemiBold)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)  // Makes the text take all the available space
                             .contentShape(Rectangle())  // Makes the tappable area extend beyond just the text
