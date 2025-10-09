@@ -991,7 +991,7 @@ impl WireguardMonitor {
             route
         } else {
             // FIXME: this presumably refers to the fact that wireguard can pad data packet
-            //        payload lengths to a multiple of 16 bytes, but that number musn't,
+            //        payload lengths to a multiple of 16 bytes, but that number must not
             //        according to wg spec, exceed the MTU anyway, so why do we subtract 15 here?
             //
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU. Plus
