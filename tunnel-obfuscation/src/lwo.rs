@@ -129,7 +129,6 @@ impl Client {
             client_socket,
         } = self;
 
-        // TODO: Connect in a separate function ?
         remote_socket
             .connect(server_addr)
             .await
