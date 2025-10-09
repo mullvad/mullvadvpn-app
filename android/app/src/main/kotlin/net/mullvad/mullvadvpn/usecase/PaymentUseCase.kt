@@ -52,7 +52,7 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
                     delay(EXTRA_LOADING_DELAY_MS)
                 }
             }
-            .onEach { Logger.d("Purchase state: ${it::class.simpleName}") }
+            .onEach { Logger.i("Purchase state: ${it::class.simpleName}") }
             .collect(_purchaseResult)
     }
 
@@ -60,7 +60,7 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     override suspend fun queryPaymentAvailability() {
         paymentRepository
             .queryPaymentAvailability()
-            .onEach { Logger.d("Payment availability: ${it::class.simpleName}") }
+            .onEach { Logger.i("Payment availability: ${it::class.simpleName}") }
             .collect(_paymentAvailability)
     }
 

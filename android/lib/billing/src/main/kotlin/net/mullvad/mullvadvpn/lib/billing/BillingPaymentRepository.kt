@@ -184,7 +184,7 @@ class BillingPaymentRepository(
                             purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
                         )
                     )
-                    .also { Logger.d("Purchase verification result $it") }
+                    .also { Logger.i("Purchase verification result $it") }
                     .bind()
             }
             .onLeft {
