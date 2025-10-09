@@ -33,21 +33,11 @@ const styles = {
       disabled: colors.red40,
     },
   },
-  flex: {
-    fill: '1 1 0',
-    fit: '0 0 auto',
-  },
-  widths: {
-    fill: undefined,
-    fit: 'fit-content',
-  },
 };
 
 export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'variant' | 'width'>>>`
   ${({ $width = 'fill', $variant = 'primary' }) => {
     const variant = styles.variants[$variant];
-    const size = styles.flex[$width];
-    const width = styles.widths[$width];
 
     return css`
       --background: ${variant.background};
@@ -55,8 +45,6 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'vari
       --pressed: ${variant.pressed};
       --disabled: ${variant.disabled};
       --radius: ${styles.radius};
-      --size: ${size};
-      --width: ${width};
       --transition-duration: 0.15s;
 
       display: flex;
@@ -67,9 +55,21 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'vari
 
       min-height: 32px;
       min-width: 60px;
-      width: var(--width);
       border-radius: var(--radius);
       background: var(--background);
+
+      ${() => {
+        if ($width === 'fill') {
+          return css`
+            width: 100%;
+          `;
+        } else if ($width === 'fit') {
+          return css`
+            width: fit-content;
+          `;
+        }
+        return null;
+      }}
 
       @media (prefers-reduced-motion: no-preference) {
         transition: background-color var(--transition-duration) ease;
