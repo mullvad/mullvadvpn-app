@@ -514,8 +514,7 @@ mod test {
             [0u8; 32],
             Stats {
                 rx_bytes: 1,
-                tx_bytes: 0,
-                last_handshake_time: None,
+                ..Default::default()
             },
         );
         conn_state.update(Instant::now(), stats);
@@ -540,8 +539,7 @@ mod test {
             [0u8; 32],
             Stats {
                 rx_bytes: 1,
-                tx_bytes: 0,
-                last_handshake_time: None,
+                ..Default::default()
             },
         );
         conn_state.update(connect_time, stats);
@@ -565,8 +563,7 @@ mod test {
             [0u8; 32],
             Stats {
                 rx_bytes: 1,
-                tx_bytes: 0,
-                last_handshake_time: None,
+                ..Default::default()
             },
         );
         conn_state.update(start, stats);
@@ -578,7 +575,7 @@ mod test {
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 1,
-                last_handshake_time: None,
+                ..Default::default()
             },
         );
         conn_state.update(update_time, stats);
@@ -670,14 +667,7 @@ mod test {
 
             let tunnel = {
                 let mut tunnel_stats = StatsMap::new();
-                tunnel_stats.insert(
-                    [0u8; 32],
-                    Stats {
-                        tx_bytes: 0,
-                        rx_bytes: 0,
-                        last_handshake_time: None,
-                    },
-                );
+                tunnel_stats.insert([0u8; 32], Stats::default());
                 MockTunnel::new(move || Ok(tunnel_stats.clone())).boxed()
             };
 

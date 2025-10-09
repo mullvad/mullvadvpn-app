@@ -818,6 +818,8 @@ mod stats {
                             tx_bytes: tx_bytes_val,
                             rx_bytes: rx_bytes_val,
                             last_handshake_time: last_handshake_time(),
+                            // NOTE: We have no DAITA stats here
+                            daita: None,
                         },
                     );
                     peer = None;

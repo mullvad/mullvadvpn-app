@@ -43,6 +43,7 @@ impl Stats {
                                 tx_bytes,
                                 rx_bytes,
                                 last_handshake_time,
+                                daita: None,
                             },
                         );
                     }
