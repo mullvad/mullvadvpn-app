@@ -532,7 +532,7 @@ impl Tunnel for BoringTun {
         daita: Option<DaitaSettings>,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
-            let old_config = std::mem::replace(&mut self.config, config);
+            self.config = config;
 
             // if we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
