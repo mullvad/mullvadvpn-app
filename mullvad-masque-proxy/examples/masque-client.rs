@@ -106,9 +106,12 @@ async fn main() {
             log::error!("ERROR: {}", err);
         }
     }
-    client
-        .expect("Failed to connect client")
-        .run()
-        .await
-        .unwrap();
+
+    let mut client = client.expect("Failed to connect client").run();
+    tokio::select! {
+        _result = &mut client.send => log::trace!("QUIC client closed"),
+        _result = &mut client.recv => log::trace!("QUIC client closed"),
+        _result = &mut client.server => log::trace!("QUIC client closed"),
+        _result = &mut client.fragment => log::trace!("QUIC client closed"),
+    };
 }
