@@ -67,6 +67,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let tunnelManager: TunnelManager
     private let customListRepository: CustomListRepositoryProtocol
+    private var relaysCandidates: RelayCandidates?
 
     private var tunnelObserver: TunnelBlockObserver?
 
@@ -145,7 +146,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 },
                 didUpdateTunnelSettings: { [weak self] _, settings in
                     guard let self else { return }
-                    fetchLocations(settings: settings)
+                    fetchLocations()
                     if settings.tunnelMultihopState.isEnabled {
                         if multihopContext == nil {
                             multihopContext = .exit
@@ -164,14 +165,15 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             )
 
         $searchText.receive(on: RunLoop.main).sink { [weak self] _ in
-            self?.fetchLocations(settings: tunnelManager.settings)
+            self?.populateLocationLists()
         }.store(in: &cancellables)
 
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
 
         updateConnectedLocation(tunnelManager.tunnelStatus)
-        fetchLocations(settings: tunnelManager.settings)
+        fetchLocations()
+        populateLocationLists()
     }
 
     deinit {
@@ -210,7 +212,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func refreshCustomLists() {
-        fetchLocations(settings: tunnelManager.settings)
+        populateLocationLists()
     }
 
     private static func getActiveEntryFilters(_ settings: LatestTunnelSettings) -> [SelectLocationFilter] {
@@ -294,10 +296,13 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         }
     }
 
-    private func fetchLocations(settings: LatestTunnelSettings) {
-        let relaysCandidates = try? relaySelectorWrapper.findCandidates(
+    private func fetchLocations() {
+        relaysCandidates = try? relaySelectorWrapper.findCandidates(
             tunnelSettings: tunnelManager.settings
         )
+    }
+
+    private func populateLocationLists() {
         if let relaysCandidates {
             exitLocationsDataSource
                 .reload(relaysCandidates.exitRelays.toLocationRelays())
@@ -358,10 +363,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 return newCustomList
             }
 
-        if let exitLocations = settings.relayConstraints.exitLocations.value {
+        if let exitLocations = tunnelManager.settings.relayConstraints.exitLocations.value {
             setSelection(
                 selectedExitRelays: exitLocations,
-                selectedEntryRelays: settings.relayConstraints.entryLocations.value
+                selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
             )
         }
     }
@@ -417,10 +422,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func addLocationToCustomList(location: LocationNode, customListName: String) {
-        var customList = customListRepository.fetchAll().first { $0.name == customListName } ?? CustomList(
-            name: customListName,
-            locations: []
-        )
+        let customList =
+            customListRepository.fetchAll().first { $0.name == customListName }
+            ?? CustomList(
+                name: customListName,
+                locations: []
+            )
 
         let allLocations = (customList.locations + location.locations)
         let locations: [RelayLocation] =
@@ -441,7 +448,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             locations: locations
         )
         try? customListRepository.save(list: newCustomList)
-        fetchLocations(settings: tunnelManager.settings)
+        populateLocationLists()
     }
 
     func removeLocationFromCustomList(
@@ -459,7 +466,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             locations: allLocations
         )
         try? customListRepository.save(list: newCustomList)
-        fetchLocations(settings: tunnelManager.settings)
+        populateLocationLists()
     }
 
     func didFinish() {
