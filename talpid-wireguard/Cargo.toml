@@ -13,7 +13,6 @@ workspace = true
 [features]
 boringtun = ["dep:boringtun", "dep:tun07", "talpid-tunnel/boringtun"]
 multihop-pcap = ["boringtun/pcap"]
-# default = ["boringtun"]
 
 [dependencies]
 async-trait = "0.1"
@@ -46,7 +45,6 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 [dependencies.boringtun]
 optional = true
 features = ["device", "tun"]
-#path = "../../gotatun/boringtun"
 git = "https://github.com/mullvad/boringtun"
 rev = "39aab85d26b127cc59ddba8e038efe2fb2eb5231"
 
