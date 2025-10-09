@@ -92,16 +92,14 @@ impl Lwo {
     }
 
     async fn run_forwarding(client: Client, cancel_token: CancellationToken) -> Result<(), Error> {
-        let (mut send_task, mut recv_task) = client.run().await?;
+        let mut running = client.run().await?;
         log::trace!("LWO client is running! 🎉");
         tokio::select! {
             _ = cancel_token.cancelled() => log::trace!("Stopping LWO obfuscation"),
-            _result = &mut send_task => log::trace!("LWO client closed (send_task)"),
-            _result = &mut recv_task => log::trace!("LWO client closed (recv_task)"),
+            _result = &mut running.send => log::trace!("LWO client closed (send_task)"),
+            _result = &mut running.recv => log::trace!("LWO client closed (recv_task)"),
         };
 
-        send_task.abort();
-        recv_task.abort();
         Ok(())
     }
 }
@@ -116,10 +114,26 @@ struct Client {
     client_socket: Arc<UdpSocket>,
 }
 
+/// Start an LWO client by calling [Client::run].
+struct RunningClient {
+    /// Egress task.
+    send: JoinHandle<()>,
+    /// Ingress task.
+    recv: JoinHandle<()>,
+}
+
+// Auto-abort the send/recv tasks on drop.
+impl Drop for RunningClient {
+    fn drop(&mut self) {
+        self.send.abort();
+        self.recv.abort();
+    }
+}
+
 impl Client {
     /// Returns join handles to the send and receive tasks. These need to be aborted when the
     /// obfuscator is aborted / finished.
-    async fn run(self) -> Result<(JoinHandle<()>, JoinHandle<()>), Error> {
+    async fn run(self) -> Result<RunningClient, Error> {
         let Client {
             server_addr,
             rx_key,
@@ -156,7 +170,10 @@ impl Client {
             run_obfuscation(false, rx_key, rx_socket, tx_socket).await;
         });
 
-        Ok((send_task, recv_task))
+        Ok(RunningClient {
+            send: send_task,
+            recv: recv_task,
+        })
     }
 }
 
