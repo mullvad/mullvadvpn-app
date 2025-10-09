@@ -40,8 +40,9 @@ function publish_metadata {
     local latest_path="latest.json"
 
     rm -rf "$signed_dir"
-    rm -rf "$upload_dir"
+    rm -rf "$work_dir"
     rm -rf "$published_dir"
+    rm -rf "$upload_dir"
 
     echo ">>> Fetching current version metadata"
     mullvad-release pull --assume-yes --latest-file "${platforms[@]}"
