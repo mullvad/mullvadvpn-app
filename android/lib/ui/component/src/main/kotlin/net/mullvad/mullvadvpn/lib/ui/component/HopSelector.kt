@@ -89,7 +89,6 @@ fun ComposableTest() {
                     if (it) {
                         SingleHopSelector(progress)
                     } else {
-
                         MultiHopSelecter(selected, onSelect = { selected = it }, progress)
                     }
                 }
@@ -109,7 +108,7 @@ private val deviceText = "deviceText"
 
 @OptIn(ExperimentalMotionApi::class)
 @Composable
-fun SingleHopSelector(progress: Float) {
+fun SingleHopSelector(progress: Float, modifier: Modifier = Modifier) {
 
     val scene = MotionScene {
         val (
@@ -219,7 +218,7 @@ fun SingleHopSelector(progress: Float) {
     }
 
     CompositionLocalProvider(LocalContentColor provides deselectedColor) {
-        MotionLayout(modifier = Modifier.fillMaxWidth(), motionScene = scene, progress = progress) {
+        MotionLayout(modifier = modifier.fillMaxWidth(), motionScene = scene, progress = progress) {
             Icon(
                 modifier = Modifier.padding(2.dp).size(14.dp).layoutId(internetIcon),
                 imageVector = Icons.Default.Language,
@@ -258,7 +257,12 @@ private val entryDeviceDash = "entryDeviceDash"
 
 @OptIn(ExperimentalMotionApi::class)
 @Composable
-fun MultiHopSelecter(selected: Boolean, onSelect: (Boolean) -> Unit, progress: Float) {
+fun MultiHopSelecter(
+    selected: Boolean,
+    onSelect: (Boolean) -> Unit,
+    progress: Float,
+    modifier: Modifier = Modifier,
+) {
     val scene = MotionScene {
         val (
             internetIcon,
@@ -288,12 +292,13 @@ fun MultiHopSelecter(selected: Boolean, onSelect: (Boolean) -> Unit, progress: F
 
         val expanded =
             constraintSet("expanded") {
+                val internetBottomBarrier = createBottomBarrier(internetIcon, internetText)
                 constrain(internetIcon) {
                     linkTo(
                         top = parent.top,
                         start = parent.start,
                         end = internetText.start,
-                        bottom = exit.top,
+                        bottom = internetBottomBarrier,
                         startMargin = 12.dp,
                     )
                 }
@@ -303,7 +308,6 @@ fun MultiHopSelecter(selected: Boolean, onSelect: (Boolean) -> Unit, progress: F
                     start.linkTo(internetIcon.end, 8.dp)
                     end.linkTo(parent.end)
                 }
-                val internetBottomBarrier = createBottomBarrier(internetIcon, internetText)
 
                 constrain(panel) {
                     width = fillToConstraints
@@ -329,12 +333,13 @@ fun MultiHopSelecter(selected: Boolean, onSelect: (Boolean) -> Unit, progress: F
                 }
                 constrain(entryCenterGuide) { centerVerticallyTo(entry) }
 
+                val deviceBarrierBottom = createBottomBarrier(deviceIcon, deviceText)
                 constrain(deviceIcon) {
                     linkTo(
                         top = entry.bottom,
                         start = parent.start,
                         end = deviceText.start,
-                        bottom = parent.bottom,
+                        bottom = deviceBarrierBottom,
                         startMargin = 12.dp,
                     )
                 }
@@ -365,13 +370,16 @@ fun MultiHopSelecter(selected: Boolean, onSelect: (Boolean) -> Unit, progress: F
         val collapsed =
             constraintSet("collapsed", expanded) {
                 constrain(exit) {
-                    centerVerticallyTo(parent)
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                constrain(entry) {
+                    top.linkTo(exit.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
                 constrain(
-                    internetIcon,
-                    internetText,
                     deviceIcon,
                     deviceText,
                     internetExitDash,
@@ -397,7 +405,7 @@ fun MultiHopSelecter(selected: Boolean, onSelect: (Boolean) -> Unit, progress: F
     }
 
     CompositionLocalProvider(LocalContentColor provides deselectedColor) {
-        MotionLayout(modifier = Modifier.fillMaxWidth(), motionScene = scene, progress = progress) {
+        MotionLayout(modifier = modifier.fillMaxWidth(), motionScene = scene, progress = progress) {
             Icon(
                 modifier = Modifier.padding(2.dp).size(14.dp).layoutId(internetIcon),
                 imageVector = Icons.Default.Language,

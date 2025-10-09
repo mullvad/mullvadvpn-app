@@ -1,16 +1,14 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import androidx.compose.animation.Animatable
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -60,6 +58,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.MultiHopSelecter
+import net.mullvad.mullvadvpn.lib.ui.component.SingleHopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
@@ -186,12 +186,21 @@ private fun SelectLocationListContent(
             },
     ) {
         stickyHeader {
-            Box(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .background(Color.Red)
-                        .size(width = 100.dp, height = 100.dp + 100.dp * expandness.value)
-            )
+            Surface {
+                var isSelected by remember { mutableStateOf(false) }
+                AnimatedContent(false, modifier = Modifier.padding(bottom = 8.dp)) {
+                    if (!it) {
+                        MultiHopSelecter(
+                            modifier = Modifier,
+                            selected = isSelected,
+                            onSelect = { isSelected = it },
+                            progress = 1f - expandness.value,
+                        )
+                    } else {
+                        SingleHopSelector(1f - expandness.value)
+                    }
+                }
+            }
         }
         when (state) {
             is Lce.Loading -> loading()
