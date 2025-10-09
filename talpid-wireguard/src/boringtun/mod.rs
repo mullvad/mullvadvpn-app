@@ -145,6 +145,15 @@ impl Devices {
     }
 }
 
+/// Errors that can happen when setting up / restarting / reconfiguring GotaTun devices.
+#[derive(thiserror::Error, Debug)]
+pub enum ConfigureGotaTunDeviceError {
+    #[error("Multihop devices were provided with a single config")]
+    ExpectedSinglehopDevice,
+    #[error("Single devices were provided with a multihop config")]
+    ExpectedMultihopDevice,
+}
+
 #[cfg(target_os = "android")]
 struct AndroidUdpSocketFactory {
     pub tun: Arc<Tun>,
@@ -372,11 +381,6 @@ async fn create_devices(
 }
 
 /// (Re)Configure boringtun devices.
-///
-/// # Panic
-/// Panics if `config` is a multihop config and `devices` is [Devices::Singlehop].
-/// Panics if `config` is a singlehop config and `devices` is [Devices::Multihop].
-// TODO: don't panic
 async fn configure_devices(
     devices: &mut Devices,
     config: &Config,
@@ -394,7 +398,9 @@ async fn configure_devices(
             ..
         } = devices
         else {
-            panic!("Single devices were provided with a multihop config");
+            return Err(TunnelError::ConfigureGotaTunDevice(
+                ConfigureGotaTunDeviceError::ExpectedMultihopDevice,
+            ));
         };
 
         let private_key = &config.tunnel.private_key;
@@ -429,7 +435,9 @@ async fn configure_devices(
         );
 
         let Devices::Singlehop { api, .. } = devices else {
-            panic!("Multihop devices were provided with a single config");
+            return Err(TunnelError::ConfigureGotaTunDevice(
+                ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
+            ));
         };
 
         let private_key = &config.tunnel.private_key;
