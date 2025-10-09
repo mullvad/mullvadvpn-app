@@ -403,20 +403,6 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
-                    val pagerState =
-                        rememberPagerState(
-                            initialPage = state.value.relayListType.initialPage(),
-                            pageCount = { state.value.relayListType.pageCount() },
-                        )
-
-                    if (state.value.relayListType is RelayListType.Multihop) {
-                        MultihopBar(
-                            pagerState,
-                            state.value.relayListType.multihopRelayListType,
-                            onSelectRelayList,
-                        )
-                    }
-
                     AnimatedContent(
                         targetState = state.value.filterChips,
                         label = "Select location top bar",
@@ -441,7 +427,7 @@ fun SelectLocationScreen(
                     }
 
                     RelayLists(
-                        pagerState,
+                        onSelectRelayList ,
                         state = state.value,
                         onSelectHop = onSelectHop,
                         onModifyMultihop = onModifyMultihop,
@@ -451,7 +437,6 @@ fun SelectLocationScreen(
                         onUpdateBottomSheetState = { newState ->
                             locationBottomSheetState = newState
                         },
-                        onSelectRelayList,
                     )
                 }
             }
@@ -534,7 +519,6 @@ private fun SelectLocationDropdownMenu(
 
 @Composable
 private fun MultihopBar(
-    pagerState: PagerState,
     relayListType: MultihopRelayListType,
     onSelectHopList: (MultihopRelayListType) -> Unit,
 ) {
@@ -549,19 +533,11 @@ private fun MultihopBar(
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == MultihopRelayListType.ENTRY,
-            selectedProgress =
-                1f -
-                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.ENTRY.ordinal))
-                        .coerceIn(0f..1f),
             onClick = { onSelectHopList(MultihopRelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
             selected = relayListType == MultihopRelayListType.EXIT,
-            selectedProgress =
-                1f -
-                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.EXIT.ordinal))
-                        .coerceIn(0f..1f),
             onClick = { onSelectHopList(MultihopRelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
@@ -571,7 +547,7 @@ private fun MultihopBar(
 @Composable
 @Suppress("ComplexCondition")
 private fun RelayLists(
-    pagerState: PagerState,
+    onSelectRelayList: (MultihopRelayListType) -> Unit,
     state: SelectLocationUiState,
     onSelectHop: (hop: Hop) -> Unit,
     onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
@@ -579,24 +555,7 @@ private fun RelayLists(
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    onSelectRelayList: (MultihopRelayListType) -> Unit,
 ) {
-    if (state.relayListType is RelayListType.Multihop) {
-        // This is so that when the pager is scrolled by the user the relay list type is updated
-        // correctly.
-        // If multihop is not enabled, the pager will only have one page, so this will not be
-        // called.
-        RunOnKeyChange(pagerState.currentPage) {
-            onSelectRelayList(MultihopRelayListType.entries[pagerState.currentPage])
-        }
-        // This is so that when the relay list entry or exit button is clicked, the pager will
-        // scroll to the correct page.
-        LaunchedEffect(state.relayListType.multihopRelayListType) {
-            val index = state.relayListType.multihopRelayListType.ordinal
-            pagerState.animateScrollToPage(index)
-        }
-    }
-
     val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
         if (relayListType is RelayListType.Multihop) {
             onModifyMultihop(relayItem, relayListType.multihopRelayListType)
@@ -605,46 +564,19 @@ private fun RelayLists(
         }
     }
 
-    HorizontalPager(
-        state = pagerState,
-        userScrollEnabled = true,
-        beyondViewportPageCount =
-            if (state.multihopEnabled) {
-                1
-            } else {
-                0
-            },
-    ) { pageIndex ->
         SelectLocationList(
-            relayListType =
-                if (state.multihopEnabled) {
-                    RelayListType.Multihop(MultihopRelayListType.entries[pageIndex])
-                } else {
-                    RelayListType.Single
-                },
+            relayListType = state.relayListType,
             onSelectHop = onSelectHop,
             onSelectRelayItem = onSelectRelayItem,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
+            onSelectRelayList,
         )
-    }
 }
 
 @Composable
 private fun ColumnScope.Loading() {
     MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
 }
-
-private fun RelayListType.initialPage(): Int =
-    when (this) {
-        is RelayListType.Multihop -> multihopRelayListType.ordinal
-        RelayListType.Single -> 0
-    }
-
-private fun RelayListType.pageCount(): Int =
-    when (this) {
-        is RelayListType.Multihop -> MultihopRelayListType.entries.size
-        RelayListType.Single -> 1
-    }

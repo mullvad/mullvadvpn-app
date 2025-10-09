@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,6 +51,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -237,7 +239,7 @@ fun SingleHopSelector(progress: Float, modifier: Modifier = Modifier) {
 
             Hop(
                 Modifier.layoutId(exit).padding(4.dp),
-                "Exit Location",
+                "Sweden",
                 Icons.Default.LocationOn,
                 selected = true,
                 onSelect = {},
@@ -428,7 +430,7 @@ fun MultiHopSelecter(
             Spacer(modifier = Modifier.size(20.dp).layoutId(exitCenterGuide))
             Hop(
                 Modifier.layoutId(exit).padding(4.dp),
-                "Exit Location",
+                "Germany",
                 Icons.Default.LocationOn,
                 selected = selected,
                 onSelect = { onSelect(true) },
@@ -437,7 +439,7 @@ fun MultiHopSelecter(
             Spacer(modifier = Modifier.size(20.dp).layoutId(entryCenterGuide))
             Hop(
                 Modifier.layoutId(entry).padding(4.dp),
-                "Entry Location",
+                "Sweden",
                 Icons.Default.Storage,
                 selected = !selected,
                 onSelect = { onSelect(false) },
@@ -627,7 +629,7 @@ fun HopSelector(
                             start.linkTo(deviceIcon.end, margin = 10.dp)
                             end.linkTo(parent.end)
                         },
-                    text = "Device",
+                    text = "Your Device",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -637,13 +639,24 @@ fun HopSelector(
 
 @Composable
 private fun DashedLine(modifier: Modifier) {
-    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 12f), 0f)
     Canvas(modifier.width(2.dp)) {
         val x = size.width / 2
+        val lineLength = 2.dp.toPx()
+        val gapLength = 5.dp.toPx() // 2.dp will be taken by StrokeCap.Round
+        val capRadius = size.width / 2
+
+        val interval = floatArrayOf(lineLength, gapLength)
+
+        val period = interval.sum()
+        val visualGap = gapLength - 2 * capRadius
+        val remainder = (size.height + visualGap) % period
+
+        val pathEffect = PathEffect.dashPathEffect(interval)
+
         drawLine(
             deselectedColor,
-            start = Offset(x, 0f),
-            end = Offset(size.width / 2, size.height),
+            start = Offset(x, capRadius + remainder / 2),
+            end = Offset(x, size.height),
             strokeWidth = size.width,
             cap = StrokeCap.Round,
             pathEffect = pathEffect,
@@ -663,6 +676,8 @@ private fun Hop(
         LocalContentColor provides
             if (selected) MaterialTheme.colorScheme.onPrimary else deselectedColor
     ) {
+        val alpha by animateFloatAsState(if (selected) 1f else 0f, tween())
+
         Row(
             modifier =
                 modifier
@@ -672,16 +687,37 @@ private fun Hop(
                     }
                     .clip(RoundedCornerShape(12.dp))
                     .clickable(onClick = onSelect)
-                    .let { if (selected) it.background(MaterialTheme.colorScheme.primary) else it },
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = alpha)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                modifier = Modifier.padding(start = 8.dp, end = 4.dp).size(18.dp),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp - 4.dp * alpha).size(18.dp),
                 imageVector = imageVector,
                 contentDescription = null,
             )
-            Text(modifier = Modifier.weight(1f), text = text)
+            Text(
+                modifier = Modifier.weight(1f),
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = SemiBold,
+            )
             IconButton(onClick = {}) { Icon(Icons.Default.FilterList, contentDescription = null) }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DashedLinePreview() {
+    var progress by remember { mutableFloatStateOf(0f) }
+    AppTheme {
+        Surface {
+            Column {
+                Slider(progress, { progress = it }, Modifier.padding(16.dp))
+                Box(modifier = Modifier.size(20.dp).background(Color.Red))
+                DashedLine(Modifier.size(height = 100.dp * progress, width = 2.dp))
+                Box(modifier = Modifier.size(20.dp).background(Color.Red))
+            }
         }
     }
 }
