@@ -16,7 +16,7 @@ const StyledText = styled.span<TransientProps<TextBaseProps>>(
   ({ $variant = 'bodySmall', $color = 'white', $textAlign }) => {
     const { fontFamily, fontSize, fontWeight, lineHeight } = typography[$variant];
     const color = colors[$color];
-    return `
+    return css`
       --color: ${color};
 
       color: var(--color);
