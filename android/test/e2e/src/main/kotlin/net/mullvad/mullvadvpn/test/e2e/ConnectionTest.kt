@@ -411,7 +411,7 @@ class ConnectionTest : EndToEndTest() {
 
     companion object {
         const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 60000L
-        const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 60000L
+        const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 30000L
         const val ANY_IP_ADDRESS = "0.0.0.0/0"
     }
 }
