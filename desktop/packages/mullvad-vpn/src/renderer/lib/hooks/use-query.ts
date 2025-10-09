@@ -3,18 +3,20 @@ import React from 'react';
 export type UseQueryProps<T> = {
   enabled?: boolean;
   queryFn: () => Promise<T>;
-  deps: React.DependencyList;
+  queryKey: string[];
 };
 
-export const useQuery = <T>({ queryFn, enabled = true, deps }: UseQueryProps<T>) => {
+export const useQuery = <T>({ queryFn, queryKey, enabled = true }: UseQueryProps<T>) => {
   const [data, setData] = React.useState<T | undefined>(undefined);
   const [error, setError] = React.useState<Error | undefined>(undefined);
   const [isError, setIsError] = React.useState<boolean>(false);
   const [isFetching, setIsFetching] = React.useState<boolean>(false);
-  const [hasSettledFirst, setHasSettledFirst] = React.useState<boolean>(false);
 
+  const hasLoadedRef = React.useRef(false);
   const mountedRef = React.useRef(false);
   const runIdRef = React.useRef(0);
+
+  const cacheKey = queryKey.join();
 
   const run = React.useCallback(async () => {
     const runId = ++runIdRef.current;
@@ -36,12 +38,16 @@ export const useQuery = <T>({ queryFn, enabled = true, deps }: UseQueryProps<T>)
         setError(err as Error);
       }
     } finally {
-      if (isActive()) setIsFetching(false);
-      if (!hasSettledFirst) setHasSettledFirst(true);
+      if (isActive()) {
+        setIsFetching(false);
+      }
+      if (!hasLoadedRef.current) {
+        hasLoadedRef.current = true;
+      }
     }
-  }, [hasSettledFirst, queryFn]);
+  }, [hasLoadedRef, queryFn]);
 
-  const isLoading = isFetching && !hasSettledFirst;
+  const isLoading = isFetching && !hasLoadedRef.current;
 
   React.useEffect(() => {
     mountedRef.current = true;
@@ -49,10 +55,7 @@ export const useQuery = <T>({ queryFn, enabled = true, deps }: UseQueryProps<T>)
     return () => {
       mountedRef.current = false;
     };
-    // Excluding run from deps to avoid re-fetching on every render
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, ...deps]);
+  }, [enabled, cacheKey, run]);
 
   return { data, error, isError, isLoading, isFetching, refetch: run };
 };
