@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
@@ -57,7 +56,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.MultiHopSelecter
+import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelecter
 import net.mullvad.mullvadvpn.lib.ui.component.SingleHopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
@@ -202,7 +201,7 @@ private fun SelectLocationListContent(
                             val relayList = state.value.relayListType
                             when(relayList) {
                                 is RelayListType.Multihop ->
-                                    MultiHopSelecter(
+                                    MultihopSelecter(
                                         modifier = Modifier,
                                         selected =
                                             relayList.multihopRelayListType == MultihopRelayListType.EXIT,

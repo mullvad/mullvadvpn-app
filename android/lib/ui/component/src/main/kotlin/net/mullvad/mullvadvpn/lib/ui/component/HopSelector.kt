@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -54,15 +52,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension.Companion.fillToConstraints
-import androidx.constraintlayout.compose.Dimension.Companion.preferredWrapContent
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.constraintlayout.compose.MotionLayout
 import androidx.constraintlayout.compose.MotionScene
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.Hop
-import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 enum class RelayList {
@@ -91,7 +84,7 @@ fun ComposableTest() {
                     if (it) {
                         SingleHopSelector(progress)
                     } else {
-                        MultiHopSelecter(selected, onSelect = { selected = it }, progress)
+                        MultihopSelecter(selected, onSelect = { selected = it }, progress)
                     }
                 }
             }
@@ -259,7 +252,7 @@ private val entryDeviceDash = "entryDeviceDash"
 
 @OptIn(ExperimentalMotionApi::class)
 @Composable
-fun MultiHopSelecter(
+fun MultihopSelecter(
     selected: Boolean,
     onSelect: (Boolean) -> Unit,
     progress: Float,
@@ -452,190 +445,7 @@ fun MultiHopSelecter(
     }
 }
 
-@Preview
-@Composable
-fun HopSelectorPreview() {
-    var selectedList by remember { mutableStateOf(RelayList.Entry) }
-    var isMultihop by remember { mutableStateOf(true) }
-    val entry =
-        RelayItem.Location.Country(
-            id = GeoLocationId.Country("se"),
-            name = "Sweden",
-            cities = listOf(),
-        )
-    val exit =
-        RelayItem.Location.Country(
-            id = GeoLocationId.Country("de"),
-            name = "Germany",
-            cities = listOf(),
-        )
-
-    AppTheme {
-        Surface {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Switch(isMultihop, onCheckedChange = { isMultihop = it })
-                Spacer(Modifier.size(32.dp))
-
-                HopSelector(
-                    modifier = Modifier.padding(8.dp),
-                    if (isMultihop) Hop.Multi(entry, exit) else Hop.Single(exit),
-                    selectedList = if (isMultihop) selectedList else RelayList.Exit,
-                    onSelect = { selectedList = it },
-                )
-            }
-        }
-    }
-}
-
 private val deselectedColor = Color(0xFFA3ABB5)
-
-@Composable
-fun HopSelector(
-    modifier: Modifier,
-    hop: Hop,
-    selectedList: RelayList,
-    onSelect: (RelayList) -> Unit,
-) {
-    CompositionLocalProvider(LocalContentColor provides deselectedColor) {
-        Column {
-            ConstraintLayout(modifier = modifier, animateChangesSpec = tween()) {
-                val (internetIcon, internetText) = createRefs()
-                val internetBottomBarrier = createBottomBarrier(internetIcon, internetText)
-                val (dashInternetExit, dashExitEntry, dashEntryDevice) = createRefs()
-                val hopBox = createRef()
-                val (hopEntry, hopExit) = createRefs()
-                val (deviceIcon, deviceText) = createRefs()
-
-                val startGuide = createGuidelineFromStart(12.dp)
-
-                Icon(
-                    modifier =
-                        Modifier.constrainAs(internetIcon) {
-                                start.linkTo(startGuide)
-                                top.linkTo(parent.top)
-                                bottom.linkTo(hopExit.top, margin = 4.dp)
-                            }
-                            .size(18.dp),
-                    imageVector = Icons.Default.Language,
-                    contentDescription = null,
-                )
-                Text(
-                    modifier =
-                        Modifier.constrainAs(internetText) {
-                            width = fillToConstraints
-                            start.linkTo(internetIcon.end, margin = 10.dp)
-                            end.linkTo(parent.end)
-                            top.linkTo(parent.top)
-                            bottom.linkTo(hopExit.top, margin = 4.dp)
-                        },
-                    text = "Internet",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                val alpha by animateFloatAsState(if (hop is Hop.Multi) 1f else 0f, tween(500))
-                Box(
-                    modifier =
-                        Modifier.constrainAs(hopBox) {
-                                width = fillToConstraints
-                                height = fillToConstraints
-                                top.linkTo(hopExit.top)
-                                if (hop is Hop.Multi) {
-                                    bottom.linkTo(hopEntry.bottom)
-                                } else {
-                                    bottom.linkTo(hopExit.bottom)
-                                }
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
-                            }
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xFF101823).copy(alpha = alpha))
-                ) {}
-
-                Hop(
-                    Modifier.constrainAs(hopExit) {
-                            top.linkTo(internetBottomBarrier, margin = 8.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                            bottom.linkTo(hopExit.top)
-                        }
-                        .padding(4.dp),
-                    hop.exit().name,
-                    Icons.Default.LocationOn,
-                    selected = selectedList == RelayList.Exit,
-                    onSelect = { onSelect(RelayList.Exit) },
-                )
-
-                var entryLocation by remember {
-                    val locationName = if (hop is Hop.Multi) hop.entry.name else null
-                    mutableStateOf(locationName)
-                }
-
-                if (hop is Hop.Multi && hop.entry.name != entryLocation) {
-                    entryLocation = hop.entry.name
-                }
-
-                val entryAlpha by
-                    animateFloatAsState(
-                        if (hop is Hop.Multi) 1f else 0f,
-                        tween(delayMillis = 100, durationMillis = 100),
-                    )
-                Hop(
-                    modifier =
-                        Modifier.constrainAs(hopEntry) {
-                                height = preferredWrapContent
-                                width = fillToConstraints
-                                // Hack to fix size of the view
-                                if (hop is Hop.Multi) {
-                                    top.linkTo(hopExit.bottom)
-                                } else {
-                                    top.linkTo(hopExit.top)
-                                }
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
-                            }
-                            .alpha(entryAlpha)
-                            .padding(4.dp),
-                    entryLocation ?: "",
-                    Icons.Default.Storage,
-                    selected = selectedList == RelayList.Entry,
-                    onSelect = { onSelect(RelayList.Entry) },
-                )
-
-                Icon(
-                    modifier =
-                        Modifier.constrainAs(deviceIcon) {
-                                if (hop is Hop.Multi) {
-                                    top.linkTo(hopEntry.bottom, margin = 4.dp)
-                                } else {
-                                    top.linkTo(hopExit.bottom, margin = 4.dp)
-                                }
-                                bottom.linkTo(parent.bottom)
-                                start.linkTo(startGuide)
-                            }
-                            .size(18.dp),
-                    imageVector = Icons.Default.PhoneAndroid,
-                    contentDescription = null,
-                )
-                Text(
-                    modifier =
-                        Modifier.constrainAs(deviceText) {
-                            width = fillToConstraints
-                            if (hop is Hop.Multi) {
-                                top.linkTo(hopEntry.bottom, margin = 4.dp)
-                            } else {
-                                top.linkTo(hopExit.bottom)
-                            }
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(deviceIcon.end, margin = 10.dp)
-                            end.linkTo(parent.end)
-                        },
-                    text = "Your Device",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun DashedLine(modifier: Modifier) {
