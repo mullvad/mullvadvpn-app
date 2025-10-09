@@ -53,6 +53,7 @@ pub enum Error {
 
 #[async_trait]
 pub trait Obfuscator: Send {
+    /// NOTE(Android): Make sure to call bypass on the obfuscator socket _before_ invoking run.
     async fn run(self: Box<Self>) -> Result<()>;
 
     /// Returns the address of the local socket.
