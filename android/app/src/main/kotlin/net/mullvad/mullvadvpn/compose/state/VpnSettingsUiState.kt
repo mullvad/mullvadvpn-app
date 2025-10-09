@@ -191,6 +191,8 @@ data class VpnSettingsUiState(val settings: List<VpnSettingItem>, val isModal: B
                         )
                     )
                     add(VpnSettingItem.Divider)
+                    add(VpnSettingItem.ObfuscationItem.Lwo(obfuscationMode == ObfuscationMode.Lwo))
+                    add(VpnSettingItem.Divider)
                     add(
                         VpnSettingItem.ObfuscationItem.Shadowsocks(
                             obfuscationMode == ObfuscationMode.Shadowsocks,
@@ -208,8 +210,6 @@ data class VpnSettingsUiState(val settings: List<VpnSettingItem>, val isModal: B
                     add(
                         VpnSettingItem.ObfuscationItem.Quic(obfuscationMode == ObfuscationMode.Quic)
                     )
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.ObfuscationItem.Lwo(obfuscationMode == ObfuscationMode.Lwo))
                     add(VpnSettingItem.Divider)
                     add(VpnSettingItem.ObfuscationItem.Off(obfuscationMode == ObfuscationMode.Off))
 
