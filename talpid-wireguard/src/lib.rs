@@ -1048,13 +1048,11 @@ enum CloseMsg {
 }
 
 #[allow(unused)]
-// TODO regular async?
 #[async_trait::async_trait]
 pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    // TODO regular async?
     fn set_config<'a>(
         &'a mut self,
         _config: Config,
