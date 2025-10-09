@@ -24,12 +24,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    //    var locationViewControllerWrapper: LocationViewControllerWrapper? {
-    //        return navigationController.viewControllers.first {
-    //            $0 is LocationViewControllerWrapper
-    //        } as? LocationViewControllerWrapper
-    //    }
-
     var selectLocationViewModel: (any SelectLocationViewModel)? {
         (navigationController.viewControllers.first {
             $0 is UIHostingController<SelectLocationView<SelectLocationViewModelImpl>>
@@ -70,9 +64,16 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                             guard let self else { return }
                             self.navigateToFilter()
                         },
-                        showEditCustomListView: { [weak self] locations in
+                        showEditCustomListView: { [weak self] locations, customList in
                             guard let self else { return }
-                            self.showEditCustomLists(nodes: locations)
+                            if let customList {
+                                self.showEditCustomList(
+                                    list: customList,
+                                    nodes: locations
+                                )
+                            } else {
+                                self.showEditCustomLists(nodes: locations)
+                            }
                         },
                         showAddCustomListView: { [weak self] locations in
                             guard let self else { return }
@@ -99,23 +100,11 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController.pushViewController(hostingController, animated: false)
     }
 
-    //    private func addTunnelObserver() {
-    //        let tunnelObserver =
-    //            TunnelBlockObserver(
-    //                didUpdateTunnelSettings: { [weak self] _, settings in
-    //                    guard let self else { return }
-    //                    locationViewControllerWrapper?.onNewSettings?(settings)
-    //                }
-    //            )
-    //
-    //        tunnelManager.addObserver(tunnelObserver)
-    //        self.tunnelObserver = tunnelObserver
-    //    }
-
     private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
             navigationController: CustomNavigationController(),
             interactor: CustomListInteractor(
+                tunnelManager: tunnelManager,
                 repository: customListRepository
             ),
             nodes: nodes
@@ -134,7 +123,10 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private func showEditCustomLists(nodes: [LocationNode]) {
         let coordinator = ListCustomListCoordinator(
             navigationController: InterceptibleNavigationController(),
-            interactor: CustomListInteractor(repository: customListRepository),
+            interactor: CustomListInteractor(
+                tunnelManager: tunnelManager,
+                repository: customListRepository
+            ),
             tunnelManager: tunnelManager,
             nodes: nodes
         )
@@ -150,13 +142,35 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.presentedViewController.presentationController?.delegate = self
     }
+
+    private func showEditCustomList(list: CustomList, nodes: [LocationNode]) {
+        let coordinator = EditCustomListCoordinator(
+            navigationController: InterceptibleNavigationController(),
+            customListInteractor: CustomListInteractor(
+                tunnelManager: tunnelManager,
+                repository: customListRepository
+            ),
+            customList: list,
+            nodes: nodes
+        )
+
+        coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
+            guard let self else { return }
+            editCustomListCoordinator.dismiss(animated: true)
+        }
+
+        coordinator.start()
+        presentChild(coordinator, animated: true)
+
+        coordinator.presentedViewController.presentationController?.delegate = self
+    }
+
 }
 
 // Intercept dismissal (by down swipe) of ListCustomListCoordinator and apply custom actions.
 // See showEditCustomLists() above.
 extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        //        locationViewControllerWrapper?.refreshCustomLists()
         selectLocationViewModel?.refreshCustomLists()
     }
 }

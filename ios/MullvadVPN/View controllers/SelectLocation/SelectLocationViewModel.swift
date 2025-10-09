@@ -14,6 +14,8 @@ protocol SelectLocationViewModel: ObservableObject {
     func refreshCustomLists()
     func addLocationToCustomList(location: LocationNode, customListName: String)
     func removeLocationFromCustomList(location: LocationNode, customListName: String)
+    func deleteCustomList(name: String)
+    func editCustomList(name: String)
     func didFinish()
     func showDaitaSettings()
     func showEditCustomListView(locations: [LocationNode])
@@ -25,7 +27,7 @@ struct SelectLocationDelegate {
     let showDaitaSettings: () -> Void
     let showObfuscationSettings: () -> Void
     let showFilterView: () -> Void
-    let showEditCustomListView: ([LocationNode]) -> Void
+    let showEditCustomListView: ([LocationNode], CustomList?) -> Void
     let showAddCustomListView: ([LocationNode]) -> Void
     let didSelectExitRelayLocations: (UserSelectedRelays) -> Void
     let didSelectEntryRelayLocations: (UserSelectedRelays) -> Void
@@ -66,7 +68,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let tunnelManager: TunnelManager
-    private let customListRepository: CustomListRepositoryProtocol
+    private let customListInteractor: CustomListInteractorProtocol
     private var relaysCandidates: RelayCandidates?
 
     private var tunnelObserver: TunnelBlockObserver?
@@ -83,7 +85,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     ) {
         self.tunnelManager = tunnelManager
         self.relaySelectorWrapper = relaySelectorWrapper
-        self.customListRepository = customListRepository
+        self.customListInteractor = CustomListInteractor(
+            tunnelManager: tunnelManager,
+            repository: customListRepository
+        )
         self.delegate = delegate
         self.customListsDataSource = CustomListsDataSource(
             repository: customListRepository
@@ -209,6 +214,22 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         default:
             break
         }
+    }
+
+    func deleteCustomList(name: String) {
+        guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
+            return
+        }
+        customListInteractor.delete(customList: customList)
+        populateLocationLists()
+    }
+
+    func editCustomList(name: String) {
+        guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
+            return
+        }
+        delegate
+            .showEditCustomListView(activeLocationContext.locations, customList)
     }
 
     func refreshCustomLists() {
@@ -423,7 +444,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     func addLocationToCustomList(location: LocationNode, customListName: String) {
         let customList =
-            customListRepository.fetchAll().first { $0.name == customListName }
+            customListInteractor.fetchAll().first { $0.name == customListName }
             ?? CustomList(
                 name: customListName,
                 locations: []
@@ -447,7 +468,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             name: customList.name,
             locations: locations
         )
-        try? customListRepository.save(list: newCustomList)
+        try? customListInteractor.save(list: newCustomList)
         populateLocationLists()
     }
 
@@ -455,7 +476,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         location: LocationNode,
         customListName: String
     ) {
-        let customList = customListRepository.fetchAll().first { $0.name == customListName }
+        let customList = customListInteractor.fetchAll().first { $0.name == customListName }
         guard let customList else {
             return
         }
@@ -465,7 +486,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             name: customList.name,
             locations: allLocations
         )
-        try? customListRepository.save(list: newCustomList)
+        try? customListInteractor.save(list: newCustomList)
         populateLocationLists()
     }
 
@@ -478,7 +499,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func showEditCustomListView(locations: [LocationNode]) {
-        delegate.showEditCustomListView(locations)
+        delegate.showEditCustomListView(locations, nil)
     }
 
     func showAddCustomListView(locations: [LocationNode]) {

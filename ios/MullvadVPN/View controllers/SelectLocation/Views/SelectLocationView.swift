@@ -109,10 +109,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     struct ExitLocationView: View {
         @ObservedObject var viewModel: ViewModel
         @State var newCustomListAlert: MullvadInputAlert?
+        @State var alert: MullvadAlert?
         var body: some View {
             VStack {
-                if !viewModel.activeLocationContext.filter.isEmpty
-                {
+                if !viewModel.activeLocationContext.filter.isEmpty {
                     ActiveFilterView(
                         activeFilter: viewModel.activeLocationContext.filter
                     ) { filter in
@@ -164,12 +164,24 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             switch location {
                             case let location as CustomListLocationNode:
                                 Button("Edit") {
-                                    //                            viewModel
-                                    //                                .deleteCustomList(name: location.name)
+                                    viewModel.editCustomList(name: location.name)
                                 }
+
                                 Button("Delete") {
-                                    //                            viewModel
-                                    //                                .deleteCustomList(name: location.name)
+                                    alert = .init(
+                                        type: .warning,
+                                        messages: ["Are you sure you want to delete \"\(location.name)\""],
+                                        action: .init(
+                                            type: .danger,
+                                            title: "Delete custom list",
+                                            identifier: nil,
+                                            handler: {
+                                                viewModel.deleteCustomList(name: location.name)
+                                                alert = nil
+                                            }
+                                        ),
+                                        dismissButtonTitle: "Cancel"
+                                    )
                                 }
 
                             default:
@@ -262,6 +274,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             }
             .animation(.default, value: viewModel.activeLocationContext.filter)
             .mullvadInputAlert(item: $newCustomListAlert)
+            .mullvadAlert(item: $alert)
         }
     }
 }

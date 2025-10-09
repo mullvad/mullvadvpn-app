@@ -1,6 +1,14 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
+    func deleteCustomList(name: String) {
+
+    }
+
+    func editCustomList(name: String) {
+        
+    }
+
     func removeLocationFromCustomList(
         location: LocationNode,
         customListName: String
