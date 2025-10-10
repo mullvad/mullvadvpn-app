@@ -59,6 +59,33 @@ fun InfoDialog(
     },
     dismissButton: @Composable (() -> Unit)? = null,
 ) {
+    InfoDialog(
+        title = title,
+        message = AnnotatedString(message),
+        additionalInfo = additionalInfo,
+        showIcon = showIcon,
+        onDismiss = onDismiss,
+        confirmButton = confirmButton,
+        dismissButton = dismissButton,
+    )
+}
+
+@Composable
+fun InfoDialog(
+    title: String? = null,
+    message: AnnotatedString,
+    additionalInfo: CharSequence? = null,
+    showIcon: Boolean = true,
+    onDismiss: () -> Unit,
+    confirmButton: @Composable () -> Unit = {
+        PrimaryButton(
+            modifier = Modifier.wrapContentHeight().fillMaxWidth(),
+            text = stringResource(R.string.got_it),
+            onClick = onDismiss,
+        )
+    },
+    dismissButton: @Composable (() -> Unit)? = null,
+) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         icon =

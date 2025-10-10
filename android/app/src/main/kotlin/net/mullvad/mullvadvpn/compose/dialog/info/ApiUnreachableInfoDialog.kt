@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
@@ -36,7 +37,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewApiUnreachableInfoDialog() {
     AppTheme {
         ApiUnreachableInfoDialog(
-            uiState = ApiUnreachableUiState(true),
+            state = ApiUnreachableUiState(true, LoginAction.LOGIN),
             onEnableAllApiMethods = {},
             onSendEmail = {},
             onDismiss = {},
@@ -89,10 +90,10 @@ fun ApiUnreachableInfo(navigator: ResultBackNavigator<ApiUnreachableInfoDialogRe
         }
     }
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     ApiUnreachableInfoDialog(
-        uiState = uiState,
+        state = state,
         onEnableAllApiMethods = viewModel::enableAllApiAccess,
         onSendEmail = viewModel::sendProblemReportEmail,
         onDismiss = navigator::navigateBack,
@@ -101,19 +102,49 @@ fun ApiUnreachableInfo(navigator: ResultBackNavigator<ApiUnreachableInfoDialogRe
 
 @Composable
 fun ApiUnreachableInfoDialog(
-    uiState: ApiUnreachableUiState,
+    state: ApiUnreachableUiState,
     onEnableAllApiMethods: () -> Unit,
     onSendEmail: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     InfoDialog(
         title = stringResource(id = R.string.unable_to_reach_api_dialog_title),
-        message = stringResource(id = R.string.unable_to_reach_api_dialog_message_first),
+        message =
+            buildAnnotatedString {
+                append(
+                    stringResource(
+                        id = R.string.unable_to_reach_api_dialog_message_first,
+                        when (state.loginAction) {
+                            LoginAction.LOGIN ->
+                                stringResource(
+                                    id = R.string.unable_to_reach_api_dialog_action_login
+                                )
+                            LoginAction.CREATE_ACCOUNT ->
+                                stringResource(
+                                    id = R.string.unable_to_reach_api_dialog_action_create
+                                )
+                        },
+                    )
+                )
+                val firstItem =
+                    stringResource(id = R.string.unable_to_reach_api_dialog_message_list_first)
+                val secondItem =
+                    stringResource(id = R.string.unable_to_reach_api_dialog_message_list_second)
+                val thirdItem =
+                    stringResource(id = R.string.unable_to_reach_api_dialog_message_list_third)
+                withBulletList {
+                    withBulletListItem { append(firstItem) }
+                    withBulletListItem { append(secondItem) }
+                    if (state.showEnableAllAccessMethodsButton) {
+                        withBulletListItem { append(thirdItem) }
+                    }
+                }
+            },
         additionalInfo = stringResource(id = R.string.unable_to_reach_api_dialog_message_second),
         showIcon = false,
         confirmButton = {
             Column {
-                if (uiState.showEnableAllAccessMethodsButton) {
+                if (state.showEnableAllAccessMethodsButton) {
                     PrimaryButton(
                         modifier = Modifier.wrapContentHeight().fillMaxWidth(),
                         text = stringResource(R.string.enable_all_methods),

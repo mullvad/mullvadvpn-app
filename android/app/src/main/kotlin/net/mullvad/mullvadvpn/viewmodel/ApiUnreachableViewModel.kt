@@ -27,14 +27,14 @@ class ApiUnreachableViewModel(
     private val _uiSideEffect = Channel<ApiUnreachableSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _uiState = MutableStateFlow(ApiUnreachableUiState(false))
+    private val _uiState = MutableStateFlow(ApiUnreachableUiState(false, navArgs.action))
     val uiState: StateFlow<ApiUnreachableUiState> = _uiState
 
     init {
         viewModelScope.launch {
             val hasEnabledAllApiAccessMethods =
                 apiAccessRepository.accessMethods.filterNotNull().first().all { it.enabled }
-            _uiState.emit(ApiUnreachableUiState(!hasEnabledAllApiAccessMethods))
+            _uiState.emit(ApiUnreachableUiState(!hasEnabledAllApiAccessMethods, navArgs.action))
         }
     }
 

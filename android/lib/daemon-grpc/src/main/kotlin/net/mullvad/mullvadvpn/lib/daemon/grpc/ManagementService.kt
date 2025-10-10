@@ -914,12 +914,12 @@ class ManagementService(
         }
     }
 
-    private fun Status.isTooManyRequests() = description == TOO_MANY_REQUESTS.toString()
+    private fun Status.isTooManyRequests() = description == TOO_MANY_REQUESTS
 
     companion object {
         const val ENABLE_TRACE_LOGGING = false
 
-        const val TOO_MANY_REQUESTS = 429
+        const val TOO_MANY_REQUESTS = "429 Too Many Requests"
     }
 }
 
