@@ -112,11 +112,18 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         var settings = LatestTunnelSettings()
 
         // When:
-        let update = TunnelSettingsUpdate.quantumResistance(.on)
+        var update = TunnelSettingsUpdate.quantumResistance(.on)
         update.apply(to: &settings)
 
         // Then:
-        XCTAssertEqual(settings.tunnelQuantumResistance, .on)
+        XCTAssertTrue(settings.tunnelQuantumResistance.isEnabled)
+
+        // When again:
+        update = TunnelSettingsUpdate.quantumResistance(.automatic)
+        update.apply(to: &settings)
+
+        // Then again:
+        XCTAssertTrue(settings.tunnelQuantumResistance.isEnabled)
     }
 
     func testApplyMultihop() {

@@ -43,7 +43,7 @@ extension SettingsReaderStub {
         }
     }
 
-    static func postQuantumConfiguration() -> SettingsReaderStub {
+    static func noPostQuantumConfiguration() -> SettingsReaderStub {
         let staticSettings = Settings(
             privateKey: PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
@@ -51,7 +51,7 @@ extension SettingsReaderStub {
                 relayConstraints: RelayConstraints(),
                 dnsSettings: DNSSettings(),
                 wireGuardObfuscation: WireGuardObfuscationSettings(state: .off),
-                tunnelQuantumResistance: .on,
+                tunnelQuantumResistance: .off,
                 tunnelMultihopState: .off,
                 daita: DAITASettings()
             )

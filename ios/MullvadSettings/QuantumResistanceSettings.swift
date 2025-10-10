@@ -17,6 +17,6 @@ public enum TunnelQuantumResistance: Codable, Sendable {
 public extension TunnelQuantumResistance {
     /// A single source of truth for whether the current state counts as on
     var isEnabled: Bool {
-        self == .on
+        [.on, .automatic].contains(self)
     }
 }
