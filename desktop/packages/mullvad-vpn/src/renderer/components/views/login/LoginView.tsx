@@ -254,9 +254,9 @@ class Login extends React.Component<IProps, IState> {
         // TRANSLATORS: with too many registered devices.
         return messages.pgettext('login-view', 'Too many devices');
       case 'list-devices':
-        // TRANSLATORS: Error message shown above login input when trying to login but the app fails
+        // TRANSLATORS: Error message shown trying to login but the app fails
         // TRANSLATORS: to fetch the list of registered devices.
-        return messages.pgettext('login-view', 'Failed to fetch list of devices');
+        return messages.gettext('Failed to fetch list of devices');
       case 'communication':
         return 'api.mullvad.net is blocked, please check your firewall';
       default:

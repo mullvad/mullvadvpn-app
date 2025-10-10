@@ -14,6 +14,7 @@ export interface FlexProps extends LayoutProps {
   $flexShrink?: React.CSSProperties['flexShrink'];
   $flexBasis?: React.CSSProperties['flexBasis'];
   $flexWrap?: React.CSSProperties['flexWrap'];
+  $alignSelf?: React.CSSProperties['alignSelf'];
   children?: React.ReactNode;
 }
 
@@ -27,6 +28,7 @@ export const Flex = styled(Layout)<FlexProps>(({
   $flexShrink,
   $flexBasis,
   $flexWrap,
+  $alignSelf,
 }) => {
   const $gap = gapProp ? spacings[gapProp] : undefined;
   return {
@@ -40,5 +42,6 @@ export const Flex = styled(Layout)<FlexProps>(({
     flexShrink: $flexShrink,
     flexBasis: $flexBasis,
     flexWrap: $flexWrap,
+    alignSelf: $alignSelf,
   };
 });
