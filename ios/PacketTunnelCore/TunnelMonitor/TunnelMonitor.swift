@@ -123,7 +123,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
 
     public func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) {
         nslock.withLock {
-            let isReachable = networkPath == .satisfied || networkPath == .requiresConnection
+            let isReachable = networkPath.networkReachability == .reachable
 
             switch state.connectionState {
             case .pendingStart:

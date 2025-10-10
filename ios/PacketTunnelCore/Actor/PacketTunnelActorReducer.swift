@@ -14,8 +14,6 @@ import WireGuardKitTypes
 extension PacketTunnelActor {
     ///  A structure encoding an effect; each event will yield zero or more of those, which can then be sequentially executed.
     enum Effect: Equatable, Sendable {
-        case startDefaultPathObserver
-        case stopDefaultPathObserver
         case startTunnelMonitor
         case stopTunnelMonitor
         case updateTunnelMonitorPath(Network.NWPath.Status)
@@ -36,8 +34,6 @@ extension PacketTunnelActor {
         // We cannot synthesise Equatable on Effect because NetworkPath is a protocol which cannot be easily made Equatable, so we need to do this for now.
         static func == (lhs: PacketTunnelActor.Effect, rhs: PacketTunnelActor.Effect) -> Bool {
             return switch (lhs, rhs) {
-            case (.startDefaultPathObserver, .startDefaultPathObserver): true
-            case (.stopDefaultPathObserver, .stopDefaultPathObserver): true
             case (.startTunnelMonitor, .startTunnelMonitor): true
             case (.stopTunnelMonitor, .stopTunnelMonitor): true
             case let (.updateTunnelMonitorPath(lp), .updateTunnelMonitorPath(rp)): lp == rp
@@ -61,7 +57,6 @@ extension PacketTunnelActor {
             case let .start(options):
                 guard case .initial = state else { return [] }
                 return [
-                    .startDefaultPathObserver,
                     .startTunnelMonitor,
                     .startConnection(options.selectedRelays.map { .preSelected($0) } ?? .random),
                 ]
@@ -109,13 +104,11 @@ extension PacketTunnelActor {
                 state = .disconnecting(connState)
                 return [
                     .stopTunnelMonitor,
-                    .stopDefaultPathObserver,
                     .stopTunnelAdapter,
                     .setDisconnectedState,
                 ]
             case .error:
                 return [
-                    .stopDefaultPathObserver,
                     .stopTunnelAdapter,
                     .setDisconnectedState,
                 ]

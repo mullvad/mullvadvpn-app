@@ -146,7 +146,6 @@
 		5838321B2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */; };
 		5838321D2AC1C54600EA2071 /* TaskSleepTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */; };
 		5838321F2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321E2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift */; };
-		583832212AC3174700EA2071 /* PacketTunnelActor+NetworkReachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832202AC3174700EA2071 /* PacketTunnelActor+NetworkReachability.swift */; };
 		583832232AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832222AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift */; };
 		583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832242AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift */; };
 		583832272AC3193600EA2071 /* PacketTunnelActor+SleepCycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832262AC3193600EA2071 /* PacketTunnelActor+SleepCycle.swift */; };
@@ -1763,7 +1762,6 @@
 		5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+Mocks.swift"; sourceTree = "<group>"; };
 		5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSleepTests.swift; sourceTree = "<group>"; };
 		5838321E2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+KeyPolicy.swift"; sourceTree = "<group>"; };
-		583832202AC3174700EA2071 /* PacketTunnelActor+NetworkReachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+NetworkReachability.swift"; sourceTree = "<group>"; };
 		583832222AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+ErrorState.swift"; sourceTree = "<group>"; };
 		583832242AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+ConnectionMonitoring.swift"; sourceTree = "<group>"; };
 		583832262AC3193600EA2071 /* PacketTunnelActor+SleepCycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+SleepCycle.swift"; sourceTree = "<group>"; };
@@ -3612,7 +3610,6 @@
 				583832222AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift */,
 				58FE25F32AA9D730003D1918 /* PacketTunnelActor+Extensions.swift */,
 				5838321E2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift */,
-				583832202AC3174700EA2071 /* PacketTunnelActor+NetworkReachability.swift */,
 				44DF8AC32BF20BD200869CA4 /* PacketTunnelActor+PostQuantum.swift */,
 				586C14592AC4735F00245C01 /* PacketTunnelActor+Public.swift */,
 				583832262AC3193600EA2071 /* PacketTunnelActor+SleepCycle.swift */,
@@ -6311,7 +6308,6 @@
 				A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */,
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
 				A97D25AE2B0BB18100946B2D /* ProtocolObfuscator.swift in Sources */,
-				583832212AC3174700EA2071 /* PacketTunnelActor+NetworkReachability.swift in Sources */,
 				58FE25D82AA72A8F003D1918 /* ConfigurationBuilder.swift in Sources */,
 				7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */,
 				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift in Sources */,

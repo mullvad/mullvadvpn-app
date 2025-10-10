@@ -104,10 +104,6 @@ public actor PacketTunnelActor {
 
     func executeEffect(_ effect: Effect) async {
         switch effect {
-        case .startDefaultPathObserver:
-            startDefaultPathObserver()
-        case .stopDefaultPathObserver:
-            stopDefaultPathObserver()
         case .startTunnelMonitor:
             setTunnelMonitorEventHandler()
         case .stopTunnelMonitor:
@@ -174,6 +170,14 @@ public actor PacketTunnelActor {
         }
         semaphore.send()
     }
+
+    private func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) {
+        tunnelMonitor.handleNetworkPathUpdate(networkPath)
+
+        let newReachability = networkPath.networkReachability
+
+        state.mutateAssociatedData { $0.networkReachability = newReachability }
+    }
 }
 
 // MARK: -
@@ -190,9 +194,6 @@ extension PacketTunnelActor {
         guard case .initial = state else { return }
 
         logger.debug("\(options.logFormat())")
-
-        // Start observing default network path to determine network reachability.
-        startDefaultPathObserver()
 
         // Assign a closure receiving tunnel monitor events.
         setTunnelMonitorEventHandler()
@@ -218,8 +219,6 @@ extension PacketTunnelActor {
             fallthrough
 
         case .error:
-            stopDefaultPathObserver()
-
             do {
                 try await tunnelAdapter.stop()
             } catch {
@@ -281,12 +280,6 @@ extension PacketTunnelActor {
             settings: settings,
             connectionData: connectionState
         ).make()
-
-        defer {
-            // Restart default path observer and notify the observer with the current path that might have changed while
-            // path observer was paused.
-            startDefaultPathObserver()
-        }
 
         let entryConfiguration = configuration.entryConfiguration
         let exitConfiguration = configuration.exitConfiguration
