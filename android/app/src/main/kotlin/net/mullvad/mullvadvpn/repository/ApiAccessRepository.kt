@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.repository
 
+import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
+import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
 
 class ApiAccessRepository(
     private val managementService: ManagementService,
@@ -81,5 +83,13 @@ class ApiAccessRepository(
     suspend fun setEnabledApiAccessMethod(id: ApiAccessMethodId, enabled: Boolean) = either {
         val accessMethod = getApiAccessMethodSettingById(id).bind()
         updateApiAccessMethod(accessMethod.copy(enabled = enabled)).bind()
+    }
+
+    suspend fun enableAllApiAccessMethods(): Either<UpdateApiAccessMethodError, Unit> = either {
+        accessMethods.value?.forEach {
+            if (!it.enabled) {
+                updateApiAccessMethod(it.copy(enabled = true)).bind()
+            }
+        }
     }
 }

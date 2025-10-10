@@ -17,15 +17,16 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.state.LoginUiStateError
 import net.mullvad.mullvadvpn.data.mock
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
@@ -67,16 +68,21 @@ class LoginViewModelTest {
             // Arrange
             every { connectivityUseCase() } returns false
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+            coEvery { mockedAccountRepository.login(any()) } returns
+                LoginAccountError.ApiUnreachable.left()
 
             // Act
             loginViewModel.login("")
 
             // Discard default item
-            uiStates.awaitItem()
+            uiStates.skipDefaultItem()
+
+            // Logging in state
+            assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
 
             // Assert
             assertEquals(
-                Idle(loginError = LoginError.NoInternetConnection),
+                Idle(loginUiStateError = LoginUiStateError.LoginError.NoInternetConnection),
                 uiStates.awaitItem().loginState,
             )
         }
@@ -153,7 +159,10 @@ class LoginViewModelTest {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
-            assertEquals(Idle(loginError = LoginError.InvalidCredentials), awaitItem().loginState)
+            assertEquals(
+                Idle(loginUiStateError = LoginUiStateError.LoginError.InvalidCredentials),
+                awaitItem().loginState,
+            )
         }
     }
 
@@ -180,24 +189,6 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `given RpcError when logging in then show unknown error with message`() = runTest {
-        loginViewModel.uiState.test {
-            // Arrange
-            coEvery { mockedAccountRepository.login(any()) } returns
-                LoginAccountError.RpcError.left()
-
-            // Act, Assert
-            skipDefaultItem()
-            loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
-            assertEquals(Loading.LoggingIn, awaitItem().loginState)
-            assertEquals(
-                Idle(LoginError.Unknown(EXPECTED_RPC_ERROR_MESSAGE)),
-                awaitItem().loginState,
-            )
-        }
-    }
-
-    @Test
     fun `given unknown error when logging in then show unknown error with message`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
@@ -210,7 +201,7 @@ class LoginViewModelTest {
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             val loginState = awaitItem().loginState
             assertIs<Idle>(loginState)
-            assertIs<LoginError.Unknown>(loginState.loginError)
+            assertIs<LoginUiStateError.LoginError.Unknown>(loginState.loginUiStateError)
         }
     }
 
@@ -239,12 +230,63 @@ class LoginViewModelTest {
         coVerify { mockedAccountRepository.clearAccountHistory() }
     }
 
+    @Test
+    fun `given InvalidInput when logging in then show invalid input error`() = runTest {
+        loginViewModel.uiState.test {
+            // Arrange
+            coEvery { mockedAccountRepository.login(any()) } returns
+                LoginAccountError.InvalidInput(DUMMY_ACCOUNT_NUMBER).left()
+
+            // Act, Assert
+            skipDefaultItem()
+            loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
+            assertEquals(Loading.LoggingIn, awaitItem().loginState)
+            assertEquals(
+                Idle(LoginUiStateError.LoginError.InvalidInput(DUMMY_ACCOUNT_NUMBER)),
+                awaitItem().loginState,
+            )
+        }
+    }
+
+    @Test
+    fun `given TooManyAttempts when logging in then show too many attempts error`() = runTest {
+        loginViewModel.uiState.test {
+            // Arrange
+            coEvery { mockedAccountRepository.login(any()) } returns
+                LoginAccountError.TooManyAttempts.left()
+
+            // Act, Assert
+            skipDefaultItem()
+            loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
+            assertEquals(Loading.LoggingIn, awaitItem().loginState)
+            assertEquals(Idle(LoginUiStateError.LoginError.TooManyAttempts), awaitItem().loginState)
+        }
+    }
+
+    @Test
+    fun `given TooManyAttempts when creating an account in then show too many attempts error`() =
+        runTest {
+            loginViewModel.uiState.test {
+                // Arrange
+                coEvery { mockedAccountRepository.createAccount() } returns
+                    CreateAccountError.TooManyAttempts.left()
+
+                // Act, Assert
+                skipDefaultItem()
+                loginViewModel.onCreateAccountClick()
+                assertEquals(Loading.CreatingAccount, awaitItem().loginState)
+                assertEquals(
+                    Idle(LoginUiStateError.CreateAccountError.TooManyAttempts),
+                    awaitItem().loginState,
+                )
+            }
+        }
+
     private suspend fun <T> ReceiveTurbine<T>.skipDefaultItem() where T : Any? {
         awaitItem()
     }
 
     companion object {
         private val DUMMY_ACCOUNT_NUMBER = AccountNumber("DUMMY")
-        private const val EXPECTED_RPC_ERROR_MESSAGE = "RpcError"
     }
 }

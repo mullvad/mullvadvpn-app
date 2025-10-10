@@ -18,9 +18,9 @@ data class LoginUiState(
 }
 
 sealed interface LoginState {
-    fun isError() = this is Idle && loginError != null
+    fun isError() = this is Idle && loginUiStateError != null
 
-    data class Idle(val loginError: LoginError? = null) : LoginState
+    data class Idle(val loginUiStateError: LoginUiStateError? = null) : LoginState
 
     sealed interface Loading : LoginState {
         data object LoggingIn : Loading
@@ -31,12 +31,28 @@ sealed interface LoginState {
     data object Success : LoginState
 }
 
-sealed class LoginError {
-    data object UnableToCreateAccount : LoginError()
+sealed interface LoginUiStateError {
+    sealed interface CreateAccountError : LoginUiStateError {
+        data object TooManyAttempts : CreateAccountError
 
-    data object InvalidCredentials : LoginError()
+        data object ApiUnreachable : CreateAccountError
 
-    data class Unknown(val reason: String) : LoginError()
+        data object NoInternetConnection : CreateAccountError
 
-    data object NoInternetConnection : LoginError()
+        data object Unknown : CreateAccountError
+    }
+
+    sealed interface LoginError : LoginUiStateError {
+        data object InvalidCredentials : LoginError
+
+        data class InvalidInput(val accountNumber: AccountNumber) : LoginError
+
+        data object TooManyAttempts : LoginError
+
+        data object ApiUnreachable : LoginError
+
+        data class Unknown(val reason: String) : LoginError
+
+        data object NoInternetConnection : LoginError
+    }
 }
