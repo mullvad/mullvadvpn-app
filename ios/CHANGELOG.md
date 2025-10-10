@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## UNRELEASED
 
 ### Fixed
+- Fix in-app purchases.
 - Fix IP overrides breaking certain obfuscation methods.
 
 ## [2025.6 - 2025-09-23]
