@@ -1,25 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import styled from 'styled-components';
 
-import { useAppContext } from '../../renderer/context';
-import { messages } from '../../shared/gettext';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaInputGroup } from './AriaGroup';
-import Selector, { SelectorItem } from './cell/Selector';
-import { CustomScrollbarsRef } from './CustomScrollbars';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { Listbox } from '../../../lib/components/listbox';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { SelectorItem } from '../../cell/Selector';
+import { CustomScrollbarsRef } from '../../CustomScrollbars';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
-const StyledSelector = styled(Selector)({
-  marginBottom: 0,
-}) as typeof Selector;
-
-export default function SelectLanguage() {
+export function SelectLanguageView() {
   const { pop } = useHistory();
   const { preferredLocale, preferredLocalesList, setPreferredLocale } = usePreferredLocale();
   const scrollView = useRef<CustomScrollbarsRef>(null);
@@ -65,15 +60,24 @@ export default function SelectLanguage() {
                   {messages.pgettext('select-language-nav', 'Select language')}
                 </HeaderTitle>
               </SettingsHeader>
-              <AriaInputGroup>
-                <StyledSelector
-                  title=""
-                  value={preferredLocale}
-                  items={preferredLocalesList}
-                  onSelect={selectLocale}
-                  selectedCellRef={selectedCellRef}
-                />
-              </AriaInputGroup>
+              <Listbox value={preferredLocale} onValueChange={selectLocale}>
+                <Listbox.Options>
+                  {preferredLocalesList.map((locale) => (
+                    <Listbox.Option key={locale.value} level={1} value={locale.value}>
+                      <Listbox.Option.Trigger>
+                        <Listbox.Option.Item>
+                          <Listbox.Option.Content>
+                            <Listbox.Option.Group>
+                              <Listbox.Option.Icon icon="checkmark" />
+                              <Listbox.Option.Label>{locale.label}</Listbox.Option.Label>
+                            </Listbox.Option.Group>
+                          </Listbox.Option.Content>
+                        </Listbox.Option.Item>
+                      </Listbox.Option.Trigger>
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </Listbox>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
