@@ -1526,7 +1526,6 @@ msgstr "無法建立帳戶"
 
 #. Error message shown above login input when trying to login but the app fails
 #. to fetch the list of registered devices.
-msgctxt "login-view"
 msgid "Failed to fetch list of devices"
 msgstr "無法取得裝置清單"
 

@@ -1526,7 +1526,6 @@ msgstr "계정을 만들지 못함"
 
 #. Error message shown above login input when trying to login but the app fails
 #. to fetch the list of registered devices.
-msgctxt "login-view"
 msgid "Failed to fetch list of devices"
 msgstr "장치 목록을 가져오지 못함"
 
