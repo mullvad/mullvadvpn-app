@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 
+### Fixed
+- Fix in-app purchases.
+
 ## [2025.6 - 2025-09-23]
 ### Added
 - Add support for obfuscating WireGuard tunnel traffic as the QUIC protocol. This helps
