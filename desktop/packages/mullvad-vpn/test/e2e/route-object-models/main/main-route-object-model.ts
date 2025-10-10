@@ -33,6 +33,10 @@ export class MainRouteObjectModel {
     await this.selectors.connectionPanelChevronButton().click();
   }
 
+  getRelayHostname() {
+    return this.selectors.relayHostname();
+  }
+
   getInIp() {
     return this.selectors.inIpLabel();
   }
