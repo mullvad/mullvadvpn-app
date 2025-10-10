@@ -92,19 +92,16 @@ extension DAITATunnelSettingsViewModel {
 
         var compatibilityError: DAITASettingsCompatibilityError?
 
-        do {
-            _ = try tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
-        } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
-            // Return error if no relays could be selected due to DAITA constraints.
-            compatibilityError = tunnelSettings.tunnelMultihopState.isEnabled ? .multihop : .singlehop
-        } catch _ as NoRelaysSatisfyingConstraintsError {
-            // Even if the constraints error is not DAITA specific, if both DAITA and Direct only are enabled,
-            // we should return a DAITA related error since the current settings would have resulted in the
-            // relay selector not being able to select a DAITA relay anyway.
-            if settings.isDirectOnly {
+        if settings.isDirectOnly {
+            let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+
+            // Even if the reason for not finding any relays is not DAITA specific, if both DAITA and Direct
+            // only are enabled, we should return a DAITA related error since the current settings would have
+            // resulted in the relay selector not being able to select a DAITA relay anyway.
+            if relays == nil {
                 compatibilityError = tunnelSettings.tunnelMultihopState.isEnabled ? .multihop : .singlehop
             }
-        } catch {}
+        }
 
         return compatibilityError
     }
