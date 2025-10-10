@@ -47,7 +47,7 @@ test.describe('Tunnel state and settings', () => {
     await page.getByText('Connect', { exact: true }).click();
     await expectConnected(page);
 
-    const relay = page.getByTestId('hostname-line');
+    const relay = routes.main.getRelayHostname();
     const inIp = page.getByTestId('in-ip');
     // If IPv6 is enabled, there will be two "Out" IPs, one for IPv4 and one for IPv6
     // Selecting the first resolves to the IPv4 address regardless of the IP setting
@@ -175,7 +175,7 @@ test.describe('Tunnel state and settings', () => {
   test('App should show multihop', async () => {
     await exec('mullvad relay set tunnel wireguard --use-multihop=on');
     await expectConnected(page);
-    const relay = page.getByTestId('hostname-line');
+    const relay = routes.main.getRelayHostname();
     await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${HOSTNAME} via`), 'i'));
     await exec('mullvad relay set tunnel wireguard --use-multihop=off');
     await page.getByText('Disconnect').click();
