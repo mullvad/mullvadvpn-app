@@ -43,6 +43,18 @@ public enum SettingsManager {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }
 
+    // MARK: - Show recent connections
+
+    public static func isRecentConnectionsShown() throws -> Bool {
+        let data = try store.read(key: .isRecentConnectionsEnabled)
+        return data.first != 0
+    }
+
+    public static func enableRecentConnections(_ value: Bool) throws {
+        let data = Data([value ? 1 : 0])
+        try store.write(data, for: .isRecentConnectionsEnabled)
+    }
+
     // MARK: - Last used account
 
     public static func getLastUsedAccount() throws -> String {

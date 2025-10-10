@@ -16,6 +16,8 @@ public enum SettingsKey: String, CaseIterable, Sendable {
     case customRelayLists = "CustomRelayLists"
     case lastUsedAccount = "LastUsedAccount"
     case shouldWipeSettings = "ShouldWipeSettings"
+    case recentConnections = "RecentConnections"
+    case isRecentConnectionsEnabled = "IsRecentConnectionsEnabled"
 }
 
 public protocol SettingsStore: Sendable {
