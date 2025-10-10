@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Quantum-resistant tunnel setting is now on by default through the "Automatic" setting.
 
 ### Fixed
+- Fix in-app purchases.
 - Fix IP overrides breaking certain obfuscation methods.
 
 ## [2025.6 - 2025-09-23]
