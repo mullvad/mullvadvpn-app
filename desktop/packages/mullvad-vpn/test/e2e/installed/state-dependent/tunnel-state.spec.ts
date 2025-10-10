@@ -48,44 +48,42 @@ test.describe('Tunnel state and settings', () => {
     await expectConnected(page);
 
     const relay = routes.main.getRelayHostname();
-    const inIp = page.getByTestId('in-ip');
+    const inIp = routes.main.getInIp();
     // If IPv6 is enabled, there will be two "Out" IPs, one for IPv4 and one for IPv6
     // Selecting the first resolves to the IPv4 address regardless of the IP setting
-    const outIp = page.locator(':text("Out") + div > span').first();
+    const outIp = routes.main.getOutIps().first();
 
     await expect(relay).toHaveText(HOSTNAME!);
     await expect(inIp).not.toBeVisible();
     await relay.click();
 
     await expect(inIp).toBeVisible();
-    expect(await inIp.textContent()).toMatch(new RegExp(`^${IN_IP!}`));
+    await expect(inIp).toHaveText(new RegExp(`^${IN_IP!}`));
 
     await expect(outIp).toBeVisible();
 
     const ipResponse = await fetch(`${CONNECTION_CHECK_URL!}/ip`);
     const ip = await ipResponse.text();
 
-    expect(await outIp.textContent()).toBe(ip.trim());
+    await expect(outIp).toHaveText(ip.trim());
   });
 
   test('App should show correct WireGuard port', async () => {
-    const inValue1 = await routes.main.getInIpText();
-    expect(inValue1).toMatch(new RegExp(':[0-9]+'));
+    const inIp = routes.main.getInIp();
+    await expect(inIp).toHaveText(new RegExp(':[0-9]+'));
 
     await exec('mullvad obfuscation set mode off');
     await exec('mullvad relay set tunnel wireguard --port=53');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
-    const inValue2 = await routes.main.getInIpText();
-    expect(inValue2).toMatch(new RegExp(':53'));
+    await expect(inIp).toHaveText(new RegExp(':53'));
 
     await exec('mullvad relay set tunnel wireguard --port=51820');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
-    const inValue3 = await routes.main.getInIpText();
-    expect(inValue3).toMatch(new RegExp(':51820'));
+    await expect(inIp).toHaveText(new RegExp(':51820'));
 
     await exec('mullvad relay set tunnel wireguard --port=any');
     await exec('mullvad obfuscation set mode auto');
@@ -110,8 +108,8 @@ test.describe('Tunnel state and settings', () => {
     test('App should show UDP', async () => {
       await expectConnected(page);
       await routes.main.expandConnectionPanel();
-      const inValue = await routes.main.getInIpText();
-      expect(inValue).toMatch(new RegExp('UDP$'));
+      const inIp = routes.main.getInIp();
+      await expect(inIp).toHaveText(new RegExp('UDP$'));
     });
 
     test('App should enable UDP-over-TCP', async () => {
@@ -129,8 +127,8 @@ test.describe('Tunnel state and settings', () => {
 
       await routes.main.expandConnectionPanel();
 
-      const inValue = await routes.main.getInIpText();
-      expect(inValue).toMatch(new RegExp(`${escapeRegExp(IN_IP!)}:(80|5001) TCP`));
+      const inIp = routes.main.getInIp();
+      await expect(inIp).toHaveText(new RegExp(`${escapeRegExp(IN_IP!)}:(80|5001) TCP`));
     });
 
     for (const port of [80, 5001]) {
@@ -142,8 +140,8 @@ test.describe('Tunnel state and settings', () => {
 
         await routes.main.expandConnectionPanel();
 
-        const inValue = await routes.main.getInIpText();
-        expect(inValue).toMatch(`${IN_IP}:${port} TCP`);
+        const inIp = routes.main.getInIp();
+        await expect(inIp).toHaveText(`${IN_IP}:${port} TCP`);
       });
     }
 
