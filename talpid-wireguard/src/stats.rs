@@ -84,7 +84,7 @@ mod test {
             tx_bytes: 100,
             rx_bytes: 100,
             last_handshake_time: Some(SystemTime::UNIX_EPOCH),
-            daita: None,
+            ..Default::default()
         };
 
         insta::assert_debug_snapshot!(StatsDebug { now, stats: &stats });
