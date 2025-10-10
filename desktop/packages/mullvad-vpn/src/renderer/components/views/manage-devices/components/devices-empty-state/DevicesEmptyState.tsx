@@ -8,12 +8,7 @@ export function DevicesEmptyState() {
     <EmptyState variant={isFetching ? 'loading' : 'error'} $alignSelf="stretch">
       <EmptyState.StatusIcon />
       <EmptyState.TextContainer>
-        <EmptyState.Title>
-          {
-            // TRANSLATORS: Title text when devices could not be fetched.
-            messages.pgettext('device-management', 'Failed to fetch list of devices')
-          }
-        </EmptyState.Title>
+        <EmptyState.Title>{messages.gettext('Failed to fetch list of devices')}</EmptyState.Title>
       </EmptyState.TextContainer>
       <EmptyState.Button onClick={refetchDevices}>
         <EmptyState.Button.Text>
