@@ -26,10 +26,10 @@ extension REST.Error: MullvadTypes.DisplayError {
 
             switch serverResponse.code {
             case .invalidAccount:
-                return NSLocalizedString("Invalid account", comment: "")
+                return NSLocalizedString("Invalid account number", comment: "")
 
             case .maxDevicesReached:
-                return NSLocalizedString("Too many devices registered with account", comment: "")
+                return NSLocalizedString("Too many devices", comment: "")
 
             case .serviceUnavailable:
                 return NSLocalizedString("We are having some issues, please try again later", comment: "")

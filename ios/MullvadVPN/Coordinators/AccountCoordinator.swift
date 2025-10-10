@@ -268,9 +268,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     func showFailToFetchProducts() {
         let message = NSLocalizedString(
-            """
-            Failed to connect to App store, please try again later.
-            """,
+            "Failed to load products, please try again",
             comment: ""
         )
 

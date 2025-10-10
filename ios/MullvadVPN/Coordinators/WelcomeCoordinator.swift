@@ -82,7 +82,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
 
 extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
-        let message = NSLocalizedString("Failed to connect to App store, please try again later.", comment: "")
+        let message = NSLocalizedString("Failed to load products, please try again", comment: "")
 
         let presentation = AlertPresentation(
             id: "welcome-failed-to-fetch-products-alert",

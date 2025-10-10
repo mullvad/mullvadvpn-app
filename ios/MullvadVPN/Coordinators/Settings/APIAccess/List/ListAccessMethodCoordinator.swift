@@ -87,7 +87,7 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     private func about() {
         let header = NSLocalizedString("API access", comment: "")
         let preamble = NSLocalizedString(
-            "Manage default and setup custom methods to access the Mullvad API.",
+            "Manage and add custom methods to access the Mullvad API.",
             comment: ""
         )
         let body = [

@@ -110,7 +110,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString("Back to editing", comment: ""),
+                    title: NSLocalizedString("Cancel", comment: ""),
                     style: .default
                 ),
             ]

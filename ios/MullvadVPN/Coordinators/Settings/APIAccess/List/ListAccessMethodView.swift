@@ -29,7 +29,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             let text = NSLocalizedString(
-                "Manage default and setup custom methods to access the Mullvad API. ",
+                "Manage and add custom methods to access the Mullvad API.",
                 comment: ""
             )
             let about = NSLocalizedString("About API access…", comment: "")

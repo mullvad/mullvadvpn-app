@@ -131,6 +131,6 @@ struct IPOverrideFeature: ChipFeature {
     }
 
     var name: String {
-        NSLocalizedString("Server IP Override", comment: "")
+        NSLocalizedString("Server IP override", comment: "")
     }
 }
