@@ -1099,6 +1099,10 @@
 		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
 		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
+		F0F313A12E8420B500D55C43 /* RecentConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3139F2E81928F00D55C43 /* RecentConnection.swift */; };
+		F0F313A32E8420CB00D55C43 /* RecentConnectionRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F313A22E8420C800D55C43 /* RecentConnectionRepositoryProtocol.swift */; };
+		F0F313A52E84212E00D55C43 /* RecentConnectionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F313A42E84212E00D55C43 /* RecentConnectionRepository.swift */; };
+		F0F313A72E85321D00D55C43 /* RecentConnectionRepositoryTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F313A62E85320D00D55C43 /* RecentConnectionRepositoryTest.swift */; };
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
 		F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */; };
 		F0F56B092C0E058A009D676B /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
@@ -2559,6 +2563,10 @@
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
 		F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequestTests.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
+		F0F3139F2E81928F00D55C43 /* RecentConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnection.swift; sourceTree = "<group>"; };
+		F0F313A22E8420C800D55C43 /* RecentConnectionRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionRepositoryProtocol.swift; sourceTree = "<group>"; };
+		F0F313A42E84212E00D55C43 /* RecentConnectionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionRepository.swift; sourceTree = "<group>"; };
+		F0F313A62E85320D00D55C43 /* RecentConnectionRepositoryTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionRepositoryTest.swift; sourceTree = "<group>"; };
 		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
 		F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoRelaysSatisfyingConstraintsError.swift; sourceTree = "<group>"; };
 		F0FA16082D7F0413007E2546 /* FilterDescriptorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterDescriptorTests.swift; sourceTree = "<group>"; };
@@ -3037,6 +3045,7 @@
 				7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */,
 				A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */,
 				A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */,
+				F0F313A62E85320D00D55C43 /* RecentConnectionRepositoryTest.swift */,
 				F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */,
 				449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */,
 			);
@@ -3076,8 +3085,8 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
-				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
 				588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */,
+				A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
@@ -3110,14 +3119,14 @@
 				5898D2AF2902A67C00EB5EBA /* RelayLocation.swift */,
 				581DA2722A1E227D0046ED47 /* RESTTypes.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
+				A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */,
 				58DFF7D92B02862E00F864E0 /* ShadowsocksCipherOptions.swift */,
+				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
 				F924C5A32DA65F28001F4660 /* Storekit2.swift */,
 				F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */,
+				A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */,
 				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
-				A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */,
-				A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */,
-				A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */,
 			);
 			path = MullvadTypes;
 			sourceTree = "<group>";
@@ -3810,6 +3819,9 @@
 				58B2FDD52AA71D2A003EB5C6 /* MullvadSettings.h */,
 				F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */,
 				44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */,
+				F0F3139F2E81928F00D55C43 /* RecentConnection.swift */,
+				F0F313A42E84212E00D55C43 /* RecentConnectionRepository.swift */,
+				F0F313A22E8420C800D55C43 /* RecentConnectionRepositoryProtocol.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
 				06410E03292D0F7100AFC18C /* SettingsParser.swift */,
 				06410E06292D108E00AFC18C /* SettingsStore.swift */,
@@ -6219,6 +6231,7 @@
 				F073FCB32C6617D70062EA1D /* TunnelStore+Stubs.swift in Sources */,
 				58DFF7D32B02570000F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				A9A5FA342ACB05160083449F /* StringTests.swift in Sources */,
+				F0F313A72E85321D00D55C43 /* RecentConnectionRepositoryTest.swift in Sources */,
 				7A52F96C2C17450C00B133B9 /* RelaySelectorWrapperTests.swift in Sources */,
 				A9A5FA352ACB05160083449F /* WgKeyRotationTests.swift in Sources */,
 				F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */,
@@ -6245,6 +6258,7 @@
 				58B2FDDF2AA71D5C003EB5C6 /* DNSSettings.swift in Sources */,
 				58B2FDE02AA71D5C003EB5C6 /* TunnelSettings.swift in Sources */,
 				A988DF2A2ADE880300D807EF /* TunnelSettingsV3.swift in Sources */,
+				F0F313A52E84212E00D55C43 /* RecentConnectionRepository.swift in Sources */,
 				7A9F293D2CAD2FD5005F2089 /* InfoModalConfig.swift in Sources */,
 				58B2FDE42AA71D5C003EB5C6 /* SettingsManager.swift in Sources */,
 				F0164EBC2B482E430020268D /* AppStorage.swift in Sources */,
@@ -6252,10 +6266,12 @@
 				A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */,
 				58FE25BF2AA72311003D1918 /* MigrationManager.swift in Sources */,
 				58B2FDEF2AA720C4003EB5C6 /* ApplicationTarget.swift in Sources */,
+				F0F313A12E8420B500D55C43 /* RecentConnection.swift in Sources */,
 				A988DF272ADE86ED00D807EF /* WireGuardObfuscationSettings.swift in Sources */,
 				58B2FDDE2AA71D5C003EB5C6 /* Migration.swift in Sources */,
 				F05769BB2C6661EE00D9778B /* TunnelSettingsStrategy.swift in Sources */,
 				F0D7FF8F2B31DF5900E0FDE5 /* AccessMethodRepository.swift in Sources */,
+				F0F313A32E8420CB00D55C43 /* RecentConnectionRepositoryProtocol.swift in Sources */,
 				F910A8572D523812002FF3BB /* TunnelSettingsV7.swift in Sources */,
 				58B2FDE12AA71D5C003EB5C6 /* TunnelSettingsV1.swift in Sources */,
 				449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */,
