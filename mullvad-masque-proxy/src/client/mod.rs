@@ -14,6 +14,7 @@ use tokio::{
     net::UdpSocket,
     select,
     sync::{broadcast, mpsc},
+    task::JoinHandle,
 };
 use typed_builder::TypedBuilder;
 
@@ -342,14 +343,15 @@ impl Client {
         }
     }
 
-    pub async fn run(self) -> Result<()> {
+    #[must_use = "The RunningClient must be awaited to drive execution."]
+    pub fn run(self) -> RunningClient {
         let stream_id: StreamId = self.request_stream.id();
 
         let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let (return_addr_tx, return_addr_rx) = broadcast::channel(1);
 
-        let mut client_socket_rx_task = tokio::task::spawn(client_socket_rx_task(
+        let client_socket_rx_task = tokio::task::spawn(client_socket_rx_task(
             self.client_socket.clone(),
             client_tx,
             return_addr_tx,
@@ -357,10 +359,10 @@ impl Client {
 
         let (send_tx, send_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
 
-        let mut client_socket_tx_task =
+        let client_socket_tx_task =
             tokio::task::spawn(client_socket_tx_task(self.client_socket.clone(), send_rx));
 
-        let mut fragment_reassembly_task = tokio::task::spawn(fragment_reassembly_task(
+        let fragment_reassembly_task = tokio::task::spawn(fragment_reassembly_task(
             stream_id,
             server_rx,
             return_addr_rx,
@@ -368,7 +370,7 @@ impl Client {
             Arc::clone(&self.stats),
         ));
 
-        let mut server_socket_task = tokio::task::spawn(server_socket_task(
+        let server_socket_task = tokio::task::spawn(server_socket_task(
             stream_id,
             self.max_udp_payload_size,
             self.quinn_conn,
@@ -378,19 +380,55 @@ impl Client {
             Arc::clone(&self.stats),
         ));
 
-        let result = select! {
-            result = &mut client_socket_tx_task => result,
-            result = &mut fragment_reassembly_task => result,
-            result = &mut client_socket_rx_task => result,
-            result = &mut server_socket_task => result,
-        };
+        RunningClient {
+            client_socket_tx_task,
+            fragment_reassembly_task,
+            client_socket_rx_task,
+            server_socket_task,
+        }
+    }
+}
 
-        client_socket_tx_task.abort();
-        fragment_reassembly_task.abort();
-        client_socket_rx_task.abort();
-        server_socket_task.abort();
+/// Drive execution by `await`ing a RunningClient.
+///
+/// All inner tasks will be aborted upon drop.
+pub struct RunningClient {
+    client_socket_tx_task: JoinHandle<Result<()>>,
+    fragment_reassembly_task: JoinHandle<Result<()>>,
+    client_socket_rx_task: JoinHandle<Result<()>>,
+    server_socket_task: JoinHandle<Result<()>>,
+}
 
-        result.expect("proxy routine panicked")
+impl Drop for RunningClient {
+    // Abort all running Ingress/Egress tasks.
+    fn drop(&mut self) {
+        self.client_socket_tx_task.abort();
+        self.fragment_reassembly_task.abort();
+        self.client_socket_rx_task.abort();
+        self.server_socket_task.abort();
+    }
+}
+
+impl Future for RunningClient {
+    type Output = Result<()>;
+
+    fn poll(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Self::Output> {
+        use core::{pin::pin, task::Poll};
+
+        if let Poll::Ready(r) = pin!(&mut self.client_socket_tx_task).poll(cx) {
+            Poll::Ready(r.unwrap())
+        } else if let Poll::Ready(r) = pin!(&mut self.client_socket_rx_task).poll(cx) {
+            Poll::Ready(r.unwrap())
+        } else if let Poll::Ready(r) = pin!(&mut self.server_socket_task).poll(cx) {
+            Poll::Ready(r.unwrap())
+        } else if let Poll::Ready(r) = pin!(&mut self.fragment_reassembly_task).poll(cx) {
+            Poll::Ready(r.unwrap())
+        } else {
+            Poll::Pending
+        }
     }
 }
 
