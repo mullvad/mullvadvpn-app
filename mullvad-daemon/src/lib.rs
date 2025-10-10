@@ -1273,7 +1273,7 @@ impl Daemon {
                 }
             }
             // Fetching IP from am.i.mullvad.net should only be done from a tunnel state where a
-            // connection is available. Otherwise we just exist.
+            // connection is available. Otherwise just exit.
             _ => return,
         };
 
