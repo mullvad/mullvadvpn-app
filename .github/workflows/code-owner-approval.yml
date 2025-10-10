@@ -137,7 +137,16 @@ jobs:
               // Set of teams that have approved this PR
               const approvedTeams = new Set();
 
+              // Get array of github usernames that have approved the PR
               const approvers = await getApprovers();
+
+              // PR author automatically counts as an approver. A code owner changing
+              // their own code does not need extra code owner approval. They still
+              // need the code reviewed, but that's not part of code ownership approval.
+              const prAuthor = context.payload.pull_request.user.login;
+              if (!approvers.includes(prAuthor)) {
+                approvers.push(prAuthor);
+              }
               console.log(`👍 PR approved by the following accounts: ${approvers.join(', ')}`);
 
               for (const approver of approvers) {
