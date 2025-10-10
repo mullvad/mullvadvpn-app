@@ -64,7 +64,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     private let exitLocationsDataSource = AllLocationDataSource()
     private let entryLocationsDataSource = AllLocationDataSource()
-    private let customListsDataSource: CustomListsDataSource
+    private let entryCustomListsDataSource: CustomListsDataSource
+    private let exitCustomListsDataSource: CustomListsDataSource
 
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let tunnelManager: TunnelManager
@@ -90,7 +91,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             repository: customListRepository
         )
         self.delegate = delegate
-        self.customListsDataSource = CustomListsDataSource(
+        self.entryCustomListsDataSource = CustomListsDataSource(
+            repository: customListRepository
+        )
+        self.exitCustomListsDataSource = CustomListsDataSource(
             repository: customListRepository
         )
 
@@ -336,10 +340,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     .search(by: searchText)
             }
         }
-        customListsDataSource.reload(allLocationNodes: exitContext.locations)
-
+        exitCustomListsDataSource.reload(allLocationNodes: exitContext.locations)
         exitContext.customLists =
-            customListsDataSource
+            exitCustomListsDataSource
             .search(by: searchText)
             .map {
                 newCustomList in
@@ -360,9 +363,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 }
                 return newCustomList
             }
-        customListsDataSource.reload(allLocationNodes: entryContext.locations)
+
+        entryCustomListsDataSource.reload(allLocationNodes: entryContext.locations)
         entryContext.customLists =
-            customListsDataSource
+            entryCustomListsDataSource
             .search(by: searchText)
             .map {
                 newCustomList in
@@ -397,10 +401,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         selectedEntryRelays: UserSelectedRelays?
     ) {
         if let customListSelection = selectedExitRelays.customListSelection,
-            let customList = customListsDataSource.customList(by: customListSelection.listId)
+            let customList = exitCustomListsDataSource.customList(by: customListSelection.listId)
         {
             exitContext.selectedLocation =
-                customListsDataSource
+                exitCustomListsDataSource
                 .node(by: selectedExitRelays, for: customList)
         } else if let location = selectedExitRelays.locations.first {
             exitContext.selectedLocation = exitLocationsDataSource.node(by: location)
@@ -409,10 +413,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         }
         if let selectedEntryRelays {
             if let customListSelection = selectedEntryRelays.customListSelection,
-                let customList = customListsDataSource.customList(by: customListSelection.listId)
+                let customList = entryCustomListsDataSource.customList(by: customListSelection.listId)
             {
                 entryContext.selectedLocation =
-                    customListsDataSource
+                    entryCustomListsDataSource
                     .node(by: selectedEntryRelays, for: customList)
             } else if let location = selectedEntryRelays.locations.first {
                 entryContext.selectedLocation =
