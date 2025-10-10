@@ -38,12 +38,12 @@ export class MainRouteObjectModel {
     await this.selectors.connectionPanelChevronButton().click();
   }
 
-  getInIp() {
-    return this.selectors.inIpLabel();
+  getRelayHostname() {
+    return this.selectors.relayHostname();
   }
 
-  getInIpText() {
-    return this.getInIp().innerText();
+  getInIp() {
+    return this.selectors.inIpLabel();
   }
 
   getOutIps() {
