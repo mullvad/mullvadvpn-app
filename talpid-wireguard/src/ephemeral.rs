@@ -14,7 +14,7 @@ use std::{
 use talpid_tunnel::tun_provider::TunProvider;
 
 use ipnetwork::IpNetwork;
-use talpid_tunnel_config_client::EphemeralPeer;
+use talpid_tunnel_config_client::{DaitaSettings, EphemeralPeer};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -136,6 +136,7 @@ async fn config_ephemeral_peers_inner(
         let entry_config = reconfigure_tunnel(
             tunnel,
             entry_tun_config,
+            None,
             obfuscation_mtu,
             obfuscator.clone(),
             close_obfs_sender,
@@ -143,6 +144,7 @@ async fn config_ephemeral_peers_inner(
             &tun_provider,
         )
         .await?;
+
         let entry_ephemeral_peer = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
@@ -159,6 +161,7 @@ async fn config_ephemeral_peers_inner(
 
     config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
     if config.daita {
+        // NOTE: this option does nothing for GotaTun, and should be removed in future.
         log::trace!("Enabling constant packet size for entry peer");
         config.entry_peer.constant_packet_size = true;
     }
@@ -168,6 +171,7 @@ async fn config_ephemeral_peers_inner(
     *config = reconfigure_tunnel(
         tunnel,
         config.clone(),
+        daita,
         obfuscation_mtu,
         obfuscator,
         close_obfs_sender,
@@ -175,21 +179,6 @@ async fn config_ephemeral_peers_inner(
         &tun_provider,
     )
     .await?;
-
-    if config.daita {
-        let Some(daita) = daita else {
-            unreachable!("missing DAITA settings");
-        };
-
-        // Start local DAITA machines
-        let mut tunnel = tunnel.lock().await;
-        if let Some(tunnel) = tunnel.as_mut() {
-            tunnel
-                .start_daita(daita)
-                .map_err(Error::TunnelError)
-                .map_err(CloseMsg::SetupError)?;
-        }
-    }
 
     Ok(())
 }
@@ -200,6 +189,7 @@ async fn config_ephemeral_peers_inner(
 async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     mut config: Config,
+    daita: Option<DaitaSettings>,
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -223,7 +213,7 @@ async fn reconfigure_tunnel(
         let mut tunnel = shared_tunnel.take().expect("tunnel was None");
 
         tunnel
-            .set_config(config.clone())
+            .set_config(config.clone(), daita)
             .await
             .map_err(Error::TunnelError)
             .map_err(CloseMsg::SetupError)?;
@@ -239,6 +229,7 @@ async fn reconfigure_tunnel(
 async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     mut config: Config,
+    daita: Option<DaitaSettings>,
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -260,7 +251,7 @@ async fn reconfigure_tunnel(
 
         let set_config_future = tunnel
             .as_mut()
-            .map(|tunnel| tunnel.set_config(config.clone()));
+            .map(|tunnel| tunnel.set_config(config.clone(), daita));
 
         if let Some(f) = set_config_future {
             f.await
