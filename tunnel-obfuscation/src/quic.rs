@@ -140,8 +140,7 @@ impl Quic {
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
-            .auth_header(Some(settings.auth_header()))
-            .mtu(settings.mtu.unwrap_or(1500));
+            .auth_header(Some(settings.auth_header()));
 
         let config = config_builder.build();
 

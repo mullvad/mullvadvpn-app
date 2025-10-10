@@ -94,7 +94,6 @@ async fn main() {
         .server_addr(server_addr)
         .server_host(server_hostname)
         .target_addr(target_addr)
-        .mtu(mtu)
         .tls_config(tls_config)
         .idle_timeout(idle_timeout)
         .auth_header(auth);
