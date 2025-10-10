@@ -44,7 +44,6 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                     }
                     .frame(maxHeight: .infinity)
                     .background {
-                        let backgroundColor = Color.colorForLevel(level)
                         let corners: UIRectCorner =
                             if level == 0 {
                                 if isExpanded {
@@ -61,7 +60,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                                 }
                             }
                         MullvadRoundedCorner(cornerRadius: 16, corners: corners)
-                            .foregroundStyle(backgroundColor)
+                            .foregroundStyle(Color.colorForLevel(level))
                     }
                 }
                 .disabled(!isActive)
@@ -95,7 +94,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                                 cornerRadius: 16,
                                 corners: corners
                             )
-                            .foregroundStyle(Color.MullvadList.Item.parent)
+                            .foregroundStyle(Color.colorForLevel(level))
                         }
                 }
                 .contentShape(Rectangle())

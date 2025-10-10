@@ -89,7 +89,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                             )
                             .font(.mullvadSmallSemiBold)
                     }
-                    .padding(.horizontal, CGFloat(16 * (level + 1)))
+                    .padding(.leading, CGFloat(16 * (level + 1)))
+                    .padding(.trailing, 8)
                     .padding(.vertical, 16)
                 } onSelect: {
                     onSelect(location)
