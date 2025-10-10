@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.dialog.info
 
 import android.content.ActivityNotFoundException
+import android.os.Parcelable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +16,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.state.ApiUnreachableUiState
@@ -24,7 +26,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.EmailData
 import net.mullvad.mullvadvpn.compose.util.SendEmail
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.provider.logUri
+import net.mullvad.mullvadvpn.provider.createShareLogFile
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -42,9 +44,27 @@ private fun PreviewApiUnreachableInfoDialog() {
     }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Parcelize
+enum class LoginAction : Parcelable {
+    LOGIN,
+    CREATE_ACCOUNT,
+}
+
+@Parcelize data class ApiUnreachableInfoDialogNavArgs(val action: LoginAction) : Parcelable
+
+sealed interface ApiUnreachableInfoDialogResult : Parcelable {
+    @Parcelize
+    data class Success(val arg: ApiUnreachableInfoDialogNavArgs) : ApiUnreachableInfoDialogResult
+
+    @Parcelize data object Error : ApiUnreachableInfoDialogResult
+}
+
+@Destination<RootGraph>(
+    style = DestinationStyle.Dialog::class,
+    navArgs = ApiUnreachableInfoDialogNavArgs::class,
+)
 @Composable
-fun ApiUnreachableInfo(navigator: DestinationsNavigator) {
+fun ApiUnreachableInfo(navigator: ResultBackNavigator<ApiUnreachableInfoDialogResult>) {
     val viewModel = koinViewModel<ApiUnreachableViewModel>()
 
     val launcher = rememberLauncherForActivityResult(SendEmail()) {}
@@ -56,7 +76,7 @@ fun ApiUnreachableInfo(navigator: DestinationsNavigator) {
                     EmailData(
                         to = listOf(sideEffect.address),
                         subject = sideEffect.subject,
-                        attachment = context.logUri(sideEffect.logs),
+                        attachment = context.createShareLogFile(sideEffect.logs),
                     )
                 try {
                     launcher.launch(emailData)
@@ -64,6 +84,8 @@ fun ApiUnreachableInfo(navigator: DestinationsNavigator) {
                     Logger.e("No email client found", e)
                 }
             }
+            is ApiUnreachableSideEffect.EnableAllApiAccessMethods ->
+                navigator.navigateBack(result = sideEffect.toResult())
         }
     }
 
@@ -73,7 +95,7 @@ fun ApiUnreachableInfo(navigator: DestinationsNavigator) {
         uiState = uiState,
         onEnableAllApiMethods = viewModel::enableAllApiAccess,
         onSendEmail = viewModel::sendProblemReportEmail,
-        onDismiss = navigator::navigateUp,
+        onDismiss = navigator::navigateBack,
     )
 }
 
@@ -95,7 +117,7 @@ fun ApiUnreachableInfoDialog(
                     PrimaryButton(
                         modifier = Modifier.wrapContentHeight().fillMaxWidth(),
                         text = stringResource(R.string.enable_all_methods),
-                        onClick = { onEnableAllApiMethods() },
+                        onClick = onEnableAllApiMethods,
                     )
                 }
                 PrimaryButton(
@@ -113,3 +135,11 @@ fun ApiUnreachableInfoDialog(
         onDismiss = onDismiss,
     )
 }
+
+private fun ApiUnreachableSideEffect.EnableAllApiAccessMethods.toResult() =
+    when (this) {
+        ApiUnreachableSideEffect.EnableAllApiAccessMethods.Error ->
+            ApiUnreachableInfoDialogResult.Error
+        is ApiUnreachableSideEffect.EnableAllApiAccessMethods.Success ->
+            ApiUnreachableInfoDialogResult.Success(navArgs)
+    }

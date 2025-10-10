@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -68,12 +69,17 @@ import com.ramcosta.composedestinations.generated.destinations.SettingsDestinati
 import com.ramcosta.composedestinations.generated.destinations.WelcomeDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogNavArgs
+import net.mullvad.mullvadvpn.compose.dialog.info.ApiUnreachableInfoDialogResult
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
+import net.mullvad.mullvadvpn.compose.dialog.info.LoginAction
+import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.LoginUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
@@ -127,6 +133,8 @@ fun Login(
     vm: LoginViewModel = koinViewModel(),
     createAccountConfirmationDialogResult:
         ResultRecipient<CreateAccountConfirmationDestination, Confirmed>,
+    apiUnreachableInfoDialogResult:
+        ResultRecipient<ApiUnreachableInfoDestination, ApiUnreachableInfoDialogResult>,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -138,10 +146,29 @@ fun Login(
         }
     }
 
-    createAccountConfirmationDialogResult.OnNavResultValue { vm.onCreateAccountConfirmed() }
-
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    createAccountConfirmationDialogResult.OnNavResultValue { vm.onCreateAccountConfirmed() }
+
+    apiUnreachableInfoDialogResult.OnNavResultValue {
+        when (it) {
+            ApiUnreachableInfoDialogResult.Error ->
+                scope.launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = context.getString(R.string.error_occurred)
+                    )
+                }
+            is ApiUnreachableInfoDialogResult.Success -> {
+                when (it.arg.action) {
+                    LoginAction.LOGIN -> vm.login(state.accountNumberInput)
+                    LoginAction.CREATE_ACCOUNT -> vm.onCreateAccountClick()
+                }
+            }
+        }
+    }
+
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             LoginUiSideEffect.NavigateToWelcome ->
@@ -180,7 +207,9 @@ fun Login(
         onAccountNumberChange = vm::onAccountNumberChange,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onShowApiUnreachableDialog =
-            dropUnlessResumed { navigator.navigate(ApiUnreachableInfoDestination) },
+            dropUnlessResumed { error: LoginUiStateError ->
+                navigator.navigate(ApiUnreachableInfoDestination(error.toApiUnreachableNavArg()))
+            },
     )
 }
 
@@ -193,7 +222,7 @@ private fun LoginScreen(
     onDeleteHistoryClick: () -> Unit,
     onAccountNumberChange: (String) -> Unit,
     onSettingsClick: () -> Unit,
-    onShowApiUnreachableDialog: () -> Unit,
+    onShowApiUnreachableDialog: (LoginUiStateError) -> Unit,
 ) {
     ScaffoldWithTopBar(
         snackbarHostState = snackbarHostState,
@@ -237,7 +266,7 @@ private fun LoginContent(
     onAccountNumberChange: (String) -> Unit,
     onLoginClick: (String) -> Unit,
     onDeleteHistoryClick: () -> Unit,
-    onShowApiUnreachableDialog: () -> Unit,
+    onShowApiUnreachableDialog: (LoginUiStateError) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)) {
         Text(
@@ -275,7 +304,7 @@ private fun ColumnScope.LoginInput(
     onLoginClick: (String) -> Unit,
     onAccountNumberChange: (String) -> Unit,
     onDeleteHistoryClick: () -> Unit,
-    onShowApiUnreachableDialog: () -> Unit,
+    onShowApiUnreachableDialog: (LoginUiStateError) -> Unit,
 ) {
     SupportingText(
         Modifier.padding(bottom = Dimens.smallPadding),
@@ -387,7 +416,7 @@ private fun LoginState.title(): String =
 private fun SupportingText(
     modifier: Modifier = Modifier,
     state: LoginUiState,
-    onShowApiUnreachableDialog: () -> Unit,
+    onShowApiUnreachableDialog: (LoginUiStateError) -> Unit,
 ) {
     Text(
         modifier = modifier,
@@ -403,22 +432,15 @@ private fun SupportingText(
 }
 
 @Composable
-private fun LoginState.supportingText(onShowApiUnreachableDialog: () -> Unit): AnnotatedString? =
+@Suppress("CyclomaticComplexMethod")
+private fun LoginState.supportingText(
+    onShowApiUnreachableDialog: (LoginUiStateError) -> Unit
+): AnnotatedString? =
     when (this) {
         is Idle if
             loginUiStateError is LoginUiStateError.LoginError.ApiUnreachable ||
                 loginUiStateError is LoginUiStateError.CreateAccountError.ApiUnreachable
-         ->
-            clickableAnnotatedString(
-                text = stringResource(R.string.login_error_api_unreachable),
-                argument = stringResource(R.string.read_more_here),
-                linkStyle =
-                    SpanStyle(
-                        color = MaterialTheme.colorScheme.error,
-                        textDecoration = TextDecoration.Underline,
-                    ),
-                onClick = { onShowApiUnreachableDialog() },
-            )
+         -> apiUnreachableText(loginUiStateError, onShowApiUnreachableDialog)
         is Idle -> {
             when (loginUiStateError) {
                 LoginUiStateError.LoginError.InvalidCredentials -> R.string.login_fail_description
@@ -440,6 +462,22 @@ private fun LoginState.supportingText(onShowApiUnreachableDialog: () -> Unit): A
         is Loading.LoggingIn -> R.string.logging_in_description.toAnnotatedString()
         Success -> R.string.logged_in_description.toAnnotatedString()
     }
+
+@Composable
+private fun apiUnreachableText(
+    state: LoginUiStateError,
+    onShowApiUnreachableDialog: (LoginUiStateError) -> Unit,
+): AnnotatedString =
+    clickableAnnotatedString(
+        text = stringResource(R.string.login_error_api_unreachable),
+        argument = stringResource(R.string.read_more_here),
+        linkStyle =
+            SpanStyle(
+                color = MaterialTheme.colorScheme.error,
+                textDecoration = TextDecoration.Underline,
+            ),
+        onClick = { onShowApiUnreachableDialog(state) },
+    )
 
 @Composable
 private fun Int.toAnnotatedString(): AnnotatedString = AnnotatedString(stringResource(this))
@@ -510,3 +548,13 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
         )
     }
 }
+
+private fun LoginUiStateError.toApiUnreachableNavArg(): ApiUnreachableInfoDialogNavArgs =
+    ApiUnreachableInfoDialogNavArgs(
+        action =
+            when (this) {
+                is LoginUiStateError.LoginError.ApiUnreachable -> LoginAction.LOGIN
+                is LoginUiStateError.CreateAccountError.ApiUnreachable -> LoginAction.CREATE_ACCOUNT
+                else -> throw IllegalArgumentException("Not an API unreachable error")
+            }
+    )
