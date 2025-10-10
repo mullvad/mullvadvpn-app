@@ -1,2 +1,1 @@
-Improve censorship avoidance.
-Fix issue where app gets hung when connecting via QUIC.
+Fix in-app purchases.
