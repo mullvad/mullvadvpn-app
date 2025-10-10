@@ -23,11 +23,6 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable
 
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data
-    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
-
     func legacyStorekitPayment(
         accountNumber: String,
         request: LegacyStorekitRequest,
@@ -154,16 +149,6 @@ extension REST {
             completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
         ) -> Cancellable {
             AnyCancellable()
-        }
-
-        /// Not implemented. Use `RESTAPIProxy` instead.
-        public func createApplePayment(
-            accountNumber: String,
-            receiptString: Data
-        ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse> {
-            RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
-                .timeAdded(0, .now)
-            })
         }
 
         public func checkApiAvailability(
@@ -326,37 +311,5 @@ extension REST {
     private struct CreateApplePaymentRawResponse: Decodable, Sendable {
         let timeAdded: Int
         let newExpiry: Date
-    }
-}
-
-// TODO: Remove when Mullvad API is production ready.
-private struct RESTRequestExecutorStub<Success: Sendable>: RESTRequestExecutor {
-    var success: (() -> Success)?
-
-    func execute(completionHandler: @escaping (Result<Success, Error>) -> Void) -> Cancellable {
-        if let result = success?() {
-            completionHandler(.success(result))
-        }
-        return AnyCancellable()
-    }
-
-    func execute(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping (Result<Success, Error>) -> Void
-    ) -> Cancellable {
-        if let result = success?() {
-            completionHandler(.success(result))
-        }
-        return AnyCancellable()
-    }
-
-    func execute() async throws -> Success {
-        try await execute(retryStrategy: .noRetry)
-    }
-
-    func execute(retryStrategy: REST.RetryStrategy) async throws -> Success {
-        guard let success = success else { throw POSIXError(.EINVAL) }
-
-        return success()
     }
 }
