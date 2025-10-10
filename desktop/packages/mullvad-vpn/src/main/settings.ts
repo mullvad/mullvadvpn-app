@@ -40,23 +40,6 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetLockdownMode((lockdownMode) =>
       this.daemonRpc.setLockdownMode(lockdownMode),
     );
-    IpcMainEventChannel.settings.handleSetBridgeState(async (bridgeState) => {
-      await this.daemonRpc.setBridgeState(bridgeState);
-
-      // Reset bridge constraints to `any` when the state is set to auto or off if not custom
-      if (
-        (bridgeState === 'auto' || bridgeState === 'off') &&
-        this.bridgeSettings.type === 'normal'
-      ) {
-        await this.daemonRpc.setBridgeSettings({
-          ...this.bridgeSettings,
-          normal: { ...this.bridgeSettings.normal, location: 'any' },
-        });
-      }
-    });
-    IpcMainEventChannel.settings.handleSetOpenVpnMssfix((mssfix?: number) =>
-      this.daemonRpc.setOpenVpnMssfix(mssfix),
-    );
     IpcMainEventChannel.settings.handleSetWireguardMtu((mtu?: number) =>
       this.daemonRpc.setWireguardMtu(mtu),
     );

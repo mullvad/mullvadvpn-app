@@ -5,14 +5,10 @@ import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { Button, Icon } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import {
-  EndpointType,
-  filterLocations,
-  filterLocationsByEndPointType,
-} from '../lib/filter-locations';
+import { filterLocations, filterLocationsByEndPointType } from '../lib/filter-locations';
 import { colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
-import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings-hooks';
+import { useNormalRelaySettings } from '../lib/relay-settings-hooks';
 import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
@@ -113,18 +109,10 @@ export default function Filter() {
 
 // Returns only the ownership options that are compatible with the other filters
 function useFilteredOwnershipOptions(providers: string[], ownership: Ownership): Ownership[] {
-  const tunnelProtocol = useTunnelProtocol();
-  const bridgeState = useSelector((state) => state.settings.bridgeState);
   const locations = useSelector((state) => state.settings.relayLocations);
 
-  const endpointType = bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
-
   const availableOwnershipOptions = useMemo(() => {
-    const relayListForEndpointType = filterLocationsByEndPointType(
-      locations,
-      endpointType,
-      tunnelProtocol,
-    );
+    const relayListForEndpointType = filterLocationsByEndPointType(locations);
     const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
 
     const filteredRelayOwnership = relaylistForFilters.flatMap((country) =>
@@ -140,28 +128,20 @@ function useFilteredOwnershipOptions(providers: string[], ownership: Ownership):
     }
 
     return ownershipOptions;
-  }, [locations, endpointType, tunnelProtocol, ownership, providers]);
+  }, [locations, ownership, providers]);
 
   return availableOwnershipOptions;
 }
 
 // Returns only the providers that are compatible with the other filters
 export function useFilteredProviders(providers: string[], ownership: Ownership): string[] {
-  const tunnelProtocol = useTunnelProtocol();
-  const bridgeState = useSelector((state) => state.settings.bridgeState);
   const locations = useSelector((state) => state.settings.relayLocations);
 
-  const endpointType = bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
-
   const availableProviders = useMemo(() => {
-    const relayListForEndpointType = filterLocationsByEndPointType(
-      locations,
-      endpointType,
-      tunnelProtocol,
-    );
+    const relayListForEndpointType = filterLocationsByEndPointType(locations);
     const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
     return providersFromRelays(relaylistForFilters);
-  }, [endpointType, locations, ownership, providers, tunnelProtocol]);
+  }, [locations, ownership, providers]);
 
   return availableProviders;
 }
@@ -175,15 +155,11 @@ function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
 }
 
 function useProviders(): Record<string, boolean> {
-  const tunnelProtocol = useTunnelProtocol();
   const relaySettings = useNormalRelaySettings();
   const relayLocations = useSelector((state) => state.settings.relayLocations);
-  const bridgeState = useSelector((state) => state.settings.bridgeState);
   const providerConstraint = relaySettings?.providers ?? [];
 
-  const endpointType =
-    tunnelProtocol === 'openvpn' && bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
-  const relays = filterLocationsByEndPointType(relayLocations, endpointType, tunnelProtocol);
+  const relays = filterLocationsByEndPointType(relayLocations);
   const providers = providersFromRelays(relays);
 
   // Empty containt array means that all providers are selected. No selection isn't possible.

@@ -13,8 +13,7 @@ export function MultihopSetting() {
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
   const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
-  const unavailable =
-    'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
+  const unavailable = !('normal' in relaySettings);
 
   const setMultihop = useCallback(
     async (enabled: boolean) => {

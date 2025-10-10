@@ -43,7 +43,7 @@ class DaitaViewModelTest {
         // Arrange
         val expectedState = DaitaUiState(daitaEnabled = true, directOnly = false)
         settings.value = mockk {
-            every { tunnelOptions.wireguard.daitaSettings } returns
+            every { tunnelOptions.daitaSettings } returns
                 mockk {
                     every { enabled } returns true
                     every { directOnly } returns false
@@ -63,7 +63,7 @@ class DaitaViewModelTest {
         // Arrange
         val expectedState = DaitaUiState(daitaEnabled = false, directOnly = true)
         settings.value = mockk {
-            every { tunnelOptions.wireguard.daitaSettings } returns
+            every { tunnelOptions.daitaSettings } returns
                 mockk {
                     every { enabled } returns false
                     every { directOnly } returns true

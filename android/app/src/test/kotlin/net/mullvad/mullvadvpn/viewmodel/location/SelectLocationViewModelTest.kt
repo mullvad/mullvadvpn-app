@@ -307,8 +307,8 @@ class SelectLocationViewModelTest {
         // Arrange
         val mockSettings = mockk<Settings>(relaxed = true)
         settings.value = mockSettings
-        every { mockSettings.tunnelOptions.wireguard.daitaSettings.enabled } returns true
-        every { mockSettings.tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+        every { mockSettings.tunnelOptions.daitaSettings.enabled } returns true
+        every { mockSettings.tunnelOptions.daitaSettings.directOnly } returns false
         every {
             mockSettings.relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
         } returns true
@@ -331,8 +331,8 @@ class SelectLocationViewModelTest {
         val expectedFilters = listOf(FilterChip.Ownership(ModelOwnership.MullvadOwned))
         settings.value = mockSettings
         filterChips.value = expectedFilters
-        every { mockSettings.tunnelOptions.wireguard.daitaSettings.enabled } returns true
-        every { mockSettings.tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+        every { mockSettings.tunnelOptions.daitaSettings.enabled } returns true
+        every { mockSettings.tunnelOptions.daitaSettings.directOnly } returns false
         every {
             mockSettings.relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
         } returns true

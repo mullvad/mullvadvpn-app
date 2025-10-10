@@ -107,25 +107,11 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
     option: { name: 'MTU', type: 'input' },
   },
   {
-    testId: 'bridge mode',
-    featureIndicator: FeatureIndicator.bridgeMode,
-    route: RoutePath.openVpnSettings,
-    featureIndicatorLabel: 'Bridge mode',
-    option: { name: 'Bridge mode', type: 'listbox' },
-  },
-  {
     testId: 'local network sharing',
     featureIndicator: FeatureIndicator.lanSharing,
     route: RoutePath.vpnSettings,
     featureIndicatorLabel: 'Local network sharing',
     option: { name: 'Local network sharing', type: 'switch' },
-  },
-  {
-    testId: 'Mssfix',
-    featureIndicator: FeatureIndicator.customMssFix,
-    route: RoutePath.openVpnSettings,
-    featureIndicatorLabel: 'Mssfix',
-    option: { name: 'Mssfix', type: 'input' },
   },
   {
     testId: 'lockdown mode',
@@ -212,7 +198,6 @@ test.describe('Feature indicators', () => {
     await helpers.connectWithFeatures([
       FeatureIndicator.daita,
       FeatureIndicator.udp2tcp,
-      FeatureIndicator.customMssFix,
       FeatureIndicator.customMtu,
       FeatureIndicator.lanSharing,
       FeatureIndicator.serverIpOverride,
@@ -230,7 +215,6 @@ test.describe('Feature indicators', () => {
     await expectFeatureIndicators([
       'DAITA',
       'Quantum resistance',
-      'Mssfix',
       'MTU',
       'Obfuscation',
       'Local network sharing',
