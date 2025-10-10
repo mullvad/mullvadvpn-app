@@ -295,8 +295,6 @@ impl Settings {
     }
 
     pub fn set_relay_settings(&mut self, new_settings: RelaySettings) {
-        self.update_recents(&new_settings);
-
         if self.relay_settings != new_settings {
             if !new_settings.supports_bridge() && BridgeState::On == self.bridge_state {
                 self.bridge_state = BridgeState::Auto;
@@ -337,16 +335,16 @@ impl Settings {
     }
 
     // Add the current RelaySettings to the recents list. If recents are disabled do nothing.
-    fn update_recents(&mut self, relay_settings: &RelaySettings) {
+    pub fn update_recents(&mut self) {
         if let Some(recents) = self.recents.as_mut() {
-            match Recent::try_from(relay_settings) {
+            match Recent::try_from(&self.relay_settings) {
                 Ok(new_recent) => {
                     recents.retain(|r| *r != new_recent);
                     recents.insert(0, new_recent);
                     recents.truncate(Self::RECENTS_MAX_COUNT);
                 }
                 Err(e) => {
-                    log::debug!("Failed to convert {relay_settings:?} to recent: {e}");
+                    log::debug!("Failed to convert {:?} to recent: {e}", recents);
                 }
             }
         }
