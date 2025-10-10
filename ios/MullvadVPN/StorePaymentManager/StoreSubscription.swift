@@ -10,9 +10,8 @@ import Foundation
 import StoreKit
 
 enum StoreSubscription: String, CaseIterable {
-    /// Thirty days non-renewable subscription
-    case thirtyDays = "net.mullvad.MullvadVPN.subscription.30days"
-    case ninetyDays = "net.mullvad.MullvadVPN.subscription.90days"
+    case thirtyDays = "net.mullvad.MullvadVPN.subscription.storekit2.30days"
+    case ninetyDays = "net.mullvad.MullvadVPN.subscription.storekit2.90days"
 
     var localizedTitle: String {
         switch self {
