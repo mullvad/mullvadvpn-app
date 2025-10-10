@@ -41,10 +41,6 @@ export class MainRouteObjectModel {
     return this.selectors.inIpLabel();
   }
 
-  getInIpText() {
-    return this.getInIp().innerText();
-  }
-
   getOutIps() {
     return this.selectors.outIpLabels();
   }
