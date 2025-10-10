@@ -6,33 +6,44 @@ struct ActiveFilterView: View {
     let onRemove: (SelectLocationFilter) -> Void
     @State private var maxItemHeight: CGFloat = 0
     var body: some View {
-        MullvadHFlow(activeFilter) { filter in
-            Button {
-                onSelect(filter)
-            } label: {
-                HStack {
-                    Text(filter.title)
-                        .font(.mullvadMiniSemiBold)
-                        .foregroundStyle(Color.mullvadTextPrimary)
-                    if filter.canBeRemoved {
-                        Button {
-                            onRemove(filter)
-                        } label: {
-                            Image.mullvadIconCross
+        ScrollView(.horizontal) {
+            HStack {
+                ForEach(activeFilter, id: \.hashValue) { filter in
+                    Button {
+                        onSelect(filter)
+                    } label: {
+                        HStack {
+                            Text(filter.title)
+                                .font(.mullvadMiniSemiBold)
+                                .foregroundStyle(Color.mullvadTextPrimary)
+                            if filter.canBeRemoved {
+                                Button {
+                                    onRemove(filter)
+                                } label: {
+                                    Image.mullvadIconCross
+                                }
+                            }
+                        }
+                        .padding(8)
+                        .sizeOfView { size in
+                            maxItemHeight = max(maxItemHeight, size.height)
+                        }
+                        .frame(height: maxItemHeight)
+                        .background {
+                            RoundedRectangle(cornerRadius: 8)
+                                .foregroundStyle(Color.MullvadButton.primary)
                         }
                     }
-                }
-                .padding(8)
-                .sizeOfView { size in
-                    maxItemHeight = max(maxItemHeight, size.height)
-                }
-                .frame(height: maxItemHeight)
-                .background {
-                    RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(Color.MullvadButton.primary)
+                    .accessibilityIdentifier(filter.accessibilityIdentifier)
                 }
             }
-            .accessibilityIdentifier(filter.accessibilityIdentifier)
+        }
+        .apply {
+            if #available(iOS 16.0, *) {
+                $0.scrollIndicators(.never)
+            } else {
+                $0
+            }
         }
     }
 }
