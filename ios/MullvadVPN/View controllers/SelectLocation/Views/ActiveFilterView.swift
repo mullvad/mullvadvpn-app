@@ -5,10 +5,18 @@ struct ActiveFilterView: View {
     let onSelect: (SelectLocationFilter) -> Void
     let onRemove: (SelectLocationFilter) -> Void
     @State private var maxItemHeight: CGFloat = 0
+
+    // Show filters that can't be removed to the left
+    private var sortedFilters: [SelectLocationFilter] {
+        activeFilter
+            .sorted {
+                !$0.canBeRemoved && $1.canBeRemoved
+            }
+    }
     var body: some View {
         ScrollView(.horizontal) {
             HStack {
-                ForEach(activeFilter, id: \.hashValue) { filter in
+                ForEach(sortedFilters, id: \.hashValue) { filter in
                     Button {
                         onSelect(filter)
                     } label: {
@@ -54,7 +62,13 @@ struct ActiveFilterView: View {
             NavigationView {
                 ScrollView {
                     ActiveFilterView(
-                        activeFilter: [.daita, .owned, .rented, .provider(2)],
+                        activeFilter: [
+                            .daita,
+                            .owned,
+                            .rented,
+                            .provider(2),
+                            .obfuscation,
+                        ],
                         onSelect: { _ in
                         },
                         onRemove: { _ in }
