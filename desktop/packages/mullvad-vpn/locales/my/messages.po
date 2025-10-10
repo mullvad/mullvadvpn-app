@@ -1526,7 +1526,6 @@ msgstr "အကောင့် ဖန်တီးရန် မအောင်မ�
 
 #. Error message shown above login input when trying to login but the app fails
 #. to fetch the list of registered devices.
-msgctxt "login-view"
 msgid "Failed to fetch list of devices"
 msgstr "စက်စာရင်းကို ယူရန် မအောင်မြင်ခဲ့ပါ"
 

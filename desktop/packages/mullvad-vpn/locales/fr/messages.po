@@ -1532,7 +1532,6 @@ msgstr "Échec de la création du compte"
 
 #. Error message shown above login input when trying to login but the app fails
 #. to fetch the list of registered devices.
-msgctxt "login-view"
 msgid "Failed to fetch list of devices"
 msgstr "Impossible de récupérer la liste des appareils"
 

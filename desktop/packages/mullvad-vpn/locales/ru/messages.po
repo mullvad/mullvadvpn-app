@@ -1544,7 +1544,6 @@ msgstr "Не удалось создать учетную запись"
 
 #. Error message shown above login input when trying to login but the app fails
 #. to fetch the list of registered devices.
-msgctxt "login-view"
 msgid "Failed to fetch list of devices"
 msgstr "Не удалось получить список устройств"
 
