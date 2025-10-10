@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,9 +64,9 @@ import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
-import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
@@ -83,6 +87,7 @@ private fun PreviewReportProblemScreen(
             onNavigateToViewLogs = {},
             onEmailChanged = {},
             onDescriptionChanged = {},
+            onIncludeAccountTokenCheckChange = {},
             onBackClick = {},
         )
     }
@@ -121,6 +126,7 @@ fun ReportProblem(
             },
         onEmailChanged = vm::updateEmail,
         onDescriptionChanged = vm::updateDescription,
+        onIncludeAccountTokenCheckChange = vm::onIncludeAccountTokenCheckChange,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -133,6 +139,7 @@ private fun ReportProblemScreen(
     onNavigateToViewLogs: () -> Unit,
     onEmailChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
+    onIncludeAccountTokenCheckChange: (Boolean) -> Unit,
     onBackClick: () -> Unit,
 ) {
 
@@ -169,11 +176,20 @@ private fun ReportProblemScreen(
                         .height(IntrinsicSize.Max),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
             ) {
-                Text(
-                    text = stringResource(id = R.string.problem_report_description),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelLarge,
-                )
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.problem_report_description),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+
+                    if (state.showIncludeAccountToken) {
+                        IncludeAccountTokenCheckBox(
+                            includeAccountToken = state.includeAccountToken,
+                            onIncludeAccountTokenCheckChange = onIncludeAccountTokenCheckChange,
+                        )
+                    }
+                }
 
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -215,7 +231,41 @@ private fun ReportProblemScreen(
 }
 
 @Composable
-fun ProblemMessageTextField(
+private fun IncludeAccountTokenCheckBox(
+    includeAccountToken: Boolean,
+    onIncludeAccountTokenCheckChange: (Boolean) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier.padding(top = Dimens.smallPadding)
+                .clickable { onIncludeAccountTokenCheckChange(!includeAccountToken) }
+                .fillMaxWidth(),
+    ) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 24.dp) {
+            Checkbox(
+                modifier = Modifier.padding(end = Dimens.mediumPadding),
+                checked = includeAccountToken,
+                onCheckedChange = onIncludeAccountTokenCheckChange,
+            )
+            Text(
+                text = stringResource(R.string.include_account_token),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelLarge,
+            )
+        }
+    }
+    /*CheckboxCell(
+        startPadding = 0.dp,
+        title =
+        background = MaterialTheme.colorScheme.background,
+        checked = includeAccountToken,
+        onCheckedChange = onIncludeAccountTokenCheckChange,
+    )*/
+}
+
+@Composable
+private fun ProblemMessageTextField(
     modifier: Modifier = Modifier,
     value: String,
     onDescriptionChanged: (String) -> Unit,
