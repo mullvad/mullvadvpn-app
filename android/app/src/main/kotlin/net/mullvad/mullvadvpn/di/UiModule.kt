@@ -328,7 +328,13 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
-    viewModel { ApiUnreachableViewModel(apiAccessRepository = get(), supportEmailUseCase = get()) }
+    viewModel {
+        ApiUnreachableViewModel(
+            apiAccessRepository = get(),
+            supportEmailUseCase = get(),
+            savedStateHandle = get(),
+        )
+    }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

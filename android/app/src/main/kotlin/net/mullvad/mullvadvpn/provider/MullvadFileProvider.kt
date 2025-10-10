@@ -24,7 +24,7 @@ enum class ProviderCacheDirectory(val directoryName: String) {
     LOGS("logs")
 }
 
-fun Context.logUri(logContent: String): Uri {
+fun Context.createShareLogFile(logContent: String): Uri {
     val fileName = createShareLogFileName()
     val cacheFile = createCacheFile(ProviderCacheDirectory.LOGS, fileName)
     cacheFile.writeText(logContent)
@@ -32,7 +32,7 @@ fun Context.logUri(logContent: String): Uri {
 }
 
 fun Context.getLogsShareIntent(logContent: String): Intent {
-    val logsUri = this.logUri(logContent)
+    val logsUri = this.createShareLogFile(logContent)
 
     val sendIntent: Intent =
         Intent().apply {
