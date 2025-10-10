@@ -473,7 +473,7 @@ private fun apiUnreachableText(
         argument = stringResource(R.string.read_more_here),
         linkStyle =
             SpanStyle(
-                color = MaterialTheme.colorScheme.error,
+                color = MaterialTheme.colorScheme.onPrimary,
                 textDecoration = TextDecoration.Underline,
             ),
         onClick = { onShowApiUnreachableDialog(state) },

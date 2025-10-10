@@ -8,7 +8,7 @@ import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import kotlin.collections.toTypedArray
 
-class SendEmail : ActivityResultContract<EmailData, Unit?>() {
+class SendEmail : ActivityResultContract<EmailData, Unit>() {
 
     /**
      * Create email intent with or without attachment Depending on whether an attachment is provided
@@ -35,9 +35,9 @@ class SendEmail : ActivityResultContract<EmailData, Unit?>() {
     override fun getSynchronousResult(
         context: Context,
         input: EmailData,
-    ): SynchronousResult<Unit?>? = null
+    ): SynchronousResult<Unit>? = null
 
-    override fun parseResult(resultCode: Int, intent: Intent?): Unit? = null
+    override fun parseResult(resultCode: Int, intent: Intent?): Unit = Unit
 
     companion object {
         const val EMAIL_TYPE = "text/plain"

@@ -346,11 +346,13 @@ class ManagementService(
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
+                    // TODO Check that this check actually works
+                    Status.Code.RESOURCE_EXHAUSTED if it.status.isTooManyRequests() ->
+                        LoginAccountError.TooManyAttempts
                     Status.Code.RESOURCE_EXHAUSTED ->
                         LoginAccountError.MaxDevicesReached(accountNumber)
                     Status.Code.DEADLINE_EXCEEDED -> LoginAccountError.Timeout
                     Status.Code.INVALID_ARGUMENT -> LoginAccountError.InvalidInput(accountNumber)
-                    Status.Code.OUT_OF_RANGE -> LoginAccountError.TooManyAttempts
                     Status.Code.UNAVAILABLE -> LoginAccountError.ApiUnreachable
                     else -> {
                         Logger.e("Unknown login account error")
@@ -408,7 +410,7 @@ class ManagementService(
             .onLeft { Logger.e("Create account error") }
             .mapLeftStatus {
                 when (it.status.code) {
-                    Status.Code.OUT_OF_RANGE -> CreateAccountError.TooManyAttempts
+                    Status.Code.RESOURCE_EXHAUSTED -> CreateAccountError.TooManyAttempts
                     Status.Code.UNAVAILABLE -> CreateAccountError.ApiUnreachable
                     Status.Code.DEADLINE_EXCEEDED -> CreateAccountError.TimeOut
                     else -> {
@@ -912,8 +914,12 @@ class ManagementService(
         }
     }
 
+    private fun Status.isTooManyRequests() = description == TOO_MANY_REQUESTS.toString()
+
     companion object {
         const val ENABLE_TRACE_LOGGING = false
+
+        const val TOO_MANY_REQUESTS = 429
     }
 }
 
