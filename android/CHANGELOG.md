@@ -21,9 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2025.9-beta1] - 2025-10-13
 ### Added
 - Add LWO obfuscation.
+- Add banner warning users about the Android 16 update bug that shows if a user can not
+  connect after updating the app.
 
 
 ## [android/2025.8] - 2025-09-22
