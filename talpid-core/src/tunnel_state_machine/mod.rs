@@ -367,15 +367,6 @@ impl TunnelStateMachine {
             )
             .map_err(Error::InitSplitTunneling);
 
-            if result.is_err()
-                && let Some(log_dir) = &args.log_dir
-            {
-                log::debug!("Logging device info");
-                if let Err(err) = crate::logging::diag::windows::log_device_info(log_dir).await {
-                    log::error!("Failed to dump device logs: {err}");
-                }
-            }
-
             result?
         };
 
