@@ -1,3 +1,46 @@
+import { messages } from '../../../../shared/gettext';
+import { View } from '../../../lib/components/view';
+import { useHistory } from '../../../lib/history';
+import { AppNavigationHeader } from '../..';
+import { BackAction } from '../../KeyboardNavigation';
+import { SettingsContent, SettingsGroup } from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { ObfuscationSettings, PortSetting } from './components';
+
 export function ObfuscationView() {
-  return <div></div>;
+  const { pop } = useHistory();
+
+  return (
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={messages.pgettext('wireguard-settings-view', 'Obfuscation')}
+          />
+
+          <NavigationScrollbars>
+            <SettingsHeader>
+              <HeaderTitle>
+                {
+                  // TRANSLATORS: Page title for obfuscation settings view
+                  messages.pgettext('wireguard-settings-view', 'Obfuscation')
+                }
+              </HeaderTitle>
+            </SettingsHeader>
+            <SettingsContent>
+              <SettingsGroup>
+                <ObfuscationSettings />
+              </SettingsGroup>
+
+              <SettingsGroup>
+                <PortSetting />
+              </SettingsGroup>
+            </SettingsContent>
+          </NavigationScrollbars>
+        </NavigationContainer>
+      </BackAction>
+    </View>
+  );
 }
