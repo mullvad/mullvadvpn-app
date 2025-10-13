@@ -5,4 +5,6 @@ export const strings = {
   daita: 'DAITA',
   daitaFull: 'Defence against AI-guided Traffic Analysis',
   supportEmail: 'support@mullvadvpn.net',
+  lwo: 'LWO',
+  quic: 'QUIC',
 } as const;
