@@ -20,9 +20,12 @@ import {
   DnsBlockerSettings,
   EnableIpv6Setting,
   IpOverrideSettings,
+  IpVersionSetting,
   KillSwitchSetting,
   LockdownModeSetting,
+  MtuSetting,
   ObfuscationListItem,
+  QuantumResistantSetting,
 } from './components';
 
 export function VpnSettingsView() {
@@ -51,32 +54,38 @@ export function VpnSettingsView() {
                     <AutoStartSetting />
                     <AutoConnectSetting />
                   </SettingsGroup>
-
                   <SettingsGroup>
                     <AllowLanSetting />
                   </SettingsGroup>
-
                   <SettingsGroup>
                     <DnsBlockerSettings />
                   </SettingsGroup>
-
                   <SettingsGroup>
                     <EnableIpv6Setting />
                   </SettingsGroup>
-
                   <SettingsGroup>
                     <KillSwitchSetting />
                     <LockdownModeSetting />
                   </SettingsGroup>
-
                   <SettingsGroup>
                     <ObfuscationListItem />
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <CustomDnsSettings />
+                    <QuantumResistantSetting />
                   </SettingsGroup>
 
+                  <SettingsGroup>
+                    <IpVersionSetting />
+                  </SettingsGroup>
+
+                  <SettingsGroup>
+                    <MtuSetting />
+                  </SettingsGroup>
+
+                  <SettingsGroup>
+                    <CustomDnsSettings />
+                  </SettingsGroup>
                   <SettingsGroup>
                     <IpOverrideSettings />
                   </SettingsGroup>
