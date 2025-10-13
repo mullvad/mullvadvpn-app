@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.12-beta1] - 2025-10-13
 ### Fixed
 #### Windows
 - Mitigate BSOD caused by split tunnel driver during boot.
