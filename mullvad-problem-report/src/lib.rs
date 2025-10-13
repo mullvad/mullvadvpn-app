@@ -321,17 +321,14 @@ async fn send_problem_report_inner(
 
     let message: String = match account_token {
         Some(account_token) => {
-            let mut user_message_with_account_token = user_message.to_string();
-            user_message_with_account_token.push_str("\nAccountToken: ");
-            user_message_with_account_token.push_str(account_token);
-            user_message_with_account_token
+            format!("{user_message}\nAccountToken: {account_token}")
         }
         None => user_message.to_string(),
     };
 
     for _attempt in 0..MAX_SEND_ATTEMPTS {
         match api_client
-            .problem_report(user_email, message.as_str(), report_content, &metadata)
+            .problem_report(user_email, &message, report_content, &metadata)
             .await
         {
             Ok(()) => {
