@@ -15,3 +15,4 @@ export * from './too-many-devices';
 export * from './udp-over-tcp-settings';
 export * from './vpn-settings';
 export * from './wireguard-settings';
+export * from './obfuscation';
