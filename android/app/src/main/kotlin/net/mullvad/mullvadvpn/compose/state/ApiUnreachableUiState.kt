@@ -4,5 +4,6 @@ import net.mullvad.mullvadvpn.compose.dialog.info.LoginAction
 
 data class ApiUnreachableUiState(
     val showEnableAllAccessMethodsButton: Boolean,
+    val noEmailAppAvailable: Boolean,
     val loginAction: LoginAction,
 )

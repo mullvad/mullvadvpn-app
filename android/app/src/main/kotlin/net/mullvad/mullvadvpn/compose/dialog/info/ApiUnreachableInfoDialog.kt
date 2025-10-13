@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,10 +24,12 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.state.ApiUnreachableUiState
+import net.mullvad.mullvadvpn.compose.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.EmailData
 import net.mullvad.mullvadvpn.compose.util.SendEmail
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.provider.createShareLogFile
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
@@ -37,7 +40,12 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewApiUnreachableInfoDialog() {
     AppTheme {
         ApiUnreachableInfoDialog(
-            state = ApiUnreachableUiState(true, LoginAction.LOGIN),
+            state =
+                ApiUnreachableUiState(
+                    showEnableAllAccessMethodsButton = true,
+                    noEmailAppAvailable = true,
+                    loginAction = LoginAction.LOGIN,
+                ),
             onEnableAllApiMethods = {},
             onSendEmail = {},
             onDismiss = {},
@@ -82,7 +90,8 @@ fun ApiUnreachableInfo(navigator: ResultBackNavigator<ApiUnreachableInfoDialogRe
                 try {
                     launcher.launch(emailData)
                 } catch (e: ActivityNotFoundException) {
-                    Logger.e("No email client found", e)
+                    Logger.e("No email app found", e)
+                    viewModel.noEmailAppAvailable()
                 }
             }
             is ApiUnreachableSideEffect.EnableAllApiAccessMethods ->
@@ -156,6 +165,12 @@ fun ApiUnreachableInfoDialog(
                     text = stringResource(R.string.send_email),
                     onClick = onSendEmail,
                 )
+                if (state.noEmailAppAvailable) {
+                    ErrorSupportingText(
+                        stringResource(id = R.string.no_email_app_available),
+                        modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                    )
+                }
                 PrimaryButton(
                     modifier = Modifier.wrapContentHeight().fillMaxWidth(),
                     text = stringResource(R.string.got_it),
