@@ -1,5 +1,5 @@
 use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
-use regex::{Regex, Replacer};
+use regex::Regex;
 use std::{
     borrow::Cow,
     cmp::min,

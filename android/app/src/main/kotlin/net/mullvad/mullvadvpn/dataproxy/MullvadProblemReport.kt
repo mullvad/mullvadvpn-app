@@ -51,7 +51,7 @@ class MullvadProblemReport(
 
     suspend fun sendReport(
         userReport: UserReport,
-        includeAccountToken: Boolean,
+        includeAccountId: Boolean,
     ): SendProblemReportResult {
         // If report is not collected then, collect it, if it fails then return error
         if (!logsExists() && !collectLogs()) {
@@ -71,9 +71,9 @@ class MullvadProblemReport(
                 sendProblemReport(
                     userEmail = userReport.email ?: "",
                     userMessage = userReport.description,
-                    accountToken =
-                        if (includeAccountToken) {
-                            accountRepository.getAccountToken()
+                    accountId =
+                        if (includeAccountId) {
+                            accountRepository.getAccountId()?.value?.toString()
                         } else {
                             null
                         },
@@ -115,7 +115,7 @@ class MullvadProblemReport(
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,
-        accountToken: String?,
+        accountId: String?,
         reportPath: String,
         cacheDirectory: String,
         apiEndpointOverride: ApiEndpointOverride?,
