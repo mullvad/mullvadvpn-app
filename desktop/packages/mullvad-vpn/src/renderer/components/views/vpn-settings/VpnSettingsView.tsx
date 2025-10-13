@@ -22,7 +22,7 @@ import {
   IpOverrideSettings,
   KillSwitchSetting,
   LockdownModeSetting,
-  WireguardSettings,
+  ObfuscationListItem,
 } from './components';
 
 export function VpnSettingsView() {
@@ -70,7 +70,7 @@ export function VpnSettingsView() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <WireguardSettings />
+                    <ObfuscationListItem />
                   </SettingsGroup>
 
                   <SettingsGroup>
