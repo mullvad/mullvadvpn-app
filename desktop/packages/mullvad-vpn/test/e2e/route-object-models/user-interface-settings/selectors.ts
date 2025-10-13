@@ -9,4 +9,9 @@ export const createSelectors = (page: Page) => ({
     page.locator('button', {
       hasText: label,
     }),
+  autoStartSwitch: () => page.getByRole('switch', { name: 'Notifications' }),
+  monochromaticTrayIconSwitch: () => page.getByRole('switch', { name: 'Monochromatic tray icon' }),
+  unpinnedWindowSwitch: () => page.getByRole('switch', { name: 'Unpin app from taskbar' }),
+  startMinimizedSwitch: () => page.getByRole('switch', { name: 'Start minimized' }),
+  animateMapSwitch: () => page.getByRole('switch', { name: 'Animate map' }),
 });
