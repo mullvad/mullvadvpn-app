@@ -95,7 +95,7 @@ test.describe('Tunnel state and settings', () => {
     async function gotoWireguardSettings() {
       await routes.main.gotoSettings();
       await routes.settings.gotoVpnSettings();
-      await routes.vpnSettings.gotoWireguardSettings();
+      await routes.vpnSettings.gotoObfuscationSettings();
     }
 
     async function gotoUdpOverTcpSettings() {
