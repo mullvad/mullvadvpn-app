@@ -35,8 +35,6 @@ const StyledIllustration = styled.img({
   padding: '8px 0 8px',
 });
 
-const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
-
 export function DaitaSettingsView() {
   const { pop } = useHistory();
   const showDaitaMultihopInfo = useShowDaitaMultihopInfo();
@@ -65,9 +63,7 @@ export function DaitaSettingsView() {
                 <PageSlider
                   content={[
                     <React.Fragment key="without-daita">
-                      <StyledIllustration
-                        src={`${PATH_PREFIX}assets/images/daita-off-illustration.svg`}
-                      />
+                      <StyledIllustration src="assets/images/daita-off-illustration.svg" />
                       <Flex $flexDirection="column" $gap="medium">
                         <StyledLabelTinySemiBold>
                           {sprintf(
@@ -104,9 +100,7 @@ export function DaitaSettingsView() {
                       </Flex>
                     </React.Fragment>,
                     <React.Fragment key="with-daita">
-                      <StyledIllustration
-                        src={`${PATH_PREFIX}assets/images/daita-on-illustration.svg`}
-                      />
+                      <StyledIllustration src="assets/images/daita-on-illustration.svg" />
                       <Flex $flexDirection="column" $gap="medium">
                         <StyledLabelTiny>
                           {sprintf(

@@ -12,7 +12,6 @@ export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
 type IconParameters = { monochromatic: boolean; notification: boolean };
 
-const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 export default class TrayIconController {
   private animation?: KeyframeAnimation;
   private iconSet: NativeImage[] = [];
@@ -154,9 +153,7 @@ export default class TrayIconController {
   }
 
   private getImagePath(frame: number, suffix?: string) {
-    const basePath = path.resolve(
-      path.join(__dirname, `${PATH_PREFIX}assets/images/menubar-icons`),
-    );
+    const basePath = path.resolve(__dirname, 'assets/images/menubar-icons');
     const extension = process.platform === 'win32' ? 'ico' : 'png';
     return path.join(basePath, process.platform, `lock-${frame}${suffix}.${extension}`);
   }

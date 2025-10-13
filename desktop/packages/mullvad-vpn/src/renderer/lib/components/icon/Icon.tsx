@@ -31,8 +31,6 @@ export const iconSizes = {
   big: 48,
 };
 
-const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
-
 export const Icon = ({
   icon: iconProp,
   size = 'medium',
@@ -40,7 +38,7 @@ export const Icon = ({
   ...props
 }: IconProps) => {
   const icon = icons[iconProp];
-  const src = iconProp.startsWith('data:') ? iconProp : `${PATH_PREFIX}assets/icons/${icon}.svg`;
+  const src = iconProp.startsWith('data:') ? iconProp : `assets/icons/${icon}.svg`;
   const color = colors[colorProp];
   return <StyledIcon $src={src} $size={iconSizes[size]} $color={color} role="img" {...props} />;
 };

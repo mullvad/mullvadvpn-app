@@ -13,8 +13,6 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { MultihopSetting } from './components';
 
-const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
-
 const StyledIllustration = styled.img({
   width: '100%',
 });
@@ -36,9 +34,7 @@ export function MultihopSettingsView() {
                     {messages.pgettext('wireguard-settings-view', 'Multihop')}
                   </HeaderTitle>
                   <FlexColumn $gap="small">
-                    <StyledIllustration
-                      src={`${PATH_PREFIX}assets/images/multihop-illustration.svg`}
-                    />
+                    <StyledIllustration src="assets/images/multihop-illustration.svg" />
                     <Text variant="labelTiny" color="whiteAlpha60">
                       {messages.pgettext(
                         'wireguard-settings-view',
