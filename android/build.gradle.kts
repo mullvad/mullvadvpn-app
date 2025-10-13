@@ -38,35 +38,65 @@ buildscript {
         classpath("$aapt:$agpVersion-$aaptVersion:windows")
 
         // Protoc plugin
-        val protoc = libs.plugins.protobuf.protoc.get().toString()
-        classpath("$protoc:linux-aarch_64@exe")
-        classpath("$protoc:linux-ppcle_64@exe")
-        classpath("$protoc:linux-s390_64@exe")
-        classpath("$protoc:linux-x86_32@exe")
-        classpath("$protoc:linux-x86_64@exe")
-        classpath("$protoc:osx-aarch_64@exe")
-        classpath("$protoc:osx-x86_64@exe")
-        classpath("$protoc:windows-x86_32@exe")
-        classpath("$protoc:windows-x86_64@exe")
+        classpath(libs.protobuf.protoc) {
+            mapOf(
+                    "linux-aarch_64" to "exe",
+                    "linux-ppcle_64" to "exe",
+                    "linux-s390_64" to "exe",
+                    "linux-x86_32" to "exe",
+                    "linux-x86_64" to "exe",
+                    "osx-aarch_64" to "exe",
+                    "osx-x86_64" to "exe",
+                    "windows-x86_32" to "exe",
+                    "windows-x86_64" to "exe",
+                )
+                .forEach { classifier, extension ->
+                    artifact {
+                        this.name = name
+                        this.classifier = classifier
+                        this.extension = extension
+                    }
+                }
+        }
 
         // ProtoC gen grpc java plugin
-        val protocJava = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
-        classpath("$protocJava:linux-aarch_64@exe")
-        classpath("$protocJava:linux-ppcle_64@exe")
-        classpath("$protocJava:linux-s390_64@exe")
-        classpath("$protocJava:linux-x86_32@exe")
-        classpath("$protocJava:linux-x86_64@exe")
-        classpath("$protocJava:osx-aarch_64@exe")
-        classpath("$protocJava:osx-x86_64@exe")
-        classpath("$protocJava:windows-x86_32@exe")
-        classpath("$protocJava:windows-x86_64@exe")
+        classpath(libs.grpc.protoc.gen.grpc.java) {
+            mapOf(
+                    "linux-aarch_64" to "exe",
+                    "linux-ppcle_64" to "exe",
+                    "linux-s390_64" to "exe",
+                    "linux-x86_32" to "exe",
+                    "linux-x86_64" to "exe",
+                    "osx-aarch_64" to "exe",
+                    "osx-x86_64" to "exe",
+                    "windows-x86_32" to "exe",
+                    "windows-x86_64" to "exe",
+                )
+                .forEach { classifier, extension ->
+                    artifact {
+                        this.name = name
+                        this.classifier = classifier
+                        this.extension = extension
+                    }
+                }
+        }
 
         // Kotlin Native Prebuilt
-        val prebuilt = libs.kotlin.native.prebuilt.get().toString()
-        classpath("$prebuilt:windows-x86_64@zip")
-        classpath("$prebuilt:linux-x86_64@tar.gz")
-        classpath("$prebuilt:macos-aarch64@tar.gz")
-        classpath("$prebuilt:macos-x86_64@tar.gz")
+        classpath(libs.kotlin.native.prebuilt) {
+            mapOf(
+                    "linux-x86_64" to "tar.gz",
+                    "windows-x86_64" to "zip",
+                    "macos-aarch64" to "tar.gz",
+                    "macos-x86_64" to "tar.gz",
+                )
+                .forEach { (classifier, extension) ->
+                    artifact {
+                        this.name = name
+                        this.classifier = classifier
+                        this.type = extension
+                    }
+                }
+        }
     }
 }
 
@@ -84,9 +114,7 @@ detekt {
     autoCorrect = true
     baseline = baselineFile
 
-    dependencies {
-        detektPlugins(project(":test:detekt"))
-    }
+    dependencies { detektPlugins(project(":test:detekt")) }
 }
 
 val detektExcludedPaths = listOf("**/build/**", "**/mullvad_daemon/management_interface/**")
