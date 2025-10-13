@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -66,7 +67,7 @@ enum class RelayList {
 @Preview
 @Composable
 fun ComposableTest() {
-    var isMultihop by remember { mutableStateOf(true) }
+    var isMultihop by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
     var selected by remember { mutableStateOf(true) }
 
@@ -181,11 +182,7 @@ fun SingleHopSelector(progress: Float, modifier: Modifier = Modifier) {
 
         val collapsed =
             constraintSet("collapsed", expanded) {
-                constrain(exit) {
-                    centerVerticallyTo(parent)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+                constrain(exit) { centerTo(parent) }
                 constrain(
                     internetIcon,
                     internetText,
@@ -298,10 +295,14 @@ fun MultihopSelecter(
                     )
                 }
                 constrain(internetText) {
-                    centerVerticallyTo(internetIcon)
                     width = fillToConstraints
-                    start.linkTo(internetIcon.end, 8.dp)
-                    end.linkTo(parent.end)
+                    linkTo(
+                        top = parent.top,
+                        start = internetIcon.end,
+                        end = parent.end,
+                        bottom = internetBottomBarrier,
+                        startMargin = 8.dp,
+                    )
                 }
 
                 constrain(panel) {
@@ -328,60 +329,53 @@ fun MultihopSelecter(
                 }
                 constrain(entryCenterGuide) { centerVerticallyTo(entry) }
 
-                val deviceBarrierBottom = createBottomBarrier(deviceIcon, deviceText)
                 constrain(deviceIcon) {
                     linkTo(
                         top = entry.bottom,
                         start = parent.start,
                         end = deviceText.start,
-                        bottom = deviceBarrierBottom,
+                        bottom = parent.bottom,
                         startMargin = 12.dp,
                     )
                 }
                 constrain(deviceText) {
-                    centerVerticallyTo(deviceIcon)
                     width = fillToConstraints
-                    start.linkTo(deviceIcon.end, 8.dp)
-                    end.linkTo(parent.end)
+                    linkTo(
+                        bottom = parent.bottom,
+                        top = entry.bottom,
+                        start = deviceIcon.end,
+                        end = parent.end,
+                        startMargin = 8.dp,
+                    )
                 }
 
                 constrain(internetExitDash) {
                     height = fillToConstraints
+                    centerHorizontallyTo(deviceIcon)
                     linkTo(top = internetIcon.bottom, bottom = exitCenterGuide.top)
-                    centerHorizontallyTo(internetIcon)
                 }
                 constrain(exitEntryDash) {
                     height = fillToConstraints
-                    linkTo(top = exitCenterGuide.bottom, bottom = entryCenterGuide.top)
                     centerHorizontallyTo(deviceIcon)
+                    linkTo(top = exitCenterGuide.bottom, bottom = entryCenterGuide.top)
                 }
                 constrain(entryDeviceDash) {
                     height = fillToConstraints
-                    linkTo(top = entryCenterGuide.bottom, bottom = deviceIcon.top)
                     centerHorizontallyTo(deviceIcon)
+                    linkTo(top = entryCenterGuide.bottom, bottom = deviceIcon.top)
                 }
             }
 
         val collapsed =
             constraintSet("collapsed", expanded) {
-                constrain(exit) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
+                createVerticalChain(exit, entry)
+                constrain(deviceIcon, deviceText) { centerVerticallyTo(entry) }
+                constrain(internetText, internetIcon) { centerVerticallyTo(exit) }
+                constrain(internetExitDash) {
+                    linkTo(top = parent.top, bottom = exitCenterGuide.top)
                 }
-                constrain(entry) {
-                    top.linkTo(exit.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                constrain(
-                    deviceIcon,
-                    deviceText,
-                    internetExitDash,
-                    exitEntryDash,
-                    entryDeviceDash,
-                ) {
-                    centerVerticallyTo(parent)
+                constrain(entryDeviceDash) {
+                    linkTo(top = entryCenterGuide.bottom, bottom = parent.bottom)
                 }
             }
 
@@ -400,7 +394,12 @@ fun MultihopSelecter(
     }
 
     CompositionLocalProvider(LocalContentColor provides deselectedColor) {
-        MotionLayout(modifier = modifier.fillMaxWidth(), motionScene = scene, progress = progress) {
+        MotionLayout(
+            modifier = modifier.fillMaxWidth(),
+            motionScene = scene,
+            progress = progress,
+            //            debugFlags = DebugFlags(true, true, true),
+        ) {
             Icon(
                 modifier = Modifier.padding(2.dp).size(14.dp).layoutId(internetIcon),
                 imageVector = Icons.Default.Language,
