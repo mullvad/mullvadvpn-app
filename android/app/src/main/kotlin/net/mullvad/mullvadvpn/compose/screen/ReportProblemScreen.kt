@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -87,7 +86,7 @@ private fun PreviewReportProblemScreen(
             onNavigateToViewLogs = {},
             onEmailChanged = {},
             onDescriptionChanged = {},
-            onIncludeAccountTokenCheckChange = {},
+            onIncludeAccountIdCheckChange = {},
             onBackClick = {},
         )
     }
@@ -126,7 +125,7 @@ fun ReportProblem(
             },
         onEmailChanged = vm::updateEmail,
         onDescriptionChanged = vm::updateDescription,
-        onIncludeAccountTokenCheckChange = vm::onIncludeAccountTokenCheckChange,
+        onIncludeAccountIdCheckChange = vm::onIncludeAccountIdCheckChange,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -139,7 +138,7 @@ private fun ReportProblemScreen(
     onNavigateToViewLogs: () -> Unit,
     onEmailChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
-    onIncludeAccountTokenCheckChange: (Boolean) -> Unit,
+    onIncludeAccountIdCheckChange: (Boolean) -> Unit,
     onBackClick: () -> Unit,
 ) {
 
@@ -176,20 +175,10 @@ private fun ReportProblemScreen(
                         .height(IntrinsicSize.Max),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
             ) {
-                Column {
-                    Text(
-                        text = stringResource(id = R.string.problem_report_description),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-
-                    if (state.showIncludeAccountToken) {
-                        IncludeAccountTokenCheckBox(
-                            includeAccountToken = state.includeAccountToken,
-                            onIncludeAccountTokenCheckChange = onIncludeAccountTokenCheckChange,
-                        )
-                    }
-                }
+                Description(
+                    state = state,
+                    onIncludeAccountIdCheckChange = onIncludeAccountIdCheckChange,
+                )
 
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -231,14 +220,37 @@ private fun ReportProblemScreen(
 }
 
 @Composable
-private fun IncludeAccountTokenCheckBox(
-    includeAccountToken: Boolean,
-    onIncludeAccountTokenCheckChange: (Boolean) -> Unit,
+private fun Description(
+    state: ReportProblemUiState,
+    onIncludeAccountIdCheckChange: (Boolean) -> Unit,
+) {
+    Column {
+        Text(
+            text = stringResource(id = R.string.problem_report_description),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
+        )
+
+        if (state.showIncludeAccountId) {
+            IncludeAccountInformationCheckBox(
+                includeAccountInformation = state.includeAccountId,
+                onIncludeAccountInformationCheckChange = onIncludeAccountIdCheckChange,
+            )
+        }
+    }
+}
+
+@Composable
+private fun IncludeAccountInformationCheckBox(
+    includeAccountInformation: Boolean,
+    onIncludeAccountInformationCheckChange: (Boolean) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
-            Modifier.clickable { onIncludeAccountTokenCheckChange(!includeAccountToken) }
+            Modifier.clickable {
+                    onIncludeAccountInformationCheckChange(!includeAccountInformation)
+                }
                 .padding(vertical = Dimens.smallPadding)
                 .fillMaxWidth(),
     ) {
@@ -246,8 +258,8 @@ private fun IncludeAccountTokenCheckBox(
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
             Checkbox(
                 modifier = Modifier.padding(end = Dimens.smallPadding),
-                checked = includeAccountToken,
-                onCheckedChange = onIncludeAccountTokenCheckChange,
+                checked = includeAccountInformation,
+                onCheckedChange = onIncludeAccountInformationCheckChange,
             )
             Text(
                 text = stringResource(R.string.include_account_token_checkbox_text),
