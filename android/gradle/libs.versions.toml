@@ -41,7 +41,7 @@ arrow = "2.1.2"
 
 # Compose
 compose = "1.9.3"
-compose-destinations = "2.2.0"
+compose-destinations = "2.3.0"
 compose-constraintlayout = "1.1.1"
 compose-material3 = "1.4.0"
 compose-material-icons-extended = "1.7.8"
