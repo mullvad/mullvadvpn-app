@@ -87,7 +87,7 @@ ktfmt = "0.24.0"
 leakcanary = "2.14"
 
 mockk = "1.14.6"
-mockwebserver = "5.1.0"
+mockwebserver = "5.2.1"
 play-publisher = "3.12.1"
 turbine = "1.2.1"
 
