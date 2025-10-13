@@ -52,7 +52,7 @@ grpc = "1.76.0"
 # Skipping 1.4.3, possibly a faulty release with no changelog.
 # https://github.com/grpc/grpc-kotlin/issues/644
 grpc-kotlin = "1.5.0"
-grpc-kotlin-jar = "1.4.1:jdk8@jar"
+grpc-kotlin-jar = "1.5.0:jdk8@jar"
 
 junit = "5.13.4"
 junit5-android = "1.8.0"
