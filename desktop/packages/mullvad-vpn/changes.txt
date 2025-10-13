@@ -1,2 +1,2 @@
-Added QUIC obfuscation for WireGuard
-[macOS] Fixed issue that caused split tunneling to not work on macOS 26
+[Windows] This version is identical to 2025.9.
+[Windows] Some users experienced a critical issue in 2025.10. Until we got a better understanding of the problem, we rolled back the release.
