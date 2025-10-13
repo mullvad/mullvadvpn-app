@@ -69,6 +69,7 @@ enum class RelayList {
 fun ComposableTest() {
     var isMultihop by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
+    var error by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(true) }
 
     AppTheme {
@@ -80,12 +81,18 @@ fun ComposableTest() {
                     onValueChange = { progress = it },
                 )
                 Switch(isMultihop, onCheckedChange = { isMultihop = it })
+                Switch(error, onCheckedChange = { error = it })
                 Text("Progress: $progress")
                 AnimatedContent(isMultihop) {
                     if (it) {
                         SingleHopSelector(progress)
                     } else {
-                        MultihopSelecter(selected, onSelect = { selected = it }, progress)
+                        MultihopSelecter(
+                            selected,
+                            onSelect = { selected = it },
+                            progress = progress,
+                            exitError = error,
+                        )
                     }
                 }
             }
@@ -244,6 +251,8 @@ fun SingleHopSelector(progress: Float, modifier: Modifier = Modifier) {
 private val panel = "panel"
 private val entryCenterGuide = "entryCenterGuide"
 private val entry = "entry"
+
+private val exitErrorText = "exitErrorText"
 private val exitEntryDash = "exitEntryDash"
 private val entryDeviceDash = "entryDeviceDash"
 
@@ -252,6 +261,7 @@ private val entryDeviceDash = "entryDeviceDash"
 fun MultihopSelecter(
     selected: Boolean,
     onSelect: (Boolean) -> Unit,
+    exitError: Boolean,
     progress: Float,
     modifier: Modifier = Modifier,
 ) {
@@ -280,30 +290,34 @@ fun MultihopSelecter(
                 deviceText,
             )
 
-        val (panel, entryCenterGuide) = createRefsFor(panel, entryCenterGuide)
+        val (panel, entryCenterGuide, exitErrorText) =
+            createRefsFor(panel, entryCenterGuide, exitErrorText)
 
         val expanded =
             constraintSet("expanded") {
                 val internetBottomBarrier = createBottomBarrier(internetIcon, internetText)
                 constrain(internetIcon) {
-                    linkTo(
-                        top = parent.top,
-                        start = parent.start,
-                        end = internetText.start,
-                        bottom = internetBottomBarrier,
-                        startMargin = 12.dp,
-                    )
+//                    linkTo(
+//                        top = parent.top,
+//                        start = parent.start,
+//                        end = internetText.start,
+//                        bottom = internetBottomBarrier,
+//                        startMargin = 12.dp,
+//                    )
                 }
                 constrain(internetText) {
                     width = fillToConstraints
-                    linkTo(
-                        top = parent.top,
-                        start = internetIcon.end,
-                        end = parent.end,
-                        bottom = internetBottomBarrier,
-                        startMargin = 8.dp,
-                    )
+//                    linkTo(
+//                        top = parent.top,
+//                        start = internetIcon.end,
+//                        end = parent.end,
+//                        bottom = internetBottomBarrier,
+//                        startMargin = 8.dp,
+//                    )
                 }
+
+                createHorizontalChain(internetIcon, internetText)
+                    .withChainParams(startMargin = 12.dp)
 
                 constrain(panel) {
                     width = fillToConstraints
@@ -320,10 +334,19 @@ fun MultihopSelecter(
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
+                val dashGuide = createGuidelineFromStart(21.dp)
+                constrain(exitErrorText) {
+                    linkTo(
+                        start = dashGuide,
+                        end = parent.end,
+                        top = exit.bottom,
+                        bottom = entry.top,
+                    )
+                }
                 constrain(exitCenterGuide) { centerVerticallyTo(exit) }
 
                 constrain(entry) {
-                    top.linkTo(exit.bottom)
+                    top.linkTo(exitErrorText.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
@@ -349,7 +372,6 @@ fun MultihopSelecter(
                     )
                 }
 
-                val dashGuide = createGuidelineFromStart(21.dp)
                 constrain(internetExitDash) {
                     height = fillToConstraints
                     centerAround(dashGuide)
@@ -390,7 +412,7 @@ fun MultihopSelecter(
                     )
                 }
 
-                createVerticalChain(exit, entry)
+                createVerticalChain(exit, exitErrorText, entry)
                 constrain(panel) {
                     width = fillToConstraints
                     height = fillToConstraints
@@ -490,6 +512,7 @@ fun MultihopSelecter(
                 selected = selected,
                 onSelect = { onSelect(true) },
             )
+            Text("Exit error", modifier = Modifier.layoutId("exitErrorText"))
 
             Spacer(modifier = Modifier.size(20.dp).layoutId(entryCenterGuide))
             Hop(
