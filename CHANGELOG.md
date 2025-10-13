@@ -24,6 +24,53 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2025.11] - 2025-10-13
+This release is for Windows only. This release reverts all functionality to how the app worked in
+version 2025.9 to fix a BSOD (boot loop) bug. Only a few users experienced the issue, but we deemed
+it critical enough to revert everything until we have a better understanding of the problem.
+
+
+## [2025.10] - 2025-10-08
+This release is identical to 2025.10-beta2.
+
+
+## [2025.10-beta2] - 2025-10-01
+### Fixed
+- QUIC obfuscation only using one in-address when connecting. It will now randomly select one of
+  the available in-addresses for each connection attempt.
+- `quinn_udp` crate flooding `mullvad-daemon.log` with warnings.
+
+
+## [2025.10-beta1] - 2025-09-16
+### Added
+- Add helpful warnings when clearing account history. This helps users not lose their account
+  numbers.
+
+#### Windows
+- Add additional logging for tunnel devices and split tunneling to problem reports.
+- Log WFP sessions when transaction lock timeout occurs.
+
+### Changed
+- Move placement of login button from inside the account number input to under account number.
+
+#### Windows
+- Implement UDP GSO for QUIC on client socket. This improves download speeds slightly.
+
+### Security
+#### Windows
+- Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
+  encrypted once, but leave the entry node unencrypted, if and only if the destination were the exit
+  node. E.g., this might occur if a browser tries to open a TCP connection to the exit node IP.
+
+### Fixed
+- Fix version being labeled unsupported unexpectedly. So far, this only an issue when using
+  development builds.
+
+#### macOS
+- Fix apps attempting to use IPv6 with in-tunnel IPv6 disabled.
+- Re-add missing loopback alias if removed. This fixes some issues with DNS resolution.
+
+
 ## [2025.9] - 2025-09-8
 This release is identical to 2025.9-beta1.
 
