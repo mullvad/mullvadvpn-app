@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountId
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.ClearAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
@@ -109,7 +110,7 @@ class AccountRepository(
         _isNewAccount.value = false
     }
 
-    fun getAccountToken(): String? = accountData.value?.id?.value?.toString()
+    fun getAccountId(): AccountId? = accountData.value?.id
 
     private fun ZonedDateTime?.canFetchAccountData(): Boolean =
         this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))

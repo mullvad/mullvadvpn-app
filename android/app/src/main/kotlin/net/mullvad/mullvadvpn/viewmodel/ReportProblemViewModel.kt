@@ -24,8 +24,8 @@ data class ReportProblemUiState(
     val sendingState: SendingReportUiState? = null,
     val email: String = "",
     val description: String = "",
-    val showIncludeAccountToken: Boolean = false,
-    val includeAccountToken: Boolean = false,
+    val showIncludeAccountId: Boolean = false,
+    val includeAccountId: Boolean = false,
 )
 
 sealed interface SendingReportUiState {
@@ -47,12 +47,12 @@ class ReportProblemViewModel(
 ) : ViewModel() {
 
     private val sendingState: MutableStateFlow<SendingReportUiState?> = MutableStateFlow(null)
-    private val includeAccountTokenState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val includeAccountIdState: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     val uiState =
         combine(
                 sendingState,
-                includeAccountTokenState,
+                includeAccountIdState,
                 problemReportRepository.problemReport,
                 accountRepository.accountData,
             ) { sendingState, includeAccountToken, userReport, accountData ->
@@ -60,8 +60,8 @@ class ReportProblemViewModel(
                     sendingState = sendingState,
                     email = userReport.email ?: "",
                     description = userReport.description,
-                    showIncludeAccountToken = accountData != null,
-                    includeAccountToken = includeAccountToken,
+                    showIncludeAccountId = accountData != null,
+                    includeAccountId = includeAccountToken,
                 )
             }
             .stateIn(
@@ -86,7 +86,7 @@ class ReportProblemViewModel(
                 val deferredResult = async {
                     mullvadProblemReporter.sendReport(
                         UserReport(nullableEmail, description),
-                        includeAccountTokenState.value,
+                        includeAccountIdState.value,
                     )
                 }
                 delay(MINIMUM_LOADING_TIME_MILLIS)
@@ -114,8 +114,8 @@ class ReportProblemViewModel(
         problemReportRepository.setDescription(description)
     }
 
-    fun onIncludeAccountTokenCheckChange(checked: Boolean) {
-        includeAccountTokenState.tryEmit(checked)
+    fun onIncludeAccountIdCheckChange(checked: Boolean) {
+        includeAccountIdState.tryEmit(checked)
     }
 
     private fun shouldShowConfirmNoEmail(userEmail: String?): Boolean =
