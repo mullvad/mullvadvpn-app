@@ -36,7 +36,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -155,7 +154,6 @@ private fun SelectLocationListContent(
     val connection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                Logger.d("Offset: $available")
                 val delta = available.y / 265f
                 scope.launch { expandness.snapTo((expandness.value + delta).coerceIn(0f, 1f)) }
                 return super.onPreScroll(available, source)
@@ -199,12 +197,13 @@ private fun SelectLocationListContent(
                             modifier = Modifier.padding(bottom = 8.dp),
                         ) {
                             val relayList = state.value.relayListType
-                            when(relayList) {
+                            when (relayList) {
                                 is RelayListType.Multihop ->
                                     MultihopSelecter(
                                         modifier = Modifier,
                                         selected =
-                                            relayList.multihopRelayListType == MultihopRelayListType.EXIT,
+                                            relayList.multihopRelayListType ==
+                                                MultihopRelayListType.EXIT,
                                         onSelect = {
                                             val listType =
                                                 if (it) MultihopRelayListType.EXIT

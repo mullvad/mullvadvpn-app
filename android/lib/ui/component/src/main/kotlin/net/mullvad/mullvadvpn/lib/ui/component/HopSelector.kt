@@ -181,7 +181,7 @@ fun SingleHopSelector(progress: Float, modifier: Modifier = Modifier) {
             }
 
         val collapsed =
-            constraintSet("collapsed", expanded) {
+            constraintSet("collapsed") {
                 constrain(exit) { centerTo(parent) }
                 constrain(
                     internetIcon,
@@ -349,32 +349,95 @@ fun MultihopSelecter(
                     )
                 }
 
+                val dashGuide = createGuidelineFromStart(21.dp)
                 constrain(internetExitDash) {
                     height = fillToConstraints
-                    centerHorizontallyTo(deviceIcon)
+                    centerAround(dashGuide)
                     linkTo(top = internetIcon.bottom, bottom = exitCenterGuide.top)
                 }
                 constrain(exitEntryDash) {
                     height = fillToConstraints
-                    centerHorizontallyTo(deviceIcon)
+                    centerAround(dashGuide)
                     linkTo(top = exitCenterGuide.bottom, bottom = entryCenterGuide.top)
                 }
                 constrain(entryDeviceDash) {
                     height = fillToConstraints
-                    centerHorizontallyTo(deviceIcon)
+                    centerAround(dashGuide)
                     linkTo(top = entryCenterGuide.bottom, bottom = deviceIcon.top)
                 }
             }
 
         val collapsed =
-            constraintSet("collapsed", expanded) {
+            constraintSet("collapsed") {
+                val internetBottomBarrier = createBottomBarrier(internetIcon, internetText)
+                constrain(internetIcon) {
+                    linkTo(
+                        top = parent.top,
+                        start = parent.start,
+                        end = internetText.start,
+                        bottom = internetBottomBarrier,
+                        startMargin = 12.dp,
+                    )
+                }
+                constrain(internetText) {
+                    width = fillToConstraints
+                    linkTo(
+                        top = parent.top,
+                        start = internetIcon.end,
+                        end = parent.end,
+                        bottom = internetBottomBarrier,
+                        startMargin = 8.dp,
+                    )
+                }
+
                 createVerticalChain(exit, entry)
-                constrain(deviceIcon, deviceText) { centerVerticallyTo(entry) }
-                constrain(internetText, internetIcon) { centerVerticallyTo(exit) }
+                constrain(panel) {
+                    width = fillToConstraints
+                    height = fillToConstraints
+                    linkTo(
+                        top = exit.top,
+                        start = exit.start,
+                        end = exit.end,
+                        bottom = entry.bottom,
+                    )
+                }
+
+                val deviceTopBarrier = createBottomBarrier(deviceIcon, deviceText)
+                constrain(deviceIcon) {
+                    linkTo(
+                        top = deviceTopBarrier,
+                        start = parent.start,
+                        end = deviceText.start,
+                        bottom = parent.bottom,
+                        startMargin = 12.dp,
+                    )
+                }
+                constrain(deviceText) {
+                    width = fillToConstraints
+                    linkTo(
+                        bottom = parent.bottom,
+                        top = deviceTopBarrier,
+                        start = deviceIcon.end,
+                        end = parent.end,
+                        startMargin = 8.dp,
+                    )
+                }
+
+                constrain(exitCenterGuide) { centerVerticallyTo(exit) }
+                constrain(entryCenterGuide) { centerVerticallyTo(entry) }
+
+                val dashGuide = createGuidelineFromStart(21.dp)
                 constrain(internetExitDash) {
+                    centerAround(dashGuide)
                     linkTo(top = parent.top, bottom = exitCenterGuide.top)
                 }
+                constrain(exitEntryDash) {
+                    centerAround(dashGuide)
+                    linkTo(top = exitCenterGuide.bottom, bottom = entryCenterGuide.top)
+                }
+
                 constrain(entryDeviceDash) {
+                    centerAround(dashGuide)
                     linkTo(top = entryCenterGuide.bottom, bottom = parent.bottom)
                 }
             }
@@ -387,7 +450,7 @@ fun MultihopSelecter(
             }
             keyAttributes(internetExitDash, exitEntryDash, entryDeviceDash) {
                 frame(0) { alpha = 1f }
-                frame(10) { alpha = 0f }
+                frame(20) { alpha = 0f }
                 frame(100) { alpha = 0f }
             }
         }
