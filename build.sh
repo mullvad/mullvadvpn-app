@@ -253,7 +253,7 @@ function build {
         cargo_crates_to_build+=(-p mullvad-exclude --bin mullvad-exclude)
     fi
 
-    cargo build "${cargo_target_arg[@]}" "${cargo_features[@]}" "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
+    cargo build "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
 
     ################################################################################
     # Move binaries to correct locations in dist-assets

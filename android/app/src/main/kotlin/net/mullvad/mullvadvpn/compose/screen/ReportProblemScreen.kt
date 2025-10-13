@@ -238,30 +238,24 @@ private fun IncludeAccountTokenCheckBox(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
-            Modifier.padding(top = Dimens.smallPadding)
-                .clickable { onIncludeAccountTokenCheckChange(!includeAccountToken) }
+            Modifier.clickable { onIncludeAccountTokenCheckChange(!includeAccountToken) }
+                .padding(vertical = Dimens.smallPadding)
                 .fillMaxWidth(),
     ) {
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 24.dp) {
+        // To align the checkbox with the text
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
             Checkbox(
-                modifier = Modifier.padding(end = Dimens.mediumPadding),
+                modifier = Modifier.padding(end = Dimens.smallPadding),
                 checked = includeAccountToken,
                 onCheckedChange = onIncludeAccountTokenCheckChange,
             )
             Text(
-                text = stringResource(R.string.include_account_token),
+                text = stringResource(R.string.include_account_token_checkbox_text),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelLarge,
             )
         }
     }
-    /*CheckboxCell(
-        startPadding = 0.dp,
-        title =
-        background = MaterialTheme.colorScheme.background,
-        checked = includeAccountToken,
-        onCheckedChange = onIncludeAccountTokenCheckChange,
-    )*/
 }
 
 @Composable
