@@ -230,7 +230,7 @@ export default function SelectLocation() {
                                 'select-location-view',
                                 'Obfuscation: %(obfuscation)s',
                               ),
-                              { obfuscation: 'QUIC' },
+                              { obfuscation: strings.quic },
                             )}
                           </FilterChip.Text>
                         </FilterChip>

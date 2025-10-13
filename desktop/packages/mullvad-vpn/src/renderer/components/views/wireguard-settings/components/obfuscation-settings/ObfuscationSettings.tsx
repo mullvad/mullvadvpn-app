@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
+import { strings } from '../../../../../../shared/constants';
 import { Constraint, ObfuscationType } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
@@ -69,7 +70,7 @@ export function ObfuscationSettings() {
           {messages.gettext('Automatic')}
         </SettingsListbox.BaseOption>
         <SettingsListbox.BaseOption value={ObfuscationType.lwo}>
-          {messages.pgettext('wireguard-settings-view', 'LWO')}
+          {strings.lwo}
         </SettingsListbox.BaseOption>
         <SettingsListbox.SplitOption value={ObfuscationType.shadowsocks}>
           <SettingsListbox.SplitOption.Item
@@ -116,7 +117,7 @@ export function ObfuscationSettings() {
           />
         </SettingsListbox.SplitOption>
         <SettingsListbox.BaseOption value={ObfuscationType.quic}>
-          {messages.pgettext('wireguard-settings-view', 'QUIC')}
+          {strings.quic}
         </SettingsListbox.BaseOption>
         <SettingsListbox.BaseOption value={ObfuscationType.off}>
           {messages.gettext('Off')}
