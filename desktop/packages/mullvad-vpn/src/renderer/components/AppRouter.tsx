@@ -43,7 +43,6 @@ import {
   TooManyDevicesView,
   UdpOverTcpSettingsView,
   VpnSettingsView,
-  WireguardSettingsView,
 } from './views';
 
 export default function AppRouter() {
@@ -75,7 +74,6 @@ export default function AppRouter() {
           <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
           <Route exact path={RoutePath.multihopSettings} component={MultihopSettingsView} />
           <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
-          <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsView} />
           <Route exact path={RoutePath.daitaSettings} component={DaitaSettingsView} />
           <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcpSettingsView} />
           <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />

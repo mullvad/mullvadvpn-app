@@ -15,7 +15,6 @@ export enum RoutePath {
   userInterfaceSettings = '/settings/interface',
   multihopSettings = '/settings/multihop',
   vpnSettings = '/settings/vpn',
-  wireguardSettings = '/settings/advanced/wireguard',
   daitaSettings = '/settings/daita',
   udpOverTcp = '/settings/advanced/wireguard/udp-over-tcp',
   shadowsocks = '/settings/advanced/shadowsocks',
