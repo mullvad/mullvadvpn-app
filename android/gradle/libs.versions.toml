@@ -49,10 +49,7 @@ drawablepainter = "0.37.3"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
 grpc = "1.76.0"
-# Skipping 1.4.3, possibly a faulty release with no changelog.
-# https://github.com/grpc/grpc-kotlin/issues/644
 grpc-kotlin = "1.5.0"
-grpc-kotlin-jar = "1.5.0:jdk8@jar"
 
 junit = "5.13.4"
 junit5-android = "1.8.0"
@@ -238,7 +235,7 @@ protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" 
 
 # gRPC
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
-grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin-jar" }
+grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
 
 
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
