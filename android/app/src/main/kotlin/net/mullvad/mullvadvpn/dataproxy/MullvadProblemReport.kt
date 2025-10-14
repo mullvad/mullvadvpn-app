@@ -73,7 +73,7 @@ class MullvadProblemReport(
                     userMessage = userReport.description,
                     accountId =
                         if (includeAccountId) {
-                            accountRepository.getAccountId()?.value?.toString()
+                            accountRepository.accountData.value?.id?.value?.toString()
                         } else {
                             null
                         },
