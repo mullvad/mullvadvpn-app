@@ -131,22 +131,6 @@ public enum RelaySelector {
         return nil
     }
 
-    private static func makeRelayWithLocationFrom<T: AnyRelay>(
-        _ serverLocation: REST.ServerLocation,
-        relay: T
-    ) -> RelayWithLocation<T>? {
-        let location = Location(
-            country: serverLocation.country,
-            countryCode: String(relay.location.country),
-            city: serverLocation.city,
-            cityCode: String(relay.location.city),
-            latitude: serverLocation.latitude,
-            longitude: serverLocation.longitude
-        )
-
-        return RelayWithLocation(relay: relay, serverLocation: location)
-    }
-
     private static func filterByActive<T: AnyRelay>(
         relays: [RelayWithLocation<T>]
     ) throws -> [RelayWithLocation<T>] {
