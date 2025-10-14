@@ -29,7 +29,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             let text = NSLocalizedString(
-                "Manage default and setup custom methods to access the Mullvad API. ",
+                "Manage and add custom methods to access the Mullvad API.",
                 comment: ""
             )
             let about = NSLocalizedString("About API access…", comment: "")
@@ -38,7 +38,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 viewModel.items,
                 header: {
                     MullvadInfoHeaderView(
-                        bodyText: text,
+                        bodyText: "\(text) ",
                         link: about,
                         onTapLink: viewModel.showAbout
                     )

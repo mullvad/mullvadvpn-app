@@ -92,9 +92,6 @@
         }
       }
     },
-    "%@ have been added to your account" : {
-
-    },
     "%@ left on this account" : {
 
     },
@@ -114,7 +111,7 @@
         }
       }
     },
-    "%@ were added to your account." : {
+    "%@ was added to your account." : {
 
     },
     "%@, %@" : {
@@ -173,9 +170,6 @@
           }
         }
       }
-    },
-    "A custom list with this name exists, please choose a unique name." : {
-
     },
     "About API access…" : {
 
@@ -262,6 +256,7 @@
 
     },
     "Account deletion" : {
+
     },
     "Account number" : {
       "localizations" : {
@@ -357,9 +352,6 @@
         }
       }
     },
-    "Add access method" : {
-
-    },
     "Add locations" : {
       "localizations" : {
         "de" : {
@@ -381,6 +373,9 @@
           }
         }
       }
+    },
+    "Add method" : {
+
     },
     "Add new list" : {
 
@@ -406,9 +401,6 @@
           }
         }
       }
-    },
-    "Add Time" : {
-
     },
     "Ads" : {
       "localizations" : {
@@ -501,7 +493,7 @@
         }
       }
     },
-    "All Providers" : {
+    "All providers" : {
 
     },
     "Any" : {
@@ -592,27 +584,8 @@
         }
       }
     },
-    "API unreachable, save anyway?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API nicht erreichbar, dennoch speichern?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API injoignable, l'enregistrer quand même ?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API kan inte nås, spara ändå?"
-          }
-        }
-      }
+    "API unreachable, save method anyway?" : {
+
     },
     "App logs" : {
 
@@ -694,9 +667,6 @@
           }
         }
       }
-    },
-    "Back to editing" : {
-
     },
     "Blocked connection" : {
 
@@ -1085,7 +1055,7 @@
         }
       }
     },
-    "Copy to pasteboard" : {
+    "Copied Mullvad account number to pasteboard" : {
 
     },
     "Correct account number" : {
@@ -1142,12 +1112,6 @@
 
     },
     "Creating new account" : {
-
-    },
-    "Creating quantum secure connection" : {
-
-    },
-    "Creating secure connection" : {
 
     },
     "Current device" : {
@@ -1281,8 +1245,6 @@
     "Delete account" : {
 
     },
-    "Delete Account" : {
-    },
     "Delete list" : {
       "localizations" : {
         "de" : {
@@ -1328,6 +1290,7 @@
       }
     },
     "Deleting account..." : {
+
     },
     "Device is inactive" : {
       "localizations" : {
@@ -1374,9 +1337,6 @@
       }
     },
     "Device name: %@" : {
-
-    },
-    "Direct" : {
 
     },
     "Direct only" : {
@@ -1491,28 +1451,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Frånkopplad"
-          }
-        }
-      }
-    },
-    "Disconnecting" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbindung wird getrennt"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déconnexion en cours"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopplar från"
           }
         }
       }
@@ -1742,9 +1680,6 @@
     "Enabling" : {
 
     },
-    "Encrypted DNS proxy" : {
-
-    },
     "Enter IP" : {
       "localizations" : {
         "de" : {
@@ -1861,7 +1796,7 @@
     "Expands this location." : {
 
     },
-    "Failed to connect to App store, please try again later." : {
+    "Failed to load products, please try again" : {
 
     },
     "Failed to send" : {
@@ -2168,9 +2103,6 @@
         }
       }
     },
-    "If so, click log out below to log in with the other account number." : {
-
-    },
     "If you are having issues connecting to VPN servers, please contact support." : {
       "localizations" : {
         "de" : {
@@ -2393,7 +2325,7 @@
     "Internal error." : {
 
     },
-    "Invalid account" : {
+    "Invalid account number" : {
 
     },
     "Invalid device state." : {
@@ -2469,6 +2401,7 @@
       }
     },
     "Last four digits of the account number are incorrect" : {
+
     },
     "Last used account" : {
 
@@ -2649,10 +2582,7 @@
         }
       }
     },
-    "Manage default and setup custom methods to access the Mullvad API." : {
-
-    },
-    "Manage default and setup custom methods to access the Mullvad API. " : {
+    "Manage and add custom methods to access the Mullvad API." : {
 
     },
     "Manage devices" : {
@@ -2681,9 +2611,6 @@
 
     },
     "Method settings" : {
-
-    },
-    "Mullvad bridges" : {
 
     },
     "multihop" : {
@@ -2749,6 +2676,9 @@
           }
         }
       }
+    },
+    "Name is already taken." : {
+
     },
     "Name should be no longer than %i characters." : {
 
@@ -3322,19 +3252,6 @@
         }
       }
     },
-    "Quantum secure connection" : {
-
-    },
-    "Quantum secure connection. Connected to %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Quantum secure connection. Connected to %1$@, %2$@"
-          }
-        }
-      }
-    },
     "Quantum-resistant tunnel" : {
       "localizations" : {
         "de" : {
@@ -3583,9 +3500,6 @@
         }
       }
     },
-    "Save anyway" : {
-
-    },
     "Saving changes..." : {
 
     },
@@ -3607,16 +3521,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sök efter …"
-          }
-        }
-      }
-    },
-    "Secure connection. Connected to %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Secure connection. Connected to %1$@, %2$@"
           }
         }
       }
@@ -3787,9 +3691,6 @@
           }
         }
       }
-    },
-    "Server IP Override" : {
-
     },
     "Setting: %@" : {
 
@@ -4456,9 +4357,6 @@
         }
       }
     },
-    "Too many devices registered with account" : {
-
-    },
     "Trackers" : {
       "localizations" : {
         "de" : {
@@ -4593,9 +4491,6 @@
           }
         }
       }
-    },
-    "Unsecured connection" : {
-
     },
     "Use custom DNS server" : {
       "localizations" : {
