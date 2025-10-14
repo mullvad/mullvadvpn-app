@@ -10,7 +10,7 @@ target-sdk = "36"
 ndk = "27.3.13750724"
 
 # Android
-# The android-gradle-aapt plugin version must be in sync with the android plugin version.
+# The android-gradle-aapt plugin version must be in sync with the android gradle plugin version.
 # Required for Gradle metadata verification to work properly, see:
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
@@ -97,7 +97,7 @@ profileinstaller = "1.4.1"
 [libraries]
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
-android-gradle-aapt = { module = "com.android.tools.build:aapt2", version.ref = "android-gradle-aapt" }
+android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
