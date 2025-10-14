@@ -1575,6 +1575,7 @@ impl Daemon {
                     log::debug!("Initiating tunnel restart because the account number changed");
                     self.reconnect_tunnel();
                 }
+                self.update_recents().await;
             }
             AccountEvent::Device(PrivateDeviceEvent::Logout) => {
                 log::info!("Disconnecting because account number was cleared");
@@ -2397,6 +2398,7 @@ impl Daemon {
                 e.display_chain_with_msg("Unable to save has_updated_default_country")
             );
         }
+        self.update_recents().await;
     }
 
     async fn on_set_allow_lan(&mut self, tx: ResponseTx<(), settings::Error>, allow_lan: bool) {
@@ -2655,6 +2657,7 @@ impl Daemon {
             .update(|settings| match settings.recents {
                 None if enable_recents => {
                     settings.recents = Some(vec![]);
+                    settings.update_recents();
                 }
                 Some(_) if !enable_recents => {
                     settings.recents = None;
@@ -3518,6 +3521,19 @@ impl Daemon {
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
         DaemonShutdownHandle {
             tx: self.tx.clone(),
+        }
+    }
+
+    async fn update_recents(&mut self) {
+        if let Err(e) = self
+            .settings
+            .update(move |settings| settings.update_recents())
+            .await
+        {
+            log::error!(
+                "{}",
+                e.display_chain_with_msg("Unable to save recents to settings")
+            );
         }
     }
 }
