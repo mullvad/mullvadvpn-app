@@ -48,7 +48,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let apiProxy: APIQuerying
-    private let accessTokenManager: RESTAccessTokenManagement
 
     private let logger = Logger(label: "TunnelManager")
     private var nslock = NSRecursiveLock()
@@ -89,7 +88,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
         apiProxy: APIQuerying,
-        accessTokenManager: RESTAccessTokenManagement,
         relaySelector: RelaySelectorProtocol
     ) {
         self.backgroundTaskProvider = backgroundTaskProvider
@@ -100,7 +98,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         self.apiProxy = apiProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
-        self.accessTokenManager = accessTokenManager
         self.relaySelector = relaySelector
 
         NotificationCenter.default.addObserver(
@@ -386,7 +383,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             interactor: TunnelInteractorProxy(self),
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
-            accessTokenManager: accessTokenManager,
             action: action
         )
 
