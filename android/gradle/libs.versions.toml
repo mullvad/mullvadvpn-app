@@ -17,7 +17,7 @@ ndk = "27.3.13750724"
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 
 android-gradle-plugin = "8.13.0"
-android-gradle-aapt = "13719691"
+android-gradle-aapt = "8.13.0-13719691"
 android-billingclient = "8.0.0"
 
 # AndroidX
