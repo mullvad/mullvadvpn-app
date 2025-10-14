@@ -14,6 +14,7 @@ test.describe('Transitions and animations', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     await page.emulateMedia({ reducedMotion: null });
+    await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: no-preference)').matches);
     routes = new RoutesObjectModel(page, util);
 
     await routes.main.waitForRoute();

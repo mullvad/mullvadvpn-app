@@ -29,6 +29,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
 
   if (!forceMotion) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
   await promiseTimeout(page.waitForEvent('load'));

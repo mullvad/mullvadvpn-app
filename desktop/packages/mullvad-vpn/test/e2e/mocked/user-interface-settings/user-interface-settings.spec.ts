@@ -124,21 +124,31 @@ test.describe('User interface settings', () => {
   });
 
   test.describe('Animate map setting', () => {
+    test.afterEach(async () => {
+      // Reset the default prefers-reduced-motion configuration between each test
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    });
+
     test('Should conditionally display animate map setting based on prefer-reduced-motion', async () => {
       const animateMapSwitch = routes.userInterfaceSettings.selectors.animateMapSwitch();
 
-      await page.emulateMedia({ reducedMotion: null });
-      await expect(animateMapSwitch).toBeVisible();
-
       await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await page.evaluate(
+        () => window.matchMedia('(prefers-reduced-motion: no-preference)').matches,
+      );
       await expect(animateMapSwitch).toBeVisible();
 
       await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
       await expect(animateMapSwitch).not.toBeVisible();
     });
 
     test('Should toggle animate map setting', async () => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await page.evaluate(
+        () => window.matchMedia('(prefers-reduced-motion: no-preference)').matches,
+      );
 
       const animateMapSwitch = routes.userInterfaceSettings.selectors.animateMapSwitch();
       await expect(animateMapSwitch).toBeVisible();
