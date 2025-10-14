@@ -57,23 +57,30 @@ function promiseTimeout<T>(promise: Promise<T>): Promise<T | void> {
 }
 
 async function closePage(page: Page) {
-  await promiseTimeout(page?.close());
+  try {
+    await promiseTimeout(page?.close());
+  } catch (e) {
+    // no-op, if a window failes to close it will be cleaned up automatically by playwright at the
+    // end of the run.
+    const error = e as Error;
+    console.error(`page.close() threw an error: ${error.message}`);
+  }
 }
 
 function getCurrentRoute(page: Page): Promise<string | null> {
-  return page.evaluate('window.e2e.location');
+  return page.evaluate('window?.e2e?.location ?? null');
 }
 
 // Returns a promise which resolves when the provided route is reached.
 async function expectRoute(page: Page, expectedRoute: string): Promise<void> {
-  await expect.poll(async () => getCurrentRoute(page)).toMatchPath(expectedRoute);
+  await expect.poll(() => getCurrentRoute(page)).toMatchPath(expectedRoute);
 }
 
 // Returns a promise which resolves when the route changes.
 async function expectRouteChange(page: Page, trigger: TriggerFn) {
   const initialRoute = await getCurrentRoute(page);
   await trigger();
-  await expect.poll(async () => getCurrentRoute(page)).not.toMatchPath(initialRoute);
+  await expect.poll(() => getCurrentRoute(page)).not.toMatchPath(initialRoute);
 }
 
 const getStyleProperty = (locator: Locator, property: string) => {
