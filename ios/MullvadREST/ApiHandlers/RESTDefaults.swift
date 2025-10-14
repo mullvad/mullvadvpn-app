@@ -28,4 +28,7 @@ extension REST {
 
     /// Default network timeout for API requests.
     public static let defaultAPINetworkTimeout: Duration = .seconds(10)
+
+    /// am.i.mullvad.net hostname.
+    public static let amIMullvadHostname = infoDictionary["AmIMullvad"] as! String
 }

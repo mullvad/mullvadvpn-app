@@ -17,3 +17,8 @@ API_ENDPOINT[config=Debug] = 45.83.223.196:443
 API_ENDPOINT[config=Release] = 45.83.223.196:443
 API_ENDPOINT[config=MockRelease] = 45.83.223.196:443
 API_ENDPOINT[config=Staging] = 185.217.116.132:443
+
+AM_I_JSON_URL[config=Debug] = https:/${}/am.i.mullvad.net/json
+AM_I_JSON_URL[config=Release] = https:/${}/am.i.mullvad.net/json
+AM_I_JSON_URL[config=MockRelease] = https:/${}/am.i.mullvad.net/json
+AM_I_JSON_URL[config=Staging] = https:/${}/am.i.stagemole.eu/json
