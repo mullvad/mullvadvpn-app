@@ -48,7 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var migrationManager: MigrationManager!
 
     nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository()
-    private(set) var appPreferences = AppPreferences()
+    nonisolated(unsafe) private(set) var appPreferences = AppPreferences()
     private(set) var shadowsocksLoader: ShadowsocksLoader!
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private(set) var relaySelector: RelaySelectorWrapper!
@@ -491,16 +491,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func startInitialization(application: UIApplication) {
         let wipeSettingsOperation = getWipeSettingsOperation()
+        let defaultLocationOperation = getDefaultLocationOperation()
         let loadTunnelStoreOperation = getLoadTunnelStoreOperation()
         let migrateSettingsOperation = getMigrateSettingsOperation(application: application)
         let initTunnelManagerOperation = getInitTunnelManagerOperation()
 
+        defaultLocationOperation.addDependency(wipeSettingsOperation)
         migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)
 
         operationQueue.addOperations(
             [
                 wipeSettingsOperation,
+                defaultLocationOperation,
                 loadTunnelStoreOperation,
                 migrateSettingsOperation,
                 initTunnelManagerOperation,
@@ -593,8 +596,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// compatible, thus triggering a settings wipe.
     private func getWipeSettingsOperation() -> AsyncBlockOperation {
         AsyncBlockOperation {
-            let appHasNeverBeenLaunched = !FirstTimeLaunch.hasFinished && !SettingsManager.getShouldWipeSettings()
-            let appWasLaunchedAfterReinstall = !FirstTimeLaunch.hasFinished && SettingsManager.getShouldWipeSettings()
+            let appHasNeverBeenLaunched =
+                !self.appPreferences.hasDoneFirstTimeLaunch && !SettingsManager.getShouldWipeSettings()
+            let appWasLaunchedAfterReinstall =
+                !self.appPreferences.hasDoneFirstTimeLaunch && SettingsManager.getShouldWipeSettings()
 
             if appHasNeverBeenLaunched {
                 try? SettingsManager.writeSettings(LatestTunnelSettings())
@@ -622,8 +627,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 try? self.relayCacheTracker.refreshCachedRelays()
             }
 
-            FirstTimeLaunch.setHasFinished()
             SettingsManager.setShouldWipeSettings()
+        }
+    }
+
+    private func getDefaultLocationOperation() -> AsyncBlockOperation {
+        AsyncBlockOperation {
+            guard !self.appPreferences.hasDoneFirstTimeLaunch else {
+                return
+            }
+            self.appPreferences.hasDoneFirstTimeLaunch = true
+
+            Task {
+                guard let cachedRelays = try? await self.relayCacheTracker.fetchNewRelays()?.cachedRelays else {
+                    return
+                }
+
+                let locationService = DefaultLocationService(
+                    urlSession: URLSession.shared, relayCache: cachedRelays)
+                let locationIdentifier = try? await locationService.fetchCurrentLocationIdentifier()
+
+                let constraint = RelayConstraint.only(
+                    UserSelectedRelays(
+                        locations: [.country(locationIdentifier?.country ?? "se")]
+                    ))
+
+                if !self.appPreferences.hasDoneFirstTimeLogin {
+                    self.tunnelManager.updateSettings([
+                        .relayConstraints(RelayConstraints(entryLocations: constraint, exitLocations: constraint))
+                    ])
+                }
+            }
         }
     }
 
