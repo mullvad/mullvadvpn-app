@@ -367,6 +367,9 @@ impl TunnelStateMachine {
             )
             .map_err(Error::InitSplitTunneling);
 
+            // NOTE: Do not spawn any processes here. There is a bug in the split tunnel driver that
+            // can trigger a bug check/BSOD if processes are spawned or killed during a failed init.
+
             result?
         };
 
