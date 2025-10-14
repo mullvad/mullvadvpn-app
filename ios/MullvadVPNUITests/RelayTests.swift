@@ -513,6 +513,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testDaitaIncreasesAverageDataConsumption() throws {
+        let skipReason = """
+                This test is currently skipped due to not being reliable. An issue to fix it has been added here:
+                https://linear.app/mullvad/issue/IOS-1348/fix-testdaitaincreasesaveragedataconsumption-flakiness
+            """
+        try XCTSkipIf(true, skipReason)
+
         // Verify daita is off
         HeaderBar(app)
             .tapSettingsButton()
