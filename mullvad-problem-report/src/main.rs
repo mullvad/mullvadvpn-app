@@ -76,7 +76,7 @@ fn run() -> Result<(), Error> {
             send_problem_report(
                 &email.unwrap_or_default(),
                 &message.unwrap_or_default(),
-                &None,
+                None,
                 &report,
             )?;
         }
