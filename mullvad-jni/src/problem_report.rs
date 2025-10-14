@@ -66,7 +66,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     let send_result = mullvad_problem_report::send_problem_report(
         &user_email,
         &user_message,
-        &account_token.as_deref(),
+        account_token.as_deref(),
         output_path,
         cache_directory,
         api_endpoint,
