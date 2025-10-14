@@ -46,7 +46,7 @@ impl AppVersionProxy {
         &self,
         app_version: AppVersion,
         platform: &str,
-        platform_version: String,
+        platform_version: Option<String>,
     ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> + use<> {
         let service = self.handle.service.clone();
 
@@ -54,9 +54,12 @@ impl AppVersionProxy {
         let request = self.handle.factory.get(&path);
 
         async move {
-            let request = request?
-                .expected_status(&[StatusCode::OK])
-                .header("M-Platform-Version", &platform_version)?;
+            let mut request = request?;
+            if let Some(platform_version) = platform_version {
+                request = request
+                    .expected_status(&[StatusCode::OK])
+                    .header("M-Platform-Version", &platform_version)?;
+            }
             let response = service.request(request).await?;
             response.deserialize().await
         }
@@ -69,23 +72,27 @@ impl AppVersionProxy {
         architecture: mullvad_update::format::Architecture,
         rollout: f32,
         lowest_metadata_version: usize,
-        platform_version: String,
+        platform_version: Option<String>,
     ) -> impl Future<Output = Result<AppVersionResponse2, rest::Error>> + use<> {
+        // TODO: etag
+
         let service = self.handle.service.clone();
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
 
         async move {
-            let request = request?
-                .expected_status(&[StatusCode::OK])
-                .header(
-                    "M-App-Version",
-                    &sanitize_header_value(mullvad_version::VERSION),
-                )?
-                .header(
-                    "M-Platform-Version",
-                    &sanitize_header_value(&platform_version),
-                )?;
+            let mut request = request?.expected_status(&[StatusCode::OK]);
+            if let Some(platform_version) = platform_version {
+                request = request
+                    .header(
+                        "M-App-Version",
+                        &sanitize_header_value(mullvad_version::VERSION),
+                    )?
+                    .header(
+                        "M-Platform-Version",
+                        &sanitize_header_value(&platform_version),
+                    )?;
+            }
             let response = service.request(request).await?;
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
