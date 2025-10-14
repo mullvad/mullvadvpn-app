@@ -266,7 +266,7 @@ fn write_logcat_to_file(log_dir: &Path) -> Result<PathBuf, io::Error> {
 pub fn send_problem_report(
     user_email: &str,
     user_message: &str,
-    account_token: &Option<&str>,
+    account_token: Option<&str>,
     report_path: &Path,
     cache_dir: &Path,
     endpoint: ApiEndpoint,
@@ -298,7 +298,7 @@ pub fn send_problem_report(
 async fn send_problem_report_inner(
     user_email: &str,
     user_message: &str,
-    account_token: &Option<&str>,
+    account_token: Option<&str>,
     report_content: &str,
     cache_dir: &Path,
     endpoint: &ApiEndpoint,
