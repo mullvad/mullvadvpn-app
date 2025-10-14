@@ -30,11 +30,14 @@ buildscript {
         // Dependency class paths are required for Gradle metadata verification to work properly,
         // see:
         // https://github.com/gradle/gradle/issues/19228
-        val (aapt, aaptVersion) = with(libs.android.gradle.aapt.get()) { module to version }
-        val agpVersion = libs.plugins.android.gradle.plugin.get().version.requiredVersion
-        classpath("$aapt:$agpVersion-$aaptVersion:linux")
-        classpath("$aapt:$agpVersion-$aaptVersion:osx")
-        classpath("$aapt:$agpVersion-$aaptVersion:windows")
+        classpath(libs.android.gradle.aapt) {
+            listOf("linux", "osx", "windows").forEach { classifier ->
+                artifact {
+                    this.name = name
+                    this.classifier = classifier
+                }
+            }
+        }
 
         // Protoc plugin
         classpath(libs.protobuf.protoc) {
