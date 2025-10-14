@@ -11,7 +11,7 @@ import Network
 
 extension Network.NWPath.Status {
     /// Converts `NetworkPath.status` into `NetworkReachability`.
-    var networkReachability: NetworkReachability {
+    public var networkReachability: NetworkReachability {
         switch self {
         case .satisfied:
             .reachable

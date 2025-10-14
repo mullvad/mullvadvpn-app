@@ -53,7 +53,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .startDefaultPathObserver,
                 .startTunnelMonitor,
                 .startConnection(.random),
             ])
@@ -71,7 +70,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .startDefaultPathObserver,
                 .startTunnelMonitor,
                 .startConnection(.preSelected(selectedRelays)),
             ])
@@ -91,7 +89,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
             effects,
             [
                 .stopTunnelMonitor,
-                .stopDefaultPathObserver,
                 .stopTunnelAdapter,
                 .setDisconnectedState,
             ])
@@ -109,7 +106,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
             effects,
             [
                 .stopTunnelMonitor,
-                .stopDefaultPathObserver,
                 .stopTunnelAdapter,
                 .setDisconnectedState,
             ])
@@ -127,7 +123,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
             effects,
             [
                 .stopTunnelMonitor,
-                .stopDefaultPathObserver,
                 .stopTunnelAdapter,
                 .setDisconnectedState,
             ])
@@ -150,7 +145,6 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         XCTAssertEqual(
             effects,
             [
-                .stopDefaultPathObserver,
                 .stopTunnelAdapter,
                 .setDisconnectedState,
             ])
