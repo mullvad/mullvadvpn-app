@@ -4,8 +4,6 @@
 <dict>
 	<key>AdServingDomain</key>
 	<string>$(AD_SERVING_DOMAIN)</string>
-	<key>AmIJSONUrl</key>
-	<string>$(AM_I_JSON_URL)</string>
 	<key>ApiEndpoint</key>
 	<string>$(API_ENDPOINT)</string>
 	<key>ApiHostName</key>

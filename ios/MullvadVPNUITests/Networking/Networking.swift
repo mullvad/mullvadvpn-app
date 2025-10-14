@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 @preconcurrency import Network
 import XCTest
 
@@ -231,12 +232,7 @@ class Networking {
     }
 
     public static func verifyConnectedThroughMullvad() throws {
-        let mullvadConnectionJsonEndpoint = try XCTUnwrap(
-            Bundle(for: Networking.self)
-                .infoDictionary?["AmIJSONUrl"] as? String,
-            "Read am I JSON URL from Info"
-        )
-        guard let url = URL(string: mullvadConnectionJsonEndpoint) else {
+        guard let url = URL(string: REST.amIMullvadHostname) else {
             XCTFail("Failed to unwrap URL")
             return
         }

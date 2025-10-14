@@ -33,9 +33,6 @@ SHOULD_BE_REACHABLE_IP_ADDRESS = 45.83.223.209
 // Base URL for the firewall API. Note that // will be treated as a comment, therefor you need to insert a ${} between the slashes for example http:/${}/8.8.8.8
 FIREWALL_API_BASE_URL = http:/${}/8.8.8.8
 
-// URL for Mullvad provided JSON data with information about the connection. https://am.i.mullvad.net/json for production, https://am.i.stagemole.eu/json for staging.
-AM_I_JSON_URL = https:/${}/am.i.stagemole.eu/json
-
 // Specify whether app logs should be extracted and attached to test report for failing tests
 ATTACH_APP_LOGS_ON_FAILURE = 0
 
