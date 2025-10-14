@@ -6,7 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import MullvadTypes
 
 class URLSessionStub: URLSessionProtocol {
     var response: (Data, URLResponse)

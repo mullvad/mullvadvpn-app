@@ -195,6 +195,25 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         return operation
     }
 
+    func fetchNewRelays() async throws -> StoredRelays? {
+        let cachedRelays = try? self.getCachedRelays()
+
+        return await withCheckedContinuation { continuation in
+            _ = apiProxy.getRelays(etag: cachedRelays?.etag, retryStrategy: .noRetry) { result in
+                if case let .newContent(etag, rawData) = result.value {
+                    continuation.resume(
+                        returning: try? StoredRelays(
+                            etag: etag,
+                            rawData: rawData,
+                            updatedAt: Date()
+                        ))
+                } else {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+
     func getCachedRelays() throws -> CachedRelays {
         relayCacheLock.lock()
         defer { relayCacheLock.unlock() }
