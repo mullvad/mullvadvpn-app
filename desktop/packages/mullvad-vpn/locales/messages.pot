@@ -3426,6 +3426,9 @@ msgstr ""
 msgid "This field is required"
 msgstr ""
 
+msgid "This is a question about account or payments (include account information)"
+msgstr ""
+
 msgid "This is already set as current"
 msgstr ""
 
