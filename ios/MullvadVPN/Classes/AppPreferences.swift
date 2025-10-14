@@ -10,16 +10,28 @@ import Foundation
 import MullvadSettings
 
 protocol AppPreferencesDataSource {
+    var hasDoneFirstTimeLaunch: Bool { get set }
+    var hasDoneFirstTimeLogin: Bool { get set }
     var isShownOnboarding: Bool { get set }
     var isAgreedToTermsOfService: Bool { get set }
     var lastSeenChangeLogVersion: String { get set }
 }
 
 enum AppStorageKey: String {
-    case isShownOnboarding, isAgreedToTermsOfService, lastSeenChangeLogVersion
+    case hasDoneFirstTimeLaunch = "hasFinishedFirstTimeLaunch"
+    case hasDoneFirstTimeLogin
+    case isShownOnboarding
+    case isAgreedToTermsOfService
+    case lastSeenChangeLogVersion
 }
 
 final class AppPreferences: AppPreferencesDataSource {
+    @AppStorage(key: AppStorageKey.hasDoneFirstTimeLaunch.rawValue, container: .standard)
+    var hasDoneFirstTimeLaunch: Bool = false
+
+    @AppStorage(key: AppStorageKey.hasDoneFirstTimeLogin.rawValue, container: .standard)
+    var hasDoneFirstTimeLogin: Bool = false
+
     @AppStorage(key: AppStorageKey.isShownOnboarding.rawValue, container: .standard)
     var isShownOnboarding = true
 

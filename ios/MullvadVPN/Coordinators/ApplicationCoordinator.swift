@@ -466,6 +466,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
 
         coordinator.didFinish = { [weak self] _ in
+            self?.appPreferences.hasDoneFirstTimeLogin = true
             self?.continueFlow(animated: true)
         }
         coordinator.didCreateAccount = { [weak self] in
