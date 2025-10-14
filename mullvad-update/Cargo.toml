@@ -41,6 +41,7 @@ clap = { workspace = true, optional = true }
 # TODO Upgrading to rand 0.9 is blocked on ed25519-dalek dropping their dependency on rand_core 0.6
 # (as of ed25519-dalek 2.2.0)
 rand08 = { package = "rand", version = "0.8.5", optional = true }
+rand = { workspace = true }
 
 thiserror = { workspace = true, optional = true }
 

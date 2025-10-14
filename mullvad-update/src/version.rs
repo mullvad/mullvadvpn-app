@@ -9,6 +9,7 @@ use std::cmp::Ordering;
 use anyhow::Context;
 use itertools::Itertools;
 use mullvad_version::PreStableType;
+use rand::Rng;
 
 use crate::format::{self, Installer, Response};
 
@@ -151,6 +152,21 @@ pub fn is_version_supported(
         .releases
         .iter()
         .any(|release| release.version.eq(&current_version))
+}
+
+/// TODO: Document mee
+pub fn generate_rollout_seed() -> f32 {
+    generate_random_seed(&mut rand::rng())
+}
+
+/// TODO: Document me
+/// rand(epsilon..1.0)
+// TODO: Rename
+fn generate_random_seed<R>(mut rng: R) -> f32
+where
+    R: Rng,
+{
+    rng.random_range(f32::EPSILON..1.0)
 }
 
 #[cfg(test)]
