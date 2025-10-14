@@ -588,6 +588,8 @@ fn recommended_version_upgrade(
 
 #[cfg(all(test, in_app_upgrade))]
 mod test {
+    use std::time::SystemTime;
+
     use super::downloader::ProgressUpdater;
     use futures::channel::mpsc::unbounded;
     use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeEvent};
@@ -775,7 +777,9 @@ mod test {
                     sha256: [0; 32],
                 },
             },
+            last_platform_header_check: SystemTime::now(),
             metadata_version: 0,
+            etag: None,
         }
     }
 
@@ -798,7 +802,9 @@ mod test {
                 beta: Some(beta),
                 stable,
             },
+            last_platform_header_check: SystemTime::now(),
             metadata_version: 0,
+            etag: None,
         }
     }
 
