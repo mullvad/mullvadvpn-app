@@ -102,7 +102,6 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager,
             relaySelector: RelaySelectorStub.nonFallible()
         )
 
@@ -120,7 +119,6 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager,
             relaySelector: RelaySelectorStub.nonFallible()
         )
         _ = try await tunnelManager.setNewAccount()
@@ -149,7 +147,6 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager,
             relaySelector: relaySelector
         )
 
@@ -220,7 +217,6 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager,
             relaySelector: relaySelector
         )
 
@@ -294,7 +290,6 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager,
             relaySelector: relaySelector
         )
 
