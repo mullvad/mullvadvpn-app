@@ -42,7 +42,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
-    private let accessTokenManager: RESTAccessTokenManagement
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
@@ -52,13 +51,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         interactor: TunnelInteractor,
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
-        accessTokenManager: RESTAccessTokenManagement,
         action: SetAccountAction
     ) {
         self.interactor = interactor
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
-        self.accessTokenManager = accessTokenManager
         self.action = action
 
         super.init(dispatchQueue: dispatchQueue)
@@ -70,7 +67,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         switch action {
         case .new:
             startLogoutFlow { [self] in
-                self.accessTokenManager.invalidateAllTokens()
                 startNewAccountFlow { [self] result in
                     finish(result: result.map { .some($0) })
                 }
@@ -78,7 +74,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
         case let .existing(accountNumber):
             startLogoutFlow { [self] in
-                self.accessTokenManager.invalidateAllTokens()
                 startExistingAccountFlow(accountNumber: accountNumber) { [self] result in
                     finish(result: result.map { .some($0) })
                 }
@@ -86,7 +81,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
         case .unset:
             startLogoutFlow { [self] in
-                self.accessTokenManager.invalidateAllTokens()
                 finish(result: .success(nil))
             }
 

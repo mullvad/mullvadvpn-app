@@ -213,7 +213,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: proxyFactory.configuration.accessTokenManager,
             relaySelector: relaySelector
         )
     }
