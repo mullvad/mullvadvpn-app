@@ -92,13 +92,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
         case let .delete(accountNumber):
             startDeleteAccountFlow(accountNumber: accountNumber) { [self] result in
-                if result.isSuccess {
-                    unsetDeviceState { [self] in
-                        finish(result: result.map { .none })
-                    }
-                } else {
-                    finish(result: result.map { .none })
-                }
+                finish(result: result.map { .none })
             }
         }
     }
@@ -175,9 +169,12 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         deleteAccount(accountNumber: accountNumber) { [self] result in
             if result.isSuccess {
                 interactor.removeLastUsedAccount()
+                unsetDeviceState {
+                    completion(result)
+                }
+            } else {
+                completion(result)
             }
-
-            completion(result)
         }
     }
 
