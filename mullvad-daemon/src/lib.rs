@@ -71,6 +71,7 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+use mullvad_update::version::generate_rollout_seed;
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
@@ -734,6 +735,17 @@ impl Daemon {
 
         let settings_event_listener = management_interface.notifier().clone();
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
+        let _ = settings
+            .try_update(|settings| {
+                // TODO: Discard random seed, we only want to set it not actually use it here.
+                let _rollout_threshold_seed = settings
+                    .rollout_threshold_seed
+                    .get_or_insert_with(generate_rollout_seed);
+                dbg!(_rollout_threshold_seed);
+                Ok::<(), std::convert::Infallible>(())
+            })
+            .await;
+
         settings.register_change_listener(move |settings| {
             // Notify management interface server of changes to the settings
             settings_event_listener.notify_settings(settings.to_owned());
