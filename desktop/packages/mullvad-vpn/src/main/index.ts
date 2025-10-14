@@ -1154,6 +1154,7 @@ class ApplicationMain
   public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
   public updateAccountData = () => this.account.updateAccountData();
   public getAccountData = () => this.account.accountData;
+  public getVersionInfo = () => this.version.fetchLatestVersion();
 
   // TunnelStateHandlerDelegate
   public handleTunnelStateUpdate = (tunnelState: TunnelState) => {
