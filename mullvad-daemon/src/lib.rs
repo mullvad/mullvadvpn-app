@@ -735,16 +735,14 @@ impl Daemon {
 
         let settings_event_listener = management_interface.notifier().clone();
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
-        let _ = settings
-            .try_update(|settings| {
-                // TODO: Discard random seed, we only want to set it not actually use it here.
-                let _rollout_threshold_seed = settings
+        settings
+            .update(|settings| {
+                settings
                     .rollout_threshold_seed
                     .get_or_insert_with(generate_rollout_seed);
-                dbg!(_rollout_threshold_seed);
-                Ok::<(), std::convert::Infallible>(())
             })
-            .await;
+            .await
+            .map_err(Error::SettingsError)?;
 
         settings.register_change_listener(move |settings| {
             // Notify management interface server of changes to the settings
