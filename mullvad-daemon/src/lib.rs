@@ -735,14 +735,6 @@ impl Daemon {
 
         let settings_event_listener = management_interface.notifier().clone();
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
-        settings
-            .update(|settings| {
-                settings
-                    .rollout_threshold_seed
-                    .get_or_insert_with(generate_rollout_seed);
-            })
-            .await
-            .map_err(Error::SettingsError)?;
 
         settings.register_change_listener(move |settings| {
             // Notify management interface server of changes to the settings
@@ -945,6 +937,15 @@ impl Daemon {
         );
 
         let rollout = {
+            settings
+                .update(|settings| {
+                    settings
+                        .rollout_threshold_seed
+                        .get_or_insert_with(generate_rollout_seed);
+                })
+                .await
+                .map_err(Error::SettingsError)?;
+
             let seed = settings
                 .rollout_threshold_seed
                 .expect("Rollout seed must have been initialized");
