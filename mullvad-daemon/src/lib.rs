@@ -71,7 +71,7 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-#[cfg(not(target_os = "android"))]
+#[cfg(in_app_upgrade)]
 use mullvad_update::version::generate_rollout_seed;
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
@@ -937,7 +937,7 @@ impl Daemon {
             on_relay_list_update,
         );
 
-        #[cfg(not(target_os = "android"))]
+        #[cfg(in_app_upgrade)]
         let rollout = {
             settings
                 .update(|settings| {
@@ -961,7 +961,7 @@ impl Daemon {
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
-            #[cfg(not(target_os = "android"))]
+            #[cfg(in_app_upgrade)]
             rollout,
             app_upgrade_broadcast,
         );

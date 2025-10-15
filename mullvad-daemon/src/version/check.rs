@@ -6,7 +6,7 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
-#[cfg(not(target_os = "android"))]
+#[cfg(in_app_upgrade)]
 use mullvad_update::version::Rollout;
 use mullvad_update::version::VersionInfo;
 use mullvad_version::Version;
@@ -92,7 +92,7 @@ impl VersionUpdater {
         cache_dir: PathBuf,
         update_sender: mpsc::UnboundedSender<VersionCache>,
         refresh_rx: mpsc::UnboundedReceiver<()>,
-        #[cfg(not(target_os = "android"))] rollout: Rollout,
+        #[cfg(in_app_upgrade)] rollout: Rollout,
     ) {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
@@ -118,7 +118,7 @@ impl VersionUpdater {
                     version_proxy,
                     platform_version,
                 },
-                #[cfg(not(target_os = "android"))]
+                #[cfg(in_app_upgrade)]
                 rollout,
             ),
         );
@@ -190,7 +190,7 @@ impl VersionUpdaterInner {
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: UpdateContext,
         api: ApiContext,
-        #[cfg(not(target_os = "android"))] rollout: Rollout,
+        #[cfg(in_app_upgrade)] rollout: Rollout,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if !*CHECK_ENABLED {
@@ -207,7 +207,7 @@ impl VersionUpdaterInner {
                 api.clone(),
                 min_metadata_version,
                 last_platform_check,
-                #[cfg(not(target_os = "android"))]
+                #[cfg(in_app_upgrade)]
                 rollout,
             )
         };
@@ -216,7 +216,7 @@ impl VersionUpdaterInner {
                 api.clone(),
                 min_metadata_version,
                 last_platform_check,
-                #[cfg(not(target_os = "android"))]
+                #[cfg(in_app_upgrade)]
                 rollout,
             )
         };
@@ -331,7 +331,7 @@ fn do_version_check(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    #[cfg(not(target_os = "android"))] rollout: Rollout,
+    #[cfg(in_app_upgrade)] rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
@@ -340,7 +340,7 @@ fn do_version_check(
             &api,
             min_metadata_version,
             last_platform_check,
-            #[cfg(not(target_os = "android"))]
+            #[cfg(in_app_upgrade)]
             rollout,
         )
     };
@@ -366,14 +366,14 @@ fn do_version_check_in_background(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    #[cfg(not(target_os = "android"))] rollout: Rollout,
+    #[cfg(in_app_upgrade)] rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let when_available = api.api_handle.wait_background();
     let version_cache = version_check_inner(
         &api,
         min_metadata_version,
         last_platform_check,
-        #[cfg(not(target_os = "android"))]
+        #[cfg(in_app_upgrade)]
         rollout,
     );
     Box::pin(async move {
@@ -389,7 +389,7 @@ fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    rollout: Rollout,
+    #[cfg(in_app_upgrade)] rollout: Rollout,
 ) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
     let add_platform_headers = should_include_platform_headers(last_platform_check);
 
@@ -405,9 +405,10 @@ fn version_check_inner(
     let endpoint = api.version_proxy.version_check_2(
         PLATFORM,
         architecture,
-        rollout,
         min_metadata_version,
         add_platform_headers.then(|| api.platform_version.clone()),
+        #[cfg(in_app_upgrade)]
+        rollout,
     );
 
     async move {
