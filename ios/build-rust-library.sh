@@ -24,12 +24,12 @@ echo ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
 fi
 
 
-RELFLAG=
+CARGO_ARGS=()
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  RELFLAG=--release
+  CARGO_ARGS+=(--release --locked)
 fi
 if [[ "$CONFIGURATION" == "MockRelease" ]]; then
-  RELFLAG=--release
+  CARGO_ARGS+=(--release --locked)
 fi
 
 # For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
@@ -54,11 +54,11 @@ for arch in $ARCHS; do
     arm64)
       if [ $IS_SIMULATOR -eq 0 ]; then
         # Hardware iOS targets
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib "${CARGO_ARGS[@]}" --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
       else
         # iOS Simulator targets for arm64
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib "${CARGO_ARGS[@]}" --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
       fi
   esac
