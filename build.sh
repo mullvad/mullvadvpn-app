@@ -120,7 +120,7 @@ else
 fi
 
 if [[ "$SIGN" == "true" ]]; then
-    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+    if [[ -n $(git status --porcelain) ]]; then
         log_error "Dirty working directory!"
         log_error "Will only build a signed app in a clean working directory"
         exit 1
