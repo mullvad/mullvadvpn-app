@@ -948,7 +948,9 @@ impl Daemon {
             let seed = settings
                 .rollout_threshold_seed
                 .expect("Rollout seed must have been initialized");
-            let version = mullvad_version::VERSION.parse().unwrap();
+            let version = mullvad_version::VERSION
+                .parse()
+                .expect("App version to be parsable");
             mullvad_update::version::rollout_threshold(seed, version)
         };
         let version_handle = version::router::spawn_version_router(
