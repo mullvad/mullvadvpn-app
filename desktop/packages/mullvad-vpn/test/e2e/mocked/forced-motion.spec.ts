@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { RoutesObjectModel } from '../route-object-models';
+import { setReducedMotion } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
 let page: Page;
@@ -13,8 +14,8 @@ test.describe('Transitions and animations', () => {
 
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
-    await page.emulateMedia({ reducedMotion: null });
     routes = new RoutesObjectModel(page, util);
+    await setReducedMotion(page, 'no-preference');
 
     await routes.main.waitForRoute();
   });

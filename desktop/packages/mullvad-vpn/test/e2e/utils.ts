@@ -28,7 +28,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   const page = await app.firstWindow();
 
   if (!forceMotion) {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await setReducedMotion(page, 'reduce');
   }
 
   await promiseTimeout(page.waitForEvent('load'));
@@ -115,4 +115,10 @@ export function fileExists(filePath: string): boolean {
   } catch {
     return false;
   }
+}
+export async function setReducedMotion(page: Page, value: 'no-preference' | 'reduce') {
+  await page.emulateMedia({ reducedMotion: value });
+
+  const query = `(prefers-reduced-motion: ${value})`;
+  await page.evaluate((q) => window.matchMedia(q).matches, query);
 }

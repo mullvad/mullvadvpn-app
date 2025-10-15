@@ -3,6 +3,7 @@ import { Page } from 'playwright';
 
 import { IGuiSettingsState } from '../../../../src/shared/gui-settings-state';
 import { RoutesObjectModel } from '../../route-object-models';
+import { setReducedMotion } from '../../utils';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 
 let page: Page;
@@ -126,7 +127,7 @@ test.describe('User interface settings', () => {
   test.describe('Animate map setting', () => {
     test.describe('With reduced motion', () => {
       test.beforeEach(async () => {
-        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await setReducedMotion(page, 'reduce');
       });
 
       test('Should not display animate map setting', async () => {
@@ -137,7 +138,7 @@ test.describe('User interface settings', () => {
 
     test.describe('Without reduced motion', () => {
       test.beforeEach(async () => {
-        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        await setReducedMotion(page, 'no-preference');
       });
 
       test('Should display animate map setting', async () => {
