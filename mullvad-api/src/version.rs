@@ -16,7 +16,7 @@ pub struct AppVersionProxy {
     handle: super::rest::MullvadRestHandle,
 }
 
-#[derive(serde::Deserialize, Debug)]
+#[derive(Debug)]
 pub struct AppVersionResponse {
     pub supported: bool,
     pub latest: AppVersion,
