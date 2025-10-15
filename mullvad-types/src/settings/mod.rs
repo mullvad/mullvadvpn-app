@@ -112,7 +112,7 @@ pub struct Settings {
     /// it is expected to be fairly unique.
     ///
     /// This is an Option to make the Default implementation deterministic.
-    pub rollout_threshold_seed: Option<f32>,
+    pub rollout_threshold_seed: Option<u32>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]

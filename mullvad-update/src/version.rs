@@ -155,29 +155,29 @@ pub fn is_version_supported(
 }
 
 /// TODO: Document mee
-pub fn rollout_threshold(rollout_threshold_seed: f32, version: mullvad_version::Version) -> f32 {
-    use sha2::Digest;
-    let seed = rollout_threshold_seed.to_be_bytes();
-    // TODO: Mix in version (somehow) (sha2::Sha256::digest(version + seed ??))
-    let input = sha2::Sha256::digest(seed);
-    let input = input.first_chunk().unwrap();
+pub fn rollout_threshold(rollout_threshold_seed: u32, version: mullvad_version::Version) -> f32 {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(rollout_threshold_seed.to_string());
+    hasher.update(version.to_string());
+    let hash = hasher.finalize();
+    let input = hash.first_chunk().unwrap();
     // TODO: Figure out how to squeeze a SHA256 hash into an f32.
     f32::from_be_bytes(*input)
 }
 
 /// TODO: Document mee
-pub fn generate_rollout_seed() -> f32 {
+pub fn generate_rollout_seed() -> u32 {
     generate_random_seed(&mut rand::rng())
 }
 
 /// TODO: Document me
-/// rand(epsilon..1.0)
 // TODO: Rename
-fn generate_random_seed<R>(mut rng: R) -> f32
+fn generate_random_seed<R>(mut rng: R) -> u32
 where
     R: Rng,
 {
-    rng.random_range(f32::EPSILON..1.0)
+    rng.random()
 }
 
 #[cfg(test)]
