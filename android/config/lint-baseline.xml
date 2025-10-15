@@ -1,62 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.10.1" type="baseline" client="gradle" dependencies="true" name="AGP (8.10.1)" variant="all" version="8.10.1">
+<issues format="6" by="lint 8.13.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.0)" variant="all" version="8.13.0">
 
     <issue
         id="InvalidPackage"
         message="Invalid package reference in library; not included in Android: `javax.naming.directory`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
         <location
-            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.75.0/c042165745c0bb4f80774ec066659dce7064aaef/grpc-core-1.75.0.jar"/>
+            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.76.0/44e562312b45d848297b80963fe0f93f5b71589c/grpc-core-1.76.0.jar"/>
     </issue>
 
     <issue
         id="InvalidPackage"
         message="Invalid package reference in library; not included in Android: `javax.naming`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
         <location
-            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.75.0/c042165745c0bb4f80774ec066659dce7064aaef/grpc-core-1.75.0.jar"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="231"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="232"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-java = { id = &quot;io.grpc:protoc-gen-grpc-java&quot;, version.ref = &quot;grpc&quot; }"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="235"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-kotlin = { id = &quot;io.grpc:protoc-gen-grpc-kotlin&quot;, version.ref = &quot;grpc-kotlin-jar&quot; }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="236"
-            column="32"/>
+            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.76.0/44e562312b45d848297b80963fe0f93f5b71589c/grpc-core-1.76.0.jar"/>
     </issue>
 
 </issues>

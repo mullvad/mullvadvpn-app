@@ -10,7 +10,7 @@ target-sdk = "36"
 ndk = "27.3.13750724"
 
 # Android
-# The android-gradle-aapt plugin version must be in sync with the android plugin version.
+# The android-gradle-aapt plugin version must be in sync with the android gradle plugin version.
 # Required for Gradle metadata verification to work properly, see:
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
@@ -40,19 +40,16 @@ androidx-tv = "1.0.1"
 arrow = "2.1.2"
 
 # Compose
-compose = "1.9.2"
-compose-destinations = "2.2.0"
+compose = "1.9.3"
+compose-destinations = "2.3.0"
 compose-constraintlayout = "1.1.1"
 compose-material3 = "1.4.0"
 compose-material-icons-extended = "1.7.8"
 drawablepainter = "0.37.3"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.75.0"
-# Skipping 1.4.3, possibly a faulty release with no changelog.
-# https://github.com/grpc/grpc-kotlin/issues/644
+grpc = "1.76.0"
 grpc-kotlin = "1.5.0"
-grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
 junit = "5.13.4"
 junit5-android = "1.8.0"
@@ -63,14 +60,13 @@ koin = "4.1.1"
 koin-compose = "4.1.1"
 
 # Ktor
-ktor = "3.3.0"
+ktor = "3.3.1"
 
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
 kotlin = "2.2.20"
-# Skip bumping to 2.2.20-2.0.3 due to https://github.com/google/ksp/issues/2596
-kotlin-ksp = "2.2.20-2.0.2"
+kotlin-ksp = "2.2.20-2.0.4"
 kotlinx = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
 
@@ -87,7 +83,7 @@ konsist = "0.17.3"
 ktfmt = "0.24.0"
 leakcanary = "2.14"
 
-mockk = "1.14.5"
+mockk = "1.14.6"
 mockwebserver = "5.1.0"
 play-publisher = "3.12.1"
 turbine = "1.2.1"
@@ -101,7 +97,7 @@ profileinstaller = "1.4.1"
 [libraries]
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
-android-gradle-aapt = { module = "com.android.tools.build:aapt2", version.ref = "android-gradle-aapt" }
+android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
@@ -239,7 +235,7 @@ protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" 
 
 # gRPC
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
-grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin-jar" }
+grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
 
 
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
