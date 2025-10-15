@@ -170,8 +170,7 @@ pub fn rollout_threshold(
     hasher.update(rollout_threshold_seed.to_string());
     hasher.update(version.to_string());
     let hash = hasher.finalize();
-    // NOTE: A SHA256 hash is 32 bytes - unwrapping should be safe
-    let seed: &[u8; 32] = hash.first_chunk().unwrap();
+    let seed: &[u8; 32] = hash.first_chunk().expect("SHA256 hash is 32 bytes");
     let mut rng = SmallRng::from_seed(*seed);
     rng.random_range(f32::EPSILON..=1.0)
 }
