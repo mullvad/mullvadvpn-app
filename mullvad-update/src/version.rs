@@ -9,7 +9,6 @@ use std::cmp::Ordering;
 use anyhow::Context;
 use itertools::Itertools;
 use mullvad_version::PreStableType;
-use rand::Rng;
 
 use crate::format::{self, Installer, Response};
 
@@ -164,7 +163,7 @@ pub fn rollout_threshold(
     rollout_threshold_seed: u32,
     version: mullvad_version::Version,
 ) -> Rollout {
-    use rand::{SeedableRng, rngs::SmallRng};
+    use rand::{Rng, SeedableRng, rngs::SmallRng};
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     hasher.update(rollout_threshold_seed.to_string());
@@ -172,7 +171,7 @@ pub fn rollout_threshold(
     let hash = hasher.finalize();
     let seed: &[u8; 32] = hash.first_chunk().expect("SHA256 hash is 32 bytes");
     let mut rng = SmallRng::from_seed(*seed);
-    rng.random_range(f32::EPSILON..=1.0)
+    rng.random_range(Rollout::EPSILON..=1.0)
 }
 
 /// Generate a special seed used to calculate at which rollout percentage a client should be
