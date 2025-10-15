@@ -155,15 +155,20 @@ pub fn is_version_supported(
 }
 
 /// TODO: Document mee
+/// TODO: Document the mathematical properties of this function.
+/// - 0.0 < threshold <= 1.0
 pub fn rollout_threshold(rollout_threshold_seed: u32, version: mullvad_version::Version) -> f32 {
+    use rand::{SeedableRng, rngs::SmallRng};
+    //use rand::SeedableRng::SmallRng;
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     hasher.update(rollout_threshold_seed.to_string());
     hasher.update(version.to_string());
     let hash = hasher.finalize();
-    let input = hash.first_chunk().unwrap();
-    // TODO: Figure out how to squeeze a SHA256 hash into an f32.
-    f32::from_be_bytes(*input)
+    // NOTE: A SHA256 hash is 32 bytes - unwrapping should be safe
+    let seed: &[u8; 32] = hash.first_chunk().unwrap();
+    let mut rng = SmallRng::from_seed(*seed);
+    rng.random_range(f32::EPSILON..=1.0)
 }
 
 /// TODO: Document mee
