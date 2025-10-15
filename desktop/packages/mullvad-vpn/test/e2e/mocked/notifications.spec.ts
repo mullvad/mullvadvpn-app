@@ -4,54 +4,71 @@ import { Page } from 'playwright';
 import { getDefaultSettings } from '../../../src/main/default-settings';
 import { colorTokens } from '../../../src/renderer/lib/foundations';
 import { Constraint, ErrorStateCause, TunnelState } from '../../../src/shared/daemon-rpc-types';
-import { RoutePath } from '../../../src/shared/routes';
+import { RoutesObjectModel } from '../route-object-models';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
 let page: Page;
 let util: MockedTestUtils;
+let routes: RoutesObjectModel;
 
-test.beforeAll(async () => {
+const startup = async () => {
   ({ page, util } = await startMockedApp());
-  await util.expectRoute(RoutePath.main);
-});
+  routes = new RoutesObjectModel(page, util);
 
-test.afterAll(async () => {
-  await util?.closePage();
-});
+  await routes.main.waitForRoute();
+};
 
 /**
  * Expires soon
  */
-test('App should notify user about account expiring soon', async () => {
-  await util.ipc.account[''].notify({
-    expiry: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+test.describe('Expiration notifications', () => {
+  test.beforeAll(async () => {
+    await startup();
   });
 
-  const title = page.getByTestId('notificationTitle');
-  await expect(title).toContainText(/account credit expires soon/i);
-
-  let subTitle = page.getByTestId('notificationSubTitle');
-  await expect(subTitle).toContainText(/1 day left\. buy more credit\./i);
-
-  const indicator = page.getByTestId('notificationIndicator');
-  const indicatorColor = await getBackgroundColor(indicator);
-  expect(indicatorColor).toBe(colorTokens.yellow);
-
-  await util.ipc.account[''].notify({
-    expiry: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+  test.afterAll(async () => {
+    await util?.closePage();
   });
-  subTitle = page.getByTestId('notificationSubTitle');
-  await expect(subTitle).toContainText(/2 days left\. buy more credit\./i);
 
-  await util.ipc.account[''].notify({
-    expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+  test('App should notify user about account expiring soon', async () => {
+    await util.ipc.account[''].notify({
+      expiry: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+
+    const title = page.getByTestId('notificationTitle');
+    await expect(title).toContainText(/account credit expires soon/i);
+
+    let subTitle = page.getByTestId('notificationSubTitle');
+    await expect(subTitle).toContainText(/1 day left\. buy more credit\./i);
+
+    const indicator = page.getByTestId('notificationIndicator');
+    const indicatorColor = await getBackgroundColor(indicator);
+    expect(indicatorColor).toBe(colorTokens.yellow);
+
+    await util.ipc.account[''].notify({
+      expiry: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    subTitle = page.getByTestId('notificationSubTitle');
+    await expect(subTitle).toContainText(/2 days left\. buy more credit\./i);
+
+    await util.ipc.account[''].notify({
+      expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    subTitle = page.getByTestId('notificationSubTitle');
+    await expect(subTitle).toContainText(/less than a day left\. buy more credit\./i);
   });
-  subTitle = page.getByTestId('notificationSubTitle');
-  await expect(subTitle).toContainText(/less than a day left\. buy more credit\./i);
 });
 
 test.describe('Unsupported wireguard port', () => {
+  test.beforeAll(async () => {
+    await startup();
+  });
+
+  test.afterAll(async () => {
+    await util?.closePage();
+  });
+
   const portRanges: [number, number][] = [
     [1, 50],
     [51, 100],
