@@ -247,7 +247,7 @@ export default function SelectLocation() {
                                 'select-location-view',
                                 'Obfuscation: %(obfuscation)s',
                               ),
-                              { obfuscation: 'LWO' },
+                              { obfuscation: strings.lwo },
                             )}
                           </FilterChip.Text>
                         </FilterChip>
