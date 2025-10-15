@@ -39,7 +39,7 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// How long to wait before making the first version check after starting.
 /// After this one, we wait [UPDATE_INTERVAL] between checks.
-const FIRST_CHECK_INTERVAL: Duration = Duration::from_secs(10);
+const FIRST_CHECK_INTERVAL: Duration = Duration::from_secs(5);
 /// How long to wait between version checks, regardless of whether they succeed
 #[cfg(not(target_os = "android"))]
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
@@ -235,7 +235,7 @@ impl VersionUpdaterInner {
             futures::select! {
                 command = refresh_rx.next() => match command {
                     Some(()) => {
-                        // start a foreground query to get the latest version_info unless background check is running.
+                        // start a foreground query to get the latest version_info unless check is already running.
                         if !self.is_running_version_check() {
                             version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check()).fuse();
                         }
@@ -246,6 +246,9 @@ impl VersionUpdaterInner {
                 },
 
                 _ = run_next_check => {
+                    if self.is_running_version_check() {
+                        continue;
+                    }
                     version_check = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check()).fuse();
                 },
 
