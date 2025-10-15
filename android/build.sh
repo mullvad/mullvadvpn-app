@@ -80,6 +80,18 @@ if [[ "$BUILD_BUNDLE" == "yes" ]]; then
     $GRADLE_CMD --console plain "${BUNDLE_TASKS[@]}"
 fi
 
+# When building releases, we check that the working directory is clean before building,
+# further up. Now verify that this is still true. The build process should never make the
+# working directory dirty.
+# This could for example happen if lockfiles are outdated, and the build process updates them.
+if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
+    if [[ -n $(git status --porcelain) ]]; then
+        log_error "The build made the working directory dirty!"
+        log_error "This should never happen, and is explicitly forbidden for release builds!"
+        exit 1
+    fi
+fi
+
 if [[ "$RUN_PLAY_PUBLISH_TASKS" == "yes" && "${#PLAY_PUBLISH_TASKS[@]}" -ne 0 ]]; then
     $GRADLE_CMD --console plain "${PLAY_PUBLISH_TASKS[@]}"
 fi
