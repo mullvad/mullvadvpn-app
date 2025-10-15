@@ -138,6 +138,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToViewPurchaseOptions(
         accountNumber: String
     ) {
+
         let coordinator = InAppPurchaseCoordinator(
             storePaymentManager: storePaymentManager,
             accountNumber: accountNumber,

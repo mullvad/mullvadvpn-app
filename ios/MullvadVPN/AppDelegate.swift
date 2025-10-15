@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     StoreKit2TransactionListenerDelegate,
     @unchecked Sendable
 {
+
     nonisolated func fetchAccountNumber() -> String? {
         guard let accountData = tunnelManager.deviceState.accountData else {
             return nil
@@ -176,7 +177,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             transactionLog: .default
         )
-
+        
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSessionTransport.urlSession)
 

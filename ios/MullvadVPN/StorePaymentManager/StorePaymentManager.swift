@@ -186,7 +186,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         }
     }
     
-    // This function is for testing only
+    /// This functionc
     func getPaymentToken(for accountNumber: String) async throws ->  UUID {
         let result = try await withCheckedThrowingContinuation { continuation in
             _ =
@@ -210,7 +210,12 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
     
     func purchase(product: Product, for accountNumber: String) async throws {
         
-        let token = try await self.getPaymentToken(for: accountNumber)
+        let token = do {
+            try await self.getPaymentToken(for: accountNumber)
+        } catch {
+            
+            
+        }
         let result = try await product.purchase(
             options: [.appAccountToken(token)]
         )
@@ -510,5 +515,9 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
                 observer.storePaymentManager(self, didReceiveEvent: event)
             }
         }
+    }
+    
+    private func didFailToFetchPurchaseToken(error: any Error) {
+        
     }
 }
