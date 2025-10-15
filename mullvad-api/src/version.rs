@@ -54,11 +54,9 @@ impl AppVersionProxy {
         let request = self.handle.factory.get(&path);
 
         async move {
-            let mut request = request?;
+            let mut request = request?.expected_status(&[StatusCode::OK]);
             if let Some(platform_version) = platform_version {
-                request = request
-                    .expected_status(&[StatusCode::OK])
-                    .header("M-Platform-Version", &platform_version)?;
+                request = request.header("M-Platform-Version", &platform_version)?;
             }
             let response = service.request(request).await?;
             response.deserialize().await
