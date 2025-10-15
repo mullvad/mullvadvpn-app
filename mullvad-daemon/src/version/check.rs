@@ -1,6 +1,6 @@
 use futures::{
     FutureExt, StreamExt, TryFutureExt,
-    channel::{mpsc, oneshot},
+    channel::mpsc,
     future::{BoxFuture, FusedFuture},
 };
 use mullvad_api::{
@@ -83,8 +83,6 @@ pub(crate) struct VersionUpdater(());
 struct VersionUpdaterInner {
     /// The last known [AppVersionInfo]
     last_app_version_info: Option<VersionCache>,
-    /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
-    get_version_info_responders: Vec<oneshot::Sender<VersionCache>>,
 }
 
 impl VersionUpdater {
@@ -106,7 +104,6 @@ impl VersionUpdater {
         tokio::spawn(
             VersionUpdaterInner {
                 last_app_version_info,
-                get_version_info_responders: vec![],
             }
             .run(
                 refresh_rx,
@@ -186,11 +183,6 @@ impl VersionUpdaterInner {
         Box::pin(talpid_time::sleep(UPDATE_INTERVAL).fuse())
     }
 
-    /// Returns true if we are currently handling one or more `GetVersionInfo` commands.
-    fn is_running_version_check(&self) -> bool {
-        !self.get_version_info_responders.is_empty()
-    }
-
     async fn run(
         self,
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
@@ -255,9 +247,7 @@ impl VersionUpdaterInner {
                 command = refresh_rx.next() => match command {
                     Some(()) => {
                         // start a foreground query to get the latest version_info unless check is already running.
-                        if !self.is_running_version_check() {
-                            version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
-                        }
+                        version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                     }
                     None => {
                         break;
@@ -265,9 +255,6 @@ impl VersionUpdaterInner {
                 },
 
                 _ = run_next_check => {
-                    if self.is_running_version_check() {
-                        continue;
-                    }
                     version_check = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                 },
 
