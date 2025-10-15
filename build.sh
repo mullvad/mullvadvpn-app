@@ -119,12 +119,18 @@ else
     CPP_BUILD_MODE="Debug"
 fi
 
-if [[ "$SIGN" == "true" ]]; then
-    if [[ -n $(git status --porcelain) ]]; then
+function assert_clean_working_directory {
+    if [[ -n "$(git status --porcelain)" ]]; then
         log_error "Dirty working directory!"
-        log_error "Will only build a signed app in a clean working directory"
+        log_error "Release builds are not allowed on dirty working directories!"
         exit 1
     fi
+}
+
+if [[ "$SIGN" == "true" ]]; then
+    # Refuse to build signed builds on dirty working directories. Prevents release builds
+    # from being built from potentially modified code/assets.
+    assert_clean_working_directory
 
     # Will not allow an outdated lockfile when building with signatures
     # (The build servers should never build without --locked for
@@ -408,6 +414,14 @@ esac
 popd
 popd
 
+# When signing is enabled, we check that the working directory is clean before building,
+# further up. Now verify that this is still true. The build process should never make the
+# working directory dirty.
+# This could for example happen if lockfiles are outdated, and the build process updates them.
+if [[ "$SIGN" == "true" ]]; then
+    assert_clean_working_directory
+fi
+
 # sign installer on Windows
 if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
     for installer_path in dist/*"$PRODUCT_VERSION"*.exe; do
@@ -427,6 +441,7 @@ if [[ "$UNIVERSAL" == "true" && "$(uname -s)" == "MINGW"* ]]; then
         --arm64-installer "$SCRIPT_DIR/dist/"*"$PRODUCT_VERSION"_arm64.exe \
         "${WIN_PACK_ARGS[@]}"
     if [[ "$SIGN" == "true" ]]; then
+        assert_clean_working_directory
         sign_win "dist/MullvadVPN-${PRODUCT_VERSION}.exe"
     fi
 fi
