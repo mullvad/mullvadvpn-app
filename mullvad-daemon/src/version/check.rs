@@ -269,6 +269,7 @@ impl VersionUpdaterInner {
                         }
                         Err(err) => {
                             log::error!("Failed to fetch version info: {err:#}");
+                            // FIXME: Notify requesters of errors. Currently `GetVersionInfo` RPC doesn't give up here
                         }
                     }
                     run_next_check = Self::update_interval();
