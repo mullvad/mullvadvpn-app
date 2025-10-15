@@ -3,7 +3,6 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use http::StatusCode;
-#[cfg(in_app_upgrade)]
 use mullvad_update::version::Rollout;
 use mullvad_update::version::{VersionInfo, VersionParameters, is_version_supported};
 
@@ -74,7 +73,7 @@ impl AppVersionProxy {
         architecture: mullvad_update::format::Architecture,
         lowest_metadata_version: usize,
         platform_version: Option<String>,
-        #[cfg(in_app_upgrade)] rollout: Rollout,
+        rollout: Rollout,
     ) -> impl Future<Output = Result<AppVersionResponse2, rest::Error>> + use<> {
         // TODO: etag
 
@@ -103,11 +102,6 @@ impl AppVersionProxy {
                 lowest_metadata_version,
             )
             .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
-
-            #[cfg(in_app_upgrade)]
-            let rollout = rollout;
-            #[cfg(not(in_app_upgrade))]
-            let rollout = mullvad_update::version::SUPPORTED_VERSION;
 
             let params = VersionParameters {
                 architecture,

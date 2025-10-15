@@ -955,13 +955,14 @@ impl Daemon {
                 .expect("App version to be parsable");
             mullvad_update::version::rollout_threshold(seed, version)
         };
+        #[cfg(not(in_app_upgrade))]
+        let rollout = mullvad_update::version::SUPPORTED_VERSION;
         let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
             api_handle.availability.clone(),
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
-            #[cfg(in_app_upgrade)]
             rollout,
             app_upgrade_broadcast,
         );
