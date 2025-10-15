@@ -159,7 +159,6 @@ pub fn is_version_supported(
 /// - 0.0 < threshold <= 1.0
 pub fn rollout_threshold(rollout_threshold_seed: u32, version: mullvad_version::Version) -> f32 {
     use rand::{SeedableRng, rngs::SmallRng};
-    //use rand::SeedableRng::SmallRng;
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     hasher.update(rollout_threshold_seed.to_string());
