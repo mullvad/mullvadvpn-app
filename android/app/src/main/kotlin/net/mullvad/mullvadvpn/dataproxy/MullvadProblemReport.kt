@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.service.BuildConfig
 
 const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"
@@ -28,6 +29,7 @@ class MullvadProblemReport(
     context: Context,
     private val apiEndpointOverride: ApiEndpointOverride?,
     private val apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder,
+    private val accountRepository: AccountRepository,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
@@ -47,7 +49,10 @@ class MullvadProblemReport(
             collectReport(logDirectory.absolutePath, logsPath.absolutePath)
         }
 
-    suspend fun sendReport(userReport: UserReport): SendProblemReportResult {
+    suspend fun sendReport(
+        userReport: UserReport,
+        includeAccountId: Boolean,
+    ): SendProblemReportResult {
         // If report is not collected then, collect it, if it fails then return error
         if (!logsExists() && !collectLogs()) {
             return SendProblemReportResult.Error.CollectLog
@@ -64,11 +69,17 @@ class MullvadProblemReport(
                     }
 
                 sendProblemReport(
-                    userReport.email ?: "",
-                    userReport.description,
-                    logsPath.absolutePath,
-                    cacheDirectory.absolutePath,
-                    apiOverride,
+                    userEmail = userReport.email ?: "",
+                    userMessage = userReport.description,
+                    accountId =
+                        if (includeAccountId) {
+                            accountRepository.accountData.value?.id?.value?.toString()
+                        } else {
+                            null
+                        },
+                    reportPath = logsPath.absolutePath,
+                    cacheDirectory = cacheDirectory.absolutePath,
+                    apiEndpointOverride = apiOverride,
                 )
             }
 
@@ -104,6 +115,7 @@ class MullvadProblemReport(
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,
+        accountId: String?,
         reportPath: String,
         cacheDirectory: String,
         apiEndpointOverride: ApiEndpointOverride?,
