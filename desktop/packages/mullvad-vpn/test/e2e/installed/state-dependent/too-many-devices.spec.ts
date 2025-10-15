@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { Locator, Page } from 'playwright';
+import { Page } from 'playwright';
 
 import { RoutePath } from '../../../../src/shared/routes';
+import { RoutesObjectModel } from '../../route-object-models';
 import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
@@ -12,9 +13,11 @@ import { startInstalledApp } from '../installed-utils';
 
 let page: Page;
 let util: TestUtils;
+let routes: RoutesObjectModel;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
+  routes = new RoutesObjectModel(page, util);
   await util.expectRoute(RoutePath.login);
 });
 
@@ -23,21 +26,19 @@ test.afterAll(async () => {
 });
 
 test('App should show too many devices', async () => {
-  const loginInput = getInput(page);
+  const loginInput = routes.login.selectors.loginInput();
   await loginInput.fill(process.env.ACCOUNT_NUMBER!);
 
   await loginInput.press('Enter');
   await util.expectRoute(RoutePath.tooManyDevices);
 
-  const loginButton = page.getByText('Continue with login');
-
-  await expect(page.getByTestId('title')).toHaveText('Too many devices');
+  const loginButton = routes.tooManyDevices.selectors.continueButton();
   await expect(loginButton).toBeDisabled();
-  await page
-    .getByLabel(/^Remove device named/)
-    .first()
-    .click();
-  await page.getByText('Yes, log out device').click();
+
+  const removeDeviceButton = routes.tooManyDevices.selectors.removeDeviceButtons();
+  await removeDeviceButton.first().click();
+
+  await routes.tooManyDevices.selectors.confirmRemoveDeviceButton().click();
 
   await expect(loginButton).toBeEnabled();
 
@@ -46,7 +47,3 @@ test('App should show too many devices', async () => {
   await util.expectRoute(RoutePath.login);
   await util.expectRoute(RoutePath.main);
 });
-
-function getInput(page: Page): Locator {
-  return page.getByPlaceholder('0000 0000 0000 0000');
-}
