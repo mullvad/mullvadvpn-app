@@ -9,8 +9,6 @@ then
     exit 1
 fi
 
-
-
 # what to pass to cargo build -p, e.g. your_lib_ffi
 FFI_TARGET=$1
 
@@ -44,22 +42,16 @@ export PATH="${HOME}/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Li
 # Since some of the dependencies come from homebrew, add it manually as well
 export PATH="${PATH}:/opt/homebrew/bin:"
 
-IS_SIMULATOR=0
+TARGET=aarch64-apple-ios
 if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then
-  IS_SIMULATOR=1
+  TARGET=aarch64-apple-ios-sim
 fi
 
 for arch in $ARCHS; do
-  case "$arch" in
-    arm64)
-      if [ $IS_SIMULATOR -eq 0 ]; then
-        # Hardware iOS targets
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-      else
-        # iOS Simulator targets for arm64
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-      fi
-  esac
+    case "$arch" in
+        arm64)
+            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            ;;
+    esac
 done
