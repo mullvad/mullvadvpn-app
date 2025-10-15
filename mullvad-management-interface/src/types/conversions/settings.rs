@@ -206,7 +206,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             recents: Some(vec![]),
             update_default_location: settings.update_default_location,
             // HACK: The deamon should never read this random settings blob from a random client.
-            // We should look into separating the serializble settings object that pass accross
+            // We should look into separating the serializable settings object that pass accross
             // gRPC from the daemon's trusted settings. There are multiple fields that would not be
             // included in the serializable settings, such as the below value.
             rollout_threshold_seed: None,
