@@ -171,17 +171,10 @@ pub fn rollout_threshold(rollout_threshold_seed: u32, version: mullvad_version::
     rng.random_range(f32::EPSILON..=1.0)
 }
 
-/// TODO: Document mee
+/// Generate a special seed used to calculate at whice rollout percentage a client should be
+/// notified about a new release.
 pub fn generate_rollout_seed() -> u32 {
-    generate_random_seed(&mut rand::rng())
-}
-
-/// TODO: Document me
-// TODO: Rename
-fn generate_random_seed<R>(mut rng: R) -> u32
-where
-    R: Rng,
-{
+    let rng = &mut rand::rng();
     rng.random()
 }
 
