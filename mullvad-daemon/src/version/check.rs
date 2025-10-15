@@ -46,7 +46,8 @@ const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 #[cfg(target_os = "android")]
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 6);
 /// Wait this long before sending platform metadata in check
-const PLATFORM_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
+/// `M-Platform-Version` should only be sent once per 24h to make statistics predictable.
+const PLATFORM_HEADER_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 /// Retry strategy for `GetVersionInfo`.
 const IMMEDIATE_RETRY_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
@@ -69,7 +70,7 @@ pub(super) struct VersionCache {
     /// The latest available versions
     pub version_info: mullvad_update::version::VersionInfo,
     /// When we last checked with platform headers
-    pub last_platform_check: SystemTime,
+    pub last_platform_header_check: SystemTime,
     #[cfg(not(target_os = "android"))]
     pub metadata_version: usize,
 }
@@ -162,11 +163,11 @@ impl VersionUpdaterInner {
 
     /// Return when the last successful check including platform headers was made.
     ///
-    /// This should occur every [STATISTICS_INTERVAL].
+    /// This should occur every [PLATFORM_HEADER_INTERVAL].
     fn last_platform_check(&self) -> Option<SystemTime> {
         self.last_app_version_info
             .as_ref()
-            .map(|info| info.last_platform_check)
+            .map(|info| info.last_platform_header_check)
     }
 
     /// Return a future that resolves after [UPDATE_INTERVAL].
@@ -273,7 +274,7 @@ impl VersionUpdaterInner {
 /// based on the last time `time` that they were.
 fn should_include_platform_headers(time: Option<SystemTime>) -> bool {
     time.and_then(|t| t.elapsed().ok())
-        .map(|t| t >= PLATFORM_CHECK_INTERVAL)
+        .map(|t| t >= PLATFORM_HEADER_INTERVAL)
         .unwrap_or(true)
 }
 
@@ -389,7 +390,7 @@ fn version_check_inner(
             cache_version: APP_VERSION.clone(),
             current_version_supported: result.current_version_supported,
             version_info: result.version_info,
-            last_platform_check,
+            last_platform_header_check: last_platform_check,
             metadata_version: result.metadata_version,
         })
     }
@@ -512,7 +513,7 @@ fn dev_version_cache() -> VersionCache {
             },
             beta: None,
         },
-        last_platform_check: SystemTime::now(),
+        last_platform_header_check: SystemTime::now(),
         #[cfg(not(target_os = "android"))]
         metadata_version: 0,
     }
@@ -573,7 +574,7 @@ mod test {
                     sha256: [0u8; 32],
                 }),
             },
-            last_platform_check: SystemTime::now(),
+            last_platform_header_check: SystemTime::now(),
             #[cfg(not(target_os = "android"))]
             metadata_version: 0,
         }
@@ -594,7 +595,7 @@ mod test {
     fn test_version_cache_in_future_is_stale() {
         let checker = VersionUpdaterInner {
             last_app_version_info: Some(VersionCache {
-                last_platform_check: SystemTime::now() + Duration::from_secs(1),
+                last_platform_header_check: SystemTime::now() + Duration::from_secs(1),
                 ..dev_version_cache()
             }),
             ..VersionUpdaterInner::default()
@@ -604,12 +605,12 @@ mod test {
         ));
     }
 
-    /// If we have a cached version that's less than `STATISTICS_INTERVAL` old, do not include platform headers
+    /// If we have a cached version that's less than `PLATFORM_HEADER_INTERVAL` old, do not include platform headers
     #[test]
     fn test_version_actual_non_stale() {
         let checker = VersionUpdaterInner {
             last_app_version_info: Some(VersionCache {
-                last_platform_check: SystemTime::now() - PLATFORM_CHECK_INTERVAL
+                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL
                     + Duration::from_secs(1),
                 ..dev_version_cache()
             }),
@@ -620,12 +621,12 @@ mod test {
         ));
     }
 
-    /// If `STATISTICS_INTERVAL` has elapsed, the check should include platform headers
+    /// If `PLATFORM_HEADER_INTERVAL` has elapsed, the check should include platform headers
     #[test]
     fn test_version_actual_stale() {
         let checker = VersionUpdaterInner {
             last_app_version_info: Some(VersionCache {
-                last_platform_check: SystemTime::now() - PLATFORM_CHECK_INTERVAL,
+                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
                 ..dev_version_cache()
             }),
             ..VersionUpdaterInner::default()
@@ -681,7 +682,7 @@ mod test {
     async fn test_version_check_manual() {
         let checker = VersionUpdaterInner {
             last_app_version_info: Some(VersionCache {
-                last_platform_check: SystemTime::now() - Duration::from_secs(1),
+                last_platform_header_check: SystemTime::now() - Duration::from_secs(1),
                 ..dev_version_cache()
             }),
             ..VersionUpdaterInner::default()
@@ -767,7 +768,7 @@ mod test {
                 },
                 beta: None,
             },
-            last_platform_check: SystemTime::now(),
+            last_platform_header_check: SystemTime::now(),
             #[cfg(not(target_os = "android"))]
             metadata_version: 0,
         }
