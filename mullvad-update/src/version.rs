@@ -171,7 +171,7 @@ pub fn rollout_threshold(
     let hash = hasher.finalize();
     let seed: &[u8; 32] = hash.first_chunk().expect("SHA256 hash is 32 bytes");
     let mut rng = SmallRng::from_seed(*seed);
-    rng.random_range(Rollout::EPSILON..=1.0)
+    rng.random_range(SUPPORTED_VERSION..=FULLY_ROLLED_OUT)
 }
 
 /// Generate a special seed used to calculate at which rollout percentage a client should be
