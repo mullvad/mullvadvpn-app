@@ -126,7 +126,7 @@ test.describe('User interface settings', () => {
   test.describe('Animate map setting', () => {
     test.describe('With reduced motion', () => {
       test.beforeEach(async () => {
-        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await util.setReducedMotion('reduce');
       });
 
       test('Should not display animate map setting', async () => {
@@ -137,7 +137,7 @@ test.describe('User interface settings', () => {
 
     test.describe('Without reduced motion', () => {
       test.beforeEach(async () => {
-        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        await util.setReducedMotion('no-preference');
       });
 
       test('Should display animate map setting', async () => {
