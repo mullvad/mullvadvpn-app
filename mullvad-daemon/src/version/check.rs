@@ -43,6 +43,8 @@ const FIRST_CHECK_INTERVAL: Duration = Duration::from_secs(5);
 /// How long to wait between version checks, regardless of whether they succeed
 #[cfg(not(target_os = "android"))]
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+/// How long to wait between version checks, regardless of whether they succeed
+// On Android, be more conservative since we use old endpoint. Retry at most once per 6 hours.
 #[cfg(target_os = "android")]
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 6);
 /// Wait this long before sending platform metadata in check
@@ -251,6 +253,15 @@ impl VersionUpdaterInner {
                         if foreground_check_running {
                             continue;
                         }
+
+                        // On Android, avoid polling the API unless necessary as we're using the old endpoint
+                        // Only poll when bg check runs
+                        if cfg!(target_os = "android") && let Some(info) = self.last_app_version_info.as_ref() {
+                            log::trace!("Skipping version check on Android");
+                            self.update_version_info(&update, info.clone()).await;
+                            continue;
+                        }
+
                         version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                         foreground_check_running = true;
                     }
@@ -264,6 +275,15 @@ impl VersionUpdaterInner {
                     if foreground_check_running {
                         continue;
                     }
+
+                    // On Android, avoid polling the API unless necessary as we're using the old endpoint
+                    // Only poll when collecting platform headers
+                    if cfg!(target_os = "android") && !should_include_platform_headers(self.last_platform_check()) {
+                        log::trace!("Skipping version check on Android");
+                        run_next_check = Self::update_interval();
+                        continue;
+                    }
+
                     version_check = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                 },
 
