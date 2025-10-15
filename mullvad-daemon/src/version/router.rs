@@ -215,9 +215,6 @@ pub(crate) fn spawn_version_router(
 ) -> VersionRouterHandle {
     let (tx, rx) = mpsc::unbounded();
 
-    // TODO: Convert the update threshold seed into an actual threshold.
-    let rollout = f32::max(rollout_seed, f32::EPSILON);
-
     tokio::spawn(async move {
         let (new_version_tx, new_version_rx) = mpsc::unbounded();
         let (refresh_version_check_tx, refresh_version_check_rx) = mpsc::unbounded();
