@@ -12,15 +12,15 @@ fi
 # what to pass to cargo build -p, e.g. your_lib_ffi
 FFI_TARGET=$1
 
+CARGO_ARGS=()
+
 # Enable cargo features by passing feature names to this script, i.e. build-rust-library.sh mullvad-api api-override
 # If more than one feature flag needs to be enabled, pass in a single argument all the features flags separated by spaces
 # build-rust-library.sh mullvad-api "featureA featureB featureC"
-FEATURE_FLAGS=
 if [[ "$#" -eq 2 ]] ; then
-    FEATURE_FLAGS=$2
-    echo ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+    CARGO_ARGS+=(--features "$2")
+    echo "Building with these features: $2"
 fi
-
 
 RELFLAG=
 if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
@@ -47,8 +47,8 @@ fi
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
-            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET "${CARGO_ARGS[@]}"
+            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target $TARGET "${CARGO_ARGS[@]}"
             ;;
     esac
 done
