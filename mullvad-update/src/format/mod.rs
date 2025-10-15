@@ -72,8 +72,8 @@ pub struct Release {
     /// Installer details for different architectures
     pub installers: Vec<Installer>,
     /// Fraction of users that should receive the new version
-    #[serde(default = "complete_rollout")]
-    #[serde(skip_serializing_if = "is_complete_rollout")]
+    #[serde(default = "complete_rollout")] // TODO: Remove?
+    #[serde(skip_serializing_if = "is_complete_rollout")] // TODO: Remove?
     pub rollout: f32,
 }
 

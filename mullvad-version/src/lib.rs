@@ -47,6 +47,11 @@ impl Version {
     pub fn is_dev(&self) -> bool {
         self.dev.is_some()
     }
+
+    /// TODO: Document mee
+    pub fn bytes(&self) -> &[u8] {
+        &[0]
+    }
 }
 
 impl PartialOrd for Version {

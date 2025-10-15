@@ -27,10 +27,3 @@ pub async fn checksum(mut reader: impl AsyncRead + Unpin) -> anyhow::Result<[u8;
 
     Ok(hasher.finalize().into())
 }
-
-/// TODO: Document mee
-pub fn hash() -> _ {
-    let random = 1.0f32;
-    let version: mullvad_version::Version = mullvad_version::VERSION.parse().unwrap();
-    sha2::Sha256::digest((random, version))
-}

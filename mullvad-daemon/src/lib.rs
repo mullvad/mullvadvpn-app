@@ -946,13 +946,15 @@ impl Daemon {
             on_relay_list_update,
         );
 
+        // NOTE: It is a bug if the seed has not been initialized yet!
+        let rollout_seed = settings.rollout_threshold_seed.unwrap();
         let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
             api_handle.availability.clone(),
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
-            settings.rollout_threshold_seed,
+            rollout_seed,
             app_upgrade_broadcast,
         );
 

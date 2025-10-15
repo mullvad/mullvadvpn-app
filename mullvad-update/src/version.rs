@@ -155,6 +155,16 @@ pub fn is_version_supported(
 }
 
 /// TODO: Document mee
+pub fn rollout_threshold(rollout_threshold_seed: f32, version: mullvad_version::Version) -> f32 {
+    use sha2::Digest;
+    let seed = rollout_threshold_seed.to_be_bytes();
+    let input = [&seed[..], version.bytes()].concat();
+    let hash = sha2::Sha256::digest(&input);
+    let head = hash.first_chunk().unwrap(); // TODO: Unwrap
+    f32::from_be_bytes(*head)
+}
+
+/// TODO: Document mee
 pub fn generate_rollout_seed() -> f32 {
     generate_random_seed(&mut rand::rng())
 }
