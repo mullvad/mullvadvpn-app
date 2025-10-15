@@ -19,12 +19,10 @@ import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
 import ProblemReport from './ProblemReport';
-import SelectLanguage from './SelectLanguage';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import Support from './Support';
-import UserInterfaceSettings from './UserInterfaceSettings';
 import {
   Account,
   AppInfoView,
@@ -37,11 +35,13 @@ import {
   ManageDevicesView,
   MultihopSettingsView,
   OpenVpnSettingsView,
+  SelectLanguageView,
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingView,
   TooManyDevicesView,
   UdpOverTcpSettingsView,
+  UserInterfaceSettingsView,
   VpnSettingsView,
   WireguardSettingsView,
 } from './views';
@@ -71,8 +71,12 @@ export default function AppRouter() {
           <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
           <Route exact path={RoutePath.account} component={Account} />
           <Route exact path={RoutePath.settings} component={SettingsView} />
-          <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
-          <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
+          <Route exact path={RoutePath.selectLanguage} component={SelectLanguageView} />
+          <Route
+            exact
+            path={RoutePath.userInterfaceSettings}
+            component={UserInterfaceSettingsView}
+          />
           <Route exact path={RoutePath.multihopSettings} component={MultihopSettingsView} />
           <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
           <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsView} />

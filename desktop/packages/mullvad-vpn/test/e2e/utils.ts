@@ -19,16 +19,19 @@ export interface TestUtils {
   getCurrentRoute: () => Promise<string | null>;
   expectRoute: (route: string) => Promise<void>;
   expectRouteChange: (trigger: TriggerFn) => Promise<void>;
+  setReducedMotion: (value: ReducedMotionValue) => Promise<void>;
 }
 
 type LaunchOptions = NonNullable<Parameters<typeof electron.launch>[0]>;
+
+type ReducedMotionValue = 'no-preference' | 'reduce';
 
 export const startApp = async (options: LaunchOptions): Promise<StartAppResponse> => {
   const app = await launch(options);
   const page = await app.firstWindow();
 
   if (!forceMotion) {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await setReducedMotion(page, 'reduce');
   }
 
   await promiseTimeout(page.waitForEvent('load'));
@@ -41,6 +44,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
     getCurrentRoute: () => getCurrentRoute(page),
     expectRoute: (route: string) => expectRoute(page, route),
     expectRouteChange: (trigger: TriggerFn) => expectRouteChange(page, trigger),
+    setReducedMotion: (value: ReducedMotionValue) => setReducedMotion(page, value),
   };
 
   return { app, page, util };
@@ -81,6 +85,13 @@ async function expectRouteChange(page: Page, trigger: TriggerFn) {
   const initialRoute = await getCurrentRoute(page);
   await trigger();
   await expect.poll(() => getCurrentRoute(page)).not.toMatchPath(initialRoute);
+}
+
+async function setReducedMotion(page: Page, value: ReducedMotionValue) {
+  await page.emulateMedia({ reducedMotion: value });
+
+  const query = `(prefers-reduced-motion: ${value})`;
+  await page.evaluate((q) => window.matchMedia(q).matches, query);
 }
 
 const getStyleProperty = (locator: Locator, property: string) => {
