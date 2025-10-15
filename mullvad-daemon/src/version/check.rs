@@ -265,7 +265,8 @@ impl VersionUpdaterInner {
                         }
                         Ok(None) => {
                             log::debug!("Version data was unchanged");
-                            update(self.last_app_version_info.clone().expect("have version data since we have etag")).await.ok();
+                            let version_info = self.last_app_version_info.clone().expect("have version data since we have etag");
+                            self.update_version_info(&update, version_info).await;
                         }
                         Err(err) => {
                             log::error!("Failed to fetch version info: {err:#}");
