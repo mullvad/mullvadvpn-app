@@ -326,12 +326,19 @@ fn do_version_check(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    rollout: Rollout,
+    _rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
-    let download_future_factory =
-        move || version_check_inner(&api, min_metadata_version, last_platform_check, rollout);
+    let download_future_factory = move || {
+        version_check_inner(
+            &api,
+            min_metadata_version,
+            last_platform_check,
+            #[cfg(not(target_os = "android"))]
+            _rollout,
+        )
+    };
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -354,11 +361,16 @@ fn do_version_check_in_background(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    rollout: Rollout,
+    _rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let when_available = api.api_handle.wait_background();
-    let version_cache =
-        version_check_inner(&api, min_metadata_version, last_platform_check, rollout);
+    let version_cache = version_check_inner(
+        &api,
+        min_metadata_version,
+        last_platform_check,
+        #[cfg(not(target_os = "android"))]
+        _rollout,
+    );
     Box::pin(async move {
         when_available.await.map_err(Error::ApiCheck)?;
         version_cache.await
