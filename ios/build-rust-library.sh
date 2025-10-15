@@ -23,10 +23,7 @@ fi
 
 
 RELFLAG=
-if [[ "$CONFIGURATION" == "Release" ]]; then
-    RELFLAG=--release
-fi
-if [[ "$CONFIGURATION" == "MockRelease" ]]; then
+if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
     RELFLAG=--release
 fi
 
