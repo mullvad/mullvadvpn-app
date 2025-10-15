@@ -201,10 +201,20 @@ impl VersionUpdaterInner {
 
         let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
         let do_version_check = |min_metadata_version, last_platform_check| {
-            do_version_check(api.clone(), min_metadata_version, last_platform_check)
+            do_version_check(
+                api.clone(),
+                min_metadata_version,
+                last_platform_check,
+                rollout,
+            )
         };
         let do_version_check_in_background = |min_metadata_version, last_platform_check| {
-            do_version_check_in_background(api.clone(), min_metadata_version, last_platform_check)
+            do_version_check_in_background(
+                api.clone(),
+                min_metadata_version,
+                last_platform_check,
+                rollout,
+            )
         };
 
         self.run_inner(
@@ -317,11 +327,12 @@ fn do_version_check(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
+    rollout: f32,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
     let download_future_factory =
-        move || version_check_inner(&api, min_metadata_version, last_platform_check);
+        move || version_check_inner(&api, min_metadata_version, last_platform_check, rollout);
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -344,9 +355,11 @@ fn do_version_check_in_background(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
+    rollout: f32,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let when_available = api.api_handle.wait_background();
-    let version_cache = version_check_inner(&api, min_metadata_version, last_platform_check);
+    let version_cache =
+        version_check_inner(&api, min_metadata_version, last_platform_check, rollout);
     Box::pin(async move {
         when_available.await.map_err(Error::ApiCheck)?;
         version_cache.await
@@ -360,6 +373,7 @@ fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
+    rollout: f32,
 ) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
     let add_platform_headers = should_include_platform_headers(last_platform_check);
 
