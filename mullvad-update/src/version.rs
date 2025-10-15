@@ -159,7 +159,7 @@ pub fn is_version_supported(
 ///
 /// Invariant: 0.0 < threshold <= 1.0
 ///
-/// 0.0 is a special cased rollout reserved for complete rollbacks. See [mullvad_version::version::IGNORE].
+/// 0.0 is a special cased rollout value reserved for complete rollbacks. See [self::IGNORE].
 pub fn rollout_threshold(
     rollout_threshold_seed: u32,
     version: mullvad_version::Version,
