@@ -777,7 +777,7 @@ mod test {
                     sha256: [0; 32],
                 },
             },
-            last_platform_check: SystemTime::now(),
+            last_platform_header_check: SystemTime::now(),
             metadata_version: 0,
         }
     }
@@ -801,7 +801,7 @@ mod test {
                 beta: Some(beta),
                 stable,
             },
-            last_platform_check: SystemTime::now(),
+            last_platform_header_check: SystemTime::now(),
             metadata_version: 0,
         }
     }
