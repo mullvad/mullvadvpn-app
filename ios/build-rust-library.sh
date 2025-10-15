@@ -25,6 +25,9 @@ fi
 RELFLAG=
 if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
     RELFLAG=--release
+
+    # Release builds are not allowed to have outdated lockfiles.
+    CARGO_ARGS+=(--locked)
 fi
 
 # For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
