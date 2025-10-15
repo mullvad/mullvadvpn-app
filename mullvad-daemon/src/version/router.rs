@@ -210,9 +210,13 @@ pub(crate) fn spawn_version_router(
     cache_dir: PathBuf,
     version_event_sender: DaemonEventSender<AppVersionInfo>,
     beta_program: bool,
+    rollout_seed: f32,
     app_upgrade_broadcast: AppUpgradeBroadcast,
 ) -> VersionRouterHandle {
     let (tx, rx) = mpsc::unbounded();
+
+    // TODO: Convert the update threshold seed into an actual threshold.
+    let rollout = f32::max(rollout_seed, f32::EPSILON);
 
     tokio::spawn(async move {
         let (new_version_tx, new_version_rx) = mpsc::unbounded();
@@ -232,6 +236,7 @@ pub(crate) fn spawn_version_router(
             cache_dir.clone(),
             new_version_tx,
             refresh_version_check_rx,
+            rollout,
         )
         .await;
 

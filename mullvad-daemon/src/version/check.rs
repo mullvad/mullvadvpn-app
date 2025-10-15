@@ -91,6 +91,7 @@ impl VersionUpdater {
         cache_dir: PathBuf,
         update_sender: mpsc::UnboundedSender<VersionCache>,
         refresh_rx: mpsc::UnboundedReceiver<()>,
+        rollout: f32,
     ) {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
@@ -116,6 +117,7 @@ impl VersionUpdater {
                     version_proxy,
                     platform_version,
                 },
+                rollout,
             ),
         );
     }
@@ -186,6 +188,7 @@ impl VersionUpdaterInner {
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: UpdateContext,
         api: ApiContext,
+        rollout: f32,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if !*CHECK_ENABLED {
@@ -372,7 +375,7 @@ fn version_check_inner(
     let endpoint = api.version_proxy.version_check_2(
         PLATFORM,
         architecture,
-        mullvad_update::version::SUPPORTED_VERSION,
+        rollout,
         min_metadata_version,
         add_platform_headers.then(|| api.platform_version.clone()),
     );
