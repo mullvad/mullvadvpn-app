@@ -42,7 +42,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
-    private let accessTokenManager: RESTAccessTokenManagement
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
@@ -52,13 +51,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         interactor: TunnelInteractor,
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
-        accessTokenManager: RESTAccessTokenManagement,
         action: SetAccountAction
     ) {
         self.interactor = interactor
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
-        self.accessTokenManager = accessTokenManager
         self.action = action
 
         super.init(dispatchQueue: dispatchQueue)
@@ -67,26 +64,29 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     // MARK: -
 
     override func main() {
-        startLogoutFlow { [self] in
-            self.accessTokenManager.invalidateAllTokens()
-            switch action {
-            case .new:
+        switch action {
+        case .new:
+            startLogoutFlow { [self] in
                 startNewAccountFlow { [self] result in
                     finish(result: result.map { .some($0) })
                 }
+            }
 
-            case let .existing(accountNumber):
+        case let .existing(accountNumber):
+            startLogoutFlow { [self] in
                 startExistingAccountFlow(accountNumber: accountNumber) { [self] result in
                     finish(result: result.map { .some($0) })
                 }
+            }
 
-            case .unset:
+        case .unset:
+            startLogoutFlow { [self] in
                 finish(result: .success(nil))
+            }
 
-            case let .delete(accountNumber):
-                startDeleteAccountFlow(accountNumber: accountNumber) { [self] result in
-                    finish(result: result.map { .none })
-                }
+        case let .delete(accountNumber):
+            startDeleteAccountFlow(accountNumber: accountNumber) { [self] result in
+                finish(result: result.map { .none })
             }
         }
     }
@@ -154,7 +154,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
      Begin delete flow of an existing account by performing the following steps:
     
      1. Delete existing account with the API.
-     2. Reset tunnel settings to default and remove last used account.
+     2. On success, remove last used account and unset device state (logout)),
+       otherwise, propagate the error.
      */
     private func startDeleteAccountFlow(
         accountNumber: String,
@@ -163,9 +164,12 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         deleteAccount(accountNumber: accountNumber) { [self] result in
             if result.isSuccess {
                 interactor.removeLastUsedAccount()
+                unsetDeviceState {
+                    completion(result)
+                }
+            } else {
+                completion(result)
             }
-
-            completion(result)
         }
     }
 
