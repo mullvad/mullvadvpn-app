@@ -60,27 +60,22 @@ struct StorePaymentFailure: @unchecked Sendable {
 }
 
 enum StoreKitPaymentEvent {
-    /// Successful payment, the verification inside is Verified. Date here contains new expiry date.
-    case successfulPayment(VerificationResult<Transaction>, Date)
+    /// Successful payment, the verification inside is Verified.
+    case successfulPayment(Transaction)
     /// Use cancelled the purchase
     case userCancelled
     /// Payment was made but it is still being processed. This transaction can be processed and the receipt uploaded to the API later, when the transaction listener handles it.
     case pending
     /// Purchasing failed
     case failed(InAppPurchaseError)
-    
-    var timeAdded: Date? {
-        switch self {
-        case let .successfulPayment(transaction, timeAdded): return timeAdded
-        default: return nil
-        }
-        
-    }
 }
 
 enum InAppPurchaseError {
+    /// Purchase failed because the product being purchased is either unavailable or StoreKit services failed.
     case storeKitError(StoreKitError)
+    ///
     case purchaseError(Product.PurchaseError)
+    /// User made a purchase, but we failed to verify the transaction. In this case, it is fine to not send the transaction the API.
     case verification(VerificationResult<Transaction>.VerificationError)
     /// In this case, the user has initiated the payment but the app failed to fetch a payment token from the API.
     /// No money has been spent and the payment has failed.
@@ -88,4 +83,6 @@ enum InAppPurchaseError {
     /// In this case, the user has already spent money but we failed to upload the receipt to the API.
     /// They should be fine as the API should , but we can still upload the receipt later
     case receiptUpload(Error)
+    /// To handle errors we don't recognize, we need to, unfortunately, wrap them in an unkown error type.
+    case unkown(Error)
 }
