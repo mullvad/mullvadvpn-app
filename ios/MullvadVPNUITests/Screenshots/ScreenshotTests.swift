@@ -29,20 +29,6 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         app.terminate()
         app.launch()
 
-        HeaderBar(app)
-            .tapSettingsButton()
-
-        SettingsPage(app)
-            .tapVPNSettingsCell()
-
-        VPNSettingsPage(app)
-            .tapQuantumResistantTunnelExpandButton()
-            .tapQuantumResistantTunnelOnCell()
-            .tapBackButton()
-
-        SettingsPage(app)
-            .tapDoneButton()
-
         TunnelControlPage(app)
             .tapSelectLocationButton()
 

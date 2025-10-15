@@ -581,20 +581,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
         XCTAssertTrue(meanPacketSizeWithDaita > meanPacketSizeWithoutDaita)
     }
 
-    private func disableDaitaInTeardown() throws {
-        // Undo enabling DAITA in teardown
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapDAITACell()
-
-            DAITAPage(self.app)
-                .tapEnableSwitchIfOn()
-        }
-    }
-
     func testMultihopSettings() throws {
         // Undo enabling Multihop in teardown
         addTeardownBlock {
@@ -669,9 +655,64 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         try Networking.verifyDNSServerProvider(dnsServerProviderName, isMullvad: false)
     }
+
+    func testQuantumResistanceSettings() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapQuantumResistantTunnelExpandButton()
+                .tapQuantumResistantTunnelAutomaticCell()
+        }
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .verifyConnectingUsingQuantumResistance()
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapQuantumResistantTunnelExpandButton()
+            .tapQuantumResistantTunnelOffCell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+            .verifyNotConnectingUsingQuantumResistance()
+            .tapDisconnectButton()
+    }
 }
 
 extension RelayTests {
+    private func disableDaitaInTeardown() throws {
+        // Undo enabling DAITA in teardown
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapDAITACell()
+
+            DAITAPage(self.app)
+                .tapEnableSwitchIfOn()
+        }
+    }
+
     /// Connect to a relay in the default country and city, get name and IP address of the relay the app successfully connects to. Assumes user is logged on and at tunnel control page.
     private func getDefaultRelayInfo() -> RelayInfo {
         TunnelControlPage(app)
