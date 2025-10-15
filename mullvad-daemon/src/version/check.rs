@@ -242,12 +242,17 @@ impl VersionUpdaterInner {
             Box::pin(talpid_time::sleep(FIRST_CHECK_INTERVAL).fuse());
         let mut version_check = futures::future::Fuse::terminated();
 
+        let mut foreground_check_running = false;
+
         loop {
             futures::select! {
                 command = refresh_rx.next() => match command {
                     Some(()) => {
-                        // start a foreground query to get the latest version_info unless check is already running.
+                        if foreground_check_running {
+                            continue;
+                        }
                         version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
+                        foreground_check_running = true;
                     }
                     None => {
                         break;
@@ -255,24 +260,34 @@ impl VersionUpdaterInner {
                 },
 
                 _ = run_next_check => {
+                    // We must not replace a foreground check, as we'd like a timely response
+                    if foreground_check_running {
+                        continue;
+                    }
                     version_check = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                 },
 
                 response = version_check => {
-                    match response {
-                        Ok(Some(version_info)) => {
-                            self.update_version_info(&update, version_info).await;
-                        }
+                    let version_info = match response {
+                        Ok(Some(version_info)) => version_info,
                         Ok(None) => {
+                            // Repeat the existing info, since requesters may expect a response
                             log::debug!("Version data was unchanged");
-                            let version_info = self.last_app_version_info.clone().expect("have version data since we have etag");
-                            self.update_version_info(&update, version_info).await;
+                            self.last_app_version_info.clone().expect("have version data since we have etag")
                         }
                         Err(err) => {
                             log::error!("Failed to fetch version info: {err:#}");
-                            // FIXME: Notify requesters of errors. Currently `GetVersionInfo` RPC doesn't give up here
+                            // FIXME: HACK: `update` is broken because we cannot return a result.
+                            // This means foreground requests will just receive no response on error.
+                            // As a workaround, we repeat the last known version info, if any.
+                            match self.last_app_version_info.clone() {
+                                Some(version_info) => version_info,
+                                None => continue,
+                            }
                         }
-                    }
+                    };
+                    self.update_version_info(&update, version_info).await;
+                    foreground_check_running = false;
                     run_next_check = Self::update_interval();
                 },
             }
