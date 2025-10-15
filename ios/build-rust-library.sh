@@ -19,17 +19,17 @@ FFI_TARGET=$1
 # build-rust-library.sh mullvad-api "featureA featureB featureC"
 FEATURE_FLAGS=
 if [[ "$#" -eq 2 ]] ; then
-FEATURE_FLAGS=$2
-echo ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+    FEATURE_FLAGS=$2
+    echo ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
 fi
 
 
 RELFLAG=
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  RELFLAG=--release
+    RELFLAG=--release
 fi
 if [[ "$CONFIGURATION" == "MockRelease" ]]; then
-  RELFLAG=--release
+    RELFLAG=--release
 fi
 
 # For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
