@@ -210,7 +210,7 @@ pub(crate) fn spawn_version_router(
     cache_dir: PathBuf,
     version_event_sender: DaemonEventSender<AppVersionInfo>,
     beta_program: bool,
-    rollout_seed: f32,
+    rollout: f32,
     app_upgrade_broadcast: AppUpgradeBroadcast,
 ) -> VersionRouterHandle {
     let (tx, rx) = mpsc::unbounded();
