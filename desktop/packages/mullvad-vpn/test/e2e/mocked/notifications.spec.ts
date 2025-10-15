@@ -167,3 +167,50 @@ test.describe('Unsupported wireguard port', () => {
     await expect(subTitle).toContainText(/The selected WireGuard port is not supported/i);
   });
 });
+
+test.describe('App upgrade notifications', () => {
+  const sendUpgradeAvailable = async () => {
+    await util.ipc.upgradeVersion[''].notify({
+      supported: true,
+      suggestedIsBeta: false,
+      suggestedUpgrade: {
+        changelog: [''],
+        version: '2025.11',
+      },
+    });
+  };
+
+  const sendUpgradeRollback = async () => {
+    await util.ipc.upgradeVersion[''].notify({
+      supported: true,
+      suggestedIsBeta: false,
+      suggestedUpgrade: undefined,
+    });
+  };
+
+  test.beforeAll(async () => {
+    await startup();
+  });
+
+  test.afterAll(async () => {
+    await util?.closePage();
+  });
+
+  test('App upgrade notification displayed on new version', async () => {
+    const notificationTitle = routes.main.getNotificationTitle();
+    await expect(notificationTitle).not.toBeVisible();
+
+    await sendUpgradeAvailable();
+    await expect(notificationTitle).toBeVisible();
+    await expect(notificationTitle).toHaveText('UPDATE AVAILABLE');
+  });
+
+  test('App upgrade notification handles new version rollback', async () => {
+    await sendUpgradeAvailable();
+    const notificationTitle = routes.main.getNotificationTitle();
+    await expect(notificationTitle).toHaveText('UPDATE AVAILABLE');
+
+    await sendUpgradeRollback();
+    await expect(notificationTitle).not.toBeVisible();
+  });
+});
