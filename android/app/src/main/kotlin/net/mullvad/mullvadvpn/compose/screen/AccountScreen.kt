@@ -56,6 +56,7 @@ import net.mullvad.mullvadvpn.compose.preview.AccountUiStatePreviewParameterProv
 import net.mullvad.mullvadvpn.compose.transitions.AccountTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
@@ -152,6 +153,7 @@ fun AccountScreen(
     SecureScreenWhileInView()
 
     ScaffoldWithMediumTopBar(
+        modifier = Modifier.accessibilityDataSensitive(),
         appBarTitle = stringResource(id = R.string.settings_account),
         navigationIcon = { NavigateCloseIconButton(onBackClick) },
         snackbarHostState = snackbarHostState,

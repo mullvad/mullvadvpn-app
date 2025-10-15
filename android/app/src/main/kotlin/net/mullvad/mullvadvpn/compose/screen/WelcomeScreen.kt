@@ -63,6 +63,7 @@ import net.mullvad.mullvadvpn.compose.preview.WelcomeScreenUiStatePreviewParamet
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
@@ -157,6 +158,7 @@ fun WelcomeScreen(
     val scrollState = rememberScrollState()
 
     ScaffoldWithTopBar(
+        modifier = Modifier.accessibilityDataSensitive(),
         topBarColor = MaterialTheme.colorScheme.primary,
         iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClick,

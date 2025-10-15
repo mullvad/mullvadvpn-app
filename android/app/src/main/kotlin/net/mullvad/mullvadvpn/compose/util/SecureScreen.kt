@@ -5,7 +5,10 @@ import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.isSensitiveData
+import androidx.compose.ui.semantics.semantics
 import net.mullvad.mullvadvpn.BuildConfig
 
 @Composable
@@ -28,3 +31,5 @@ fun SecureScreenWhileInView() {
         }
     }
 }
+
+fun Modifier.accessibilityDataSensitive() = this.semantics { isSensitiveData = true }

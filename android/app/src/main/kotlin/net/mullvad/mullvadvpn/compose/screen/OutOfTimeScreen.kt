@@ -57,6 +57,7 @@ import net.mullvad.mullvadvpn.compose.preview.OutOfTimeScreenPreviewParameterPro
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -134,6 +135,7 @@ fun OutOfTimeScreen(
     val scrollState = rememberScrollState()
     ScaffoldWithTopBarAndDeviceName(
         snackbarHostState = snackbarHostState,
+        modifier = Modifier.accessibilityDataSensitive(),
         topBarColor =
             if (state.tunnelState.isSecured()) {
                 MaterialTheme.colorScheme.tertiary
