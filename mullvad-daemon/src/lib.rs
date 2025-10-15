@@ -946,8 +946,12 @@ impl Daemon {
             on_relay_list_update,
         );
 
-        // NOTE: It is a bug if the seed has not been initialized yet!
-        let rollout_seed = settings.rollout_threshold_seed.unwrap();
+        let rollout = {
+            // NOTE: It is a bug if the seed has not been initialized yet!
+            let seed = settings.rollout_threshold_seed.unwrap();
+            let version = mullvad_version::VERSION.parse().unwrap();
+            mullvad_update::version::rollout_threshold(seed, version)
+        };
         let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
             api_handle.availability.clone(),
