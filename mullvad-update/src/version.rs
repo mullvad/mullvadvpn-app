@@ -154,10 +154,16 @@ pub fn is_version_supported(
         .any(|release| release.version.eq(&current_version))
 }
 
-/// TODO: Document mee
-/// TODO: Document the mathematical properties of this function.
-/// - 0.0 < threshold <= 1.0
-pub fn rollout_threshold(rollout_threshold_seed: u32, version: mullvad_version::Version) -> f32 {
+/// Calculate the threshold used to determine if a client is included in the current rollout of
+/// some release.
+///
+/// Invariant: 0.0 < threshold <= 1.0
+///
+/// 0.0 is a special cased rollout reserved for complete rollbacks. See [mullvad_version::version::IGNORE].
+pub fn rollout_threshold(
+    rollout_threshold_seed: u32,
+    version: mullvad_version::Version,
+) -> Rollout {
     use rand::{SeedableRng, rngs::SmallRng};
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
@@ -172,6 +178,8 @@ pub fn rollout_threshold(rollout_threshold_seed: u32, version: mullvad_version::
 
 /// Generate a special seed used to calculate at whice rollout percentage a client should be
 /// notified about a new release.
+///
+/// See [rollout_threshold] for details.
 pub fn generate_rollout_seed() -> u32 {
     let rng = &mut rand::rng();
     rng.random()
