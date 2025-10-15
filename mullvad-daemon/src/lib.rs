@@ -945,7 +945,6 @@ impl Daemon {
                 })
                 .await
                 .map_err(Error::SettingsError)?;
-
             let seed = settings
                 .rollout_threshold_seed
                 .expect("Rollout seed must have been initialized");
