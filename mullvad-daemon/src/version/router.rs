@@ -779,6 +779,7 @@ mod test {
             },
             last_platform_header_check: SystemTime::now(),
             metadata_version: 0,
+            etag: None,
         }
     }
 
@@ -803,6 +804,7 @@ mod test {
             },
             last_platform_header_check: SystemTime::now(),
             metadata_version: 0,
+            etag: None,
         }
     }
 

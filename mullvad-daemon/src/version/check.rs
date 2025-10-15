@@ -73,6 +73,8 @@ pub(super) struct VersionCache {
     pub last_platform_header_check: SystemTime,
     #[cfg(not(target_os = "android"))]
     pub metadata_version: usize,
+    /// Tag associated with this metadata
+    pub etag: Option<String>,
 }
 
 pub(crate) struct VersionUpdater(());
@@ -170,6 +172,13 @@ impl VersionUpdaterInner {
             .map(|info| info.last_platform_header_check)
     }
 
+    /// Return the last etag received from the server
+    fn etag(&self) -> Option<&str> {
+        self.last_app_version_info
+            .as_ref()
+            .and_then(|info| info.etag.as_deref())
+    }
+
     /// Return a future that resolves after [UPDATE_INTERVAL].
     fn update_interval() -> Pin<Box<impl FusedFuture<Output = ()> + use<>>> {
         // Boxed, pinned, and fused.
@@ -198,11 +207,16 @@ impl VersionUpdaterInner {
         }
 
         let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
-        let do_version_check = |min_metadata_version, last_platform_check| {
-            do_version_check(api.clone(), min_metadata_version, last_platform_check)
+        let do_version_check = |min_metadata_version, last_platform_check, etag| {
+            do_version_check(api.clone(), min_metadata_version, last_platform_check, etag)
         };
-        let do_version_check_in_background = |min_metadata_version, last_platform_check| {
-            do_version_check_in_background(api.clone(), min_metadata_version, last_platform_check)
+        let do_version_check_in_background = |min_metadata_version, last_platform_check, etag| {
+            do_version_check_in_background(
+                api.clone(),
+                min_metadata_version,
+                last_platform_check,
+                etag,
+            )
         };
 
         self.run_inner(
@@ -221,12 +235,16 @@ impl VersionUpdaterInner {
         do_version_check: impl Fn(
             usize,
             Option<SystemTime>,
-        ) -> BoxFuture<'static, Result<VersionCache, Error>>,
+            Option<String>,
+        ) -> BoxFuture<'static, Result<Option<VersionCache>, Error>>,
         do_version_check_in_background: impl Fn(
             usize,
             Option<SystemTime>,
-        )
-            -> BoxFuture<'static, Result<VersionCache, Error>>,
+            Option<String>,
+        ) -> BoxFuture<
+            'static,
+            Result<Option<VersionCache>, Error>,
+        >,
     ) {
         let mut run_next_check: Pin<Box<dyn FusedFuture<Output = ()> + Send>> =
             Box::pin(talpid_time::sleep(FIRST_CHECK_INTERVAL).fuse());
@@ -238,7 +256,7 @@ impl VersionUpdaterInner {
                     Some(()) => {
                         // start a foreground query to get the latest version_info unless check is already running.
                         if !self.is_running_version_check() {
-                            version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check()).fuse();
+                            version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                         }
                     }
                     None => {
@@ -250,14 +268,16 @@ impl VersionUpdaterInner {
                     if self.is_running_version_check() {
                         continue;
                     }
-                    version_check = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check()).fuse();
+                    version_check = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                 },
 
                 response = version_check => {
                     match response {
-                        Ok(version_info) => {
+                        Ok(Some(version_info)) => {
                             self.update_version_info(&update, version_info).await;
-
+                        }
+                        Ok(None) => {
+                            log::debug!("Version data was unchanged");
                         }
                         Err(err) => {
                             log::error!("Failed to fetch version info: {err:#}");
@@ -315,11 +335,18 @@ fn do_version_check(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-) -> BoxFuture<'static, Result<VersionCache, Error>> {
+    etag: Option<String>,
+) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
     let api_handle = api.api_handle.clone();
 
-    let download_future_factory =
-        move || version_check_inner(&api, min_metadata_version, last_platform_check);
+    let download_future_factory = move || {
+        version_check_inner(
+            &api,
+            min_metadata_version,
+            last_platform_check,
+            etag.clone(),
+        )
+    };
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -342,9 +369,10 @@ fn do_version_check_in_background(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-) -> BoxFuture<'static, Result<VersionCache, Error>> {
+    etag: Option<String>,
+) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
     let when_available = api.api_handle.wait_background();
-    let version_cache = version_check_inner(&api, min_metadata_version, last_platform_check);
+    let version_cache = version_check_inner(&api, min_metadata_version, last_platform_check, etag);
     Box::pin(async move {
         when_available.await.map_err(Error::ApiCheck)?;
         version_cache.await
@@ -358,7 +386,8 @@ fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
+    etag: Option<String>,
+) -> impl Future<Output = Result<Option<VersionCache>, Error>> + use<> {
     let add_platform_headers = should_include_platform_headers(last_platform_check);
 
     let architecture = match talpid_platform_metadata::get_native_arch()
@@ -376,23 +405,27 @@ fn version_check_inner(
         mullvad_update::version::SUPPORTED_VERSION,
         min_metadata_version,
         add_platform_headers.then(|| api.platform_version.clone()),
+        etag,
     );
 
     async move {
-        let result = endpoint.await.map_err(Error::Download)?;
+        let Some(result) = endpoint.await.map_err(Error::Download)? else {
+            return Ok(None);
+        };
         let last_platform_check = if add_platform_headers {
             SystemTime::now()
         } else {
             last_platform_check.expect("must be set if not adding headers")
         };
 
-        Ok(VersionCache {
+        Ok(Some(VersionCache {
             cache_version: APP_VERSION.clone(),
             current_version_supported: result.current_version_supported,
             version_info: result.version_info,
             last_platform_header_check: last_platform_check,
             metadata_version: result.metadata_version,
-        })
+            etag: result.etag,
+        }))
     }
 }
 
@@ -431,6 +464,7 @@ fn version_check_inner(
             cache_version: APP_VERSION.clone(),
             current_version_supported: response.supported,
             last_platform_check,
+            etag: response.etag,
             // Note: We're pretending that this is complete information,
             // but on Android and Linux, most of the information is missing
             version_info: VersionInfo {
@@ -516,6 +550,7 @@ fn dev_version_cache() -> VersionCache {
         last_platform_header_check: SystemTime::now(),
         #[cfg(not(target_os = "android"))]
         metadata_version: 0,
+        etag: None,
     }
 }
 
@@ -577,6 +612,7 @@ mod test {
             last_platform_header_check: SystemTime::now(),
             #[cfg(not(target_os = "android"))]
             metadata_version: 0,
+            etag: None,
         }
     }
 
@@ -749,8 +785,9 @@ mod test {
     fn fake_version_check(
         _min_metadata_version: usize,
         _last_platform_check: Option<SystemTime>,
-    ) -> BoxFuture<'static, Result<VersionCache, Error>> {
-        Box::pin(async { Ok(fake_version_response()) })
+        _etag: Option<String>,
+    ) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
+        Box::pin(async { Ok(Some(fake_version_response())) })
     }
 
     fn fake_version_response() -> VersionCache {
@@ -771,6 +808,7 @@ mod test {
             last_platform_header_check: SystemTime::now(),
             #[cfg(not(target_os = "android"))]
             metadata_version: 0,
+            etag: None,
         }
     }
 }
