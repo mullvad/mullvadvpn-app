@@ -48,9 +48,9 @@ impl Version {
         self.dev.is_some()
     }
 
-    /// TODO: Document mee
+    /// TODO: We need to be able to feed Version into sha2::Sha256::digest.
     pub fn bytes(&self) -> &[u8] {
-        &[0]
+        todo!()
     }
 }
 
