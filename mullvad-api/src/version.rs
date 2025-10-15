@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use http::StatusCode;
+use mullvad_update::version::Rollout;
 use mullvad_update::version::{VersionInfo, VersionParameters, is_version_supported};
 
 type AppVersion = String;
@@ -70,7 +71,7 @@ impl AppVersionProxy {
         &self,
         platform: &str,
         architecture: mullvad_update::format::Architecture,
-        rollout: f32,
+        rollout: Rollout,
         lowest_metadata_version: usize,
         platform_version: Option<String>,
     ) -> impl Future<Output = Result<AppVersionResponse2, rest::Error>> + use<> {

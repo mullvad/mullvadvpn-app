@@ -7,7 +7,7 @@ use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
 
-use mullvad_update::version::VersionInfo;
+use mullvad_update::version::{Rollout, VersionInfo};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -91,7 +91,7 @@ impl VersionUpdater {
         cache_dir: PathBuf,
         update_sender: mpsc::UnboundedSender<VersionCache>,
         refresh_rx: mpsc::UnboundedReceiver<()>,
-        rollout: f32,
+        rollout: Rollout,
     ) {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
@@ -188,7 +188,7 @@ impl VersionUpdaterInner {
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: UpdateContext,
         api: ApiContext,
-        rollout: f32,
+        rollout: Rollout,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if !*CHECK_ENABLED {
@@ -327,7 +327,7 @@ fn do_version_check(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    rollout: f32,
+    rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
@@ -355,7 +355,7 @@ fn do_version_check_in_background(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    rollout: f32,
+    rollout: Rollout,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let when_available = api.api_handle.wait_background();
     let version_cache =
@@ -373,7 +373,7 @@ fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-    rollout: f32,
+    rollout: Rollout,
 ) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
     let add_platform_headers = should_include_platform_headers(last_platform_check);
 
