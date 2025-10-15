@@ -370,7 +370,6 @@ fn do_version_check_in_background(
 }
 
 /// Fetch new version endpoint
-// TODO: consider testing with mocked version_check_2
 #[cfg(not(target_os = "android"))]
 fn version_check_inner(
     api: &ApiContext,
