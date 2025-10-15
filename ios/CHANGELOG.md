@@ -23,8 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 
+## [2025.8 - 2025-10-10]
 ### Fixed
 - Fix in-app purchases.
+
+## [2025.7 - 2025-10-10]
+### Fixed
 - Fix IP overrides breaking certain obfuscation methods.
 
 ## [2025.6 - 2025-09-23]
