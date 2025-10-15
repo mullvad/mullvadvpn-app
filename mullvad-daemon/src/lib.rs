@@ -958,7 +958,7 @@ impl Daemon {
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
-            rollout_seed,
+            rollout,
             app_upgrade_broadcast,
         );
 
