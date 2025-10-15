@@ -73,21 +73,21 @@ test.describe('Tunnel state and settings', () => {
     expect(inValue1).toMatch(new RegExp(':[0-9]+'));
 
     await exec('mullvad obfuscation set mode off');
-    await exec('mullvad relay set tunnel wireguard --port=53');
+    await exec('mullvad relay set port 53');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
     const inValue2 = await routes.main.getInIpText();
     expect(inValue2).toMatch(new RegExp(':53'));
 
-    await exec('mullvad relay set tunnel wireguard --port=51820');
+    await exec('mullvad relay set port 51820');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
     const inValue3 = await routes.main.getInIpText();
     expect(inValue3).toMatch(new RegExp(':51820'));
 
-    await exec('mullvad relay set tunnel wireguard --port=any');
+    await exec('mullvad relay set port any');
     await exec('mullvad obfuscation set mode auto');
   });
 
@@ -173,11 +173,11 @@ test.describe('Tunnel state and settings', () => {
   });
 
   test('App should show multihop', async () => {
-    await exec('mullvad relay set tunnel wireguard --use-multihop=on');
+    await exec('mullvad relay set multihop on');
     await expectConnected(page);
     const relay = page.getByTestId('hostname-line');
     await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${HOSTNAME} via`), 'i'));
-    await exec('mullvad relay set tunnel wireguard --use-multihop=off');
+    await exec('mullvad relay set multihop off');
     await page.getByText('Disconnect').click();
   });
 

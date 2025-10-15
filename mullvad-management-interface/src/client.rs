@@ -22,7 +22,7 @@ use mullvad_types::{
     device::{Device, DeviceId, DeviceState},
     features::FeatureIndicators,
     relay_constraints::{
-        AllowedIps, BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        AllowedIps, BridgeSettings, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     settings::DnsOptions,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
@@ -233,12 +233,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn set_bridge_state(&mut self, state: BridgeState) -> Result<()> {
-        let state = types::BridgeState::from(state);
-        self.0.set_bridge_state(state).await?;
-        Ok(())
-    }
-
     pub async fn set_obfuscation_settings(&mut self, settings: ObfuscationSettings) -> Result<()> {
         let settings = types::ObfuscationSettings::from(&settings);
         self.0.set_obfuscation_settings(settings).await?;
@@ -272,13 +266,6 @@ impl MullvadProxyClient {
 
     pub async fn set_auto_connect(&mut self, state: bool) -> Result<()> {
         self.0.set_auto_connect(state).await?;
-        Ok(())
-    }
-
-    pub async fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
-        self.0
-            .set_openvpn_mssfix(mssfix.map(u32::from).unwrap_or(0))
-            .await?;
         Ok(())
     }
 

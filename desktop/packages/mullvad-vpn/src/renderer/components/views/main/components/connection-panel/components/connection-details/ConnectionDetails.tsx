@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { strings } from '../../../../../../../../shared/constants';
 import {
   EndpointObfuscationType,
   ITunnelEndpoint,
@@ -8,8 +9,6 @@ import {
   ProxyType,
   RelayProtocol,
   TunnelState,
-  TunnelType,
-  tunnelTypeToString,
 } from '../../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../../shared/gettext';
 import { colors } from '../../../../../../../lib/foundations';
@@ -20,10 +19,6 @@ interface Endpoint {
   ip: string;
   port: number;
   protocol: RelayProtocol;
-}
-
-interface InAddress extends Endpoint {
-  tunnelType: TunnelType;
 }
 
 interface BridgeData extends Endpoint {
@@ -94,9 +89,7 @@ export function ConnectionDetails() {
         {messages.pgettext('connect-view', 'Connection details')}
       </StyledConnectionDetailsHeading>
       <StyledConnectionDetailsLabel data-testid="tunnel-protocol">
-        {showDetails &&
-          tunnelState.details !== undefined &&
-          tunnelTypeToString(tunnelState.details.endpoint.tunnelType)}
+        {showDetails && tunnelState.details !== undefined && strings.wireguard}
       </StyledConnectionDetailsLabel>
       <StyledIpTable>
         <StyledConnectionDetailsTitle>
@@ -150,19 +143,18 @@ function getEntryPoint(tunnelState: TunnelState): Endpoint | undefined {
   }
 }
 
-function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): InAddress {
+function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): Endpoint {
   const socketAddr = parseSocketAddress(tunnelEndpoint.address);
   return {
     ip: socketAddr.host,
     port: socketAddr.port,
     protocol: tunnelEndpoint.protocol,
-    tunnelType: tunnelEndpoint.tunnelType,
   };
 }
 
 function tunnelEndpointToEntryLocationInAddress(
   tunnelEndpoint: ITunnelEndpoint,
-): InAddress | undefined {
+): Endpoint | undefined {
   if (!tunnelEndpoint.entryEndpoint) {
     return undefined;
   }
@@ -172,7 +164,6 @@ function tunnelEndpointToEntryLocationInAddress(
     ip: socketAddr.host,
     port: socketAddr.port,
     protocol: tunnelEndpoint.entryEndpoint.transportProtocol,
-    tunnelType: tunnelEndpoint.tunnelType,
   };
 }
 

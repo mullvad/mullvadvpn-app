@@ -2,7 +2,6 @@ import { ISplitTunnelingApplication } from '../../../shared/application-types';
 import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
-  BridgeState,
   CustomLists,
   IDaitaSettings,
   IDnsOptions,
@@ -56,16 +55,6 @@ export interface IUpdateShowBetaReleasesAction {
 export interface IUpdateBridgeSettingsAction {
   type: 'UPDATE_BRIDGE_SETTINGS';
   bridgeSettings: BridgeSettingsRedux;
-}
-
-export interface IUpdateBridgeStateAction {
-  type: 'UPDATE_BRIDGE_STATE';
-  bridgeState: BridgeState;
-}
-
-export interface IUpdateOpenVpnMssfixAction {
-  type: 'UPDATE_OPENVPN_MSSFIX';
-  mssfix?: number;
 }
 
 export interface IUpdateWireguardMtuAction {
@@ -138,8 +127,6 @@ export type SettingsAction =
   | IUpdateLockdownModeAction
   | IUpdateShowBetaReleasesAction
   | IUpdateBridgeSettingsAction
-  | IUpdateBridgeStateAction
-  | IUpdateOpenVpnMssfixAction
   | IUpdateWireguardMtuAction
   | IUpdateWireguardQuantumResistantAction
   | IUpdateWireguardDaitaAction
@@ -217,20 +204,6 @@ function updateBridgeSettings(bridgeSettings: BridgeSettingsRedux): IUpdateBridg
   return {
     type: 'UPDATE_BRIDGE_SETTINGS',
     bridgeSettings,
-  };
-}
-
-function updateBridgeState(bridgeState: BridgeState): IUpdateBridgeStateAction {
-  return {
-    type: 'UPDATE_BRIDGE_STATE',
-    bridgeState,
-  };
-}
-
-function updateOpenVpnMssfix(mssfix?: number): IUpdateOpenVpnMssfixAction {
-  return {
-    type: 'UPDATE_OPENVPN_MSSFIX',
-    mssfix,
   };
 }
 
@@ -334,8 +307,6 @@ export default {
   updateLockdownMode,
   updateShowBetaReleases,
   updateBridgeSettings,
-  updateBridgeState,
-  updateOpenVpnMssfix,
   updateWireguardMtu,
   updateWireguardQuantumResistant,
   updateWireguardDaita,
