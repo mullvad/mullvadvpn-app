@@ -945,8 +945,9 @@ impl Daemon {
         );
 
         let rollout = {
-            // NOTE: It is a bug if the seed has not been initialized yet!
-            let seed = settings.rollout_threshold_seed.unwrap();
+            let seed = settings
+                .rollout_threshold_seed
+                .expect("Rollout seed must have been initialized");
             let version = mullvad_version::VERSION.parse().unwrap();
             mullvad_update::version::rollout_threshold(seed, version)
         };
