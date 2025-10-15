@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import StoreKit
 
 final class StorePaymentBlockObserver: StorePaymentObserver {
     typealias BlockHandler = @Sendable (StorePaymentManager, StorePaymentEvent) -> Void
@@ -22,5 +23,12 @@ final class StorePaymentBlockObserver: StorePaymentObserver {
         didReceiveEvent event: StorePaymentEvent
     ) {
         blockHandler(manager, event)
+    }
+    
+    func storePaymentManager(
+        _ manager: StorePaymentManager,
+        didReceiveEvent event: StoreKitPaymentEvent,
+    ) {
+        // TODO
     }
 }

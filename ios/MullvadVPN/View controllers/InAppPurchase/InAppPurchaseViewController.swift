@@ -10,6 +10,8 @@ import StoreKit
 import UIKit
 
 class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
+
+    
     private let storePaymentManager: StorePaymentManager
     private let accountNumber: String
     private let paymentAction: PaymentAction
@@ -89,7 +91,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         }
     }
 
-    func purchaseStoreKit2(product: Product) async throws{
+    func purchase(product: Product) async throws{
         try await storePaymentManager.purchase(product: product, for: accountNumber)
     }
     
@@ -117,7 +119,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                         completion: {
                             self.spinnerView.startAnimating()
                             Task { @MainActor in
-                                   try await self.purchaseStoreKit2(product: product)
+                                   try await self.purchase(product: product)
                             }
                         })
                 })
@@ -188,6 +190,20 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                         self.didFinish?()
                     }
                 }
+            }
+        }
+    }
+    
+    nonisolated func storePaymentManager(_ manager: StorePaymentManager, didReceiveEvent event: StoreKitPaymentEvent) {
+        Task { @MainActor in
+            spinnerView.stopAnimating()
+            switch event {
+            case .successfulPayment, .pending:
+                self.didFinish?()
+            case .userCancelled:
+                self.didFinish?()
+            @unknown default:
+                self.didFinish?()
             }
         }
     }
