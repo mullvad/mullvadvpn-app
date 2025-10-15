@@ -408,6 +408,18 @@ esac
 popd
 popd
 
+# When signing is enabled, we check that the working directory is clean before building,
+# further up. Now verify that this is still true. The build process should never make the
+# working directory dirty.
+# This could for example happen if lockfiles are outdated, and the build process updates them.
+if [[ "$SIGN" == "true" ]]; then
+    if [[ -n $(git status --porcelain) ]]; then
+        log_error "The build made the working directory dirty!"
+        log_error "This should never happen, and is explicitly forbidden for signed builds!"
+        exit 1
+    fi
+fi
+
 # sign installer on Windows
 if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
     for installer_path in dist/*"$PRODUCT_VERSION"*.exe; do
