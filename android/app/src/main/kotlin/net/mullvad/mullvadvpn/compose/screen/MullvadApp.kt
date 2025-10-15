@@ -23,6 +23,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -48,7 +49,10 @@ fun MullvadApp() {
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this@SharedTransitionLayout) {
             DestinationsNavHost(
-                modifier = Modifier.semantics { testTagsAsResourceId = true }.fillMaxSize(),
+                modifier =
+                    Modifier.semantics { testTagsAsResourceId = true }
+                        .fillMaxSize()
+                        .accessibilityDataSensitive(),
                 engine = engine,
                 navController = navHostController,
                 navGraph = NavGraphs.root,
