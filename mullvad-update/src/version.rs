@@ -159,7 +159,7 @@ pub fn is_version_supported(
 ///
 /// Invariant: 0.0 < threshold <= 1.0
 ///
-/// 0.0 is a special cased rollout value reserved for complete rollbacks. See [self::IGNORE].
+/// 0.0 is a special-cased rollout value reserved for complete rollbacks. See [self::IGNORE].
 pub fn rollout_threshold(
     rollout_threshold_seed: u32,
     version: mullvad_version::Version,
@@ -176,7 +176,7 @@ pub fn rollout_threshold(
     rng.random_range(f32::EPSILON..=1.0)
 }
 
-/// Generate a special seed used to calculate at whice rollout percentage a client should be
+/// Generate a special seed used to calculate at which rollout percentage a client should be
 /// notified about a new release.
 ///
 /// See [rollout_threshold] for details.
