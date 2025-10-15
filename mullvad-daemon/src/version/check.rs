@@ -434,6 +434,7 @@ fn version_check_inner(
 
     async move {
         let Some(result) = endpoint.await.map_err(Error::Download)? else {
+            // ETag is up to date
             return Ok(None);
         };
         let last_platform_check = if add_platform_headers {
@@ -459,16 +460,21 @@ fn version_check_inner(
     // NOTE: This is unused when `update` is disabled
     _min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
-) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
+    etag: Option<String>,
+) -> impl Future<Output = Result<Option<VersionCache>, Error>> + use<> {
     let add_platform_headers = should_include_platform_headers(last_platform_check);
 
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
         add_platform_headers.then(|| api.platform_version.clone()),
+        etag,
     );
     async move {
-        let response = v1_endpoint.await.map_err(Error::Download)?;
+        let Some(response) = v1_endpoint.await.map_err(Error::Download)? else {
+            // ETag is up to date
+            return Ok(None);
+        };
         let latest_stable = response.latest_stable
             .and_then(|version| version.parse().ok())
             // Suggested stable must actually be stable
