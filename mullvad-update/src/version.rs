@@ -181,8 +181,7 @@ pub fn rollout_threshold(
 ///
 /// See [rollout_threshold] for details.
 pub fn generate_rollout_seed() -> u32 {
-    let rng = &mut rand::rng();
-    rng.random()
+    rand::random()
 }
 
 #[cfg(test)]
