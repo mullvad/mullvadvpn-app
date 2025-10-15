@@ -47,11 +47,6 @@ impl Version {
     pub fn is_dev(&self) -> bool {
         self.dev.is_some()
     }
-
-    /// TODO: We need to be able to feed Version into sha2::Sha256::digest.
-    pub fn bytes(&self) -> &[u8] {
-        todo!()
-    }
 }
 
 impl PartialOrd for Version {
