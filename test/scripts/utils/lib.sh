@@ -223,7 +223,6 @@ function run_tests_for_os {
         "${test_report_arg[@]}" \
         --package-dir "${package_dir}" \
         --vm "$vm" \
-        --openvpn-certificate "${OPENVPN_CERTIFICATE:-"assets/openvpn.ca.crt"}" \
         "${mullvad_host_arg[@]}" \
         "${test_filters_arg[@]}" \
         "${runner_dir_flag[@]}" \
