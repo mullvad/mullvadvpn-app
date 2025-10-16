@@ -37,6 +37,7 @@ import {
   ManageDevicesView,
   MultihopSettingsView,
   ObfuscationView,
+  PortSettingsView,
   SettingsView,
   ShadowsocksSettingsView,
   SplitTunnelingView,
@@ -93,6 +94,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
           <Route exact path={RoutePath.obfuscation} component={ObfuscationView} />
           <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
+          <Route exact path={RoutePath.portSettings} component={PortSettingsView} />
         </Switch>
       </Focus>
     </>

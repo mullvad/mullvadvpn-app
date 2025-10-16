@@ -34,4 +34,5 @@ export enum RoutePath {
   appUpgrade = '/settings/app-upgrade',
   manageDevices = '/settings/manage-devices',
   obfuscation = '/settings/advanced/obfuscation',
+  portSettings = '/settings/advanced/port-settings',
 }
