@@ -205,15 +205,8 @@ function build_ref {
     local build_args=(--optimize --sign)
     if [[ "$(uname -s)" == "Darwin" ]]; then
         build_args+=(--universal --notarize)
-    fi
-    if [[ "$(uname -s)" == "MINGW"* ]]; then
-        # Check if the windows-installer crate is present, and if so, build a universal installer.
-        # The check is needed for compatibility with older commits that don't have the crate/flag.
-        # It was added in December 2024. The condition can be removed when supporting commits
-        # older than that is no longer necessary.
-        if [[ -d "$BUILD_DIR/windows-installer" ]]; then
-            build_args+=(--universal)
-        fi
+    elif [[ "$(uname -s)" == "MINGW"* ]]; then
+        build_args+=(--universal)
     fi
 
     artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
