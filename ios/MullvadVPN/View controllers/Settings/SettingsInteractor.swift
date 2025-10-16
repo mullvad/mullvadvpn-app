@@ -6,9 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadREST
 import MullvadSettings
+import UIKit
 
 final class SettingsInteractor {
     private let tunnelManager: TunnelManager
