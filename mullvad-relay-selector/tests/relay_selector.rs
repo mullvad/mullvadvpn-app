@@ -284,6 +284,18 @@ fn unwrap_entry_relay(get_result: GetRelay) -> Relay {
     }
 }
 
+fn unwrap_multihop_entry_exit_relays(get_result: GetRelay) -> (Relay, Relay) {
+    match get_result {
+        GetRelay::Wireguard {
+            inner: crate::WireguardConfig::Multihop { entry, exit },
+            ..
+        } => (entry, exit),
+        relay => {
+            panic!("Relay is not a Wireguard multihop relay: {relay:?}")
+        }
+    }
+}
+
 fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     match get_result {
         GetRelay::Wireguard { endpoint, .. } => MullvadEndpoint::Wireguard(endpoint),
@@ -1192,6 +1204,39 @@ fn test_ownership() {
     }
 }
 
+#[test]
+fn test_multihop_exit_ownership() {
+    let relay_selector = default_relay_selector();
+
+    for _ in 0..100 {
+        // Construct an arbitrary query for owned relays.
+        let query = RelayQueryBuilder::wireguard()
+            .multihop()
+            .ownership(Ownership::MullvadOwned)
+            .entry_ownership(Ownership::Rented)
+            .build();
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        // Check that the _exit_ relay is owned by Mullvad.
+        assert!(unwrap_relay(relay.clone()).owned);
+        // Check that the _entry_ relay is rented.
+        assert!(!unwrap_entry_relay(relay).owned);
+    }
+
+    for _ in 0..100 {
+        // Construct an arbitrary query for rented relays.
+        let query = RelayQueryBuilder::wireguard()
+            .multihop()
+            .ownership(Ownership::Rented)
+            .entry_ownership(Ownership::MullvadOwned)
+            .build();
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        // Check that the _exit_ relay is rented.
+        assert!(!unwrap_relay(relay.clone()).owned);
+        // Check that the _entry_ relay is owned by Mullvad.
+        assert!(unwrap_entry_relay(relay).owned);
+    }
+}
+
 /// Verify that server and port selection varies between retry attempts.
 #[test]
 fn test_load_balancing() {
@@ -1255,6 +1300,37 @@ fn test_providers() {
                 "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
             ),
         };
+    }
+}
+
+#[test]
+fn test_multihop_exit_providers() {
+    const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
+    const EXPECTED_ENTRY_PROVIDERS: [&str; 2] = ["provider1", "provider3"];
+    let providers = Providers::new(EXPECTED_PROVIDERS).unwrap();
+    let entry_providers = Providers::new(EXPECTED_ENTRY_PROVIDERS).unwrap();
+    let relay_selector = default_relay_selector();
+
+    for _attempt in 0..100 {
+        let query = RelayQueryBuilder::wireguard()
+            .multihop()
+            .providers(providers.clone())
+            .entry_providers(entry_providers.clone())
+            .build();
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+
+        let (entry, exit) = unwrap_multihop_entry_exit_relays(relay);
+
+        assert!(
+            EXPECTED_PROVIDERS.contains(&exit.provider.as_str()),
+            "cannot find exit provider {provider} in {EXPECTED_PROVIDERS:?}",
+            provider = exit.provider
+        );
+        assert!(
+            EXPECTED_ENTRY_PROVIDERS.contains(&entry.provider.as_str()),
+            "cannot find entry provider {provider} in {EXPECTED_ENTRY_PROVIDERS:?}",
+            provider = entry.provider
+        );
     }
 }
 

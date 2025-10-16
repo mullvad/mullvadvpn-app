@@ -604,6 +604,8 @@ message WireguardConstraints {
   repeated string allowed_ips = 3;
   bool use_multihop = 4;
   LocationConstraint entry_location = 5;
+  repeated string entry_providers = 6;
+  Ownership entry_ownership = 7;
 }
 
 message CustomRelaySettings {
