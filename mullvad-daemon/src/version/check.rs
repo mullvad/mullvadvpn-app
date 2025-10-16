@@ -492,7 +492,7 @@ fn version_check_inner(
 
         Ok(Some(VersionCache {
             cache_version: APP_VERSION.clone(),
-            current_version_supported: response.supported,
+            current_version_supported: response.supported(),
             etag: response.etag,
             last_platform_header_check: last_platform_check,
             // Note: We're pretending that this is complete information,
