@@ -35,6 +35,7 @@ export interface UserInterfaceDelegate {
   isLoggedIn(): boolean;
   getAccountData(): IAccountData | undefined;
   getTunnelState(): TunnelState;
+  getVersionInfo(): Promise<void>;
 }
 
 export default class UserInterface implements WindowControllerDelegate {
@@ -380,6 +381,8 @@ export default class UserInterface implements WindowControllerDelegate {
       this.delegate.dismissActiveNotifications();
 
       this.delegate.updateAccountData();
+
+      void this.delegate.getVersionInfo();
     });
 
     this.windowController.window?.on('blur', () => {
