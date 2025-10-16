@@ -252,8 +252,15 @@ async fn main() -> anyhow::Result<()> {
             platforms,
             rollout,
         } => {
+            let mut any_failed = false;
             for platform in all_platforms_if_empty(platforms) {
-                platform.modify_release(&version, rollout).await?;
+                if let Err(err) = platform.modify_release(&version, rollout).await {
+                    any_failed = true;
+                    eprintln!("Error for {platform}: {err}");
+                }
+            }
+            if any_failed {
+                bail!("Some platforms failed to be modified");
             }
             Ok(())
         }
