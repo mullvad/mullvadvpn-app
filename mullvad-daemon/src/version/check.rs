@@ -490,11 +490,11 @@ fn version_check_inner(
             last_platform_check.expect("must be set if not adding headers")
         };
 
-        Ok(VersionCache {
+        Ok(Some(VersionCache {
             cache_version: APP_VERSION.clone(),
             current_version_supported: response.supported,
-            last_platform_check,
             etag: response.etag,
+            last_platform_header_check: last_platform_check,
             // Note: We're pretending that this is complete information,
             // but on Android and Linux, most of the information is missing
             version_info: VersionInfo {
@@ -513,7 +513,7 @@ fn version_check_inner(
                     size: 0,
                 }),
             },
-        })
+        }))
     }
 }
 
