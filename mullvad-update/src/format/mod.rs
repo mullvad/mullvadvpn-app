@@ -15,6 +15,8 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
+use crate::version::{FULLY_ROLLED_OUT, Rollout};
+
 pub mod deserializer;
 pub mod key;
 #[cfg(feature = "sign")]
@@ -74,7 +76,7 @@ pub struct Release {
     /// Fraction of users that should receive the new version
     #[serde(default = "complete_rollout")]
     #[serde(skip_serializing_if = "is_complete_rollout")]
-    pub rollout: f32,
+    pub rollout: Rollout,
 }
 
 impl PartialEq for Release {
@@ -90,12 +92,14 @@ impl PartialOrd for Release {
 }
 
 /// A full rollout includes all users
-fn complete_rollout() -> f32 {
-    1.
+fn complete_rollout() -> Rollout {
+    FULLY_ROLLED_OUT
 }
 
-fn is_complete_rollout(b: impl std::borrow::Borrow<f32>) -> bool {
-    (b.borrow() - complete_rollout()).abs() < f32::EPSILON
+fn is_complete_rollout(b: impl std::borrow::Borrow<Rollout>) -> bool {
+    // TODO: do we actually need this? if so, should we bake it into Rollout::eq?
+    //(b.borrow() - complete_rollout()).abs() < f32::EPSILON
+    b.borrow() == &FULLY_ROLLED_OUT
 }
 
 /// App installer
@@ -171,7 +175,7 @@ mod test {
         );
 
         // rollout *should* be serialized if not equal to default value
-        let rollout = 0.99;
+        let rollout = Rollout::try_from(0.99).unwrap();
         let serialized = serde_json::to_value(Release {
             version: "2024.1".parse().unwrap(),
             changelog: "".to_owned(),
