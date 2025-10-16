@@ -139,6 +139,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  # TODO: We might want to consider moving this job to the self-hosted runner.
   run-lint-and-tests:
     name: Run lint and test tasks
     needs: [prepare]
