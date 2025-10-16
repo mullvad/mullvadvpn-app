@@ -664,7 +664,6 @@ mod test {
                 last_platform_header_check: SystemTime::now() + Duration::from_secs(1),
                 ..dev_version_cache()
             }),
-            ..VersionUpdaterInner::default()
         };
         assert!(should_include_platform_headers(
             checker.last_platform_check()
@@ -680,7 +679,6 @@ mod test {
                     + Duration::from_secs(1),
                 ..dev_version_cache()
             }),
-            ..VersionUpdaterInner::default()
         };
         assert!(!should_include_platform_headers(
             checker.last_platform_check()
@@ -695,7 +693,6 @@ mod test {
                 last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
                 ..dev_version_cache()
             }),
-            ..VersionUpdaterInner::default()
         };
         assert!(should_include_platform_headers(
             checker.last_platform_check()
@@ -707,7 +704,6 @@ mod test {
     async fn test_version_check_run() {
         let checker = VersionUpdaterInner {
             last_app_version_info: Some(dev_version_cache()),
-            ..VersionUpdaterInner::default()
         };
 
         let updated = Arc::new(AtomicBool::new(false));
@@ -751,7 +747,6 @@ mod test {
                 last_platform_header_check: SystemTime::now() - Duration::from_secs(1),
                 ..dev_version_cache()
             }),
-            ..VersionUpdaterInner::default()
         };
 
         let updated = Arc::new(AtomicBool::new(false));
