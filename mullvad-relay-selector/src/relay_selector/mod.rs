@@ -625,7 +625,13 @@ impl RelaySelector {
                     .or_else(|| {
                         Self::get_relay_inner(&user_query, &parsed_relays, custom_lists).ok()
                     })
-                    .ok_or_else(|| Error::NoRelay(Box::new(user_query)))
+                    .ok_or_else(|| {
+                        // Generate error if we can't find a relay based on user query
+                        match Self::get_relay_inner(&user_query, &parsed_relays, custom_lists).err() {
+                            Some(error) => error,
+                            None => Error::NoRelay(Box::new(user_query))
+                        }
+                    })
             }
         }
     }
@@ -732,7 +738,7 @@ impl RelaySelector {
                         )?;
                         WireguardConfig::from(multihop)
                     } else {
-                        return Err(Error::NoRelay(Box::new(query.clone())));
+                        return Err(Error::NoRelayExit(Box::new(query.clone())));
                     }
                 }
             }
@@ -789,7 +795,7 @@ impl RelaySelector {
         let exit_candidates =
             filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
         let exit = helpers::pick_random_relay(&exit_candidates)
-            .ok_or_else(|| Error::NoRelay(Box::new(exit_relay_query)))?;
+            .ok_or_else(|| Error::NoRelayExit(Box::new(exit_relay_query)))?;
 
         // generate a list of potential entry relays, disregarding any location constraint
         let mut entry_query = query.clone();
@@ -814,7 +820,7 @@ impl RelaySelector {
             .map(|relay_with_distance| relay_with_distance.relay)
             .collect_vec();
         let entry = helpers::pick_random_relay_excluding(&entry_candidates, exit)
-            .ok_or_else(|| Error::NoRelay(Box::new(entry_query)))?;
+            .ok_or_else(|| Error::NoRelayEntry(Box::new(entry_query)))?;
 
         Ok(Multihop::new(entry.clone(), exit.clone()))
     }
@@ -855,6 +861,14 @@ impl RelaySelector {
             filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
         let entry_candidates =
             filter_matching_relay_list(&entry_relay_query, parsed_relays, custom_lists);
+
+        if exit_candidates.is_empty() {
+            return Err(Error::NoRelayExit(Box::new(query.clone())));
+        }
+
+        if entry_candidates.is_empty() {
+            return Err(Error::NoRelayEntry(Box::new(query.clone())));
+        }
 
         match Self::pick_working_entry_exit_combo(
             exit_candidates.as_slice(),
