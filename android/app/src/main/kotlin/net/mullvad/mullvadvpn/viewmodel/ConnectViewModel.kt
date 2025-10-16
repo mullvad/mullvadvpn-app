@@ -246,8 +246,4 @@ class ConnectViewModel(
             data class PermissionDenied(val systemVpnSettingsAvailable: Boolean) : ConnectError
         }
     }
-
-    companion object {
-        const val UI_STATE_DEBOUNCE_DURATION_MILLIS: Long = 200
-    }
 }

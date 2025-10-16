@@ -3264,6 +3264,12 @@ msgstr ""
 msgid "No email app available on the device"
 msgstr ""
 
+msgid "No entry server match your settings, try changing server or other settings."
+msgstr ""
+
+msgid "No exit server match your settings, try changing server or other settings."
+msgstr ""
+
 msgid "No internet connection"
 msgstr ""
 
