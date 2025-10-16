@@ -13,7 +13,7 @@ workspace = true
 [features]
 default = []
 sign = ["rand08", "clap"]
-client = ["reqwest", "sha2", "tokio", "thiserror"]
+client = ["reqwest", "tokio", "thiserror"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -23,12 +23,12 @@ ed25519-dalek = { version = "2.1", features = ["zeroize", "rand_core"] }
 hex = { version = "0.4" }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+sha2 = { workspace = true }
 zeroize = { version = "1.8", features = ["zeroize_derive"] }
 log = { workspace = true }
 itertools = { workspace = true }
 
 reqwest = { workspace = true, optional = true }
-sha2 = { workspace = true, optional = true }
 strum = { workspace = true, features = ["derive"], optional = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process", "macros"], optional = true }
 vec1 = { workspace = true }
@@ -41,6 +41,7 @@ clap = { workspace = true, optional = true }
 # TODO Upgrading to rand 0.9 is blocked on ed25519-dalek dropping their dependency on rand_core 0.6
 # (as of ed25519-dalek 2.2.0)
 rand08 = { package = "rand", version = "0.8.5", optional = true }
+rand = { workspace = true }
 
 thiserror = { workspace = true, optional = true }
 
