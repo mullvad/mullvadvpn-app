@@ -1,3 +1,4 @@
+import { AnimatePresence } from 'motion/react';
 import { useCallback, useState } from 'react';
 
 import { messages } from '../../shared/gettext';
@@ -35,6 +36,7 @@ import {
 } from '../lib/notifications';
 import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
+import { useMounted } from '../lib/utility-hooks';
 import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
 import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
@@ -193,12 +195,28 @@ export default function NotificationArea(props: IProps) {
     notification.mayDisplay(),
   );
 
+  const notification = notificationProvider?.getInAppNotification();
   if (notificationProvider) {
-    const notification = notificationProvider.getInAppNotification();
+    if (!notification) {
+      log.error(
+        `Notification providers mayDisplay() returned true but getInAppNotification() returned undefined for ${notificationProvider.constructor.name}`,
+      );
+    }
+  }
 
-    if (notification) {
-      return (
-        <NotificationBanner className={props.className} data-testid="notificationBanner">
+  // We only want to animate notifications after first mount,
+  // so as to prevent an animation from animating in when the
+  // app has just started.
+  const mounted = useMounted();
+  const isMounted = mounted();
+
+  return (
+    <AnimatePresence>
+      {notification && (
+        <NotificationBanner
+          animateIn={isMounted}
+          aria-hidden={!notification}
+          className={props.className}>
           <NotificationIndicator
             $type={notification.indicator}
             data-testid="notificationIndicator"
@@ -220,15 +238,9 @@ export default function NotificationArea(props: IProps) {
             />
           )}
         </NotificationBanner>
-      );
-    } else {
-      log.error(
-        `Notification providers mayDisplay() returned true but getInAppNotification() returned undefined for ${notificationProvider.constructor.name}`,
-      );
-    }
-  }
-
-  return <NotificationBanner className={props.className} aria-hidden={true} />;
+      )}
+    </AnimatePresence>
+  );
 }
 
 interface NotificationActionWrapperProps {
