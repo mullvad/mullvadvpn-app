@@ -462,4 +462,6 @@
     <string name="send_email">Send email</string>
     <string name="no_email_app_available">No email app available on the device</string>
     <string name="include_account_token_checkbox_text">This is a question about account or payments (include account information)</string>
+    <string name="no_matching_relay_entry">No entry server match your settings, try changing server or other settings.</string>
+    <string name="no_matching_relay_exit">No exit server match your settings, try changing server or other settings.</string>
 </resources>

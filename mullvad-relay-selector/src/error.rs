@@ -16,7 +16,13 @@ pub enum Error {
     #[error("The combination of relay constraints is invalid")]
     InvalidConstraints,
 
-    #[error("No relays matching current constraints: {0:?}")]
+    #[error("No relays matching current entry constraints: {0:?}")]
+    NoRelayEntry(Box<RelayQuery>),
+
+    #[error("No relays matching current exit constraints: {0:?}")]
+    NoRelayExit(Box<RelayQuery>),
+
+    #[error("No relays matching current entry and/or exit constraints: {0:?}")]
     NoRelay(Box<RelayQuery>),
 
     #[error("No bridges matching current constraints")]
