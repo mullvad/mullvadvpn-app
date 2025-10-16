@@ -150,7 +150,23 @@ test.describe('Unsupported wireguard port', () => {
 
       const subTitle = page.getByTestId('notificationSubTitle');
 
-      await expect(subTitle).not.toContainText(/The selected WireGuard port is not supported/i);
+      // TODO: Remove these test cases which test for the absence of a specific
+      // notification. We prefer to have tests which test for something, rather
+      // than the absence of something.
+      await expect(async () => {
+        const visible = await subTitle.isVisible();
+        if (visible) {
+          // EITHER: A notification is displayed, but not for unsupported WireGuard port
+          expect(await subTitle.innerText()).not.toMatch(
+            /The selected WireGuard port is not supported/i,
+          );
+        } else {
+          // OR: no notification is displayed at all
+          // NO OP
+        }
+      }).toPass({
+        timeout: 5000,
+      });
     });
   });
 
