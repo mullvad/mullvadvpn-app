@@ -397,7 +397,10 @@ fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
 
     // SAFETY: Must be called after a successful call to ImpersonateSelf.
     if unsafe { RevertToSelf() } == 0 {
+        // The Windows documentation *strongly* suggest that the process should shut down if
+        // RevertToSelf fails.
         log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
+        panic!("RevertToSelf failed. Aborting");
     }
 
     result
