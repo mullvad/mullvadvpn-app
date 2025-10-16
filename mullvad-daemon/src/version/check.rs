@@ -240,17 +240,17 @@ impl VersionUpdaterInner {
             Result<Option<VersionCache>, Error>,
         >,
     ) {
-        let mut run_next_check: Pin<Box<dyn FusedFuture<Output = ()> + Send>> =
+        let mut run_next_check_bg: Pin<Box<dyn FusedFuture<Output = ()> + Send>> =
             Box::pin(talpid_time::sleep(FIRST_CHECK_INTERVAL).fuse());
-        let mut version_check = futures::future::Fuse::terminated();
-
-        let mut foreground_check_running = false;
+        let mut version_check_fg = futures::future::Fuse::terminated();
+        let mut version_check_bg = futures::future::Fuse::terminated();
 
         loop {
             futures::select! {
                 command = refresh_rx.next() => match command {
                     Some(()) => {
-                        if foreground_check_running {
+                        if !version_check_fg.is_terminated() {
+                            // Check already running
                             continue;
                         }
 
@@ -262,56 +262,60 @@ impl VersionUpdaterInner {
                             continue;
                         }
 
-                        version_check = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
-                        foreground_check_running = true;
+                        version_check_fg = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                     }
                     None => {
                         break;
                     }
                 },
 
-                _ = run_next_check => {
-                    // We must not replace a foreground check, as we'd like a timely response
-                    if foreground_check_running {
-                        continue;
-                    }
-
+                _ = run_next_check_bg => {
                     // On Android, avoid polling the API unless necessary as we're using the old endpoint
                     // Only poll when collecting platform headers
                     if cfg!(target_os = "android") && !should_include_platform_headers(self.last_platform_check()) {
                         log::trace!("Skipping version check on Android");
-                        run_next_check = Self::update_interval();
+                        run_next_check_bg = Self::update_interval();
                         continue;
                     }
 
-                    version_check = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
+                    version_check_bg = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                 },
 
-                response = version_check => {
-                    let version_info = match response {
-                        Ok(Some(version_info)) => version_info,
-                        Ok(None) => {
-                            // Repeat the existing info, since requesters may expect a response
-                            log::debug!("Version data was unchanged");
-                            self.last_app_version_info.clone().expect("have version data since we have etag")
-                        }
-                        Err(err) => {
-                            log::error!("Failed to fetch version info: {err:#}");
-                            // FIXME: HACK: `update` is broken because we cannot return a result.
-                            // This means foreground requests will just receive no response on error.
-                            // As a workaround, we repeat the last known version info, if any.
-                            match self.last_app_version_info.clone() {
-                                Some(version_info) => version_info,
-                                None => continue,
-                            }
-                        }
-                    };
-                    self.update_version_info(&update, version_info).await;
-                    foreground_check_running = false;
-                    run_next_check = Self::update_interval();
+                response = version_check_bg => {
+                    self.handle_version_response(&update, response).await;
+                    run_next_check_bg = Self::update_interval();
                 },
+                response = version_check_fg => self.handle_version_response(&update, response).await,
             }
         }
+    }
+
+    async fn handle_version_response(
+        &mut self,
+        update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
+        response: Result<Option<VersionCache>, Error>,
+    ) {
+        let version_info = match response {
+            Ok(Some(version_info)) => version_info,
+            Ok(None) => {
+                // Repeat the existing info, since requesters may expect a response
+                log::debug!("Version data was unchanged");
+                self.last_app_version_info
+                    .clone()
+                    .expect("have version data since we have etag")
+            }
+            Err(err) => {
+                log::error!("Failed to fetch version info: {err:#}");
+                // FIXME: HACK: `update` is broken because we cannot return a result.
+                // This means foreground requests will just receive no response on error.
+                // As a workaround, we repeat the last known version info, if any.
+                match self.last_app_version_info.clone() {
+                    Some(version_info) => version_info,
+                    None => return,
+                }
+            }
+        };
+        self.update_version_info(update, version_info).await;
     }
 }
 
