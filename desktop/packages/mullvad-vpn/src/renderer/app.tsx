@@ -339,6 +339,8 @@ export default class AppRenderer {
   }
 
   public renderView() {
+    const reducedMotion = process.env.NODE_ENV === 'test' ? 'always' : 'user';
+
     return (
       <StrictMode>
         <AppContext.Provider value={{ app: this }}>
@@ -350,7 +352,7 @@ export default class AppRenderer {
                     <ErrorBoundary>
                       <ModalContainer>
                         <KeyboardNavigation>
-                          <MotionConfig reducedMotion="user">
+                          <MotionConfig reducedMotion={reducedMotion}>
                             <AppRouter />
                           </MotionConfig>
                         </KeyboardNavigation>
