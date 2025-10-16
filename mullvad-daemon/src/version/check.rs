@@ -165,7 +165,12 @@ impl VersionUpdaterInner {
         if let Some(current_cache) = self.last_app_version_info.as_ref() {
             if current_cache.metadata_version == new_version_info.metadata_version {
                 log::trace!("Ignoring version info with same metadata version");
-                new_version_info = current_cache.clone();
+                // Ignore everything except etag and platform timestamp
+                new_version_info = VersionCache {
+                    last_platform_header_check: new_version_info.last_platform_header_check,
+                    etag: new_version_info.etag.clone(),
+                    ..current_cache.clone()
+                };
             }
         }
         new_version_info
