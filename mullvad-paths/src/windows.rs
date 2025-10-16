@@ -387,6 +387,11 @@ fn get_current_thread_token() -> std::io::Result<OwnedHandle> {
     Ok(unsafe { OwnedHandle::from_raw_handle(token_handle) })
 }
 
+/// Run provided closure in the security context of the calling process' impersonation token.
+///
+/// # Panics
+///
+/// If privileges can not be dropped after running `func`, the running process is shut down.
 fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
     // SAFETY: SecurityImpersonation is a valid ImpersonationLevel.
     if unsafe { ImpersonateSelf(SecurityImpersonation) } == 0 {
@@ -397,7 +402,11 @@ fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
 
     // SAFETY: Must be called after a successful call to ImpersonateSelf.
     if unsafe { RevertToSelf() } == 0 {
+        // The Windows documentation *strongly* suggest that the process should shut down if
+        // RevertToSelf fails. A failure to do so means that the current process keep running in
+        // an unintended context.
         log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
+        panic!("RevertToSelf failed. Aborting");
     }
 
     result
