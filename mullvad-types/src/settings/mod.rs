@@ -112,7 +112,7 @@ pub struct Settings {
     /// it is expected to be fairly unique.
     ///
     /// This is an Option to make the Default implementation deterministic.
-    #[cfg(in_app_upgrade)]
+    #[cfg(not(target_os = "android"))]
     pub rollout_threshold_seed: Option<u32>,
 }
 
@@ -288,7 +288,7 @@ impl Default for Settings {
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
             recents: Some(vec![]),
-            #[cfg(in_app_upgrade)]
+            #[cfg(not(target_os = "android"))]
             rollout_threshold_seed: None,
         }
     }

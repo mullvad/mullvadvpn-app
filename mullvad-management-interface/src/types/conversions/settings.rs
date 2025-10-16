@@ -209,7 +209,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             // We should look into separating the serializable settings object that pass accross
             // gRPC from the daemon's trusted settings. There are multiple fields that would not be
             // included in the serializable settings, such as the below value.
-            #[cfg(in_app_upgrade)]
+            #[cfg(not(target_os = "android"))]
             rollout_threshold_seed: None,
         })
     }

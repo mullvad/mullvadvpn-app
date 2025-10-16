@@ -71,7 +71,7 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-#[cfg(in_app_upgrade)]
+#[cfg(not(target_os = "android"))]
 use mullvad_update::version::generate_rollout_seed;
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
@@ -937,7 +937,7 @@ impl Daemon {
             on_relay_list_update,
         );
 
-        #[cfg(in_app_upgrade)]
+        #[cfg(not(target_os = "android"))]
         let rollout = {
             settings
                 .update(|settings| {
@@ -955,7 +955,7 @@ impl Daemon {
                 .expect("App version to be parsable");
             mullvad_update::version::rollout_threshold(seed, version)
         };
-        #[cfg(not(in_app_upgrade))]
+        #[cfg(target_os = "android")]
         let rollout = mullvad_update::version::SUPPORTED_VERSION;
         let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
