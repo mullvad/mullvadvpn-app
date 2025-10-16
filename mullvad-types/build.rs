@@ -16,7 +16,7 @@ enum Os {
     Macos,
     Linux,
     Android,
-    IOS,
+    Ios,
 }
 
 fn target_os() -> Os {
@@ -27,7 +27,7 @@ fn target_os() -> Os {
         "macos" => Macos,
         "linux" => Linux,
         "android" => Android,
-        "ios" => IOS,
+        "ios" => Ios,
         _ => panic!("Unsupported target os: {target_os}"),
     }
 }
