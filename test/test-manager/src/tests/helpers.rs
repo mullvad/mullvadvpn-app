@@ -77,9 +77,6 @@ pub async fn install_app(
         .await
         .context("Failed to set log level")?;
 
-    // TODO: This argument is unused now. Remove it
-    let _ = TEST_CONFIG.openvpn_certificate;
-
     // Override env vars
     rpc.set_daemon_environment(get_app_env().await?)
         .await
@@ -1308,7 +1305,7 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
 }
 
 /// Set the location to the given [`LocationConstraint`]. The same location constraint will be set
-/// for the multihop entry and OpenVPN bridge location as well.
+/// for the multihop entry.
 pub async fn set_location(
     mullvad_client: &mut MullvadProxyClient,
     location: impl Into<LocationConstraint>,
