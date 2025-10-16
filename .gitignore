@@ -22,8 +22,9 @@
 /dist-assets/openvpn
 /dist-assets/openvpn.exe
 /dist-assets/aarch64-apple-darwin/
-/dist-assets/x86_64-apple-darwin/
 /dist-assets/aarch64-pc-windows-msvc/
+/dist-assets/aarch64-unknown-linux-gnu/
+/dist-assets/x86_64-apple-darwin/
 /windows/version.h
 /windows/winfw/src/winfw/lannetworks.h
 /windows/**/bin/
