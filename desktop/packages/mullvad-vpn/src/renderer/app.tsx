@@ -973,9 +973,10 @@ export default class AppRenderer {
     );
   }
 
-  private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  public setUpgradeVersion = (upgradeVersion: IAppVersionInfo) => {
     this.reduxActions.version.updateLatest(upgradeVersion);
-  }
+  };
 
   private setGuiSettings(guiSettings: IGuiSettingsState) {
     this.reduxActions.settings.updateGuiSettings(guiSettings);
