@@ -95,7 +95,7 @@ clap = { version = "4.4.18", features = ["cargo", "derive"] }
 once_cell = "1.16"
 serde = "1.0.204"
 serde_json = "1.0.122"
-widestring = "1.0"
+widestring = "1.2"
 windows = "0.61.0"
 windows-sys = "0.61.0"
 winreg = "0.55"
