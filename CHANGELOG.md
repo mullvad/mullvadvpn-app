@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
 - Change how externally triggered navigation is handled in the UI. This could potentially reduce
   issues where users get stuck in the out-of-time view.
 - Update Electron from 36.5.0 to 37.6.0.
+- Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
+  while in an unsecured state.
 
 ### Fixed
 #### macOS
