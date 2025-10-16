@@ -23,19 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     StoreKit2TransactionListenerDelegate,
     @unchecked Sendable
 {
-
-    nonisolated func fetchAccountNumber() -> String? {
-        guard let accountData = tunnelManager.deviceState.accountData else {
-            return nil
-        }
-        return accountData.number
-    }
-
-    nonisolated func update(accountData: MullvadTypes.Account) {
-
-        // TODO: fill me in
-    }
-
     nonisolated(unsafe) private var logger: Logger!
 
     #if targetEnvironment(simulator)
@@ -700,9 +687,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - StoreKit2TransactionListenerDelegate
 
-    nonisolated func fetchAccountNumber(
-        didRequestAccountNumber: Void
-    ) -> String? {
+    nonisolated func fetchAccountNumber() -> String? {
         tunnelManager.deviceState.accountData?.number
     }
 
