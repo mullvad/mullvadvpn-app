@@ -53,7 +53,7 @@ Status get_system_version(uint16_t *buffer, uintptr_t *buffer_size);
 /// Write OS version into `version_out` when `Status::Ok` is returned.
 ///
 /// # Safety
-/// `version_out` should point to a valid `WindowsVer`
+/// `version_out` must point to a valid `WindowsVer`
 Status get_system_version_struct(WindowsVer *version_out);
 
 }  // extern "C"
