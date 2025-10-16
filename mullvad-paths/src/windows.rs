@@ -4,10 +4,7 @@ use std::{
     ffi::OsStr,
     io, mem,
     os::windows::{
-        io::{
-            AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, HandleOrNull, IntoRawHandle,
-            OwnedHandle,
-        },
+        io::{AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle},
         prelude::OsStrExt,
     },
     path::{Path, PathBuf},
@@ -295,7 +292,7 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
         .get_or_try_init(|| {
             let join_handle = std::thread::spawn(|| {
                 impersonate_self(|| {
-                    let user_token = OwnedHandle::try_from(get_system_user_token()?).ok();
+                    let user_token = get_system_user_token()?;
                     // SAFETY: `FOLDERID_LocalAppData` is a valid known folder ID
                     unsafe {
                         get_known_folder_path(
@@ -319,12 +316,11 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
 /// If the current user is system, this function succeeds and returns a NULL handle
-fn get_system_user_token() -> io::Result<HandleOrNull> {
+fn get_system_user_token() -> io::Result<Option<OwnedHandle>> {
     let thread_token = get_current_thread_token()?;
 
     if is_local_system_user_token(&thread_token)? {
-        // SAFETY: It is safe to pass a null handle
-        return Ok(unsafe { HandleOrNull::from_raw_handle(ptr::null_mut()) });
+        return Ok(None);
     }
 
     let system_debug_priv = WideCString::from_str("SeDebugPrivilege").unwrap();
@@ -347,8 +343,7 @@ fn get_system_user_token() -> io::Result<HandleOrNull> {
         log::error!("Failed to drop SeDebugPrivilege: {}", err);
     }
 
-    // SAFETY: The handle is valid
-    find_result.map(|h| unsafe { HandleOrNull::from_raw_handle(h.into_raw_handle()) })
+    find_result.map(Some)
 }
 
 fn open_process_token(process: &impl AsRawHandle, access: u32) -> io::Result<OwnedHandle> {
