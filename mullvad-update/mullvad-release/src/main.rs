@@ -15,7 +15,7 @@ use platform::Platform;
 use mullvad_update::{
     api::HttpVersionInfoProvider,
     format::{self, SignedResponse, key},
-    version::Rollout,
+    version::{FULLY_ROLLED_OUT, Rollout},
 };
 
 use crate::io_util::wait_for_confirm;
@@ -30,7 +30,7 @@ mod platform;
 const DEFAULT_EXPIRY_MONTHS: usize = 6;
 
 /// Rollout to use when not specified
-const DEFAULT_ROLLOUT: f32 = 1.;
+const DEFAULT_ROLLOUT: Rollout = FULLY_ROLLED_OUT;
 
 /// Filename for latest.json metadata
 const LATEST_FILENAME: &str = "latest.json";
@@ -76,9 +76,9 @@ pub enum Opt {
         version: mullvad_version::Version,
         /// Platforms to add releases for. All if none are specified
         platforms: Vec<Platform>,
-        /// Rollout fraction 0-1. The default is 1, i.e. 100%
+        /// Rollout fraction to set (0 = not rolled out, 1 = fully rolled out).
         #[arg(long, default_value_t = DEFAULT_ROLLOUT)]
-        rollout: f32,
+        rollout: Rollout,
     },
 
     /// Remove release from `work/`
@@ -95,9 +95,9 @@ pub enum Opt {
         version: mullvad_version::Version,
         /// Platforms to remove releases for. All if none are specified
         platforms: Vec<Platform>,
-        /// Rollout percentage. The default is 1
+        /// If set, modify the rollout fraction.
         #[arg(long)]
-        rollout: Option<f32>,
+        rollout: Option<Rollout>,
     },
 
     /// Sign using an ed25519 key and output the signed metadata to `signed/`
@@ -124,11 +124,12 @@ pub enum Opt {
     QueryLatest {
         /// Platforms to query for. All if none are specified
         platforms: Vec<Platform>,
-        /// Rollout threshold to use (.0 = not rolled out, 1 = fully rolled out).
+        /// Rollout threshold to use (0 = not rolled out, 1 = fully rolled out).
         ///
         /// By default, any non-zero rollout is accepted.
         /// Setting the value to zero will also show supported versions that have
         /// been released but are currently not being rolled out.
+        // TODO: this prints 0%, but should print 1.1920929e-7
         #[arg(long, default_value_t = mullvad_update::version::SUPPORTED_VERSION)]
         rollout: Rollout,
     },
