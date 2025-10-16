@@ -48,6 +48,7 @@ mod device;
 mod v1;
 mod v10;
 mod v11;
+mod v12;
 mod v2;
 mod v3;
 mod v4;
@@ -210,8 +211,8 @@ async fn migrate_settings(
     )?;
 
     v10::migrate(settings)?;
-
     v11::migrate(settings)?;
+    v12::migrate(settings)?;
 
     Ok(migration_data)
 }

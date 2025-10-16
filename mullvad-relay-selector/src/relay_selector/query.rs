@@ -139,8 +139,16 @@ impl RelayQuery {
         &self.providers
     }
 
+    pub fn set_providers(&mut self, providers: Constraint<Providers>) {
+        self.providers = providers;
+    }
+
     pub fn ownership(&self) -> Constraint<Ownership> {
         self.ownership
+    }
+
+    pub fn set_ownership(&mut self, ownership: Constraint<Ownership>) {
+        self.ownership = ownership;
     }
 
     pub fn tunnel_protocol(&self) -> TunnelType {
@@ -276,6 +284,8 @@ pub struct WireguardRelayQuery {
     pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: Constraint<bool>,
     pub entry_location: Constraint<LocationConstraint>,
+    pub entry_providers: Constraint<Providers>,
+    pub entry_ownership: Constraint<Ownership>,
     pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
     pub daita_use_multihop_if_necessary: Constraint<bool>,
@@ -375,6 +385,8 @@ impl WireguardRelayQuery {
             allowed_ips: Constraint::Any,
             use_multihop: Constraint::Any,
             entry_location: Constraint::Any,
+            entry_providers: Constraint::Any,
+            entry_ownership: Constraint::Any,
             obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
             daita_use_multihop_if_necessary: Constraint::Any,
@@ -389,6 +401,8 @@ impl WireguardRelayQuery {
             ip_version: self.ip_version,
             allowed_ips: self.allowed_ips,
             entry_location: self.entry_location,
+            entry_providers: self.entry_providers,
+            entry_ownership: self.entry_ownership,
             use_multihop: self.use_multihop.unwrap_or(false),
         }
     }
@@ -408,6 +422,8 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
             ip_version: value.ip_version,
             allowed_ips: value.allowed_ips,
             entry_location: value.entry_location,
+            entry_providers: value.entry_providers,
+            entry_ownership: value.entry_ownership,
             use_multihop: value.use_multihop.unwrap_or(false),
         }
     }
@@ -763,6 +779,20 @@ pub mod builder {
         /// multihop to be enabled.
         pub fn entry(mut self, location: impl Into<LocationConstraint>) -> Self {
             self.query.wireguard_constraints.entry_location = Constraint::Only(location.into());
+            self
+        }
+
+        /// Set the entry location in a multihop configuration. This requires
+        /// multihop to be enabled.
+        pub fn entry_providers(mut self, providers: Providers) -> Self {
+            self.query.wireguard_constraints.entry_providers = Constraint::Only(providers);
+            self
+        }
+
+        /// Set the entry location in a multihop configuration. This requires
+        /// multihop to be enabled.
+        pub fn entry_ownership(mut self, ownership: Ownership) -> Self {
+            self.query.wireguard_constraints.entry_ownership = Constraint::Only(ownership);
             self
         }
     }

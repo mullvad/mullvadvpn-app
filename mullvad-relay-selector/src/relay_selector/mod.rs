@@ -350,6 +350,8 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
                 allowed_ips,
                 use_multihop,
                 entry_location,
+                entry_providers,
+                entry_ownership,
             } = wireguard_constraints;
             let AdditionalWireguardConstraints {
                 daita,
@@ -362,6 +364,8 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
                 allowed_ips,
                 use_multihop: Constraint::Only(use_multihop),
                 entry_location,
+                entry_providers,
+                entry_ownership,
                 obfuscation: ObfuscationQuery::from(obfuscation_settings),
                 daita: Constraint::Only(daita),
                 daita_use_multihop_if_necessary: Constraint::Only(daita_use_multihop_if_necessary),
@@ -829,10 +833,12 @@ impl RelaySelector {
     ) -> Result<Multihop, Error> {
         // Here, we modify the original query just a bit.
         // The actual query for an entry relay is identical as for an exit relay, with the
-        // exception that the location is different. It is simply the location as dictated by
-        // the query's multihop constraint.
+        // exception that the location is different and that the entry filters may be different.
+        // The location is dictated by the query's multihop constraint.
         let mut entry_relay_query = query.clone();
         entry_relay_query.set_location(query.wireguard_constraints().entry_location.clone())?;
+        entry_relay_query.set_providers(query.wireguard_constraints().entry_providers.clone());
+        entry_relay_query.set_ownership(query.wireguard_constraints().entry_ownership.clone());
         // After we have our two queries (one for the exit relay & one for the entry relay),
         // we can query for all exit & entry candidates! All candidates are needed for the next
         // step.
