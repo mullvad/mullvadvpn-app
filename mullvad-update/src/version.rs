@@ -216,14 +216,13 @@ impl Ord for Rollout {
     }
 }
 
-// TODO: the mullvad-release cli might rely on this being formatted as an f32
 impl Display for Rollout {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // round up to avoid SUPPORTED_VERSION being printed as "0%"
         write!(f, "{}%", (self.0 * 100.).ceil() as u32)
     }
 }
 
-// TODO: the mullvad-release cli might rely on this being formatted as an f32
 impl FromStr for Rollout {
     type Err = anyhow::Error;
 
