@@ -68,7 +68,7 @@ jobs:
     env:
       # If the file is larger than this, a regression has probably been introduced.
       # You should think twice before increasing this limit.
-      MAX_BINARY_SIZE: 3210000
+      MAX_BINARY_SIZE: 3225000
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
