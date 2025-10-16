@@ -48,6 +48,10 @@ Line wrap the file at 100 chars.                                              Th
 - Install AppArmor profile on all Linux distributions that support AppArmor abi 4.0.
 
 
+## [2025.12] - 2025-10-20
+This release is identical to 2025.12-beta1.
+
+
 ## [2025.12-beta1] - 2025-10-13
 ### Fixed
 #### Windows
