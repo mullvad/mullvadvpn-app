@@ -53,7 +53,7 @@ public protocol APIQuerying: Sendable {
         accountNumber: String,
         transaction: StorekitTransaction,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<Date>
     ) -> Cancellable
 
     func checkApiAvailability(
@@ -234,9 +234,16 @@ extension REST {
             accountNumber: String,
             transaction: StorekitTransaction,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<Void>
+            completionHandler: @escaping ProxyCompletionHandler<Date>
         ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
+            struct ReceiptSubmissionResponse: Codable {
+                let newExpiry: Date
+            }
+
+            let responseHandler = rustResponseHandler(
+                decoding: ReceiptSubmissionResponse.self,
+                with: responseDecoder
+            )
 
             return createNetworkOperation(
                 request:
@@ -246,7 +253,7 @@ extension REST {
                         transaction: transaction
                     ),
                 responseHandler: responseHandler,
-                completionHandler: completionHandler
+                completionHandler: { completionHandler($0.map { $0.newExpiry })}
             )
         }
 

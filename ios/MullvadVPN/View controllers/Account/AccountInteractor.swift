@@ -90,7 +90,7 @@ final class AccountInteractor: Sendable {
                     transaction: StorekitTransaction(transaction: transaction.jwsRepresentation),
                     retryStrategy: .noRetry,
                     completionHandler: { result in
-                        c.resume(returning: result)
+                        c.resume(returning: result.map( {_ in } ))
                     }
                 )
         }
