@@ -216,14 +216,12 @@ impl Ord for Rollout {
     }
 }
 
-// TODO: the mullvad-release cli might rely on this being formatted as an f32
 impl Display for Rollout {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}%", (self.0 * 100.) as u32)
+        Display::fmt(&self.0, f)
     }
 }
 
-// TODO: the mullvad-release cli might rely on this being formatted as an f32
 impl FromStr for Rollout {
     type Err = anyhow::Error;
 
@@ -267,7 +265,7 @@ pub fn generate_rollout_seed() -> u32 {
 mod test {
     use std::str::FromStr;
 
-    use insta::assert_yaml_snapshot;
+    use insta::{assert_snapshot, assert_yaml_snapshot};
 
     use super::*;
 
@@ -399,13 +397,12 @@ mod test {
     }
 
     const GOOD_ROLLOUT_EXAMPLES: &[f32] = &[
-        -0.0,
-        0.0,
-        -0.0 + f32::EPSILON,
-        1.0,
-        1.0 - 0.0,
-        1.0 - f32::EPSILON,
-        1.0 / 3.0,
+        -0.0,                // 0%
+        0.0,                 // 0%
+        -0.0 + f32::EPSILON, // > 0%
+        1.0 / 3.0,           // 33%
+        1.0 - f32::EPSILON,  // 99%
+        1.0,                 // 100%
     ];
 
     const BAD_ROLLOUT_EXAMPLES: &[f32] = &[
@@ -436,6 +433,18 @@ mod test {
             serde_json::from_str::<Rollout>(&rollout_str)
                 .expect_err("must fail to deserialize bad rollout");
         }
+    }
+
+    /// Test that the `Display` impl of [Rollout] makes sense.
+    /// Note clap requires that `Display` must be the inverse of `FromStr`.
+    #[test]
+    fn test_rollout_display() {
+        let string_reprs = GOOD_ROLLOUT_EXAMPLES
+            .iter()
+            .map(|&f| format!("{f} => {}\n", Rollout::try_from(f).unwrap()))
+            .collect::<String>();
+
+        assert_snapshot!(&string_reprs);
     }
 
     #[test]
