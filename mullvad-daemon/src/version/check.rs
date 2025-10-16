@@ -394,9 +394,11 @@ async fn version_check_inner(
             let add_platform_headers =
                 should_include_platform_headers(Some(prev_cache.last_platform_header_check));
             let get_last_platform_header_check = || {
-                add_platform_headers
-                    .then(|| SystemTime::now())
-                    .unwrap_or(prev_cache.last_platform_header_check)
+                if add_platform_headers {
+                    SystemTime::now()
+                } else {
+                    prev_cache.last_platform_header_check
+                }
             };
 
             let Some(response) = api
@@ -461,9 +463,11 @@ async fn version_check_inner(
             let add_platform_headers =
                 should_include_platform_headers(Some(prev_cache.last_platform_header_check));
             let get_last_platform_header_check = || {
-                add_platform_headers
-                    .then(|| SystemTime::now())
-                    .unwrap_or(prev_cache.last_platform_header_check)
+                if add_platform_headers {
+                    SystemTime::now()
+                } else {
+                    prev_cache.last_platform_header_check
+                }
             };
 
             let Some(response) = api
