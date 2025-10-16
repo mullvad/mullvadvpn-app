@@ -817,7 +817,14 @@ class ApplicationMain
       deviceState: this.account.deviceState,
       relayList: this.relayList,
       currentVersion: this.version.currentVersion,
-      upgradeVersion: this.version.upgradeVersion,
+      upgradeVersion: {
+        supported: true,
+        suggestedIsBeta: false,
+        suggestedUpgrade: {
+          changelog: [''],
+          version: '2025.11',
+        },
+      },
       guiSettings: this.settings.gui.state,
       translations: this.translations,
       splitTunnelingApplications: this.splitTunnelingApplications,
