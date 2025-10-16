@@ -164,6 +164,27 @@ pub fn is_version_supported(
         .any(|release| release.version.eq(&current_version))
 }
 
+impl Rollout {
+    /// Calculate the threshold used to determine if a client is included in the current rollout of
+    /// some release.
+    ///
+    /// Invariant: 0.0 < threshold <= 1.0
+    ///
+    /// 0.0 is a special-cased rollout value reserved for complete rollbacks. See [IGNORE].
+    pub fn threshold(rollout_threshold_seed: u32, version: mullvad_version::Version) -> Self {
+        use rand::{Rng, SeedableRng, rngs::SmallRng};
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        hasher.update(rollout_threshold_seed.to_string());
+        hasher.update(version.to_string());
+        let hash = hasher.finalize();
+        let seed: &[u8; 32] = hash.first_chunk().expect("SHA256 hash is 32 bytes");
+        let mut rng = SmallRng::from_seed(*seed);
+        let threshold = rng.random_range(SUPPORTED_VERSION.0..=FULLY_ROLLED_OUT.0);
+        Self::try_from(threshold).expect("threshold is within the Rollout domain")
+    }
+}
+
 impl TryFrom<f32> for Rollout {
     type Error = anyhow::Error;
 
@@ -221,6 +242,14 @@ impl Serialize for Rollout {
     {
         self.0.serialize(serializer)
     }
+}
+
+/// Generate a special seed used to calculate at which rollout percentage a client should be
+/// notified about a new release.
+///
+/// See [Rollout::threshold] for details.
+pub fn generate_rollout_seed() -> u32 {
+    rand::random()
 }
 
 #[cfg(test)]
@@ -373,5 +402,23 @@ mod test {
             serde_json::from_str::<Rollout>(&rollout_str)
                 .expect_err("must fail to deserialize bad rollout");
         }
+    }
+
+    #[test]
+    /// Check that the implementation of [rollout_threshold] yields different threshold values as
+    /// app version number progresses.
+    ///
+    /// Note that there is a chance for repetition - we are effectively mapping a 256 byte hash to
+    /// the fractional part of an [f32], which is a much smaller domain.
+    fn test_rollout_threshold_uniqueness() {
+        let seed = 4; // Chosen by fair dice roll. Guaranteed to be random.
+        let v20254: mullvad_version::Version = "2025.4".parse().unwrap();
+        let v20255: mullvad_version::Version = "2025.5".parse().unwrap();
+        assert_ne!(
+            Rollout::threshold(seed, v20254.clone()),
+            Rollout::threshold(seed, v20255.clone())
+        );
+        assert_yaml_snapshot!(Rollout::threshold(seed, v20254));
+        assert_yaml_snapshot!(Rollout::threshold(seed, v20255));
     }
 }

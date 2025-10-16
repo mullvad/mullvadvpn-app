@@ -71,6 +71,8 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+#[cfg(not(target_os = "android"))]
+use mullvad_update::version::generate_rollout_seed;
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
@@ -734,6 +736,7 @@ impl Daemon {
 
         let settings_event_listener = management_interface.notifier().clone();
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
+
         settings.register_change_listener(move |settings| {
             // Notify management interface server of changes to the settings
             settings_event_listener.notify_settings(settings.to_owned());
@@ -934,12 +937,33 @@ impl Daemon {
             on_relay_list_update,
         );
 
+        #[cfg(not(target_os = "android"))]
+        let rollout = {
+            settings
+                .update(|settings| {
+                    settings
+                        .rollout_threshold_seed
+                        .get_or_insert_with(generate_rollout_seed);
+                })
+                .await
+                .map_err(Error::SettingsError)?;
+            let seed = settings
+                .rollout_threshold_seed
+                .expect("Rollout seed must have been initialized");
+            let version = mullvad_version::VERSION
+                .parse()
+                .expect("App version to be parsable");
+            mullvad_update::version::Rollout::threshold(seed, version)
+        };
+        #[cfg(target_os = "android")]
+        let rollout = mullvad_update::version::SUPPORTED_VERSION;
         let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
             api_handle.availability.clone(),
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
+            rollout,
             app_upgrade_broadcast,
         );
 
