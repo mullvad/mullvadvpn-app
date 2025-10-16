@@ -16,15 +16,18 @@ enum Os {
     Macos,
     Linux,
     Android,
+    IOS,
 }
 
 fn target_os() -> Os {
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
+    use Os::*;
     match target_os.as_str() {
-        "windows" => Os::Windows,
-        "macos" => Os::Macos,
-        "linux" => Os::Linux,
-        "android" => Os::Android,
+        "windows" => Windows,
+        "macos" => Macos,
+        "linux" => Linux,
+        "android" => Android,
+        "ios" => IOS,
         _ => panic!("Unsupported target os: {target_os}"),
     }
 }
