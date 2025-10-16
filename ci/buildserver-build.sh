@@ -189,12 +189,6 @@ function build_ref {
 
     checkout_ref "$ref" || return 1
 
-    # When we build in containers, the updating of toolchains is done by updating containers.
-    if [[ "$(uname -s)" != "Linux" ]]; then
-        echo "Updating Rust toolchain..."
-        rustup update
-    fi
-
     # podman appends a trailing carriage return to the output. So we use `tr` to strip it
     local version=""
     version="$(run_in_build_env cargo run -q --bin mullvad-version | tr -d "\r" || return 1)"
