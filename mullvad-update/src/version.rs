@@ -390,12 +390,12 @@ mod test {
     #[test]
     fn test_rollout_serialization() {
         for &valid_rollout in GOOD_ROLLOUT_EXAMPLES {
-            let rollout_str = valid_rollout.to_string();
-            let deserialized: Rollout = serde_json::from_str(&rollout_str).unwrap();
-            let serialized = serde_json::to_string(&deserialized).unwrap();
+            let serialized_f32 = serde_json::to_string(&valid_rollout).unwrap();
+            let deserialized_rollout: Rollout = serde_json::from_str(&serialized_f32).unwrap();
+            let serialized_rollout = serde_json::to_string(&deserialized_rollout).unwrap();
 
-            assert_eq!(deserialized.0, valid_rollout);
-            assert_eq!(serialized, rollout_str);
+            assert_eq!(deserialized_rollout.0, valid_rollout);
+            assert_eq!(serialized_rollout, serialized_f32);
         }
     }
 
