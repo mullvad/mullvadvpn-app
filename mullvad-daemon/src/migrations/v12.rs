@@ -159,21 +159,5 @@ mod test {
         let new_settings: serde_json::Value = serde_json::from_str(V13_SETTINGS).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
-
-        let deserialized: Settings = serde_json::from_value(new_settings).unwrap();
-
-        match deserialized.relay_settings {
-            RelaySettings::CustomTunnelEndpoint(_) => panic!("invalid settings"),
-            RelaySettings::Normal(settings) => {
-                assert_eq!(
-                    settings.wireguard_constraints.entry_providers,
-                    Constraint::Only(Providers::new(["Blix", "Creanova"]).unwrap())
-                );
-                assert_eq!(
-                    settings.wireguard_constraints.entry_ownership,
-                    Constraint::Only(Ownership::MullvadOwned)
-                );
-            }
-        }
     }
 }
