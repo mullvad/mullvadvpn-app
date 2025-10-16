@@ -37,8 +37,24 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
         updateListenerTask = Task.detached { [weak self] in
             guard let self else { return }
 
-            for await verificationResult in Transaction.updates {
-                await self.handleTransactionUpdate(verificationResult)
+            var processedTransactions = false
+
+            // attempt processing unfinished transactions
+            for await transaction in Transaction.unfinished {
+                await self.handleUnfinishedTransaction(transaction)
+                processedTransactions = true
+            }
+            
+            // Update account data if transactions were processed
+            if processedTransactions {
+                if let account = await getAccountNumber() {
+                    await self.updateAccountData(accountNumber: account)
+                }
+            }
+
+            // attempt processing out-of-band transactions
+            for await transaction in Transaction.updates {
+                await self.handleUnfinishedTransaction(transaction)
             }
         }
     }
@@ -55,20 +71,11 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
     }
 
     // MARK: - Private methods
-
-    private func handleTransactionUpdate(_ verificationResult: VerificationResult<Transaction>) async {
+    private func handleUnfinishedTransaction(_ verificationResult: VerificationResult<Transaction>) async {
         guard let transaction = try? verificationResult.payloadValue else {
             logger.error("Failed to verify transaction.")
             return
         }
-
-        // Only process purchased transactions
-        guard transaction.productType == .autoRenewable else {
-            logger.debug("Ignoring non-subscription transaction: \(transaction.id)")
-            return
-        }
-
-        logger.info("Received transaction update for product: \(transaction.productID)")
 
         // Get account number from delegate
         guard let accountNumber = await getAccountNumber() else {
@@ -105,15 +112,12 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
         switch result {
         case .success:
             guard let payment = try? transaction.payloadValue else {
-                logger.error("Transaction did not contain a payment")
+                logger.error("Transaction did not contain a payment, yet the API validated it all the same!?")
                 return
             }
 
             // Finish the transaction
             await payment.finish()
-
-            // Update account data
-            await updateAccountData(accountNumber: accountNumber)
 
         case let .failure(error):
             if !error.isOperationCancellationError {
@@ -140,7 +144,7 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
 
             // Notify delegate about successful account update
             await MainActor.run {
-                self.delegate?.update(accountData: accountData)
+                self.delegate?.updateAccountData(didUpdateAccountData: accountData)
             }
 
         case let .failure(error):
@@ -157,5 +161,5 @@ protocol StoreKit2TransactionListenerDelegate: AnyObject {
     func fetchAccountNumber() -> String?
 
     /// Called when account data has been successfully updated.
-    func update(accountData: Account)
+    func updateAccountData(didUpdateAccountData: Account)
 }
