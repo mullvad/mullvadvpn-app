@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'motion/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
@@ -59,7 +59,7 @@ interface IProps {
 }
 
 export default function NotificationArea(props: IProps) {
-  const { showFullDiskAccessSettings } = useAppContext();
+  const { showFullDiskAccessSettings, setUpgradeVersion } = useAppContext();
 
   const account = useSelector((state: IReduxState) => state.account);
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
@@ -114,6 +114,33 @@ export default function NotificationArea(props: IProps) {
   }, [appUpgradeInstallerStart]);
 
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (suggestedUpgrade) {
+        console.log('clearing upgrade version');
+        setUpgradeVersion({
+          supported: true,
+          suggestedIsBeta: false,
+          suggestedUpgrade: undefined,
+        });
+      } else {
+        console.log('setting upgrade version');
+        setUpgradeVersion({
+          supported: true,
+          suggestedIsBeta: false,
+          suggestedUpgrade: {
+            changelog: [''],
+            version: '2025.11',
+          },
+        });
+      }
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [setUpgradeVersion, suggestedUpgrade]);
 
   const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
   const appUpgradeEventType = useAppUpgradeEventType();
