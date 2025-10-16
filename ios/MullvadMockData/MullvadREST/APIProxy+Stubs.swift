@@ -74,7 +74,7 @@ struct APIProxyStub: APIQuerying {
         accountNumber: String,
         transaction: StorekitTransaction,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<Void>
+        completionHandler: @escaping ProxyCompletionHandler<Date>
     ) -> any MullvadTypes.Cancellable {
         AnyCancellable()
     }
