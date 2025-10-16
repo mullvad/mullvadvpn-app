@@ -206,8 +206,11 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         }
     }
     
-    func uploadReceipt(for accountNumber: String, payload: VerificationResult<Transaction>) async throws {
-         let result = await withCheckedContinuation { continuation in
+    func uploadReceipt(for accountNumber: String, payload: VerificationResult<Transaction>) async throws -> Date {
+        struct UploadError: Error {}
+        throw UploadError()
+        
+        let result = await withCheckedContinuation { continuation in
             _ =
             apiProxy
                 .checkStorekitPayment(
@@ -221,7 +224,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         }
         
         switch result {
-        case .success(let token): return token
+        case .success(let newExpiryDate): return newExpiryDate
         case .failure(let error): throw error
         }       
     }
@@ -267,16 +270,14 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
             fatalError("Unhandled purchase result \(result)")
         }
         do {
-            try await uploadReceipt(for: accountNumber, payload: receiptToSend)
+            let newExpiry = try await uploadReceipt(for: accountNumber, payload: receiptToSend)
+            await successfulTransaction.finish()
+            
+            didPurchaseMoreTime(transaction: successfulTransaction, newExpiry: newExpiry)
         } catch {
             didFailUploadingReceipt(error: error)
             return
         }
-        await successfulTransaction.finish()
-        
-        didPurchaseMoreTime(transaction: successfulTransaction)
-        
-        
     }
     
     /// Restore purchases by sending the AppStore receipt to backend.
@@ -460,8 +461,8 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         }
     }
     
-    private func didPurchaseMoreTime(transaction: Transaction) {
-        notifyObservers(of: StoreKitPaymentEvent.successfulPayment(transaction))
+    private func didPurchaseMoreTime(transaction: Transaction, newExpiry: Date) {
+        notifyObservers(of: StoreKitPaymentEvent.successfulPayment(transaction, newExpiry))
     }
     
     /// User cancelled purchase before it was completed.
@@ -480,22 +481,21 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
     private func didFailFetchingToken(error: Error) {
         notifyObservers(of: StoreKitPaymentEvent.failed(.getPaymentToken(error)))
     }
-    
-        
+
     /// Handle failure to upload a payment receipt to the API. This transaction should be uploaded again.
     ///
     /// - Parameter error: error thrown by the API client
     private func didFailUploadingReceipt(error: Error) {
         notifyObservers(of: StoreKitPaymentEvent.failed(.receiptUpload(error)))
     }
-        
+
     /// Handle failure to fetch a payment token
     ///
     /// - Parameter transaction: the failed transaction.
     private func paymentPending() {
         notifyObservers(of: StoreKitPaymentEvent.pending)
     }
-    
+
     /// Handle an error thrown from the Product.purchase call
     ///
     /// - Parameter error: the error that was thrown by the Product.purchase call
@@ -504,23 +504,23 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         switch error {
         case let storeKitError as StoreKitError:
             failure = .storeKitError(storeKitError)
-            
+
         case let purchaseError as Product.PurchaseError:
             failure = .purchaseError(purchaseError)
-        
+
         default:
             logger.error("Caught unknown error during purchase call: \(error)")
-            failure = .unkown(error)
+            failure = .unknown(error)
         }
-        
+
         notifyObservers(of: StoreKitPaymentEvent.failed(failure))
     }
-    
+
     private func didFailVerification(error: VerificationResult<Transaction>.VerificationError) {
         notifyObservers(of: StoreKitPaymentEvent.failed(.verification(error)))
     }
-    
-    
+
+
     private func notifyObservers(of storeKitEvent: StoreKitPaymentEvent) {
         observerList.notify { observer in
             observer.storePaymentManager(self, didReceiveEvent: storeKitEvent)

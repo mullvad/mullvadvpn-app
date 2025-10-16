@@ -44,17 +44,19 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
                 await self.handleUnfinishedTransaction(transaction)
                 processedTransactions = true
             }
-            
+
             // Update account data if transactions were processed
             if processedTransactions {
-                if let account = await getAccountNumber() {
-                    await self.updateAccountData(accountNumber: account)
-                }
+                await self.updateAccountData()
             }
 
-            // attempt processing out-of-band transactions
+            // If the purchase was made out-of-band, we need not upload the receipt.
             for await transaction in Transaction.updates {
-                await self.handleUnfinishedTransaction(transaction)
+                if case let .verified(purchase) = transaction {
+                    if purchase.revocationDate != nil {
+                        await updateAccountData()
+                    }
+                }
             }
         }
     }
@@ -76,7 +78,7 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
             logger.error("Failed to verify transaction.")
             return
         }
-
+        
         // Get account number from delegate
         guard let accountNumber = await getAccountNumber() else {
             logger.warning("No account number available for transaction.")
@@ -126,12 +128,14 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
         }
     }
 
-    private func updateAccountData(accountNumber: String) async {
-        logger.debug("Updating account data after successful transaction.")
+    private func updateAccountData() async {
+        guard let account = await getAccountNumber() else {
+            return
+        }
 
         let result = await withCheckedContinuation { continuation in
             _ = self.accountsProxy.getAccountData(
-                accountNumber: accountNumber,
+                accountNumber: account,
                 retryStrategy: .default
             ) { result in
                 continuation.resume(returning: result)

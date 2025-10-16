@@ -198,10 +198,12 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         Task { @MainActor in
             spinnerView.stopAnimating()
             switch event {
-            case .successfulPayment, .pending:
+            case .successfulPayment, .pending, .userCancelled:
                 self.didFinish?()
-            case .userCancelled:
-                self.didFinish?()
+            case let .failed(error):
+                 errorPresenter.showAlertForError(error, context: .purchase) {
+                    self.didFinish?()
+                }
             @unknown default:
                 self.didFinish?()
             }

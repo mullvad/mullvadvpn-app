@@ -56,6 +56,30 @@ struct PaymentAlertPresenter {
         let presenter = AlertPresenter(context: alertContext)
         presenter.showAlert(presentation: presentation, animated: true)
     }
+    
+    func showAlertForError(
+        _ error: InAppPurchaseError,
+        context: REST.CreateApplePaymentResponse.Context,
+        completion: (@MainActor @Sendable () -> Void)? = nil
+    ) {
+        let presentation = AlertPresentation(
+            id: "payment-error-alert",
+            title: context.errorTitle,
+            message: error.description,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Got it!", comment: ""),
+                    style: .default,
+                    handler: {
+                        completion?()
+                    }
+                )
+            ]
+        )
+
+        let presenter = AlertPresenter(context: alertContext)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
 
     func showAlertForStoreKitError(
         _ error: any Error,
