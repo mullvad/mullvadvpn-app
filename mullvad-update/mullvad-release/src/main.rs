@@ -129,7 +129,6 @@ pub enum Opt {
         /// By default, any non-zero rollout is accepted.
         /// Setting the value to zero will also show supported versions that have
         /// been released but are currently not being rolled out.
-        // TODO: this prints 0%, but should print 1.1920929e-7
         #[arg(long, default_value_t = mullvad_update::version::SUPPORTED_VERSION)]
         rollout: Rollout,
     },
