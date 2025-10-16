@@ -204,7 +204,7 @@ private fun SelectLocationListContent(
                                         selected =
                                             relayList.multihopRelayListType ==
                                                 MultihopRelayListType.EXIT,
-                                        onSelect = {
+                                        onSelectHop = {
                                             val listType =
                                                 if (it) MultihopRelayListType.EXIT
                                                 else MultihopRelayListType.ENTRY
