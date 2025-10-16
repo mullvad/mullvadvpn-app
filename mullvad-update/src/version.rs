@@ -387,13 +387,36 @@ mod test {
         Ok(())
     }
 
+    const GOOD_ROLLOUT_EXAMPLES: &[f32] = &[
+        -0.0,
+        0.0,
+        -0.0 + f32::EPSILON,
+        1.0,
+        1.0 - 0.0,
+        1.0 - f32::EPSILON,
+        1.0 / 3.0,
+    ];
+
     const BAD_ROLLOUT_EXAMPLES: &[f32] = &[
         -f32::EPSILON,
         1.0 + f32::EPSILON,
         f32::NAN,
         f32::INFINITY,
         f32::NEG_INFINITY,
+        100.0,
     ];
+
+    #[test]
+    fn test_rollout_serialization() {
+        for &valid_rollout in GOOD_ROLLOUT_EXAMPLES {
+            let serialized_f32 = serde_json::to_string(&valid_rollout).unwrap();
+            let deserialized_rollout: Rollout = serde_json::from_str(&serialized_f32).unwrap();
+            let serialized_rollout = serde_json::to_string(&deserialized_rollout).unwrap();
+
+            assert_eq!(deserialized_rollout.0, valid_rollout);
+            assert_eq!(serialized_rollout, serialized_f32);
+        }
+    }
 
     #[test]
     fn test_rollout_deserialize_bad() {
