@@ -4,7 +4,7 @@ use mullvad_types::settings::SettingsVersion;
 /// This version introduces 2 new fields to the [mullvad_constraints::WireguardConstraints] struct:
 /// pub entry_providers: Constraint<Providers>,
 /// pub entry_ownership: Constraint<Ownership>,
-/// When set, these filters apply to the exit relay when multihop is used.
+/// When set, these filters apply to the entry relay when multihop is used.
 /// A migration is needed to transfer the current providers and ownership to these new fields
 /// so that the user's current filters don't change.
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
@@ -14,7 +14,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
     log::info!("Migrating settings format to V13");
 
-    migrate_filters_to_new_exit_only_filters(settings);
+    migrate_filters_to_new_entry_only_filters(settings);
 
     settings["settings_version"] = serde_json::json!(SettingsVersion::V13);
 
@@ -28,15 +28,15 @@ fn version_matches(settings: &serde_json::Value) -> bool {
         .unwrap_or(false)
 }
 
-fn migrate_filters_to_new_exit_only_filters(settings: &mut serde_json::Value) -> Option<()> {
+fn migrate_filters_to_new_entry_only_filters(settings: &mut serde_json::Value) -> Option<()> {
     let normal = settings.get_mut("relay_settings")?.get_mut("normal")?;
     let providers = normal.get("providers")?.clone();
     let ownership = normal.get("ownership")?.clone();
 
     let wireguard_constraints = normal.get_mut("wireguard_constraints")?.as_object_mut()?;
 
-    wireguard_constraints.insert("exit_providers".to_string(), providers);
-    wireguard_constraints.insert("exit_ownership".to_string(), ownership);
+    wireguard_constraints.insert("entry_providers".to_string(), providers);
+    wireguard_constraints.insert("entry_ownership".to_string(), ownership);
 
     Some(())
 }
@@ -44,6 +44,9 @@ fn migrate_filters_to_new_exit_only_filters(settings: &mut serde_json::Value) ->
 #[cfg(test)]
 mod test {
     use super::{migrate, version_matches};
+    use mullvad_types::constraints::Constraint;
+    use mullvad_types::relay_constraints::{Ownership, Providers, RelaySettings};
+    use mullvad_types::settings::Settings;
 
     const V12_SETTINGS: &str = r#"
 {
@@ -125,7 +128,7 @@ mod test {
             }
           }
         },
-        "exit_providers": {
+        "entry_providers": {
           "only": {
             "providers": [
               "Blix",
@@ -133,7 +136,7 @@ mod test {
             ]
           }
         },
-        "exit_ownership": {
+        "entry_ownership": {
           "only": "MullvadOwned"
         }
       },
@@ -156,5 +159,21 @@ mod test {
         let new_settings: serde_json::Value = serde_json::from_str(V13_SETTINGS).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
+
+        let deserialized: Settings = serde_json::from_value(new_settings).unwrap();
+
+        match deserialized.relay_settings {
+            RelaySettings::CustomTunnelEndpoint(_) => panic!("invalid settings"),
+            RelaySettings::Normal(settings) => {
+                assert_eq!(
+                    settings.wireguard_constraints.entry_providers,
+                    Constraint::Only(Providers::new(["Blix", "Creanova"]).unwrap())
+                );
+                assert_eq!(
+                    settings.wireguard_constraints.entry_ownership,
+                    Constraint::Only(Ownership::MullvadOwned)
+                );
+            }
+        }
     }
 }
