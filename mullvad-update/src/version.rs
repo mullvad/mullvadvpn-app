@@ -247,7 +247,7 @@ impl Serialize for Rollout {
 /// Generate a special seed used to calculate at which rollout percentage a client should be
 /// notified about a new release.
 ///
-/// See [rollout_threshold] for details.
+/// See [Rollout::threshold] for details.
 pub fn generate_rollout_seed() -> u32 {
     rand::random()
 }
