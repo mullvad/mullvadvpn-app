@@ -385,6 +385,7 @@ mod test {
         f32::NAN,
         f32::INFINITY,
         f32::NEG_INFINITY,
+        100.0,
     ];
 
     #[test]
