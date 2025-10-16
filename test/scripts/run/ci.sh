@@ -22,12 +22,6 @@ fi
 
 TEST_OS=$1
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
-    # NOTE: We only do this on macOS since we use containers otherwise
-    echo "Updating Rust toolchain"
-    rustup update
-fi
-
 # shellcheck source=test/scripts/utils/lib.sh
 source "../utils/lib.sh"
 
