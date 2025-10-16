@@ -51,7 +51,7 @@ function update_relay_locations_pot {
 }
 
 function commit_changes {
-    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+    if ! git diff-index --quiet HEAD --; then
         git commit -a -S -m "$1"
     fi
 }

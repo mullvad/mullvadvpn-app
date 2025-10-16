@@ -37,7 +37,7 @@ function checks {
         exit 1
     fi
 
-    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+    if ! git diff-index --quiet HEAD --; then
         log_error "Dirty working directory! Will not accept that for an official release."
         exit 1
     fi
@@ -82,7 +82,7 @@ function check_changelog {
 
 function update_copyright_year {
     $REPO_ROOT/scripts/update-copyright
-    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+    if ! git diff-index --quiet HEAD --; then
         print_and_run git commit -a -S -m "Update copyright year in project files and code"
     fi
 }
