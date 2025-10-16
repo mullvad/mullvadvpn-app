@@ -37,7 +37,7 @@ system-configuration = "0.5.1"
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
-widestring = "1.0"
+widestring = { workspace = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
