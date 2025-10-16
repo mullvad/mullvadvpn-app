@@ -205,6 +205,17 @@ impl TryFrom<f32> for Rollout {
     }
 }
 
+impl Eq for Rollout {}
+
+#[allow(clippy::derive_ord_xor_partial_ord)] // we impl Ord in terms of PartalOrd, so it's fine
+impl Ord for Rollout {
+    fn cmp(&self, other: &Self) -> Ordering {
+        debug_assert!(self.0.is_finite());
+        debug_assert!(other.0.is_finite());
+        self.partial_cmp(other).expect("rollout is always in 0..=1")
+    }
+}
+
 // TODO: the mullvad-release cli might rely on this being formatted as an f32
 impl Display for Rollout {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
