@@ -6,14 +6,15 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadREST
 import MullvadSettings
+import UIKit
 
 final class SettingsInteractor {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
     var didUpdateSettings: (() -> Void)?
+    var contentSizeCategory: UIContentSizeCategory?
 
     private(set) var tunnelSettings: LatestTunnelSettings
     private(set) var deviceState: DeviceState

@@ -31,7 +31,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
                 withIdentifier: item.reuseIdentifier.rawValue
             )
             ?? SettingsCell(
-                style: item.reuseIdentifier.cellStyle,
+                style: item.reuseIdentifier.cellStyle(for: interactor.contentSizeCategory),
                 reuseIdentifier: item.reuseIdentifier.rawValue
             )
 

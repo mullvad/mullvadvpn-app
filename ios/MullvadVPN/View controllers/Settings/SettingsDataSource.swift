@@ -14,16 +14,18 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 {
     enum CellReuseIdentifier: String, CaseIterable {
         case basic
-        case changelog
 
         var reusableViewClass: AnyClass {
             SettingsCell.self
         }
 
-        var cellStyle: UITableViewCell.CellStyle {
-            switch self {
-            case .basic: .default
-            case .changelog: .subtitle
+        func cellStyle(for contentSizeCategory: UIContentSizeCategory?) -> UITableViewCell.CellStyle {
+            guard let contentSizeCategory else { return .default }
+
+            return if (contentSizeCategory > .extraExtraExtraLarge) || (contentSizeCategory > .accessibilityLarge) {
+                .subtitle
+            } else {
+                .default
             }
         }
     }
@@ -82,10 +84,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
 
         var reuseIdentifier: CellReuseIdentifier {
-            switch self {
-            case .changelog: .changelog
-            default: .basic
-            }
+            .basic
         }
     }
 
