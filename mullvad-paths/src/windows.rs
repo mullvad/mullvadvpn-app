@@ -10,7 +10,7 @@ use std::{
     path::{Path, PathBuf},
     ptr,
 };
-use widestring::{WideCStr, WideCString};
+use widestring::{WideCStr, u16cstr};
 use windows_sys::{
     Win32::{
         Foundation::{
@@ -323,8 +323,8 @@ fn get_system_user_token() -> io::Result<Option<OwnedHandle>> {
         return Ok(None);
     }
 
-    let system_debug_priv = WideCString::from_str("SeDebugPrivilege").unwrap();
-    adjust_token_privilege(&thread_token, &system_debug_priv, true)?;
+    let system_debug_priv = u16cstr!("SeDebugPrivilege");
+    adjust_token_privilege(&thread_token, system_debug_priv, true)?;
 
     let find_result = find_process(|process_handle| {
         let process_token = open_process_token(
@@ -339,7 +339,7 @@ fn get_system_user_token() -> io::Result<Option<OwnedHandle>> {
         }
     });
 
-    if let Err(err) = adjust_token_privilege(&thread_token, &system_debug_priv, false) {
+    if let Err(err) = adjust_token_privilege(&thread_token, system_debug_priv, false) {
         log::error!("Failed to drop SeDebugPrivilege: {}", err);
     }
 
