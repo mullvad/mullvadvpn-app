@@ -838,7 +838,7 @@ impl RelaySelector {
         let mut entry_relay_query = query.clone();
         entry_relay_query.set_location(query.wireguard_constraints().entry_location.clone())?;
         entry_relay_query.set_providers(query.wireguard_constraints().entry_providers.clone());
-        entry_relay_query.set_ownership(query.wireguard_constraints().entry_ownership.clone());
+        entry_relay_query.set_ownership(query.wireguard_constraints().entry_ownership);
         // After we have our two queries (one for the exit relay & one for the entry relay),
         // we can query for all exit & entry candidates! All candidates are needed for the next
         // step.
