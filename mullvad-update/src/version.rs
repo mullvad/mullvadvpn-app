@@ -316,4 +316,23 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    /// Check that the implementation of [rollout_threshold] yields different threshold values as
+    /// app version number progresses.
+    ///
+    /// Note that there is a chance for collisions - we are effectively mapping a 256 byte hash
+    /// to the fractional part of an [f32], which is a much smaller domain.
+    fn test_rollout_threshold_uniqueness() {
+        // Chosen by fair dice roll. Guaranteed to be random.
+        let seed = 4;
+        let v20254: mullvad_version::Version = "2025.4".parse().unwrap();
+        let v20255: mullvad_version::Version = "2025.5".parse().unwrap();
+        assert_ne!(
+            rollout_threshold(seed, v20254.clone()),
+            rollout_threshold(seed, v20255.clone())
+        );
+        assert_yaml_snapshot!(rollout_threshold(seed, v20254));
+        assert_yaml_snapshot!(rollout_threshold(seed, v20255));
+    }
 }
