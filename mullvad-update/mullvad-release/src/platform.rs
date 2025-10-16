@@ -4,7 +4,9 @@ use anyhow::{Context, anyhow, bail};
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     format::{self, key},
-    version::{MIN_VERIFY_METADATA_VERSION, VersionArchitecture, VersionInfo, VersionParameters},
+    version::{
+        MIN_VERIFY_METADATA_VERSION, Rollout, VersionArchitecture, VersionInfo, VersionParameters,
+    },
 };
 use std::{
     cmp::Ordering,
@@ -226,7 +228,7 @@ impl Platform {
         version: &mullvad_version::Version,
         changes: &str,
         base_urls: &[String],
-        rollout: f32,
+        rollout: Rollout,
     ) -> anyhow::Result<()> {
         let installers = self.installers(version, base_urls).await?;
 
@@ -356,7 +358,7 @@ impl Platform {
     pub async fn modify_release(
         &self,
         version: &mullvad_version::Version,
-        rollout: Option<f32>,
+        rollout: Option<Rollout>,
     ) -> anyhow::Result<()> {
         let work_path = self.work_path();
         println!("Modifying {version} in {}", work_path.display());
@@ -388,7 +390,7 @@ impl Platform {
     }
 
     /// Return the latest release for platforms in `signed/`
-    pub async fn query_latest(&self, rollout: f32) -> anyhow::Result<VersionQueryOutput> {
+    pub async fn query_latest(&self, rollout: Rollout) -> anyhow::Result<VersionQueryOutput> {
         let response = self.read_signed().await?;
 
         // Grab version info for all architectures
@@ -477,10 +479,8 @@ fn print_release_info(release: &format::Release) {
     let architectures = architectures.join(", ");
 
     println!(
-        "- {} ({}) ({}%)",
-        release.version,
-        architectures,
-        (release.rollout * 100.) as u32
+        "- {} ({}) ({})",
+        release.version, architectures, release.rollout,
     );
 }
 

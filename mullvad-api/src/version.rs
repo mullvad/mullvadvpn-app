@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use http::StatusCode;
 use http::header;
-use mullvad_update::version::{VersionInfo, VersionParameters, is_version_supported};
+use mullvad_update::version::{Rollout, VersionInfo, VersionParameters, is_version_supported};
 
 type AppVersion = String;
 
@@ -107,7 +107,7 @@ impl AppVersionProxy {
         &self,
         platform: &str,
         architecture: mullvad_update::format::Architecture,
-        rollout: f32,
+        rollout: Rollout,
         lowest_metadata_version: usize,
         platform_version: Option<String>,
         etag: Option<String>,
