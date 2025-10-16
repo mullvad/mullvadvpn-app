@@ -388,14 +388,14 @@ fn get_current_thread_token() -> std::io::Result<OwnedHandle> {
 }
 
 fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
-    // SAFETY: Trivially safe
+    // SAFETY: SecurityImpersonation is a valid ImpersonationLevel.
     if unsafe { ImpersonateSelf(SecurityImpersonation) } == 0 {
         return Err(std::io::Error::last_os_error());
     }
 
     let result = func();
 
-    // SAFETY: Trivially safe
+    // SAFETY: Must be called after a successful call to ImpersonateSelf.
     if unsafe { RevertToSelf() } == 0 {
         log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
     }
