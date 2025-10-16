@@ -421,19 +421,15 @@ fn do_version_check(
 /// [ApiAvailability](mullvad_api::availability::ApiAvailability).
 fn do_version_check_in_background(
     api: ApiContext,
-    min_metadata_version: usize,
-    last_platform_check: Option<SystemTime>,
+    cache: Option<VersionCache>,
     _rollout: Rollout,
-    etag: Option<String>,
-) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
+) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let when_available = api.api_handle.wait_background();
     let version_cache = version_check_inner(
         &api,
-        min_metadata_version,
-        last_platform_check,
+        cache,
         #[cfg(not(target_os = "android"))]
         _rollout,
-        etag,
     );
     Box::pin(async move {
         when_available.await.map_err(Error::ApiCheck)?;
@@ -443,15 +439,11 @@ fn do_version_check_in_background(
 
 /// Fetch new version endpoint
 #[cfg(not(target_os = "android"))]
-fn version_check_inner(
-    api: &ApiContext,
-    min_metadata_version: usize,
-    last_platform_check: Option<SystemTime>,
+async fn version_check_inner(
+    api: ApiContext,
+    cache: Option<VersionCache>,
     rollout: Rollout,
-    etag: Option<String>,
-) -> impl Future<Output = Result<Option<VersionCache>, Error>> + use<> {
-    let add_platform_headers = should_include_platform_headers(last_platform_check);
-
+) -> Result<VersionCache, Error> {
     let architecture = match talpid_platform_metadata::get_native_arch()
         .expect("IO error while getting native architecture")
         .expect("Failed to get native architecture")
@@ -461,57 +453,90 @@ fn version_check_inner(
             mullvad_update::format::Architecture::Arm64
         }
     };
-    let endpoint = api.version_proxy.version_check_2(
-        PLATFORM,
-        architecture,
-        min_metadata_version,
-        add_platform_headers.then(|| api.platform_version.clone()),
-        rollout,
-        etag,
-    );
 
-    async move {
-        let Some(result) = endpoint.await.map_err(Error::Download)? else {
-            // ETag is up to date
-            return Ok(None);
-        };
-        let last_platform_check = if add_platform_headers {
-            SystemTime::now()
-        } else {
-            last_platform_check.expect("must be set if not adding headers")
-        };
+    let (response, last_platform_header_check) = match cache {
+        // Cache available
+        Some(prev_cache) => {
+            let add_platform_headers =
+                should_include_platform_headers(Some(prev_cache.last_platform_header_check));
+            let get_last_platform_header_check = || {
+                add_platform_headers
+                    .then(|| SystemTime::now())
+                    .unwrap_or(prev_cache.last_platform_header_check)
+            };
 
-        Ok(Some(VersionCache {
-            cache_version: APP_VERSION.clone(),
-            current_version_supported: result.current_version_supported,
-            version_info: result.version_info,
-            last_platform_header_check: last_platform_check,
-            metadata_version: result.metadata_version,
-            etag: result.etag,
-        }))
-    }
+            let Some(response) = api
+                .version_proxy
+                .version_check_2(
+                    PLATFORM,
+                    architecture,
+                    prev_cache.metadata_version,
+                    add_platform_headers.then(|| api.platform_version.clone()),
+                    rollout,
+                    prev_cache.etag.clone(),
+                )
+                .await
+                .map_err(Error::Download)?
+            else {
+                // ETag is up to date
+                return Ok(VersionCache {
+                    last_platform_header_check: get_last_platform_header_check(),
+                    ..prev_cache
+                });
+            };
+            (response, get_last_platform_header_check())
+        }
+        // No cache available
+        None => {
+            let response = api
+                .version_proxy
+                .version_check_2(
+                    PLATFORM,
+                    architecture,
+                    mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
+                    Some(api.platform_version),
+                    rollout,
+                    None,
+                )
+                .await
+                .map_err(Error::Download)?
+                .expect("function must return body if no etag was set");
+            (response, SystemTime::now())
+        }
+    };
+    Ok(VersionCache {
+        cache_version: APP_VERSION.clone(),
+        current_version_supported: response.current_version_supported,
+        version_info: response.version_info,
+        last_platform_header_check,
+        metadata_version: response.metadata_version,
+        etag: response.etag,
+    })
 }
 
 #[cfg(target_os = "android")]
-fn version_check_inner(
-    api: &ApiContext,
-    // NOTE: This is unused when `update` is disabled
-    _min_metadata_version: usize,
-    last_platform_check: Option<SystemTime>,
-    etag: Option<String>,
-) -> impl Future<Output = Result<Option<VersionCache>, Error>> + use<> {
-    let add_platform_headers = should_include_platform_headers(last_platform_check);
-
+async fn version_check_inner(
+    api: ApiContext,
+    cache: Option<VersionCache>,
+    rollout: Rollout,
+) -> Result<Option<VersionCache>, Error> {
+    let add_platform_headers =
+        should_include_platform_headers(cache.as_ref().map(|c| c.last_platform_header_check));
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
         add_platform_headers.then(|| api.platform_version.clone()),
         etag,
     );
+    // FIXME
     async move {
         let Some(response) = v1_endpoint.await.map_err(Error::Download)? else {
             // ETag is up to date
-            return Ok(None);
+            // FIXME
+            return Ok(VersionCache {
+                last_platform_header_check: get_last_platform_header_check(),
+                ..prev_cache
+            });
         };
         let latest_stable = response.latest_stable()
             .and_then(|version| version.parse().ok())
