@@ -7,7 +7,7 @@ use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 #[cfg(in_app_upgrade)]
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
-use mullvad_update::version::VersionInfo;
+use mullvad_update::version::{Rollout, VersionInfo};
 use talpid_core::mpsc::Sender;
 #[cfg(in_app_upgrade)]
 use talpid_types::ErrorExt;
@@ -210,6 +210,7 @@ pub(crate) fn spawn_version_router(
     cache_dir: PathBuf,
     version_event_sender: DaemonEventSender<AppVersionInfo>,
     beta_program: bool,
+    rollout: Rollout,
     app_upgrade_broadcast: AppUpgradeBroadcast,
 ) -> VersionRouterHandle {
     let (tx, rx) = mpsc::unbounded();
@@ -232,6 +233,7 @@ pub(crate) fn spawn_version_router(
             cache_dir.clone(),
             new_version_tx,
             refresh_version_check_rx,
+            rollout,
         )
         .await;
 
