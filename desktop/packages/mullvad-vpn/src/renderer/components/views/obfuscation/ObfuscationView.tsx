@@ -3,11 +3,11 @@ import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { SettingsContent, SettingsGroup } from '../../Layout';
+import { SettingsContent } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { ObfuscationSettings, PortSetting } from './components';
+import { ObfuscationSettings } from './components';
 
 export function ObfuscationView() {
   const { pop } = useHistory();
@@ -30,13 +30,7 @@ export function ObfuscationView() {
               </HeaderTitle>
             </SettingsHeader>
             <SettingsContent>
-              <SettingsGroup>
-                <ObfuscationSettings />
-              </SettingsGroup>
-
-              <SettingsGroup>
-                <PortSetting />
-              </SettingsGroup>
+              <ObfuscationSettings />
             </SettingsContent>
           </NavigationScrollbars>
         </NavigationContainer>
