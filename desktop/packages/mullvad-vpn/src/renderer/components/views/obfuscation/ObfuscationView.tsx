@@ -7,7 +7,7 @@ import { SettingsContent } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { ObfuscationSettings } from './components';
+import { ObfuscationSetting } from './components';
 
 export function ObfuscationView() {
   const { pop } = useHistory();
@@ -30,7 +30,7 @@ export function ObfuscationView() {
               </HeaderTitle>
             </SettingsHeader>
             <SettingsContent>
-              <ObfuscationSettings />
+              <ObfuscationSetting />
             </SettingsContent>
           </NavigationScrollbars>
         </NavigationContainer>

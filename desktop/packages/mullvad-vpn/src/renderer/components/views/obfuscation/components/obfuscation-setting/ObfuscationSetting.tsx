@@ -17,7 +17,7 @@ export function formatPortForSubLabel(port: Constraint<number>): string {
   return port === 'any' ? messages.gettext('Automatic') : `${port.only}`;
 }
 
-export function ObfuscationSettings() {
+export function ObfuscationSetting() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
