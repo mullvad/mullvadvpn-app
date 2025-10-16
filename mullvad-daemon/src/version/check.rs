@@ -475,12 +475,12 @@ fn version_check_inner(
             // ETag is up to date
             return Ok(None);
         };
-        let latest_stable = response.latest_stable
+        let latest_stable = response.latest_stable()
             .and_then(|version| version.parse().ok())
             // Suggested stable must actually be stable
             .filter(|version: &mullvad_version::Version| version.pre_stable.is_none())
             .ok_or_else(|| Error::MissingStable)?;
-        let latest_beta = response.latest_beta
+        let latest_beta = response.latest_beta()
             .and_then(|version| version.parse().ok())
             // Suggested beta must actually be non-stable
             .filter(|version: &mullvad_version::Version| version.pre_stable.is_some());

@@ -18,19 +18,30 @@ pub struct AppVersionProxy {
 
 #[derive(Debug)]
 pub struct AppVersionResponse {
-    pub supported: bool,
-    pub latest: AppVersion,
-    pub latest_stable: Option<AppVersion>,
-    pub latest_beta: Option<AppVersion>,
+    response: AppVersionResponseRaw,
     pub etag: Option<String>,
 }
 
 #[derive(serde::Deserialize, Debug)]
 struct AppVersionResponseRaw {
-    pub supported: bool,
-    pub latest: AppVersion,
-    pub latest_stable: Option<AppVersion>,
-    pub latest_beta: Option<AppVersion>,
+    supported: bool,
+    latest: AppVersion,
+    latest_stable: Option<AppVersion>,
+    latest_beta: Option<AppVersion>,
+}
+
+impl AppVersionResponse {
+    pub const fn supported(&self) -> bool {
+        self.response.supported
+    }
+
+    pub const fn latest_stable(&self) -> Option<&AppVersion> {
+        self.response.latest_stable.as_ref()
+    }
+
+    pub const fn latest_beta(&self) -> Option<&AppVersion> {
+        self.response.latest_beta.as_ref()
+    }
 }
 
 /// Reply from `/app/releases/<platform>.json` endpoint
@@ -80,12 +91,10 @@ impl AppVersionProxy {
             }
             let etag = Self::extract_etag(&response);
             let deserialized: AppVersionResponseRaw = response.deserialize().await?;
+            let _ = deserialized.latest; // we do not use this
 
             Ok(Some(AppVersionResponse {
-                supported: deserialized.supported,
-                latest: deserialized.latest,
-                latest_stable: deserialized.latest_stable,
-                latest_beta: deserialized.latest_beta,
+                response: deserialized,
                 etag,
             }))
         }
