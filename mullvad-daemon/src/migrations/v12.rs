@@ -44,9 +44,6 @@ fn migrate_filters_to_new_entry_only_filters(settings: &mut serde_json::Value) -
 #[cfg(test)]
 mod test {
     use super::{migrate, version_matches};
-    use mullvad_types::constraints::Constraint;
-    use mullvad_types::relay_constraints::{Ownership, Providers, RelaySettings};
-    use mullvad_types::settings::Settings;
 
     const V12_SETTINGS: &str = r#"
 {
