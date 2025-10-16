@@ -2170,6 +2170,7 @@ dependencies = [
  "log",
  "mullvad-api-constants",
  "mullvad-version",
+ "rand 0.9.1",
  "reqwest",
  "serde",
  "serde_json",

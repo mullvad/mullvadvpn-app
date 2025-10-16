@@ -109,6 +109,13 @@ pub struct Settings {
     pub settings_version: SettingsVersion,
     /// Stores the user's recently connected locations. If None recents have been disabled by the user.
     pub recents: Option<Vec<Recent>>,
+    /// A randomly generated number used as input when determining if the client should update. Note that this
+    /// number is not solely responsible for determining _when_ the client should be updated, but
+    /// it is expected to be fairly unique.
+    ///
+    /// This is an Option to make the Default implementation deterministic.
+    #[cfg(not(target_os = "android"))]
+    pub rollout_threshold_seed: Option<u32>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -283,6 +290,8 @@ impl Default for Settings {
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
             recents: Some(vec![]),
+            #[cfg(not(target_os = "android"))]
+            rollout_threshold_seed: None,
         }
     }
 }
