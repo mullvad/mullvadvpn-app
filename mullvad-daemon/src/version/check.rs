@@ -6,8 +6,7 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
-
-use mullvad_update::version::VersionInfo;
+use mullvad_update::version::{Rollout, VersionInfo};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -94,6 +93,7 @@ impl VersionUpdater {
         cache_dir: PathBuf,
         update_sender: mpsc::UnboundedSender<VersionCache>,
         refresh_rx: mpsc::UnboundedReceiver<()>,
+        rollout: Rollout,
     ) {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
@@ -118,6 +118,7 @@ impl VersionUpdater {
                     version_proxy,
                     platform_version,
                 },
+                rollout,
             ),
         );
     }
@@ -190,6 +191,7 @@ impl VersionUpdaterInner {
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: UpdateContext,
         api: ApiContext,
+        rollout: Rollout,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if !*CHECK_ENABLED {
@@ -202,13 +204,20 @@ impl VersionUpdaterInner {
 
         let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
         let do_version_check = |min_metadata_version, last_platform_check, etag| {
-            do_version_check(api.clone(), min_metadata_version, last_platform_check, etag)
+            do_version_check(
+                api.clone(),
+                min_metadata_version,
+                last_platform_check,
+                rollout,
+                etag,
+            )
         };
         let do_version_check_in_background = |min_metadata_version, last_platform_check, etag| {
             do_version_check_in_background(
                 api.clone(),
                 min_metadata_version,
                 last_platform_check,
+                rollout,
                 etag,
             )
         };
@@ -364,6 +373,7 @@ fn do_version_check(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
+    _rollout: Rollout,
     etag: Option<String>,
 ) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
     let api_handle = api.api_handle.clone();
@@ -373,6 +383,8 @@ fn do_version_check(
             &api,
             min_metadata_version,
             last_platform_check,
+            #[cfg(not(target_os = "android"))]
+            _rollout,
             etag.clone(),
         )
     };
@@ -398,10 +410,18 @@ fn do_version_check_in_background(
     api: ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
+    _rollout: Rollout,
     etag: Option<String>,
 ) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
     let when_available = api.api_handle.wait_background();
-    let version_cache = version_check_inner(&api, min_metadata_version, last_platform_check, etag);
+    let version_cache = version_check_inner(
+        &api,
+        min_metadata_version,
+        last_platform_check,
+        #[cfg(not(target_os = "android"))]
+        _rollout,
+        etag,
+    );
     Box::pin(async move {
         when_available.await.map_err(Error::ApiCheck)?;
         version_cache.await
@@ -414,6 +434,7 @@ fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
     last_platform_check: Option<SystemTime>,
+    rollout: Rollout,
     etag: Option<String>,
 ) -> impl Future<Output = Result<Option<VersionCache>, Error>> + use<> {
     let add_platform_headers = should_include_platform_headers(last_platform_check);
@@ -430,9 +451,9 @@ fn version_check_inner(
     let endpoint = api.version_proxy.version_check_2(
         PLATFORM,
         architecture,
-        mullvad_update::version::SUPPORTED_VERSION,
         min_metadata_version,
         add_platform_headers.then(|| api.platform_version.clone()),
+        rollout,
         etag,
     );
 
