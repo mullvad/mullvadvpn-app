@@ -107,9 +107,9 @@ impl AppVersionProxy {
         &self,
         platform: &str,
         architecture: mullvad_update::format::Architecture,
-        rollout: Rollout,
         lowest_metadata_version: usize,
         platform_version: Option<String>,
+        rollout: Rollout,
         etag: Option<String>,
     ) -> impl Future<Output = Result<Option<AppVersionResponse2>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
