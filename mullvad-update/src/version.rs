@@ -4,11 +4,17 @@
 //!
 //! The main input here is [VersionParameters], and the main output is [VersionInfo].
 
-use std::cmp::Ordering;
+use std::{
+    cmp::Ordering,
+    fmt::{self, Display},
+    ops::RangeInclusive,
+    str::FromStr,
+};
 
-use anyhow::Context;
+use anyhow::{Context, bail};
 use itertools::Itertools;
 use mullvad_version::PreStableType;
+use serde::{Deserialize, Serialize, de::Error};
 
 use crate::format::{self, Installer, Response};
 
@@ -30,17 +36,22 @@ pub struct VersionParameters {
 }
 
 /// Rollout threshold. Any version in the response below this threshold will be ignored
-pub type Rollout = f32;
+///
+/// INVARIANT: The inner f32 must be in the `VALID_ROLLOUT` range.
+#[derive(Debug, Clone, Copy, PartialOrd, PartialEq)]
+pub struct Rollout(f32);
 
 /// Accept *any* version (rollout >= 0) when querying for app info.
-pub const IGNORE: Rollout = 0.;
+pub const IGNORE: Rollout = Rollout(0.);
 
 /// Accept any version (rollout > 0) when querying for app info.
 /// Only versions with a non-zero rollout are supported.
-pub const SUPPORTED_VERSION: Rollout = f32::EPSILON;
+pub const SUPPORTED_VERSION: Rollout = Rollout(f32::EPSILON);
 
 /// Accept only fully rolled out versions (rollout >= 1) when querying for app info.
-pub const FULLY_ROLLED_OUT: Rollout = 1.;
+pub const FULLY_ROLLED_OUT: Rollout = Rollout(1.);
+
+pub const VALID_ROLLOUT: RangeInclusive<f32> = 0.0..=1.0;
 
 /// Installer architecture
 pub type VersionArchitecture = format::Architecture;
@@ -153,6 +164,94 @@ pub fn is_version_supported(
         .any(|release| release.version.eq(&current_version))
 }
 
+impl Rollout {
+    /// Calculate the threshold used to determine if a client is included in the current rollout of
+    /// some release.
+    ///
+    /// Invariant: 0.0 < threshold <= 1.0
+    ///
+    /// 0.0 is a special-cased rollout value reserved for complete rollbacks. See [IGNORE].
+    pub fn threshold(rollout_threshold_seed: u32, version: mullvad_version::Version) -> Self {
+        use rand::{Rng, SeedableRng, rngs::SmallRng};
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        hasher.update(rollout_threshold_seed.to_string());
+        hasher.update(version.to_string());
+        let hash = hasher.finalize();
+        let seed: &[u8; 32] = hash.first_chunk().expect("SHA256 hash is 32 bytes");
+        let mut rng = SmallRng::from_seed(*seed);
+        let threshold = rng.random_range(SUPPORTED_VERSION.0..=FULLY_ROLLED_OUT.0);
+        Self::try_from(threshold).expect("threshold is within the Rollout domain")
+    }
+}
+
+impl TryFrom<f32> for Rollout {
+    type Error = anyhow::Error;
+
+    fn try_from(rollout: f32) -> Result<Self, Self::Error> {
+        if !rollout.is_finite() {
+            bail!("rollout value must be a finite number, but was {rollout}");
+        }
+
+        if !VALID_ROLLOUT.contains(&rollout) {
+            bail!(
+                "rollout value {rollout} is outside valid range {}..={}",
+                VALID_ROLLOUT.start(),
+                VALID_ROLLOUT.end(),
+            );
+        }
+
+        Ok(Rollout(rollout))
+    }
+}
+
+// TODO: the mullvad-release cli might rely on this being formatted as an f32
+impl Display for Rollout {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}%", (self.0 * 100.) as u32)
+    }
+}
+
+// TODO: the mullvad-release cli might rely on this being formatted as an f32
+impl FromStr for Rollout {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let rollout: f32 = s.parse()?;
+        Rollout::try_from(rollout)
+    }
+}
+
+impl<'de> Deserialize<'de> for Rollout {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let rollout = f32::deserialize(deserializer)?;
+
+        Rollout::try_from(rollout)
+            .map_err(|e| e.to_string())
+            .map_err(D::Error::custom)
+    }
+}
+
+impl Serialize for Rollout {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.0.serialize(serializer)
+    }
+}
+
+/// Generate a special seed used to calculate at which rollout percentage a client should be
+/// notified about a new release.
+///
+/// See [Rollout::threshold] for details.
+pub fn generate_rollout_seed() -> u32 {
+    rand::random()
+}
+
 #[cfg(test)]
 mod test {
     use std::str::FromStr;
@@ -174,7 +273,7 @@ mod test {
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
-            rollout: 1.,
+            rollout: FULLY_ROLLED_OUT,
             allow_empty: false,
             lowest_metadata_version: 0,
         };
@@ -196,7 +295,7 @@ mod test {
 
         let params = VersionParameters {
             architecture: VersionArchitecture::Arm64,
-            rollout: 0.01,
+            rollout: SUPPORTED_VERSION,
             allow_empty: false,
             lowest_metadata_version: 0,
         };
@@ -218,7 +317,7 @@ mod test {
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
-            rollout: 0.01,
+            rollout: SUPPORTED_VERSION,
             allow_empty: true,
             lowest_metadata_version: 0,
         };
@@ -286,5 +385,40 @@ mod test {
         ));
 
         Ok(())
+    }
+
+    const BAD_ROLLOUT_EXAMPLES: &[f32] = &[
+        -f32::EPSILON,
+        1.0 + f32::EPSILON,
+        f32::NAN,
+        f32::INFINITY,
+        f32::NEG_INFINITY,
+    ];
+
+    #[test]
+    fn test_rollout_deserialize_bad() {
+        for &bad_rollout in BAD_ROLLOUT_EXAMPLES {
+            let rollout_str = bad_rollout.to_string();
+            serde_json::from_str::<Rollout>(&rollout_str)
+                .expect_err("must fail to deserialize bad rollout");
+        }
+    }
+
+    #[test]
+    /// Check that the implementation of [rollout_threshold] yields different threshold values as
+    /// app version number progresses.
+    ///
+    /// Note that there is a chance for repetition - we are effectively mapping a 256 byte hash to
+    /// the fractional part of an [f32], which is a much smaller domain.
+    fn test_rollout_threshold_uniqueness() {
+        let seed = 4; // Chosen by fair dice roll. Guaranteed to be random.
+        let v20254: mullvad_version::Version = "2025.4".parse().unwrap();
+        let v20255: mullvad_version::Version = "2025.5".parse().unwrap();
+        assert_ne!(
+            Rollout::threshold(seed, v20254.clone()),
+            Rollout::threshold(seed, v20255.clone())
+        );
+        assert_yaml_snapshot!(Rollout::threshold(seed, v20254));
+        assert_yaml_snapshot!(Rollout::threshold(seed, v20255));
     }
 }
