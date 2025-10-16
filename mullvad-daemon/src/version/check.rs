@@ -150,17 +150,25 @@ impl VersionUpdaterInner {
         mut new_version_info: VersionCache,
     ) {
         #[cfg(not(target_os = "android"))]
-        if let Some(current_cache) = self.last_app_version_info.as_ref() {
-            if current_cache.metadata_version == new_version_info.metadata_version {
-                log::trace!("Ignoring version info with same metadata version");
-                new_version_info = current_cache.clone();
-            }
+        {
+            new_version_info = self.ignore_cache_if_same_version(new_version_info);
         }
 
         if let Err(err) = update(new_version_info.clone()).await {
             log::error!("Failed to save version cache to disk: {}", err);
         }
         self.last_app_version_info = Some(new_version_info);
+    }
+
+    #[cfg(not(target_os = "android"))]
+    fn ignore_cache_if_same_version(&self, mut new_version_info: VersionCache) -> VersionCache {
+        if let Some(current_cache) = self.last_app_version_info.as_ref() {
+            if current_cache.metadata_version == new_version_info.metadata_version {
+                log::trace!("Ignoring version info with same metadata version");
+                new_version_info = current_cache.clone();
+            }
+        }
+        new_version_info
     }
 
     /// Return when the last successful check including platform headers was made.
@@ -722,6 +730,67 @@ mod test {
         assert!(should_include_platform_headers(
             checker.last_platform_check()
         ));
+    }
+
+    /// Platform timestamp and etag must be updated even if metadata version is unchanged
+    #[tokio::test]
+    async fn test_platform_timestamp_update() {
+        // If the metadata version is unchanged, we should keep the existing metadata
+        // But update the etag and platform timestamp anyway
+        let prev_cache = VersionCache {
+            last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
+            current_version_supported: true,
+            metadata_version: 11,
+            ..dev_version_cache()
+        };
+        let new_cache = VersionCache {
+            last_platform_header_check: SystemTime::now(),
+            etag: Some("etag2".to_owned()),
+            current_version_supported: false,
+            metadata_version: 11,
+            ..dev_version_cache()
+        };
+
+        let mut checker = VersionUpdaterInner {
+            last_app_version_info: Some(prev_cache),
+        };
+        checker
+            .update_version_info(&fake_updater(Default::default()), new_cache.clone())
+            .await;
+        let updated_cache = checker.last_app_version_info.as_ref().unwrap();
+        assert_eq!(
+            updated_cache.last_platform_header_check, new_cache.last_platform_header_check,
+            "timestamp should be updated"
+        );
+        assert_eq!(updated_cache.etag, new_cache.etag, "etag should be updated");
+        assert!(
+            updated_cache.current_version_supported,
+            "other metadata should be unchanged"
+        );
+
+        // If the metadata version is higher, we should update everything
+        let prev_cache = VersionCache {
+            last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
+            current_version_supported: true,
+            metadata_version: 11,
+            ..dev_version_cache()
+        };
+        let new_cache = VersionCache {
+            last_platform_header_check: SystemTime::now(),
+            etag: Some("etag2".to_owned()),
+            current_version_supported: false,
+            metadata_version: 12,
+            ..dev_version_cache()
+        };
+
+        let mut checker = VersionUpdaterInner {
+            last_app_version_info: Some(prev_cache),
+        };
+        checker
+            .update_version_info(&fake_updater(Default::default()), new_cache.clone())
+            .await;
+        let updated_cache = checker.last_app_version_info.as_ref().unwrap();
+        assert_eq!(updated_cache, &new_cache, "cache should be fully updated");
     }
 
     /// Test whether check actually runs first after `FIRST_CHECK_INTERVAL` and then every `UPDATE_INTERVAL`
