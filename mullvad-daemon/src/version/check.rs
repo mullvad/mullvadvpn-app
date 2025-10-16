@@ -1,6 +1,6 @@
 use futures::{
     FutureExt, StreamExt, TryFutureExt,
-    channel::{mpsc, oneshot},
+    channel::mpsc,
     future::{BoxFuture, FusedFuture},
 };
 use mullvad_api::{
@@ -21,7 +21,6 @@ use std::{
 use talpid_core::mpsc::Sender;
 use talpid_future::retry::{ConstantInterval, retry_future};
 use talpid_types::ErrorExt;
-use tokio::{fs::File, io::AsyncReadExt};
 
 use super::Error;
 
@@ -38,10 +37,19 @@ static CHECK_ENABLED: LazyLock<bool> = LazyLock::new(|| {
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 
-/// Wait this long until next check after a successful check
-const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
-/// Wait this long until next try if an update failed
-const UPDATE_INTERVAL_ERROR: Duration = Duration::from_secs(60 * 60 * 6);
+/// How long to wait before making the first version check after starting.
+/// After this one, we wait [UPDATE_INTERVAL] between checks.
+const FIRST_CHECK_INTERVAL: Duration = Duration::from_secs(5);
+/// How long to wait between version checks, regardless of whether they succeed
+#[cfg(not(target_os = "android"))]
+const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+/// How long to wait between version checks, regardless of whether they succeed
+// On Android, be more conservative since we use old endpoint. Retry at most once per 6 hours.
+#[cfg(target_os = "android")]
+const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 6);
+/// Wait this long before sending platform metadata in check
+/// `M-Platform-Version` should only be sent once per 24h to make statistics predictable.
+const PLATFORM_HEADER_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 /// Retry strategy for `GetVersionInfo`.
 const IMMEDIATE_RETRY_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
@@ -63,18 +71,20 @@ pub(super) struct VersionCache {
     pub current_version_supported: bool,
     /// The latest available versions
     pub version_info: mullvad_update::version::VersionInfo,
+    /// When we last checked with platform headers
+    pub last_platform_header_check: SystemTime,
     #[cfg(not(target_os = "android"))]
     pub metadata_version: usize,
+    /// HTTP ETag associated with this metadata
+    pub etag: Option<String>,
 }
 
 pub(crate) struct VersionUpdater(());
 
 #[derive(Default)]
 struct VersionUpdaterInner {
-    /// The last known [AppVersionInfo], along with the time it was determined.
-    last_app_version_info: Option<(VersionCache, SystemTime)>,
-    /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
-    get_version_info_responders: Vec<oneshot::Sender<VersionCache>>,
+    /// The last known [AppVersionInfo]
+    last_app_version_info: Option<VersionCache>,
 }
 
 impl VersionUpdater {
@@ -96,7 +106,6 @@ impl VersionUpdater {
         tokio::spawn(
             VersionUpdaterInner {
                 last_app_version_info,
-                get_version_info_responders: vec![],
             }
             .run(
                 refresh_rx,
@@ -115,11 +124,6 @@ impl VersionUpdater {
 }
 
 impl VersionUpdaterInner {
-    /// Get the last known [AppVersionInfo]. May be stale.
-    pub fn last_app_version_info(&self) -> Option<&VersionCache> {
-        self.last_app_version_info.as_ref().map(|(info, _)| info)
-    }
-
     #[cfg(not(target_os = "android"))]
     pub fn get_min_metadata_version(&self) -> usize {
         self.last_app_version_info
@@ -127,7 +131,7 @@ impl VersionUpdaterInner {
             // Reject version responses with a lower metadata version
             // than the newest version we know about. This is
             // important to prevent downgrade attacks.
-            .map(|(info, _)| info.metadata_version)
+            .map(|info| info.metadata_version)
             .unwrap_or(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)
     }
 
@@ -145,7 +149,7 @@ impl VersionUpdaterInner {
         mut new_version_info: VersionCache,
     ) {
         #[cfg(not(target_os = "android"))]
-        if let Some((current_cache, _)) = self.last_app_version_info.as_ref() {
+        if let Some(current_cache) = self.last_app_version_info.as_ref() {
             if current_cache.metadata_version == new_version_info.metadata_version {
                 log::trace!("Ignoring version info with same metadata version");
                 new_version_info = current_cache.clone();
@@ -155,48 +159,30 @@ impl VersionUpdaterInner {
         if let Err(err) = update(new_version_info.clone()).await {
             log::error!("Failed to save version cache to disk: {}", err);
         }
-        self.last_app_version_info = Some((new_version_info, SystemTime::now()));
+        self.last_app_version_info = Some(new_version_info);
     }
 
-    /// Get the time left until [Self::last_app_version_info] becomes stale, and should be
-    /// refreshed, or [Duration::ZERO] if it already is stale.
+    /// Return when the last successful check including platform headers was made.
     ///
-    /// This happens [UPDATE_INTERVAL] after the last version check.
-    fn time_until_version_is_stale(&self) -> Duration {
-        let now = SystemTime::now();
-        self.last_update_time()
-            .and_then(|&last_update_time| now.duration_since(last_update_time).ok())
-            .map(|time_since_last_update| UPDATE_INTERVAL.saturating_sub(time_since_last_update))
-            // if there is no last_app_version_info, or if clocks are being weird,
-            // assume that the version is stale
-            .unwrap_or(Duration::ZERO)
-    }
-
-    fn last_update_time(&self) -> Option<&SystemTime> {
+    /// This should occur every [PLATFORM_HEADER_INTERVAL].
+    fn last_platform_check(&self) -> Option<SystemTime> {
         self.last_app_version_info
             .as_ref()
-            .map(|(_, last_update_time)| last_update_time)
+            .map(|info| info.last_platform_header_check)
     }
 
-    /// Is [Self::last_app_version_info] stale?
-    fn version_is_stale(&self) -> bool {
-        self.time_until_version_is_stale().is_zero()
+    /// Return the last etag received from the server
+    fn etag(&self) -> Option<&str> {
+        self.last_app_version_info
+            .as_ref()
+            .and_then(|info| info.etag.as_deref())
     }
 
-    /// Wait until [Self::last_app_version_info] becomes stale and needs to be refreshed.
-    ///
-    /// This happens [UPDATE_INTERVAL] after the last version check.
-    fn wait_until_version_is_stale(&self) -> Pin<Box<impl FusedFuture<Output = ()> + use<>>> {
-        let time_until_stale = self.time_until_version_is_stale();
-
+    /// Return a future that resolves after [UPDATE_INTERVAL].
+    fn update_interval() -> Pin<Box<impl FusedFuture<Output = ()> + use<>>> {
         // Boxed, pinned, and fused.
         // Alternate title: "We don't want to deal with the borrow checker."
-        Box::pin(talpid_time::sleep(time_until_stale).fuse())
-    }
-
-    /// Returns true if we are currently handling one or more `GetVersionInfo` commands.
-    fn is_running_version_check(&self) -> bool {
-        !self.get_version_info_responders.is_empty()
+        Box::pin(talpid_time::sleep(UPDATE_INTERVAL).fuse())
     }
 
     async fn run(
@@ -215,10 +201,16 @@ impl VersionUpdaterInner {
         }
 
         let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
-        let do_version_check =
-            |min_metadata_version| do_version_check(api.clone(), min_metadata_version);
-        let do_version_check_in_background = |min_metadata_version| {
-            do_version_check_in_background(api.clone(), min_metadata_version)
+        let do_version_check = |min_metadata_version, last_platform_check, etag| {
+            do_version_check(api.clone(), min_metadata_version, last_platform_check, etag)
+        };
+        let do_version_check_in_background = |min_metadata_version, last_platform_check, etag| {
+            do_version_check_in_background(
+                api.clone(),
+                min_metadata_version,
+                last_platform_check,
+                etag,
+            )
         };
 
         self.run_inner(
@@ -234,66 +226,105 @@ impl VersionUpdaterInner {
         mut self,
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
-        do_version_check: impl Fn(usize) -> BoxFuture<'static, Result<VersionCache, Error>>,
+        do_version_check: impl Fn(
+            usize,
+            Option<SystemTime>,
+            Option<String>,
+        ) -> BoxFuture<'static, Result<Option<VersionCache>, Error>>,
         do_version_check_in_background: impl Fn(
             usize,
-        )
-            -> BoxFuture<'static, Result<VersionCache, Error>>,
+            Option<SystemTime>,
+            Option<String>,
+        ) -> BoxFuture<
+            'static,
+            Result<Option<VersionCache>, Error>,
+        >,
     ) {
-        let mut version_is_stale = self.wait_until_version_is_stale();
-        let mut version_check = futures::future::Fuse::terminated();
+        let mut run_next_check_bg: Pin<Box<dyn FusedFuture<Output = ()> + Send>> =
+            Box::pin(talpid_time::sleep(FIRST_CHECK_INTERVAL).fuse());
+        let mut version_check_fg = futures::future::Fuse::terminated();
+        let mut version_check_bg = futures::future::Fuse::terminated();
 
         loop {
             futures::select! {
                 command = refresh_rx.next() => match command {
-
                     Some(()) => {
-                        match (self.version_is_stale(), self.last_app_version_info()) {
-                            (false, Some(version_cache)) => {
-                                // if the version_info isn't stale, return it immediately.
-                                if let Err(err) = update(version_cache.clone()).await {
-                                    log::error!("Failed to save version cache to disk: {}", err);
-                                }
-                            }
-                            _ => {
-                                // otherwise, start a foreground query to get the latest version_info.
-                                if !self.is_running_version_check() {
-                                    version_check = do_version_check(self.get_min_metadata_version()).fuse();
-                                }
-
-                            }
+                        if !version_check_fg.is_terminated() {
+                            // Check already running
+                            continue;
                         }
-                    }
 
-                    // time to shut down
+                        // On Android, avoid polling the API unless necessary as we're using the old endpoint
+                        // Only poll when bg check runs
+                        if cfg!(target_os = "android") && let Some(info) = self.last_app_version_info.as_ref() {
+                            log::trace!("Skipping version check on Android");
+                            self.update_version_info(&update, info.clone()).await;
+                            continue;
+                        }
+
+                        version_check_fg = do_version_check(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
+                    }
                     None => {
                         break;
                     }
                 },
 
-                _ = version_is_stale => {
-                    if self.is_running_version_check() {
+                _ = run_next_check_bg => {
+                    // On Android, avoid polling the API unless necessary as we're using the old endpoint
+                    // Only poll when collecting platform headers
+                    if cfg!(target_os = "android") && !should_include_platform_headers(self.last_platform_check()) {
+                        log::trace!("Skipping version check on Android");
+                        run_next_check_bg = Self::update_interval();
                         continue;
                     }
-                    version_check = do_version_check_in_background(self.get_min_metadata_version()).fuse();
+
+                    version_check_bg = do_version_check_in_background(self.get_min_metadata_version(), self.last_platform_check(), self.etag().map(str::to_string)).fuse();
                 },
 
-                response = version_check => {
-                    match response {
-                        Ok(version_info) => {
-                            self.update_version_info(&update, version_info).await;
-
-                        }
-                        Err(err) => {
-                            log::error!("Failed to fetch version info: {err:#}");
-                        }
-                    }
-
-                    version_is_stale = self.wait_until_version_is_stale();
+                response = version_check_bg => {
+                    self.handle_version_response(&update, response).await;
+                    run_next_check_bg = Self::update_interval();
                 },
+                response = version_check_fg => self.handle_version_response(&update, response).await,
             }
         }
     }
+
+    async fn handle_version_response(
+        &mut self,
+        update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
+        response: Result<Option<VersionCache>, Error>,
+    ) {
+        let version_info = match response {
+            Ok(Some(version_info)) => version_info,
+            Ok(None) => {
+                // Repeat the existing info, since requesters may expect a response
+                log::debug!("Version data was unchanged");
+                self.last_app_version_info
+                    .clone()
+                    .expect("have version data since we have etag")
+            }
+            Err(err) => {
+                log::error!("Failed to fetch version info: {err:#}");
+                // FIXME: HACK: `update` is broken because we cannot return a result.
+                // This means foreground requests will just receive no response on error.
+                // As a workaround, we repeat the last known version info, if any.
+                match self.last_app_version_info.clone() {
+                    Some(version_info) => version_info,
+                    None => return,
+                }
+            }
+        };
+        self.update_version_info(update, version_info).await;
+    }
+}
+
+/// Return whether platform headers should be returned in a version check,
+/// based on the last time `time` that they were.
+fn should_include_platform_headers(time: Option<SystemTime>) -> bool {
+    time.and_then(|t| t.elapsed().ok())
+        .map(|t| t >= PLATFORM_HEADER_INTERVAL)
+        .unwrap_or(true)
 }
 
 struct UpdateContext {
@@ -332,10 +363,19 @@ struct ApiContext {
 fn do_version_check(
     api: ApiContext,
     min_metadata_version: usize,
-) -> BoxFuture<'static, Result<VersionCache, Error>> {
+    last_platform_check: Option<SystemTime>,
+    etag: Option<String>,
+) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
     let api_handle = api.api_handle.clone();
 
-    let download_future_factory = move || version_check_inner(&api, min_metadata_version);
+    let download_future_factory = move || {
+        version_check_inner(
+            &api,
+            min_metadata_version,
+            last_platform_check,
+            etag.clone(),
+        )
+    };
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -350,38 +390,34 @@ fn do_version_check(
     ))
 }
 
-/// Query the API for the latest [AppVersionInfo].
+/// Query the API for the latest [AppVersionInfo] once, without retrying.
 ///
 /// This function waits until background calls are enabled in
 /// [ApiAvailability](mullvad_api::availability::ApiAvailability).
-///
-/// On any error, this function retries repeatedly every [UPDATE_INTERVAL_ERROR] until success.
 fn do_version_check_in_background(
     api: ApiContext,
     min_metadata_version: usize,
-) -> BoxFuture<'static, Result<VersionCache, Error>> {
-    let download_future_factory = move || {
-        let when_available = api.api_handle.wait_background();
-        let version_cache = version_check_inner(&api, min_metadata_version);
-        async move {
-            when_available.await.map_err(Error::ApiCheck)?;
-            version_cache.await
-        }
-    };
-
-    Box::pin(retry_future(
-        download_future_factory,
-        |result| result.is_err(),
-        ConstantInterval::new(UPDATE_INTERVAL_ERROR, None),
-    ))
+    last_platform_check: Option<SystemTime>,
+    etag: Option<String>,
+) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
+    let when_available = api.api_handle.wait_background();
+    let version_cache = version_check_inner(&api, min_metadata_version, last_platform_check, etag);
+    Box::pin(async move {
+        when_available.await.map_err(Error::ApiCheck)?;
+        version_cache.await
+    })
 }
 
-/// Combine the old version and new version endpoint
+/// Fetch new version endpoint
 #[cfg(not(target_os = "android"))]
 fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
-) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
+    last_platform_check: Option<SystemTime>,
+    etag: Option<String>,
+) -> impl Future<Output = Result<Option<VersionCache>, Error>> + use<> {
+    let add_platform_headers = should_include_platform_headers(last_platform_check);
+
     let architecture = match talpid_platform_metadata::get_native_arch()
         .expect("IO error while getting native architecture")
         .expect("Failed to get native architecture")
@@ -396,17 +432,29 @@ fn version_check_inner(
         architecture,
         mullvad_update::version::SUPPORTED_VERSION,
         min_metadata_version,
-        api.platform_version.clone(),
+        add_platform_headers.then(|| api.platform_version.clone()),
+        etag,
     );
-    async move {
-        let result = endpoint.await.map_err(Error::Download)?;
 
-        Ok(VersionCache {
+    async move {
+        let Some(result) = endpoint.await.map_err(Error::Download)? else {
+            // ETag is up to date
+            return Ok(None);
+        };
+        let last_platform_check = if add_platform_headers {
+            SystemTime::now()
+        } else {
+            last_platform_check.expect("must be set if not adding headers")
+        };
+
+        Ok(Some(VersionCache {
             cache_version: APP_VERSION.clone(),
             current_version_supported: result.current_version_supported,
             version_info: result.version_info,
+            last_platform_header_check: last_platform_check,
             metadata_version: result.metadata_version,
-        })
+            etag: result.etag,
+        }))
     }
 }
 
@@ -415,27 +463,42 @@ fn version_check_inner(
     api: &ApiContext,
     // NOTE: This is unused when `update` is disabled
     _min_metadata_version: usize,
-) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
+    last_platform_check: Option<SystemTime>,
+    etag: Option<String>,
+) -> impl Future<Output = Result<Option<VersionCache>, Error>> + use<> {
+    let add_platform_headers = should_include_platform_headers(last_platform_check);
+
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
-        api.platform_version.clone(),
+        add_platform_headers.then(|| api.platform_version.clone()),
+        etag,
     );
     async move {
-        let response = v1_endpoint.await.map_err(Error::Download)?;
-        let latest_stable = response.latest_stable
+        let Some(response) = v1_endpoint.await.map_err(Error::Download)? else {
+            // ETag is up to date
+            return Ok(None);
+        };
+        let latest_stable = response.latest_stable()
             .and_then(|version| version.parse().ok())
             // Suggested stable must actually be stable
             .filter(|version: &mullvad_version::Version| version.pre_stable.is_none())
             .ok_or_else(|| Error::MissingStable)?;
-        let latest_beta = response.latest_beta
+        let latest_beta = response.latest_beta()
             .and_then(|version| version.parse().ok())
             // Suggested beta must actually be non-stable
             .filter(|version: &mullvad_version::Version| version.pre_stable.is_some());
+        let last_platform_check = if add_platform_headers {
+            SystemTime::now()
+        } else {
+            last_platform_check.expect("must be set if not adding headers")
+        };
 
-        Ok(VersionCache {
+        Ok(Some(VersionCache {
             cache_version: APP_VERSION.clone(),
-            current_version_supported: response.supported,
+            current_version_supported: response.supported(),
+            etag: response.etag,
+            last_platform_header_check: last_platform_check,
             // Note: We're pretending that this is complete information,
             // but on Android and Linux, most of the information is missing
             version_info: VersionInfo {
@@ -454,7 +517,7 @@ fn version_check_inner(
                     size: 0,
                 }),
             },
-        })
+        }))
     }
 }
 
@@ -462,7 +525,7 @@ fn version_check_inner(
 ///
 /// Returns the [AppVersionInfo] along with the modification time of the cache file,
 /// or `None` on any error.
-async fn load_cache(cache_dir: &Path) -> Option<(VersionCache, SystemTime)> {
+async fn load_cache(cache_dir: &Path) -> Option<VersionCache> {
     try_load_cache(cache_dir)
         .await
         .inspect_err(|error| {
@@ -478,22 +541,15 @@ async fn load_cache(cache_dir: &Path) -> Option<(VersionCache, SystemTime)> {
         .ok()
 }
 
-async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), Error> {
+async fn try_load_cache(cache_dir: &Path) -> Result<VersionCache, Error> {
     if !*CHECK_ENABLED {
-        return Ok((dev_version_cache(), SystemTime::now()));
+        return Ok(dev_version_cache());
     }
 
     let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Loading version check cache from {}", path.display());
 
-    let mut file = File::open(&path).map_err(Error::ReadVersionCache).await?;
-    let meta = file.metadata().map_err(Error::ReadVersionCache).await?;
-    let mtime = meta
-        .modified()
-        .expect("Platforms without file modification times aren't supported");
-
-    let mut content = String::new();
-    file.read_to_string(&mut content)
+    let content = tokio::fs::read_to_string(&path)
         .map_err(Error::ReadVersionCache)
         .await?;
 
@@ -503,7 +559,7 @@ async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), 
         return Err(Error::OutdatedVersion);
     }
 
-    Ok((cache, mtime))
+    Ok(cache)
 }
 
 /// Check if the cache is left over from another version of the app. If so, discard it.
@@ -525,8 +581,10 @@ fn dev_version_cache() -> VersionCache {
             },
             beta: None,
         },
+        last_platform_header_check: SystemTime::now(),
         #[cfg(not(target_os = "android"))]
         metadata_version: 0,
+        etag: None,
     }
 }
 
@@ -585,76 +643,71 @@ mod test {
                     sha256: [0u8; 32],
                 }),
             },
+            last_platform_header_check: SystemTime::now(),
             #[cfg(not(target_os = "android"))]
             metadata_version: 0,
+            etag: None,
         }
     }
 
-    /// If there's no cached version, it should count as stale
+    /// If there's no cached version, we should perform a check now and include platform headers
     #[test]
     fn test_version_unknown_is_stale() {
         let checker = VersionUpdaterInner::default();
         assert!(checker.last_app_version_info.is_none());
-        assert!(checker.version_is_stale());
+        assert!(should_include_platform_headers(
+            checker.last_platform_check()
+        ));
     }
 
     /// If the last checked time is in the future, the version is stale
     #[test]
-    fn test_version_invalid_is_stale() {
+    fn test_version_cache_in_future_is_stale() {
         let checker = VersionUpdaterInner {
-            last_app_version_info: Some((
-                dev_version_cache(),
-                SystemTime::now() + Duration::from_secs(1),
-            )),
-            ..VersionUpdaterInner::default()
+            last_app_version_info: Some(VersionCache {
+                last_platform_header_check: SystemTime::now() + Duration::from_secs(1),
+                ..dev_version_cache()
+            }),
         };
-        assert!(checker.version_is_stale());
+        assert!(should_include_platform_headers(
+            checker.last_platform_check()
+        ));
     }
 
-    /// If we have a cached version that's less than `UPDATE_INTERVAL` old, it should not be stale
+    /// If we have a cached version that's less than `PLATFORM_HEADER_INTERVAL` old, do not include platform headers
     #[test]
     fn test_version_actual_non_stale() {
         let checker = VersionUpdaterInner {
-            last_app_version_info: Some((
-                dev_version_cache(),
-                SystemTime::now() - UPDATE_INTERVAL + Duration::from_secs(1),
-            )),
-            ..VersionUpdaterInner::default()
+            last_app_version_info: Some(VersionCache {
+                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL
+                    + Duration::from_secs(1),
+                ..dev_version_cache()
+            }),
         };
-        assert!(!checker.version_is_stale());
+        assert!(!should_include_platform_headers(
+            checker.last_platform_check()
+        ));
     }
 
-    /// If `UPDATE_INTERVAL` has elapsed, the version should be stale
+    /// If `PLATFORM_HEADER_INTERVAL` has elapsed, the check should include platform headers
     #[test]
     fn test_version_actual_stale() {
         let checker = VersionUpdaterInner {
-            last_app_version_info: Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL)),
-            ..VersionUpdaterInner::default()
+            last_app_version_info: Some(VersionCache {
+                last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
+                ..dev_version_cache()
+            }),
         };
-        assert!(checker.version_is_stale());
+        assert!(should_include_platform_headers(
+            checker.last_platform_check()
+        ));
     }
 
-    /// Test whether check immediately fetches version info if it's non-existent
+    /// Test whether check actually runs first after `FIRST_CHECK_INTERVAL` and then every `UPDATE_INTERVAL`
     #[tokio::test(start_paused = true)]
-    async fn test_version_check_run_immediate() {
-        let checker = VersionUpdaterInner::default();
-
-        let updated = Arc::new(AtomicBool::new(false));
-        let update = fake_updater(updated.clone());
-
-        let (_tx, rx) = mpsc::unbounded();
-        tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check));
-
-        talpid_time::sleep(Duration::from_secs(10)).await;
-        assert!(updated.load(Ordering::SeqCst), "expected immediate update");
-    }
-
-    /// Test whether check actually runs after `UPDATE_INTERVAL`
-    #[tokio::test(start_paused = true)]
-    async fn test_version_check_run_when_stale() {
+    async fn test_version_check_run() {
         let checker = VersionUpdaterInner {
-            last_app_version_info: Some((dev_version_cache(), SystemTime::now())),
-            ..VersionUpdaterInner::default()
+            last_app_version_info: Some(dev_version_cache()),
         };
 
         let updated = Arc::new(AtomicBool::new(false));
@@ -663,38 +716,55 @@ mod test {
         let (_tx, rx) = mpsc::unbounded();
         tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check));
 
-        assert!(!updated.load(Ordering::SeqCst));
+        talpid_time::sleep(FIRST_CHECK_INTERVAL - Duration::from_millis(100)).await;
+        assert!(
+            !updated.load(Ordering::SeqCst),
+            "no check until `FIRST_CHECK_INTERVAL` has elapsed"
+        );
+
+        talpid_time::sleep(Duration::from_millis(101)).await;
+        assert!(
+            updated.load(Ordering::SeqCst),
+            "check when `FIRST_CHECK_INTERVAL` has elapsed"
+        );
+
+        updated.store(false, Ordering::SeqCst);
 
         talpid_time::sleep(Duration::from_secs(10)).await;
         assert!(
             !updated.load(Ordering::SeqCst),
-            "short interval: no update should have occurred"
+            "should see no check until `UPDATE_INTERVAL` has elapsed"
         );
 
         talpid_time::sleep(UPDATE_INTERVAL).await;
         assert!(
             updated.load(Ordering::SeqCst),
-            "check should have run after `UPDATE_INTERVAL`"
+            "check should have run after `UPDATE_INTERVAL` or more"
         );
     }
 
-    /// Test whether check runs immediately when requested, if stale
+    /// Test whether check runs immediately when requested
     #[tokio::test(start_paused = true)]
     async fn test_version_check_manual() {
         let checker = VersionUpdaterInner {
-            last_app_version_info: Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL)),
-            ..VersionUpdaterInner::default()
+            last_app_version_info: Some(VersionCache {
+                last_platform_header_check: SystemTime::now() - Duration::from_secs(1),
+                ..dev_version_cache()
+            }),
         };
 
         let updated = Arc::new(AtomicBool::new(false));
         let update = fake_updater(updated.clone());
 
         let (mut tx, rx) = mpsc::unbounded();
-        tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check_err));
+        tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check));
 
-        // Fail automatic update
-        talpid_time::sleep(Duration::from_secs(1)).await;
-        assert!(!updated.load(Ordering::SeqCst), "check should fail");
+        // Automatic update should not run until `FIRST_CHECK_INTERVAL` has elapsed
+        talpid_time::sleep(FIRST_CHECK_INTERVAL - Duration::from_secs(1)).await;
+        assert!(
+            !updated.load(Ordering::SeqCst),
+            "check did not run automatically"
+        );
 
         // Requesting version should trigger an immediate update
         send_version_request(&mut tx).await.unwrap();
@@ -710,6 +780,19 @@ mod test {
         send_version_request(&mut tx).await.unwrap();
         talpid_time::sleep(Duration::from_secs(1)).await;
         assert!(updated.load(Ordering::SeqCst), "expected cached version");
+
+        // Automatic update should run again after `UPDATE_INTERVAL`
+        updated.store(false, Ordering::SeqCst);
+        talpid_time::sleep(UPDATE_INTERVAL - Duration::from_secs(1)).await;
+        assert!(
+            !updated.load(Ordering::SeqCst),
+            "expected no automatic update yet"
+        );
+        talpid_time::sleep(Duration::from_secs(1)).await;
+        assert!(
+            updated.load(Ordering::SeqCst),
+            "expected automatic update yet"
+        );
     }
 
     async fn send_version_request(
@@ -730,18 +813,10 @@ mod test {
 
     fn fake_version_check(
         _min_metadata_version: usize,
-    ) -> BoxFuture<'static, Result<VersionCache, Error>> {
-        Box::pin(async { Ok(fake_version_response()) })
-    }
-
-    fn fake_version_check_err(
-        _min_metadata_version: usize,
-    ) -> BoxFuture<'static, Result<VersionCache, Error>> {
-        Box::pin(retry_future(
-            || async { Err(Error::Download(mullvad_api::rest::Error::TimeoutError)) },
-            |_| true,
-            std::iter::repeat(UPDATE_INTERVAL_ERROR),
-        ))
+        _last_platform_check: Option<SystemTime>,
+        _etag: Option<String>,
+    ) -> BoxFuture<'static, Result<Option<VersionCache>, Error>> {
+        Box::pin(async { Ok(Some(fake_version_response())) })
     }
 
     fn fake_version_response() -> VersionCache {
@@ -759,8 +834,10 @@ mod test {
                 },
                 beta: None,
             },
+            last_platform_header_check: SystemTime::now(),
             #[cfg(not(target_os = "android"))]
             metadata_version: 0,
+            etag: None,
         }
     }
 }
