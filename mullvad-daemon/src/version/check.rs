@@ -75,7 +75,7 @@ pub(super) struct VersionCache {
     pub last_platform_header_check: SystemTime,
     #[cfg(not(target_os = "android"))]
     pub metadata_version: usize,
-    /// Tag associated with this metadata
+    /// HTTP ETag associated with this metadata
     pub etag: Option<String>,
 }
 
