@@ -1,0 +1,57 @@
+---
+source: mullvad-daemon/src/migrations/v12.rs
+expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
+---
+{
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "location": {
+            "country": "fr"
+          }
+        }
+      },
+      "openvpn_constraints": {
+        "port": "any"
+      },
+      "ownership": {
+        "only": "MullvadOwned"
+      },
+      "providers": {
+        "only": {
+          "providers": [
+            "Blix",
+            "Creanova"
+          ]
+        }
+      },
+      "tunnel_protocol": "wireguard",
+      "wireguard_constraints": {
+        "allowed_ips": "any",
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": "se"
+            }
+          }
+        },
+        "entry_ownership": {
+          "only": "MullvadOwned"
+        },
+        "entry_providers": {
+          "only": {
+            "providers": [
+              "Blix",
+              "Creanova"
+            ]
+          }
+        },
+        "ip_version": "any",
+        "port": "any",
+        "use_multihop": true
+      }
+    }
+  },
+  "settings_version": 13
+}
