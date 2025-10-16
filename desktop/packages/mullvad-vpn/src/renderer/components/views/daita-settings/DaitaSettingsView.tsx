@@ -5,7 +5,15 @@ import styled from 'styled-components';
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
-import { Button, Flex, Icon, LabelTiny, LabelTinySemiBold, Text } from '../../../lib/components';
+import {
+  Button,
+  Flex,
+  Icon,
+  Image,
+  LabelTiny,
+  LabelTinySemiBold,
+  Text,
+} from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
@@ -30,7 +38,7 @@ const StyledLabelTiny = styled(LabelTiny).attrs({ color: 'whiteAlpha60' })`
   display: inline-block;
 `;
 
-const StyledIllustration = styled.img({
+const StyledIllustration = styled(Image)({
   width: '100%',
   padding: '8px 0 8px',
 });
@@ -63,7 +71,7 @@ export function DaitaSettingsView() {
                 <PageSlider
                   content={[
                     <React.Fragment key="without-daita">
-                      <StyledIllustration src="assets/images/daita-off-illustration.svg" />
+                      <StyledIllustration source="daita-off-illustration" />
                       <Flex $flexDirection="column" $gap="medium">
                         <StyledLabelTinySemiBold>
                           {sprintf(
@@ -100,7 +108,7 @@ export function DaitaSettingsView() {
                       </Flex>
                     </React.Fragment>,
                     <React.Fragment key="with-daita">
-                      <StyledIllustration src="assets/images/daita-on-illustration.svg" />
+                      <StyledIllustration source="daita-on-illustration" />
                       <Flex $flexDirection="column" $gap="medium">
                         <StyledLabelTiny>
                           {sprintf(
