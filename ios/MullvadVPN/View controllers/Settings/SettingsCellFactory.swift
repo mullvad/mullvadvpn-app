@@ -14,12 +14,20 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
     var viewModel: SettingsViewModel
     private let interactor: SettingsInteractor
+    private var contentSizeCategory = UIApplication.shared.preferredContentSizeCategory
 
     init(tableView: UITableView, interactor: SettingsInteractor) {
         self.tableView = tableView
         self.interactor = interactor
 
         viewModel = SettingsViewModel(from: interactor.tunnelSettings)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(preferredContentSizeChanged(_:)),
+            name: UIContentSizeCategory.didChangeNotification,
+            object: nil
+        )
     }
 
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
@@ -31,7 +39,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
                 withIdentifier: item.reuseIdentifier.rawValue
             )
             ?? SettingsCell(
-                style: item.reuseIdentifier.cellStyle,
+                style: contentSizeCategory.isLarge ? .subtitle : item.reuseIdentifier.cellStyle,
                 reuseIdentifier: item.reuseIdentifier.rawValue
             )
 
@@ -116,5 +124,19 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
         }
+    }
+
+    @objc private func preferredContentSizeChanged(_ notification: Notification) {
+        if let newContentSizeCategory = notification.userInfo?[UIContentSizeCategory.newValueUserInfoKey]
+            as? UIContentSizeCategory
+        {
+            contentSizeCategory = newContentSizeCategory
+        }
+    }
+}
+
+private extension UIContentSizeCategory {
+    var isLarge: Bool {
+        (self > .extraExtraExtraLarge) || (self > .accessibilityLarge)
     }
 }
