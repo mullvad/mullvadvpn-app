@@ -9,27 +9,25 @@ then
     exit 1
 fi
 
-
-
 # what to pass to cargo build -p, e.g. your_lib_ffi
 FFI_TARGET=$1
+
+CARGO_ARGS=()
 
 # Enable cargo features by passing feature names to this script, i.e. build-rust-library.sh mullvad-api api-override
 # If more than one feature flag needs to be enabled, pass in a single argument all the features flags separated by spaces
 # build-rust-library.sh mullvad-api "featureA featureB featureC"
-FEATURE_FLAGS=
 if [[ "$#" -eq 2 ]] ; then
-FEATURE_FLAGS=$2
-echo ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+    CARGO_ARGS+=(--features "$2")
+    echo "Building with these features: $2"
 fi
-
 
 RELFLAG=
-if [[ "$CONFIGURATION" == "Release" ]]; then
-  RELFLAG=--release
-fi
-if [[ "$CONFIGURATION" == "MockRelease" ]]; then
-  RELFLAG=--release
+if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
+    RELFLAG=--release
+
+    # Release builds are not allowed to have outdated lockfiles.
+    CARGO_ARGS+=(--locked)
 fi
 
 # For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
@@ -44,22 +42,16 @@ export PATH="${HOME}/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Li
 # Since some of the dependencies come from homebrew, add it manually as well
 export PATH="${PATH}:/opt/homebrew/bin:"
 
-IS_SIMULATOR=0
+TARGET=aarch64-apple-ios
 if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then
-  IS_SIMULATOR=1
+  TARGET=aarch64-apple-ios-sim
 fi
 
 for arch in $ARCHS; do
-  case "$arch" in
-    arm64)
-      if [ $IS_SIMULATOR -eq 0 ]; then
-        # Hardware iOS targets
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-      else
-        # iOS Simulator targets for arm64
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-      fi
-  esac
+    case "$arch" in
+        arm64)
+            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET "${CARGO_ARGS[@]}"
+            "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target $TARGET "${CARGO_ARGS[@]}"
+            ;;
+    esac
 done
