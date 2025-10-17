@@ -4,6 +4,7 @@ import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
 import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
+  InAppNotificationAction,
   InAppNotificationProvider,
   SystemNotification,
   SystemNotificationCategory,
@@ -69,21 +70,29 @@ export class UnsupportedVersionNotificationProvider
             // TRANSLATORS: A link in the in-app banner to encourage the user to update the app.
             // TRANSLATORS: The in-app banner is is displayed to the user when the running app becomes unsupported.
             messages.pgettext('notifications', 'Please click here to update now'),
-          action: this.context.suggestedUpgrade
-            ? {
-                type: 'navigate-internal',
-                link: {
-                  to: RoutePath.appUpgrade,
-                },
-              }
-            : {
-                type: 'navigate-external',
-                link: {
-                  to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-                },
-              },
+          action: this.getInAppNotificationAction(),
         },
       ],
+    };
+  }
+
+  private getInAppNotificationAction(): InAppNotificationAction {
+    if (this.context.suggestedUpgrade) {
+      if (process.platform !== 'linux') {
+        return {
+          type: 'navigate-internal',
+          link: {
+            to: RoutePath.appUpgrade,
+          },
+        };
+      }
+    }
+
+    return {
+      type: 'navigate-external',
+      link: {
+        to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+      },
     };
   }
 
