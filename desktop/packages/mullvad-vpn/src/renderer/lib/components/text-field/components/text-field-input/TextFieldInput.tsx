@@ -1,52 +1,53 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
 import { useTextFieldContext } from '../../';
 
 export type TextFieldInputProps = React.ComponentPropsWithRef<'input'>;
 
-export const StyledTextField = styled.input<{ $disabled?: boolean; $invalid?: boolean }>`
-  ${({ $invalid, $disabled }) => {
-    const borderColor = $invalid ? colors.newRed : colors.chalkAlpha40;
-    const backgroundColor = $disabled ? colors.whiteOnDarkBlue5 : colors.blue40;
-    const color = $disabled ? colors.whiteAlpha20 : colors.white;
-    return css`
-      all: unset;
-      font-family: var(--font-family-open-sans);
-      background-color: ${backgroundColor};
-      padding: ${spacings.small};
-      border: 1px solid ${colors.whiteAlpha60};
-      border-color: ${borderColor};
-      font-size: 14px;
-      border-radius: ${Radius.radius4};
-      color: ${color};
-      width: 100%;
+export const StyledTextField = styled.input`
+  all: unset;
+  color: ${colors.white};
+  background-color: ${colors.blue40};
+  padding: ${spacings.small};
+  outline: 1px solid ${colors.chalkAlpha40};
+  border-radius: ${Radius.radius4};
+  font-family: var(--font-family-open-sans);
+  font-size: 14px;
+  width: 100%;
 
-      &&::placeholder {
-        color: ${colors.whiteAlpha60};
-      }
+  &&::placeholder {
+    color: ${colors.whiteAlpha60};
+  }
 
-      &&:not(:disabled):not([aria-invalid='true']):hover {
-        border-color: ${colors.chalkAlpha80};
-      }
-      &&:not(:disabled):not([aria-invalid='true']):focus-visible {
-        border-color: ${colors.chalk};
-      }
-    `;
-  }}
+  &&:disabled {
+    color: ${colors.whiteAlpha20};
+    background-color: ${colors.whiteOnDarkBlue5};
+    outline-color: transparent;
+  }
+
+  &&:disabled::placeholder {
+    color: ${colors.whiteAlpha20};
+  }
+
+  &&[aria-invalid='true'] {
+    outline-color: ${colors.newRed};
+  }
+
+  &&:not(:disabled):not([aria-invalid='true']):hover {
+    outline-color: ${colors.chalkAlpha80};
+  }
+  &&:not(:disabled):focus-visible {
+    outline-width: 2px;
+    outline-offset: -1px;
+  }
+  &&:not(:disabled):not([aria-invalid='true']):focus-visible {
+    outline-color: ${colors.chalk};
+  }
 `;
 
 export function TextFieldInput(props: TextFieldInputProps) {
   const { disabled, invalid } = useTextFieldContext();
 
-  return (
-    <StyledTextField
-      type="text"
-      $disabled={disabled}
-      disabled={disabled}
-      $invalid={invalid}
-      aria-invalid={invalid}
-      {...props}
-    />
-  );
+  return <StyledTextField type="text" disabled={disabled} aria-invalid={invalid} {...props} />;
 }
