@@ -377,7 +377,17 @@ impl RouteManagerHandle {
             .map_err(Error::PlatformError)
     }
 
-    /// Listen for route changes.
+    /// Get the link-MTU of the route to `ip`.
+    ///
+    /// 1. Get the route to `ip`
+    /// 2. Get the link associated with that route
+    /// 3. Get the MTU of that link
+    ///
+    /// Or, expressed in sh:
+    /// ```sh
+    /// ip route get 127.0.0.1 | grep -o 'dev [a-z]*' # outputs "dev lo"
+    /// ip link show dev lo    | grep -o 'mtu [0-9]*' # outputs "mtu 65536"
+    /// ```
     #[cfg(target_os = "linux")]
     pub async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<u16, Error> {
         let (response_tx, response_rx) = oneshot::channel();

@@ -97,10 +97,16 @@ impl Tunnel for NetworkManagerTunnel {
     fn set_config(
         &mut self,
         config: Config,
+        daita: Option<DaitaSettings>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
         let interface_name = self.interface_name.clone();
         let mut wg = self.netlink_connections.wg_handle.clone();
         Box::pin(async move {
+            if daita.is_some() {
+                // Outright fail to start - this tunnel type does not support DAITA.
+                return Err(TunnelError::DaitaNotSupported);
+            }
+
             let index = iface_index(&interface_name).map_err(|err| {
                 log::error!("Failed to fetch WireGuard device index: {}", err);
                 TunnelError::SetConfigError
@@ -110,11 +116,6 @@ impl Tunnel for NetworkManagerTunnel {
                 TunnelError::SetConfigError
             })
         })
-    }
-
-    /// Outright fail to start - this tunnel type does not support DAITA.
-    fn start_daita(&mut self, _: DaitaSettings) -> std::result::Result<(), TunnelError> {
-        Err(TunnelError::DaitaNotSupported)
     }
 }
 
