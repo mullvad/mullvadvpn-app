@@ -32,7 +32,7 @@ test.afterAll(async () => {
 
 test('App should have automatic obfuscation', async () => {
   const automaticObfuscationOption =
-    routes.wireguardSettings.selectors.automaticObfuscationOption();
+    routes.obfuscationSettings.selectors.automaticObfuscationOption();
 
   await expect(automaticObfuscationOption).toHaveAttribute('aria-selected', 'true');
 
@@ -43,7 +43,7 @@ test('App should have automatic obfuscation', async () => {
 });
 
 test('App should set obfuscation to shadowsocks with custom port', async () => {
-  await routes.wireguardSettings.gotoShadowSocksSettings();
+  await routes.obfuscationSettings.gotoShadowSocksSettings();
   const automaticOption = routes.shadowsocksSettings.selectors.automaticPortOption();
 
   await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
@@ -55,10 +55,10 @@ test('App should set obfuscation to shadowsocks with custom port', async () => {
 
   await routes.shadowsocksSettings.goBack();
 
-  const shadowsocksOption = routes.wireguardSettings.selectors.shadowsocksOption();
+  const shadowsocksOption = routes.obfuscationSettings.selectors.shadowsocksOption();
   await expect(shadowsocksOption).toContainText(`Port: ${SHADOWSOCKS_PORT}`);
 
-  await routes.wireguardSettings.selectShadowsocks();
+  await routes.obfuscationSettings.selectShadowsocks();
   await expect(shadowsocksOption).toHaveAttribute('aria-selected', 'true');
 
   const cliObfuscation = execSync('mullvad obfuscation get').toString().split('\n')[2];
@@ -66,7 +66,7 @@ test('App should set obfuscation to shadowsocks with custom port', async () => {
 });
 
 test('App should still have shadowsocks custom port', async () => {
-  await routes.wireguardSettings.gotoShadowSocksSettings();
+  await routes.obfuscationSettings.gotoShadowSocksSettings();
 
   const customPortOption = routes.shadowsocksSettings.selectors.customPortOption();
   await expect(customPortOption).toHaveAttribute('aria-selected', 'true');
@@ -75,7 +75,7 @@ test('App should still have shadowsocks custom port', async () => {
 });
 
 test('App should set obfuscation to UDP-over-TCP with port', async () => {
-  await routes.wireguardSettings.gotoUdpOverTcpSettings();
+  await routes.obfuscationSettings.gotoUdpOverTcpSettings();
 
   const automaticOption = routes.udpOverTcpSettings.selectors.automaticPortOption();
   await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
@@ -86,8 +86,8 @@ test('App should set obfuscation to UDP-over-TCP with port', async () => {
 
   await routes.udpOverTcpSettings.goBack();
 
-  const udpOverTcpItem = routes.wireguardSettings.selectors.udpOverTcpOption();
-  await routes.wireguardSettings.selectUdpOverTcp();
+  const udpOverTcpItem = routes.obfuscationSettings.selectors.udpOverTcpOption();
+  await routes.obfuscationSettings.selectUdpOverTcp();
   await expect(udpOverTcpItem).toHaveAttribute('aria-selected', 'true');
   await expect(udpOverTcpItem).toContainText(`Port: ${UDPOVERTCP_PORT}`);
 

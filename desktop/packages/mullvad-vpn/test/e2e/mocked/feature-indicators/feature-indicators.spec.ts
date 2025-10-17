@@ -147,7 +147,7 @@ test.describe('Feature indicators', () => {
 
   test.beforeEach(async () => {
     await helpers.disconnect();
-    await routes.wireguardSettings.goBackToRoute(RoutePath.main);
+    await routes.obfuscationSettings.goBackToRoute(RoutePath.main);
   });
 
   test.afterAll(async () => {

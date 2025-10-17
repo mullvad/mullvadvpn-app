@@ -5,7 +5,7 @@ import { TestUtils } from '../../utils';
 import { NavigationObjectModel } from '../navigation';
 import { createSelectors } from './selectors';
 
-export class WireguardSettingsRouteObjectModel extends NavigationObjectModel {
+export class ObfuscationSettingsRouteObjectModel extends NavigationObjectModel {
   readonly selectors: ReturnType<typeof createSelectors>;
 
   constructor(page: Page, utils: TestUtils) {

@@ -9,4 +9,7 @@ export const createSelectors = (page: Page) => ({
       .getByRole('option', { name: 'Automatic', exact: true }),
   shadowsocksSettingsButton: () => page.getByRole('button', { name: 'Shadowsocks settings' }),
   shadowsocksOption: () => page.getByRole('option', { name: 'Shadowsocks' }),
+  lwoOption: () => page.getByRole('option', { name: 'LWO' }),
+  quicOption: () => page.getByRole('option', { name: 'QUIC' }),
+  portObfuscationOption: () => page.getByRole('option', { name: 'Port', exact: true }),
 });
