@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make feature indicators in connection panel navigate to the relevant setting when clicked.
 - Add Lightweight WireGuard Obfuscation method (LWO). This is a cheap obfuscation method that
   prevents packets from being identified as standard WireGuard packets.
+- Add possibility to manage devices from account view.
 
 ### Changed
 - Add validation for API access methods to only allow unique names. Access methods with
