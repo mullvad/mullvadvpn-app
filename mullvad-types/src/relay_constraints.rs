@@ -410,6 +410,8 @@ pub struct WireguardConstraints {
     pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
+    pub entry_providers: Constraint<Providers>,
+    pub entry_ownership: Constraint<Ownership>,
 }
 
 pub use allowed_ip::AllowedIps;
