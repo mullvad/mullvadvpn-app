@@ -2,7 +2,7 @@
 
 # This script does the following:
 # 1. Fetch the latest metadata for the provided version and platforms.
-# 2. Set the `rollout` fraction to the provided value
+# 2. Set the `rollout` fraction to the provided value in [0, 1].
 # 3. Sign and upload the updated metadata files.
 #
 # * You need to put the private ed25519 signing key in the clipboard before running this script.
