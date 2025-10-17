@@ -66,6 +66,10 @@ on:
         default: 'stagemole'
         required: true
         type: string
+      clean:
+        description: Clean before building.
+        type: boolean
+        required: false
   # Build if main is updated to ensure up-to-date caches are available
   push:
     branches: [main]
@@ -111,78 +115,41 @@ jobs:
       E2E_TEST_INFRA_FLAVOR: ${{ env.INNER_E2E_TEST_INFRA_FLAVOR }}
       E2E_TEST_REPEAT: ${{ env.INNER_E2E_TEST_REPEAT }}
 
-  build-native:
-    name: Build native # Used by wait for jobs.
-    needs: prepare
-    runs-on: ubuntu-latest
-    container:
-      image: "${{ needs.prepare.outputs.container_image }}"
-    strategy:
-      matrix:
-        include:
-          - abi: "x86_64"
-            task-variant: "X86_64"
-          - abi: "x86"
-            task-variant: "X86"
-          - abi: "arm64-v8a"
-            task-variant: "Arm64"
-          - abi: "armeabi-v7a"
-            task-variant: "Arm"
+  build-app:
+    name: Build app
+    needs: [prepare]
+    runs-on: app-gh-build
     steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
-      - name: Checkout wireguard-go-rs recursively
+      - name: Fetch submodules
         run: |
-          git config --global --add safe.directory '*'
+          git submodule update --init android/rust-android-gradle-plugin
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
-      - name: Calculate native lib cache hash
-        id: native-lib-cache-hash
-        shell: bash
-        run: |
-          git config --global --add safe.directory $(pwd)
-          non_android_hash="$(git grep --cached -l '' -- ':!android/' \
-            | xargs -d '\n' sha1sum \
-            | sha1sum \
-            | awk '{print $1}')"
-          echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
+      - name: Ensure correct container image is used
+        run: echo "${{ needs.prepare.outputs.container_image }}" > ./building/android-container-image.txt
 
-      - name: Cache native libraries
-        uses: actions/cache@v4
-        id: cache-native-libs
-        env:
-          cache_hash: ${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
-        with:
-          path: ./android/app/build/rustJniLibs/android
-          key: android-native-libs-${{ runner.os }}-${{ matrix.abi }}-${{ env.cache_hash }}
+      - name: Clean gradle
+        if: github.event.inputs.clean == 'true'
+        run: >
+          ./building/container-run.sh android android/gradlew -p android --console plain
+          clean
 
-      - name: Build native libraries
-        if: steps.cache-native-libs.outputs.cache-hit != 'true'
-        uses: burrunan/gradle-cache-action@v3
-        with:
-          job-id: jdk17
-          arguments: cargoBuild${{ matrix.task-variant }}
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: false
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
+      - name: Build apks
+        run: >
+          ./building/container-run.sh android android/gradlew -p android --console plain
+          :app:assembleOssProdDebug
+          assembleOssProdAndroidTest
+          :test:mockapi:assemble
+          :test:e2e:assemble
 
-
-      - name: Upload native libs
+      - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: native-libs-${{ matrix.abi }}
-          path: android/app/build/rustJniLibs/android
+          name: apks
+          path: android/**/*.apk
           if-no-files-found: error
           retention-days: 7
 
@@ -229,165 +196,10 @@ jobs:
           concurrent: true
           read-only: ${{ github.ref != 'refs/heads/main' }}
 
-  build-app:
-    name: Build app
-    needs: [prepare]
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare.outputs.container_image }}
-    steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Prepare dummy debug keystore
-        env:
-          KEYSTORE: ${{ vars.ANDROID_DUMMY_DEBUG_KEYSTORE }}
-        run: |
-          echo "$KEYSTORE" | tr -d '\n\r' | base64 -d > /root/.android/debug.keystore
-
-      - name: Compile app
-        uses: burrunan/gradle-cache-action@v3
-        with:
-          job-id: jdk17
-          arguments: |
-            compileOssProdDebugKotlin
-            -x cargoBuild
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: false
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
-
-      - name: Wait for other jobs (native, relay list)
-        uses: kachick/wait-other-jobs@v3.8.1
-        with:
-          wait-seconds-before-first-polling: '0'
-          wait-list: |
-            [
-              {
-                "workflowFile": "android-app.yml",
-                "jobMatchMode": "prefix",
-                "jobName": "Build native"
-              }
-            ]
-
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: native-libs-*
-          path: android/app/build/rustJniLibs/android
-          merge-multiple: true
-
-      - name: Build app
-        uses: burrunan/gradle-cache-action@v3
-        with:
-          job-id: jdk17
-          arguments: |
-            assembleOssProdDebug
-            -x cargoBuild
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
-
-      - name: Build stagemole app
-        uses: burrunan/gradle-cache-action@v3
-        if: >
-          (needs.prepare.outputs.E2E_TEST_REPEAT != '0' &&
-          needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole') ||
-          github.event.inputs.run_firebase_tests == 'true'
-        with:
-          job-id: jdk17
-          arguments: |
-            assemblePlayStagemoleDebug
-            -x cargoBuild
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
-
-      - name: Upload apks
-        uses: actions/upload-artifact@v4
-        with:
-          name: apks
-          path: android/app/build/outputs/apk
-          if-no-files-found: error
-          retention-days: 7
-
-  build-instrumented-tests:
-    name: Build instrumented test packages
-    needs: [prepare]
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare.outputs.container_image }}
-    strategy:
-      matrix:
-        include:
-          - test-type: app
-            assemble-command: assembleOssProdAndroidTest
-            artifact-path: android/app/build/outputs/apk
-          - test-type: mockapi
-            assemble-command: :test:mockapi:assemble
-            artifact-path: android/test/mockapi/build/outputs/apk
-          - test-type: e2e
-            assemble-command: :test:e2e:assemble
-            artifact-path: android/test/e2e/build/outputs/apk
-    steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Prepare dummy debug keystore
-        env:
-          KEYSTORE: ${{ vars.ANDROID_DUMMY_DEBUG_KEYSTORE }}
-        run: |
-          echo "$KEYSTORE" | tr -d '\n\r' | base64 -d > /root/.android/debug.keystore
-
-      - name: Assemble instrumented test apk
-        uses: burrunan/gradle-cache-action@v3
-        with:
-          job-id: jdk17
-          arguments: |
-            ${{ matrix.assemble-command }}
-            -x cargoBuild
-            -x mergeOssProdDebugJniLibFolders
-            -x mergePlayStagemoleDebugJniLibFolders
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: false
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
-
-      - name: Upload apks
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.test-type }}-instrumentation-apks
-          path: ${{ matrix.artifact-path }}
-          if-no-files-found: error
-          retention-days: 7
-
   instrumented-tests:
     name: Run instrumented tests
     runs-on: [self-hosted, android-device]
-    needs: [build-app, build-instrumented-tests]
+    needs: [build-app]
     strategy:
       fail-fast: false
       matrix:
@@ -418,13 +230,7 @@ jobs:
         if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
-          path: android/app/build/outputs/apk
-
-      - uses: actions/download-artifact@v4
-        if: ${{ matrix.test-repeat != 0 }}
-        with:
-          name: ${{ matrix.test-type }}-instrumentation-apks
-          path: ${{ matrix.path }}
+          path: android
 
       - name: Calculate timeout
         id: calculate-timeout
@@ -455,7 +261,7 @@ jobs:
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
     runs-on: [self-hosted, android-device]
-    needs: [prepare, build-app, build-instrumented-tests]
+    needs: [prepare, build-app]
     if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
     steps:
       - name: Resolve unique runner test account secret name
@@ -484,12 +290,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: apks
-          path: android/app/build/outputs/apk
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: e2e-instrumentation-apks
-          path: android/test/e2e/build/outputs/apk
+          path: android
 
       - name: Calculate timeout
         id: calculate-timeout
@@ -530,7 +331,7 @@ jobs:
     if: github.event.inputs.run_firebase_tests == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [build-app, build-instrumented-tests]
+    needs: [build-app]
     env:
       FIREBASE_ENVIRONMENT_VARIABLES: "\
         clearPackageData=true,\
@@ -558,12 +359,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: apks
-          path: android/app/build/outputs/apk
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ matrix.test-type }}-instrumentation-apks
-          path: ${{ matrix.path }}
+          path: android
 
       - name: Run tests on Firebase Test Lab
         uses: asadmansr/Firebase-Test-Lab-Action@v1.0
