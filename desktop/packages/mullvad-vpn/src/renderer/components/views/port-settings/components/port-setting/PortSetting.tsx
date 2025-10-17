@@ -4,14 +4,13 @@ import { sprintf } from 'sprintf-js';
 import { wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
-import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
-import { isInRanges } from '../../../../../../shared/utils';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
+import { AutomaticOption, CustomOption } from './components';
 
 const WIREUGARD_UDP_PORTS = [51820, 53];
 
@@ -63,20 +62,6 @@ export function PortSetting() {
     [relaySettingsUpdater],
   );
 
-  const validateValue = useCallback(
-    (value: number) => isInRanges(value, allowedPortRanges),
-    [allowedPortRanges],
-  );
-
-  const validateStringValue = useCallback(
-    (value: string) => {
-      const numericValue = parseInt(value, 10);
-      if (Number.isNaN(numericValue)) return false;
-      return validateValue(numericValue);
-    },
-    [validateValue],
-  );
-
   const portRangesText = allowedPortRanges
     .map(([start, end]) => (start === end ? start : `${start}-${end}`))
     .join(', ');
@@ -116,31 +101,17 @@ export function PortSetting() {
         </SettingsListbox.Content>
       </SettingsListbox.Item>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption value={null}>
-          {messages.gettext('Automatic')}
-        </SettingsListbox.BaseOption>
+        <AutomaticOption />
         {wireguardPortItems.map((item) => (
           <SettingsListbox.BaseOption key={item.value} value={item.value}>
             {item.label}
           </SettingsListbox.BaseOption>
         ))}
-        <SettingsListbox.InputOption
+        <CustomOption
           defaultValue={
             selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
           }
-          value="custom"
-          validate={validateStringValue}
-          format={removeNonNumericCharacters}>
-          <SettingsListbox.InputOption.Label>
-            {messages.gettext('Custom')}
-          </SettingsListbox.InputOption.Label>
-          <SettingsListbox.InputOption.Input
-            placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
-            maxLength={5}
-            type="text"
-            inputMode="numeric"
-          />
-        </SettingsListbox.InputOption>
+        />
       </SettingsListbox.Options>
     </SettingsListbox>
   );
