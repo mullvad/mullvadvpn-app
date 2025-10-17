@@ -48,7 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var migrationManager: MigrationManager!
 
     nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository()
-    private(set) var appPreferences = AppPreferences()
+    nonisolated(unsafe) private(set) var appPreferences = AppPreferences()
     private(set) var shadowsocksLoader: ShadowsocksLoader!
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private(set) var relaySelector: RelaySelectorWrapper!
@@ -593,11 +593,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// compatible, thus triggering a settings wipe.
     private func getWipeSettingsOperation() -> AsyncBlockOperation {
         AsyncBlockOperation {
-            let appHasNeverBeenLaunched = !FirstTimeLaunch.hasFinished && !SettingsManager.getShouldWipeSettings()
-            let appWasLaunchedAfterReinstall = !FirstTimeLaunch.hasFinished && SettingsManager.getShouldWipeSettings()
+            let appHasNeverBeenLaunched =
+                !self.appPreferences.hasDoneFirstTimeLaunch && !SettingsManager.getShouldWipeSettings()
+            let appWasLaunchedAfterReinstall =
+                !self.appPreferences.hasDoneFirstTimeLaunch && SettingsManager.getShouldWipeSettings()
 
             if appHasNeverBeenLaunched {
                 try? SettingsManager.writeSettings(LatestTunnelSettings())
+                self.setDefaultLocation()
             } else if appWasLaunchedAfterReinstall {
                 if let deviceState = try? SettingsManager.readDeviceState(),
                     let accountData = deviceState.accountData,
@@ -620,10 +623,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 // At app startup, the relay cache tracker will get populated with a list of overriden IPs.
                 // The overriden IPs will get wiped, therefore, the cache needs to be pruned as well.
                 try? self.relayCacheTracker.refreshCachedRelays()
+
+                self.setDefaultLocation()
             }
 
-            FirstTimeLaunch.setHasFinished()
+            self.appPreferences.hasDoneFirstTimeLaunch = true
             SettingsManager.setShouldWipeSettings()
+        }
+    }
+
+    private nonisolated func setDefaultLocation() {
+        guard let cachedRelays = try? relayCacheTracker.getCachedRelays() else {
+            return
+        }
+
+        Task {
+            let locationService = DefaultLocationService(urlSession: URLSession.shared, relayCache: cachedRelays)
+            let locationIdentifier = try? await locationService.fetchCurrentLocationIdentifier()
+
+            let constraint = RelayConstraint.only(
+                UserSelectedRelays(
+                    locations: [.country(locationIdentifier?.country ?? "se")]
+                ))
+
+            if !appPreferences.hasDoneFirstTimeLogin {
+                tunnelManager.updateSettings([
+                    .relayConstraints(RelayConstraints(entryLocations: constraint, exitLocations: constraint))
+                ])
+            }
         }
     }
 

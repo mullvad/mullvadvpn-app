@@ -9,19 +9,19 @@
 extension REST {
     // locations are currently always "aa-bbb" for some country code aa and city code bbb. Should this change, this type can be extended.
     public struct LocationIdentifier: Sendable {
-        public let country: Substring
-        public let city: Substring
+        public let country: String
+        public let city: String
 
-        fileprivate static func parse(_ input: String) -> (Substring, Substring)? {
+        fileprivate static func parse(_ input: String) -> (String, String)? {
             let components = input.split(separator: "-")
             guard components.count == 2 else { return nil }
-            return (components[0], components[1])
+            return (String(components[0]), String(components[1]))
         }
     }
 }
 
 extension REST.LocationIdentifier: RawRepresentable {
-    public var rawValue: String { country.base }
+    public var rawValue: String { "\(country)-\(city)" }
 
     public init?(rawValue: String) {
         guard let parsed = Self.parse(rawValue) else { return nil }
