@@ -34,7 +34,7 @@ ROLLOUT=$4
 
 shift 4; # past the first arguments
 
-# the trailing argments are the platform targets
+# the trailing arguments are the platform targets
 PLATFORMS=("$@")
 
 # shellcheck source=desktop/scripts/release/release-config.sh
