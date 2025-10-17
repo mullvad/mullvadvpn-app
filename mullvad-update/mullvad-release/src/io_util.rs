@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use anyhow::Context;
+use anyhow::{Context, bail};
 use tokio::fs;
 
 /// Wait for user to respond with yes or no
@@ -51,7 +51,11 @@ pub async fn wait_for_input(prompt: &str) -> anyhow::Result<String> {
 
             println!("{prompt}");
 
-            stdin.read_line(&mut s).context("Failed to read line")?;
+            let n = stdin.read_line(&mut s).context("Failed to read line")?;
+
+            if n == 0 {
+                bail!("stdin reached EOF");
+            }
 
             match s.trim().to_ascii_lowercase().as_str() {
                 "" => continue,
