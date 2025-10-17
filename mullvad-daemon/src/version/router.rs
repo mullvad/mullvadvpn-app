@@ -390,7 +390,7 @@ where
                             prev_cache,
                             self.beta_program,
                             // NOTE: Keep verified installer path
-                            Some(verified_installer_path.to_path_buf()),
+                            Some(verified_installer_path.clone()),
                         ),
                     };
                 }
