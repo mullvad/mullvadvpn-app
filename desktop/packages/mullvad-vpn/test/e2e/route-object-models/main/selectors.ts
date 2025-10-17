@@ -11,6 +11,5 @@ export const createSelectors = (page: Page) => ({
   featureIndicator: (name: string) =>
     page.getByTestId('feature-indicator').filter({ hasText: name }),
   moreFeatureIndicator: () => page.getByText(/^\d more.../),
-  notificationTitle: () => page.getByTestId('notificationTitle'),
-  notificationSubtitle: () => page.getByTestId('notificationSubTitle'),
+  relayHostname: () => page.getByTestId('hostname-line'),
 });
