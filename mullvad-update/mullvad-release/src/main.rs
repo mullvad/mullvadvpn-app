@@ -194,7 +194,7 @@ async fn main() -> anyhow::Result<()> {
                         println!("Updated {}", path.display());
                     }
                     Err(err) => {
-                        eprintln!("Failed to retrieve latest.json file: {err}");
+                        eprintln!("{err:?}");
                     }
                 }
             }
