@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 - Change how externally triggered navigation is handled in the UI. This could potentially reduce
   issues where users get stuck in the out-of-time view.
 - Update Electron from 36.5.0 to 37.6.0.
+- Run version check hourly and when interacting with the app instead of once per day.
 
 ### Fixed
 #### macOS
