@@ -1,5 +1,5 @@
 use crate::format;
-use anyhow::{Result, anyhow};
+use anyhow::{Result, anyhow, bail};
 use futures::{Stream, StreamExt};
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_types::{device::DeviceState, states::TunnelState};
@@ -60,9 +60,11 @@ pub async fn reconnect(wait: bool) -> Result<()> {
         None
     };
 
-    if rpc.reconnect_tunnel().await?
-        && let Some(receiver) = listener
-    {
+    let reconnecting = rpc.reconnect_tunnel().await?;
+    if !reconnecting {
+        bail!("Not reconnecting due to being in disconnected state")
+    }
+    if let Some(receiver) = listener {
         wait_for_tunnel_state(receiver, |state| match state {
             TunnelState::Connected { .. } => Ok(true),
             TunnelState::Error(_) => Err(anyhow!("Failed to reconnect")),
