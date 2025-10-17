@@ -1,8 +1,13 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
+import { useSelector } from '../../../../../redux/store';
 import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
+import { getObfuscationLabel } from './utils';
 
 export function ObfuscationListItem() {
+  const { selectedObfuscation } = useSelector((state) => state.settings.obfuscationSettings);
+  const obfuscationLabel = getObfuscationLabel(selectedObfuscation);
+
   return (
     <SettingsNavigationListItem to={RoutePath.obfuscation}>
       <SettingsNavigationListItem.Label>
@@ -11,7 +16,10 @@ export function ObfuscationListItem() {
           messages.pgettext('vpn-settings-view', 'Obfuscation')
         }
       </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.Icon icon="chevron-right" />
+      <SettingsNavigationListItem.Group>
+        <SettingsNavigationListItem.Text>{obfuscationLabel}</SettingsNavigationListItem.Text>
+        <SettingsNavigationListItem.Icon icon="chevron-right" />
+      </SettingsNavigationListItem.Group>
     </SettingsNavigationListItem>
   );
 }
