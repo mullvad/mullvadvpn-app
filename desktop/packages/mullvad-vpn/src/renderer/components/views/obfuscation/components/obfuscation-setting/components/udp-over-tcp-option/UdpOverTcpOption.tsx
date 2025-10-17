@@ -7,7 +7,7 @@ import { Text } from '../../../../../../../lib/components';
 import { FlexColumn } from '../../../../../../../lib/components/flex-column';
 import { useSelector } from '../../../../../../../redux/store';
 import { SettingsListbox } from '../../../../../../settings-listbox';
-import { formatPortForSubLabel } from '../../../../utils';
+import { formatObfuscationPort } from '../../../../utils';
 
 export function UdpOverTcpOption() {
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
@@ -30,7 +30,7 @@ export function UdpOverTcpOption() {
           </SettingsListbox.SplitOption.Label>
           <Text variant="labelTinySemiBold" color="whiteAlpha60">
             {sprintf(subLabelTemplate, {
-              port: formatPortForSubLabel(obfuscationSettings.udp2tcpSettings.port),
+              port: formatObfuscationPort(obfuscationSettings.udp2tcpSettings.port),
             })}
           </Text>
         </FlexColumn>

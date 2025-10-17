@@ -10,7 +10,7 @@ import { SettingsListbox } from '../../../../settings-listbox';
 import {
   AutomaticOption,
   LwoOption,
-  OffOption,
+  PortOption,
   QuicOption,
   ShadowsocksOption,
   UdpOverTcpOption,
@@ -61,11 +61,11 @@ export function ObfuscationSetting() {
       </SettingsListbox.Item>
       <SettingsListbox.Options>
         <AutomaticOption />
+        <PortOption />
         <LwoOption />
         <QuicOption />
         <ShadowsocksOption />
         <UdpOverTcpOption />
-        <OffOption />
       </SettingsListbox.Options>
     </SettingsListbox>
   );
