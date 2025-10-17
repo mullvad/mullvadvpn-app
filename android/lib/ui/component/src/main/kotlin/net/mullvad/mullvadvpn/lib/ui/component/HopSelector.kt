@@ -1,8 +1,17 @@
 package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,10 +21,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Language
@@ -24,6 +37,7 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -38,6 +52,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +63,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -59,8 +77,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.Dimension.Companion.fillToConstraints
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.constraintlayout.compose.MotionLayout
-import androidx.constraintlayout.compose.MotionLayoutScope
 import androidx.constraintlayout.compose.MotionScene
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 enum class RelayList {
@@ -478,11 +496,10 @@ private fun Hop(
     ) {
         val alpha by animateFloatAsState(if (selected) 1f else 0f, tween())
 
-        Column {
+        Column(modifier) {
             Row(
                 modifier =
-                    modifier
-                        .semantics {
+                    Modifier.semantics {
                             role = Role.Switch
                             this.selected = selected
                         }
@@ -505,10 +522,10 @@ private fun Hop(
                 )
                 FilterButton(onClick = {}, filters = hopState.filters)
             }
-            if (hopState.errorText != null) {
+            AnimatedVisibility(hopState.errorText != null) {
                 Text(
                     modifier = Modifier.padding(start = 30.dp),
-                    text = hopState.errorText,
+                    text = hopState.errorText ?: "",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -556,6 +573,132 @@ fun FilterButton(filters: Int = 0, onClick: () -> Unit = {}) {
             }
         ) {
             Icon(imageVector = Icons.Default.FilterList, contentDescription = null)
+        }
+    }
+}
+
+enum class BoxSize {
+    Small,
+    Large,
+}
+
+data class BoxState(val size: BoxSize, val error: Boolean)
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+@Preview
+fun Test() {
+
+    Column {
+        var error by remember { mutableStateOf(false) }
+        val seekingState = remember { SeekableTransitionState(BoxState(BoxSize.Small, error)) }
+        val scope = rememberCoroutineScope()
+        Column {
+            Row {
+                Button(
+                    onClick = {
+                        scope.launch { seekingState.animateTo(BoxState(BoxSize.Small, error)) }
+                    },
+                    Modifier.wrapContentWidth().weight(1f),
+                ) {
+                    Text("Animate Small")
+                }
+                Button(
+                    onClick = {
+                        scope.launch { seekingState.seekTo(0f, BoxState(BoxSize.Large, error)) }
+                    },
+                    Modifier.wrapContentWidth().weight(1f),
+                ) {
+                    Text("Seek Large")
+                }
+                Button(
+                    onClick = {
+                        scope.launch { seekingState.animateTo(BoxState(BoxSize.Large, error)) }
+                    },
+                    Modifier.wrapContentWidth().weight(1f),
+                ) {
+                    Text("Animate Large")
+                }
+            }
+        }
+        Switch(
+            error,
+            {
+                error = it
+                scope.launch {
+                    seekingState.animateTo(BoxState(seekingState.currentState.size, it))
+                }
+            },
+        )
+        Slider(
+            value = seekingState.fraction,
+            modifier = Modifier.systemGestureExclusion().padding(20.dp),
+            onValueChange = { value -> scope.launch { seekingState.seekTo(fraction = value) } },
+            onValueChangeFinished = {
+                scope.launch {
+                    val targetState =
+                        if (seekingState.fraction < 0.5f)
+                            BoxState(BoxSize.Small, seekingState.currentState.error)
+                        else BoxState(BoxSize.Large, seekingState.currentState.error)
+                    seekingState.animateTo(targetState)
+                }
+            }
+        )
+        val transition = rememberTransition(seekingState)
+
+        SharedTransitionLayout {
+            transition.AnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(easing = LinearEasing)) togetherWith
+                        fadeOut(tween(easing = LinearEasing))
+                }
+            ) { state ->
+                val key = rememberSharedContentState(key = "image")
+                var b1 by remember { mutableStateOf<LayoutCoordinates?>(null) }
+                var b2 by remember { mutableStateOf<LayoutCoordinates?>(null) }
+                Box {
+                    Column {
+                        if (state.size == BoxSize.Small) {
+                            LocationHint("Internet", Icons.Default.Language)
+                        }
+                        Column {
+                            Hop(
+                                Modifier.sharedElement(
+                                        sharedContentState = key,
+                                        animatedVisibilityScope = this@AnimatedContent,
+                                    )
+                                    .padding(4.dp),
+                                hopState = HopState("Sweden", 0, if (error) "whoopsy" else null),
+                                Icons.Default.LocationOn,
+                                selected = true,
+                                onSelect = {},
+                                onFilterClick = {},
+                            )
+                        }
+                        if (state.size == BoxSize.Small) {
+                            LocationHint("Your Device", Icons.Default.PhoneAndroid)
+                        }
+                    }
+                }
+
+                with(LocalDensity.current) {
+                    val b1Bottom =
+                        b1?.let { it.positionInParent().y + it.size.height.toFloat() } ?: 0f
+                    val b2Top = b2?.positionInParent()?.y ?: 0f
+
+                    DashedLine(
+                        modifier =
+                            Modifier.height((b2Top - b1Bottom).toDp())
+                                .offset(21.dp, b1Bottom.toDp())
+                    )
+
+                    DashedLine(
+                        modifier =
+                            Modifier.height((b2Top - b1Bottom).toDp())
+                                .offset(21.dp, b1Bottom.toDp())
+                    )
+                }
+            }
         }
     }
 }
