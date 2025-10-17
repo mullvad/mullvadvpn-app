@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -58,6 +59,7 @@ class ConnectViewModel(
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
+    wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val resources: Resources,
     private val isPlayBuild: Boolean,
     private val isFdroidBuild: Boolean,
@@ -77,13 +79,15 @@ class ConnectViewModel(
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
+                wireguardConstraintsRepository.wireguardConstraints,
             ) {
                 selectedRelayItemTitle,
                 notifications,
                 (tunnelState, prevTunnelState),
                 lastKnownDisconnectedLocation,
                 accountData,
-                deviceName ->
+                deviceName,
+                wireguardConstraints ->
                 ConnectUiState(
                     location =
                         when (tunnelState) {
@@ -113,6 +117,7 @@ class ConnectViewModel(
                     deviceName = deviceName,
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysFromNow(),
                     isPlayBuild = isPlayBuild,
+                    isMultihop = wireguardConstraints?.isMultihopEnabled ?: false,
                 )
             }
             .onStart {
@@ -245,9 +250,5 @@ class ConnectViewModel(
 
             data class PermissionDenied(val systemVpnSettingsAvailable: Boolean) : ConnectError
         }
-    }
-
-    companion object {
-        const val UI_STATE_DEBOUNCE_DURATION_MILLIS: Long = 200
     }
 }

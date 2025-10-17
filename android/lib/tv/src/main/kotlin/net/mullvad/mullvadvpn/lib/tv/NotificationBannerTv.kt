@@ -21,6 +21,7 @@ fun PreviewNotificationBannerTv() {
         NotificationBannerTv(
             notification = InAppNotification.NewDevice("Sad Panda"),
             isPlayBuild = true,
+            isMultihop = false,
             openAppListing = {},
             onClickShowAccount = {},
             onClickShowChangelog = {},
@@ -38,6 +39,7 @@ fun NotificationBannerTv(
     modifier: Modifier = Modifier,
     notification: InAppNotification?,
     isPlayBuild: Boolean,
+    isMultihop: Boolean,
     openAppListing: () -> Unit,
     contentFocusRequester: FocusRequester = FocusRequester(),
     onClickShowAccount: () -> Unit,
@@ -63,6 +65,7 @@ fun NotificationBannerTv(
                 ),
         notification = notification,
         isPlayBuild = isPlayBuild,
+        isMultihop = isMultihop,
         openAppListing = openAppListing,
         contentFocusRequester = contentFocusRequester,
         onClickShowAccount = onClickShowAccount,

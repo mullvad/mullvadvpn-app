@@ -121,7 +121,13 @@ impl ErrorStateCause {
 #[derive(thiserror::Error, Debug, Serialize, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ParameterGenerationError {
-    /// Failure to select a matching tunnel relay
+    /// Failure to select a matching entry tunnel relay
+    #[error("Failure to select a matching entry tunnel relay")]
+    NoMatchingRelayEntry,
+    /// Failure to select a matching exit tunnel relay
+    #[error("Failure to select a matching exit tunnel relay")]
+    NoMatchingRelayExit,
+    /// Failure to select a matching tunnel relay, but we do not know if it is an entry or an exit
     #[error("Failure to select a matching tunnel relay")]
     NoMatchingRelay,
     /// Failure to select a matching bridge relay

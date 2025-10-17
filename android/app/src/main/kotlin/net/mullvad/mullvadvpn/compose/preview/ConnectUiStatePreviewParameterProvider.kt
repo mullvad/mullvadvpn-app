@@ -50,5 +50,6 @@ private val otherStates =
                 deviceName = "Cool Beans",
                 daysLeftUntilExpiry = 42,
                 isPlayBuild = true,
+                isMultihop = false,
             )
         }

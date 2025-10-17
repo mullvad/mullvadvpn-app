@@ -12,6 +12,7 @@ data class ConnectUiState(
     val deviceName: String?,
     val daysLeftUntilExpiry: Long?,
     val isPlayBuild: Boolean,
+    val isMultihop: Boolean,
 ) {
 
     val showLoading =
@@ -27,6 +28,7 @@ data class ConnectUiState(
                 deviceName = null,
                 daysLeftUntilExpiry = null,
                 isPlayBuild = false,
+                isMultihop = false,
             )
     }
 }

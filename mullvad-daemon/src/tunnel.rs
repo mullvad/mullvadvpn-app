@@ -303,6 +303,12 @@ impl From<Error> for ParameterGenerationError {
             Error::SelectRelay(mullvad_relay_selector::Error::IpVersionUnavailable { family }) => {
                 ParameterGenerationError::IpVersionUnavailable { family }
             }
+            Error::SelectRelay(mullvad_relay_selector::Error::NoRelayEntry(_)) => {
+                ParameterGenerationError::NoMatchingRelayEntry
+            }
+            Error::SelectRelay(mullvad_relay_selector::Error::NoRelayExit(_)) => {
+                ParameterGenerationError::NoMatchingRelayExit
+            }
             Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
                 ParameterGenerationError::NoMatchingRelay
             }
