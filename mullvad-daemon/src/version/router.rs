@@ -351,14 +351,66 @@ where
                 }
             }
             #[cfg(in_app_upgrade)]
-            State::Downloaded { .. } | State::Downloading { .. } => {
+            State::Downloading {
+                version_cache: prev_cache,
+                ..
+            } => {
+                let prev_app_version_info =
+                    to_app_version_info(prev_cache, self.beta_program, None);
                 let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
 
-                log::warn!("Received new version while upgrading: {app_version_info:?}");
-                AppVersionInfoEvent {
+                let event = AppVersionInfoEvent {
+                    is_new: prev_app_version_info != app_version_info,
                     app_version_info,
-                    is_new: true,
+                };
+
+                if !event.is_new {
+                    log::trace!("Ignoring same version in downloading state");
+                    // Return here to avoid resetting the state to `HasVersion`
+                    // We update the cache because ignored information (eg available beta if beta
+                    // program is off) may have changed
+                    *prev_cache = version_cache.clone();
+                    return event;
                 }
+
+                log::warn!("Received new version while downloading. Aborting download");
+
+                event
+            }
+            #[cfg(in_app_upgrade)]
+            State::Downloaded {
+                version_cache: prev_cache,
+                verified_installer_path,
+                ..
+            } => {
+                let prev_app_version_info = to_app_version_info(
+                    prev_cache,
+                    self.beta_program,
+                    Some(verified_installer_path.clone()),
+                );
+                let app_version_info = to_app_version_info(
+                    &version_cache,
+                    self.beta_program,
+                    Some(verified_installer_path.clone()),
+                );
+
+                let event = AppVersionInfoEvent {
+                    is_new: prev_app_version_info != app_version_info,
+                    app_version_info,
+                };
+
+                if !event.is_new {
+                    log::trace!("Ignoring same version in downloaded state");
+                    // Return here to avoid resetting the state to `HasVersion`
+                    // We update the cache because ignored information (eg available beta if beta
+                    // program is off) may have changed
+                    *prev_cache = version_cache.clone();
+                    return event;
+                }
+
+                log::warn!("Received new version in downloaded state. Aborting download");
+
+                event
             }
         };
         self.state = State::HasVersion { version_cache };
