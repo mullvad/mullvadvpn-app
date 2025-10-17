@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
-import { Flex, Text } from '../../../lib/components';
+import { Flex, Image, Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
@@ -13,9 +13,7 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { MultihopSetting } from './components';
 
-const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
-
-const StyledIllustration = styled.img({
+const StyledIllustration = styled(Image)({
   width: '100%',
 });
 
@@ -36,9 +34,7 @@ export function MultihopSettingsView() {
                     {messages.pgettext('wireguard-settings-view', 'Multihop')}
                   </HeaderTitle>
                   <FlexColumn $gap="small">
-                    <StyledIllustration
-                      src={`${PATH_PREFIX}assets/images/multihop-illustration.svg`}
-                    />
+                    <StyledIllustration source="multihop-illustration" />
                     <Text variant="labelTiny" color="whiteAlpha60">
                       {messages.pgettext(
                         'wireguard-settings-view',

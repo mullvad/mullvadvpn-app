@@ -56,7 +56,7 @@ export function formatHtml(inputString: string): React.ReactElement {
   });
 
   if (formattedString.length === 0) {
-    formattedString.push(<>{inputString}</>);
+    formattedString.push(<React.Fragment key={inputString}>{inputString}</React.Fragment>);
   }
 
   return <>{formattedString}</>;
