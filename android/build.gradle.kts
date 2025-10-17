@@ -26,48 +26,6 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
     }
-    dependencies {
-        //noinspection UseTomlInstead
-        // Dependency class paths are required for Gradle metadata verification to work properly,
-        // see:
-        // https://github.com/gradle/gradle/issues/19228
-        val aapt = libs.android.gradle.aapt.get()
-        val aaptVersion = "${libs.versions.android.gradle.plugin.get()}-${libs.versions.android.gradle.aapt.get()}"
-        classpath("$aapt:$aaptVersion:linux")
-        classpath("$aapt:$aaptVersion:osx")
-        classpath("$aapt:$aaptVersion:windows")
-
-        // Protoc plugin
-        val protoc = libs.plugins.protobuf.protoc.get().toString()
-        classpath("$protoc:linux-aarch_64@exe")
-        classpath("$protoc:linux-ppcle_64@exe")
-        classpath("$protoc:linux-s390_64@exe")
-        classpath("$protoc:linux-x86_32@exe")
-        classpath("$protoc:linux-x86_64@exe")
-        classpath("$protoc:osx-aarch_64@exe")
-        classpath("$protoc:osx-x86_64@exe")
-        classpath("$protoc:windows-x86_32@exe")
-        classpath("$protoc:windows-x86_64@exe")
-
-        // ProtoC gen grpc java plugin
-        val protocJava = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
-        classpath("$protocJava:linux-aarch_64@exe")
-        classpath("$protocJava:linux-ppcle_64@exe")
-        classpath("$protocJava:linux-s390_64@exe")
-        classpath("$protocJava:linux-x86_32@exe")
-        classpath("$protocJava:linux-x86_64@exe")
-        classpath("$protocJava:osx-aarch_64@exe")
-        classpath("$protocJava:osx-x86_64@exe")
-        classpath("$protocJava:windows-x86_32@exe")
-        classpath("$protocJava:windows-x86_64@exe")
-
-        // Kotlin Native Prebuilt
-        val prebuilt = libs.kotlin.native.prebuilt.get().toString()
-        classpath("$prebuilt:windows-x86_64@zip")
-        classpath("$prebuilt:linux-x86_64@tar.gz")
-        classpath("$prebuilt:macos-aarch64@tar.gz")
-        classpath("$prebuilt:macos-x86_64@tar.gz")
-    }
 }
 
 detekt {

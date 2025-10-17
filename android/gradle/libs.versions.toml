@@ -17,7 +17,6 @@ ndk = "27.3.13750724"
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 
 android-gradle-plugin = "8.13.0"
-android-gradle-aapt = "13719691"
 android-billingclient = "8.0.0"
 
 # AndroidX
@@ -97,7 +96,6 @@ profileinstaller = "1.4.1"
 [libraries]
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
-android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
@@ -172,7 +170,6 @@ koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-kotlin-native-prebuilt = { module = "org.jetbrains.kotlin:kotlin-native-prebuilt", version.ref = "kotlin" }
 
 # KotlinX
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx" }

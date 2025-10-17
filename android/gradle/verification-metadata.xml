@@ -19,20 +19,30 @@
    WORKAROUNDS:
    - Ignore gradle wrapper source being downloaded when running "Sync Project with Gradle Files"
      https://youtrack.jetbrains.com/issue/IDEA-258328
-     Line added:
-     <trust file="gradle-[0-9.]+-src.zip" regex="true"/>
+     https://github.com/gradle/gradle/issues/19228
+     https://developer.android.com/build/dependency-verification#android_studio_synchronization
+     Lines added:
+         <trust group="com.android.tools.build" name="aapt2"/>
+         <trust group="com.google.protobuf" name="protoc"/>
+         <trust group="io.grpc" name="protoc-gen-grpc-java"/>
+         <trust group="org.jetbrains.kotlin" name="kotlin-native-prebuilt"/>
+         <trust group="gradle" name="gradle"/>
 -->
 <verification-metadata xmlns="https://schema.gradle.org/dependency-verification" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.3.xsd">
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>false</verify-signatures>
       <trusted-artifacts>
+         <trust group="com.android.tools.build" name="aapt2"/>
          <trust group="com.github.burrunan.multicache"/>
+         <trust group="com.google.protobuf" name="protoc"/>
+         <trust group="gradle" name="gradle"/>
+         <trust group="io.grpc" name="protoc-gen-grpc-java"/>
          <trust group="org.apache.groovy"/>
+         <trust group="org.jetbrains.kotlin" name="kotlin-native-prebuilt"/>
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust file=".*[.]pom" regex="true"/>
-         <trust file="gradle-[0-9.]+-src.zip" regex="true"/>
       </trusted-artifacts>
    </configuration>
    <components>
