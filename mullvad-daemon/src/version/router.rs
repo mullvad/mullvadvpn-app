@@ -351,10 +351,53 @@ where
                 }
             }
             #[cfg(in_app_upgrade)]
-            State::Downloaded { .. } | State::Downloading { .. } => {
+            State::Downloading {
+                version_cache: prev_cache,
+                ..
+            } => {
+                let prev_app_version_info =
+                    to_app_version_info(prev_cache, self.beta_program, None);
+                let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
+                if prev_app_version_info == app_version_info {
+                    log::trace!("Received same version in downloading state, ignoring");
+                    return AppVersionInfoEvent {
+                        is_new: false,
+                        app_version_info,
+                    };
+                }
+
+                log::warn!("Received new version while downloading: {app_version_info:?}");
+                AppVersionInfoEvent {
+                    app_version_info,
+                    is_new: true,
+                }
+            }
+            #[cfg(in_app_upgrade)]
+            State::Downloaded {
+                version_cache: prev_cache,
+                verified_installer_path,
+                ..
+            } => {
+                let prev_app_version_info =
+                    to_app_version_info(prev_cache, self.beta_program, None);
                 let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
 
-                log::warn!("Received new version while upgrading: {app_version_info:?}");
+                if prev_app_version_info == app_version_info {
+                    log::trace!("Received same version in downloaded state, ignoring");
+                    return AppVersionInfoEvent {
+                        is_new: false,
+                        app_version_info: to_app_version_info(
+                            prev_cache,
+                            self.beta_program,
+                            // NOTE: Keep verified installer path
+                            Some(verified_installer_path.to_path_buf()),
+                        ),
+                    };
+                }
+
+                log::warn!(
+                    "Received new version despite having downloaded app: {app_version_info:?}"
+                );
                 AppVersionInfoEvent {
                     app_version_info,
                     is_new: true,
