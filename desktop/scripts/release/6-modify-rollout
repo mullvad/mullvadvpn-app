@@ -70,7 +70,6 @@ function modify_rollout {
     echo ""
 
     echo ">>> Signing $PRODUCT_VERSION metadata. Reading signing key from clipboard"
-    # TODO: this will also update metadata_expiry, is that correct?
     xclip -sensitive | mullvad-release sign "${PLATFORMS[@]}"
     echo ""
 
