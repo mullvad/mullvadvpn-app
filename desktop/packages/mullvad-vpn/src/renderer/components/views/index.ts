@@ -14,5 +14,5 @@ export * from './split-tunneling';
 export * from './too-many-devices';
 export * from './udp-over-tcp-settings';
 export * from './vpn-settings';
-export * from './obfuscation';
+export * from './obfuscation-settings';
 export * from './port-settings';

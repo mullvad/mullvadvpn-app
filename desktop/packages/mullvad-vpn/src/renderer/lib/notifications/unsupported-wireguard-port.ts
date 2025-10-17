@@ -56,7 +56,7 @@ export class UnsupportedWireGuardPortNotificationProvider implements InAppNotifi
           action: {
             type: 'navigate-internal',
             link: {
-              to: RoutePath.obfuscation,
+              to: RoutePath.obfuscationSettings,
               'aria-label': sprintf(
                 // TRANSLATORS: Accessibility label for link to wireguard settings.
                 // TRANSLATORS: Available placeholders:

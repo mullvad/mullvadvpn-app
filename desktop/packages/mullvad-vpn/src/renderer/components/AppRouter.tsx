@@ -36,7 +36,7 @@ import {
   MainView,
   ManageDevicesView,
   MultihopSettingsView,
-  ObfuscationView,
+  ObfuscationSettingsView,
   PortSettingsView,
   SettingsView,
   ShadowsocksSettingsView,
@@ -92,7 +92,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.appInfo} component={AppInfoView} />
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
-          <Route exact path={RoutePath.obfuscation} component={ObfuscationView} />
+          <Route exact path={RoutePath.obfuscationSettings} component={ObfuscationSettingsView} />
           <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
           <Route exact path={RoutePath.portSettings} component={PortSettingsView} />
         </Switch>

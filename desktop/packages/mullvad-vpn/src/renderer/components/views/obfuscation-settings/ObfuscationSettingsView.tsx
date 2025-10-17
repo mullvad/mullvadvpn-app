@@ -9,7 +9,7 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { ObfuscationSetting } from './components';
 
-export function ObfuscationView() {
+export function ObfuscationSettingsView() {
   const { pop } = useHistory();
 
   return (

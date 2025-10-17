@@ -9,7 +9,7 @@ export function ObfuscationListItem() {
   const obfuscationLabel = getObfuscationLabel(selectedObfuscation);
 
   return (
-    <SettingsNavigationListItem to={RoutePath.obfuscation}>
+    <SettingsNavigationListItem to={RoutePath.obfuscationSettings}>
       <SettingsNavigationListItem.Label>
         {
           // TRANSLATORS: Label for list item that navigates to obfuscation settings view

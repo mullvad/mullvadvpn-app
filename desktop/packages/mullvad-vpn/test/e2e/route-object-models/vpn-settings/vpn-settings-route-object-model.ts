@@ -18,7 +18,7 @@ export class VpnSettingsRouteObjectModel extends NavigationObjectModel {
 
   async gotoObfuscationSettings() {
     await this.selectors.obfuscationSettingsButton().click();
-    await this.utils.expectRoute(RoutePath.obfuscation);
+    await this.utils.expectRoute(RoutePath.obfuscationSettings);
   }
 
   getAutoConnectSwitch() {

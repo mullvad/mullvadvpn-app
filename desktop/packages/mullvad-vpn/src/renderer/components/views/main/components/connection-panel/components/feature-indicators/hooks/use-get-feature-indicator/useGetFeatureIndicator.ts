@@ -128,7 +128,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoObfuscation = React.useCallback(() => {
-    history.push(RoutePath.obfuscation, {
+    history.push(RoutePath.obfuscationSettings, {
       transition: TransitionType.show,
       options: [
         {
