@@ -65,7 +65,7 @@ talpid-dbus = { path = "../talpid-dbus" }
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
 talpid-windows = { path = "../talpid-windows" }
-widestring = "1.0"
+widestring = { workspace = true }
 rand_chacha = "0.3.1"
 
 # TODO: Figure out which features are needed and which are not
