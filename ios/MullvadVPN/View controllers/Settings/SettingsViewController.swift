@@ -41,6 +41,13 @@ class SettingsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(preferredContentSizeChanged(_:)),
+            name: UIContentSizeCategory.didChangeNotification,
+            object: nil
+        )
+
         navigationItem.title = NSLocalizedString("Settings", comment: "")
 
         let doneButton = UIBarButtonItem(
@@ -60,17 +67,27 @@ class SettingsViewController: UITableViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
 
-        dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
-        dataSource?.delegate = self
-
+        interactor.contentSizeCategory = UIApplication.shared.preferredContentSizeCategory
         interactor.didUpdateSettings = { [weak self] in
             self?.dataSource?.reload()
         }
+
+        dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
+        dataSource?.delegate = self
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         dataSource?.reload()
+    }
+
+    @objc private func preferredContentSizeChanged(_ notification: Notification) {
+        if let newContentSizeCategory = notification.userInfo?[UIContentSizeCategory.newValueUserInfoKey]
+            as? UIContentSizeCategory
+        {
+            interactor.contentSizeCategory = newContentSizeCategory
+            dataSource?.reload()
+        }
     }
 }
 
