@@ -101,7 +101,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     func showPurchaseOptions(for products: [SKProduct]) {
-        let localizedString = NSLocalizedString("Add Time", comment: "")
+        let localizedString = NSLocalizedString("Add time", comment: "")
         let sheetController = UIAlertController(
             title: localizedString,
             message: nil,

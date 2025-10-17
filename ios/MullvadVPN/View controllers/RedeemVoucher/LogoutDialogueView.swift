@@ -20,17 +20,12 @@ class LogoutDialogueView: UIView {
 
     private let messageLabel: UILabel = {
         let label = UILabel()
-
         let message = NSMutableAttributedString(
-            string: [
-                NSLocalizedString(
-                    "It looks like you’ve entered an account number instead of a voucher code. "
-                        + "If you would like to change the active account, please log out first.",
-                    comment: ""
-                ),
-                NSLocalizedString("If so, click log out below to log in with the other account number.", comment: ""),
-            ]
-            .joinedParagraphs(lineBreaks: 0)
+            string: NSLocalizedString(
+                "It looks like you’ve entered an account number instead of a voucher code. "
+                    + "If you would like to change the active account, please log out first.",
+                comment: ""
+            )
         )
         message.apply(paragraphStyle: .alert)
 

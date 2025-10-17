@@ -62,7 +62,7 @@ struct AccountDeletionView: View {
 
                 Spacer()
 
-                MainButton(text: "Delete Account", style: .danger) {
+                MainButton(text: "Delete account", style: .danger) {
                     viewModel.deleteButtonTapped()
                 }
                 .accessibilityIdentifier(.deleteButton)

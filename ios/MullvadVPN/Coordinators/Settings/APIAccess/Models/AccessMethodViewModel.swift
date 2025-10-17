@@ -109,7 +109,7 @@ extension AccessMethodViewModel {
         switch id {
         case AccessMethodRepository.directId:
             InfoModalConfig(
-                header: NSLocalizedString("Direct", comment: ""),
+                header: "Direct",
                 preamble: NSLocalizedString("The app communicates with a Mullvad API server directly.", comment: ""),
                 body: [
                     NSLocalizedString(
@@ -122,7 +122,7 @@ extension AccessMethodViewModel {
             )
         case AccessMethodRepository.bridgeId:
             InfoModalConfig(
-                header: NSLocalizedString("Mullvad bridges", comment: ""),
+                header: "Mullvad bridges",
                 preamble: NSLocalizedString(
                     "The app communicates with a Mullvad API server via a Mullvad bridge server.",
                     comment: ""
@@ -141,7 +141,7 @@ extension AccessMethodViewModel {
             )
         case AccessMethodRepository.encryptedDNSId:
             InfoModalConfig(
-                header: NSLocalizedString("Encrypted DNS proxy", comment: ""),
+                header: "Encrypted DNS proxy",
                 preamble: NSLocalizedString(
                     "The app communicates with a Mullvad API server via a proxy address.",
                     comment: ""

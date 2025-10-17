@@ -323,10 +323,10 @@ class MethodSettingsViewController: UITableViewController {
                 id: "api-access-methods-testing-status-failed-alert",
                 accessibilityIdentifier: .accessMethodUnreachableAlert,
                 icon: .warning,
-                message: NSLocalizedString("API unreachable, save anyway?", comment: ""),
+                message: NSLocalizedString("API unreachable, save method anyway?", comment: ""),
                 buttons: [
                     AlertAction(
-                        title: NSLocalizedString("Save anyway", comment: ""),
+                        title: NSLocalizedString("Save", comment: ""),
                         style: .default,
                         accessibilityId: .accessMethodUnreachableSaveButton,
                         handler: { [weak self] in
@@ -334,7 +334,7 @@ class MethodSettingsViewController: UITableViewController {
                         }
                     ),
                     AlertAction(
-                        title: NSLocalizedString("Back to editing", comment: ""),
+                        title: NSLocalizedString("Cancel", comment: ""),
                         style: .default,
                         accessibilityId: .accessMethodUnreachableBackButton
                     ),

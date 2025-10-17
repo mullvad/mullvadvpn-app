@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
-  <file original="Assets/InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
-    </header>
-    <body>
-    </body>
-  </file>
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
@@ -19,22 +12,17 @@
       </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
-        <target state-qualifier="leveraged-tm">%1$@ (%2$@) masque les schémas de votre trafic VPN chiffré.</target>
+        <target state="translated">%1$@ (%2$@) masque les schémas de votre trafic VPN chiffré.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ cannot be empty." xml:space="preserve">
         <source>%@ cannot be empty.</source>
-        <target state-qualifier="leveraged-tm">%@ ne peut pas être vide.</target>
+        <target state="translated">%@ ne peut pas être vide.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve">
         <source>%@ does this by carefully adding network noise and making all network packets the same size.</source>
-        <target state-qualifier="leveraged-tm">%@ y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="%@ have been added to your account" xml:space="preserve">
-        <source>%@ have been added to your account</source>
-        <target state="needs-translation">%@ have been added to your account</target>
+        <target state="translated">%@ y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ left on this account" xml:space="preserve">
@@ -47,9 +35,9 @@
         <target state="needs-translation">%1$@ via %2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ were added to your account." xml:space="preserve">
-        <source>%@ were added to your account.</source>
-        <target state="needs-translation">%@ were added to your account.</target>
+      <trans-unit id="%@ was added to your account." xml:space="preserve">
+        <source>%@ was added to your account.</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">%@ a été ajouté à votre compte.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve">
@@ -64,17 +52,17 @@
       </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve">
         <source>%d more...</source>
-        <target state-qualifier="leveraged-tm">%d de plus…</target>
+        <target state="translated">%d de plus…</target>
         <note/>
       </trans-unit>
       <trans-unit id="%lld more..." xml:space="preserve">
         <source>%lld more...</source>
-        <target state-qualifier="leveraged-tm">%lld de plus…</target>
+        <target state="translated">%lld de plus…</target>
         <note/>
       </trans-unit>
       <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve">
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
-        <target state-qualifier="leveraged-tm">**Attention : cette option augmente le trafic sur le réseau et peut avoir un impact négatif sur la vitesse, la latence et l'utilisation de la batterie. À utiliser avec précaution pour les forfaits limités.**</target>
+        <target state="translated">**Attention : cette option augmente le trafic sur le réseau et peut avoir un impact négatif sur la vitesse, la latence et l'utilisation de la batterie. À utiliser avec précaution pour les forfaits limités.**</target>
         <note/>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve">
@@ -82,29 +70,24 @@
         <target state="needs-translation">**Tap here** to see what’s new</target>
         <note/>
       </trans-unit>
-      <trans-unit id="A custom list with this name exists, please choose a unique name." xml:space="preserve">
-        <source>A custom list with this name exists, please choose a unique name.</source>
-        <target state="needs-translation">A custom list with this name exists, please choose a unique name.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="API access" xml:space="preserve">
         <source>API access</source>
-        <target state-qualifier="leveraged-tm">Accès à l'API</target>
+        <target state="translated">Accès à l'API</target>
         <note/>
       </trans-unit>
       <trans-unit id="API reachable" xml:space="preserve">
         <source>API reachable</source>
-        <target state-qualifier="leveraged-tm">API joignable</target>
+        <target state="translated">API joignable</target>
         <note/>
       </trans-unit>
       <trans-unit id="API unreachable" xml:space="preserve">
         <source>API unreachable</source>
-        <target state-qualifier="leveraged-tm">API injoignable</target>
+        <target state="translated">API injoignable</target>
         <note/>
       </trans-unit>
-      <trans-unit id="API unreachable, save anyway?" xml:space="preserve">
-        <source>API unreachable, save anyway?</source>
-        <target state-qualifier="leveraged-tm">API injoignable, l'enregistrer quand même ?</target>
+      <trans-unit id="API unreachable, save method anyway?" xml:space="preserve">
+        <source>API unreachable, save method anyway?</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">API injoignable, enregistrer quand même la méthode ?</target>
         <note/>
       </trans-unit>
       <trans-unit id="About API access…" xml:space="preserve">
@@ -134,17 +117,17 @@
       </trans-unit>
       <trans-unit id="Account" xml:space="preserve">
         <source>Account</source>
-        <target state-qualifier="leveraged-tm">Compte</target>
+        <target state="translated">Compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account created" xml:space="preserve">
         <source>Account created</source>
-        <target state-qualifier="leveraged-tm">Compte créé</target>
+        <target state="translated">Compte créé</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account credit expires soon" xml:space="preserve">
         <source>Account credit expires soon</source>
-        <target state-qualifier="leveraged-tm">Les crédits du compte expirent bientôt</target>
+        <target state="translated">Les crédits du compte expirent bientôt</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account credit has expired" xml:space="preserve">
@@ -159,17 +142,17 @@
       </trans-unit>
       <trans-unit id="Account number" xml:space="preserve">
         <source>Account number</source>
-        <target state-qualifier="leveraged-tm">Numéro de compte</target>
+        <target state="translated">Numéro de compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="Active features" xml:space="preserve">
         <source>Active features</source>
-        <target state-qualifier="leveraged-tm">Fonctionnalités activées</target>
+        <target state="translated">Fonctionnalités activées</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add" xml:space="preserve">
         <source>Add</source>
-        <target state-qualifier="leveraged-tm">Ajouter</target>
+        <target state="translated">Ajouter</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add 30 days" xml:space="preserve">
@@ -182,24 +165,19 @@
         <target state="needs-translation">Add 90 days</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add Time" xml:space="preserve">
-        <source>Add Time</source>
-        <target state="needs-translation">Add Time</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Add a server" xml:space="preserve">
         <source>Add a server</source>
-        <target state-qualifier="leveraged-tm">Ajouter un serveur</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Add access method" xml:space="preserve">
-        <source>Add access method</source>
-        <target state="needs-translation">Add access method</target>
+        <target state="translated">Ajouter un serveur</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add locations" xml:space="preserve">
         <source>Add locations</source>
-        <target state-qualifier="leveraged-tm">Ajouter des localisations</target>
+        <target state="translated">Ajouter des localisations</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add method" xml:space="preserve">
+        <source>Add method</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Ajouter un mode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add new list" xml:space="preserve">
@@ -209,22 +187,22 @@
       </trans-unit>
       <trans-unit id="Add time" xml:space="preserve">
         <source>Add time</source>
-        <target state-qualifier="leveraged-tm">Ajouter du temps</target>
+        <target state="translated">Ajouter du temps</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ads" xml:space="preserve">
         <source>Ads</source>
-        <target state-qualifier="leveraged-tm">Publicités</target>
+        <target state="translated">Publicités</target>
         <note/>
       </trans-unit>
       <trans-unit id="Adult content" xml:space="preserve">
         <source>Adult content</source>
-        <target state-qualifier="leveraged-tm">Contenu pour adultes</target>
+        <target state="translated">Contenu pour adultes</target>
         <note/>
       </trans-unit>
       <trans-unit id="Agree and continue" xml:space="preserve">
         <source>Agree and continue</source>
-        <target state-qualifier="leveraged-tm">Accepter et continuer</target>
+        <target state="translated">Accepter et continuer</target>
         <note/>
       </trans-unit>
       <trans-unit id="All" xml:space="preserve">
@@ -232,19 +210,19 @@
         <target state="needs-translation">All</target>
         <note/>
       </trans-unit>
-      <trans-unit id="All Providers" xml:space="preserve">
-        <source>All Providers</source>
-        <target state="needs-translation">All Providers</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="All locations" xml:space="preserve">
         <source>All locations</source>
-        <target state-qualifier="leveraged-tm">Toutes les localisations</target>
+        <target state="translated">Toutes les localisations</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="All providers" xml:space="preserve">
+        <source>All providers</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Tous les fournisseurs</target>
         <note/>
       </trans-unit>
       <trans-unit id="Any" xml:space="preserve">
         <source>Any</source>
-        <target state-qualifier="leveraged-tm">N'importe lequel</target>
+        <target state="translated">N'importe lequel</target>
         <note/>
       </trans-unit>
       <trans-unit id="App logs" xml:space="preserve">
@@ -264,7 +242,7 @@
       </trans-unit>
       <trans-unit id="At least one method needs to be enabled." xml:space="preserve">
         <source>At least one method needs to be enabled.</source>
-        <target state-qualifier="leveraged-tm">Au moins une méthode doit être activée.</target>
+        <target state="translated">Au moins une méthode doit être activée.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **“%@“**." xml:space="preserve">
@@ -279,22 +257,17 @@
       </trans-unit>
       <trans-unit id="Authentication" xml:space="preserve">
         <source>Authentication</source>
-        <target state-qualifier="leveraged-tm">Authentification</target>
+        <target state="translated">Authentification</target>
         <note/>
       </trans-unit>
       <trans-unit id="Automatic" xml:space="preserve">
         <source>Automatic</source>
-        <target state-qualifier="leveraged-tm">Automatique</target>
+        <target state="translated">Automatique</target>
         <note/>
       </trans-unit>
       <trans-unit id="BLOCKING INTERNET" xml:space="preserve">
         <source>BLOCKING INTERNET</source>
-        <target state-qualifier="leveraged-tm">BLOCAGE D'INTERNET</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Back to editing" xml:space="preserve">
-        <source>Back to editing</source>
-        <target state="needs-translation">Back to editing</target>
+        <target state="translated">BLOCAGE D'INTERNET</target>
         <note/>
       </trans-unit>
       <trans-unit id="Blocked connection" xml:space="preserve">
@@ -314,12 +287,12 @@
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve">
         <source>By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</source>
-        <target state-qualifier="leveraged-tm">Utiliser une IA sophistiquée peut permettre d'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</target>
+        <target state="translated">Utiliser une IA sophistiquée peut permettre d'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</target>
         <note/>
       </trans-unit>
       <trans-unit id="Cancel" xml:space="preserve">
         <source>Cancel</source>
-        <target state-qualifier="leveraged-tm">Annuler</target>
+        <target state="translated">Annuler</target>
         <note/>
       </trans-unit>
       <trans-unit id="Cannot complete the purchase" xml:space="preserve">
@@ -344,32 +317,32 @@
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve">
         <source>Checking account number</source>
-        <target state-qualifier="leveraged-tm">Vérification du numéro de compte</target>
+        <target state="translated">Vérification du numéro de compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="Cipher" xml:space="preserve">
         <source>Cipher</source>
-        <target state-qualifier="leveraged-tm">Chiffre</target>
+        <target state="translated">Chiffre</target>
         <note/>
       </trans-unit>
       <trans-unit id="Clear" xml:space="preserve">
         <source>Clear</source>
-        <target state-qualifier="leveraged-tm">Effacer</target>
+        <target state="translated">Effacer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Clear all overrides" xml:space="preserve">
         <source>Clear all overrides</source>
-        <target state-qualifier="leveraged-tm">Effacer toutes les substitutions</target>
+        <target state="translated">Effacer toutes les substitutions</target>
         <note/>
       </trans-unit>
       <trans-unit id="Clear all overrides?" xml:space="preserve">
         <source>Clear all overrides?</source>
-        <target state-qualifier="leveraged-tm">Effacer toutes les substitutions ?</target>
+        <target state="translated">Effacer toutes les substitutions ?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
-        <target state-qualifier="leveraged-tm">L'effacement des substitutions importées rétablit la valeur par défaut des adresses IP des serveurs dans la vue Sélection d'un emplacement.</target>
+        <target state="translated">L'effacement des substitutions importées rétablit la valeur par défaut des adresses IP des serveurs dans la vue Sélection d'un emplacement.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
@@ -389,17 +362,17 @@
       </trans-unit>
       <trans-unit id="Congrats!" xml:space="preserve">
         <source>Congrats!</source>
-        <target state-qualifier="leveraged-tm">Félicitations !</target>
+        <target state="translated">Félicitations !</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve">
         <source>Connect</source>
-        <target state-qualifier="leveraged-tm">Connexion</target>
+        <target state="translated">Connexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected" xml:space="preserve">
         <source>Connected</source>
-        <target state-qualifier="leveraged-tm">Connecté</target>
+        <target state="translated">Connecté</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected to %@, %@" xml:space="preserve">
@@ -414,22 +387,22 @@
       </trans-unit>
       <trans-unit id="Connecting..." xml:space="preserve">
         <source>Connecting...</source>
-        <target state-qualifier="leveraged-tm">Connexion...</target>
+        <target state="translated">Connexion...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connection details" xml:space="preserve">
         <source>Connection details</source>
-        <target state-qualifier="leveraged-tm">Détails de la connexion</target>
+        <target state="translated">Détails de la connexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Continue with login" xml:space="preserve">
         <source>Continue with login</source>
-        <target state-qualifier="leveraged-tm">Continuer avec la connexion</target>
+        <target state="translated">Continuer avec la connexion</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Copy to pasteboard" xml:space="preserve">
-        <source>Copy to pasteboard</source>
-        <target state="needs-translation">Copy to pasteboard</target>
+      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
+        <source>Copied Mullvad account number to pasteboard</source>
+        <target state="needs-translation">Copied Mullvad account number to pasteboard</target>
         <note/>
       </trans-unit>
       <trans-unit id="Correct account number" xml:space="preserve">
@@ -439,17 +412,17 @@
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve">
         <source>Create</source>
-        <target state-qualifier="leveraged-tm">Créer</target>
+        <target state="translated">Créer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create account" xml:space="preserve">
         <source>Create account</source>
-        <target state-qualifier="leveraged-tm">Créer un compte</target>
+        <target state="translated">Créer un compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create new account" xml:space="preserve">
         <source>Create new account</source>
-        <target state="needs-translation">Create new account</target>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Créer un nouveau compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="Created: %@" xml:space="preserve">
@@ -462,34 +435,24 @@
         <target state="needs-translation">Creating new account</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Creating quantum secure connection" xml:space="preserve">
-        <source>Creating quantum secure connection</source>
-        <target state="needs-translation">Creating quantum secure connection</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Creating secure connection" xml:space="preserve">
-        <source>Creating secure connection</source>
-        <target state="needs-translation">Creating secure connection</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Current device" xml:space="preserve">
         <source>Current device</source>
-        <target state-qualifier="leveraged-tm">Appareil actuel</target>
+        <target state="translated">Appareil actuel</target>
         <note/>
       </trans-unit>
       <trans-unit id="Custom" xml:space="preserve">
         <source>Custom</source>
-        <target state-qualifier="leveraged-tm">Personnalisé</target>
+        <target state="translated">Personnalisé</target>
         <note/>
       </trans-unit>
       <trans-unit id="Custom DNS" xml:space="preserve">
         <source>Custom DNS</source>
-        <target state-qualifier="leveraged-tm">DNS personnalisé</target>
+        <target state="translated">DNS personnalisé</target>
         <note/>
       </trans-unit>
       <trans-unit id="Custom lists" xml:space="preserve">
         <source>Custom lists</source>
-        <target state-qualifier="leveraged-tm">Listes personnalisées</target>
+        <target state="translated">Listes personnalisées</target>
         <note/>
       </trans-unit>
       <trans-unit id="DAITA" xml:space="preserve">
@@ -512,14 +475,9 @@
         <target state="needs-translation">DAITA-enabled</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA: Multihop" xml:space="preserve">
-        <source>DAITA: Multihop</source>
-        <target state="needs-translation">DAITA: Multihop</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="DNS content blockers" xml:space="preserve">
         <source>DNS content blockers</source>
-        <target state-qualifier="leveraged-tm">Bloqueurs de contenu DNS</target>
+        <target state="translated">Bloqueurs de contenu DNS</target>
         <note/>
       </trans-unit>
       <trans-unit id="DNS settings" xml:space="preserve">
@@ -534,17 +492,12 @@
       </trans-unit>
       <trans-unit id="Delete" xml:space="preserve">
         <source>Delete</source>
-        <target state-qualifier="leveraged-tm">Supprimer</target>
+        <target state="translated">Supprimer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete %@?" xml:space="preserve">
         <source>Delete %@?</source>
         <target state="needs-translation">Delete %@?</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Delete Account" xml:space="preserve">
-        <source>Delete Account</source>
-        <target state="needs-translation">Delete Account</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete account" xml:space="preserve">
@@ -554,12 +507,12 @@
       </trans-unit>
       <trans-unit id="Delete list" xml:space="preserve">
         <source>Delete list</source>
-        <target state-qualifier="leveraged-tm">Supprimer la liste</target>
+        <target state="translated">Supprimer la liste</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete method" xml:space="preserve">
         <source>Delete method</source>
-        <target state-qualifier="leveraged-tm">Supprimer la méthode</target>
+        <target state="translated">Supprimer la méthode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Deleting account..." xml:space="preserve">
@@ -569,12 +522,12 @@
       </trans-unit>
       <trans-unit id="Device is inactive" xml:space="preserve">
         <source>Device is inactive</source>
-        <target state-qualifier="leveraged-tm">L'appareil est inactif</target>
+        <target state="translated">L'appareil est inactif</target>
         <note/>
       </trans-unit>
       <trans-unit id="Device name" xml:space="preserve">
         <source>Device name</source>
-        <target state-qualifier="leveraged-tm">Nom de l'appareil</target>
+        <target state="translated">Nom de l'appareil</target>
         <note/>
       </trans-unit>
       <trans-unit id="Device name: %@" xml:space="preserve">
@@ -582,19 +535,14 @@
         <target state="needs-translation">Device name: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Direct" xml:space="preserve">
-        <source>Direct</source>
-        <target state="needs-translation">Direct</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Direct only" xml:space="preserve">
         <source>Direct only</source>
-        <target state-qualifier="leveraged-tm">Directe uniquement</target>
+        <target state="translated">Directe uniquement</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve">
         <source>Disable all "%@" above to activate this setting.</source>
-        <target state-qualifier="leveraged-tm">Désactivez tous les « %@ » ci-dessus pour activer ce paramètre.</target>
+        <target state="translated">Désactivez tous les « %@ » ci-dessus pour activer ce paramètre.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disabled" xml:space="preserve">
@@ -609,27 +557,22 @@
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve">
         <source>Discard changes</source>
-        <target state-qualifier="leveraged-tm">Annuler les modifications </target>
+        <target state="translated">Annuler les modifications </target>
         <note/>
       </trans-unit>
       <trans-unit id="Disconnect" xml:space="preserve">
         <source>Disconnect</source>
-        <target state-qualifier="leveraged-tm">Déconnexion</target>
+        <target state="translated">Déconnexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disconnected" xml:space="preserve">
         <source>Disconnected</source>
-        <target state-qualifier="leveraged-tm">Déconnecté</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Disconnecting" xml:space="preserve">
-        <source>Disconnecting</source>
-        <target state-qualifier="leveraged-tm">Déconnexion en cours</target>
+        <target state="translated">Déconnecté</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disconnecting..." xml:space="preserve">
         <source>Disconnecting...</source>
-        <target state-qualifier="leveraged-tm">Déconnexion en cours...</target>
+        <target state="translated">Déconnexion en cours...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
@@ -639,7 +582,7 @@
       </trans-unit>
       <trans-unit id="Do you want to create a new account?" xml:space="preserve">
         <source>Do you want to create a new account?</source>
-        <target state="needs-translation">Do you want to create a new account?</target>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Voulez-vous créer un nouveau compte ?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve">
@@ -654,7 +597,7 @@
       </trans-unit>
       <trans-unit id="Don’t have an account number?" xml:space="preserve">
         <source>Don’t have an account number?</source>
-        <target state-qualifier="leveraged-tm">Vous n'avez pas de numéro de compte ?</target>
+        <target state="translated">Vous n'avez pas de numéro de compte ?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit custom list" xml:space="preserve">
@@ -664,17 +607,17 @@
       </trans-unit>
       <trans-unit id="Edit lists" xml:space="preserve">
         <source>Edit lists</source>
-        <target state-qualifier="leveraged-tm">Modifier les listes</target>
+        <target state="translated">Modifier les listes</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit locations" xml:space="preserve">
         <source>Edit locations</source>
-        <target state-qualifier="leveraged-tm">Modifier les localisations</target>
+        <target state="translated">Modifier les localisations</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve">
         <source>Edit message</source>
-        <target state-qualifier="leveraged-tm">Modifier le message</target>
+        <target state="translated">Modifier le message</target>
         <note/>
       </trans-unit>
       <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
@@ -684,12 +627,12 @@
       </trans-unit>
       <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve">
         <source>Either buy credit on our website or redeem a voucher.</source>
-        <target state-qualifier="leveraged-tm">Achetez du crédit sur notre site web ou échangez un bon.</target>
+        <target state="translated">Achetez du crédit sur notre site web ou échangez un bon.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enable" xml:space="preserve">
         <source>Enable</source>
-        <target state-qualifier="leveraged-tm">Activer</target>
+        <target state="translated">Activer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enable &quot;%@&quot;" xml:space="preserve">
@@ -699,7 +642,7 @@
       </trans-unit>
       <trans-unit id="Enable method" xml:space="preserve">
         <source>Enable method</source>
-        <target state-qualifier="leveraged-tm">Activer la méthode</target>
+        <target state="translated">Activer la méthode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enabling" xml:space="preserve">
@@ -707,34 +650,29 @@
         <target state="needs-translation">Enabling</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Encrypted DNS proxy" xml:space="preserve">
-        <source>Encrypted DNS proxy</source>
-        <target state="needs-translation">Encrypted DNS proxy</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve">
         <source>Enter IP</source>
-        <target state-qualifier="leveraged-tm">Saisir l'IP</target>
+        <target state="translated">Saisir l'IP</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter voucher code" xml:space="preserve">
         <source>Enter voucher code</source>
-        <target state-qualifier="leveraged-tm">Saisissez un code de bon</target>
+        <target state="translated">Saisissez un code de bon</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter your account number" xml:space="preserve">
         <source>Enter your account number</source>
-        <target state-qualifier="leveraged-tm">Saisissez votre numéro de compte</target>
+        <target state="translated">Saisissez votre numéro de compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="Entry" xml:space="preserve">
         <source>Entry</source>
-        <target state-qualifier="leveraged-tm">Entrée</target>
+        <target state="translated">Entrée</target>
         <note/>
       </trans-unit>
       <trans-unit id="Exit" xml:space="preserve">
         <source>Exit</source>
-        <target state-qualifier="leveraged-tm">Sortie</target>
+        <target state="translated">Sortie</target>
         <note/>
       </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve">
@@ -752,14 +690,14 @@
         <target state="needs-translation">FAQs &amp; Guides</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to connect to App store, please try again later." xml:space="preserve">
-        <source>Failed to connect to App store, please try again later.</source>
-        <target state="needs-translation">Failed to connect to App store, please try again later.</target>
+      <trans-unit id="Failed to load products, please try again" xml:space="preserve">
+        <source>Failed to load products, please try again</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Échec du chargement des produits. Veuillez réessayer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to send" xml:space="preserve">
         <source>Failed to send</source>
-        <target state-qualifier="leveraged-tm">Échec de l'envoi</target>
+        <target state="translated">Échec de l'envoi</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
@@ -799,67 +737,62 @@
       </trans-unit>
       <trans-unit id="Filter" xml:space="preserve">
         <source>Filter</source>
-        <target state-qualifier="leveraged-tm">Filtrer</target>
+        <target state="translated">Filtrer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Filtered:" xml:space="preserve">
         <source>Filtered:</source>
-        <target state-qualifier="leveraged-tm">Filtré :</target>
+        <target state="translated">Filtré :</target>
         <note/>
       </trans-unit>
       <trans-unit id="Gambling" xml:space="preserve">
         <source>Gambling</source>
-        <target state-qualifier="leveraged-tm">Jeux d'argent</target>
+        <target state="translated">Jeux d'argent</target>
         <note/>
       </trans-unit>
       <trans-unit id="Go ahead and start using the app to begin reclaiming your online privacy." xml:space="preserve">
         <source>Go ahead and start using the app to begin reclaiming your online privacy.</source>
-        <target state-qualifier="leveraged-tm">Commencez à utiliser l'application pour reprendre votre confidentialité en ligne en main.</target>
+        <target state="translated">Commencez à utiliser l'application pour reprendre votre confidentialité en ligne en main.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Go to login" xml:space="preserve">
         <source>Go to login</source>
-        <target state-qualifier="leveraged-tm">Aller à la connexion</target>
+        <target state="translated">Aller à la connexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Going to login will unblock the Internet on this device." xml:space="preserve">
         <source>Going to login will unblock the Internet on this device.</source>
-        <target state-qualifier="leveraged-tm">Aller à la connexion débloquera la connexion Internet sur cet appareil.</target>
+        <target state="translated">Aller à la connexion débloquera la connexion Internet sur cet appareil.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Got it!" xml:space="preserve">
         <source>Got it!</source>
-        <target state-qualifier="leveraged-tm">Compris !</target>
+        <target state="translated">Compris !</target>
         <note/>
       </trans-unit>
       <trans-unit id="Here’s your account number. Save it!" xml:space="preserve">
         <source>Here’s your account number. Save it!</source>
-        <target state-qualifier="leveraged-tm">Voici votre numéro de compte. Gardez-le !</target>
+        <target state="translated">Voici votre numéro de compte. Gardez-le !</target>
         <note/>
       </trans-unit>
       <trans-unit id="Hide account number" xml:space="preserve">
         <source>Hide account number</source>
-        <target state-qualifier="leveraged-tm">Masquer le numéro de compte</target>
+        <target state="translated">Masquer le numéro de compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve">
         <source>If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</source>
-        <target state-qualifier="leveraged-tm">Si un observateur surveille ces paquets de données, %@ rend beaucoup plus difficile l'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez.</target>
+        <target state="translated">Si un observateur surveille ces paquets de données, %@ rend beaucoup plus difficile l'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If needed we will contact you at %@" xml:space="preserve">
         <source>If needed we will contact you at %@</source>
-        <target state-qualifier="leveraged-tm">Si nécessaire, nous vous contacterons à l'adresse %@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="If so, click log out below to log in with the other account number." xml:space="preserve">
-        <source>If so, click log out below to log in with the other account number.</source>
-        <target state="needs-translation">If so, click log out below to log in with the other account number.</target>
+        <target state="translated">Si nécessaire, nous vous contacterons à l'adresse %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
-        <target state-qualifier="leveraged-tm">Si vous rencontrez des problèmes de connexion aux serveurs VPN, veuillez contacter l'assistance.</target>
+        <target state="translated">Si vous rencontrez des problèmes de connexion aux serveurs VPN, veuillez contacter l'assistance.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve">
@@ -874,7 +807,7 @@
       </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve">
         <source>If you exit the form and try again later, the information you already entered will still be here.</source>
-        <target state-qualifier="leveraged-tm">Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là.</target>
+        <target state="translated">Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve">
@@ -884,7 +817,7 @@
       </trans-unit>
       <trans-unit id="If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve">
         <source>If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.</source>
-        <target state-qualifier="leveraged-tm">Si vous vous déconnectez, l'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l'appareil reçoit un nouveau nom.</target>
+        <target state="translated">Si vous vous déconnectez, l'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l'appareil reçoit un nouveau nom.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
@@ -894,17 +827,17 @@
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve">
         <source>Import</source>
-        <target state-qualifier="leveraged-tm">Importer</target>
+        <target state="translated">Importer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import file" xml:space="preserve">
         <source>Import file</source>
-        <target state-qualifier="leveraged-tm">Importer un fichier</target>
+        <target state="translated">Importer un fichier</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import files or text with new IP addresses for the servers in the Select location view." xml:space="preserve">
         <source>Import files or text with new IP addresses for the servers in the Select location view.</source>
-        <target state-qualifier="leveraged-tm">Importez des fichiers ou du texte contenant les nouvelles adresses IP des serveurs dans la vue Sélectionner un emplacement.</target>
+        <target state="translated">Importez des fichiers ou du texte contenant les nouvelles adresses IP des serveurs dans la vue Sélectionner un emplacement.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve">
@@ -924,17 +857,17 @@
       </trans-unit>
       <trans-unit id="Import via text" xml:space="preserve">
         <source>Import via text</source>
-        <target state-qualifier="leveraged-tm">Importer par texte</target>
+        <target state="translated">Importer par texte</target>
         <note/>
       </trans-unit>
       <trans-unit id="In" xml:space="preserve">
         <source>In</source>
-        <target state-qualifier="leveraged-tm">Entrante</target>
+        <target state="translated">Entrante</target>
         <note/>
       </trans-unit>
       <trans-unit id="In use" xml:space="preserve">
         <source>In use</source>
-        <target state-qualifier="leveraged-tm">En cours d'utilisation</target>
+        <target state="translated">En cours d'utilisation</target>
         <note/>
       </trans-unit>
       <trans-unit id="Include all networks" xml:space="preserve">
@@ -952,9 +885,9 @@
         <target state="needs-translation">Internal error.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account" xml:space="preserve">
-        <source>Invalid account</source>
-        <target state="needs-translation">Invalid account</target>
+      <trans-unit id="Invalid account number" xml:space="preserve">
+        <source>Invalid account number</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Numéro de compte non valide</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve">
@@ -969,17 +902,17 @@
       </trans-unit>
       <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve">
         <source>It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
-        <target state-qualifier="leveraged-tm">Pour ce faire, il effectue un échange de clés supplémentaire à l'aide d'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu'un nouveau tunnel est établi.</target>
+        <target state="translated">Pour ce faire, il effectue un échange de clés supplémentaire à l'aide d'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu'un nouveau tunnel est établi.</target>
         <note/>
       </trans-unit>
       <trans-unit id="It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." xml:space="preserve">
         <source>It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.</source>
-        <target state-qualifier="leveraged-tm">Vous semblez avoir saisi un numéro de compte plutôt qu'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d'abord vous déconnecter.</target>
+        <target state="translated">Vous semblez avoir saisi un numéro de compte plutôt qu'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d'abord vous déconnecter.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Language" xml:space="preserve">
         <source>Language</source>
-        <target state-qualifier="leveraged-tm">Langue</target>
+        <target state="translated">Langue</target>
         <note/>
       </trans-unit>
       <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve">
@@ -994,7 +927,7 @@
       </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve">
         <source>Learn about privacy</source>
-        <target state-qualifier="leveraged-tm">Plus d'informations sur la confidentialité</target>
+        <target state="translated">Plus d'informations sur la confidentialité</target>
         <note/>
       </trans-unit>
       <trans-unit id="Less than a day" xml:space="preserve">
@@ -1004,7 +937,7 @@
       </trans-unit>
       <trans-unit id="Local network sharing" xml:space="preserve">
         <source>Local network sharing</source>
-        <target state-qualifier="leveraged-tm">Partage réseau local</target>
+        <target state="translated">Partage réseau local</target>
         <note/>
       </trans-unit>
       <trans-unit id="Log in" xml:space="preserve">
@@ -1014,17 +947,17 @@
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve">
         <source>Log out</source>
-        <target state-qualifier="leveraged-tm">Déconnexion</target>
+        <target state="translated">Déconnexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Logged in" xml:space="preserve">
         <source>Logged in</source>
-        <target state-qualifier="leveraged-tm">Connecté</target>
+        <target state="translated">Connecté</target>
         <note/>
       </trans-unit>
       <trans-unit id="Logging in..." xml:space="preserve">
         <source>Logging in...</source>
-        <target state-qualifier="leveraged-tm">Connexion...</target>
+        <target state="translated">Connexion...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Logging out..." xml:space="preserve">
@@ -1034,12 +967,12 @@
       </trans-unit>
       <trans-unit id="Login" xml:space="preserve">
         <source>Login</source>
-        <target state-qualifier="leveraged-tm">Connexion</target>
+        <target state="translated">Connexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Login failed" xml:space="preserve">
         <source>Login failed</source>
-        <target state-qualifier="leveraged-tm">Échec de la connexion</target>
+        <target state="translated">Échec de la connexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
@@ -1052,29 +985,19 @@
         <target state="needs-translation">Malware</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Manage default and setup custom methods to access the Mullvad API." xml:space="preserve">
-        <source>Manage default and setup custom methods to access the Mullvad API.</source>
-        <target state="needs-translation">Manage default and setup custom methods to access the Mullvad API.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Manage default and setup custom methods to access the Mullvad API. " xml:space="preserve">
-        <source>Manage default and setup custom methods to access the Mullvad API. </source>
-        <target state="needs-translation">Manage default and setup custom methods to access the Mullvad API. </target>
+      <trans-unit id="Manage and add custom methods to access the Mullvad API." xml:space="preserve">
+        <source>Manage and add custom methods to access the Mullvad API.</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Gérez et ajoutez des modes d'accès personnalisés à l'API Mullvad.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Manage devices" xml:space="preserve">
         <source>Manage devices</source>
-        <target state-qualifier="leveraged-tm">Gérer les appareils</target>
+        <target state="translated">Gérer les appareils</target>
         <note/>
       </trans-unit>
       <trans-unit id="Method settings" xml:space="preserve">
         <source>Method settings</source>
         <target state="needs-translation">Method settings</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Mullvad bridges" xml:space="preserve">
-        <source>Mullvad bridges</source>
-        <target state="needs-translation">Mullvad bridges</target>
         <note/>
       </trans-unit>
       <trans-unit id="Multihop" xml:space="preserve">
@@ -1089,7 +1012,7 @@
       </trans-unit>
       <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve">
         <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</source>
-        <target state-qualifier="leveraged-tm">Le multihop fait passer votre trafic par un serveur WireGuard et le fait sortir par un autre, ce qui le rend plus difficile à tracer. Cela se traduit par une latence accrue, mais plus d'anonymat en ligne.</target>
+        <target state="translated">Le multihop fait passer votre trafic par un serveur WireGuard et le fait sortir par un autre, ce qui le rend plus difficile à tracer. Cela se traduit par une latence accrue, mais plus d'anonymat en ligne.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Multiple validation errors occurred." xml:space="preserve">
@@ -1104,17 +1027,22 @@
       </trans-unit>
       <trans-unit id="NEW DEVICE CREATED" xml:space="preserve">
         <source>NEW DEVICE CREATED</source>
-        <target state-qualifier="leveraged-tm">NOUVEL APPAREIL CRÉÉ</target>
+        <target state="translated">NOUVEL APPAREIL CRÉÉ</target>
         <note/>
       </trans-unit>
       <trans-unit id="NEW VERSION INSTALLED" xml:space="preserve">
         <source>NEW VERSION INSTALLED</source>
-        <target state-qualifier="leveraged-tm">NOUVELLE VERSION INSTALLÉE</target>
+        <target state="translated">NOUVELLE VERSION INSTALLÉE</target>
         <note/>
       </trans-unit>
       <trans-unit id="Name" xml:space="preserve">
         <source>Name</source>
-        <target state-qualifier="leveraged-tm">Nom</target>
+        <target state="translated">Nom</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Name is already taken." xml:space="preserve">
+        <source>Name is already taken.</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Le nom est déjà pris.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
@@ -1134,7 +1062,7 @@
       </trans-unit>
       <trans-unit id="Next" xml:space="preserve">
         <source>Next</source>
-        <target state-qualifier="leveraged-tm">Suivant</target>
+        <target state="translated">Suivant</target>
         <note/>
       </trans-unit>
       <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
@@ -1174,27 +1102,27 @@
       </trans-unit>
       <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve">
         <source>No servers match your settings, try changing server or other settings.</source>
-        <target state-qualifier="leveraged-tm">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d'autres paramètres.</target>
+        <target state="translated">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d'autres paramètres.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
-        <target state-qualifier="leveraged-tm">Tous nos serveurs ne sont pas compatibles %1$@. C'est pourquoi nous utilisons automatiquement le multihop pour activer %2$@ avec n'importe quel serveur.</target>
+        <target state="translated">Tous nos serveurs ne sont pas compatibles %1$@. C'est pourquoi nous utilisons automatiquement le multihop pour activer %2$@ avec n'importe quel serveur.</target>
         <note/>
       </trans-unit>
       <trans-unit id="OUT OF TIME" xml:space="preserve">
         <source>OUT OF TIME</source>
-        <target state-qualifier="leveraged-tm">PLUS DE TEMPS</target>
+        <target state="translated">PLUS DE TEMPS</target>
         <note/>
       </trans-unit>
       <trans-unit id="Obfuscation" xml:space="preserve">
         <source>Obfuscation</source>
-        <target state-qualifier="leveraged-tm">Dissimulation</target>
+        <target state="translated">Dissimulation</target>
         <note/>
       </trans-unit>
       <trans-unit id="Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." xml:space="preserve">
         <source>Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</source>
-        <target state-qualifier="leveraged-tm">La dissimulation cache le trafic WireGuard à l'intérieur d'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</target>
+        <target state="translated">La dissimulation cache le trafic WireGuard à l'intérieur d'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Obscured" xml:space="preserve">
@@ -1204,22 +1132,22 @@
       </trans-unit>
       <trans-unit id="Off" xml:space="preserve">
         <source>Off</source>
-        <target state-qualifier="leveraged-tm">Désactivé</target>
+        <target state="translated">Désactivé</target>
         <note/>
       </trans-unit>
       <trans-unit id="On" xml:space="preserve">
         <source>On</source>
-        <target state-qualifier="leveraged-tm">Activé</target>
+        <target state="translated">Activé</target>
         <note/>
       </trans-unit>
       <trans-unit id="On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked." xml:space="preserve">
         <source>On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</source>
-        <target state-qualifier="leveraged-tm">Sur certains réseaux, où divers types de censure sont utilisés, les adresses IP de notre serveur sont parfois bloquées.</target>
+        <target state="translated">Sur certains réseaux, où divers types de censure sont utilisés, les adresses IP de notre serveur sont parfois bloquées.</target>
         <note/>
       </trans-unit>
       <trans-unit id="On some networks, where various types of censorship are being used, the API servers might not be directly reachable." xml:space="preserve">
         <source>On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</source>
-        <target state-qualifier="leveraged-tm">Sur certains réseaux, où divers types de censure sont utilisés, les serveurs API peuvent ne pas être directement accessibles.</target>
+        <target state="translated">Sur certains réseaux, où divers types de censure sont utilisés, les serveurs API peuvent ne pas être directement accessibles.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Open %@ settings" xml:space="preserve">
@@ -1229,7 +1157,7 @@
       </trans-unit>
       <trans-unit id="Optional" xml:space="preserve">
         <source>Optional</source>
-        <target state-qualifier="leveraged-tm">Facultatif</target>
+        <target state="translated">Facultatif</target>
         <note/>
       </trans-unit>
       <trans-unit id="Out IPv4" xml:space="preserve">
@@ -1244,32 +1172,32 @@
       </trans-unit>
       <trans-unit id="Out of time" xml:space="preserve">
         <source>Out of time</source>
-        <target state-qualifier="leveraged-tm">Plus de temps</target>
+        <target state="translated">Plus de temps</target>
         <note/>
       </trans-unit>
       <trans-unit id="Overrides active" xml:space="preserve">
         <source>Overrides active</source>
-        <target state-qualifier="leveraged-tm">Substitutions actives</target>
+        <target state="translated">Substitutions actives</target>
         <note/>
       </trans-unit>
       <trans-unit id="Owned" xml:space="preserve">
         <source>Owned</source>
-        <target state-qualifier="leveraged-tm">Possédé</target>
+        <target state="translated">Possédé</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ownership" xml:space="preserve">
         <source>Ownership</source>
-        <target state-qualifier="leveraged-tm">Propriété</target>
+        <target state="translated">Propriété</target>
         <note/>
       </trans-unit>
       <trans-unit id="Paid until" xml:space="preserve">
         <source>Paid until</source>
-        <target state-qualifier="leveraged-tm">Payé jusqu'au</target>
+        <target state="translated">Payé jusqu'au</target>
         <note/>
       </trans-unit>
       <trans-unit id="Password" xml:space="preserve">
         <source>Password</source>
-        <target state-qualifier="leveraged-tm">Mot de passe</target>
+        <target state="translated">Mot de passe</target>
         <note/>
       </trans-unit>
       <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
@@ -1279,7 +1207,7 @@
       </trans-unit>
       <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve">
         <source>Please enter a valid IPv4 or IPv6 address.</source>
-        <target state-qualifier="leveraged-tm">Merci de saisir une adresse IPv4 ou IPv6 valide.</target>
+        <target state="translated">Merci de saisir une adresse IPv4 ou IPv6 valide.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Please enter a valid port." xml:space="preserve">
@@ -1289,7 +1217,7 @@
       </trans-unit>
       <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve">
         <source>Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</source>
-        <target state-qualifier="leveraged-tm">Merci de vous déconnecter d'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l'appareil correspondant dans les paramètres du compte de l'appareil.</target>
+        <target state="translated">Merci de vous déconnecter d'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l'appareil correspondant dans les paramètres du compte de l'appareil.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
@@ -1314,7 +1242,7 @@
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve">
         <source>Providers</source>
-        <target state-qualifier="leveraged-tm">Fournisseurs</target>
+        <target state="translated">Fournisseurs</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers: %d" xml:space="preserve">
@@ -1329,27 +1257,17 @@
       </trans-unit>
       <trans-unit id="Quantum resistance" xml:space="preserve">
         <source>Quantum resistance</source>
-        <target state-qualifier="leveraged-tm">Résistance quantique</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Quantum secure connection" xml:space="preserve">
-        <source>Quantum secure connection</source>
-        <target state="needs-translation">Quantum secure connection</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Quantum secure connection. Connected to %@, %@" xml:space="preserve">
-        <source>Quantum secure connection. Connected to %1$@, %2$@</source>
-        <target state="needs-translation">Quantum secure connection. Connected to %1$@, %2$@</target>
+        <target state="translated">Résistance quantique</target>
         <note/>
       </trans-unit>
       <trans-unit id="Quantum-resistant tunnel" xml:space="preserve">
         <source>Quantum-resistant tunnel</source>
-        <target state-qualifier="leveraged-tm">Tunnel résistant aux attaques quantiques</target>
+        <target state="translated">Tunnel résistant aux attaques quantiques</target>
         <note/>
       </trans-unit>
       <trans-unit id="Reconnecting" xml:space="preserve">
         <source>Reconnecting</source>
-        <target state-qualifier="leveraged-tm">Reconnexion</target>
+        <target state="translated">Reconnexion</target>
         <note/>
       </trans-unit>
       <trans-unit id="Reconnecting to %@, %@" xml:space="preserve">
@@ -1359,12 +1277,12 @@
       </trans-unit>
       <trans-unit id="Redeem" xml:space="preserve">
         <source>Redeem</source>
-        <target state-qualifier="leveraged-tm">Échanger</target>
+        <target state="translated">Échanger</target>
         <note/>
       </trans-unit>
       <trans-unit id="Redeem voucher" xml:space="preserve">
         <source>Redeem voucher</source>
-        <target state-qualifier="leveraged-tm">Échangez un bon</target>
+        <target state="translated">Échangez un bon</target>
         <note/>
       </trans-unit>
       <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
@@ -1379,12 +1297,12 @@
       </trans-unit>
       <trans-unit id="Remove" xml:space="preserve">
         <source>Remove</source>
-        <target state-qualifier="leveraged-tm">Supprimer</target>
+        <target state="translated">Supprimer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Remove %@?" xml:space="preserve">
         <source>Remove %@?</source>
-        <target state-qualifier="leveraged-tm">Supprimer %@ ?</target>
+        <target state="translated">Supprimer %@ ?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Remove last used account" xml:space="preserve">
@@ -1401,17 +1319,17 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Rented" xml:space="preserve">
         <source>Rented</source>
-        <target state-qualifier="leveraged-tm">Loué</target>
+        <target state="translated">Loué</target>
         <note/>
       </trans-unit>
       <trans-unit id="Report a problem" xml:space="preserve">
         <source>Report a problem</source>
-        <target state-qualifier="leveraged-tm">Signaler un problème</target>
+        <target state="translated">Signaler un problème</target>
         <note/>
       </trans-unit>
       <trans-unit id="Required" xml:space="preserve">
         <source>Required</source>
-        <target state-qualifier="leveraged-tm">Requis</target>
+        <target state="translated">Requis</target>
         <note/>
       </trans-unit>
       <trans-unit id="Restore purchases" xml:space="preserve">
@@ -1421,12 +1339,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Save" xml:space="preserve">
         <source>Save</source>
-        <target state-qualifier="leveraged-tm">Enregistrer</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Save anyway" xml:space="preserve">
-        <source>Save anyway</source>
-        <target state="needs-translation">Save anyway</target>
+        <target state="translated">Enregistrer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Saving changes..." xml:space="preserve">
@@ -1436,17 +1349,12 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Search for..." xml:space="preserve">
         <source>Search for...</source>
-        <target state-qualifier="leveraged-tm">Rechercher...</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Secure connection. Connected to %@, %@" xml:space="preserve">
-        <source>Secure connection. Connected to %1$@, %2$@</source>
-        <target state="needs-translation">Secure connection. Connected to %1$@, %2$@</target>
+        <target state="translated">Rechercher...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Select location" xml:space="preserve">
         <source>Select location</source>
-        <target state-qualifier="leveraged-tm">Sélectionner une localisation</target>
+        <target state="translated">Sélectionner une localisation</target>
         <note/>
       </trans-unit>
       <trans-unit id="Selected" xml:space="preserve">
@@ -1456,42 +1364,37 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve">
         <source>Send</source>
-        <target state-qualifier="leveraged-tm">Envoyer</target>
+        <target state="translated">Envoyer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Send anyway" xml:space="preserve">
         <source>Send anyway</source>
-        <target state-qualifier="leveraged-tm">Envoyer quand même</target>
+        <target state="translated">Envoyer quand même</target>
         <note/>
       </trans-unit>
       <trans-unit id="Sending..." xml:space="preserve">
         <source>Sending...</source>
-        <target state-qualifier="leveraged-tm">Envoi...</target>
+        <target state="translated">Envoi...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Sent" xml:space="preserve">
         <source>Sent</source>
-        <target state-qualifier="leveraged-tm">Envoyé</target>
+        <target state="translated">Envoyé</target>
         <note/>
       </trans-unit>
       <trans-unit id="Server" xml:space="preserve">
         <source>Server</source>
-        <target state-qualifier="leveraged-tm">Serveur</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Server IP Override" xml:space="preserve">
-        <source>Server IP Override</source>
-        <target state="needs-translation">Server IP Override</target>
+        <target state="translated">Serveur</target>
         <note/>
       </trans-unit>
       <trans-unit id="Server IP override" xml:space="preserve">
         <source>Server IP override</source>
-        <target state-qualifier="leveraged-tm">Substitution d'IP de serveur</target>
+        <target state="translated">Substitution d'IP de serveur</target>
         <note/>
       </trans-unit>
       <trans-unit id="Server details" xml:space="preserve">
         <source>Server details</source>
-        <target state-qualifier="leveraged-tm">Détails du serveur</target>
+        <target state="translated">Détails du serveur</target>
         <note/>
       </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve">
@@ -1501,7 +1404,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Settings" xml:space="preserve">
         <source>Settings</source>
-        <target state-qualifier="leveraged-tm">Paramètres</target>
+        <target state="translated">Paramètres</target>
         <note/>
       </trans-unit>
       <trans-unit id="Settings migration error" xml:space="preserve">
@@ -1516,12 +1419,12 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Show account number" xml:space="preserve">
         <source>Show account number</source>
-        <target state-qualifier="leveraged-tm">Afficher le numéro de compte</target>
+        <target state="translated">Afficher le numéro de compte</target>
         <note/>
       </trans-unit>
       <trans-unit id="Social media" xml:space="preserve">
         <source>Social media</source>
-        <target state-qualifier="leveraged-tm">Réseaux sociaux</target>
+        <target state="translated">Réseaux sociaux</target>
         <note/>
       </trans-unit>
       <trans-unit id="Socks5" xml:space="preserve">
@@ -1531,17 +1434,17 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Start using the app" xml:space="preserve">
         <source>Start using the app</source>
-        <target state-qualifier="leveraged-tm">Commencer à utiliser l'application</target>
+        <target state="translated">Commencer à utiliser l'application</target>
         <note/>
       </trans-unit>
       <trans-unit id="Super!" xml:space="preserve">
         <source>Super!</source>
-        <target state-qualifier="leveraged-tm">Super !</target>
+        <target state="translated">Super !</target>
         <note/>
       </trans-unit>
       <trans-unit id="Switch location" xml:space="preserve">
         <source>Switch location</source>
-        <target state-qualifier="leveraged-tm">Changer de localisation</target>
+        <target state="translated">Changer de localisation</target>
         <note/>
       </trans-unit>
       <trans-unit id="TCP" xml:space="preserve">
@@ -1561,12 +1464,12 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Test method" xml:space="preserve">
         <source>Test method</source>
-        <target state-qualifier="leveraged-tm">Tester la méthode</target>
+        <target state="translated">Tester la méthode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Testing..." xml:space="preserve">
         <source>Testing...</source>
-        <target state-qualifier="leveraged-tm">Test...</target>
+        <target state="translated">Test...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Thanks for your purchase" xml:space="preserve">
@@ -1576,7 +1479,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Thanks!" xml:space="preserve">
         <source>Thanks!</source>
-        <target state-qualifier="leveraged-tm">Merci !</target>
+        <target state="translated">Merci !</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve">
@@ -1596,7 +1499,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve">
         <source>The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</source>
-        <target state-qualifier="leveraged-tm">L'application doit communiquer avec un serveur d'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d'autres opérations critiques.</target>
+        <target state="translated">L'application doit communiquer avec un serveur d'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d'autres opérations critiques.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app will test the method before saving." xml:space="preserve">
@@ -1606,17 +1509,17 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below." xml:space="preserve">
         <source>The automatic setting will randomly choose from the valid port ranges shown below.</source>
-        <target state-qualifier="leveraged-tm">Le réglage automatique choisira au hasard parmi la plage de ports valide affichée ci-dessous.</target>
+        <target state="translated">Le réglage automatique choisira au hasard parmi la plage de ports valide affichée ci-dessous.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The custom port can be any value inside the valid ranges: %@." xml:space="preserve">
         <source>The custom port can be any value inside the valid ranges: %@.</source>
-        <target state-qualifier="leveraged-tm">Le port personnalisé peut prendre n'importe quelle valeur dans les plages valides : %@.</target>
+        <target state="translated">Le port personnalisé peut prendre n'importe quelle valeur dans les plages valides : %@.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The device will be removed from the list and logged out." xml:space="preserve">
         <source>The device will be removed from the list and logged out.</source>
-        <target state-qualifier="leveraged-tm">L'appareil sera supprimé de la liste et déconnecté.</target>
+        <target state="translated">L'appareil sera supprimé de la liste et déconnecté.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve">
@@ -1646,12 +1549,12 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve">
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
-        <target state-qualifier="leveraged-tm">Cela peut être utile si l'API est censurée, mais que les serveurs de pont Mullvad ne le sont pas.</target>
+        <target state="translated">Cela peut être utile si l'API est censurée, mais que les serveurs de pont Mullvad ne le sont pas.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve">
         <source>This can be useful when you are not affected by censorship.</source>
-        <target state-qualifier="leveraged-tm">Cela peut être utile lorsque vous n'êtes pas concerné par la censure.</target>
+        <target state="translated">Cela peut être utile lorsque vous n'êtes pas concerné par la censure.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
@@ -1661,22 +1564,22 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve">
         <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</source>
-        <target state-qualifier="leveraged-tm">Cette fonctionnalité permet d'accéder à d'autres appareils sur le réseau local, par exemple pour le partage, l'impression, le streaming, etc.</target>
+        <target state="translated">Cette fonctionnalité permet d'accéder à d'autres appareils sur le réseau local, par exemple pour le partage, l'impression, le streaming, etc.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods." xml:space="preserve">
         <source>This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</source>
-        <target state-qualifier="leveraged-tm">Cette fonctionnalité vous permet de contourner cette censure en ajoutant des moyens personnalisés d'accéder à l'API via des proxys et des méthodes similaires.</target>
+        <target state="translated">Cette fonctionnalité vous permet de contourner cette censure en ajoutant des moyens personnalisés d'accéder à l'API via des proxys et des méthodes similaires.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers." xml:space="preserve">
         <source>This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.</source>
-        <target state-qualifier="leveraged-tm">Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques.</target>
+        <target state="translated">Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve">
         <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</source>
-        <target state-qualifier="leveraged-tm">Il s'agit du nom attribué à l'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l'identifier lorsque vous gérez vos appareils dans l'application ou sur le site Web.</target>
+        <target state="translated">Il s'agit du nom attribué à l'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l'identifier lorsque vous gérez vos appareils dans l'application ou sur le site Web.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
@@ -1686,7 +1589,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve">
         <source>This might cause issues on certain websites, services, and apps.</source>
-        <target state-qualifier="leveraged-tm">Cela peut causer des problèmes sur certains sites Web, services et applications.</target>
+        <target state="translated">Cela peut causer des problèmes sur certains sites Web, services et applications.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This voucher code has already been used." xml:space="preserve">
@@ -1701,22 +1604,22 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="To add more, you will need to disconnect and access the Internet with an unsecure connection." xml:space="preserve">
         <source>To add more, you will need to disconnect and access the Internet with an unsecure connection.</source>
-        <target state-qualifier="leveraged-tm">Pour en ajouter d'autres, vous devrez vous déconnecter et accéder à internet avec une connexion non sécurisée.</target>
+        <target state="translated">Pour en ajouter d'autres, vous devrez vous déconnecter et accéder à internet avec une connexion non sécurisée.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To assist you better, please write in English or Swedish and include which country you are connecting from." xml:space="preserve">
         <source>To assist you better, please write in English or Swedish and include which country you are connecting from.</source>
-        <target state-qualifier="leveraged-tm">Pour nous permettre de mieux vous assister, merci d'écrire en anglais ou en suédois et d'indiquer le pays à partir duquel vous vous connectez.</target>
+        <target state="translated">Pour nous permettre de mieux vous assister, merci d'écrire en anglais ou en suédois et d'indiquer le pays à partir duquel vous vous connectez.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." xml:space="preserve">
         <source>To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.</source>
-        <target state-qualifier="leveraged-tm">Pour contourner ce problème, vous pouvez importer un fichier ou du texte fourni par notre équipe d'assistance, avec de nouvelles adresses IP qui remplacent les adresses par défaut des serveurs dans la vue Sélectionner un emplacement.</target>
+        <target state="translated">Pour contourner ce problème, vous pouvez importer un fichier ou du texte fourni par notre équipe d'assistance, avec de nouvelles adresses IP qui remplacent les adresses par défaut des serveurs dans la vue Sélectionner un emplacement.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." xml:space="preserve">
         <source>To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.</source>
-        <target state-qualifier="leveraged-tm">Pour continuer votre voyage de ninja de la confidentialité, visitez notre site Web pour découvrir d'autres outils et habitudes pour protéger votre vie privée.</target>
+        <target state="translated">Pour continuer votre voyage de ninja de la confidentialité, visitez notre site Web pour découvrir d'autres outils et habitudes pour protéger votre vie privée.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
@@ -1731,22 +1634,17 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve">
         <source>To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</source>
-        <target state-qualifier="leveraged-tm">Pour mieux vous aider, le fichier journal de l'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d'être envoyées via un canal chiffré.</target>
+        <target state="translated">Pour mieux vous aider, le fichier journal de l'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d'être envoyées via un canal chiffré.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve">
         <source>To start using the app, you first need to add time to your account.</source>
-        <target state-qualifier="leveraged-tm">Pour commencer à utiliser l'application, vous devez d'abord ajouter du temps à votre compte.</target>
+        <target state="translated">Pour commencer à utiliser l'application, vous devez d'abord ajouter du temps à votre compte.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Too many devices" xml:space="preserve">
         <source>Too many devices</source>
-        <target state-qualifier="leveraged-tm">Trop d'appareils</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Too many devices registered with account" xml:space="preserve">
-        <source>Too many devices registered with account</source>
-        <target state="needs-translation">Too many devices registered with account</target>
+        <target state="translated">Trop d'appareils</target>
         <note/>
       </trans-unit>
       <trans-unit id="Trackers" xml:space="preserve">
@@ -1756,7 +1654,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Try again" xml:space="preserve">
         <source>Try again</source>
-        <target state-qualifier="leveraged-tm">Réessayer</target>
+        <target state="translated">Réessayer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tunnel is unset." xml:space="preserve">
@@ -1791,7 +1689,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve">
         <source>Unable to start tunnel connection. Please send a problem report.</source>
-        <target state-qualifier="leveraged-tm">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</target>
+        <target state="translated">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
@@ -1806,62 +1704,57 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Unknown error." xml:space="preserve">
         <source>Unknown error.</source>
-        <target state-qualifier="leveraged-tm">Erreur inconnue.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Unsecured connection" xml:space="preserve">
-        <source>Unsecured connection</source>
-        <target state="needs-translation">Unsecured connection</target>
+        <target state="translated">Erreur inconnue.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve">
         <source>Use custom DNS server</source>
-        <target state-qualifier="leveraged-tm">Utiliser un serveur DNS personnalisé</target>
+        <target state="translated">Utiliser un serveur DNS personnalisé</target>
         <note/>
       </trans-unit>
       <trans-unit id="Username" xml:space="preserve">
         <source>Username</source>
-        <target state-qualifier="leveraged-tm">Nom d'utilisateur</target>
+        <target state="translated">Nom d'utilisateur</target>
         <note/>
       </trans-unit>
       <trans-unit id="VPN settings" xml:space="preserve">
         <source>VPN settings</source>
-        <target state-qualifier="leveraged-tm">Paramètres VPN</target>
+        <target state="translated">Paramètres VPN</target>
         <note/>
       </trans-unit>
       <trans-unit id="Valid range: %d - %d" xml:space="preserve">
         <source>Valid range: %1$d - %2$d</source>
-        <target state-qualifier="leveraged-tm">Plage valide : %1$d - %2$d</target>
+        <target state="translated">Plage valide : %1$d - %2$d</target>
         <note/>
       </trans-unit>
       <trans-unit id="Verifying voucher..." xml:space="preserve">
         <source>Verifying voucher...</source>
-        <target state-qualifier="leveraged-tm">Vérification du bon…</target>
+        <target state="translated">Vérification du bon…</target>
         <note/>
       </trans-unit>
       <trans-unit id="View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." xml:space="preserve">
         <source>View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.</source>
-        <target state-qualifier="leveraged-tm">Affichez et gérez tous vos appareils connectés. Vous pouvez avoir jusqu'à 5 appareils sur un même compte. Chaque appareil reçoit un nom lorsqu'il est connecté, ce qui vous permet de le distinguer facilement.</target>
+        <target state="translated">Affichez et gérez tous vos appareils connectés. Vous pouvez avoir jusqu'à 5 appareils sur un même compte. Chaque appareil reçoit un nom lorsqu'il est connecté, ce qui vous permet de le distinguer facilement.</target>
         <note/>
       </trans-unit>
       <trans-unit id="View app logs" xml:space="preserve">
         <source>View app logs</source>
-        <target state-qualifier="leveraged-tm">Afficher les journaux de l'application</target>
+        <target state="translated">Afficher les journaux de l'application</target>
         <note/>
       </trans-unit>
       <trans-unit id="Voucher code is invalid." xml:space="preserve">
         <source>Voucher code is invalid.</source>
-        <target state-qualifier="leveraged-tm">Le code du bon n'est pas valide.</target>
+        <target state="translated">Le code du bon n'est pas valide.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Voucher was successfully redeemed." xml:space="preserve">
         <source>Voucher was successfully redeemed.</source>
-        <target state-qualifier="leveraged-tm">Le bon a bien été échangé.</target>
+        <target state="translated">Le bon a bien été échangé.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." xml:space="preserve">
         <source>Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</source>
-        <target state-qualifier="leveraged-tm">Avertissement : le bloqueur de malware n'est pas un anti-virus et ne doit pas être traité comme tel, il s'agit juste d'une couche de protection supplémentaire.</target>
+        <target state="translated">Avertissement : le bloqueur de malware n'est pas un anti-virus et ne doit pas être traité comme tel, il s'agit juste d'une couche de protection supplémentaire.</target>
         <note/>
       </trans-unit>
       <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
@@ -1871,7 +1764,7 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve">
         <source>We will look into this.</source>
-        <target state-qualifier="leveraged-tm">Nous allons nous pencher dessus.</target>
+        <target state="translated">Nous allons nous pencher dessus.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Welcome, this device is now called **%@**. For more details see the info button in Account." xml:space="preserve">
@@ -1881,12 +1774,12 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve">
         <source>What’s new</source>
-        <target state-qualifier="leveraged-tm">Quoi de neuf</target>
+        <target state="translated">Quoi de neuf</target>
         <note/>
       </trans-unit>
       <trans-unit id="When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." xml:space="preserve">
         <source>When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</source>
-        <target state-qualifier="leveraged-tm">Lorsque cette fonctionnalité est activée, elle empêche l'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</target>
+        <target state="translated">Lorsque cette fonctionnalité est activée, elle empêche l'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</target>
         <note/>
       </trans-unit>
       <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve">
@@ -1896,32 +1789,32 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
-        <target state-qualifier="leveraged-tm">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</target>
+        <target state="translated">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</target>
         <note/>
       </trans-unit>
       <trans-unit id="WireGuard obfuscation" xml:space="preserve">
         <source>WireGuard obfuscation</source>
-        <target state-qualifier="leveraged-tm">Obfuscation WireGuard</target>
+        <target state="translated">Obfuscation WireGuard</target>
         <note/>
       </trans-unit>
       <trans-unit id="WireGuard port" xml:space="preserve">
         <source>WireGuard port</source>
-        <target state-qualifier="leveraged-tm">Port WireGuard</target>
+        <target state="translated">Port WireGuard</target>
         <note/>
       </trans-unit>
       <trans-unit id="With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies." xml:space="preserve">
         <source>With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.</source>
-        <target state-qualifier="leveraged-tm">Avec le mode « Direct », l'application communique directement avec un serveur d'API Mullvad, sans passer par des proxys intermédiaires.</target>
+        <target state="translated">Avec le mode « Direct », l'application communique directement avec un serveur d'API Mullvad, sans passer par des proxys intermédiaires.</target>
         <note/>
       </trans-unit>
       <trans-unit id="With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." xml:space="preserve">
         <source>With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</source>
-        <target state-qualifier="leveraged-tm">Avec la méthode « proxy DNS chiffré », l'application communiquera avec notre API Mullvad par le biais d'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d'un serveur DNS over HTTPS (DoH) et l'utilise pour atteindre nos serveurs API.</target>
+        <target state="translated">Avec la méthode « proxy DNS chiffré », l'application communiquera avec notre API Mullvad par le biais d'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d'un serveur DNS over HTTPS (DoH) et l'utilise pour atteindre nos serveurs API.</target>
         <note/>
       </trans-unit>
       <trans-unit id="With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." xml:space="preserve">
         <source>With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</source>
-        <target state-qualifier="leveraged-tm">Dans la méthode « Ponts Mullvad », l'application communique avec un serveur d'API Mullvad via un serveur pont Mullvad. Pour ce faire, elle envoie le trafic obscurci par Shadowsocks.</target>
+        <target state="translated">Dans la méthode « Ponts Mullvad », l'application communique avec un serveur d'API Mullvad via un serveur pont Mullvad. Pour ce faire, elle envoie le trafic obscurci par Shadowsocks.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Yes, continue" xml:space="preserve">
@@ -1931,22 +1824,22 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="Yes, log out device" xml:space="preserve">
         <source>Yes, log out device</source>
-        <target state-qualifier="leveraged-tm">Oui, déconnecter l'appareil</target>
+        <target state="translated">Oui, déconnecter l'appareil</target>
         <note/>
       </trans-unit>
       <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve">
         <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
-        <target state="needs-translation">You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</target>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Vous avez déjà un numéro de compte enregistré. Si vous créez un nouveau compte, le numéro de compte enregistré sera supprimé de cet appareil. Cette action est irréversible.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve">
         <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
-        <target state-qualifier="leveraged-tm">Vous êtes sur le point d'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail.</target>
+        <target state="translated">Vous êtes sur le point d'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You are logged in with an invalid account number. Please log out and try another one." xml:space="preserve">
         <source>You are logged in with an invalid account number. Please log out and try another one.</source>
-        <target state-qualifier="leveraged-tm">Vous vous êtes connecté(e) avec un numéro de compte non valide. Veuillez vous déconnecter et en essayer un autre.</target>
+        <target state="translated">Vous vous êtes connecté(e) avec un numéro de compte non valide. Veuillez vous déconnecter et en essayer un autre.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve">
@@ -1956,12 +1849,12 @@ Do you want to remove the saved account number?</target>
       </trans-unit>
       <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve">
         <source>You can have up to 5 devices logged in on one Mullvad account.</source>
-        <target state-qualifier="leveraged-tm">Vous pouvez connecter jusqu'à 5 appareils au même compte Mullvad.</target>
+        <target state="translated">Vous pouvez connecter jusqu'à 5 appareils au même compte Mullvad.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You can now continue logging in on this device." xml:space="preserve">
         <source>You can now continue logging in on this device.</source>
-        <target state-qualifier="leveraged-tm">Vous pouvez maintenant continuer la connexion sur cet appareil.</target>
+        <target state="translated">Vous pouvez maintenant continuer la connexion sur cet appareil.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
@@ -1989,7 +1882,7 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve">
         <source>You have no more VPN time left on this account. </source>
-        <target state-qualifier="leveraged-tm">Vous n'avez plus de temps de VPN sur ce compte. </target>
+        <target state="translated">Vous n'avez plus de temps de VPN sur ce compte. </target>
         <note/>
       </trans-unit>
       <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve">
@@ -1999,7 +1892,7 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve">
         <source>You have removed this device. To connect again, you will need to log back in.</source>
-        <target state-qualifier="leveraged-tm">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</target>
+        <target state="translated">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You have unsaved changes." xml:space="preserve">
@@ -2009,7 +1902,7 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve">
         <source>Your device is offline. The tunnel will automatically connect once your device is back online.</source>
-        <target state-qualifier="leveraged-tm">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</target>
+        <target state="translated">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve">
@@ -2019,7 +1912,7 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="Your email (optional)" xml:space="preserve">
         <source>Your email (optional)</source>
-        <target state-qualifier="leveraged-tm">Votre e-mail (facultatif)</target>
+        <target state="translated">Votre e-mail (facultatif)</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
@@ -2039,7 +1932,7 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="file" xml:space="preserve">
         <source>file</source>
-        <target state-qualifier="leveraged-tm">fichier</target>
+        <target state="translated">fichier</target>
         <note/>
       </trans-unit>
       <trans-unit id="method" xml:space="preserve">
@@ -2054,7 +1947,7 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="text" xml:space="preserve">
         <source>text</source>
-        <target state-qualifier="leveraged-tm">texte</target>
+        <target state="translated">texte</target>
         <note/>
       </trans-unit>
       <trans-unit id="value" xml:space="preserve">
@@ -2070,42 +1963,6 @@ Would you like to continue to enable “Local network sharing”?</source>
 To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
 Would you like to continue to enable “Local network sharing”?</target>
         <note/>
-      </trans-unit>
-    </body>
-  </file>
-  <file original="Assets/MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
-    </header>
-    <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="needs-translation">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
-    </body>
-  </file>
-  <file original="Assets/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
-    </header>
-    <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="needs-translation">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
-    </body>
-  </file>
-  <file original="Assets/MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
-    </header>
-    <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="needs-translation">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
       </trans-unit>
     </body>
   </file>
@@ -2133,7 +1990,7 @@ Would you like to continue to enable “Local network sharing”?</target>
       </trans-unit>
     </body>
   </file>
-  <file original="Assets/Operations-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+  <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
@@ -2145,7 +2002,7 @@ Would you like to continue to enable “Local network sharing”?</target>
       </trans-unit>
     </body>
   </file>
-  <file original="Assets/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+  <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
@@ -2157,7 +2014,7 @@ Would you like to continue to enable “Local network sharing”?</target>
       </trans-unit>
     </body>
   </file>
-  <file original="Assets/Resources/InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+  <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
@@ -2169,7 +2026,7 @@ Would you like to continue to enable “Local network sharing”?</target>
       </trans-unit>
     </body>
   </file>
-  <file original="Assets/Routing-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+  <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
@@ -2190,6 +2047,86 @@ Would you like to continue to enable “Local network sharing”?</target>
         <source>The app needs this to connect and test a new method.</source>
         <target state="needs-translation">The app needs this to connect and test a new method.</target>
         <note>Privacy - Local Network Usage Description</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+    </header>
+    <body>
+      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
+        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
+        <target state="needs-translation">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
+        <note>Copyright (human-readable)</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+    </header>
+    <body>
+    </body>
+  </file>
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+    </header>
+    <body>
+      <trans-unit id="%@ was added to your account." xml:space="preserve">
+        <source>%@ was added to your account.</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">%@ a été ajouté à votre compte.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+        <source>Cannot complete the purchase</source>
+        <target state="needs-translation">Cannot complete the purchase</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+        <source>Cannot restore purchases</source>
+        <target state="needs-translation">Cannot restore purchases</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Restore purchases" xml:space="preserve">
+        <source>Restore purchases</source>
+        <target state="needs-translation">Restore purchases</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+        <source>Thanks for your purchase</source>
+        <target state="needs-translation">Thanks for your purchase</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+        <source>Your previous purchases have already been added to this account.</source>
+        <target state="needs-translation">Your previous purchases have already been added to this account.</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+    </header>
+    <body>
+      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
+        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
+        <target state="needs-translation">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
+        <note>Copyright (human-readable)</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="fr" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+    </header>
+    <body>
+      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
+        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
+        <target state="needs-translation">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
+        <note>Copyright (human-readable)</note>
       </trans-unit>
     </body>
   </file>
