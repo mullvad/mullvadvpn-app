@@ -54,19 +54,25 @@ export function VpnSettingsView() {
                     <AutoStartSetting />
                     <AutoConnectSetting />
                   </SettingsGroup>
+
                   <SettingsGroup>
                     <AllowLanSetting />
                   </SettingsGroup>
+
                   <SettingsGroup>
                     <DnsBlockerSettings />
+                    <CustomDnsSettings />
                   </SettingsGroup>
+
                   <SettingsGroup>
                     <EnableIpv6Setting />
                   </SettingsGroup>
+
                   <SettingsGroup>
                     <KillSwitchSetting />
                     <LockdownModeSetting />
                   </SettingsGroup>
+
                   <SettingsGroup>
                     <ObfuscationListItem />
                   </SettingsGroup>
@@ -83,9 +89,6 @@ export function VpnSettingsView() {
                     <MtuSetting />
                   </SettingsGroup>
 
-                  <SettingsGroup>
-                    <CustomDnsSettings />
-                  </SettingsGroup>
                   <SettingsGroup>
                     <IpOverrideSettings />
                   </SettingsGroup>
