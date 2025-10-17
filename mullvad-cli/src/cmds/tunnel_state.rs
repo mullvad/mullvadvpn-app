@@ -62,7 +62,7 @@ pub async fn reconnect(wait: bool) -> Result<()> {
 
     let reconnecting = rpc.reconnect_tunnel().await?;
     if !reconnecting {
-        bail!("Not reconnecting due to being in an unsecured state")
+        bail!("Not reconnecting due to being in disconnected state")
     }
     if let Some(receiver) = listener {
         wait_for_tunnel_state(receiver, |state| match state {
