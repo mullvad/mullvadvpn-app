@@ -16,10 +16,10 @@
       </key-servers>
       <trusted-artifacts>
          <trust group="com.github.burrunan.multicache"/>
+         <trust group="gradle" name="gradle"/>
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust file=".*[.]pom" regex="true"/>
-         <trust file="gradle-[0-9.]+-src.zip" regex="true"/>
       </trusted-artifacts>
       <ignored-keys>
          <ignored-key id="586654072EAD6677" reason="Key couldn't be downloaded from any key server"/>
