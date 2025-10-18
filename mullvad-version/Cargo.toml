@@ -15,6 +15,9 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[build-dependencies]
+anyhow = { workspace = true }
+gix = { version = "0.73", features = ["status"], default-features = false }
 
 [dependencies]
 regex-lite = "0.1"
