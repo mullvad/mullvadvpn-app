@@ -153,7 +153,8 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
         | Security::OWNER_SECURITY_INFORMATION;
 
     let mut admin_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut admin_psid_len = u32::try_from(admin_psid.len()).unwrap();
+    let mut admin_psid_len =
+        u32::try_from(admin_psid.len()).expect("admin_psid length fits in u32");
 
     // SAFETY: The pointer to the PSID is valid for writes of `admin_psid_len` bytes
     if unsafe {
@@ -187,7 +188,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
     };
 
     let mut au_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut au_psid_len = u32::try_from(au_psid.len()).unwrap();
+    let mut au_psid_len = u32::try_from(au_psid.len()).expect("au_psid length fits in u32");
 
     // SAFETY: The pointer to the PSID is valid for writes of `au_psid_len` bytes
     if unsafe {
@@ -227,7 +228,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
     // `new_dacl` is a valid pointer to an ACL pointer
     let result = unsafe {
         SetEntriesInAclW(
-            u32::try_from(ea_entries.len()).unwrap(),
+            u32::try_from(ea_entries.len()).expect("number of entries fits in u32"),
             ea_entries.as_ptr(),
             ptr::null(),
             &mut new_dacl,
@@ -294,7 +295,7 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
                     infer_appdata_from_system_directory()
                 })
             });
-            join_handle.join().unwrap()
+            join_handle.join().expect("ImpersonateSelf should succeed")
         })
         .cloned()
 }
@@ -476,7 +477,8 @@ unsafe fn get_known_folder_path(
 /// no more processes left. In the latter case, an error is returned.
 fn find_process<T>(handle_process: impl Fn(BorrowedHandle<'_>) -> Option<T>) -> io::Result<T> {
     let mut pid_buffer = vec![0u32; 2048];
-    let mut num_procs: u32 = u32::try_from(pid_buffer.len()).unwrap();
+    let mut num_procs: u32 =
+        u32::try_from(pid_buffer.len()).expect("Number of processes IDs fit in u32");
 
     let bytes_available = num_procs * (mem::size_of::<u32>() as u32);
     let mut bytes_written = 0;
@@ -545,7 +547,8 @@ fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
     let token_user = unsafe { &*(token_info.as_mut_ptr() as *const TOKEN_USER) };
 
     let mut local_system_sid = [0u8; MAX_SID_SIZE as usize];
-    let mut local_system_size = u32::try_from(local_system_sid.len()).unwrap();
+    let mut local_system_size =
+        u32::try_from(local_system_sid.len()).expect("local_system_sid length fits in u32");
 
     // SAFETY: `local_system_sid` is valid for writes of `local_system_size` bytes
     if unsafe {
