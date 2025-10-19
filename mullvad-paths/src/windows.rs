@@ -1,16 +1,12 @@
 use crate::{Error, Result, UserPermissions};
 use once_cell::sync::OnceCell;
 use std::{
-    ffi::OsStr,
     io, mem,
-    os::windows::{
-        io::{AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle},
-        prelude::OsStrExt,
-    },
+    os::windows::io::{AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle},
     path::{Path, PathBuf},
     ptr,
 };
-use widestring::{WideCStr, u16cstr};
+use widestring::{U16CString, WideCStr, u16cstr};
 use windows_sys::{
     Win32::{
         Foundation::{
@@ -73,15 +69,6 @@ pub fn create_dir(path: PathBuf, user_permissions: Option<UserPermissions>) -> R
         })?;
     }
     Ok(path)
-}
-
-fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
-    let wide_string: Vec<u16> = string.as_ref()
-        .encode_wide()
-        // Add null terminator
-        .chain(std::iter::once(0))
-        .collect();
-    wide_string
 }
 
 impl UserPermissions {
@@ -159,7 +146,7 @@ pub fn create_privileged_directory(path: &Path) -> Result<()> {
 /// Sets security permissions for path such that admin has full ownership and access while
 /// authenticated users only have read access.
 fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> Result<()> {
-    let wide_path = get_wide_str(path);
+    let wide_path = U16CString::from_os_str(path)?;
     let security_information = Security::DACL_SECURITY_INFORMATION
         | Security::PROTECTED_DACL_SECURITY_INFORMATION
         | Security::GROUP_SECURITY_INFORMATION
