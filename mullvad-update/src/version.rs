@@ -439,7 +439,7 @@ mod test {
     fn test_rollout_display() {
         let string_reprs = GOOD_ROLLOUT_EXAMPLES
             .iter()
-            .map(|&f| format!("{f} => {}\n", Rollout::try_from(f).unwrap().to_string()))
+            .map(|&f| format!("{f} => {}\n", Rollout::try_from(f).unwrap()))
             .collect::<String>();
 
         assert_snapshot!(&string_reprs);
