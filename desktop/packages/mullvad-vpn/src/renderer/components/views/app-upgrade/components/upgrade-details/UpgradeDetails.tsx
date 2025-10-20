@@ -15,6 +15,8 @@ export function UpgradeDetails() {
   const title = useTitle();
   const cacheDir = useCacheDir();
 
+  const showHeaderSubtitle = cacheDir !== undefined;
+
   return (
     <Flex $flexDirection="column" $gap="large" $padding={{ bottom: 'medium' }}>
       <AppUpgradeHeader>
@@ -24,7 +26,7 @@ export function UpgradeDetails() {
             messages.pgettext('app-upgrade-view', 'Update available')
           }
         </TitleBig>
-        {cacheDir !== undefined && (
+        {showHeaderSubtitle && (
           <HeaderSubTitle>
             {formatHtml(
               sprintf(
