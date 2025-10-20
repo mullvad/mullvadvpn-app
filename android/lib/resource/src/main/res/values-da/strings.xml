@@ -24,6 +24,10 @@
     <string name="all_providers">Alle udbydere</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="always_on_vpn_error_notification_title">Altid-til VPN tildelt %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Når en VPN-app er blevet opdateret på Android 16, kan enheder ende i en tilstand, hvor VPN-apps ikke længere kan få kontakt til internettet.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Genstart din enhed, og prøv at oprette forbindelse igen. Hvis det ikke hjælper, kan du skrive en e-mail til %1$s på svensk eller engelsk.</string>
+    <string name="android_16_upgrade_warning_message">Android 16 har et kendt problem. Genstart din enhed, og prøv igen. For at få mere at vide</string>
+    <string name="android_16_upgrade_warning_title">Kan du ikke oprette forbindelse?</string>
     <string name="any">Enhver</string>
     <string name="api_access_description">Administrer og tilføj brugerdefinerede metoder for at få adgang til Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer.</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">Nyheder</string>
     <string name="cipher">Chiffer</string>
     <string name="clear_input">Ryd input</string>
+    <string name="click_here">klik her</string>
     <string name="close">Luk</string>
     <string name="collapse">Skjul</string>
     <string name="confirm_ipv6_dns">IPv6 DNS-serveren fungerer ikke, medmindre du aktiverer \"IPv6\" under VPN-indstillinger.</string>
@@ -249,7 +254,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Fjern %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheden fjernes fra listen og logges ud.</string>
     <string name="manage_devices_description">Vis og administrer alle dine enheder, der er logget på. Du kan have op til 5 enheder på en konto ad gangen. Hver enhed tildeles et navn, når du logger på, så du let kan se forskel på dem.</string>
-    <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge &lt;b&gt;%1$s&lt;/b&gt; ud?</string>
+    <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge &lt;b&gt;%1$s&lt;/b&gt; af?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsætte med at logge ind på denne enhed.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Ingen brugerdefinerede lister tilgængelige</string>
     <string name="no_internet_connection">Ingen internetforbindelse</string>
     <string name="no_matching_relay">Ingen servere matcher dine indstillinger. Prøv at ændre server eller andre indstillinger.</string>
+    <string name="no_matching_servers_found_first_line">Der blev ikke fundet nogen matchende servere.</string>
+    <string name="no_matching_servers_found_second_line">Prøv at ændre dine filtre.</string>
     <string name="no_recent_selection">Ingen nylig valghistorik</string>
     <string name="no_wireguard_key">Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger.</string>
     <string name="not_found">Ikke fundet</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Genopret forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
+    <string name="refresh_server_list">Opdater serverlisten</string>
     <string name="relay_item_already_selected_as_entry">%1$s er allerede valgt som indgangsrelæ</string>
     <string name="relay_item_already_selected_as_exit">%1$s er allerede valgt som udgangsrelæ</string>
     <string name="relayitem_is_inactive">%1$s er ikke tilgængelig</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Opdater DNS-server</string>
     <string name="update_list_name">Opdater listenavn</string>
+    <string name="updating_server_list_in_the_background">Opdaterer serverlisten i baggrunden ...</string>
     <string name="uri_browser_app_not_found">Der er ikke installeret nogen browser-app, så linket kunne ikke åbnes</string>
     <string name="uri_market_app_not_found">Der er ikke installeret nogen Android-appbutik, og linket kunne ikke åbnes</string>
     <string name="use_method">Brug metode</string>

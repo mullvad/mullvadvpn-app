@@ -24,6 +24,10 @@
     <string name="all_providers">すべてのプロバイダ</string>
     <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に&lt;b&gt;%1$s&lt;/b&gt;のAlways-on VPNを無効にしてください。</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPNは%1$sに割り当てられました</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Android 16でVPNアプリを更新すると、デバイス上のVPNアプリがインターネットにアクセス不可能な状態になる可能性があります。</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">デバイスを再起動して再接続してください。それでも問題が解決しない場合は、%1$sにスウェーデン語か英語のメールでお問い合わせください。</string>
+    <string name="android_16_upgrade_warning_message">Android 16には既知の問題があります。デバイスを再起動して再試行してください。詳細は、</string>
+    <string name="android_16_upgrade_warning_title">接続できませんか？</string>
     <string name="any">すべて</string>
     <string name="api_access_description">Mullvad APIへのカスタムのアクセス方法を管理・追加します。</string>
     <string name="api_access_method_info_first_line">アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。</string>
@@ -67,12 +71,13 @@
     <string name="changelog_title">新機能</string>
     <string name="cipher">暗号化</string>
     <string name="clear_input">入力をクリア</string>
+    <string name="click_here">ここをクリックしてください</string>
     <string name="close">閉じる</string>
     <string name="collapse">折りたたむ</string>
     <string name="confirm_ipv6_dns">VPN設定で [IPv6] を有効にしない限り、IPv6 DNSサーバーは機能しません。</string>
     <string name="confirm_local_dns">VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
-    <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
+    <string name="confirm_removal">はい。デバイスをログアウトします</string>
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続</string>
     <string name="connect_on_start">デバイス起動時に接続</string>
@@ -245,7 +250,7 @@
     <string name="login_fail_title">ログインに失敗しました</string>
     <string name="login_title">ログイン</string>
     <string name="malware_info">警告: マルウェアブロッカーはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。</string>
-    <string name="manage_devices">デバイスを管理する</string>
+    <string name="manage_devices">デバイスを管理</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$sを削除しますか？</string>
     <string name="manage_devices_confirm_removal_description_line2">リストからデバイスが削除され、ログアウトされます。</string>
     <string name="manage_devices_description">ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">利用可能なカスタムリストはありません</string>
     <string name="no_internet_connection">インターネット接続がありません</string>
     <string name="no_matching_relay">設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。</string>
+    <string name="no_matching_servers_found_first_line">一致するサーバーが見つかりません。</string>
+    <string name="no_matching_servers_found_second_line">条件を変更してみてください。</string>
     <string name="no_recent_selection">最近の選択履歴はありません</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_found">見つかりませんでした</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">再接続</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
+    <string name="refresh_server_list">サーバーリストを更新</string>
     <string name="relay_item_already_selected_as_entry">%1$sはすでに入口中継サーバーとして選択されています</string>
     <string name="relay_item_already_selected_as_exit">%1$sはすでに出口中継サーバーとして選択されています</string>
     <string name="relayitem_is_inactive">%1$sは使用できません</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS サーバーを更新</string>
     <string name="update_list_name">リスト名の更新</string>
+    <string name="updating_server_list_in_the_background">サーバーリストをバックグラウンドで更新中...</string>
     <string name="uri_browser_app_not_found">ブラウザアプリがインストールされていないため、リンクを開けませんでした</string>
     <string name="uri_market_app_not_found">Androidアプリストアがインストールされていないため、リンクを開けませんでした</string>
     <string name="use_method">この方法を使用する</string>

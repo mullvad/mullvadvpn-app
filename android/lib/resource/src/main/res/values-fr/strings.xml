@@ -24,6 +24,10 @@
     <string name="all_providers">Tous les fournisseurs</string>
     <string name="always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour &lt;b&gt;%1$s&lt;/b&gt; avant d\'utiliser Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Après la mise à jour d\'une application de VPN sur Android 16, les appareils peuvent se retrouver dans un état où ces applications de VPN ne sont plus en mesure d\'accéder à Internet.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Veuillez redémarrer votre appareil et réessayer de vous connecter. Si cela ne fonctionne pas, veuillez envoyer un e-mail à %1$s en suédois ou en anglais.</string>
+    <string name="android_16_upgrade_warning_message">Android 16 présente un problème connu. Veuillez redémarrer votre appareil et réessayer. Pour en savoir plus,</string>
+    <string name="android_16_upgrade_warning_title">Connexion impossible ?</string>
     <string name="any">N\'importe lequel</string>
     <string name="api_access_description">Gérez et ajoutez des modes d\'accès personnalisés à l\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'application doit communiquer avec un serveur d\'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d\'autres opérations critiques.</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">Quoi de neuf</string>
     <string name="cipher">Chiffre</string>
     <string name="clear_input">Effacer la saisie</string>
+    <string name="click_here">cliquez ici</string>
     <string name="close">Fermer</string>
     <string name="collapse">Réduire</string>
     <string name="confirm_ipv6_dns">Le serveur DNS IPv6 ne fonctionnera pas si vous n\'activez pas « IPv6 » dans les paramètres VPN.</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>
     <string name="no_internet_connection">Aucune connexion à Internet</string>
     <string name="no_matching_relay">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
+    <string name="no_matching_servers_found_first_line">Aucun serveur correspondant trouvé.</string>
+    <string name="no_matching_servers_found_second_line">Veuillez essayer de changer vos filtres.</string>
     <string name="no_recent_selection">Aucun historique des sélections récentes</string>
     <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_found">Introuvable</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
+    <string name="refresh_server_list">Mettre à jour la liste des serveurs</string>
     <string name="relay_item_already_selected_as_entry">%1$s est déjà sélectionné en tant que relai d\'entrée</string>
     <string name="relay_item_already_selected_as_exit">%1$s est déjà sélectionné en tant que relai de sortie</string>
     <string name="relayitem_is_inactive">%1$s est indisponible</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="update_list_name">Mettre à jour le nom de la liste</string>
+    <string name="updating_server_list_in_the_background">Mise à jour en arrière-plan de la liste des serveurs…</string>
     <string name="uri_browser_app_not_found">Aucune application de navigateur n\'est installée, le lien ne peut pas être ouvert</string>
     <string name="uri_market_app_not_found">Aucune boutique d\'applications Android n\'est installée, le lien n\'a pas pu être ouvert</string>
     <string name="use_method">Utiliser la méthode</string>
