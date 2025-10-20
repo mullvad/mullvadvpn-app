@@ -157,32 +157,29 @@ fn migrate_duplicated_api_access_method_names(settings: &mut serde_json::Value) 
 /// Map "quantum_resistant": "auto" -> "quantum_resistant": "on".
 fn migrate_quantum_resistance(settings: &mut serde_json::Value) -> Result<()> {
     use serde_json::Value;
-    /// settings.tunnel_options.wireguard
-    fn wireguard<'a>(settings: &'a mut Value) -> Result<&'a mut Value> {
+    // settings.tunnel_options.wireguard
+    fn wg(settings: &mut Value) -> Option<&mut Value> {
         settings
-            .as_object_mut()
-            .ok_or(Error::InvalidSettingsContent)?
-            .get_mut("tunnel_options")
-            .ok_or(Error::InvalidSettingsContent)?
+            .as_object_mut()?
+            .get_mut("tunnel_options")?
             .get_mut("wireguard")
-            .ok_or(Error::InvalidSettingsContent)
     }
-
-    let mut update_existing = || -> Option<()> {
-        let quantum_resistance = wireguard(settings).ok()?.get_mut("quantum_resistant")?;
-        if quantum_resistance == "auto" {
-            *quantum_resistance = "on".into();
+    let wg = wg(settings).ok_or(Error::InvalidSettingsContent)?;
+    match wg.get_mut("quantum_resistant") {
+        Some(quantum_resistance) => {
+            if quantum_resistance == "auto" {
+                *quantum_resistance = "on".into();
+            }
         }
-        Some(())
-    };
-    if let None = update_existing() {
-        // Believe it or not, the PQ setting is not guaranteed to exist coming from an earlier
-        // settings version, because it was never added through a settings migration!
-        // I'll go ahead and fix that right here, but going forward we should be more cautious
-        // about *not* adding certain settings via migrations. Not doing so means that we rely on
-        // the implemenation of Settings::default to fill in all the missing details, which might
-        // be ok..
-        wireguard(settings)?["quantum_resistant"] = "on".into();
+        None => {
+            // Believe it or not, the PQ setting is not guaranteed to exist coming from an earlier
+            // settings version, because it was never added through a settings migration!
+            // I'll go ahead and fix that right here, but going forward we should be more cautious
+            // about *not* adding certain settings via migrations. Not doing so means that we rely on
+            // the implemenation of Settings::default to fill in all the missing details, which might
+            // be ok..
+            wg["quantum_resistant"] = "on".into();
+        }
     }
     Ok(())
 }
