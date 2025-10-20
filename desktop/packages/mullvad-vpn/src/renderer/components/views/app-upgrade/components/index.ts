@@ -1,3 +1,4 @@
+export * from './app-upgrade-header';
 export * from './connection-blocked-label';
 export * from './download-progress';
 export * from './footer';
