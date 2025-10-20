@@ -610,9 +610,8 @@ message WireguardConfig {
 
 message QuantumResistantState {
   enum State {
-    AUTO = 0;
-    ON = 1;
-    OFF = 2;
+    ON = 0;
+    OFF = 1;
   }
   State state = 1;
 }
