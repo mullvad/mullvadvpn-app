@@ -3,7 +3,7 @@ use crate::{
     package,
     tests::config::BOOTSTRAP_SCRIPT,
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use ssh2::{File, Session};
 use std::{
     io::{self, Read},
@@ -13,6 +13,7 @@ use std::{
     time::Instant,
 };
 use test_rpc::UNPRIVILEGED_USER;
+use tokio::process::Command;
 
 /// Returns the directory in the test runner where the test-runner binary is installed.
 pub async fn provision(
@@ -77,6 +78,20 @@ async fn provision_ssh(
                 local_app_manifest.clone(),
             );
             log::error!("SSH provisioning attempt result: {:?}", last_result);
+
+            {
+                let mut r = std::process::Command::new("netstat");
+                r.arg("-rn");
+                let out = r.output();
+                log::error!("netstat output: {:?}", out);
+            }
+            {
+                let mut r = std::process::Command::new("ping");
+                r.args(&["-c".to_string(), "1".to_string(), guest_ip.to_string()]);
+                let out = r.output();
+                log::error!("ping output: {:?}", out);
+            }
+
             if last_result.is_err() && started.elapsed() < SSH_TIMEOUT {
                 log::warn!("Failed to provision over SSH, retrying...");
                 std::thread::sleep(Duration::from_secs(1));
