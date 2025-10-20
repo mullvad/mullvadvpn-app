@@ -351,14 +351,66 @@ where
                 }
             }
             #[cfg(in_app_upgrade)]
-            State::Downloaded { .. } | State::Downloading { .. } => {
+            State::Downloading {
+                version_cache: prev_cache,
+                ..
+            } => {
+                let prev_app_version_info =
+                    to_app_version_info(prev_cache, self.beta_program, None);
                 let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
 
-                log::warn!("Received new version while upgrading: {app_version_info:?}");
-                AppVersionInfoEvent {
+                let event = AppVersionInfoEvent {
+                    is_new: prev_app_version_info != app_version_info,
                     app_version_info,
-                    is_new: true,
+                };
+
+                if !event.is_new {
+                    log::trace!("Ignoring same version in downloading state");
+                    // Return here to avoid resetting the state to `HasVersion`
+                    // We update the cache because ignored information (eg available beta if beta
+                    // program is off) may have changed
+                    *prev_cache = version_cache.clone();
+                    return event;
                 }
+
+                log::warn!("Received new version while downloading. Aborting download");
+
+                event
+            }
+            #[cfg(in_app_upgrade)]
+            State::Downloaded {
+                version_cache: prev_cache,
+                verified_installer_path,
+                ..
+            } => {
+                let prev_app_version_info = to_app_version_info(
+                    prev_cache,
+                    self.beta_program,
+                    Some(verified_installer_path.clone()),
+                );
+                let app_version_info = to_app_version_info(
+                    &version_cache,
+                    self.beta_program,
+                    Some(verified_installer_path.clone()),
+                );
+
+                let event = AppVersionInfoEvent {
+                    is_new: prev_app_version_info != app_version_info,
+                    app_version_info,
+                };
+
+                if !event.is_new {
+                    log::trace!("Ignoring same version in downloaded state");
+                    // Return here to avoid resetting the state to `HasVersion`
+                    // We update the cache because ignored information (eg available beta if beta
+                    // program is off) may have changed
+                    *prev_cache = version_cache.clone();
+                    return event;
+                }
+
+                log::warn!("Received new version in downloaded state. Aborting download");
+
+                event
             }
         };
         self.state = State::HasVersion { version_cache };
@@ -1110,6 +1162,64 @@ mod test {
         assert_eq!(
             app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::DownloadStarting
+        );
+    }
+
+    #[tokio::test]
+    async fn test_update_in_downloaded_state() {
+        let (mut version_router, _channels) = make_version_router::<SuccessfulAppDownloader>();
+        let mut version_cache_test = get_new_stable_version_cache();
+
+        version_router.on_new_version(version_cache_test.clone());
+
+        // Start upgrading
+        version_router.update_application();
+        // Check that the state is now downloading
+        assert!(matches!(version_router.state, State::Downloading { .. }),);
+
+        // Should remain in downloading state if same version is received
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::Downloading { .. }),
+            "state should be Downloading, was {:?}",
+            version_router.state,
+        );
+
+        // Unless the version is different
+        version_cache_test.version_info.stable.version.incremental += 1;
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::HasVersion { .. }),
+            "state should be HasVersion, was {:?}",
+            version_router.state,
+        );
+
+        // Restart upgrade
+        version_router.update_application();
+
+        // Drive the download to completion
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
+        assert!(
+            matches!(version_router.state, State::Downloaded { .. }),
+            "state should be Downloaded, was {:?}",
+            version_router.state,
+        );
+
+        // Should remain in downloaded state if same version is received
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::Downloaded { .. }),
+            "state should be Downloaded, was {:?}",
+            version_router.state,
+        );
+
+        // Unless the version is different
+        version_cache_test.version_info.stable.version.incremental += 1;
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::HasVersion { .. }),
+            "state should be HasVersion, was {:?}",
+            version_router.state,
         );
     }
 
