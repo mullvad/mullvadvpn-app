@@ -14,7 +14,6 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum QuantumResistantState {
-    Auto,
     #[default]
     On,
     Off,
@@ -22,9 +21,10 @@ pub enum QuantumResistantState {
 
 impl QuantumResistantState {
     pub fn enabled(&self) -> bool {
+        use QuantumResistantState::*;
         match self {
-            QuantumResistantState::Off => false,
-            QuantumResistantState::On | QuantumResistantState::Auto => true,
+            On => true,
+            Off => false,
         }
     }
 }
@@ -32,9 +32,6 @@ impl QuantumResistantState {
 impl Intersection for QuantumResistantState {
     fn intersection(self, other: Self) -> Option<Self> {
         match (self, other) {
-            (QuantumResistantState::Auto, other) | (other, QuantumResistantState::Auto) => {
-                Some(other)
-            }
             (val0, val1) if val0 == val1 => Some(val0),
             _ => None,
         }
@@ -43,10 +40,10 @@ impl Intersection for QuantumResistantState {
 
 impl fmt::Display for QuantumResistantState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use QuantumResistantState::*;
         match self {
-            QuantumResistantState::Auto => f.write_str("auto"),
-            QuantumResistantState::On => f.write_str("on"),
-            QuantumResistantState::Off => f.write_str("off"),
+            On => f.write_str("on"),
+            Off => f.write_str("off"),
         }
     }
 }
@@ -55,10 +52,10 @@ impl FromStr for QuantumResistantState {
     type Err = QuantumResistantStateParseError;
 
     fn from_str(s: &str) -> Result<QuantumResistantState, Self::Err> {
+        use QuantumResistantState::*;
         match s {
-            "any" | "auto" => Ok(QuantumResistantState::Auto),
-            "on" => Ok(QuantumResistantState::On),
-            "off" => Ok(QuantumResistantState::Off),
+            "on" => Ok(On),
+            "off" => Ok(Off),
             _ => Err(QuantumResistantStateParseError),
         }
     }
@@ -248,7 +245,7 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
             mtu: None,
-            quantum_resistant: QuantumResistantState::Auto,
+            quantum_resistant: QuantumResistantState::default(),
             #[cfg(daita)]
             daita: DaitaSettings::default(),
             rotation_interval: None,
