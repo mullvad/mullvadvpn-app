@@ -44,6 +44,9 @@ Line wrap the file at 100 chars.                                              Th
 - Run version check hourly and when interacting with the app instead of once per day.
 - Add support for gradual rollouts of new app releases
 
+### Removed
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
+
 ### Fixed
 #### macOS
 - Fix high CPU usage on macOS 26 by updating Electron. This affected the app when it was visible.
