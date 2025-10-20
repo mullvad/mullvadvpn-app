@@ -45,6 +45,8 @@ function modify_rollout {
     local work_dir="work/"
     local published_dir="currently_published/"
     local upload_dir="upload/"
+    local latest_file="latest.json"
+    local all_platforms=(linux macos windows)
 
     rm -rf "$signed_dir"
     rm -rf "$work_dir"
@@ -54,11 +56,12 @@ function modify_rollout {
     echo ">>> Platforms: ${PLATFORMS[@]}"
 
     echo ">>> Fetching current version metadata"
-    mullvad-release pull --assume-yes "${PLATFORMS[@]}"
+    mullvad-release pull --latest-file --assume-yes "${all_platforms[@]}"
     echo ""
 
     echo ">>> Backing up released data"
     cp -r $signed_dir $published_dir
+    mv "./$latest_file" "$published_dir/$latest_file"
     echo ""
 
     echo ">>> Replacing $work_dir directory with latest published data"
@@ -74,11 +77,15 @@ function modify_rollout {
     echo ""
 
     echo ">>> Verifying signed metadata"
-    mullvad-release verify "${PLATFORMS[@]}"
+    mullvad-release verify "${all_platforms[@]}"
     echo ""
 
     echo ">>> Creating upload dir"
     cp -rf "$signed_dir" "$upload_dir"
+    echo ""
+
+    echo ">>> Generating $latest_file for current version metadata"
+    mullvad-release query-latest "${all_platforms[@]}" > "$upload_dir/$latest_file"
     echo ""
 
     echo ">>> New metadata including $PRODUCT_VERSION"
