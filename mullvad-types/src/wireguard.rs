@@ -31,10 +31,7 @@ impl QuantumResistantState {
 
 impl Intersection for QuantumResistantState {
     fn intersection(self, other: Self) -> Option<Self> {
-        match (self, other) {
-            (val0, val1) if val0 == val1 => Some(val0),
-            _ => None,
-        }
+        if self == other { Some(self) } else { None }
     }
 }
 
