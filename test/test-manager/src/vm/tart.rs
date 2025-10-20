@@ -115,7 +115,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         &format!("{}", OBTAIN_IP_TIMEOUT.as_secs()),
     ]);
     let output = tart_cmd.output().await.context("Could not obtain VM IP")?;
-    let ip_addr = std::str::from_utf8(&output.stdout)
+    let ip_addr: IpAddr = std::str::from_utf8(&output.stdout)
         .context("'tart ip' returned non-UTF8")?
         .trim()
         .parse()
@@ -123,9 +123,16 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
 
     log::debug!("Guest IP: {ip_addr}");
 
+    {
+        let mut r = std::process::Command::new("ping");
+        r.args(&["-c".to_string(), "1".to_string(), ip_addr.to_string()]);
+        let out = r.output();
+        log::error!("ping output: {:?}", out);
+    }
+
     // The tunnel must be configured after the virtual machine is up, or macOS refuses to assign an
     // IP. The reasons for this are poorly understood.
-    crate::vm::network::macos::configure_tunnel().await?;
+    crate::vm::network::macos::configure_tunnel(ip_addr).await?;
 
     Ok(TartInstance {
         child,

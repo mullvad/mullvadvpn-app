@@ -130,7 +130,7 @@ pub async fn reboot(rpc: &mut ServiceClient) -> Result<(), Error> {
     rpc.reboot().await?;
 
     #[cfg(target_os = "macos")]
-    crate::vm::network::macos::configure_tunnel()
+    crate::vm::network::macos::configure_tunnel(Ipv4Addr::UNSPECIFIED.into())
         .await
         .context("Failed to recreate custom wg tun: {error}")?;
 

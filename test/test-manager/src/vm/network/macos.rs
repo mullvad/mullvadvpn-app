@@ -9,7 +9,7 @@ use nix::{
 };
 use std::{
     convert::Infallible,
-    net::{Ipv4Addr, SocketAddrV4},
+    net::{IpAddr, Ipv4Addr, SocketAddrV4},
 };
 use talpid_types::drop_guard::on_drop;
 use tokio::{io::AsyncWriteExt, process::Command, time::sleep};
@@ -176,7 +176,7 @@ async fn create_wireguard_interface() -> Result<()> {
     }
 }
 
-pub async fn configure_tunnel() -> Result<()> {
+pub async fn configure_tunnel(ip_addr: IpAddr) -> Result<()> {
     // Check if the tunnel device is configured
     let mut cmd = Command::new("/usr/sbin/ipconfig");
     cmd.args(["getifaddr", CUSTOM_TUN_INTERFACE_NAME]);
@@ -223,6 +223,13 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
         log::error!("netstat output: {:?}", out);
     }
 
+    {
+        let mut r = std::process::Command::new("ping");
+        r.args(&["-c".to_string(), "1".to_string(), ip_addr.to_string()]);
+        let out = r.output();
+        log::error!("ping output: {:?}", out);
+    }
+
     let mut cmd = Command::new("/usr/bin/sudo");
     cmd.args([
         "wg",
@@ -241,6 +248,12 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
         r.arg("-rn");
         let out = r.output();
         log::error!("netstat output: {:?}", out);
+    }
+    {
+        let mut r = std::process::Command::new("ping");
+        r.args(&["-c".to_string(), "1".to_string(), ip_addr.to_string()]);
+        let out = r.output();
+        log::error!("ping output: {:?}", out);
     }
 
     // Set tunnel IP address
@@ -263,6 +276,12 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
         r.arg("-rn");
         let out = r.output();
         log::error!("netstat output: {:?}", out);
+    }
+    {
+        let mut r = std::process::Command::new("ping");
+        r.args(&["-c".to_string(), "1".to_string(), ip_addr.to_string()]);
+        let out = r.output();
+        log::error!("ping output: {:?}", out);
     }
     Ok(())
 }
