@@ -435,6 +435,8 @@ mod test {
         }
     }
 
+    /// Test that the `Display` impl of [Rollout] makes sense.
+    /// Note clap requires that `Display` must be the inverse of `FromStr`.
     #[test]
     fn test_rollout_display() {
         let string_reprs = GOOD_ROLLOUT_EXAMPLES
