@@ -90,62 +90,6 @@ mod test {
 }
 "#;
 
-    const V13_SETTINGS: &str = r#"
-{
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "location": {
-            "country": "fr"
-          }
-        }
-      },
-      "providers": {
-        "only": {
-          "providers": [
-            "Blix",
-            "Creanova"
-          ]
-        }
-      },
-      "ownership": {
-        "only": "MullvadOwned"
-      },
-      "tunnel_protocol": "wireguard",
-      "wireguard_constraints": {
-        "port": "any",
-        "ip_version": "any",
-        "allowed_ips": "any",
-        "use_multihop": true,
-        "entry_location": {
-          "only": {
-            "location": {
-              "country": "se"
-            }
-          }
-        },
-        "entry_providers": {
-          "only": {
-            "providers": [
-              "Blix",
-              "Creanova"
-            ]
-          }
-        },
-        "entry_ownership": {
-          "only": "MullvadOwned"
-        }
-      },
-      "openvpn_constraints": {
-        "port": "any"
-      }
-    }
-  },
-  "settings_version": 13
-}
-"#;
-
     #[test]
     fn test_v12_to_v13_migration() {
         let mut old_settings = serde_json::from_str(V12_SETTINGS).unwrap();
@@ -153,8 +97,6 @@ mod test {
         assert!(version_matches(&old_settings));
 
         migrate(&mut old_settings).unwrap();
-        let new_settings: serde_json::Value = serde_json::from_str(V13_SETTINGS).unwrap();
-
-        assert_eq!(&old_settings, &new_settings);
+        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
     }
 }

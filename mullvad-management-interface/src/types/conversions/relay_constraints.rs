@@ -126,10 +126,10 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                         )?,
                     )?;
 
+                // TODO Remove this block when the frontends support setting multihop entry filters.
                 // This is needed in order to not change the current behavior (which
                 // is that the ownership and providers from `RelaySettings` apply to both the entry
                 // and exit multihop relays).
-                // Remove this block when the frontends support setting multihop entry filters.
                 {
                     wireguard_constraints.entry_ownership = ownership;
                     wireguard_constraints.entry_providers = providers.clone();

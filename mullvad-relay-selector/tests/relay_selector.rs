@@ -1204,8 +1204,10 @@ fn test_ownership() {
     }
 }
 
+/// Verify that any query which sets an explicit [`Ownership`] is respected by the relay selector
+/// and that it works to set separate entry and exit ownerships for a multihop.
 #[test]
-fn test_multihop_exit_ownership() {
+fn test_multihop_ownership() {
     let relay_selector = default_relay_selector();
 
     for _ in 0..100 {
@@ -1303,8 +1305,11 @@ fn test_providers() {
     }
 }
 
+/// Construct a query for a relay with specific providers and verify that every chosen relay has
+/// the correct associated provider and that it works to select a separate set of providers for
+/// entry and exit relays when doing a multihop.
 #[test]
-fn test_multihop_exit_providers() {
+fn test_multihop_providers() {
     const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
     const EXPECTED_ENTRY_PROVIDERS: [&str; 2] = ["provider1", "provider3"];
     let providers = Providers::new(EXPECTED_PROVIDERS).unwrap();
