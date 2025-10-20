@@ -81,7 +81,14 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
     start_and_wait_for_service(&service)
 }
 
-pub fn stop_driver_service() -> Result<(), Error> {
+/// Stop the split tunnel driver service if it is running.
+///
+/// # Safety
+///
+/// The driver must be reset before calling this function. Failing to do so prevents
+/// the driver from freeing resources and unregistering its callbacks.
+// TODO: This is due to a bug in the driver. `unsafe` may be removed when this is fixed.
+pub unsafe fn stop_driver_service() -> Result<(), Error> {
     let scm = ServiceManager::local_computer(None::<OsString>, ServiceManagerAccess::CONNECT)
         .map_err(Error::OpenServiceControlManager)?;
 

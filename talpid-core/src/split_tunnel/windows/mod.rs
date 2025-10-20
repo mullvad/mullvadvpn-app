@@ -477,18 +477,46 @@ impl SplitTunnel {
                             result
                         }
                     }
+                    // INVARIANT: This arm will always the terminate the request thread.
                     Request::Stop => {
-                        if let Err(error) = handle.reset().map_err(Error::ResetError) {
-                            let _ = response_tx.send(Err(error));
-                            continue;
-                        }
+                        // Start by attempting to reset the driver state. Do this first, since
+                        // we'd like to prevent the process monitor from updating `excluded_processes`.
+                        // If reset fails, the driver ends up in a "zombie" state. If that happens,
+                        // the best we can do is try to clean up as much as possible.
+                        let reset_result = handle.reset().map_err(Error::ResetError);
 
                         monitored_paths.lock().unwrap().clear();
                         excluded_processes.write().unwrap().clear();
 
-                        let _ = response_tx.send(Ok(()));
+                        drop(volume_monitor);
+                        if let Err(error) = path_monitor.shutdown() {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to shut down path monitor")
+                            );
+                        }
 
-                        // Stop listening to commands
+                        // Device handles must be dropped before unloading the driver.
+                        // Otherwise, it will fail and time out.
+                        drop(handle);
+
+                        // If we failed to reset, make sure to NEVER unload the driver.
+                        // See the safety comment on `stop_driver_service`.
+                        // Unloading without a reset can trigger a BSOD!
+                        let unload_driver = reset_result.is_ok();
+
+                        if unload_driver {
+                            log::debug!("Stopping ST service");
+                            // SAFETY: We have reset the driver before calling this.
+                            if let Err(error) = unsafe { service::stop_driver_service() } {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to stop ST service")
+                                );
+                            }
+                        }
+
+                        let _ = response_tx.send(reset_result);
                         break;
                     }
                 };
@@ -497,23 +525,7 @@ impl SplitTunnel {
                 }
             }
 
-            drop(volume_monitor);
-            if let Err(error) = path_monitor.shutdown() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to shut down path monitor")
-                );
-            }
-
-            drop(handle);
-
-            log::debug!("Stopping ST service");
-            if let Err(error) = service::stop_driver_service() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to stop ST service")
-                );
-            }
+            log::info!("Stopping ST request thread");
         });
 
         let handle = init_rx
