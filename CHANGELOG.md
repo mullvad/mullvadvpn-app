@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.13-beta1] - 2025-10-20
 ### Added
 - Add settings reset command to the CLI ('mullvad reset-settings').
 - Make feature indicators in connection panel navigate to the relevant setting when clicked.
