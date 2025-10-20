@@ -926,11 +926,7 @@ fun VpnSettingsContent(
                         SelectableCell(
                             title =
                                 when (it.quantumResistantState) {
-                                    QuantumResistantState.Auto ->
-                                        stringResource(id = R.string.automatic)
-
                                     QuantumResistantState.Off -> stringResource(id = R.string.off)
-
                                     QuantumResistantState.On -> stringResource(id = R.string.on)
                                 },
                             isSelected = it.selected,
@@ -954,7 +950,6 @@ fun VpnSettingsContent(
                             },
                             testTag =
                                 when (it.quantumResistantState) {
-                                    QuantumResistantState.Auto -> ""
                                     QuantumResistantState.On -> LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 
                                     QuantumResistantState.Off -> LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
