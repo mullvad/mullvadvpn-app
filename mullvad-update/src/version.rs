@@ -218,8 +218,7 @@ impl Ord for Rollout {
 
 impl Display for Rollout {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // round up to avoid SUPPORTED_VERSION being printed as "0%"
-        write!(f, "{}%", (self.0 * 100.).ceil() as u32)
+        Display::fmt(&self.0, f)
     }
 }
 
