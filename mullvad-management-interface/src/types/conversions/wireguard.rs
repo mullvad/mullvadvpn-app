@@ -39,12 +39,9 @@ impl TryFrom<proto::PublicKey> for mullvad_types::wireguard::PublicKey {
 impl From<mullvad_types::wireguard::QuantumResistantState> for proto::QuantumResistantState {
     fn from(state: mullvad_types::wireguard::QuantumResistantState) -> Self {
         match state {
-            mullvad_types::wireguard::QuantumResistantState::On
-            | mullvad_types::wireguard::QuantumResistantState::Auto => {
-                proto::QuantumResistantState {
-                    state: i32::from(proto::quantum_resistant_state::State::On),
-                }
-            }
+            mullvad_types::wireguard::QuantumResistantState::On => proto::QuantumResistantState {
+                state: i32::from(proto::quantum_resistant_state::State::On),
+            },
             mullvad_types::wireguard::QuantumResistantState::Off => proto::QuantumResistantState {
                 state: i32::from(proto::quantum_resistant_state::State::Off),
             },
