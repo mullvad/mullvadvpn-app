@@ -612,26 +612,20 @@ impl RelaySelector {
                 // Select a relay using the user's preferences merged with the nth compatible query
                 // in `retry_order`, looping back to the start of `retry_order` if
                 // necessary.
-                retry_order
+                let maybe_relay = retry_order
                     .iter()
                     .filter_map(|query| query.clone().intersection(user_query.clone()))
                     .filter_map(|query| {
                         Self::get_relay_inner(&query, &parsed_relays, custom_lists).ok()
                     })
                     .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
-                    .nth(retry_attempt)
+                    .nth(retry_attempt);
+                match maybe_relay {
+                    Some(v) => Ok(v),
                     // If none of the queries in `retry_order` merged with `user_preferences` yield any relays,
                     // attempt to only consider the user's preferences.
-                    .or_else(|| {
-                        Self::get_relay_inner(&user_query, &parsed_relays, custom_lists).ok()
-                    })
-                    .ok_or_else(|| {
-                        // Generate error if we can't find a relay based on user query
-                        match Self::get_relay_inner(&user_query, &parsed_relays, custom_lists).err() {
-                            Some(error) => error,
-                            None => Error::NoRelay(Box::new(user_query))
-                        }
-                    })
+                    None => Self::get_relay_inner(&user_query, &parsed_relays, custom_lists),
+                }
             }
         }
     }
