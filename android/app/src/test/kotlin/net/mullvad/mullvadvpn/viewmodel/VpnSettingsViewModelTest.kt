@@ -370,7 +370,7 @@ class VpnSettingsViewModelTest {
                 tunnelOptions =
                     TunnelOptions(
                         mtu = null,
-                        quantumResistant = QuantumResistantState.Auto,
+                        quantumResistant = QuantumResistantState.On,
                         daitaSettings = DaitaSettings(enabled = false, directOnly = false),
                         dnsOptions = mockk(relaxed = true),
                         enableIpv6 = true,
