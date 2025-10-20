@@ -53,7 +53,7 @@ function modify_rollout {
     rm -rf "$published_dir"
     rm -rf "$upload_dir"
 
-    echo ">>> Platforms: ${PLATFORMS[@]}"
+    echo ">>> Platforms:" "${PLATFORMS[@]}"
 
     echo ">>> Fetching current version metadata"
     mullvad-release pull --latest-file --assume-yes "${all_platforms[@]}"
