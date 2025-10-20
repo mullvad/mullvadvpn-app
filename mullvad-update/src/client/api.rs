@@ -157,7 +157,7 @@ impl HttpVersionInfoProvider {
     /// - `pinned_certificate` will be set to the LE root certificate.
     /// - DNS will be used to look up the URL.
     /// - The JSON response is not signed.
-    pub async fn get_latest_versions_file() -> anyhow::Result<serde_json::Value> {
+    pub async fn get_latest_versions_file() -> anyhow::Result<String> {
         Self::get(
             &format!("{}/latest.json", defaults::METADATA_URL),
             Some(defaults::PINNED_CERTIFICATE.clone()),
@@ -165,7 +165,6 @@ impl HttpVersionInfoProvider {
         )
         .await
         .and_then(|raw_json: Vec<u8>| Ok(String::from_utf8(raw_json)?))
-        .and_then(|raw_json: String| Ok(serde_json::from_str(&raw_json)?))
         .context("Failed to get latest.json file")
     }
 
