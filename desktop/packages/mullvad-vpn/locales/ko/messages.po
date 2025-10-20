@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-09-30 07:30\n"
+"PO-Revision-Date: 2025-10-20 06:58\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -162,6 +162,11 @@ msgstr "그래도 사용"
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
 msgstr "직접 전용 활성화"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "장치 목록을 가져오지 못함"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "보안 연결 실패"
@@ -430,6 +435,10 @@ msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP 설정"
 
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "오른쪽 화살표 키를 사용하여 설정 버튼에 포커스를 맞추세요."
+
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
@@ -447,6 +456,11 @@ msgstr "현재 사용 가능"
 msgctxt "account-view"
 msgid "Log out"
 msgstr "로그아웃"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "장치 관리"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
@@ -552,6 +566,10 @@ msgstr "유효한 localhost 포트를 입력하세요."
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
 msgstr "유효한 원격 서버 포트를 입력하세요."
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "아직 사용되지 않은 액세스 방법의 이름을 선택하세요."
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
@@ -1002,14 +1020,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr "사용자 지정 브리지 편집"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "<b>%(deviceName)s</b>에서 로그아웃하시겠습니까?"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1021,6 +1031,11 @@ msgstr "로그인 계속하기"
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
 msgstr "생성 날짜: %(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "현재 장치"
 
 msgctxt "device-management"
 msgid "Device is inactive"
@@ -1055,15 +1070,38 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다."
 
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "장치 관리"
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다."
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "제거"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "<em>%(deviceName)s</em> 장치를 제거하시겠습니까?"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
 msgstr "좋습니다!"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "장치가 목록에서 제거되고 로그아웃됩니다."
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
@@ -1079,10 +1117,16 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "장치가 너무 많음"
 
-#. Button label for confirming logout of another device.
+#. Button text to retry fetching devices.
 msgctxt "device-management"
-msgid "Yes, log out device"
-msgstr "예, 장치에서 로그아웃"
+msgid "Try again"
+msgstr "다시 시도"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 로그인 시 각 장치에 이름이 부여됩니다."
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
@@ -1357,6 +1401,13 @@ msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr "선택한 %(wireGuard)s 포트는 지원되지 않습니다. 다음에서 변경하세요: "
 
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgstr "이 장치의 현재 이름은 <em>%(deviceName)s</em>입니다. 자세한 내용은 계정의 \"장치 관리\"에서 확인할 수 있습니다."
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1392,10 +1443,6 @@ msgstr "확인 완료! 설치 프로그램을 실행하는 중..."
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "확인 실패"
-
-msgctxt "in-app-notifications"
-msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "환영합니다! 이제 이 장치의 이름은 <b>%(deviceName)s</b>입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요."
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1523,12 +1570,6 @@ msgstr "오류"
 msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "계정을 만들지 못함"
-
-#. Error message shown above login input when trying to login but the app fails
-#. to fetch the list of registered devices.
-msgctxt "login-view"
-msgid "Failed to fetch list of devices"
-msgstr "장치 목록을 가져오지 못함"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
@@ -2132,6 +2173,13 @@ msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s에 문제가 있으며 VPN 터널에서 제외할 수 없습니다."
 
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "시스템에서 %(splitTunneling)s을(를) 지원하지 않습니다."
+
 msgctxt "split-tunneling-view"
 msgid "Add"
 msgstr "추가"
@@ -2143,6 +2191,11 @@ msgstr "모든 앱"
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr "VPN 터널에서 제외할 앱을 선택하세요."
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "자세한 내용은 여기를 클릭하세요"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
@@ -2190,6 +2243,14 @@ msgstr "다시 시도하거나 문제 보고서를 보내주세요."
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
 msgstr "Mullvad 서비스 다시 시작"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "%(splitTunneling)s을(를) 사용하려면 cgroup v1을 지원하는 Linux 커널 버전으로 변경하세요."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2505,8 +2566,8 @@ msgstr "앱이 시작되면 자동으로 서버에 연결합니다."
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
-msgstr "이 설정을 활성화하려면 아래의 <b>%(customDnsFeatureName)s</b>을(를) 비활성화하세요."
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "이 설정을 활성화하려면 아래의 \"%(customDnsFeatureName)s\"을(를) 비활성화하세요."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2698,6 +2759,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "이러한 데이터 패킷을 모니터링하고 있는 관찰자가 있는 경우, %(daita)s는 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다."
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr "IP 버전"
@@ -2707,12 +2769,23 @@ msgid "It does this by performing an extra key exchange using a quantum safe alg
 msgstr "이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다."
 
 msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr "LWO"
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "멀티홉"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "선택한 위치의 DAITA를 활성화하기 위해 멀티홉을 사용 중입니다"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
@@ -2727,6 +2800,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "일부 서버에는 %(daita)s가 활성화되어 있지 않습니다. 따라서 당사는 모든 서버에서 %(daita)s를 활성화하기 위해 자동으로 멀티홉을 사용합니다."
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "난독 처리"
@@ -2737,6 +2811,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다."
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "포트"
@@ -2798,10 +2873,6 @@ msgstr "이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공�
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
 msgstr "UDP-over-TCP"
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
-msgstr "UDP-over-TCP 포트"
 
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
@@ -2899,6 +2970,9 @@ msgstr "시간 추가"
 msgid "Adding method..."
 msgstr "방법 추가 중..."
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "Android 16에서 VPN 앱을 업데이트하면 VPN 앱이 더 이상 인터넷에 연결되지 않는 상태가 될 수 있습니다."
+
 msgid "Agree and continue"
 msgstr "동의하고 계속하기"
 
@@ -2913,6 +2987,12 @@ msgstr "상시 접속 VPN이 %s에 할당됨"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "상시 접속 VPN이 다른 VPN에 할당됨"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "Android 16에는 알려진 문제가 있습니다. 장치를 재시작한 후 다시 시도해 주세요. 자세한 내용을 알아보려면"
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "<b>%s</b>에서 로그아웃하시겠습니까?"
 
 msgid "At least one method needs to be enabled"
 msgstr "1개 이상의 방법이 활성화되어 있어야 합니다"
@@ -2946,6 +3026,9 @@ msgstr "인터넷 차단(장치 오프라인)"
 
 msgid "Blocking..."
 msgstr "차단 중..."
+
+msgid "Can't connect?"
+msgstr "연결이 되지 않나요?"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다."
@@ -2983,9 +3066,6 @@ msgstr "새 목록 생성"
 msgid "Critical error (your attention is required)"
 msgstr "심각한 오류(주의가 필요함)"
 
-msgid "Current device"
-msgstr "현재 장치"
-
 msgid "Current: %s"
 msgstr "현재: %s"
 
@@ -3006,9 +3086,6 @@ msgstr "이 방법을 삭제하시겠습니까?"
 
 msgid "Device IP version"
 msgstr "장치 IP 버전"
-
-msgid "Disable \"%s\" below to activate these settings."
-msgstr "이 설정을 활성화하려면 아래의 \"%s\"를 비활성화하세요."
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "이 설정을 활성화하려면 위의 모든 \"%s\"를 비활성화하세요."
@@ -3088,9 +3165,6 @@ msgstr "현재로 설정하지 못함 - 알 수 없는 이유"
 msgid "File"
 msgstr "파일"
 
-msgid "Filters:"
-msgstr "필터:"
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "장치 시작 시 VPN이 자동으로 연결되려면 앱에 VPN 권한이 있어야 합니다. 지도 보기에서 \"연결\"을 클릭하고, 메시지가 표시되는 경우 \"확인\"을 선택하면, 해당 권한이 부여됩니다. 또한 시스템 설정의 앱 세부 정보에서 저장소 정보를 보고 앱이 내부 저장소에 설치되어 있는지 확인하세요."
 
@@ -3157,9 +3231,6 @@ msgstr "\"%s\"에 대해 위치가 변경되었습니다"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "장치가 항상 VPN 터널에 있어야 합니다."
 
-msgid "Manage devices"
-msgstr "장치 관리"
-
 msgid "More actions"
 msgstr "추가 작업"
 
@@ -3187,8 +3258,8 @@ msgstr "이용 가능한 사용자 지정 목록 없음"
 msgid "No internet connection"
 msgstr "인터넷에 연결되지 않음"
 
-msgid "No locations found"
-msgstr "위치를 찾을 수 없음"
+msgid "No matching servers found."
+msgstr "일치하는 서버를 찾을 수 없습니다."
 
 msgid "No recent selection history"
 msgstr "최근 선택 내역이 없습니다"
@@ -3228,6 +3299,12 @@ msgstr "유효한 원격 서버 포트를 입력하세요"
 
 msgid "Please press connect to request VPN permission"
 msgstr "VPN 권한을 요청하려면 연결을 누르세요"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "장치를 재시작하고 다시 연결해 주세요. 그래도 해결되지 않는다면 %s에 스웨덴어 또는 영어로 이메일을 보내주세요."
+
+msgid "Please try changing your filters."
+msgstr "필터를 변경해 보세요."
 
 msgid "Privacy"
 msgstr "개인 정보 보호"
@@ -3316,9 +3393,6 @@ msgstr "\"현재\" 방법은 앱이 API에 연결하기 위해 사용하는 방�
 msgid "The app is blocking internet, please disconnect first"
 msgstr "해당 앱이 인터넷을 차단하고 있습니다. 먼저 연결 해제하세요"
 
-msgid "The device will be removed from the list and logged out."
-msgstr "장치가 목록에서 제거되고 로그아웃됩니다."
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
 
@@ -3376,6 +3450,12 @@ msgstr "DNS 서버 업데이트"
 msgid "Update list name"
 msgstr "목록 이름 업데이트"
 
+msgid "Update server list"
+msgstr "서버 목록 업데이트"
+
+msgid "Updating server list in the background..."
+msgstr "백그라운드에서 서버 목록을 업데이트하는 중..."
+
 msgid "Use method"
 msgstr "방법 사용"
 
@@ -3412,9 +3492,6 @@ msgstr "구매 확인 중..."
 msgid "Verifying voucher…"
 msgstr "바우처 확인 중…"
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 각 장치에는 로그인 시 이름이 부여됩니다."
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "아직 구매를 확인하고 있으며, 다소 시간이 걸릴 수 있습니다. 확인이 완료되면 시간이 추가됩니다."
 
@@ -3436,11 +3513,17 @@ msgstr "WireGuard 난독화"
 msgid "WireGuard port"
 msgstr "WireGuard 포트"
 
+msgid "Yes, log out device"
+msgstr "예, 장치에서 로그아웃"
+
 msgid "\"%s\" was created"
 msgstr "\"%s\"이(가) 생성되었습니다"
 
 msgid "\"%s\" was deleted"
 msgstr "\"%s\"이(가) 삭제되었습니다"
+
+msgid "click here"
+msgstr "여기를 클릭하세요"
 
 msgid "here"
 msgstr "여기"

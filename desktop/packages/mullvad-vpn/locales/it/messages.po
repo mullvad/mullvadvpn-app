@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
-"PO-Revision-Date: 2025-09-30 07:30\n"
+"PO-Revision-Date: 2025-10-20 06:58\n"
 
 msgid "%(amount)d more..."
 msgstr "Altri %(amount)d..."
@@ -168,6 +168,11 @@ msgstr "Abilita comunque"
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
 msgstr "Abilita Solo diretta"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "Impossibile recuperare l'elenco dei dispositivi"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "IMPOSSIBILE STABILIRE UNA CONNESSIONE PROTETTA"
@@ -436,6 +441,10 @@ msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "Impostazioni UDP-over-TCP"
 
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "Usa il tasto freccia destra per evidenziare il pulsante delle impostazioni."
+
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
@@ -453,6 +462,11 @@ msgstr "Attualmente non disponibile"
 msgctxt "account-view"
 msgid "Log out"
 msgstr "Esci"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "Gestisci dispositivi"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
@@ -558,6 +572,10 @@ msgstr "Inserisci una porta localhost valida."
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
 msgstr "Inserisci una porta di server remoto valida."
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "Seleziona un nome per il metodo di accesso non ancora in uso."
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
@@ -1008,14 +1026,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr "Modifica bridge personalizzato"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "Vuoi davvero disconnettere <b>%(deviceName)s</b>?"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1027,6 +1037,11 @@ msgstr "Continua con il login"
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
 msgstr "Creazione: %(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "Dispositivo corrente"
 
 msgctxt "device-management"
 msgid "Device is inactive"
@@ -1061,15 +1076,38 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "Se ti disconnetti, il dispositivo e il relativo nome verranno rimossi. Quando accedi nuovamente, il dispositivo assumerà un nuovo nome."
 
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "Gestisci dispositivi"
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "Disconnettiti da almeno un dispositivo rimuovendolo dall'elenco seguente. Puoi trovare il nome del dispositivo corrispondente nelle impostazioni dell'account del dispositivo."
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "Rimuovi"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "Rimuovere <em>%(deviceName)s?</em>"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
 msgstr "Fantastico!"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "Il dispositivo verrà rimosso dall'elenco e disconnesso."
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
@@ -1085,10 +1123,16 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "Troppi dispositivi"
 
-#. Button label for confirming logout of another device.
+#. Button text to retry fetching devices.
 msgctxt "device-management"
-msgid "Yes, log out device"
-msgstr "Sì, disconnetti dal dispositivo"
+msgid "Try again"
+msgstr "Riprova"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "Visualizza e gestisci tutti i dispositivi da cui effettui l'accesso. Puoi avere contemporaneamente fino a 5 dispositivi su un account. Ogni dispositivo riceve un nome quando si effettua l'accesso per aiutarti a distinguerli facilmente."
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
@@ -1363,6 +1407,13 @@ msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr "La porta %(wireGuard)s selezionata non è supportata, cambiala in "
 
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgstr "Questo dispositivo ora si chiama <em>%(deviceName)s</em>. Per maggiori informazioni, consulta la sezione \"Gestisci dispositivi\" in Account."
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1398,10 +1449,6 @@ msgstr "VERIFICA COMPLETA! AVVIO DEL PROGRAMMA DI INSTALLAZIONE..."
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "VERIFICA NON RIUSCITA"
-
-msgctxt "in-app-notifications"
-msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "Benvenuto, questo dispositivo ora si chiama <b>%(deviceName)s</b>. Per maggiori dettagli, premi il pulsante delle informazioni in Account."
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1529,12 +1576,6 @@ msgstr "Errore"
 msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "Impossibile creare l'account"
-
-#. Error message shown above login input when trying to login but the app fails
-#. to fetch the list of registered devices.
-msgctxt "login-view"
-msgid "Failed to fetch list of devices"
-msgstr "Impossibile recuperare l'elenco dei dispositivi"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
@@ -2138,6 +2179,13 @@ msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "L'applicazione %(applicationName)s causa problemi e non può essere esclusa dal tunnel VPN."
 
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "%(splitTunneling)s non supportato dal tuo sistema."
+
 msgctxt "split-tunneling-view"
 msgid "Add"
 msgstr "Aggiungi"
@@ -2149,6 +2197,11 @@ msgstr "Tutte le app"
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr "Scegli le app che desideri escludere dal tunnel VPN."
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "Clicca qui per scoprire di più"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
@@ -2196,6 +2249,14 @@ msgstr "Riprova o invia una segnalazione del problema."
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
 msgstr "Riavvia il servizio Mullvad"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "Per utilizzare %(splitTunneling)s, passa a una versione del kernel Linux che supporti cgroup v1."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2511,8 +2572,8 @@ msgstr "Connettiti automaticamente al server all'avvio dell'app."
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
-msgstr "Disabilita <b>%(customDnsFeatureName)s</b> di seguito per attivare queste impostazioni."
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "Disabilita \"%(customDnsFeatureName)s\" di seguito per attivare queste impostazioni."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2704,6 +2765,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "Se un osservatore monitora questi pacchetti di dati, %(daita)s rende molto più difficile per lui identificare quali siti web stai visitando o con chi stai comunicando."
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr "Versione IP"
@@ -2713,12 +2775,23 @@ msgid "It does this by performing an extra key exchange using a quantum safe alg
 msgstr "L'operazione viene effettuata eseguendo uno scambio di chiavi aggiuntivo con un algoritmo di sicurezza quantistica e mescolando il risultato nella normale crittografia di WireGuard. Questo passaggio aggiuntivo utilizza circa 500 kiB di traffico ogni volta che viene stabilito un nuovo tunnel."
 
 msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr "LWO"
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "Multihop"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "Il multihop viene utilizzato per abilitare DAITA per la posizione selezionata"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
@@ -2733,6 +2806,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "Non tutti i nostri server sono abilitati per %(daita)s. Pertanto, utilizziamo automaticamente il multihop per abilitare %(daita)s con un server qualsiasi."
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "Offuscamento"
@@ -2743,6 +2817,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "L'offuscamento nasconde il traffico WireGuard all'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata."
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Porta"
@@ -2804,10 +2879,6 @@ msgstr "Questa funzionalità rende il tunnel WireGuard resistente ai potenziali 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
 msgstr "UDP-over-TCP"
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
-msgstr "Porta UDP-over-TCP"
 
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
@@ -2905,6 +2976,9 @@ msgstr "Aggiungi tempo"
 msgid "Adding method..."
 msgstr "Aggiunta metodo..."
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "Dopo aver aggiornato un'app VPN su Android 16, i dispositivi potrebbero trovarsi in uno stato in cui le app VPN non sono più in grado di accedere a Internet."
+
 msgid "Agree and continue"
 msgstr "Accetta e continua"
 
@@ -2919,6 +2993,12 @@ msgstr "VPN sempre attiva assegnata a %s"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN sempre attiva assegnata a un'altra VPN"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "Android 16 presenta un problema noto. Riavvia il dispositivo e riprova. Per saperne di più,"
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "Vuoi davvero disconnettere <b>%s</b>?"
 
 msgid "At least one method needs to be enabled"
 msgstr "È necessario abilitare almeno un metodo"
@@ -2952,6 +3032,9 @@ msgstr "Blocco di Internet (dispositivo offline)"
 
 msgid "Blocking..."
 msgstr "Blocco..."
+
+msgid "Can't connect?"
+msgstr "Impossibile connetterti?"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "Le modifiche alle impostazioni relative al DNS potrebbero non avere effetto immediato a causa dei risultati memorizzati nella cache."
@@ -2989,9 +3072,6 @@ msgstr "Crea nuovo elenco"
 msgid "Critical error (your attention is required)"
 msgstr "Errore critico (è necessario intervenire)"
 
-msgid "Current device"
-msgstr "Dispositivo corrente"
-
 msgid "Current: %s"
 msgstr "Attuale: %s"
 
@@ -3012,9 +3092,6 @@ msgstr "Eliminare il metodo?"
 
 msgid "Device IP version"
 msgstr "Versione IP dispositivo"
-
-msgid "Disable \"%s\" below to activate these settings."
-msgstr "Disabilita \"%s\" di seguito per attivare queste impostazioni."
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Disabilita tutti i \"%s\" sopra per attivare questa impostazione."
@@ -3094,9 +3171,6 @@ msgstr "Impossibile impostare il valore attuale: motivo sconosciuto"
 msgid "File"
 msgstr "File"
 
-msgid "Filters:"
-msgstr "Filtri:"
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "Affinché la VPN si connetta automaticamente all'avvio del dispositivo, l'app deve disporre delle autorizzazioni VPN. Puoi concederle cliccando su \"Connetti\" nella vista mappa e selezionando \"OK\" se richiesto. Inoltre, assicurati che l'app sia installata nella memoria interna controllando le informazioni di archiviazione nei dettagli dell'app, dalle impostazioni di sistema."
 
@@ -3163,9 +3237,6 @@ msgstr "Le posizioni sono state modificate per \"%s\""
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Assicurati che il dispositivo sia sempre collegato al tunnel VPN."
 
-msgid "Manage devices"
-msgstr "Gestisci dispositivi"
-
 msgid "More actions"
 msgstr "Più azioni"
 
@@ -3193,8 +3264,8 @@ msgstr "Nessun elenco personalizzato disponibile"
 msgid "No internet connection"
 msgstr "Nessuna connessione Internet"
 
-msgid "No locations found"
-msgstr "Nessuna posizione trovata"
+msgid "No matching servers found."
+msgstr "Nessun server corrispondente trovato."
 
 msgid "No recent selection history"
 msgstr "Nessuna cronologia di selezioni recente"
@@ -3234,6 +3305,12 @@ msgstr "Inserisci una porta di server remoto valida"
 
 msgid "Please press connect to request VPN permission"
 msgstr "Premi Connetti per richiedere l'autorizzazione VPN"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "Riavvia il dispositivo e riprova a connetterti. Se non funziona, scrivi un'e-mail a %s in svedese o in inglese."
+
+msgid "Please try changing your filters."
+msgstr "Prova a cambiare i filtri."
 
 msgid "Privacy"
 msgstr "Privacy"
@@ -3322,9 +3399,6 @@ msgstr "Il metodo \"Attuale\" rappresenta il metodo utilizzato dall'app per ragg
 msgid "The app is blocking internet, please disconnect first"
 msgstr "L'app sta bloccando Internet, effettua prima la disconnessione"
 
-msgid "The device will be removed from the list and logged out."
-msgstr "Il dispositivo verrà rimosso dall'elenco e disconnesso."
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Il server DNS locale non funzionerà a meno che non abiliti \"Condivisione rete locale\" nelle impostazioni VPN."
 
@@ -3382,6 +3456,12 @@ msgstr "Aggiorna server DNS"
 msgid "Update list name"
 msgstr "Aggiorna nome elenco"
 
+msgid "Update server list"
+msgstr "Aggiorna elenco server"
+
+msgid "Updating server list in the background..."
+msgstr "Aggiornamento dell'elenco server in background..."
+
 msgid "Use method"
 msgstr "Usa metodo"
 
@@ -3418,9 +3498,6 @@ msgstr "Verifica dell'acquisto..."
 msgid "Verifying voucher…"
 msgstr "Verifica del voucher…"
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Visualizza e gestisci tutti i dispositivi da cui effettui l'accesso. Puoi avere contemporaneamente fino a 5 dispositivi su un account. Ogni dispositivo riceve un nome quando si effettua l'accesso per aiutarti a distinguerli facilmente."
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Stiamo ancora verificando il tuo acquisto, l'operazione potrebbe richiedere del tempo. Il tuo tempo verrà aggiunto quando la verifica avrà avuto esito positivo."
 
@@ -3442,11 +3519,17 @@ msgstr "Offuscamento WireGuard"
 msgid "WireGuard port"
 msgstr "Porta WireGuard"
 
+msgid "Yes, log out device"
+msgstr "Sì, disconnetti il dispositivo"
+
 msgid "\"%s\" was created"
 msgstr "\"%s\" creato"
 
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" eliminato"
+
+msgid "click here"
+msgstr "clicca qui"
 
 msgid "here"
 msgstr "qui"

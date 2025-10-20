@@ -24,6 +24,10 @@
     <string name="all_providers">Alla leverantörer</string>
     <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">Alltid på-VPN har tilldelats %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">När en VPN-app har uppdaterats på Android 16 kan enheterna hamna i ett tillstånd där VPN-apparna inte längre har åtkomst till internet.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Starta om enheten och försök att ansluta igen. Om det inte fungerar kan du skicka ett e-postmeddelande till %1$s på svenska eller engelska.</string>
+    <string name="android_16_upgrade_warning_message">Android 16 har ett känt fel. Starta om din enhet och försök igen. Om du vill veta mer</string>
+    <string name="android_16_upgrade_warning_title">Kan du inte ansluta?</string>
     <string name="any">Valfri</string>
     <string name="api_access_description">Hantera och lägg till anpassade metoder för att komma åt Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen måste kommunicera med en Mullvad API-server för att logga in dig, hämta serverlistor och andra viktiga åtgärder.</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">Nyheter</string>
     <string name="cipher">Chiffrering</string>
     <string name="clear_input">Rensa inmatning</string>
+    <string name="click_here">klicka här</string>
     <string name="close">Stäng</string>
     <string name="collapse">Dölj</string>
     <string name="confirm_ipv6_dns">IPv6 DNS-servern fungerar inte om du inte aktiverar \"IPv6\" under VPN-inställningar.</string>
@@ -247,7 +252,7 @@
     <string name="malware_info">Varning! Blockering av skadlig kod är inte ett antivirusprogram och bör inte behandlas som ett. Det här är bara ett extra skyddslager.</string>
     <string name="manage_devices">Hantera enheter</string>
     <string name="manage_devices_confirm_removal_description_line1">Ta bort %1$s?</string>
-    <string name="manage_devices_confirm_removal_description_line2">Enheten kommer att tas bort från listan och loggas ut.</string>
+    <string name="manage_devices_confirm_removal_description_line2">Enheten tas bort från listan och loggas ut.</string>
     <string name="manage_devices_description">Visa och hantera alla dina inloggade enheter. Du kan ha upp till fem enheter åt gången på ett konto. Varje enhet får ett namn när den loggas in så att du enklare kan skilja dem åt.</string>
     <string name="max_devices_confirm_removal_description">Vill du verkligen logga ut &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsätta med att logga in på den här enheten.</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Inga anpassade listor är tillgängliga</string>
     <string name="no_internet_connection">Ingen internetanslutning</string>
     <string name="no_matching_relay">Inga servrar matchar dina inställningar. Försök att byta server eller ändra inställningarna.</string>
+    <string name="no_matching_servers_found_first_line">Inga överensstämmande servrar hittades.</string>
+    <string name="no_matching_servers_found_second_line">Prova att ändra dina filter.</string>
     <string name="no_recent_selection">Ingen historik av senaste val</string>
     <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_found">Hittades inte</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Återanslut</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
+    <string name="refresh_server_list">Uppdatera serverlistan</string>
     <string name="relay_item_already_selected_as_entry">%1$s har redan valts som ingångsrelä</string>
     <string name="relay_item_already_selected_as_exit">%1$s har redan valts som utgångsrelä</string>
     <string name="relayitem_is_inactive">%1$s är inte tillgänglig</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP över TCP</string>
     <string name="update_dns_server_dialog_title">Uppdatera DNS-server</string>
     <string name="update_list_name">Uppdatera listnamn</string>
+    <string name="updating_server_list_in_the_background">Uppdaterar serverlistan i bakgrunden ...</string>
     <string name="uri_browser_app_not_found">Ingen webbläsarapp är installerad, det gick inte att öppna länken</string>
     <string name="uri_market_app_not_found">Ingen Android-appbutik är installerad, det gick inte att öppna länken</string>
     <string name="use_method">Använd metod</string>

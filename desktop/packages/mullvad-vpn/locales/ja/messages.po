@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-09-30 07:30\n"
+"PO-Revision-Date: 2025-10-20 06:58\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -162,6 +162,11 @@ msgstr "それでも有効にする"
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
 msgstr "ダイレクトのみ有効化"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "デバイスのリストを取得できませんでした"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立できませんでした"
@@ -430,6 +435,10 @@ msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCPの設定"
 
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "右矢印キーを使用して設定ボタンにフォーカスを移動します。"
+
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
@@ -447,6 +456,11 @@ msgstr "現在使用不可"
 msgctxt "account-view"
 msgid "Log out"
 msgstr "ログアウト"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "デバイスを管理"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
@@ -552,6 +566,10 @@ msgstr "有効な localhost のポートを入力してください。"
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
 msgstr "有効なリモートサーバーのポートを入力してください。"
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "まだ使用されていないアクセス方法の名前を選択してください。"
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
@@ -1002,14 +1020,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr "カスタムブリッジの編集"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "本当に<b>%(deviceName)s</b>をログアウトしますか？"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1021,6 +1031,11 @@ msgstr "ログインを続ける"
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
 msgstr "作成日: %(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "現在のデバイス"
 
 msgctxt "device-management"
 msgid "Device is inactive"
@@ -1055,15 +1070,38 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。"
 
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "デバイスを管理"
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。"
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "削除"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "<em>%(deviceName)s</em>を削除しますか？"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
 msgstr "素晴らしい！"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "リストからデバイスが削除され、ログアウトされます。"
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
@@ -1079,10 +1117,16 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "デバイスが多すぎます"
 
-#. Button label for confirming logout of another device.
+#. Button text to retry fetching devices.
 msgctxt "device-management"
-msgid "Yes, log out device"
-msgstr "はい。デバイスをログアウトさせます"
+msgid "Try again"
+msgstr "再試行"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。"
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
@@ -1357,6 +1401,13 @@ msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr "選択した%(wireGuard)sポートには対応していません。"
 
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgstr "このデバイスの名前が<em>%(deviceName)s</em>になりました。詳細はアカウントの [デバイスを管理] でご確認ください。"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1392,10 +1443,6 @@ msgstr "検証が完了しました！インストーラーを起動中..."
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "検証に失敗しました"
-
-msgctxt "in-app-notifications"
-msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "ようこそ。このデバイスの名前は<b>%(deviceName)s</b>です。詳細はアカウントの情報ボタンで確認してください。"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1523,12 +1570,6 @@ msgstr "エラー"
 msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "アカウントを作成できませんでした"
-
-#. Error message shown above login input when trying to login but the app fails
-#. to fetch the list of registered devices.
-msgctxt "login-view"
-msgid "Failed to fetch list of devices"
-msgstr "デバイスのリストを取得できませんでした"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
@@ -2132,6 +2173,13 @@ msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)sには問題があるため、VPNトンネルから除外できません。"
 
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "%(splitTunneling)sはお使いのシステムではサポートされていません。"
+
 msgctxt "split-tunneling-view"
 msgid "Add"
 msgstr "追加"
@@ -2143,6 +2191,11 @@ msgstr "すべてのアプリ"
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr "VPNトンネルから除外するアプリを選択してください。"
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "ここをクリックすると詳細が表示されます"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
@@ -2190,6 +2243,14 @@ msgstr "再試行するか、問題の報告を送信してください。"
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
 msgstr "Mullvadサービスを再起動"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "%(splitTunneling)sを使用するには、cgroup v1をサポートしているLinuxカーネルバージョンに変更してください。"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2505,8 +2566,8 @@ msgstr "アプリ起動時に自動的にサーバーに接続します。"
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
-msgstr "これらの設定を有効にするには、以下で<b>%(customDnsFeatureName)s</b>を無効にしてください。"
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "これらの設定を有効にするには、下の [%(customDnsFeatureName)s] を無効にしてください。"
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2698,6 +2759,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "%(daita)sはこのようなデータパケットが監視されている場合でも、訪問先ウェブサイトや通信相手を特定するのを極めて困難にします。"
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr "IPバージョン"
@@ -2707,12 +2769,23 @@ msgid "It does this by performing an extra key exchange using a quantum safe alg
 msgstr "耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。"
 
 msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr "LWO"
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "マルチホップ"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "選択した場所でDAITAを有効にするためにマルチホップが使用されています"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
@@ -2727,6 +2800,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "すべてのサーバーが%(daita)sに対応しているわけではないため、どのサーバーでも%(daita)sが有効になるようにマルチホップを自動的に使用しています。"
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "難読化"
@@ -2737,6 +2811,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。"
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "ポート"
@@ -2798,10 +2873,6 @@ msgstr "この機能は、WireGuardトンネルに量子コンピューターか
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
 msgstr "UDP-over-TCP"
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
-msgstr "UDP-over-TCPポート"
 
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
@@ -2899,6 +2970,9 @@ msgstr "時間を追加"
 msgid "Adding method..."
 msgstr "方法を追加しています..."
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "Android 16でVPNアプリを更新すると、デバイス上のVPNアプリがインターネットにアクセス不可能な状態になる可能性があります。"
+
 msgid "Agree and continue"
 msgstr "同意して続行"
 
@@ -2913,6 +2987,12 @@ msgstr "Always-on VPNは%sに割り当てられました"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Always-on VPNは他のVPNに割り当てられました"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "Android 16には既知の問題があります。デバイスを再起動して再試行してください。詳細は、"
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "本当に<b>%s</b>をログアウトしますか？"
 
 msgid "At least one method needs to be enabled"
 msgstr "方法は少なくとも 1 つは有効化する必要があります"
@@ -2946,6 +3026,9 @@ msgstr "インターネットをブロック中 (デバイスがオフライン)
 
 msgid "Blocking..."
 msgstr "ブロック中…"
+
+msgid "Can't connect?"
+msgstr "接続できませんか？"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。"
@@ -2983,9 +3066,6 @@ msgstr "リストの新規作成"
 msgid "Critical error (your attention is required)"
 msgstr "重大なエラー (ご注意ください)"
 
-msgid "Current device"
-msgstr "現在のデバイス"
-
 msgid "Current: %s"
 msgstr "現在の設定: %s"
 
@@ -3006,9 +3086,6 @@ msgstr "方法を削除しますか？"
 
 msgid "Device IP version"
 msgstr "デバイスのIPバージョン"
-
-msgid "Disable \"%s\" below to activate these settings."
-msgstr "これらの設定を有効にするには、下の [%s] を無効にしてください。"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "この設定を有効にするには、上の [%s] をすべて無効にしてください。"
@@ -3088,9 +3165,6 @@ msgstr "現在の設定に設定できません。原因は不明です"
 msgid "File"
 msgstr "ファイル"
 
-msgid "Filters:"
-msgstr "絞り込み:"
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "デバイスの起動時にVPNを自動接続するには、アプリにVPNへのアクセス許可が必要です。このアクセス許可は、地図表示で [接続] をクリックし、プロンプトが表示されたら [OK] を選択すると付与できます。また、システム設定のアプリの詳細でストレージ情報を調べ、内部ストレージにアプリがインストールされていることも確認してください。"
 
@@ -3157,9 +3231,6 @@ msgstr "\"%s\" の場所が変更されました"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "デバイスが必ずVPNトンネルを使用するようにします。"
 
-msgid "Manage devices"
-msgstr "デバイスを管理する"
-
 msgid "More actions"
 msgstr "その他の操作"
 
@@ -3187,8 +3258,8 @@ msgstr "利用可能なカスタムリストはありません"
 msgid "No internet connection"
 msgstr "インターネット接続がありません"
 
-msgid "No locations found"
-msgstr "場所が見つかりませんでした"
+msgid "No matching servers found."
+msgstr "一致するサーバーが見つかりません。"
 
 msgid "No recent selection history"
 msgstr "最近の選択履歴はありません"
@@ -3228,6 +3299,12 @@ msgstr "有効なリモートサーバーのポートを入力してください
 
 msgid "Please press connect to request VPN permission"
 msgstr "[接続] を押してVPNへのアクセス許可をリクエストしてください"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "デバイスを再起動して再接続してください。それでも問題が解決しない場合は、%sにスウェーデン語か英語のメールでお問い合わせください。"
+
+msgid "Please try changing your filters."
+msgstr "条件を変更してみてください。"
 
 msgid "Privacy"
 msgstr "プライバシー"
@@ -3316,9 +3393,6 @@ msgstr "\"現在の設定\" の方法は、アプリが API に到達するた�
 msgid "The app is blocking internet, please disconnect first"
 msgstr "アプリがインターネットをブロックしています。先に切断してください"
 
-msgid "The device will be removed from the list and logged out."
-msgstr "リストからデバイスが削除され、ログアウトされます。"
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。"
 
@@ -3376,6 +3450,12 @@ msgstr "DNS サーバーを更新"
 msgid "Update list name"
 msgstr "リスト名の更新"
 
+msgid "Update server list"
+msgstr "サーバーリストを更新"
+
+msgid "Updating server list in the background..."
+msgstr "サーバーリストをバックグラウンドで更新中..."
+
 msgid "Use method"
 msgstr "この方法を使用する"
 
@@ -3412,9 +3492,6 @@ msgstr "購入を確認中..."
 msgid "Verifying voucher…"
 msgstr "バウチャーを確認中…"
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。"
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "現在購入の確認を行っており、これには時間がかかる場合があります。確認が完了すると、時間が追加されます。"
 
@@ -3436,11 +3513,17 @@ msgstr "WireGuardの難読化"
 msgid "WireGuard port"
 msgstr "WireGuardポート"
 
+msgid "Yes, log out device"
+msgstr "はい。デバイスをログアウトします"
+
 msgid "\"%s\" was created"
 msgstr "\"%s\" が作成されました"
 
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" は削除されました"
+
+msgid "click here"
+msgstr "ここをクリックしてください"
 
 msgid "here"
 msgstr "こちらをご覧ください。"

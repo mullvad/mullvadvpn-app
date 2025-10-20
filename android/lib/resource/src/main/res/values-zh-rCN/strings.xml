@@ -24,6 +24,10 @@
     <string name="all_providers">所有提供商</string>
     <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 禁用“始终开启 VPN”。</string>
     <string name="always_on_vpn_error_notification_title">“始终开启 VPN”已分配给 %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">在 Android 16 上更新 VPN 应用后，设备可能会出现 VPN 应用无法连接互联网的情况。</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">请重新启动您的设备，然后再次尝试连接。如果仍然无法连接，请用瑞典语或英语发送电子邮件至 %1$s。</string>
+    <string name="android_16_upgrade_warning_message">Android 16 存在已知问题。请重启您的设备并重试。如需了解详情，</string>
+    <string name="android_16_upgrade_warning_title">无法连接？</string>
     <string name="any">任何</string>
     <string name="api_access_description">管理和添加访问 Mulvad API 的自定义方法。</string>
     <string name="api_access_method_info_first_line">该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</string>
@@ -67,12 +71,13 @@
     <string name="changelog_title">最新变化</string>
     <string name="cipher">加密方式</string>
     <string name="clear_input">清除输入</string>
+    <string name="click_here">点击此处</string>
     <string name="close">关闭</string>
     <string name="collapse">收起</string>
     <string name="confirm_ipv6_dns">除非您在 VPN 设置中启用“IPv6”，否则 IPv6 DNS 服务器将不会运行。</string>
     <string name="confirm_local_dns">除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。</string>
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
-    <string name="confirm_removal">是，退出设备</string>
+    <string name="confirm_removal">是，退出登录设备</string>
     <string name="congrats">恭喜！</string>
     <string name="connect">连接</string>
     <string name="connect_on_start">设备启动时连接</string>
@@ -249,7 +254,7 @@
     <string name="manage_devices_confirm_removal_description_line1">是否移除“%1$s”？</string>
     <string name="manage_devices_confirm_removal_description_line2">该设备将从列表中移除并退出登录。</string>
     <string name="manage_devices_description">查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。</string>
-    <string name="max_devices_confirm_removal_description">确定要退出&lt;b&gt;%1$s&lt;/b&gt;吗？</string>
+    <string name="max_devices_confirm_removal_description">确定要退出 &lt;b&gt;%1$s&lt;/b&gt; 吗？</string>
     <string name="max_devices_resolved_description">您现在可以继续在此设备上登录。</string>
     <string name="max_devices_resolved_title">太棒了！</string>
     <string name="max_devices_warning_description">请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">有可用的自定义列表</string>
     <string name="no_internet_connection">没有互联网连接</string>
     <string name="no_matching_relay">没有与您的设置匹配的服务器，请尝试更改服务器或其他设置。</string>
+    <string name="no_matching_servers_found_first_line">找不到匹配的服务器。</string>
+    <string name="no_matching_servers_found_second_line">请更改您的筛选器。</string>
     <string name="no_recent_selection">无最近选择历史记录</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。</string>
     <string name="not_found">找不到</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
+    <string name="refresh_server_list">更新服务器列表</string>
     <string name="relay_item_already_selected_as_entry">%1$s 已被选为入口中继</string>
     <string name="relay_item_already_selected_as_exit">%1$s 已被选为出口中继</string>
     <string name="relayitem_is_inactive">%1$s 不可用</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">更新 DNS 服务器</string>
     <string name="update_list_name">更新列表名称</string>
+    <string name="updating_server_list_in_the_background">正在后台更新服务器列表…</string>
     <string name="uri_browser_app_not_found">未安装浏览器应用，无法打开链接</string>
     <string name="uri_market_app_not_found">未安装 Android 应用商店，无法打开链接</string>
     <string name="use_method">使用方法</string>

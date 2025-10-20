@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-09-30 07:30\n"
+"PO-Revision-Date: 2025-10-20 06:58\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -162,6 +162,11 @@ msgstr "เปิดใช้งานต่อไป"
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
 msgstr "เปิดใช้งานโดยตรงเท่านั้น"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "ไม่สามารถดึงรายการอุปกรณ์มาได้"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้"
@@ -430,6 +435,10 @@ msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "การตั้งค่า UDP-ผ่าน-TCP"
 
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "ใช้ปุ่มลูกศรขวาเพื่อโฟกัสไปที่ปุ่มการตั้งค่า"
+
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
@@ -447,6 +456,11 @@ msgstr "ไม่พร้อมใช้งานในปัจจุบัน
 msgctxt "account-view"
 msgid "Log out"
 msgstr "ลงชื่อออก"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "จัดการอุปกรณ์"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
@@ -552,6 +566,10 @@ msgstr "โปรดป้อนพอร์ต localhost ที่ถูกต�
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
 msgstr "โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง"
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "โปรดเลือกชื่อสำหรับวิธีการเข้าถึงที่ยังไม่ได้ใช้งาน"
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
@@ -1002,14 +1020,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr "แก้ไข Bridge แบบกำหนดเอง"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบน <b>%(deviceName)s</b>"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1021,6 +1031,11 @@ msgstr "เข้าสู่ระบบต่อ"
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
 msgstr "วันที่สร้าง: %(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "อุปกรณ์ปัจจุบัน"
 
 msgctxt "device-management"
 msgid "Device is inactive"
@@ -1055,15 +1070,38 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่"
 
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "จัดการอุปกรณ์"
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์"
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "ลบ"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "ลบ <em>%(deviceName)s หรือไม่</em>"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
 msgstr "เยี่ยมยอด!"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ"
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
@@ -1079,10 +1117,16 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "มีอุปกรณ์มากเกินไป"
 
-#. Button label for confirming logout of another device.
+#. Button text to retry fetching devices.
 msgctxt "device-management"
-msgid "Yes, log out device"
-msgstr "ใช่ นำอุปกรณ์ออกจากระบบ"
+msgid "Try again"
+msgstr "ลองอีกครั้ง"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย"
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
@@ -1357,6 +1401,13 @@ msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr "ไม่รองรับพอร์ต %(wireGuard)s ที่เลือก โปรดเปลี่ยนพอร์ตภายใต้ส่วน"
 
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgstr "อุปกรณ์นี้ได้รับการตั้งชื่อว่า <em>%(deviceName)s</em> แล้ว ดูเพิ่มเติมได้ภายใต้หัวข้อ \"จัดการอุปกรณ์\" ในบัญชี"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1392,10 +1443,6 @@ msgstr "การตรวจสอบเสร็จสมบูรณ์! ก�
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "การตรวจสอบล้มเหลว"
-
-msgctxt "in-app-notifications"
-msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า <b>%(deviceName)s</b> สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1523,12 +1570,6 @@ msgstr "ข้อผิดพลาด"
 msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "ไม่สามารถสร้างบัญชีได้"
-
-#. Error message shown above login input when trying to login but the app fails
-#. to fetch the list of registered devices.
-msgctxt "login-view"
-msgid "Failed to fetch list of devices"
-msgstr "ไม่สามารถดึงรายการอุปกรณ์มาได้"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
@@ -2132,6 +2173,13 @@ msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s ได้ก่อให้เกิดปัญหาขึ้น และไม่สามารถแยกออกจากช่องทาง VPN ได้"
 
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "%(splitTunneling)s ไม่ได้รับการรองรับโดยระบบของคุณ"
+
 msgctxt "split-tunneling-view"
 msgid "Add"
 msgstr "เพิ่ม"
@@ -2143,6 +2191,11 @@ msgstr "แอปทั้งหมด"
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr "เลือกแอปที่คุณต้องการแยกออกจากช่องทาง VPN"
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "คลิกที่นี่เพื่อเรียนรู้เพิ่มเติม"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
@@ -2190,6 +2243,14 @@ msgstr "โปรดลองใหม่อีกครั้ง หรือ�
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
 msgstr "รีสตาร์ตบริการ Mullavad"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "หากต้องการใช้ %(splitTunneling)s โปรดเปลี่ยนเป็นเวอร์ชันเคอร์เนล Linux ที่รองรับ cgroup v1"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2505,8 +2566,8 @@ msgstr "เชื่อมต่อเซิร์ฟเวอร์โดยอ
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
-msgstr "ปิดใช้งาน <b>%(customDnsFeatureName)s</b> ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้"
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "ปิดใช้งาน \"%(customDnsFeatureName)s\" ด้านล่างเพื่อเปิดใช้งานการตั้งค่าเหล่านี้"
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2698,6 +2759,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "หากผู้สังเกตการณ์เฝ้าดูแพ็กเก็ตข้อมูลเหล่านี้ %(daita)s จะทำให้พวกเขาระบุเว็บไซต์ที่คุณกำลังเยี่ยมชม หรือผู้ที่คุณกำลังติดต่อสื่อสารด้วยได้ยากขึ้นอย่างมาก"
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr "เวอร์ชัน IP"
@@ -2707,12 +2769,23 @@ msgid "It does this by performing an extra key exchange using a quantum safe alg
 msgstr "ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่"
 
 msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr "LWO"
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "มัลติฮอป"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "กำลังใช้ Multihop เพื่อเปิดใช้งาน DAITA สำหรับตำแหน่งที่คุณเลือก"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
@@ -2727,6 +2800,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %(daita)s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %(daita)s กับทุกเซิร์ฟเวอร์"
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "การทำให้ข้อมูลยุ่งเหยิง"
@@ -2737,6 +2811,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้"
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "พอร์ต"
@@ -2798,10 +2873,6 @@ msgstr "คุณลักษณะนี้จะช่วยให้ช่อ
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
 msgstr "UDP-ผ่าน-TCP"
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
-msgstr "พอร์ต UDP-ผ่าน-TCP"
 
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
@@ -2899,6 +2970,9 @@ msgstr "เพิ่มเวลา"
 msgid "Adding method..."
 msgstr "กำลังเพิ่มวิธีการ..."
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "หลังจากอัปเดตแอป VPN บน Android 16 อุปกรณ์อาจอยู่ในสถานะที่แอป VPN ไม่สามารถเข้าถึงอินเทอร์เน็ตได้อีกต่อไป"
+
 msgid "Agree and continue"
 msgstr "ยอมรับและดำเนินการต่อ"
 
@@ -2913,6 +2987,12 @@ msgstr "VPN เปิดอยู่เสมอ ได้รับการม�
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN เปิดอยู่เสมอ ได้รับการมอบหมายไปยัง VPN อื่นแล้ว"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "Android 16 มีปัญหาที่ทราบแล้ว โปรดรีสตาร์ทอุปกรณ์ของคุณแล้วลองอีกครั้ง หากต้องการเรียนรู้เพิ่มเติม"
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ <b>%s</b>"
 
 msgid "At least one method needs to be enabled"
 msgstr "จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ"
@@ -2946,6 +3026,9 @@ msgstr "กำลังบล็อกอินเทอร์เน็ต (อ�
 
 msgid "Blocking..."
 msgstr "กำลังบล็อก..."
+
+msgid "Can't connect?"
+msgstr "ไม่สามารถเชื่อมต่อได้ใช่ไหม"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้"
@@ -2983,9 +3066,6 @@ msgstr "สร้างรายการใหม่"
 msgid "Critical error (your attention is required)"
 msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)"
 
-msgid "Current device"
-msgstr "อุปกรณ์ปัจจุบัน"
-
 msgid "Current: %s"
 msgstr "ปัจจุบัน: %s"
 
@@ -3006,9 +3086,6 @@ msgstr "ลบวิธีการหรือไม่"
 
 msgid "Device IP version"
 msgstr "เวอร์ชัน IP ของอุปกรณ์"
-
-msgid "Disable \"%s\" below to activate these settings."
-msgstr "ปิดใช้งาน \"%s\" ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ปิดใช้งาน \"%s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้"
@@ -3088,9 +3165,6 @@ msgstr "ไม่สามารถตั้งค่าเป็นปัจจ
 msgid "File"
 msgstr "ไฟล์"
 
-msgid "Filters:"
-msgstr "ตัวกรอง:"
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "เพื่อให้ VPN เชื่อมต่อโดยอัตโนมัติเมื่ออุปกรณ์เริ่มทำงาน แอปต้องมีสิทธิ์ VPN คุณสามารถให้สิทธิ์เหล่านี้ได้โดยคลิก \"เชื่อมต่อ\" ในมุมมองแผนที่ และเลือก \"ตกลง\" หากได้รับแจ้ง นอกจากนี้ โปรดตรวจสอบให้แน่ใจว่าแอปติดตั้งอยู่ในพื้นที่จัดเก็บข้อมูลภายใน โดยตรวจสอบข้อมูลพื้นที่จัดเก็บข้อมูลในรายละเอียดแอปในการตั้งค่าระบบ"
 
@@ -3157,9 +3231,6 @@ msgstr "ตำแหน่งที่ตั้งสำหรับ \"%s\" ม�
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "ตรวจสอบให้แน่ใจว่า อุปกรณ์อยู่ในช่องทาง VPN เสมอ"
 
-msgid "Manage devices"
-msgstr "จัดการอุปกรณ์"
-
 msgid "More actions"
 msgstr "การดำเนินการเพิ่มเติม"
 
@@ -3187,8 +3258,8 @@ msgstr "ไม่มีรายการแบบกำหนดเองที
 msgid "No internet connection"
 msgstr "ไม่มีการเชื่อมต่ออินเทอร์เน็ต"
 
-msgid "No locations found"
-msgstr "ไม่พบตำแหน่งที่ตั้ง"
+msgid "No matching servers found."
+msgstr "ไม่พบเซิร์ฟเวอร์ที่ตรงกัน"
 
 msgid "No recent selection history"
 msgstr "ไม่มีประวัติการเลือกล่าสุด"
@@ -3228,6 +3299,12 @@ msgstr "โปรดป้อนพอร์ตเซิร์ฟเวอร์
 
 msgid "Please press connect to request VPN permission"
 msgstr "กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "โปรดรีสตาร์ทอุปกรณ์ของคุณและลองเชื่อมต่ออีกครั้ง หากวิธีนี้ไม่ได้ผล โปรดเขียนอีเมลถึง %s เป็นภาษาสวีเดนหรืออังกฤษ"
+
+msgid "Please try changing your filters."
+msgstr "โปรดลองเปลี่ยนตัวกรองของคุณ"
 
 msgid "Privacy"
 msgstr "ความเป็นส่วนตัว"
@@ -3316,9 +3393,6 @@ msgstr "วิธีการ \"ปัจจุบัน\" แสดงถึง
 msgid "The app is blocking internet, please disconnect first"
 msgstr "แอปกำลังปิดกั้นอินเทอร์เน็ต โปรดตัดการเชื่อมต่อก่อน"
 
-msgid "The device will be removed from the list and logged out."
-msgstr "อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ"
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการตั้งค่า VPN"
 
@@ -3376,6 +3450,12 @@ msgstr "อัปเดตเซิร์ฟเวอร์ DNS"
 msgid "Update list name"
 msgstr "อัปเดตชื่อรายการ"
 
+msgid "Update server list"
+msgstr "อัปเดตรายการเซิร์ฟเวอร์"
+
+msgid "Updating server list in the background..."
+msgstr "กำลังอัปเดตรายชื่อเซิร์ฟเวอร์ในพื้นหลัง..."
+
 msgid "Use method"
 msgstr "ใช้วิธีการ"
 
@@ -3412,9 +3492,6 @@ msgstr "กำลังตรวจสอบยืนยันการซื้
 msgid "Verifying voucher…"
 msgstr "กำลังตรวจสอบยืนยันบัตรกำนัล…"
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย"
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "เรากำลังตรวจสอบการสั่งซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ หากการตรวจสอบเสร็จสมบูรณ์ เราจะเพิ่มเวลาของคุณ"
 
@@ -3436,11 +3513,17 @@ msgstr "การทำให้ข้อมูลยุ่งเหยิงข
 msgid "WireGuard port"
 msgstr "พอร์ต WireGuard"
 
+msgid "Yes, log out device"
+msgstr "ใช่ นำอุปกรณ์ออกจากระบบ"
+
 msgid "\"%s\" was created"
 msgstr "\"%s\" ถูกสร้างแล้ว"
 
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" ถูกลบแล้ว"
+
+msgid "click here"
+msgstr "คลิกที่นี่"
 
 msgid "here"
 msgstr "ที่นี่"

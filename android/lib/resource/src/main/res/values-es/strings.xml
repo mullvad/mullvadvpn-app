@@ -24,6 +24,10 @@
     <string name="all_providers">Todos los proveedores</string>
     <string name="always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa en &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar la VPN de Mullvad.</string>
     <string name="always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Tras actualizar una aplicación VPN en Android 16, los dispositivos podrían terminar en un estado en el que las aplicaciones VPN ya no puedan conectarse a Internet.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Reinicie su dispositivo e intente conectarse de nuevo. Si esto no funciona, escriba un correo electrónico a %1$s en sueco o inglés.</string>
+    <string name="android_16_upgrade_warning_message">Android 16 tiene un problema conocido. Reinicie su dispositivo e inténtelo de nuevo. Para obtener más información,</string>
+    <string name="android_16_upgrade_warning_title">¿No se puede conectar?</string>
     <string name="any">Cualquiera</string>
     <string name="api_access_description">Gestione y añada métodos personalizados para acceder a la API de Mullvad.</string>
     <string name="api_access_method_info_first_line">La aplicación necesita comunicarse con un servidor API de Mullvad para iniciar su sesión, obtener las listas de servidores y otras operaciones críticas.</string>
@@ -67,12 +71,13 @@
     <string name="changelog_title">Novedades</string>
     <string name="cipher">Cifrado</string>
     <string name="clear_input">Borrar entrada</string>
+    <string name="click_here">haga clic aquí</string>
     <string name="close">Cerrar</string>
     <string name="collapse">Contraer</string>
     <string name="confirm_ipv6_dns">El servidor IPv6 DNS no funcionará a no ser que habilite la opción «IPv6» en la configuración de la VPN.</string>
     <string name="confirm_local_dns">El servidor DNS local no funcionará a no ser que habilite la opción «Uso compartido de red local» en la configuración de la VPN.</string>
     <string name="confirm_no_email">Va a enviar el informe de problemas sin indicar una forma de contacto. Para obtener una respuesta sobre el informe, necesita especificar su dirección de correo electrónico.</string>
-    <string name="confirm_removal">Sí, cerrar sesión</string>
+    <string name="confirm_removal">Sí, cerrar sesión en el dispositivo</string>
     <string name="congrats">¡Enhorabuena!</string>
     <string name="connect">Conectar</string>
     <string name="connect_on_start">Conectar al iniciar el dispositivo</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">No hay listas personalizadas disponibles</string>
     <string name="no_internet_connection">No hay conexión a Internet</string>
     <string name="no_matching_relay">Ningún servidor coincide con su configuración, pruebe con otro servidor u otra configuración.</string>
+    <string name="no_matching_servers_found_first_line">No se han encontrado servidores coincidentes.</string>
+    <string name="no_matching_servers_found_second_line">Intente cambiar los filtros.</string>
     <string name="no_recent_selection">No hay historial de selecciones recientes</string>
     <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
     <string name="not_found">No encontrado</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Reconectar</string>
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
+    <string name="refresh_server_list">Actualizar lista de servidores</string>
     <string name="relay_item_already_selected_as_entry">%1$s ya está seleccionado como retransmisor de entrada</string>
     <string name="relay_item_already_selected_as_exit">%1$s ya está seleccionado como retransmisor de salida</string>
     <string name="relayitem_is_inactive">%1$s no está disponible</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP sobre TCP</string>
     <string name="update_dns_server_dialog_title">Actualizar servidor DNS</string>
     <string name="update_list_name">Actualizar nombre de la lista</string>
+    <string name="updating_server_list_in_the_background">Actualizando lista de servidores en segundo plano...</string>
     <string name="uri_browser_app_not_found">No hay ninguna aplicación de navegador instalada. No se ha podido abrir el enlace</string>
     <string name="uri_market_app_not_found">No hay ninguna tienda de aplicaciones de Android instalada. No se ha podido abrir el enlace</string>
     <string name="use_method">Utilizar método</string>

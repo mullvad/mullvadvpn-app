@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2025-09-30 07:30\n"
+"PO-Revision-Date: 2025-10-20 06:58\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -162,6 +162,11 @@ msgstr "မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန�
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
 msgstr "တိုက်ရိုက်သီးသန့် ဖွင့်ရန်"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "စက်စာရင်းကို ယူ၍မရခဲ့ပါ"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "ချိတ်ဆက်မှုကို ကာကွယ်ရန် မအောင်မြင်ပါ"
@@ -430,6 +435,10 @@ msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP ဆက်တင်များ"
 
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "ဆက်တင်ခလုတ်ကို ရွေးချယ်ရန် ညာမြှားကီးကို သုံးပါ။"
+
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
@@ -447,6 +456,11 @@ msgstr "လက်ရှိ၌ မရရှိနိုင်ပါ"
 msgctxt "account-view"
 msgid "Log out"
 msgstr "ထွက်ရန်"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "စက်များကို စီမံရန်"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
@@ -552,6 +566,10 @@ msgstr "မှန်ကန်သော စက်တွင်း Host ပေါ�
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
 msgstr "မှန်ကန်သော အဝေးဆာဗာ ပေါ့တ်ကို ရိုက်ထည့်ပါ။"
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "သုံးထားပြီးသားမဟုတ်သည့် ဝင်ခွင့်နည်းလမ်းအတွက် အမည်တစ်ခု ရွေးချယ်ပါ။"
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
@@ -1002,14 +1020,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr "စိတ်ကြိုက် ပေါင်းကူးကို တည်းဖြတ်ရန်"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "<b>%(deviceName)s</b> မှ ထွက်လိုသည်မှာ သေချာပါသလား။"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1021,6 +1031,11 @@ msgstr "ဆက်လက် ဝင်ရောက်ရန်"
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
 msgstr "ဖန်တီးသည့် အချိန်- %(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "လက်ရှိစက်"
 
 msgctxt "device-management"
 msgid "Device is inactive"
@@ -1055,15 +1070,38 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။"
 
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "စက်များကို စီမံရန်"
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။"
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "ဖယ်ရှားရန်"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "<em>%(deviceName)s</em> ကို ဖယ်ရှားမလား"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
 msgstr "အလွန်ကောင်း။"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "စက်ကို စာရင်းမှ ဖယ်ရှားပြီး စနစ်မှ ထွက်သွားလိမ့်မည်။"
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
@@ -1079,10 +1117,16 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "စက်များလွန်းနေသည်"
 
-#. Button label for confirming logout of another device.
+#. Button text to retry fetching devices.
 msgctxt "device-management"
-msgid "Yes, log out device"
-msgstr "စက်မှ ထွက်မည်"
+msgid "Try again"
+msgstr "ထပ်ကြိုးစားရန်"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "သင်ဝင်ရောက်ထားသည့် စက်အားလုံးကို ကြည့်ရှုစီမံပါ။ အကောင့်တစ်ခုလျှင် စက် ၅ လုံးအထိ တစ်ပြိုင်နက်ဝင်ထားနိုင်သည်။ ဝင်ရောက်သည့်အခါတိုင်း ခွဲခြားရလွယ်ကူစေရန် စက်တစ်လုံးချင်းကို အမည်ပေးထားသည်။"
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
@@ -1357,6 +1401,13 @@ msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr "ရွေးထားသည့် %(wireGuard)s ပေါ့တ်ကို ပံ့ပိုးထားခြင်းမရှိပါသဖြင့် ၎င်းကို အောက်တွင် ပြောင်းပေးပါ "
 
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgstr "ဤစက်ကို <em>%(deviceName)s</em> ဟု ယခု အမည်ပေးထားသည်။ အကောင့်အောက်ရှိ \"စက်များ စီမံရန်\" တွင် အသေးစိတ် ကြည့်ရှုပါ။"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1392,10 +1443,6 @@ msgstr "စစ်ဆေးမှု ပြီးစီးပါပြီ။ ထ�
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "စစ်ဆေးမှု မအောင်မြင်ပါ"
-
-msgctxt "in-app-notifications"
-msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက်ကို <b>%(deviceName)s</b> ဟု ခေါ်ဆိုပါမည်။ နောက်ထပ်အသေးစိတ်တို့အတွက် အကောင့်တွင် အချက်အလက် ခလုတ်ကို နှိပ်၍ ကြည့်နိုင်သည်။"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1523,12 +1570,6 @@ msgstr "ချို့ယွင်းချက်"
 msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ"
-
-#. Error message shown above login input when trying to login but the app fails
-#. to fetch the list of registered devices.
-msgctxt "login-view"
-msgid "Failed to fetch list of devices"
-msgstr "စက်စာရင်းကို ယူရန် မအောင်မြင်ခဲ့ပါ"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
@@ -2132,6 +2173,13 @@ msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s သည် ပြဿနာဖြစ်စေပြီး VPN Tunnel မှ ဖယ်၍ မရနိုင်ပါ။"
 
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "%(splitTunneling)s ကို သင့်စနစ်က မပံ့ပိုးပါ။"
+
 msgctxt "split-tunneling-view"
 msgid "Add"
 msgstr "ပေါင်းထည့်ရန်"
@@ -2143,6 +2191,11 @@ msgstr "အက်ပ်များ အားလုံး"
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr "VPN Tunnel မှ ဖယ်ထုတ်လိုသည့် အက်ပ်များကို ရွေးချယ်ပါ။"
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "ပိုမိုသိရှိရန် ဤနေရာကိုနှိပ်ပါ"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
@@ -2190,6 +2243,14 @@ msgstr "ထပ်ကြိုးစားကြည့်ပါ သို့မ�
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
 msgstr "Mullvad ဝန်ဆောင်မှုကို ပြန်လည်စတင်ရန်"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "%(splitTunneling)s ကိုသုံးလိုပါက cgroup v1 ကို ပံ့ပိုးပေးသည့် Linux Kernel ဗားရှင်းသို့ ပြောင်းပါ။"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2505,8 +2566,8 @@ msgstr "အက်ပ် စတင်ဆောင်ရွက်ချိန်�
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
-msgstr "ဤဆက်တင်တို့ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ပါ <b>%(customDnsFeatureName)s</b> ကို ပိတ်ပါ။"
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "ဤဆက်တင်များကို ဖွင့်ရန် အောက်ပါ \"%(customDnsFeatureName)s\" ကို ပိတ်ပါ။"
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2698,6 +2759,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "အကဲခတ်သူတစ်ဦးက ဤဒေတာပက်ကတ်များကို စောင့်ကြည့်လျှင် %(daita)s သည် သင်သွားရောက်ကြည့်ရှုနေသော ဝဘ်ဆိုက်များ သို့မဟုတ် သင်ဆက်သွယ်နေသည့်သူများကို ခွဲခြားဖော်ထုတ်ရန် ၎င်းတို့အတွက် သိသိသာသာ ခက်ခဲစေသည်။"
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr "IP ဗားရှင်း"
@@ -2707,12 +2769,23 @@ msgid "It does this by performing an extra key exchange using a quantum safe alg
 msgstr "Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။"
 
 msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr "LWO"
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "မာလ်တီဟော့ပ်"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "သင်ရွေးချယ်ထားသည့် တည်နေရာအတွက် DAITA ကိုဖွင့်ရန် မာလ်တီဟော့ပ်ကို သုံးထားသည်"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
@@ -2727,6 +2800,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %(daita)s ကိုဖွင့်ထားခြင်းမရှိပါ။ ထို့ကြောင့် ကျွန်ုပ်တို့သည် မည်သည့်ဆာဗာနှင့်မဆို %(daita)s ကိုဖွင့်ရန် မာလ်တီဟော့ပ်ကို အလိုအလျောက်အသုံးပြုပါသည်။"
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "Obfuscation"
@@ -2737,6 +2811,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ၎င်းကို သုံးနိုင်ပါသည်။"
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "ပေါ့တ်"
@@ -2798,10 +2873,6 @@ msgstr "ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
 msgstr "UDP-over-TCP"
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
-msgstr "UDP-over-TCP ပေါ့တ်"
 
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
@@ -2899,6 +2970,9 @@ msgstr "အချိန်တိုးရန်"
 msgid "Adding method..."
 msgstr "နည်းလမ်း ထည့်နေဆဲ..."
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "Android 16 တွင် VPN အက်ပ်ကို အပ်ဒိတ်လုပ်ပြီးနောက် စက်များတွင် VPN အက်ပ်များက အင်တာနက်ချိတ်မပေးနိုင်တော့သည့် အခြေအနေမျိုး ကြုံရတတ်သည်။"
+
 msgid "Agree and continue"
 msgstr "သဘောတူပြီး ဆက်လုပ်ရန်"
 
@@ -2913,6 +2987,12 @@ msgstr "အမြဲဖွင့် VPN ကို %s သို့ သတ်မ�
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "အမြဲဖွင့် VPN ကို အခြား VPN တစ်ခုသို့ သတ်မှတ်ထားပါသည်"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "Android 16 တွင် သိထားပြီးသား ပြဿနာရှိသည်။ သင့်စက်ကို ရီစတက်ချပြီး ထပ်မံကြိုးစားပါ။ ပိုမိုလေ့လာရန်၊ "
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "<b>%s</b> မှ ထွက်လိုသည်မှာ သေချာပါသလား။"
 
 msgid "At least one method needs to be enabled"
 msgstr "အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်"
@@ -2946,6 +3026,9 @@ msgstr "အင်တာနက် ပိတ်ဆို့နေဆဲ (စက်
 
 msgid "Blocking..."
 msgstr "ပိတ်ဆို့နေဆဲ..."
+
+msgid "Can't connect?"
+msgstr "ချိတ်မရဘူးလား။"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS နှင့်ဆက်စပ်သော ဆက်တင်များ၌ ပြုလုပ်သည့် ပြောင်းလဲမှုများသည် ယာယီသိမ်းထားသော ရလဒ်များကြောင့် ချက်ချင်း အကျိုးမသက်ရောက်နိုင်ပါ။"
@@ -2983,9 +3066,6 @@ msgstr "စာရင်းသစ် ဖန်တီးမည်"
 msgid "Critical error (your attention is required)"
 msgstr "အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)"
 
-msgid "Current device"
-msgstr "လက်ရှိစက်"
-
 msgid "Current: %s"
 msgstr "လက်ရှိ- %s"
 
@@ -3006,9 +3086,6 @@ msgstr "နည်းလမ်းကို ဖျက်မည်လား။"
 
 msgid "Device IP version"
 msgstr "စက် IP ဗားရှင်း"
-
-msgid "Disable \"%s\" below to activate these settings."
-msgstr "ဤဆက်တင်များကို ဖွင့်ရန် အောက်ပါ \"%s\" ကို ပိတ်ပါ။"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ \"%s\" အားလုံးကို ပိတ်ပါ။"
@@ -3088,9 +3165,6 @@ msgstr "လက်ရှိသို့ သတ်မှတ်၍ မရခဲ့�
 msgid "File"
 msgstr "ဖိုင်"
 
-msgid "Filters:"
-msgstr "စစ်ထုတ်မှုများ-"
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "စက်စတင်ချိန်တွင် VPN ကို အလိုအလျောက်ချိတ်ဆက်ရန်အတွက်၊ အက်ပ်တွင် VPN ခွင့်ပြုချက်များ ရှိရမည်။ မြေပုံမြင်ကွင်းရှိ “ချိတ်ဆက်ပါ” ကိုနှိပ်ပြီး “အိုကေ” ကိုရွေးချယ်ခြင်းဖြင့် ခွင့်ပြုချက် ပေးနိုင်သည်။ ထို့အပြင် စနစ်ဆက်တင်များရှိ အက်ပ်အသေးစိတ်တွင် သိုလှောင်သိမ်းဆည်းမှုအချက်အလက်များကို စစ်ဆေးခြင်းဖြင့် အက်ပ်အား စက်တွင်းသိုလှောင်ရာနေရာတွင် ထည့်သွင်းထားကြောင်း သေချာပါစေ။"
 
@@ -3157,9 +3231,6 @@ msgstr "\"%s\" အတွက် တည်နေရာများကို ပြ
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "စက်သည် VPN Tunnel ကို အမြဲဖွင့်ထားကြောင်း သေချာပါစေ။"
 
-msgid "Manage devices"
-msgstr "စက်များကို စီမံရန်"
-
 msgid "More actions"
 msgstr "နောက်ထပ်လုပ်ဆောင်ချက်များ"
 
@@ -3187,8 +3258,8 @@ msgstr "စိတ်ကြိုက် စာရင်းများကို �
 msgid "No internet connection"
 msgstr "အင်တာနက် ချိတ်ဆက်မှု မရှိပါ"
 
-msgid "No locations found"
-msgstr "တည်နေရာများကို ရှာမတွေ့ပါ"
+msgid "No matching servers found."
+msgstr "ကိုက်ညီသည့် ဆာဗာများ မတွေ့ပါ။"
 
 msgid "No recent selection history"
 msgstr "လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ"
@@ -3228,6 +3299,12 @@ msgstr "မှန်ကန်သော အဝေးဆာဗာ ပေါ့တ�
 
 msgid "Please press connect to request VPN permission"
 msgstr "VPN ခွင့်ပြုချက်တောင်းရန် ချိတ်ဆက်ရန်ကို နှိပ်ပေးပါ"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "စက်ကို ရီစတက်ချပြီး ထပ်မံချိတ်ဆက်ကြည့်ပါ။ ချိတ်၍မရသေးလျှင် %s သို့ ဆွီဒင် သို့မဟုတ် အင်္ဂလိပ်ဘာသာစကားဖြင့် အီးမေးလ်ပို့ပါ။"
+
+msgid "Please try changing your filters."
+msgstr "စစ်ထုတ်မှုများကို ပြောင်းကြည့်ပါ။"
 
 msgid "Privacy"
 msgstr "ကိုယ်ရေးအချက်အလက် လုံခြုံရေး"
@@ -3316,9 +3393,6 @@ msgstr "\"လက်ရှိ\" စနစ်သည် API နှင့်ချ�
 msgid "The app is blocking internet, please disconnect first"
 msgstr "အက်ပ်သည် အင်တာနက်ကို ပိတ်ပင်နေသည်၊ ဦးစွာ ချိတ်ဆက်မှုဖြုတ်ပေးပါ"
 
-msgid "The device will be removed from the list and logged out."
-msgstr "စက်ကို စာရင်းမှ ဖယ်ရှားပြီး စနစ်မှ ထွက်သွားလိမ့်မည်။"
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "လိုကယ် DNS ဆာဗာသည် VPN ဆက်တင်များအောက်ရှိ \"လိုကယ် ကွန်ရက် ဝေမျှမှု\"ကို မဖွင့်မချင်း အလုပ်လုပ်မည် မဟုတ်ပါ။"
 
@@ -3376,6 +3450,12 @@ msgstr "DNS ဆာဗာကို အပ်ဒိတ်လုပ်ရန်"
 msgid "Update list name"
 msgstr "စာရင်း အမည်ကို အပ်ဒိတ်လုပ်ရန်"
 
+msgid "Update server list"
+msgstr "ဆာဗာစာရင်းကို အပ်ဒိတ်လုပ်ရန်"
+
+msgid "Updating server list in the background..."
+msgstr "နောက်ခံတွင် ဆာဗာစာရင်းကို အပ်ဒိတ်လုပ်နေသည်..."
+
 msgid "Use method"
 msgstr "နည်းလမ်းကို သုံးရန်"
 
@@ -3412,9 +3492,6 @@ msgstr "ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ..."
 msgid "Verifying voucher…"
 msgstr "ဘောက်ချာကို စစ်ဆေးနေဆဲ…"
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "သင်ဝင်ရောက်ထားသည့် စက်ပစ္စည်းအားလုံးကို ကြည့်ရှုစီမံပါ။ အကောင့်တစ်ခုဖြင့် တစ်ချိန်တည်းတွင် စက်ပစ္စည်း ၅ ခုအထိသုံးနိုင်သည်။ စက်ပစ္စည်းတစ်ခုစီသည် ၎င်းတို့ကို အလွယ်တကူခွဲ၍သိနိုင်ရန် လော့ဂ်အင်ဝင်သည့်အခါ အမည်တစ်ခုရရှိမည်ဖြစ်သည်။"
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "ကျွန်ုပ်တို့သည် သင့်ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ ဖြစ်သည်၊ အချိန်အနည်းငယ် ကြာနိုင်သည်။ စစ်ဆေးမှု အောင်မြင်ပါက သင့်အချိန်ကို တိုးလိုက်ပါမည်။"
 
@@ -3436,11 +3513,17 @@ msgstr "WireGuard Obfuscation\n"
 msgid "WireGuard port"
 msgstr "WireGuard ပေါ့တ်"
 
+msgid "Yes, log out device"
+msgstr "စက်မှ ထွက်မည်"
+
 msgid "\"%s\" was created"
 msgstr "\"%s\" ကို ဖန်တီးလိုက်ပြီ"
 
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" ကို ဖျက်ပြီးပါပြီ"
+
+msgid "click here"
+msgstr "ဤနေရာကိုနှိပ်ပါ"
 
 msgid "here"
 msgstr "ဤနေရာတွင် ပိုမိုဖတ်ရှုနိုင်ပါသည်"

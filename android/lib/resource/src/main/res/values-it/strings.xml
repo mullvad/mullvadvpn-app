@@ -24,6 +24,10 @@
     <string name="all_providers">Tutti i fornitori</string>
     <string name="always_on_vpn_error_notification_content">Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva per &lt;b&gt;%1$s&lt;/b&gt; prima di utilizzare Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN sempre attiva assegnata a %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Dopo aver aggiornato un\'app VPN su Android 16, i dispositivi potrebbero trovarsi in uno stato in cui le app VPN non sono più in grado di accedere a Internet.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Riavvia il dispositivo e riprova a connetterti. Se non funziona, scrivi un\'e-mail a %1$s in svedese o in inglese.</string>
+    <string name="android_16_upgrade_warning_message">Android 16 presenta un problema noto. Riavvia il dispositivo e riprova. Per saperne di più,</string>
+    <string name="android_16_upgrade_warning_title">Impossibile connetterti?</string>
     <string name="any">Qualsiasi</string>
     <string name="api_access_description">Gestisci e aggiungi metodi personalizzati per accedere all\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'app deve comunicare con un server API Mullvad per accedere, recuperare elenchi di server e altre operazioni critiche.</string>
@@ -67,12 +71,13 @@
     <string name="changelog_title">Novità</string>
     <string name="cipher">Codice</string>
     <string name="clear_input">Cancella inserimento</string>
+    <string name="click_here">clicca qui</string>
     <string name="close">Chiudi</string>
     <string name="collapse">Comprimi</string>
     <string name="confirm_ipv6_dns">Il server DNS IPv6 non funzionerà a meno che non abiliti \"IPv6\" nelle impostazioni VPN.</string>
     <string name="confirm_local_dns">Il server DNS locale non funzionerà a meno che non abiliti \"Condivisione rete locale\" nelle impostazioni VPN.</string>
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
-    <string name="confirm_removal">Sì, disconnetti dal dispositivo</string>
+    <string name="confirm_removal">Sì, disconnetti il dispositivo</string>
     <string name="congrats">Complimenti!</string>
     <string name="connect">Connetti</string>
     <string name="connect_on_start">Connetti all\'avvio del dispositivo</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Nessun elenco personalizzato disponibile</string>
     <string name="no_internet_connection">Nessuna connessione Internet</string>
     <string name="no_matching_relay">Nessun server corrispondente alle tue impostazioni, prova a cambiare server o impostazioni.</string>
+    <string name="no_matching_servers_found_first_line">Nessun server corrispondente trovato.</string>
+    <string name="no_matching_servers_found_second_line">Prova a cambiare i filtri.</string>
     <string name="no_recent_selection">Nessuna cronologia di selezioni recente</string>
     <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_found">Non trovato</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Riconnetti</string>
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>
+    <string name="refresh_server_list">Aggiorna elenco server</string>
     <string name="relay_item_already_selected_as_entry">%1$s già selezionato come entry relay</string>
     <string name="relay_item_already_selected_as_exit">%1$s già selezionato come exit relay</string>
     <string name="relayitem_is_inactive">%1$s non disponibile</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Aggiorna server DNS</string>
     <string name="update_list_name">Aggiorna nome elenco</string>
+    <string name="updating_server_list_in_the_background">Aggiornamento dell\'elenco server in background...</string>
     <string name="uri_browser_app_not_found">Nessuna app browser installata, impossibile aprire il link</string>
     <string name="uri_market_app_not_found">Nessun app store Android installato, impossibile aprire il link</string>
     <string name="use_method">Usa metodo</string>
