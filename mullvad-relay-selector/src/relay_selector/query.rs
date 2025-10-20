@@ -285,7 +285,7 @@ impl WireguardRelayQuery {
 }
 
 impl WireguardRelayQuery {
-    pub const fn new() -> WireguardRelayQuery {
+    pub fn new() -> WireguardRelayQuery {
         WireguardRelayQuery {
             port: Constraint::Any,
             ip_version: Constraint::Any,
@@ -295,7 +295,7 @@ impl WireguardRelayQuery {
             obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
             daita_use_multihop_if_necessary: Constraint::Any,
-            quantum_resistant: QuantumResistantState::Auto,
+            quantum_resistant: QuantumResistantState::default(),
         }
     }
 
