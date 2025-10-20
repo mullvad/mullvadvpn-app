@@ -597,7 +597,7 @@ export default class AppRenderer {
     await IpcRendererEventChannel.settings.setWireguardMtu(mtu);
   };
 
-  public setWireguardQuantumResistant = async (quantumResistant?: boolean) => {
+  public setWireguardQuantumResistant = async (quantumResistant: boolean) => {
     const actions = this.reduxActions;
     actions.settings.updateWireguardQuantumResistant(quantumResistant);
     await IpcRendererEventChannel.settings.setWireguardQuantumResistant(quantumResistant);
