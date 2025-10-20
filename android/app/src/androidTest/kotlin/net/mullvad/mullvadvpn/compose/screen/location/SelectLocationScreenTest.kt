@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
+import net.mullvad.mullvadvpn.compose.data.createSimpleRelayListItemList
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -24,8 +25,12 @@ import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.performLongClick
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.Lce
@@ -341,6 +346,95 @@ class SelectLocationScreenTest {
             // Assert
             onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG).assertExists()
         }
+
+    @Test
+    fun whenOpeningScreenAndRecentsEnabledShouldScrollToTheSelectedRecent() {
+        composeExtension.use {
+            // Arrange
+            val selectableItem = DUMMY_RELAY_COUNTRIES[3].relays.last()
+            every { listViewModel.uiState } returns
+                MutableStateFlow(
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems =
+                                createSimpleRelayListItemList(
+                                    recentItems = listOf(selectableItem),
+                                    customListItem = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                                    locationItems = DUMMY_RELAY_COUNTRIES,
+                                    selectedItem = selectableItem.id,
+                                ),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
+                        )
+                    )
+                )
+            initScreen(
+                state =
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = true,
+                        )
+                    )
+            )
+
+            // Assert
+            onNodeWithTagAndText(
+                    testTag = RECENT_NAME_TAG,
+                    text = selectableItem.name,
+                    useUnmergedTree = true,
+                )
+                .assertExists()
+        }
+    }
+
+    @Test
+    fun whenOpeningScreenAndRecentsDisabledShouldScrollToTheSelectedLocation() {
+        composeExtension.use {
+            // Arrange
+            val selectableItem = DUMMY_RELAY_COUNTRIES[3].relays.last()
+            every { listViewModel.uiState } returns
+                MutableStateFlow(
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems =
+                                createSimpleRelayListItemList(
+                                    customListItem = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                                    locationItems = DUMMY_RELAY_COUNTRIES,
+                                    selectedItem = selectableItem.id,
+                                ),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
+                        )
+                    )
+                )
+            initScreen(
+                state =
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.Single,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                            isRecentsEnabled = false,
+                        )
+                    )
+            )
+
+            // Assert
+            onNodeWithTagAndText(
+                    testTag = GEOLOCATION_NAME_TAG,
+                    text = selectableItem.name,
+                    useUnmergedTree = true,
+                )
+                .assertExists()
+        }
+    }
 
     companion object {
         private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"+\""
