@@ -383,7 +383,7 @@ msgctxt "accessibility"
 msgid "More information"
 msgstr ""
 
-#. Accessbility label for link to go to download page.
+#. Accessibility label for link to go to download page.
 msgctxt "accessibility"
 msgid "New version available, click here to go to download page, opens externally"
 msgstr ""
@@ -771,8 +771,13 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr ""
 
+#. Info about which directory the app update will be downloaded to
 msgctxt "app-upgrade-view"
 msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr ""
+
+msgctxt "app-upgrade-view"
+msgid "Latest version: %(version)s"
 msgstr ""
 
 #. Text displayed when there are no updates for this platform in the next app version
@@ -846,6 +851,11 @@ msgstr ""
 #. %(version)s - The new version of the app.
 msgctxt "app-upgrade-view"
 msgid "Version %(version)s"
+msgstr ""
+
+#. The user has the latest version of the app and does not need to be update
+msgctxt "app-upgrade-view"
+msgid "You are using the latest version"
 msgstr ""
 
 msgctxt "auth-failure"
