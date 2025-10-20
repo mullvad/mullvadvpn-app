@@ -141,6 +141,7 @@ jobs:
         run: >
           ./building/container-run.sh android android/gradlew -p android --console plain
           :app:assembleOssProdDebug
+          :app:assemblePlayStagemoleDebug
           assembleOssProdAndroidTest
           :test:mockapi:assemble
           :test:e2e:assemble
