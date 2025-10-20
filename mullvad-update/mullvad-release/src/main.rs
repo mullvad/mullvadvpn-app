@@ -172,7 +172,7 @@ async fn main() -> anyhow::Result<()> {
             if latest_file {
                 match HttpVersionInfoProvider::get_latest_versions_file()
                     .await
-                    .and_then(|json| {
+                    .and_then(|json: serde_json::Value| {
                         serde_json::to_string_pretty(&json).context("Failed to format JSON")
                     }) {
                     Ok(json) => {
