@@ -104,7 +104,7 @@ export interface ISettingsReduxState {
   showBetaReleases: boolean;
   wireguard: {
     mtu?: number;
-    quantumResistant?: boolean;
+    quantumResistant: boolean;
     daita?: IDaitaSettings;
   };
   dns: IDnsOptions;
@@ -155,7 +155,9 @@ const initialState: ISettingsReduxState = {
   bridgeState: 'auto',
   lockdownMode: false,
   showBetaReleases: false,
-  wireguard: {},
+  wireguard: {
+    quantumResistant: true,
+  },
   dns: {
     state: 'default',
     defaultOptions: {
