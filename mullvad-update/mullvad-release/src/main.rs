@@ -170,12 +170,8 @@ async fn main() -> anyhow::Result<()> {
 
             // Download latest.json metadata if available
             if latest_file {
-                match HttpVersionInfoProvider::get_latest_versions_file()
-                    .await
-                    .and_then(|json| {
-                        serde_json::to_string_pretty(&json).context("Failed to format JSON")
-                    }) {
-                    Ok(json) => {
+                match HttpVersionInfoProvider::get_latest_versions_file().await {
+                    Ok(json_str) => {
                         let path = Path::new(LATEST_FILENAME);
 
                         if !assume_yes && path.exists() {
@@ -188,7 +184,7 @@ async fn main() -> anyhow::Result<()> {
                             }
                         }
 
-                        fs::write(path, json).await.context("Failed to write")?;
+                        fs::write(path, json_str).await.context("Failed to write")?;
 
                         println!("Updated {}", path.display());
                     }

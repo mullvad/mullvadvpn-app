@@ -4,11 +4,19 @@ use crate::format::key::VerifyingKey;
 use std::sync::LazyLock;
 use vec1::Vec1;
 
-/// Default repository URL for version metadata
+/// Default URL for the `releases`-API.
+///
+/// Note that this is just a proxy to _some_ of the files in [METADATA_URL].
 #[cfg(feature = "client")]
-pub const META_REPOSITORY_URL: &str = "https://api.mullvad.net/app/releases/";
+pub const RELEASES_URL: &str = "https://api.mullvad.net/app/releases/";
 
-/// Default TLS certificate to pin to
+/// Default URL for version metadata repository.
+#[cfg(feature = "client")]
+pub const METADATA_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
+
+/// Default TLS certificate to pin to.
+///
+/// This is the Let's Encrypt root-certificate.
 #[cfg(feature = "client")]
 pub static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
     const CERT_BYTES: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
