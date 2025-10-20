@@ -1060,7 +1060,6 @@
 		F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F02BF751E300817A42 /* RelayWithDistance.swift */; };
 		F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */; };
 		F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */; };
-		F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */; };
 		F0C13FE42C64F7CB00BD087D /* DAITASettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */; };
 		F0C13FE62C64FB3400BD087D /* TunnelSettingsV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
@@ -1140,7 +1139,6 @@
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 		F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E32412E7AA109004A7EFE /* MultihopContext.swift */; };
-		F9BDE1192E73027E005A8AD9 /* MullvadHFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BDE1182E73027E005A8AD9 /* MullvadHFlow.swift */; };
 		F9C579BD2E8E9AEE00C90C50 /* DaitaWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */; };
 		F9C579C22E8FB55600C90C50 /* LocationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C12E8FB55600C90C50 /* LocationSection.swift */; };
 		F9C579C42E8FE08600C90C50 /* LocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C32E8FE08600C90C50 /* LocationListItem.swift */; };
@@ -2521,7 +2519,6 @@
 		F0B894F02BF751E300817A42 /* RelayWithDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithDistance.swift; sourceTree = "<group>"; };
 		F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Wireguard.swift"; sourceTree = "<group>"; };
 		F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Shadowsocks.swift"; sourceTree = "<group>"; };
-		F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderFooterView.swift; sourceTree = "<group>"; };
 		F0BEFD1F2E4A327A00C19030 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettings.swift; sourceTree = "<group>"; };
 		F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV6.swift; sourceTree = "<group>"; };
@@ -2600,7 +2597,6 @@
 		F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAlert.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
 		F99E32412E7AA109004A7EFE /* MultihopContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopContext.swift; sourceTree = "<group>"; };
-		F9BDE1182E73027E005A8AD9 /* MullvadHFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadHFlow.swift; sourceTree = "<group>"; };
 		F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaWarningView.swift; sourceTree = "<group>"; };
 		F9C579C12E8FB55600C90C50 /* LocationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSection.swift; sourceTree = "<group>"; };
 		F9C579C32E8FE08600C90C50 /* LocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationListItem.swift; sourceTree = "<group>"; };
@@ -3374,7 +3370,6 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				F9BDE1182E73027E005A8AD9 /* MullvadHFlow.swift */,
 				F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */,
 				F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
@@ -6460,7 +6455,6 @@
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
 				587EB672271451E300123C75 /* VPNSettingsViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
-				F9BDE1192E73027E005A8AD9 /* MullvadHFlow.swift in Sources */,
 				7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */,
 				F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */,
 				586C0D892B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift in Sources */,
