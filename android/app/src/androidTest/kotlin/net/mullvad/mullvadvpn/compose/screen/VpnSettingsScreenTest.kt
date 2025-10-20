@@ -56,7 +56,7 @@ class VpnSettingsScreenTest {
         obfuscationMode: ObfuscationMode = ObfuscationMode.Auto,
         selectedUdp2TcpObfuscationPort: Constraint<Port> = Constraint.Any,
         selectedShadowsocksObfuscationPort: Constraint<Port> = Constraint.Any,
-        quantumResistant: QuantumResistantState = QuantumResistantState.Auto,
+        quantumResistant: QuantumResistantState = QuantumResistantState.On,
         selectedWireguardPort: Constraint<Port> = Constraint.Any,
         customWireguardPort: Port? = null,
         availablePortRanges: List<PortRange> = emptyList(),
@@ -362,7 +362,7 @@ class VpnSettingsScreenTest {
             val mockSelectQuantumResistantSettingListener: (QuantumResistantState) -> Unit =
                 mockk(relaxed = true)
             initScreen(
-                state = createDefaultUiState(quantumResistant = QuantumResistantState.Auto).toLc(),
+                state = createDefaultUiState(quantumResistant = QuantumResistantState.Off).toLc(),
                 onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
             )
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
