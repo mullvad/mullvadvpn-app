@@ -473,7 +473,6 @@ internal fun ManagementInterface.DaitaSettings.toDomain(): DaitaSettings =
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
     when (state) {
-        ManagementInterface.QuantumResistantState.State.AUTO -> QuantumResistantState.Auto
         ManagementInterface.QuantumResistantState.State.ON -> QuantumResistantState.On
         ManagementInterface.QuantumResistantState.State.OFF -> QuantumResistantState.Off
         ManagementInterface.QuantumResistantState.State.UNRECOGNIZED ->
@@ -513,7 +512,6 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
     ManagementInterface.QuantumResistantState.newBuilder()
         .setState(
             when (this) {
-                QuantumResistantState.Auto -> ManagementInterface.QuantumResistantState.State.AUTO
                 QuantumResistantState.On -> ManagementInterface.QuantumResistantState.State.ON
                 QuantumResistantState.Off -> ManagementInterface.QuantumResistantState.State.OFF
             }
