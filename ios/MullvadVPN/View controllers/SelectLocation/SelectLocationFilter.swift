@@ -19,9 +19,9 @@ enum SelectLocationFilter: Hashable {
     var title: LocalizedStringKey {
         switch self {
         case .daita:
-            return "Setting: Daita"
+            return "Setting: \("Daita")"
         case .obfuscation:
-            return "Setting: Obfuscation"
+            return "Setting: \("Obfuscation")"
         case .owned:
             return "Owned"
         case .rented:

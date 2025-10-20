@@ -7,13 +7,14 @@ struct DaitaWarningView: View {
             Spacer()
             Text(
                 """
-                    The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings
+                The entry server for \("multihop") is currently overridden by \("DAITA"). To select an entry server, \
+                please first enable “\("Direct only")” or disable “\("DAITA")” in the settings.
                 """
             )
             .multilineTextAlignment(.center)
             .foregroundStyle(Color.mullvadTextSecondary)
             .font(.mullvadSmall)
-            MainButton(text: "Open DAITA settings", style: .default) {
+            MainButton(text: "Open \("DAITA") settings", style: .default) {
                 onOpenDaitaSettings()
             }
             Spacer()

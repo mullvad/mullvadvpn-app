@@ -155,10 +155,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                 Button("Delete") {
                                     alert = .init(
                                         type: .warning,
-                                        messages: ["Are you sure you want to delete \"\(location.name)\""],
+                                        messages: ["Do you want to delete the list **\(location.name)**?"],
                                         action: .init(
                                             type: .danger,
-                                            title: "Delete custom list",
+                                            title: "Delete list",
                                             identifier: nil,
                                             handler: {
                                                 viewModel.deleteCustomList(name: location.name)
@@ -238,7 +238,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                 }
                                 .disabled(isAlreadyInList)
                             }
-                            Button("+ New list") {
+                            Button {
                                 newCustomListAlert = .init(
                                     title: "Add new list",
                                     placeholder: "List name",
@@ -260,6 +260,8 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                     },
                                     dismissButtonTitle: "Cancel"
                                 )
+                            } label: {
+                                Label("New list", systemImage: "plus")
                             }
                         }
                     }
