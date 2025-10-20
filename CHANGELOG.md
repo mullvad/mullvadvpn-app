@@ -40,10 +40,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix high CPU usage on macOS 26 by updating Electron. This affected the app when it was visible.
 
-#### Windows
-- Mitigate BSOD caused by split tunnel driver during boot.
-
-
 #### Linux
 - Install AppArmor profile on all Linux distributions that support AppArmor abi 4.0.
 
