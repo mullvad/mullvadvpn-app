@@ -21,6 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.9] - 2025-10-20
+Identical to `android/2025.9-beta1` except for updated translations.
+
+
 ## [android/2025.9-beta1] - 2025-10-13
 ### Added
 - Add LWO obfuscation.
