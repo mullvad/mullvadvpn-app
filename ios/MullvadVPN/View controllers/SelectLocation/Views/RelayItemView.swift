@@ -7,42 +7,15 @@ struct RelayItemView: View {
     let level: Int
     let onSelect: () -> Void
 
-    var isSelected: Bool {
-        switch multihopContext {
-        case .entry:
-            location.isSelected == .entry
-        case .exit:
-            location.isSelected == .exit
-        }
-    }
-
-    var isExcluded: Bool {
-        switch multihopContext {
-        case .entry:
-            location.isExcludedFrom == .entry
-        case .exit:
-            location.isExcludedFrom == .exit
-        }
-    }
-
-    var isConnected: Bool {
-        switch multihopContext {
-        case .entry:
-            location.isConnected == .entry
-        case .exit:
-            location.isConnected == .exit
-        }
-    }
-
     var disabled: Bool {
-        !location.isActive || isExcluded
+        !location.isActive || location.isExcluded
     }
 
     var subtitle: LocalizedStringKey? {
-        if isConnected && !isSelected {
+        if location.isConnected && !location.isSelected {
             return "Connected server"
         }
-        if isExcluded {
+        if location.isExcluded {
             switch multihopContext {
             case .entry:
                 return "Selected as exit"
@@ -60,7 +33,7 @@ struct RelayItemView: View {
             HStack {
                 if !location.isActive {
                     Image.mullvadRedDot
-                } else if isSelected {
+                } else if location.isSelected {
                     Image.mullvadIconTick
                         .foregroundStyle(Color.mullvadSuccessColor)
                 }
@@ -70,7 +43,7 @@ struct RelayItemView: View {
                         .foregroundStyle(
                             disabled
                                 ? Color.mullvadTextPrimaryDisabled
-                                : isSelected
+                                : location.isSelected
                                     ? Color.mullvadSuccessColor
                                     : Color.mullvadTextPrimary
                         )

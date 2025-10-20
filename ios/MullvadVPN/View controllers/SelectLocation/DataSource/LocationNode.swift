@@ -18,15 +18,9 @@ class LocationNode: @unchecked Sendable {
     var children: [LocationNode]
     var showsChildren: Bool
     var isHiddenFromSearch: Bool
-    var isConnected: Connection
-    var isSelected: Connection
-    var isExcludedFrom: Connection
-
-    enum Connection {
-        case entry
-        case exit
-        case none
-    }
+    var isConnected: Bool
+    var isSelected: Bool
+    var isExcluded: Bool
 
     init(
         name: String,
@@ -37,9 +31,9 @@ class LocationNode: @unchecked Sendable {
         children: [LocationNode] = [],
         showsChildren: Bool = false,
         isHiddenFromSearch: Bool = false,
-        isConnected: Connection = .none,
-        isSelected: Connection = .none,
-        isExcludedFrom: Connection = .none
+        isConnected: Bool = false,
+        isSelected: Bool = false,
+        isExcluded: Bool = false
     ) {
         self.name = name
         self.code = code
@@ -51,7 +45,7 @@ class LocationNode: @unchecked Sendable {
         self.isHiddenFromSearch = isHiddenFromSearch
         self.isConnected = isConnected
         self.isSelected = isSelected
-        self.isExcludedFrom = isExcludedFrom
+        self.isExcluded = isExcluded
     }
 }
 

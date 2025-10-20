@@ -331,15 +331,13 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func updateConnectedLocation(_ status: TunnelStatus) {
-        allLocations
+        (exitContext.locations + exitContext.customLists)
             .forEachNode { node in
-                if node.name == status.state.relays?.exit.hostname {
-                    node.isConnected = .exit
-                } else if node.name == status.state.relays?.entry?.hostname {
-                    node.isConnected = .entry
-                } else {
-                    node.isConnected = .none
-                }
+                node.isConnected = node.name == status.state.relays?.exit.hostname
+            }
+        (entryContext.locations + entryContext.customLists)
+            .forEachNode { node in
+                node.isConnected = node.name == status.state.relays?.entry?.hostname
             }
     }
 
@@ -421,16 +419,13 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         entryCustomListsDataSource.search(by: searchText)
     }
 
-    func getSelectedLocationNode(selectedRelays: UserSelectedRelays?, context: LocationNode.Connection) -> LocationNode?
-    {
+    func getSelectedLocationNode(selectedRelays: UserSelectedRelays?, context: MultihopContext) -> LocationNode? {
         let allLocationsDataSource: AllLocationDataSource? =
             switch context {
             case .entry:
                 entryLocationsDataSource
             case .exit:
                 exitLocationsDataSource
-            case .none:
-                nil
             }
 
         let customListsDataSource: CustomListsDataSource? =
@@ -439,8 +434,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 entryCustomListsDataSource
             case .exit:
                 exitCustomListsDataSource
-            case .none:
-                nil
             }
 
         if let selectedRelays {
@@ -462,7 +455,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     fileprivate func excludeSelectedRelays(
         selectedRelays: UserSelectedRelays?,
-        inContext context: LocationNode.Connection
+        inContext context: MultihopContext
     ) {
         let otherAllLocation =
             switch context {
@@ -470,8 +463,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 exitContext.locations
             case .exit:
                 entryContext.locations
-            case .none:
-                fatalError("Should never happen")
             }
 
         let otherCustomLists =
@@ -480,8 +471,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 exitContext.customLists
             case .exit:
                 entryContext.customLists
-            case .none:
-                fatalError("Should never happen")
             }
 
         guard let selectedRelayLocations = selectedRelays?.locations,
@@ -490,22 +479,15 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         else {
             return
         }
-        (otherAllLocation + otherCustomLists).flattened.forEach { node in
+        let allOtherLocations = otherAllLocation + otherCustomLists
+        allOtherLocations.flattened.forEach { node in
             let locations = Set((node.flattened + [node]).flatMap { $0.locations })
             if locations
                 .contains(selectedRelayLocation) && node.activeRelayNodes.count == 1
             {
-                node.isExcludedFrom =
-                    switch context {
-                    case .entry:
-                        .exit
-                    case .exit:
-                        .entry
-                    case .none:
-                        fatalError("How did we end up here?")
-                    }
+                node.isExcluded = true
                 node.forEachDescendant { child in
-                    child.isExcludedFrom = node.isExcludedFrom
+                    child.isExcluded = true
                 }
             }
         }
@@ -515,17 +497,18 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         selectedExitRelays: UserSelectedRelays?,
         selectedEntryRelays: UserSelectedRelays?
     ) {
+        // reset all nodes
         allLocations
             .forEachNode { node in
-                node.isSelected = .none
-                node.isExcludedFrom = .none
+                node.isSelected = false
+                node.isExcluded = false
             }
         // set exit selection
         if let selectedExitNode = getSelectedLocationNode(
             selectedRelays: selectedExitRelays,
             context: .exit
         ) {
-            selectedExitNode.isSelected = .exit
+            selectedExitNode.isSelected = true
         }
 
         if isMultihopEnabled {
@@ -534,7 +517,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 selectedRelays: selectedEntryRelays,
                 context: .entry
             ) {
-                selectedEntryNode.isSelected = .entry
+                selectedEntryNode.isSelected = true
             }
 
             // exclude selected entry relays in exit lists
@@ -553,7 +536,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private func expandSelectedLocation() {
         (entryContext.locations + entryContext.customLists + exitContext.locations + exitContext.customLists)
             .forEachNode { node in
-                if node.isSelected != .none {
+                if node.isSelected {
                     node.forEachAncestor { ancestor in
                         ancestor.showsChildren = true
                     }

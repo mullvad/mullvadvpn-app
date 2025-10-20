@@ -10,27 +10,11 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     var shouldBeExpanded: Bool {
         var childIsSelected = false
         location.forEachDescendant { child in
-            let isSelected =
-                switch multihopContext {
-                case .entry:
-                    child.isSelected == .entry
-                case .exit:
-                    child.isSelected == .exit
-                }
-            if isSelected {
+            if location.isSelected {
                 childIsSelected = true
             }
         }
         return location.showsChildren || childIsSelected
-    }
-
-    var isExcluded: Bool {
-        switch multihopContext {
-        case .entry:
-            return location.isExcludedFrom == .entry
-        case .exit:
-            return location.isExcludedFrom == .exit
-        }
     }
 
     var filteredChildrenIndices: [Int] {
@@ -54,7 +38,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 LocationDisclosureGroup(
                     level: level,
                     position: position,
-                    isActive: location.isActive && !isExcluded,
+                    isActive: location.isActive && !location.isExcluded,
                     isExpanded: $location.showsChildren
                 ) {
                     ForEach(
@@ -77,25 +61,18 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         )
                     }
                 } label: {
-                    let isSelected =
-                        switch multihopContext {
-                        case .entry:
-                            location.isSelected == .entry
-                        case .exit:
-                            location.isSelected == .exit
-                        }
                     HStack {
                         if !location.isActive {
                             Image.mullvadRedDot
-                        } else if isSelected {
+                        } else if location.isSelected {
                             Image.mullvadIconTick
                                 .foregroundStyle(Color.mullvadSuccessColor)
                         }
                         Text(location.name)
                             .foregroundStyle(
                                 // TODO: FIX Color when excluded
-                                location.isActive && location.isExcludedFrom == .none
-                                    ? isSelected
+                                location.isActive && !location.isExcluded
+                                    ? location.isSelected
                                         ? Color.mullvadSuccessColor
                                         : Color.mullvadTextPrimary
                                     : Color.mullvadTextPrimaryDisabled
