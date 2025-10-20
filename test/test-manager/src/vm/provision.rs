@@ -3,7 +3,7 @@ use crate::{
     package,
     tests::config::BOOTSTRAP_SCRIPT,
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use ssh2::{File, Session};
 use std::{
     io::{self, Read},
@@ -76,6 +76,7 @@ async fn provision_ssh(
                 &local_runner_dir,
                 local_app_manifest.clone(),
             );
+            log::error!("SSH provisioning attempt result: {:?}", last_result);
             if last_result.is_err() && started.elapsed() < SSH_TIMEOUT {
                 log::warn!("Failed to provision over SSH, retrying...");
                 std::thread::sleep(Duration::from_secs(1));
