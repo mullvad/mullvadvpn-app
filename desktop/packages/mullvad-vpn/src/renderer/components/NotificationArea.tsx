@@ -117,7 +117,7 @@ export default function NotificationArea(props: IProps) {
 
   const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
   const appUpgradeEventType = useAppUpgradeEventType();
-  const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType); // TODO: Remove and read value from redux
+  const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType);
 
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
