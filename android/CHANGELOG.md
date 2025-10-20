@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Removed
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 
 ## [android/2025.9] - 2025-10-20
