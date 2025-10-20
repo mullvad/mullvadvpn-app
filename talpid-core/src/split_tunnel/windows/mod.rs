@@ -488,7 +488,24 @@ impl SplitTunnel {
 
                         let _ = response_tx.send(Ok(()));
 
-                        // Stop listening to commands
+                        drop(volume_monitor);
+                        if let Err(error) = path_monitor.shutdown() {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to shut down path monitor")
+                            );
+                        }
+
+                        drop(handle);
+
+                        log::debug!("Stopping ST service");
+                        // SAFETY: We have reset the driver before calling this.
+                        if let Err(error) = unsafe { service::stop_driver_service() } {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to stop ST service")
+                            );
+                        }
                         break;
                     }
                 };
@@ -497,23 +514,7 @@ impl SplitTunnel {
                 }
             }
 
-            drop(volume_monitor);
-            if let Err(error) = path_monitor.shutdown() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to shut down path monitor")
-                );
-            }
-
-            drop(handle);
-
-            log::debug!("Stopping ST service");
-            if let Err(error) = service::stop_driver_service() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to stop ST service")
-                );
-            }
+            log::info!("Stopping ST request thread");
         });
 
         let handle = init_rx
