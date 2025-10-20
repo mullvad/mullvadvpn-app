@@ -97,4 +97,3 @@ function modify_rollout {
 }
 
 modify_rollout
-# TODO: remove all the generated folders?
