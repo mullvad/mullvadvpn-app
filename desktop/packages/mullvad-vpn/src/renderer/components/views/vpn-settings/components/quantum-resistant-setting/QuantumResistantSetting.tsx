@@ -12,8 +12,8 @@ export function QuantumResistantSetting() {
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
 
   const selectQuantumResistant = useCallback(
-    async (quantumResistant: boolean | null) => {
-      await setWireguardQuantumResistant(quantumResistant ?? undefined);
+    async (quantumResistant: boolean) => {
+      await setWireguardQuantumResistant(quantumResistant);
     },
     [setWireguardQuantumResistant],
   );
@@ -21,7 +21,7 @@ export function QuantumResistantSetting() {
   return (
     <SettingsListbox
       anchorId="quantum-resistant-setting"
-      value={quantumResistant ?? null}
+      value={quantumResistant}
       onValueChange={selectQuantumResistant}>
       <SettingsListbox.Item>
         <SettingsListbox.Content>
@@ -52,9 +52,6 @@ export function QuantumResistantSetting() {
         </SettingsListbox.Content>
       </SettingsListbox.Item>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption value={null}>
-          {messages.gettext('Automatic')}
-        </SettingsListbox.BaseOption>
         <SettingsListbox.BaseOption value={true}>
           {messages.gettext('On')}
         </SettingsListbox.BaseOption>
