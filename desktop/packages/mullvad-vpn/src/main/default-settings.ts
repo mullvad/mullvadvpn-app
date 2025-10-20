@@ -49,7 +49,7 @@ export function getDefaultSettings(): ISettings {
       },
       wireguard: {
         mtu: undefined,
-        quantumResistant: undefined,
+        quantumResistant: true,
         daita: {
           enabled: false,
           directOnly: false,
