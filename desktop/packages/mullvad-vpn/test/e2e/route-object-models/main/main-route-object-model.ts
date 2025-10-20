@@ -49,4 +49,12 @@ export class MainRouteObjectModel {
   getOutIps() {
     return this.selectors.outIpLabels();
   }
+
+  getNotificationTitle() {
+    return this.selectors.notificationTitle();
+  }
+
+  getNotificationSubtitle() {
+    return this.selectors.notificationSubtitle();
+  }
 }

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
@@ -6,7 +7,6 @@ import { InAppNotificationIndicatorType } from '../../shared/notifications/notif
 import { IconButton } from '../lib/components';
 import { colors } from '../lib/foundations';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
-import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
 import { tinyText } from './common-styles';
 
 const NOTIFICATION_AREA_ID = 'notification-area';
@@ -106,22 +106,13 @@ export const NotificationIndicator = styled.div<INotificationIndicatorProps>((pr
     : colors.transparent,
 }));
 
-interface ICollapsibleProps {
-  $alignBottom: boolean;
-  $height?: number;
-}
-
-const Collapsible = styled.div<ICollapsibleProps>((props) => {
-  return {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: props.$alignBottom ? 'flex-end' : 'flex-start',
-    backgroundColor: colors.darkerBlue50,
-    overflow: 'hidden',
-    // Using auto as the initial value prevents transition if a notification is visible on mount.
-    height: props.$height === undefined ? 'auto' : `${props.$height}px`,
-    transition: 'height 250ms ease-in-out',
-  };
+const Collapsible = styled(motion.div)({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'flex-start',
+  translateY: '0%',
+  backgroundColor: colors.darkerBlue50,
+  overflow: 'hidden',
 });
 
 const Content = styled.section({
@@ -134,30 +125,20 @@ const Content = styled.section({
 interface INotificationBannerProps {
   children?: React.ReactNode; // Array<NotificationContent | NotificationActions>,
   className?: string;
+  animateIn: boolean;
 }
 
-export function NotificationBanner(props: INotificationBannerProps) {
-  const [contentHeight, setContentHeight] = useState<number>();
-  const [alignBottom, setAlignBottom] = useState(false);
-
-  const contentRef = useStyledRef<HTMLDivElement>();
-
-  const children = useLastDefinedValue(props.children);
-
-  const updateHeightEvent = useEffectEvent(() => {
-    const newHeight =
-      props.children !== undefined ? (contentRef.current?.getBoundingClientRect().height ?? 0) : 0;
-    if (newHeight !== contentHeight) {
-      setContentHeight(newHeight);
-      setAlignBottom((alignBottom) => alignBottom || contentHeight === 0 || newHeight === 0);
-    }
-  });
-
-  useEffect(() => updateHeightEvent());
+export function NotificationBanner({ className, children, animateIn }: INotificationBannerProps) {
+  const translateYInitial = animateIn ? '-100%' : '0%';
 
   return (
-    <Collapsible $height={contentHeight} className={props.className} $alignBottom={alignBottom}>
-      <Content ref={contentRef}>{children}</Content>
+    <Collapsible
+      animate={{ translateY: '0%' }}
+      className={className}
+      exit={{ translateY: '-100%' }}
+      initial={{ translateY: translateYInitial }}
+      transition={{ duration: 0.25 }}>
+      <Content>{children}</Content>
     </Collapsible>
   );
 }
