@@ -64,7 +64,7 @@ export interface IUpdateWireguardMtuAction {
 
 export interface IUpdateWireguardQuantumResistantAction {
   type: 'UPDATE_WIREGUARD_QUANTUM_RESISTANT';
-  quantumResistant?: boolean;
+  quantumResistant: boolean;
 }
 
 export interface IUpdateWireguardDaitaAction {
@@ -215,7 +215,7 @@ function updateWireguardMtu(mtu?: number): IUpdateWireguardMtuAction {
 }
 
 function updateWireguardQuantumResistant(
-  quantumResistant?: boolean,
+  quantumResistant: boolean,
 ): IUpdateWireguardQuantumResistantAction {
   return {
     type: 'UPDATE_WIREGUARD_QUANTUM_RESISTANT',
