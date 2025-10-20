@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.13-beta1] - 2025-10-20
 ### Added
 - Add settings reset command to the CLI ('mullvad reset-settings').
 - Make feature indicators in connection panel navigate to the relevant setting when clicked.
@@ -42,12 +45,12 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix high CPU usage on macOS 26 by updating Electron. This affected the app when it was visible.
 
-#### Windows
-- Mitigate BSOD caused by split tunnel driver during boot.
-
-
 #### Linux
 - Install AppArmor profile on all Linux distributions that support AppArmor abi 4.0.
+
+
+## [2025.12] - 2025-10-20
+This release is identical to 2025.12-beta1.
 
 
 ## [2025.12-beta1] - 2025-10-13
