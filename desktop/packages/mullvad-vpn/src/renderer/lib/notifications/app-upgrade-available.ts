@@ -50,7 +50,7 @@ export class AppUpgradeAvailableNotificationProvider implements InAppNotificatio
                 link: {
                   to: getDownloadUrl(suggestedIsBeta ?? false),
                   'aria-label':
-                    // TRANSLATORS: Accessbility label for link to go to download page.
+                    // TRANSLATORS: Accessibility label for link to go to download page.
                     messages.pgettext(
                       'accessibility',
                       'New version available, click here to go to download page, opens externally',
@@ -61,7 +61,7 @@ export class AppUpgradeAvailableNotificationProvider implements InAppNotificatio
                 type: 'navigate-internal',
                 link: {
                   to: RoutePath.appUpgrade,
-                  // TRANSLATORS: Accessbility label for link to go to upgrade view.
+                  // TRANSLATORS: Accessibility label for link to go to upgrade view.
                   'aria-label': messages.pgettext(
                     'accessibility',
                     'New version available, click here to go to update view',
