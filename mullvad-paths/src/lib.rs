@@ -42,6 +42,10 @@ pub enum Error {
     #[error("Failed to create security attributes")]
     GetSecurityAttributes(#[source] io::Error),
 
+    #[cfg(windows)]
+    #[error(transparent)]
+    ContainsNul(#[from] widestring::error::ContainsNul<u16>),
+
     #[error("Device data directory has not been set")]
     NoDataDir,
 }

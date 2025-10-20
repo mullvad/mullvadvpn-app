@@ -15,7 +15,7 @@ thiserror = { workspace = true }
 log = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
-widestring = "1.0"
+widestring = { workspace = true }
 once_cell = { workspace = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]

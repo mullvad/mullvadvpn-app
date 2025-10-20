@@ -1,19 +1,12 @@
 use crate::{Error, Result, UserPermissions};
 use once_cell::sync::OnceCell;
 use std::{
-    ffi::OsStr,
     io, mem,
-    os::windows::{
-        io::{
-            AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, HandleOrNull, IntoRawHandle,
-            OwnedHandle,
-        },
-        prelude::OsStrExt,
-    },
+    os::windows::io::{AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle},
     path::{Path, PathBuf},
     ptr,
 };
-use widestring::{WideCStr, WideCString};
+use widestring::{U16CString, WideCStr, u16cstr};
 use windows_sys::{
     Win32::{
         Foundation::{
@@ -76,15 +69,6 @@ pub fn create_dir(path: PathBuf, user_permissions: Option<UserPermissions>) -> R
         })?;
     }
     Ok(path)
-}
-
-fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
-    let wide_string: Vec<u16> = string.as_ref()
-        .encode_wide()
-        // Add null terminator
-        .chain(std::iter::once(0))
-        .collect();
-    wide_string
 }
 
 impl UserPermissions {
@@ -162,14 +146,15 @@ pub fn create_privileged_directory(path: &Path) -> Result<()> {
 /// Sets security permissions for path such that admin has full ownership and access while
 /// authenticated users only have read access.
 fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> Result<()> {
-    let wide_path = get_wide_str(path);
+    let wide_path = U16CString::from_os_str(path)?;
     let security_information = Security::DACL_SECURITY_INFORMATION
         | Security::PROTECTED_DACL_SECURITY_INFORMATION
         | Security::GROUP_SECURITY_INFORMATION
         | Security::OWNER_SECURITY_INFORMATION;
 
     let mut admin_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut admin_psid_len = u32::try_from(admin_psid.len()).unwrap();
+    let mut admin_psid_len =
+        u32::try_from(admin_psid.len()).expect("admin_psid length fits in u32");
 
     // SAFETY: The pointer to the PSID is valid for writes of `admin_psid_len` bytes
     if unsafe {
@@ -203,7 +188,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
     };
 
     let mut au_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut au_psid_len = u32::try_from(au_psid.len()).unwrap();
+    let mut au_psid_len = u32::try_from(au_psid.len()).expect("au_psid length fits in u32");
 
     // SAFETY: The pointer to the PSID is valid for writes of `au_psid_len` bytes
     if unsafe {
@@ -243,7 +228,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
     // `new_dacl` is a valid pointer to an ACL pointer
     let result = unsafe {
         SetEntriesInAclW(
-            u32::try_from(ea_entries.len()).unwrap(),
+            u32::try_from(ea_entries.len()).expect("number of entries fits in u32"),
             ea_entries.as_ptr(),
             ptr::null(),
             &mut new_dacl,
@@ -295,7 +280,7 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
         .get_or_try_init(|| {
             let join_handle = std::thread::spawn(|| {
                 impersonate_self(|| {
-                    let user_token = OwnedHandle::try_from(get_system_user_token()?).ok();
+                    let user_token = get_system_user_token()?;
                     // SAFETY: `FOLDERID_LocalAppData` is a valid known folder ID
                     unsafe {
                         get_known_folder_path(
@@ -310,7 +295,7 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
                     infer_appdata_from_system_directory()
                 })
             });
-            join_handle.join().unwrap()
+            join_handle.join().expect("ImpersonateSelf should succeed")
         })
         .cloned()
 }
@@ -319,16 +304,15 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
 /// If the current user is system, this function succeeds and returns a NULL handle
-fn get_system_user_token() -> io::Result<HandleOrNull> {
+fn get_system_user_token() -> io::Result<Option<OwnedHandle>> {
     let thread_token = get_current_thread_token()?;
 
     if is_local_system_user_token(&thread_token)? {
-        // SAFETY: It is safe to pass a null handle
-        return Ok(unsafe { HandleOrNull::from_raw_handle(ptr::null_mut()) });
+        return Ok(None);
     }
 
-    let system_debug_priv = WideCString::from_str("SeDebugPrivilege").unwrap();
-    adjust_token_privilege(&thread_token, &system_debug_priv, true)?;
+    let system_debug_priv = u16cstr!("SeDebugPrivilege");
+    adjust_token_privilege(&thread_token, system_debug_priv, true)?;
 
     let find_result = find_process(|process_handle| {
         let process_token = open_process_token(
@@ -343,12 +327,11 @@ fn get_system_user_token() -> io::Result<HandleOrNull> {
         }
     });
 
-    if let Err(err) = adjust_token_privilege(&thread_token, &system_debug_priv, false) {
+    if let Err(err) = adjust_token_privilege(&thread_token, system_debug_priv, false) {
         log::error!("Failed to drop SeDebugPrivilege: {}", err);
     }
 
-    // SAFETY: The handle is valid
-    find_result.map(|h| unsafe { HandleOrNull::from_raw_handle(h.into_raw_handle()) })
+    find_result.map(Some)
 }
 
 fn open_process_token(process: &impl AsRawHandle, access: u32) -> io::Result<OwnedHandle> {
@@ -387,17 +370,26 @@ fn get_current_thread_token() -> std::io::Result<OwnedHandle> {
     Ok(unsafe { OwnedHandle::from_raw_handle(token_handle) })
 }
 
+/// Run provided closure in the security context of the calling process' impersonation token.
+///
+/// # Panics
+///
+/// If privileges can not be dropped after running `func`, the running process is shut down.
 fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
-    // SAFETY: Trivially safe
+    // SAFETY: SecurityImpersonation is a valid ImpersonationLevel.
     if unsafe { ImpersonateSelf(SecurityImpersonation) } == 0 {
         return Err(std::io::Error::last_os_error());
     }
 
     let result = func();
 
-    // SAFETY: Trivially safe
+    // SAFETY: Must be called after a successful call to ImpersonateSelf.
     if unsafe { RevertToSelf() } == 0 {
+        // The Windows documentation *strongly* suggest that the process should shut down if
+        // RevertToSelf fails. A failure to do so means that the current process keep running in
+        // an unintended context.
         log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
+        panic!("RevertToSelf failed. Aborting");
     }
 
     result
@@ -485,7 +477,8 @@ unsafe fn get_known_folder_path(
 /// no more processes left. In the latter case, an error is returned.
 fn find_process<T>(handle_process: impl Fn(BorrowedHandle<'_>) -> Option<T>) -> io::Result<T> {
     let mut pid_buffer = vec![0u32; 2048];
-    let mut num_procs: u32 = u32::try_from(pid_buffer.len()).unwrap();
+    let mut num_procs: u32 =
+        u32::try_from(pid_buffer.len()).expect("Number of processes IDs fit in u32");
 
     let bytes_available = num_procs * (mem::size_of::<u32>() as u32);
     let mut bytes_written = 0;
@@ -554,7 +547,8 @@ fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
     let token_user = unsafe { &*(token_info.as_mut_ptr() as *const TOKEN_USER) };
 
     let mut local_system_sid = [0u8; MAX_SID_SIZE as usize];
-    let mut local_system_size = u32::try_from(local_system_sid.len()).unwrap();
+    let mut local_system_size =
+        u32::try_from(local_system_sid.len()).expect("local_system_sid length fits in u32");
 
     // SAFETY: `local_system_sid` is valid for writes of `local_system_size` bytes
     if unsafe {
