@@ -46,10 +46,25 @@ const INTERFACE_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
 pub async fn setup_test_network() -> Result<()> {
     log::debug!("Setting up test network");
 
+    {
+        let mut r = std::process::Command::new("netstat");
+        r.arg("-rn");
+        let out = r.output();
+        log::error!("netstat output: {:?}", out);
+    }
+
     enable_forwarding().await?;
     create_wireguard_interface()
         .await
         .context("Failed to create WireGuard interface")?;
+
+    log::info!("ran create_wireguard_interface");
+    {
+        let mut r = std::process::Command::new("netstat");
+        r.arg("-rn");
+        let out = r.output();
+        log::error!("netstat output: {:?}", out);
+    }
 
     Ok(())
 }
@@ -197,6 +212,15 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
         .await
         .context("Failed to write wireguard config")?;
 
+    // FIXME: I think some 192.168.* routes are being removed
+    log::info!("pre setconf");
+    {
+        let mut r = std::process::Command::new("netstat");
+        r.arg("-rn");
+        let out = r.output();
+        log::error!("netstat output: {:?}", out);
+    }
+
     let mut cmd = Command::new("/usr/bin/sudo");
     cmd.args([
         "wg",
@@ -207,6 +231,14 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
     let output = cmd.output().await.context("Run wg")?;
     if !output.status.success() {
         return Err(anyhow!("wg failed: {}", output.status.code().unwrap()));
+    }
+
+    log::info!("ran setconf");
+    {
+        let mut r = std::process::Command::new("netstat");
+        r.arg("-rn");
+        let out = r.output();
+        log::error!("netstat output: {:?}", out);
     }
 
     // Set tunnel IP address
@@ -221,6 +253,13 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
     let status = cmd.status().await.context("Run ipconfig")?;
     if !status.success() {
         return Err(anyhow!("ipconfig failed: {}", status.code().unwrap()));
+    }
+    log::info!("ran ipconfig");
+    {
+        let mut r = std::process::Command::new("netstat");
+        r.arg("-rn");
+        let out = r.output();
+        log::error!("netstat output: {:?}", out);
     }
     Ok(())
 }
