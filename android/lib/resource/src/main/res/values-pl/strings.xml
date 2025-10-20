@@ -24,6 +24,10 @@
     <string name="all_providers">Wszyscy dostawcy</string>
     <string name="always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Po zaktualizowaniu aplikacji VPN w systemie Android 16 urządzenia mogą znaleźć się w stanie, w którym aplikacje VPN nie będą już miały dostępu do Internetu.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Ponownie uruchom urządzenie i ponów próbę połączenia. Jeśli to nie zadziała, wyślij wiadomość e-mail na adres %1$s w języku szwedzkim lub angielskim.</string>
+    <string name="android_16_upgrade_warning_message">System Android 16 ma znany nam problem. Uruchom ponownie urządzenie i spróbuj jeszcze raz. Aby dowiedzieć się więcej,</string>
+    <string name="android_16_upgrade_warning_title">Nie możesz się połączyć?</string>
     <string name="any">Dowolny</string>
     <string name="api_access_description">Zarządzaj i dodawaj niestandardowe metody dostępu do interfejsu API Mullvad.</string>
     <string name="api_access_method_info_first_line">Aplikacja musi komunikować się z serwerem API Mullvad, aby można było się zalogować, pobrać listy serwerów i wykonywać inne krytyczne operacje.</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">Co nowego</string>
     <string name="cipher">Szyfrowanie</string>
     <string name="clear_input">Wyczyść dane wejściowe</string>
+    <string name="click_here">kliknij tutaj</string>
     <string name="close">Zamknij</string>
     <string name="collapse">Zwiń</string>
     <string name="confirm_ipv6_dns">Serwer DNS protokołu IPv6 nie będzie działać, jeśli nie włączysz opcji „IPv6” w ustawieniach VPN.</string>
@@ -152,7 +157,7 @@
     <string name="dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Uwaga: tego ustawienia nie można używać w połączeniu z opcją „Użyj niestandardowego serwera DNS”.</string>
     <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
-    <string name="dns_content_blockers_subtitle">Aby aktywować te ustawienia, wyłącz opcję „%1$s” poniżej.</string>
+    <string name="dns_content_blockers_subtitle">Wyłącz poniżej funkcję „%1$s”, aby aktywować te ustawienia.</string>
     <string name="dns_content_blockers_warning">Może to powodować problemy z niektórymi witrynami internetowymi, usługami i aplikacjami.</string>
     <string name="dont_have_an_account">Nie masz numeru konta?</string>
     <string name="duplicate_address_warning">Ten adres został już wprowadzony.</string>
@@ -248,7 +253,7 @@
     <string name="manage_devices">Zarządzaj urządzeniami</string>
     <string name="manage_devices_confirm_removal_description_line1">Usunąć %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Urządzenie zostanie usunięte z listy i wylogowane.</string>
-    <string name="manage_devices_description">Wyświetlaj wszystkie zalogowane urządzenia i zarządzaj nimi. Na jednym koncie możesz mieć do 5 urządzeń naraz. Każde urządzenie otrzymuje nazwę po zalogowaniu, co ułatwia ich rozróżnienie.</string>
+    <string name="manage_devices_description">Wyświetlaj wszystkie zalogowane urządzenia i zarządzaj nimi. Na jednym koncie możesz mieć do 5 urządzeń naraz. Każde zalogowane urządzenie otrzymuje nazwę, co ułatwia ich rozróżnienie.</string>
     <string name="max_devices_confirm_removal_description">Czy na pewno chcesz wylogować &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Teraz można kontynuować logowanie się na tym urządzeniu.</string>
     <string name="max_devices_resolved_title">Super!</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Brak dostępnych list niestandardowych</string>
     <string name="no_internet_connection">Brak połączenia z Internetem</string>
     <string name="no_matching_relay">Żaden serwer nie odpowiada ustawieniom. Spróbuj zmienić serwer lub inne ustawienia.</string>
+    <string name="no_matching_servers_found_first_line">Nie znaleziono pasujących serwerów.</string>
+    <string name="no_matching_servers_found_second_line">Spróbuj zmienić filtry.</string>
     <string name="no_recent_selection">Brak historii ostatnich wyborów</string>
     <string name="no_wireguard_key">Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach zaawansowanych.</string>
     <string name="not_found">Nie znaleziono</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Połącz ponownie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
+    <string name="refresh_server_list">Zaktualizuj listę serwerów</string>
     <string name="relay_item_already_selected_as_entry">%1$s: wybrano już jako przekaźnik wejściowy</string>
     <string name="relay_item_already_selected_as_exit">%1$s już wybrano jako przekaźnik wyjściowy</string>
     <string name="relayitem_is_inactive">%1$s: niedostępne</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-przez-TCP</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="update_list_name">Zaktualizuj nazwę listy</string>
+    <string name="updating_server_list_in_the_background">Aktualizowanie listy serwerów w tle...</string>
     <string name="uri_browser_app_not_found">Nie zainstalowano żadnej aplikacji przeglądarki, nie można otworzyć linku</string>
     <string name="uri_market_app_not_found">Nie zainstalowano żadnego sklepu z aplikacjami dla systemu Android, nie można otworzyć linku</string>
     <string name="use_method">Użyj metody</string>

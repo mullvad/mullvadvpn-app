@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-09-30 07:30\n"
+"PO-Revision-Date: 2025-10-20 06:58\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
@@ -162,6 +162,11 @@ msgstr "仍然启用"
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
 msgstr "启用仅直连"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "无法获取设备列表"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "无法保护连接"
@@ -430,6 +435,10 @@ msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP 设置"
 
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "使用向右箭头键将焦点移至设置按钮。"
+
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
@@ -447,6 +456,11 @@ msgstr "当前不可用"
 msgctxt "account-view"
 msgid "Log out"
 msgstr "退出"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "管理设备"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
@@ -552,6 +566,10 @@ msgstr "请输入有效的 localhost 端口。"
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
 msgstr "请输入有效的远程服务器端口。"
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "请为尚未使用的访问方法选择一个名称。"
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
@@ -1002,14 +1020,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr "编辑自定义网桥"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "确定要退出<b>%(deviceName)s</b>吗？"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1021,6 +1031,11 @@ msgstr "继续登录"
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
 msgstr "创建日期：%(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "当前设备"
 
 msgctxt "device-management"
 msgid "Device is inactive"
@@ -1055,15 +1070,38 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "如果您退出登录，设备和设备名称将被移除。当您再次登录时，设备将获得新名称。"
 
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "管理设备"
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。"
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "移除"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "是否移除 <em>%(deviceName)s</em>？"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
 msgstr "太棒了！"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "该设备将从列表中移除并退出登录。"
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
@@ -1079,10 +1117,16 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "设备过多"
 
-#. Button label for confirming logout of another device.
+#. Button text to retry fetching devices.
 msgctxt "device-management"
-msgid "Yes, log out device"
-msgstr "是，退出设备"
+msgid "Try again"
+msgstr "重试"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。"
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
@@ -1357,6 +1401,13 @@ msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr "所选 %(wireGuard)s 端口不受支持，请在以下位置更改："
 
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgstr "此设备现已命名为 <em>%(deviceName)s</em>。请在“帐户”中的“管理设备”下查看更多信息。"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1392,10 +1443,6 @@ msgstr "验证完成！正在启动安装程序…"
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "验证失败"
-
-msgctxt "in-app-notifications"
-msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "欢迎，此设备现在名为 <b>%(deviceName)s</b>。有关详情，请点击“帐户”中的信息按钮。"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1523,11 +1570,6 @@ msgstr "错误"
 msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "无法创建帐户"
-
-#. Error message shown above login input when trying to login but the app fails
-#. to fetch the list of registered devices.
-msgid "Failed to fetch list of devices"
-msgstr "无法获取设备列表"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
@@ -2131,6 +2173,13 @@ msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s 出现问题且无法从 VPN 隧道排除。"
 
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "您的系统不支持%(splitTunneling)s。"
+
 msgctxt "split-tunneling-view"
 msgid "Add"
 msgstr "添加"
@@ -2142,6 +2191,11 @@ msgstr "所有应用"
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr "选择您想要从 VPN 隧道中排除的应用。"
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "点击此处了解详情"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
@@ -2189,6 +2243,14 @@ msgstr "请重试或发送问题报告。"
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
 msgstr "重新启动 Mullvad 服务"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "要使用%(splitTunneling)s，请更改为支持 cgroup v1 的 Linux 内核版本。"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2504,8 +2566,8 @@ msgstr "在应用启动时自动连接到服务器。"
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
-msgstr "禁用下方的<b>%(customDnsFeatureName)s</b>以激活这些设置。"
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "禁用下方的“%(customDnsFeatureName)s”以激活这些设置。"
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2697,6 +2759,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "如果某个观察者监视这些数据包，%(daita)s 会大大提高他们识别您所访问的网站或您沟通对象的难度。"
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr "IP 版本"
@@ -2706,12 +2769,23 @@ msgid "It does this by performing an extra key exchange using a quantum safe alg
 msgstr "实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。"
 
 msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr "LWO"
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "多跳"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "正在使用多跳为您的所选位置启用 DAITA"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
@@ -2726,6 +2800,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "我们的部分服务器未启用 %(daita)s。因此，我们使用多跳自动为任何服务器启用 %(daita)s。"
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "混淆"
@@ -2736,6 +2811,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "混淆会将 WireGuard 流量隐藏在其他协议中。这有助于规避审查和其他类型的过滤，在这些过滤中，普通 WireGuard 连接将被阻止。"
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "端口"
@@ -2797,10 +2873,6 @@ msgstr "借助此功能，WireGuard 隧道能够抵抗可能通过量子计算�
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
 msgstr "UDP-over-TCP"
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
-msgstr "UDP-over-TCP 端口"
 
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
@@ -2898,6 +2970,9 @@ msgstr "添加时间"
 msgid "Adding method..."
 msgstr "正在添加方法…"
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "在 Android 16 上更新 VPN 应用后，设备可能会出现 VPN 应用无法连接互联网的情况。"
+
 msgid "Agree and continue"
 msgstr "同意并继续"
 
@@ -2912,6 +2987,12 @@ msgstr "“始终开启 VPN”已分配给 %s"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "“始终开启 VPN”已分配给其他 VPN"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "Android 16 存在已知问题。请重启您的设备并重试。如需了解详情，"
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "确定要退出 <b>%s</b> 吗？"
 
 msgid "At least one method needs to be enabled"
 msgstr "至少需要启用一个方法"
@@ -2945,6 +3026,9 @@ msgstr "正在阻止网络（设备离线）"
 
 msgid "Blocking..."
 msgstr "正在屏蔽…"
+
+msgid "Can't connect?"
+msgstr "无法连接？"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。"
@@ -2982,9 +3066,6 @@ msgstr "创建新列表"
 msgid "Critical error (your attention is required)"
 msgstr "严重错误（需要注意）"
 
-msgid "Current device"
-msgstr "当前设备"
-
 msgid "Current: %s"
 msgstr "当前：%s"
 
@@ -3005,9 +3086,6 @@ msgstr "是否删除方法？"
 
 msgid "Device IP version"
 msgstr "设备 IP 版本"
-
-msgid "Disable \"%s\" below to activate these settings."
-msgstr "禁用下方的“%s”以激活这些设置。"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "禁用上方的所有“%s”以激活此设置。"
@@ -3087,9 +3165,6 @@ msgstr "无法设置为当前方法 – 未知原因"
 msgid "File"
 msgstr "文件"
 
-msgid "Filters:"
-msgstr "筛选器："
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "为了让 VPN 在设备启动时自动连接，应用必须拥有 VPN 权限。您可以通过点击地图视图中的“连接”并在弹出提示时选择“确定”来授予这些权限。此外，请通过检查系统设置中应用详细信息内的存储信息，确保该应用已安装在内部存储空间中。"
 
@@ -3156,9 +3231,6 @@ msgstr "已更改“%s”的位置"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "确保设备始终位于 VPN 隧道上。"
 
-msgid "Manage devices"
-msgstr "管理设备"
-
 msgid "More actions"
 msgstr "更多操作"
 
@@ -3186,8 +3258,8 @@ msgstr "有可用的自定义列表"
 msgid "No internet connection"
 msgstr "没有互联网连接"
 
-msgid "No locations found"
-msgstr "找不到位置"
+msgid "No matching servers found."
+msgstr "找不到匹配的服务器。"
 
 msgid "No recent selection history"
 msgstr "无最近选择历史记录"
@@ -3227,6 +3299,12 @@ msgstr "请输入有效的远程服务器端口"
 
 msgid "Please press connect to request VPN permission"
 msgstr "请按“连接”以请求 VPN 权限"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "请重新启动您的设备，然后再次尝试连接。如果仍然无法连接，请用瑞典语或英语发送电子邮件至 %s。"
+
+msgid "Please try changing your filters."
+msgstr "请更改您的筛选器。"
 
 msgid "Privacy"
 msgstr "隐私"
@@ -3315,9 +3393,6 @@ msgstr "“当前”方法表示应用用来访问 API 的方法。"
 msgid "The app is blocking internet, please disconnect first"
 msgstr "应用正在阻止互联网，请先断开连接"
 
-msgid "The device will be removed from the list and logged out."
-msgstr "该设备将从列表中移除并退出登录。"
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
 
@@ -3375,6 +3450,12 @@ msgstr "更新 DNS 服务器"
 msgid "Update list name"
 msgstr "更新列表名称"
 
+msgid "Update server list"
+msgstr "更新服务器列表"
+
+msgid "Updating server list in the background..."
+msgstr "正在后台更新服务器列表…"
+
 msgid "Use method"
 msgstr "使用方法"
 
@@ -3411,9 +3492,6 @@ msgstr "正在验证购买…"
 msgid "Verifying voucher…"
 msgstr "正在验证优惠券…"
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。"
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "我们目前仍在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将被添加。"
 
@@ -3435,11 +3513,17 @@ msgstr "WireGuard 混淆"
 msgid "WireGuard port"
 msgstr "WireGuard 端口"
 
+msgid "Yes, log out device"
+msgstr "是，退出登录设备"
+
 msgid "\"%s\" was created"
 msgstr "“%s”已创建"
 
 msgid "\"%s\" was deleted"
 msgstr "“%s”已被删除"
+
+msgid "click here"
+msgstr "点击此处"
 
 msgid "here"
 msgstr "（点击此处）"
