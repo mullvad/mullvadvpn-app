@@ -59,6 +59,8 @@ Line wrap the file at 100 chars.                                              Th
 - Run version check hourly and when interacting with the app instead of once per day.
 - Add support for gradual rollouts of new app releases
 
+### Removed
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 ### Fixed
 #### macOS
