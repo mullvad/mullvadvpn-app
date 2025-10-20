@@ -42,6 +42,8 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         .await
         .context("Failed to set up networking")?;
 
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
     // Create a temporary clone of the machine
     let machine_copy = if config.runtime_opts.keep_changes {
         MachineCopy::borrow_vm(&vm_config.image_path)
@@ -129,6 +131,8 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         let out = r.output();
         log::error!("ping output: {:?}", out);
     }
+
+    tokio::time::sleep(Duration::from_secs(1)).await;
 
     // The tunnel must be configured after the virtual machine is up, or macOS refuses to assign an
     // IP. The reasons for this are poorly understood.
