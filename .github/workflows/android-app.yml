@@ -118,7 +118,7 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare]
-    runs-on: app-gh-build
+    runs-on: [app-gh-build, build]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
