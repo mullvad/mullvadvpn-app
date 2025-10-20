@@ -26,12 +26,14 @@ const CUSTOM_TUN_LOCAL_PUBKEY: &str = "h6elqt3dfamtS/p9jxJ8bIYs8UW9YHfTFhvx0fabT
 data_encoding_macro::base64_array!(
     "pub const CUSTOM_TUN_LOCAL_PRIVKEY" = "mPue6Xt0pdz4NRAhfQSp/SLKo7kV7DW+2zvBq0N9iUI="
 );
-/// Port of the wireguard remote peer as defined in `setup-network.sh`.
+/// Port of the wireguard remote peer
 pub const CUSTOM_TUN_REMOTE_REAL_PORT: u16 = 51820;
-/// Tunnel address of the wireguard local peer as defined in `setup-network.sh`.
+/// Tunnel address of the wireguard local peer
 pub const CUSTOM_TUN_LOCAL_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 2);
-/// Tunnel address of the wireguard remote peer as defined in `setup-network.sh`.
+/// Tunnel address of the wireguard remote peer
 pub const CUSTOM_TUN_REMOTE_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 1);
+/// Subnet mask of the wireguard remote peer
+pub const CUSTOM_TUN_REMOTE_TUN_SUBNET: Ipv4Addr = Ipv4Addr::new(255, 255, 255, 255);
 /// Gateway (and default DNS resolver) of the wireguard tunnel.
 pub const CUSTOM_TUN_GATEWAY: Ipv4Addr = CUSTOM_TUN_REMOTE_TUN_ADDR;
 /// Name of the wireguard interface on the host
@@ -249,6 +251,7 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
         CUSTOM_TUN_INTERFACE_NAME,
         "manual",
         &CUSTOM_TUN_REMOTE_TUN_ADDR.to_string(),
+        &CUSTOM_TUN_REMOTE_TUN_SUBNET.to_string(),
     ]);
     let status = cmd.status().await.context("Run ipconfig")?;
     if !status.success() {
