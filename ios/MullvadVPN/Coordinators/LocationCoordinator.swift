@@ -154,8 +154,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             nodes: nodes
         )
 
-        coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
-            guard let self else { return }
+        coordinator.didFinish = { editCustomListCoordinator, list in
             editCustomListCoordinator.dismiss(animated: true)
         }
 

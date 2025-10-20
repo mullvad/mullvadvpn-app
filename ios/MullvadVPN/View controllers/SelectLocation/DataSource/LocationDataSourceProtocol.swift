@@ -49,10 +49,10 @@ extension LocationDataSourceProtocol {
         }
     }
 
-    func search(by text: String) -> [LocationNode] {
+    func search(by text: String) {
         guard !text.isEmpty else {
             reset()
-            return nodes
+            return
         }
         nodes.forEach { node in
             _ = hideInSearch(
@@ -60,7 +60,5 @@ extension LocationDataSourceProtocol {
                 searchText: text
             )
         }
-
-        return nodes
     }
 }

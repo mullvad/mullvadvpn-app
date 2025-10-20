@@ -2,8 +2,7 @@ import SwiftUI
 
 struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     @Binding var locations: [LocationNode]
-    let selectedLocation: LocationNode?
-    let connectedRelayHostname: String?
+    let multihopContext: MultihopContext
     let onSelectLocation: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
 
@@ -23,8 +22,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
                 let location = $locations[indexInLocationList]
                 LocationListItem(
                     location: location,
-                    selectedLocation: selectedLocation,
-                    connectedRelayHostname: connectedRelayHostname,
+                    multihopContext: multihopContext,
                     position: ItemPosition(
                         index: index,
                         count: filteredLocationIndices.count
@@ -129,8 +127,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     ScrollView {
         LocationsListView(
             locations: $locations,
-            selectedLocation: LocationNode(name: "fr-lyo-003", code: "fr-lyo-003"),
-            connectedRelayHostname: "fr-lyo-003",
+            multihopContext: .exit,
             onSelectLocation: { location in
                 print("Selected: \(location.name)")
             },
@@ -171,8 +168,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     ScrollView {
         LocationListItem(
             location: $location,
-            selectedLocation: nil,
-            connectedRelayHostname: nil,
+            multihopContext: .exit,
             position: .only,
             onSelect: { _ in },
             contextMenu: { _ in Text("Add to list") },

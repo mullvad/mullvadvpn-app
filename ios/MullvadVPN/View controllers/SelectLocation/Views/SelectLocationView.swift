@@ -2,25 +2,18 @@ import SwiftUI
 
 struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewModel {
     @ObservedObject var viewModel: ViewModel
-//    @State var animatedFilters: [SelectLocationFilter]?
+    //    @State var animatedFilters: [SelectLocationFilter]?
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                if let multihopContext = viewModel.multihopContext {
+                if viewModel.isMultihopEnabled {
                     SegmentedControl(
                         segments: MultihopContext.allCases,
-                        selectedSegment: .init(
-                            get: {
-                                multihopContext
-                            },
-                            set: { newContext in
-                                viewModel.multihopContext = newContext
-                            }
-                        )
+                        selectedSegment: $viewModel.multihopContext
                     )
                 }
                 switch viewModel.multihopContext {
-                case .none, .some(.exit):
+                case .exit:
                     ExitLocationView(viewModel: viewModel)
                         .transition(
                             .move(edge: .trailing).combined(with: .opacity)
@@ -32,7 +25,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                 $0
                             }
                         }
-                case .some(.entry):
+                case .entry:
                     EntryLocationView(viewModel: viewModel)
                         .transition(
                             .move(edge: .leading).combined(with: .opacity)
@@ -47,14 +40,6 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 }
             }
             .transformEffect(.identity)
-//            .onChange(of: viewModel.activeLocationContext.filter) { newValue in
-//                withAnimation {
-//                    animatedFilters = newValue
-//                }
-//            }
-//            .onAppear {
-//                animatedFilters = viewModel.activeLocationContext.filter
-//            }
             .padding()
         }
         .background(Color.mullvadBackground)
@@ -140,7 +125,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                     .locations)
                         } label: {
                             Image.mullvadIconAdd
-                                .padding(12)
+                                .padding(.horizontal, 12)
                         }
                         if !viewModel.activeLocationContext.customLists.isEmpty {
                             Button {
@@ -149,14 +134,14 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                 )
                             } label: {
                                 Image.mullvadIconEdit
-                                    .padding(12)
+                                    .padding(.horizontal, 12)
                             }
                         }
                     }
+                    .padding(.vertical, 12)
                     LocationsListView(
                         locations: $viewModel.activeLocationContext.customLists,
-                        selectedLocation: viewModel.activeLocationContext.selectedLocation,
-                        connectedRelayHostname: viewModel.activeLocationContext.connectedRelayHostname
+                        multihopContext: viewModel.multihopContext,
                     ) { location in
                         viewModel.activeLocationContext.selectLocation(location)
                     } contextMenu: { location in
@@ -212,62 +197,70 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     Text(text)
                         .font(.mullvadMini)
                         .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                        .padding(.bottom, 16)
                     ListHeader(title: "All locations")
+                        .padding(.vertical, 12)
                 }
-                LocationsListView(
-                    locations: $viewModel.activeLocationContext.locations,
-                    selectedLocation: viewModel.activeLocationContext.selectedLocation,
-                    connectedRelayHostname: viewModel.activeLocationContext.connectedRelayHostname
-                ) { location in
-                    viewModel.activeLocationContext.selectLocation(location)
-                } contextMenu: { location in
-                    Section("Add country to list") {
-                        ForEach(
-                            viewModel.activeLocationContext.customLists,
-                            id: \.code
-                        ) { customList in
-                            var isAlreadyInList: Bool {
-                                var isAlreadyInList = false
-                                customList.forEachDescendant {
-                                    if $0.locations == location.locations {
-                                        isAlreadyInList = true
+                if !viewModel.searchText.isEmpty
+                    && viewModel.activeLocationContext.locations
+                        .filter({ !$0.isHiddenFromSearch }).isEmpty
+                {
+                    Text("No result for \"\(viewModel.searchText)\", please try with a different search term.")
+                        .font(.mullvadMiniSemiBold)
+                        .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                        .padding(.vertical)
+                } else {
+                    LocationsListView(
+                        locations: $viewModel.activeLocationContext.locations,
+                        multihopContext: viewModel.multihopContext,
+                    ) { location in
+                        viewModel.activeLocationContext.selectLocation(location)
+                    } contextMenu: { location in
+                        Section("Add country to list") {
+                            ForEach(
+                                viewModel.activeLocationContext.customLists,
+                                id: \.code
+                            ) { customList in
+                                var isAlreadyInList: Bool {
+                                    var isAlreadyInList = false
+                                    customList.forEachDescendant {
+                                        if $0.locations == location.locations {
+                                            isAlreadyInList = true
+                                        }
                                     }
+                                    return isAlreadyInList
                                 }
-                                return isAlreadyInList
+                                Button(customList.name) {
+                                    viewModel
+                                        .addLocationToCustomList(
+                                            location: location,
+                                            customListName: customList.name
+                                        )
+                                }
+                                .disabled(isAlreadyInList)
                             }
-                            Button(customList.name) {
-                                viewModel
-                                    .addLocationToCustomList(
-                                        location: location,
-                                        customListName: customList.name
-                                    )
+                            Button("+ New list") {
+                                newCustomListAlert = .init(
+                                    title: "Add new list",
+                                    placeholder: "List name",
+                                    action: .init(
+                                        type: .default,
+                                        title: "Create",
+                                        identifier: nil,
+                                        handler: { listName in
+                                            viewModel
+                                                .addLocationToCustomList(
+                                                    location: location,
+                                                    customListName: listName
+                                                )
+                                            newCustomListAlert = nil
+                                        }
+                                    ),
+                                    validate: { listName in
+                                        !listName.isEmpty && listName.count <= 32
+                                    },
+                                    dismissButtonTitle: "Cancel"
+                                )
                             }
-                            .disabled(isAlreadyInList)
-                        }
-                        Button("+ New list") {
-                            newCustomListAlert = .init(
-                                title: "Add new list",
-                                placeholder: "List name",
-                                action: .init(
-                                    type: .default,
-                                    title: "Create",
-                                    identifier: nil,
-                                    handler: { listName in
-                                        viewModel
-                                            .addLocationToCustomList(
-                                                location: location,
-                                                customListName: listName
-                                            )
-                                        newCustomListAlert = nil
-                                    }
-                                ),
-                                validate: { listName in
-                                    !listName.isEmpty && listName.count <= 32
-                                },
-                                dismissButtonTitle: "Cancel"
-                            )
-                            //                        viewModel.createNewListWithLocation()
                         }
                     }
                 }
@@ -287,11 +280,25 @@ private struct ListHeader: View {
             Text(title)
                 .font(.mullvadTiny)
                 .foregroundStyle(Color.mullvadTextPrimary)
+                .layoutPriority(1)
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(Color.mullvadTextPrimary)
         }
+        .frame(minHeight: 24, alignment: .center)
     }
+}
+#Preview {
+    VStack {
+        Spacer()
+        HStack {
+            ListHeader(title: "tatata")
+            Text("dasdadsa")
+                .foregroundStyle(Color.white)
+        }
+        Spacer()
+    }
+    .background(Color.black)
 }
 
 #Preview {

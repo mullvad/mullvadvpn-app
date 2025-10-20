@@ -2,23 +2,35 @@ import SwiftUI
 
 struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     @Binding var location: LocationNode
-    let selectedLocation: LocationNode?
-    let connectedRelayHostname: String?
+    let multihopContext: MultihopContext
     let position: ItemPosition
     let onSelect: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
     var level = 0
     var shouldBeExpanded: Bool {
-        if let selectedLocation {
-            var curr = selectedLocation
-            while let parent = curr.parent {
-                if parent.code == location.code {
-                    return true
+        var childIsSelected = false
+        location.forEachDescendant { child in
+            let isSelected =
+                switch multihopContext {
+                case .entry:
+                    child.isSelected == .entry
+                case .exit:
+                    child.isSelected == .exit
                 }
-                curr = parent
+            if isSelected {
+                childIsSelected = true
             }
         }
-        return location.showsChildren
+        return location.showsChildren || childIsSelected
+    }
+
+    var isExcluded: Bool {
+        switch multihopContext {
+        case .entry:
+            return location.isExcludedFrom == .entry
+        case .exit:
+            return location.isExcludedFrom == .exit
+        }
     }
 
     var filteredChildrenIndices: [Int] {
@@ -31,23 +43,18 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     var body: some View {
         Group {
             if location.children.isEmpty {
-                Button {
-                    onSelect(location)
-                } label: {
-                    RelayItemView(
-                        label: location.name,
-                        isSelected: selectedLocation?.code == location.code,
-                        isConnected: connectedRelayHostname == location.name,
-                        position: position,
-                        level: level
-                    )
-                }
-                .disabled(!location.isActive)
+                RelayItemView(
+                    location: location,
+                    multihopContext: multihopContext,
+                    position: position,
+                    level: level,
+                    onSelect: { onSelect(location) }
+                )
             } else {
                 LocationDisclosureGroup(
                     level: level,
                     position: position,
-                    isActive: location.isActive,
+                    isActive: location.isActive && !isExcluded,
                     isExpanded: $location.showsChildren
                 ) {
                     ForEach(
@@ -57,8 +64,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         let location = $location.children[indexInChildrenList]
                         LocationListItem(
                             location: location,
-                            selectedLocation: selectedLocation,
-                            connectedRelayHostname: connectedRelayHostname,
+                            multihopContext: multihopContext,
                             position: level > 0 && position != .last
                                 ? .middle
                                 : ItemPosition(
@@ -71,7 +77,13 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         )
                     }
                 } label: {
-                    let isSelected = selectedLocation?.code == location.code
+                    let isSelected =
+                        switch multihopContext {
+                        case .entry:
+                            location.isSelected == .entry
+                        case .exit:
+                            location.isSelected == .exit
+                        }
                     HStack {
                         if !location.isActive {
                             Image.mullvadRedDot
@@ -81,7 +93,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         }
                         Text(location.name)
                             .foregroundStyle(
-                                location.isActive
+                                // TODO: FIX Color when excluded
+                                location.isActive && location.isExcludedFrom == .none
                                     ? isSelected
                                         ? Color.mullvadSuccessColor
                                         : Color.mullvadTextPrimary
@@ -132,11 +145,14 @@ enum ItemPosition: String {
         .sheet(isPresented: .constant(true)) {
             ScrollView {
                 LocationListItem(
-                    location: .constant(.init(name: "test", code: "test")),
-                    selectedLocation: nil,
-                    connectedRelayHostname: nil,
+                    location:
+                        .constant(
+                            .init(name: "test", code: "test")
+                        ),
+                    multihopContext: .exit,
                     position: .only,
-                    onSelect: { _ in print("Got ya!") },
+                    onSelect: { _ in print("Got ya!")
+                    },
                     contextMenu: { _ in EmptyView() },
                     level: 0
                 )

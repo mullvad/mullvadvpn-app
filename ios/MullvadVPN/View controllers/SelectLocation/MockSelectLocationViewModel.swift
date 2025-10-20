@@ -1,6 +1,8 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
+    var isMultihopEnabled: Bool = true
+
     func deleteCustomList(name: String) {
 
     }
@@ -163,7 +165,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
     ) { _ in
     }
 
-    @Published var multihopContext: MultihopContext? = .entry
+    @Published var multihopContext: MultihopContext = .entry
 
     func onFilterTapped(_ filter: SelectLocationFilter) {
         print("show filter: \(filter)")
