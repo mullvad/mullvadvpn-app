@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2025-09-30 07:30\n"
+"PO-Revision-Date: 2025-10-20 06:58\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -168,6 +168,11 @@ msgstr "Aktiver uansett"
 #. A toggle that refers to the setting "Direct only".
 msgid "Enable direct only"
 msgstr "Aktiver kun direkte"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "Kunne ikke hente listen over enheter"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "KUNNE IKKE OPPRETTE SIKKER TILKOBLING"
@@ -436,6 +441,10 @@ msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP-innstillinger"
 
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "Bruk høyre piltast for å fokusere på innstillingsknappen."
+
 #. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
@@ -453,6 +462,11 @@ msgstr "For øyeblikket utilgjengelig"
 msgctxt "account-view"
 msgid "Log out"
 msgstr "Logg ut"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "Behandle enheter"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
@@ -558,6 +572,10 @@ msgstr "Skriv inn en gyldig localhost-port."
 msgctxt "api-access-methods-view"
 msgid "Please enter a valid remote server port."
 msgstr "Skriv inn en gyldig ekstern server-port."
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "Velg et navn for tilgangsmetoden som ikke allerede er i bruk."
 
 msgctxt "api-access-methods-view"
 msgid "Remote Server"
@@ -1008,14 +1026,6 @@ msgctxt "custom-bridge"
 msgid "Edit custom bridge"
 msgstr "Endre egendefinert bro"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "Vil du virkelig logge av <b>%(deviceName)s</b>?"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1027,6 +1037,11 @@ msgstr "Fortsett med pålogging"
 msgctxt "device-management"
 msgid "Created: %(createdDate)s"
 msgstr "Opprettet: %(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "Gjeldende enhet"
 
 msgctxt "device-management"
 msgid "Device is inactive"
@@ -1061,15 +1076,38 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "Hvis du logger ut, vil enheten og enhetsnavnet bli fjernet. Når du logger inn igjen, vil enheten få et nytt navn."
 
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "Behandle enheter"
+
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger."
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "Fjern"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "Vil du fjerne <em>%(deviceName)s?</em>"
 
 #. Page title informing user that enough devices has been removed to continue
 #. login process.
 msgctxt "device-management"
 msgid "Super!"
 msgstr "Supert!"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "Enheten blir fjernet fra listen og logget ut."
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
@@ -1085,10 +1123,16 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "For mange enheter"
 
-#. Button label for confirming logout of another device.
+#. Button text to retry fetching devices.
 msgctxt "device-management"
-msgid "Yes, log out device"
-msgstr "Ja, logg av enhet"
+msgid "Try again"
+msgstr "Prøv igjen"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "Se og administrer alle innloggede enheter. Du kan ha opptil fem enheter på én konto om gangen. Hver enhet får et navn når du logger inn, slik at du enkelt kan skille dem fra hverandre."
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
@@ -1363,6 +1407,13 @@ msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr "Valgt %(wireGuard)s-port støttes ikke. Du kan endre i "
 
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgstr "Denne enheten heter nå <em>%(deviceName)s</em>. Se mer under «Administrer enheter» i Konto."
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -1398,10 +1449,6 @@ msgstr "BEKREFTELSEN ER FULLFØRT! STARTER INSTALLASJONSPROGRAMMET …"
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "BEKREFTELSEN MISLYKTES"
-
-msgctxt "in-app-notifications"
-msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "Velkommen. Denne enheten har fått navnet <b>%(deviceName)s</b>. For å finne ut mer kan du bruke informasjonsknappen under Konto."
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1529,11 +1576,6 @@ msgstr "Feil"
 msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "Kunne ikke opprette konto"
-
-#. Error message shown above login input when trying to login but the app fails
-#. to fetch the list of registered devices.
-msgid "Failed to fetch list of devices"
-msgstr "Kunne ikke hente liste over enheter"
 
 msgctxt "login-view"
 msgid "Finishing upgrade."
@@ -2137,6 +2179,13 @@ msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr "%(applicationName)s opplever problemer og kan ikke utelates fra VPN-tunnelen."
 
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "%(splitTunneling)s støttes ikke av systemet ditt."
+
 msgctxt "split-tunneling-view"
 msgid "Add"
 msgstr "Legg til"
@@ -2148,6 +2197,11 @@ msgstr "Alle apper"
 msgctxt "split-tunneling-view"
 msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr "Velg appene du vil ekskludere fra VPN-tunnelen."
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "Klikk her for å finne ut mer"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
@@ -2195,6 +2249,14 @@ msgstr "Prøv igjen eller send inn en problemrapport."
 msgctxt "split-tunneling-view"
 msgid "Restart Mullvad Service"
 msgstr "Start Mullvad-tjenesten på nytt"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "For å bruke %(splitTunneling)s, må du endre til en Linux-kjerneversjon som støtter cgroup v1."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2510,8 +2572,8 @@ msgstr "Kobler automatisk til en server når appen starter."
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
-msgstr "Deaktiver <b>%(customDnsFeatureName)s</b> under for å aktivere innstillingene."
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "Deaktiver «%(customDnsFeatureName)s» nedenfor for å aktivere innstillingene."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
@@ -2703,6 +2765,7 @@ msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr "Hvis en observatør overvåker disse datapakkene, gjør %(daita)s det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker, eller hvem du kommuniserer med."
 
+#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr "IP-versjon"
@@ -2712,12 +2775,23 @@ msgid "It does this by performing an extra key exchange using a quantum safe alg
 msgstr "Det gjøres ved at å utføre en ekstra nøkkelutveksling med en kvantesikker algoritme og kombinere resultatet med WireGuard sin vanlige kryptering. Dette ekstratrinnet bruker omtrent 500 kiB trafikk hver gang det opprettes en ny tunnel."
 
 msgctxt "wireguard-settings-view"
+msgid "LWO"
+msgstr "LWO"
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "Multihopp"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "Multihop brukes til å aktivere DAITA for den valgte plasseringen"
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
@@ -2732,6 +2806,7 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr "Ikke alle serverne våre er %(daita)s-aktiverte. Derfor bruker vi automatisk multihopp for å aktivere %(daita)s med alle servere."
 
+#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "Tilsløring"
@@ -2742,6 +2817,7 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter der en vanlig WireGuard-tilkobling ville blitt blokkert."
 
+#. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Port"
@@ -2803,10 +2879,6 @@ msgstr "Denne funksjonen gjør WireGuard-tunnelen motstandsdyktig mot potensiell
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
 msgstr "UDP-over-TCP"
-
-msgctxt "wireguard-settings-view"
-msgid "UDP-over-TCP port"
-msgstr "UDP-over-TCP-port"
 
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
@@ -2904,6 +2976,9 @@ msgstr "Legg til tid"
 msgid "Adding method..."
 msgstr "Legger til metoden ..."
 
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "Etter å ha oppdatert en VPN-app på Android 16, kan enhetene havne i en tilstand der VPN-appene ikke lenger får tilgang til internett."
+
 msgid "Agree and continue"
 msgstr "Godta og fortsett"
 
@@ -2918,6 +2993,12 @@ msgstr "VPN som alltid er på, er tilordnet %s"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN som alltid er på, er tilordnet en annen VPN"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "Android 16 har en kjent feil. Start enheten på nytt og prøv igjen. For å finne ut mer,"
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "Vil du virkelig logge <b>%s</b> av?"
 
 msgid "At least one method needs to be enabled"
 msgstr "Minst én metode må være aktivert"
@@ -2951,6 +3032,9 @@ msgstr "Blokkerer internett (enhet frakoblet)"
 
 msgid "Blocking..."
 msgstr "Blokkerer …"
+
+msgid "Can't connect?"
+msgstr "Kan du ikke koble til?"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater."
@@ -2988,9 +3072,6 @@ msgstr "Opprett ny liste"
 msgid "Critical error (your attention is required)"
 msgstr "Kritisk feil (krever din oppmerksomhet)"
 
-msgid "Current device"
-msgstr "Gjeldende enhet"
-
 msgid "Current: %s"
 msgstr "Gjeldende: %s"
 
@@ -3011,9 +3092,6 @@ msgstr "Slette metoden?"
 
 msgid "Device IP version"
 msgstr "Enhets-IP-versjon"
-
-msgid "Disable \"%s\" below to activate these settings."
-msgstr "Deaktiver «%s» nedenfor for å aktivere innstillingene."
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Deaktiver alle «%s» ovenfor for å aktivere denne innstillingen."
@@ -3093,9 +3171,6 @@ msgstr "Kunne ikke angi til gjeldende – ukjent årsak"
 msgid "File"
 msgstr "Fil"
 
-msgid "Filters:"
-msgstr "Filtre:"
-
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "For at VPN skal kobles automatisk til ved oppstart av enheten, må appen ha VPN-tillatelser. Du kan gi disse ved å klikke på «Koble til» i kartvisningen og velge «OK» hvis du blir bedt om det. I tillegg må du sørge for at appen er installert på det interne lagringsmediet ved å sjekke lagringsinformasjonen i appdetaljene i systeminnstillingene."
 
@@ -3162,9 +3237,6 @@ msgstr "Plasseringer ble endret for «%s»"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Sørger for at enheten alltid er på VPN-tunnelen."
 
-msgid "Manage devices"
-msgstr "Behandle enheter"
-
 msgid "More actions"
 msgstr "Flere handlinger"
 
@@ -3192,8 +3264,8 @@ msgstr "Ingen tilgjengelige egendefinerte lister"
 msgid "No internet connection"
 msgstr "Ingen internettforbindelse"
 
-msgid "No locations found"
-msgstr "Ingen plasseringer funnet"
+msgid "No matching servers found."
+msgstr "Fant ingen matchende servere."
 
 msgid "No recent selection history"
 msgstr "Ingen nylig valghistorikk"
@@ -3233,6 +3305,12 @@ msgstr "Skriv inn en gyldig ekstern server-port"
 
 msgid "Please press connect to request VPN permission"
 msgstr "Trykk på koble til for å be om VPN-tillatelse"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "Start enheten på nytt og prøv å koble til igjen. Hvis dette ikke fungerer, kan du skrive en e-post til %s på svensk eller engelsk."
+
+msgid "Please try changing your filters."
+msgstr "Prøv å endre filtrene."
 
 msgid "Privacy"
 msgstr "Personvern"
@@ -3321,9 +3399,6 @@ msgstr "«Gjeldende» metode betyr den metoden som appen bruker for å nå API."
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Denne appen blokkerer internett. Koble fra først"
 
-msgid "The device will be removed from the list and logged out."
-msgstr "Enheten blir fjernet fra listen og logget ut."
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under VPN-innstillinger."
 
@@ -3381,6 +3456,12 @@ msgstr "Oppdater DNS-serveren"
 msgid "Update list name"
 msgstr "Oppdater listenavn"
 
+msgid "Update server list"
+msgstr "Oppdater serverlisten"
+
+msgid "Updating server list in the background..."
+msgstr "Oppdater serverlisten i bakgrunnen …"
+
 msgid "Use method"
 msgstr "Bruk metode"
 
@@ -3417,9 +3498,6 @@ msgstr "Bekrefter kjøp ..."
 msgid "Verifying voucher…"
 msgstr "Bekrefter kupong …"
 
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Se og administrer alle innloggede enheter. Du kan ha opptil fem enheter på én konto om gangen. Hver enhet får et navn når du logger inn, slik at du enkelt kan skille dem fra hverandre."
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vi behandler fortsatt kjøpet ditt. Det kan ta en stund. Hvis kjøpet blir bekreftet, legges tiden til."
 
@@ -3441,11 +3519,17 @@ msgstr "Tilsløring av WireGuard"
 msgid "WireGuard port"
 msgstr "WireGuard-port"
 
+msgid "Yes, log out device"
+msgstr "Ja, logg ut av enheten"
+
 msgid "\"%s\" was created"
 msgstr "«%s» ble opprettet"
 
 msgid "\"%s\" was deleted"
 msgstr "«%s» ble slettet"
+
+msgid "click here"
+msgstr "klikk her"
 
 msgid "here"
 msgstr "her"

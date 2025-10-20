@@ -24,6 +24,10 @@
     <string name="all_providers">Todos os fornecedores</string>
     <string name="always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar a Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN sempre ligada atribuída a %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Após atualizar uma aplicação de VPN no Android 16, os dispositivos podem ficar num estado em que as aplicações de VPN deixam de conseguir aceder à internet.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Reinicie o seu dispositivo e tente estabelecer a ligação novamente. Se isto não funcionar, escreva um e-mail para %1$s em sueco ou inglês.</string>
+    <string name="android_16_upgrade_warning_message">O Android 16 tem um problema conhecido. Reinicie o seu dispositivo e tente novamente. Para saber mais,</string>
+    <string name="android_16_upgrade_warning_title">Não consegue ligar?</string>
     <string name="any">Qualquer</string>
     <string name="api_access_description">Gerir e adicionar métodos personalizados para aceder à Mullvad API.</string>
     <string name="api_access_method_info_first_line">A app precisa de comunicar com um servidor da Mullvad API para iniciar a sua sessão, obter listas de servidores e outras operações críticas.</string>
@@ -67,12 +71,13 @@
     <string name="changelog_title">Novidades</string>
     <string name="cipher">Cifra</string>
     <string name="clear_input">Limpar entrada</string>
+    <string name="click_here">clique aqui</string>
     <string name="close">Fechar</string>
     <string name="collapse">Colapsar</string>
     <string name="confirm_ipv6_dns">O servidor DNS IPv6 não funcionará a menos que ative a \"IPv6\" nas definições de VPN.</string>
     <string name="confirm_local_dns">O servidor DNS local não funcionará a menos que ative a \"Partilha de rede local\" nas definições de VPN.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
-    <string name="confirm_removal">Sim, desligar o dispositivo</string>
+    <string name="confirm_removal">Sim, terminar sessão do dispositivo</string>
     <string name="congrats">Parabéns!</string>
     <string name="connect">Ligar</string>
     <string name="connect_on_start">Ligar no arranque do dispositivo</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Nenhuma lista personalizada disponível</string>
     <string name="no_internet_connection">Sem ligação à internet</string>
     <string name="no_matching_relay">Nenhum servidor corresponde às suas definições. Tente alterar o servidor ou outras definições.</string>
+    <string name="no_matching_servers_found_first_line">Nenhum servidor correspondente encontrado.</string>
+    <string name="no_matching_servers_found_second_line">Tente alterar os seus filtros.</string>
     <string name="no_recent_selection">Sem histórico de seleção recente</string>
     <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>
     <string name="not_found">Não encontrada</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
+    <string name="refresh_server_list">Atualizar lista de servidores</string>
     <string name="relay_item_already_selected_as_entry">%1$s já está selecionado como retransmissor de entrada</string>
     <string name="relay_item_already_selected_as_exit">%1$s já está selecionado como retransmissor de saída</string>
     <string name="relayitem_is_inactive">%1$s não está disponível</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP sobre TCP</string>
     <string name="update_dns_server_dialog_title">Atualizar servidor DNS</string>
     <string name="update_list_name">Atualizar nome da lista</string>
+    <string name="updating_server_list_in_the_background">A atualizar a lista de servidores em segundo plano...</string>
     <string name="uri_browser_app_not_found">Nenhuma aplicação de navegador Android instalada. Não foi possível abrir a ligação</string>
     <string name="uri_market_app_not_found">Nenhuma loja de aplicações Android instalada. Não foi possível abrir a ligação</string>
     <string name="use_method">Utilizar método</string>

@@ -24,6 +24,10 @@
     <string name="all_providers">所有供應商</string>
     <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 &lt;b&gt;%1$s&lt;/b&gt; 停用「始終啟用 VPN」。</string>
     <string name="always_on_vpn_error_notification_title">「一律啟用 VPN」已指派給 %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">在 Android 16 更新 VPN 應用程式後，裝置可能會出現 VPN 應用程式無法連線至網際網路的情況。</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">請重新啟動您的裝置並嘗試重新連線。若不成功，請以瑞典語或英語撰寫電子郵件並寄至 %1$s。</string>
+    <string name="android_16_upgrade_warning_message">Android 16 存在已知問題。請重新啟動您的裝置並再試一次。如需更多資訊，</string>
+    <string name="android_16_upgrade_warning_title">無法連線嗎？</string>
     <string name="any">任何</string>
     <string name="api_access_description">管理並新增自訂方式以存取 Mullvad API。</string>
     <string name="api_access_method_info_first_line">該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">最新動態</string>
     <string name="cipher">加密方式</string>
     <string name="clear_input">清除輸入</string>
+    <string name="click_here">按一下此處</string>
     <string name="close">關閉</string>
     <string name="collapse">折疊</string>
     <string name="confirm_ipv6_dns">若要執行 IPv6 DNS 伺服器，需先在 VPN 設定下啟用「IPv6」。</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">有可用的自訂清單</string>
     <string name="no_internet_connection">沒有網際網路連線</string>
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
+    <string name="no_matching_servers_found_first_line">找不到相符的伺服器。</string>
+    <string name="no_matching_servers_found_second_line">請變更您的篩選器試試。</string>
     <string name="no_recent_selection">無最近選擇歷史</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_found">找不到</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">重新連線</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
+    <string name="refresh_server_list">更新伺服器清單</string>
     <string name="relay_item_already_selected_as_entry">已選取 %1$s 為入口節點</string>
     <string name="relay_item_already_selected_as_exit">已選取 %1$s 為出口節點</string>
     <string name="relayitem_is_inactive">%1$s 無法使用</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="update_list_name">更新清單名稱</string>
+    <string name="updating_server_list_in_the_background">正在背景更新伺服器清單……</string>
     <string name="uri_browser_app_not_found">未安裝瀏覽器應用程式，無法開啟連結</string>
     <string name="uri_market_app_not_found">未安裝 Android 應用程式商店，無法開啟連結</string>
     <string name="use_method">使用方式</string>
