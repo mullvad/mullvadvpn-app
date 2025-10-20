@@ -502,7 +502,7 @@ impl SplitTunnel {
 
                         // If we failed to reset, make sure to NEVER unload the driver.
                         // See the safety comment on `stop_driver_service`.
-                        // Unloading without a reset this can trigger a BSOD!
+                        // Unloading without a reset can trigger a BSOD!
                         let unload_driver = reset_result.is_ok();
 
                         if unload_driver {
