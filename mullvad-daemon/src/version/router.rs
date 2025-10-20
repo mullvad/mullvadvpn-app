@@ -1166,6 +1166,64 @@ mod test {
     }
 
     #[tokio::test]
+    async fn test_update_in_downloaded_state() {
+        let (mut version_router, _channels) = make_version_router::<SuccessfulAppDownloader>();
+        let mut version_cache_test = get_new_stable_version_cache();
+
+        version_router.on_new_version(version_cache_test.clone());
+
+        // Start upgrading
+        version_router.update_application();
+        // Check that the state is now downloading
+        assert!(matches!(version_router.state, State::Downloading { .. }),);
+
+        // Should remain in downloading state if same version is received
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::Downloading { .. }),
+            "state should be Downloading, was {:?}",
+            version_router.state,
+        );
+
+        // Unless the version is different
+        version_cache_test.version_info.stable.version.incremental += 1;
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::HasVersion { .. }),
+            "state should be HasVersion, was {:?}",
+            version_router.state,
+        );
+
+        // Restart upgrade
+        version_router.update_application();
+
+        // Drive the download to completion
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
+        assert!(
+            matches!(version_router.state, State::Downloaded { .. }),
+            "state should be Downloaded, was {:?}",
+            version_router.state,
+        );
+
+        // Should remain in downloaded state if same version is received
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::Downloaded { .. }),
+            "state should be Downloaded, was {:?}",
+            version_router.state,
+        );
+
+        // Unless the version is different
+        version_cache_test.version_info.stable.version.incremental += 1;
+        version_router.on_new_version(version_cache_test.clone());
+        assert!(
+            matches!(version_router.state, State::HasVersion { .. }),
+            "state should be HasVersion, was {:?}",
+            version_router.state,
+        );
+    }
+
+    #[tokio::test]
     async fn test_failed_verification() {
         let (mut version_router, _channels) = make_version_router::<FailingAppVerifier>();
         let version_cache_test = get_new_stable_version_cache();
