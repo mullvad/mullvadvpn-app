@@ -74,19 +74,25 @@ impl Platform {
         [Platform::Windows, Platform::Linux, Platform::Macos]
     }
 
+    pub fn data_dir() -> PathBuf {
+        std::env::home_dir()
+            .expect("No home dir found")
+            .join(".local/share/mullvad-release")
+    }
+
     /// Path to WIP file in `work/` for this platform
     pub fn work_path(&self) -> PathBuf {
-        Path::new("work").join(self.local_filename())
+        Self::data_dir().join("work").join(self.local_filename())
     }
 
     /// Path to signed file in `signed/` for this platform
     pub fn signed_path(&self) -> PathBuf {
-        Path::new("signed").join(self.local_filename())
+        Self::data_dir().join("signed").join(self.local_filename())
     }
 
     /// Expected artifacts in `artifacts/` directory
     pub fn artifact_filenames(&self, version: &mullvad_version::Version) -> Artifacts {
-        let artifacts_dir = Path::new("artifacts");
+        let artifacts_dir = Self::data_dir().join("artifacts");
         match self {
             Platform::Windows => Artifacts {
                 x86_artifacts: vec![artifacts_dir.join(format!("MullvadVPN-{version}_x64.exe"))],
