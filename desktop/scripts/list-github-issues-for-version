@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+REPO_ROOT=../../
+
+VERSION=""
+MARKDOWN="false"
+PLAIN="false"
+
+source $REPO_ROOT/scripts/utils/log
+
+function print_usage {
+    log_info "Usage: $0 [--help|-h] [--markdown|--plain] <version>"
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --help|-h)
+            print_usage
+            exit 1
+            ;;
+        --markdown) MARKDOWN="true";;
+        --plain) PLAIN="true";;
+        *) VERSION=$1 ;;
+    esac
+    shift
+done
+
+if [[ -z $VERSION ]]; then
+    log_error "Please give the ap version as an argument to this script."
+    print_usage
+    exit 1
+fi
+
+function search {
+    gh search issues -R mullvad/mullvadvpn-app --state open \
+        --json "title,url" --jq "$1" \
+        "$VERSION"
+}
+
+jq='to_entries | map(.value+{index: .key + 1})'
+if [[ "$MARKDOWN" == "true" ]]; then
+    jq+=' | map("\(.index). [\(.title)](\(.url))") | join("\n")'
+    search "$jq"
+elif [[ "$PLAIN" == "true" ]]; then
+    jq+=' | map("\(.index). \"\(.title)\": \(.url))") | join("\n")'
+    search "$jq"
+else
+    jq+='.[] | "\(.index)\t\(.title)\t\(.url)"'
+    search "$jq" | \
+        while IFS=$'\t' read -r index title url; do
+          printf '%s. \e]8;;%s\e\\%s\e]8;;\e\\\n' "$index" "$url" "$title"
+        done
+fi
