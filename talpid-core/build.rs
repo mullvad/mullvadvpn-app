@@ -10,7 +10,6 @@ fn generate_grpc_code() {
 
 #[cfg(windows)]
 mod win {
-    use crate::win::*;
     use std::{env, path::PathBuf};
 
     pub fn main() {
