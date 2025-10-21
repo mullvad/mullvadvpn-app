@@ -38,10 +38,10 @@ source $REPO_ROOT/scripts/utils/log
 function publish_metadata {
     local platforms
     platforms=(windows macos linux)
-    local signed_dir="signed/"
-    local work_dir="work/"
-    local published_dir="currently_published/"
-    local upload_dir="upload/"
+    local signed_dir="$DATA_DIR/signed/"
+    local work_dir="$DATA_DIR/work/"
+    local published_dir="$DATA_DIR/currently_published/"
+    local upload_dir="$DATA_DIR/upload/"
     local latest_path="latest.json"
 
     local mullvad_release="cargo run -q --package mullvad-release --"
@@ -51,11 +51,13 @@ function publish_metadata {
     rm -rf "$published_dir"
     rm -rf "$upload_dir"
 
+    mkdir -p "$DATA_DIR"
+
     log_header "Fetching current version metadata"
     $mullvad_release pull --assume-yes --latest-file "${platforms[@]}"
 
     log_header "Backing up released data"
-    cp -r $signed_dir $published_dir
+    cp -r "$signed_dir" "$published_dir"
     cp "$latest_path" "$published_dir"
 
     log_header "Replacing $work_dir directory with latest published data"
@@ -77,10 +79,10 @@ function publish_metadata {
     $mullvad_release query-latest "${platforms[@]}" > "$upload_dir/$latest_path"
 
     log_header "New metadata including $PRODUCT_VERSION"
-    git --no-pager diff --no-index -- $published_dir $upload_dir || true
+    git --no-pager diff --no-index -- "$published_dir" "$upload_dir" || true
 
     read -rp "Press enter to upload if the diffs look good "
-    ./publish-metadata-to-api $upload_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    ./publish-metadata-to-api "$upload_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 function remove_release_artifacts {
