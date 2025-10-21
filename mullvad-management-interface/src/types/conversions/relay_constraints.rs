@@ -51,6 +51,8 @@ impl TryFrom<&proto::WireguardConstraints>
                     .ok()
                 })
                 .unwrap_or(Constraint::Any),
+            entry_providers: try_providers_constraint_from_proto(&constraints.entry_providers)?,
+            entry_ownership: try_ownership_constraint_from_i32(constraints.entry_ownership)?,
         })
     }
 }
@@ -117,11 +119,21 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                             FromProtobufTypeError::InvalidArgument("missing openvpn constraints"),
                         )?,
                     )?;
-                let wireguard_constraints = mullvad_constraints::WireguardConstraints::try_from(
-                    &settings.wireguard_constraints.ok_or(
-                        FromProtobufTypeError::InvalidArgument("missing wireguard constraints"),
-                    )?,
-                )?;
+                let mut wireguard_constraints =
+                    mullvad_constraints::WireguardConstraints::try_from(
+                        &settings.wireguard_constraints.ok_or(
+                            FromProtobufTypeError::InvalidArgument("missing wireguard constraints"),
+                        )?,
+                    )?;
+
+                // TODO Remove this block when the frontends support setting multihop entry filters.
+                // This is needed in order to not change the current behavior (which
+                // is that the ownership and providers from `RelaySettings` apply to both the entry
+                // and exit multihop relays).
+                {
+                    wireguard_constraints.entry_ownership = ownership;
+                    wireguard_constraints.entry_providers = providers.clone();
+                }
 
                 Ok(mullvad_constraints::RelaySettings::Normal(
                     mullvad_constraints::RelayConstraints {
@@ -279,6 +291,12 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .entry_location
                             .option()
                             .map(proto::LocationConstraint::from),
+                        entry_providers: convert_providers_constraint(
+                            &constraints.wireguard_constraints.entry_providers,
+                        ),
+                        entry_ownership: convert_ownership_constraint(
+                            &constraints.wireguard_constraints.entry_ownership,
+                        ) as i32,
                     }),
 
                     openvpn_constraints: Some(proto::OpenvpnConstraints {
