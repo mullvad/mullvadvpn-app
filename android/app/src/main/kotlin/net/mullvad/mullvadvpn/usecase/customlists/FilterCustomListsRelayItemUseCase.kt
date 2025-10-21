@@ -2,12 +2,12 @@ package net.mullvad.mullvadvpn.usecase.customlists
 
 import kotlin.collections.mapNotNull
 import kotlinx.coroutines.flow.combine
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.relaylist.filter
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -30,8 +30,8 @@ class FilterCustomListsRelayItemUseCase(
     operator fun invoke(relayListType: RelayListType) =
         combine(
             customListsRelayItemUseCase(),
-            relayListFilterRepository.selectedOwnership,
-            relayListFilterRepository.selectedProviders,
+            relayListFilterRepository.selectedOwnership(relayListType),
+            relayListFilterRepository.selectedProviders(relayListType),
             settingsRepository.settingsUpdates,
             wireguardConstraintsRepository.wireguardConstraints,
         ) { customLists, selectedOwnership, selectedProviders, settings, wireguardConstraints ->
