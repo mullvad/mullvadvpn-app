@@ -15,15 +15,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -190,11 +190,19 @@ class SelectLocationViewModel(
     }
 
     fun removeOwnerFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
+        viewModelScope.launch {
+            _relayListType.value?.let {
+                relayListFilterRepository.updateSelectedOwnership(Constraint.Any, it)
+            }
+        }
     }
 
     fun removeProviderFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
+        viewModelScope.launch {
+            _relayListType.value?.let {
+                relayListFilterRepository.updateSelectedProviders(Constraint.Any, it)
+            }
+        }
     }
 
     fun toggleRecentsEnabled() {
