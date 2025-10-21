@@ -22,10 +22,11 @@ fn main() -> anyhow::Result<()> {
 
     let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
     match target_os()? {
-        Os::Windows => build_windows_dynamic_lib(&out_dir)?,
+        Os::Windows if host_os() == Os::Windows => build_windows_dynamic_lib(&out_dir)?,
         Os::Linux => build_linux_static_lib(&out_dir)?,
         Os::Macos => build_macos_static_lib(&out_dir)?,
         Os::Android => build_android_dynamic_lib(&out_dir)?,
+        _ => (),
     }
 
     Ok(())
@@ -132,6 +133,8 @@ fn target_libc() -> anyhow::Result<Libc> {
 }
 
 /// Compile libwg and maybenot and place them in the target dir relative to `OUT_DIR`.
+///
+/// The host has to run Windows.
 fn build_windows_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
     let target_dir = Path::new(out_dir)
         .ancestors()
