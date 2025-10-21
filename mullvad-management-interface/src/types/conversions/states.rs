@@ -185,9 +185,6 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
                                     i32::from(GenerationError::NoMatchingBridgeRelay)
                                 }
-                                talpid_tunnel::ParameterGenerationError::NoWireguardKey => {
-                                    i32::from(GenerationError::NoWireguardKey)
-                                }
                                 talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError => {
                                     i32::from(GenerationError::CustomTunnelHostResolutionError)
                                 }
@@ -392,7 +389,6 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                             Ok(proto::error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError,
                             Ok(proto::error_state::GenerationError::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
                             Ok(proto::error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
-                            Ok(proto::error_state::GenerationError::NoWireguardKey) => talpid_tunnel::ParameterGenerationError::NoWireguardKey,
                             Ok(proto::error_state::GenerationError::NetworkIpv4Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 },
                             Ok(proto::error_state::GenerationError::NetworkIpv6Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 },
                             _ => return Err(FromProtobufTypeError::InvalidArgument(

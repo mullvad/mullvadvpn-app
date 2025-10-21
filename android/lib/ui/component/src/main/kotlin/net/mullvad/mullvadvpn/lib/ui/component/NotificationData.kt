@@ -288,7 +288,6 @@ private fun ParameterGenerationError.errorMessageId(): Int =
         ParameterGenerationError.NoMatchingBridgeRelay -> {
             R.string.no_matching_relay
         }
-        ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
         ParameterGenerationError.CustomTunnelHostResolutionError ->
             R.string.custom_tunnel_host_resolution_error
         ParameterGenerationError.Ipv4_Unavailable -> R.string.ip_version_v4_unavailable

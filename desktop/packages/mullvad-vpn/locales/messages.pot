@@ -1798,12 +1798,6 @@ msgctxt "notifications"
 msgid "Upgrade"
 msgstr ""
 
-#. Available placeholders:
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "notifications"
-msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
-msgstr ""
-
 msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr ""

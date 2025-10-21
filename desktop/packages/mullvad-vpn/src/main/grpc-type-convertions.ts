@@ -332,8 +332,6 @@ function convertFromParameterError(
       return TunnelParameterError.noMatchingRelay;
     case grpcTypes.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY:
       return TunnelParameterError.noMatchingBridgeRelay;
-    case grpcTypes.ErrorState.GenerationError.NO_WIREGUARD_KEY:
-      return TunnelParameterError.noWireguardKey;
     case grpcTypes.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR:
       return TunnelParameterError.customTunnelHostResolutionError;
     case grpcTypes.ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE:
