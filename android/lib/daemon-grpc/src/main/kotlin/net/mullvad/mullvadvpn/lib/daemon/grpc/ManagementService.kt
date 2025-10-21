@@ -105,6 +105,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.lib.model.RelayList
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
@@ -133,8 +134,11 @@ import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.defaultOptions
 import net.mullvad.mullvadvpn.lib.model.entryLocation
+import net.mullvad.mullvadvpn.lib.model.entryOwnership
+import net.mullvad.mullvadvpn.lib.model.entryProviders
 import net.mullvad.mullvadvpn.lib.model.ipVersion
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
+import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
 import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.port
@@ -677,16 +681,14 @@ class ManagementService(
     suspend fun setOwnershipAndProviders(
         ownershipConstraint: Constraint<ModelOwnership>,
         providersConstraint: Constraint<Providers>,
+        filterType: RelayListType,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated =
-                    relaySettings.copy {
-                        inside(RelaySettings.relayConstraints) {
-                            RelayConstraints.providers set providersConstraint
-                            RelayConstraints.ownership set ownershipConstraint
-                        }
-                    }
+                    relaySettings
+                        .setOwnership(ownershipConstraint, filterType)
+                        .setProviders(providersConstraint, filterType)
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set ownership and providers error") }
@@ -694,11 +696,12 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setOwnership(
-        ownership: Constraint<ModelOwnership>
+        ownership: Constraint<ModelOwnership>,
+        filterType: RelayListType,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
-                val updated = RelaySettings.relayConstraints.ownership.set(relaySettings, ownership)
+                val updated = relaySettings.setOwnership(ownership, filterType)
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set ownership error") }
@@ -706,17 +709,43 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setProviders(
-        providersConstraint: Constraint<Providers>
+        providersConstraint: Constraint<Providers>,
+        filterType: RelayListType,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
-                val updated =
-                    RelaySettings.relayConstraints.providers.set(relaySettings, providersConstraint)
+                val updated = relaySettings.setProviders(providersConstraint, filterType)
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set providers error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
+
+    private fun RelaySettings.setProviders(
+        providersConstraint: Constraint<Providers>,
+        filterType: RelayListType,
+    ): RelaySettings =
+        if (filterType.isMultihopEntry()) {
+            RelaySettings.relayConstraints.wireguardConstraints.entryProviders.set(
+                this,
+                providersConstraint,
+            )
+        } else {
+            RelaySettings.relayConstraints.providers.set(this, providersConstraint)
+        }
+
+    private fun RelaySettings.setOwnership(
+        ownershipConstraint: Constraint<ModelOwnership>,
+        filterType: RelayListType,
+    ): RelaySettings =
+        if (filterType.isMultihopEntry()) {
+            RelaySettings.relayConstraints.wireguardConstraints.entryOwnership.set(
+                this,
+                ownershipConstraint,
+            )
+        } else {
+            RelaySettings.relayConstraints.ownership.set(this, ownershipConstraint)
+        }
 
     suspend fun submitVoucher(
         voucher: VoucherCode
@@ -867,6 +896,38 @@ class ManagementService(
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set multihop error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setEntryOwnership(
+        ownership: Constraint<ModelOwnership>
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.wireguardConstraints.entryOwnership.set(
+                        relaySettings,
+                        ownership,
+                    )
+                grpc.setRelaySettings(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set multihop entry ownership error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setEntryProviders(
+        providers: Constraint<Providers>
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.wireguardConstraints.entryProviders.set(
+                        relaySettings,
+                        providers,
+                    )
+                grpc.setRelaySettings(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set multihop entry providers error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 

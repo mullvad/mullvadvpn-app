@@ -1,8 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlin.collections.plus
+import com.ramcosta.composedestinations.generated.destinations.FilterDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,13 +21,17 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 
 class FilterViewModel(
     private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val relayListFilterRepository: RelayListFilterRepository,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+    private val filterType: RelayListType = FilterDestination.argsFrom(savedStateHandle).filterType
+
     private val _uiSideEffect = Channel<FilterScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
@@ -35,8 +40,10 @@ class FilterViewModel(
 
     init {
         viewModelScope.launch {
-            selectedProviders.value = relayListFilterRepository.selectedProviders.first()
-            selectedOwnership.value = relayListFilterRepository.selectedOwnership.first()
+            selectedProviders.value =
+                relayListFilterRepository.selectedProviders(filterType).first()
+            selectedOwnership.value =
+                relayListFilterRepository.selectedOwnership(filterType).first()
         }
     }
 
@@ -119,6 +126,7 @@ class FilterViewModel(
             relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                 newSelectedOwnership,
                 newSelectedProviders,
+                filterType,
             )
             _uiSideEffect.send(FilterScreenSideEffect.CloseScreen)
         }

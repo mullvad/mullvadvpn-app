@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -13,6 +14,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.screen.FilterNavArgs
 import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -21,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import org.junit.jupiter.api.AfterEach
@@ -60,14 +63,19 @@ class FilterViewModelTest {
 
     @BeforeEach
     fun setup() {
-        every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedOwnership(any()) } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedOwnership(any()) } returns selectedOwnership
         every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
-        every { mockRelayListFilterRepository.selectedProviders } returns
+        every { mockRelayListFilterRepository.selectedProviders(any()) } returns
+            MutableStateFlow(Constraint.Only(mockSelectedProviders))
+        every { mockRelayListFilterRepository.selectedProviders(any()) } returns
             MutableStateFlow(Constraint.Only(mockSelectedProviders))
         viewModel =
             FilterViewModel(
                 providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
                 relayListFilterRepository = mockRelayListFilterRepository,
+                savedStateHandle =
+                    FilterNavArgs(filterType = RelayListType.Single).toSavedStateHandle(),
             )
     }
 
@@ -129,6 +137,7 @@ class FilterViewModelTest {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
                     mockSelectedProviders,
+                    RelayListType.Single,
                 )
             } returns Unit.right()
 
@@ -140,6 +149,7 @@ class FilterViewModelTest {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
                     mockSelectedProviders,
+                    RelayListType.Single,
                 )
             }
         }

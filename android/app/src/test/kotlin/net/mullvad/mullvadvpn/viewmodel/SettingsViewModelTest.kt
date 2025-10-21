@@ -118,6 +118,8 @@ class SettingsViewModelTest {
                     entryLocation = Constraint.Any,
                     port = Constraint.Any,
                     ipVersion = Constraint.Any,
+                    entryProviders = Constraint.Any,
+                    entryOwnership = Constraint.Any,
                 )
 
             // Act, Assert

@@ -5,13 +5,13 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -33,8 +33,10 @@ class FilterChipUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
-        every { mockRelayListFilterRepository.selectedProviders } returns selectedProviders
+        every { mockRelayListFilterRepository.selectedOwnership(any()) } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedOwnership(any()) } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedProviders(any()) } returns selectedProviders
+        every { mockRelayListFilterRepository.selectedProviders(any()) } returns selectedProviders
         every { mockProviderToOwnershipsUseCase() } returns providerToOwnerships
         every { mockSettingRepository.settingsUpdates } returns settings
 

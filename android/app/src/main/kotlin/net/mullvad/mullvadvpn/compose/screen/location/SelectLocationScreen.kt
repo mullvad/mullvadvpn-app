@@ -74,8 +74,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -83,7 +81,9 @@ import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
@@ -262,7 +262,12 @@ fun SelectLocation(
         onModifyMultihop = vm::modifyMultihop,
         onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
-        onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
+        onFilterClick =
+            dropUnlessResumed {
+                state.value.contentOrNull()?.let {
+                    navigator.navigate(FilterDestination(it.relayListType))
+                }
+            },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
                 navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
