@@ -732,7 +732,7 @@ impl RelaySelector {
                         )?;
                         WireguardConfig::from(multihop)
                     } else {
-                        return Err(Error::NoRelayExit(Box::new(query.clone())));
+                        return Err(Error::NoRelay(Box::new(query.clone())));
                     }
                 }
             }
@@ -856,18 +856,13 @@ impl RelaySelector {
         let entry_candidates =
             filter_matching_relay_list(&entry_relay_query, parsed_relays, custom_lists);
 
-        if exit_candidates.is_empty() {
-            return Err(Error::NoRelayExit(Box::new(query.clone())));
-        }
-
-        if entry_candidates.is_empty() {
-            return Err(Error::NoRelayEntry(Box::new(query.clone())));
-        }
-
         match Self::pick_working_entry_exit_combo(
+            query,
             exit_candidates.as_slice(),
             entry_candidates.as_slice(),
-        ) {
+        )
+        .ok()
+        {
             Some((exit, entry)) => Ok(Multihop::new(entry.clone(), exit.clone())),
             None => {
                 // Sometimes, the set of relays is too small to consider the `include_in_country`
@@ -884,12 +879,12 @@ impl RelaySelector {
                     parsed_relays,
                     custom_lists,
                 );
-                let (exit, entry) = Self::pick_working_entry_exit_combo(
+                Self::pick_working_entry_exit_combo(
+                    query,
                     exit_candidates.as_slice(),
                     entry_candidates.as_slice(),
                 )
-                .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
-                Ok(Multihop::new(entry.clone(), exit.clone()))
+                .map(|(exit, entry)| Multihop::new(entry.clone(), exit.clone()))
             }
         }
     }
@@ -897,22 +892,33 @@ impl RelaySelector {
     /// Avoid picking the same relay for entry and exit by choosing one and excluding it when
     /// choosing the other.
     fn pick_working_entry_exit_combo<'a>(
+        query: &RelayQuery,
         exit_candidates: &'a [Relay],
         entry_candidates: &'a [Relay],
-    ) -> Option<(&'a Relay, &'a Relay)> {
+    ) -> Result<(&'a Relay, &'a Relay), Error> {
         match (exit_candidates, entry_candidates) {
             // In the case where there is only one entry to choose from, we have to pick it before
             // the exit
             (exits, [entry]) if exits.contains(entry) => {
-                helpers::pick_random_relay_excluding(exits, entry).map(|exit| (exit, entry))
+                helpers::pick_random_relay_excluding(exits, entry)
+                    .map(|exit| (exit, entry))
+                    .ok_or_else(|| Error::NoRelayExit(Box::new(query.clone())))
             }
             // Vice versa for the case of only one exit
             ([exit], entries) if entries.contains(exit) => {
-                helpers::pick_random_relay_excluding(entries, exit).map(|entry| (exit, entry))
+                helpers::pick_random_relay_excluding(entries, exit)
+                    .map(|entry| (exit, entry))
+                    .ok_or_else(|| Error::NoRelayEntry(Box::new(query.clone())))
             }
-            (exits, entries) => helpers::pick_random_relay(exits).and_then(|exit| {
-                helpers::pick_random_relay_excluding(entries, exit).map(|entry| (exit, entry))
-            }),
+            (exits, entries) => {
+                let exit = helpers::pick_random_relay(exits);
+                match exit {
+                    None => Err(Error::NoRelayExit(Box::new(query.clone()))),
+                    Some(exit) => helpers::pick_random_relay_excluding(entries, exit)
+                        .map(|entry| (exit, entry))
+                        .ok_or_else(|| Error::NoRelayEntry(Box::new(query.clone()))),
+                }
+            }
         }
     }
 

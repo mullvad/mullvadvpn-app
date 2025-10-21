@@ -45,7 +45,6 @@ fun AnimatedNotificationBanner(
     notificationModifier: Modifier = Modifier,
     notification: InAppNotification?,
     isPlayBuild: Boolean,
-    isMultihop: Boolean,
     openAppListing: () -> Unit,
     contentFocusRequester: FocusRequester,
     onClickShowAccount: () -> Unit,
@@ -81,7 +80,6 @@ fun AnimatedNotificationBanner(
                 modifier = notificationModifier,
                 visibleNotification.toNotificationData(
                     isPlayBuild = isPlayBuild,
-                    isMultihop = isMultihop,
                     openAppListing = openAppListing,
                     onClickShowAccount = onClickShowAccount,
                     onClickShowChangelog = onClickShowChangelog,

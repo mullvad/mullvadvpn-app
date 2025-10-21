@@ -247,7 +247,6 @@ val uiModule = module {
             connectionProxy = get(),
             lastKnownLocationUseCase = get(),
             systemVpnSettingsUseCase = get(),
-            wireguardConstraintsRepository = get(),
             resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
             isFdroidBuild = IS_FDROID_BUILD,

@@ -76,7 +76,6 @@ data class NotificationAction(
 @Composable
 fun InAppNotification.toNotificationData(
     isPlayBuild: Boolean,
-    isMultihop: Boolean,
     openAppListing: () -> Unit,
     onClickShowAccount: () -> Unit,
     onClickShowChangelog: () -> Unit,
@@ -124,7 +123,7 @@ fun InAppNotification.toNotificationData(
                 statusLevel = StatusLevel.None,
             )
         is InAppNotification.TunnelStateError ->
-            errorMessageBannerData(statusLevel, error, isMultihop, onClickShowWireguardPortSettings)
+            errorMessageBannerData(statusLevel, error, onClickShowWireguardPortSettings)
         is InAppNotification.UnsupportedVersion ->
             NotificationData(
                 title = stringResource(id = R.string.unsupported_version),
@@ -204,13 +203,11 @@ fun InAppNotification.toNotificationData(
 private fun errorMessageBannerData(
     statusLevel: StatusLevel,
     error: ErrorState,
-    isMultihop: Boolean,
     onClickShowWireguardPortSettings: () -> Unit,
 ) =
     NotificationData(
         title = error.title().formatWithHtml(),
-        message =
-            NotificationMessage.Text(error.message(isMultihop, onClickShowWireguardPortSettings)),
+        message = NotificationMessage.Text(error.message(onClickShowWireguardPortSettings)),
         statusLevel = statusLevel,
     )
 
@@ -242,21 +239,18 @@ private fun ErrorState.title(): String {
 }
 
 @Composable
-private fun ErrorState.message(
-    isMultihop: Boolean,
-    onClickShowWireguardPortSettings: () -> Unit,
-): AnnotatedString {
+private fun ErrorState.message(onClickShowWireguardPortSettings: () -> Unit): AnnotatedString {
     val cause = this.cause
     return when {
         cause is ErrorStateCause.NoRelaysMatchSelectedPort ->
             cause.message(onClickShowWireguardPortSettings)
-        isBlocking -> cause.errorMessageId(isMultihop).formatWithHtml()
+        isBlocking -> cause.errorMessageId().formatWithHtml()
         else -> stringResource(R.string.failed_to_block_internet).formatWithHtml()
     }
 }
 
 @Composable
-private fun ErrorStateCause.errorMessageId(isMultihop: Boolean): String =
+private fun ErrorStateCause.errorMessageId(): String =
     when (this) {
         is ErrorStateCause.AuthFailed -> stringResource(error.errorMessageId())
         is ErrorStateCause.Ipv6Unavailable -> stringResource(R.string.ipv6_unavailable)
@@ -264,7 +258,7 @@ private fun ErrorStateCause.errorMessageId(isMultihop: Boolean): String =
         is ErrorStateCause.DnsError -> stringResource(R.string.set_dns_error)
         is ErrorStateCause.StartTunnelError -> stringResource(R.string.start_tunnel_error)
         is ErrorStateCause.IsOffline -> stringResource(R.string.is_offline)
-        is ErrorStateCause.TunnelParameterError -> stringResource(error.errorMessageId(isMultihop))
+        is ErrorStateCause.TunnelParameterError -> stringResource(error.errorMessageId())
         is ErrorStateCause.NotPrepared ->
             stringResource(R.string.vpn_permission_error_notification_message)
         is ErrorStateCause.OtherAlwaysOnApp ->
@@ -288,17 +282,14 @@ private fun AuthFailedError.errorMessageId(): Int =
         AuthFailedError.Unknown -> R.string.auth_failed
     }
 
-private fun ParameterGenerationError.errorMessageId(isMultihop: Boolean): Int =
+private fun ParameterGenerationError.errorMessageId(): Int =
     when (this) {
         ParameterGenerationError.NoMatchingRelay,
         ParameterGenerationError.NoMatchingBridgeRelay -> {
             R.string.no_matching_relay
         }
-        ParameterGenerationError.NoMatchingRelayExit if isMultihop -> {
-            R.string.no_matching_relay_exit
-        }
         ParameterGenerationError.NoMatchingRelayExit -> {
-            R.string.no_matching_relay
+            R.string.no_matching_relay_exit
         }
         ParameterGenerationError.NoMatchingRelayEntry -> {
             R.string.no_matching_relay_entry

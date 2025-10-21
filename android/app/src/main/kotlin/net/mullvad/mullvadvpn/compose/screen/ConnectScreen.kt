@@ -463,7 +463,6 @@ private fun Content(
                 modifier = Modifier.align(Alignment.TopCenter),
                 notification = state.inAppNotification,
                 isPlayBuild = state.isPlayBuild,
-                isMultihop = state.isMultihop,
                 contentFocusRequester = focusRequester,
                 openAppListing = onOpenAppListing,
                 onClickShowAccount = onManageAccountClick,
