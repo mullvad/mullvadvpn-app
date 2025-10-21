@@ -60,12 +60,12 @@ class SettingsViewController: UITableViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
 
-        dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
-        dataSource?.delegate = self
-
         interactor.didUpdateSettings = { [weak self] in
             self?.dataSource?.reload()
         }
+
+        dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
+        dataSource?.delegate = self
     }
 
     override func viewWillAppear(_ animated: Bool) {
