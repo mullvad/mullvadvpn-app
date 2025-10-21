@@ -324,10 +324,10 @@
         }
       }
     },
-    "Add 30 days" : {
+    "Add 30 days time" : {
 
     },
-    "Add 90 days" : {
+    "Add 90 days time" : {
 
     },
     "Add a server" : {
@@ -352,32 +352,7 @@
         }
       }
     },
-    "Add locations" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standorte hinzufügen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter des localisations"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till platser"
-          }
-        }
-      }
-    },
     "Add method" : {
-
-    },
-    "Add new list" : {
 
     },
     "Add time" : {
@@ -1108,6 +1083,9 @@
     "Create new account" : {
 
     },
+    "Create new list" : {
+
+    },
     "Created: %@" : {
 
     },
@@ -1539,49 +1517,8 @@
     "Edit custom list" : {
 
     },
-    "Edit lists" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Listen bearbeiten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier les listes"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redigera listor"
-          }
-        }
-      }
-    },
-    "Edit locations" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standorte bearbeiten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier les localisations"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redigera platser"
-          }
-        }
-      }
+    "Edit custom lists" : {
+
     },
     "Edit message" : {
       "localizations" : {
@@ -2453,6 +2390,9 @@
         }
       }
     },
+    "Locations" : {
+
+    },
     "Log in" : {
 
     },
@@ -2611,6 +2551,9 @@
 
     },
     "Method settings" : {
+
+    },
+    "Mullvad owned only" : {
 
     },
     "multihop" : {
@@ -3055,28 +2998,6 @@
         }
       }
     },
-    "Owned" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In Besitz"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Possédé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ägd"
-          }
-        }
-      }
-    },
     "Ownership" : {
       "localizations" : {
         "de" : {
@@ -3409,27 +3330,8 @@
     "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
 
     },
-    "Rented" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gemietet"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loué"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hyrd"
-          }
-        }
-      }
+    "Rented only" : {
+
     },
     "Report a problem" : {
       "localizations" : {

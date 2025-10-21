@@ -155,14 +155,14 @@
         <target state="new">Add</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add 30 days" xml:space="preserve">
-        <source>Add 30 days</source>
-        <target state="new">Add 30 days</target>
+      <trans-unit id="Add 30 days time" xml:space="preserve">
+        <source>Add 30 days time</source>
+        <target state="new">Add 30 days time</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add 90 days" xml:space="preserve">
-        <source>Add 90 days</source>
-        <target state="new">Add 90 days</target>
+      <trans-unit id="Add 90 days time" xml:space="preserve">
+        <source>Add 90 days time</source>
+        <target state="new">Add 90 days time</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add a server" xml:space="preserve">
@@ -170,19 +170,9 @@
         <target state="new">Add a server</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add locations" xml:space="preserve">
-        <source>Add locations</source>
-        <target state="new">Add locations</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Add method" xml:space="preserve">
         <source>Add method</source>
         <target state="new">Add method</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Add new list" xml:space="preserve">
-        <source>Add new list</source>
-        <target state="new">Add new list</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add time" xml:space="preserve">
@@ -425,6 +415,11 @@
         <target state="new">Create new account</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Create new list" xml:space="preserve">
+        <source>Create new list</source>
+        <target state="new">Create new list</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Created: %@" xml:space="preserve">
         <source>Created: %@</source>
         <target state="new">Created: %@</target>
@@ -605,14 +600,9 @@
         <target state="new">Edit custom list</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit lists" xml:space="preserve">
-        <source>Edit lists</source>
-        <target state="new">Edit lists</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Edit locations" xml:space="preserve">
-        <source>Edit locations</source>
-        <target state="new">Edit locations</target>
+      <trans-unit id="Edit custom lists" xml:space="preserve">
+        <source>Edit custom lists</source>
+        <target state="new">Edit custom lists</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve">
@@ -940,6 +930,11 @@
         <target state="new">Local network sharing</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Locations" xml:space="preserve">
+        <source>Locations</source>
+        <target state="new">Locations</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Log in" xml:space="preserve">
         <source>Log in</source>
         <target state="new">Log in</target>
@@ -998,6 +993,11 @@
       <trans-unit id="Method settings" xml:space="preserve">
         <source>Method settings</source>
         <target state="new">Method settings</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Mullvad owned only" xml:space="preserve">
+        <source>Mullvad owned only</source>
+        <target state="new">Mullvad owned only</target>
         <note/>
       </trans-unit>
       <trans-unit id="Multihop" xml:space="preserve">
@@ -1180,11 +1180,6 @@
         <target state="new">Overrides active</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Owned" xml:space="preserve">
-        <source>Owned</source>
-        <target state="new">Owned</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Ownership" xml:space="preserve">
         <source>Ownership</source>
         <target state="new">Ownership</target>
@@ -1317,9 +1312,9 @@ Do you want to remove the saved account number?</source>
 Do you want to remove the saved account number?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Rented" xml:space="preserve">
-        <source>Rented</source>
-        <target state="new">Rented</target>
+      <trans-unit id="Rented only" xml:space="preserve">
+        <source>Rented only</source>
+        <target state="new">Rented only</target>
         <note/>
       </trans-unit>
       <trans-unit id="Report a problem" xml:space="preserve">
