@@ -224,6 +224,8 @@ class VpnSettingsViewModelTest {
                     isMultihopEnabled = false,
                     entryLocation = Constraint.Any,
                     ipVersion = Constraint.Any,
+                    entryProviders = Constraint.Any,
+                    entryOwnership = Constraint.Any,
                 )
             coEvery { mockWireguardConstraintsRepository.setWireguardPort(any()) } returns
                 Unit.right()
@@ -354,6 +356,8 @@ class VpnSettingsViewModelTest {
                                         isMultihopEnabled = false,
                                         entryLocation = Constraint.Any,
                                         ipVersion = Constraint.Any,
+                                        entryProviders = Constraint.Any,
+                                        entryOwnership = Constraint.Any,
                                     ),
                                 providers = Constraint.Any,
                                 ownership = Constraint.Any,

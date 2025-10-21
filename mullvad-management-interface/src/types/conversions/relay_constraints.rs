@@ -119,17 +119,26 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                             FromProtobufTypeError::InvalidArgument("missing openvpn constraints"),
                         )?,
                     )?;
+                // TODO: Remove this when desktop support setting multihop entry filters.
+                #[cfg(not(target_os = "android"))]
                 let mut wireguard_constraints =
                     mullvad_constraints::WireguardConstraints::try_from(
                         &settings.wireguard_constraints.ok_or(
                             FromProtobufTypeError::InvalidArgument("missing wireguard constraints"),
                         )?,
                     )?;
+                #[cfg(target_os = "android")]
+                let wireguard_constraints = mullvad_constraints::WireguardConstraints::try_from(
+                    &settings.wireguard_constraints.ok_or(
+                        FromProtobufTypeError::InvalidArgument("missing wireguard constraints"),
+                    )?,
+                )?;
 
-                // TODO Remove this block when the frontends support setting multihop entry filters.
+                // TODO: Remove this block when desktop support setting multihop entry filters.
                 // This is needed in order to not change the current behavior (which
                 // is that the ownership and providers from `RelaySettings` apply to both the entry
                 // and exit multihop relays).
+                #[cfg(not(target_os = "android"))]
                 {
                     wireguard_constraints.entry_ownership = ownership;
                     wireguard_constraints.entry_providers = providers.clone();
