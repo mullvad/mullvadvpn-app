@@ -255,11 +255,11 @@ val uiModule = module {
     }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { ManageDevicesViewModel(get(), get()) }
-    viewModel { DeviceRevokedViewModel(get(), get()) }
+    viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
     viewModel { MtuDialogViewModel(get(), get()) }
     viewModel { DnsDialogViewModel(get(), get(), get(), get()) }
     viewModel { WireguardCustomPortDialogViewModel(get()) }
-    viewModel { LoginViewModel(get(), get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
         SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())

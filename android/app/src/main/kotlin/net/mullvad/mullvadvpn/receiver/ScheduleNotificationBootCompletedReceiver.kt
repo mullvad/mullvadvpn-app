@@ -27,6 +27,6 @@ class ScheduleNotificationBootCompletedReceiver : BroadcastReceiver(), KoinCompo
 
     private suspend fun scheduleAccountExpiryNotification(context: Context) {
         val expiry = userPreferencesRepository.accountExpiry() ?: return
-        scheduleNotificationAlarmUseCase(context, expiry)
+        scheduleNotificationAlarmUseCase(expiry, customContext = context)
     }
 }

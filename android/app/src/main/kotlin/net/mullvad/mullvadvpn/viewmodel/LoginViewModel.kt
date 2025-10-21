@@ -33,7 +33,9 @@ import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.util.delayAtLeast
 import net.mullvad.mullvadvpn.util.getOrDefault
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect.NavigateToWelcome
@@ -59,6 +61,8 @@ class LoginViewModel(
     private val accountRepository: AccountRepository,
     private val newDeviceRepository: NewDeviceRepository,
     private val internetAvailableUseCase: InternetAvailableUseCase,
+    private val scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
+    private val accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
@@ -77,7 +81,13 @@ class LoginViewModel(
 
     val uiState: StateFlow<LoginUiState> =
         _uiState
-            .onStart { viewModelScope.launch { accountRepository.fetchAccountHistory() } }
+            .onStart {
+                viewModelScope.launch {
+                    accountRepository.fetchAccountHistory()
+                    accountExpiryNotificationProvider.cancelNotification()
+                    scheduleNotificationAlarmUseCase(accountExpiry = null)
+                }
+            }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),

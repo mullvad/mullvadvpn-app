@@ -2,13 +2,11 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -16,15 +14,22 @@ import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
+import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 
 class DeviceRevokedViewModel(
     private val accountRepository: AccountRepository,
     private val connectionProxy: ConnectionProxy,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
+    private val accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
 ) : ViewModel() {
 
     val uiState =
         connectionProxy.tunnelState
+            .onStart {
+                accountExpiryNotificationProvider.cancelNotification()
+                scheduleNotificationAlarmUseCase(accountExpiry = null)
+            }
             .map {
                 if (it.isSecured()) {
                     DeviceRevokedUiState.SECURED
@@ -33,7 +38,7 @@ class DeviceRevokedViewModel(
                 }
             }
             .stateIn(
-                scope = CoroutineScope(dispatcher),
+                scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 initialValue = DeviceRevokedUiState.UNKNOWN,
             )
