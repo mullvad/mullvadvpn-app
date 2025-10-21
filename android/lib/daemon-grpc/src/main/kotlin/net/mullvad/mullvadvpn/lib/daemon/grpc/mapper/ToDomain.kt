@@ -315,8 +315,6 @@ internal fun ManagementInterface.ErrorState.GenerationError.toDomain(): Paramete
             ParameterGenerationError.NoMatchingRelay
         ManagementInterface.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY ->
             ParameterGenerationError.NoMatchingBridgeRelay
-        ManagementInterface.ErrorState.GenerationError.NO_WIREGUARD_KEY ->
-            ParameterGenerationError.NoWireguardKey
         ManagementInterface.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
             ParameterGenerationError.CustomTunnelHostResolutionError
         ManagementInterface.ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE ->

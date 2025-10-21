@@ -214,16 +214,6 @@ export class ErrorNotificationProvider
           'notifications',
           'No servers match your settings, try changing server or other settings.',
         );
-      case TunnelParameterError.noWireguardKey:
-        return sprintf(
-          // TRANSLATORS: Available placeholders:
-          // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
-          messages.pgettext(
-            'notifications',
-            'Valid %(wireguard)s key is missing. Manage keys under Advanced settings.',
-          ),
-          { wireguard: strings.wireguard },
-        );
       case TunnelParameterError.customTunnelHostResolutionError:
         return messages.pgettext(
           'notifications',
