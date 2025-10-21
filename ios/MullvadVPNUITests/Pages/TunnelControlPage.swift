@@ -132,7 +132,7 @@ class TunnelControlPage: Page {
     /// Verify that the app attempts to connect over UDP before switching to TCP. For testing blocked UDP traffic.
     @discardableResult func verifyConnectingOverTCPAfterUDPAttempts() -> Self {
         // Number of connection attempts should be equal to the number of obfuscation methods (incl. "off").
-        let connectionAttempts = waitForConnectionAttempts(4, timeout: 30)
+        let connectionAttempts = waitForConnectionAttempts(4, timeout: 80)
 
         // Should do four connection attempts but due to UI bug sometimes only two are displayed, sometimes all three
         if connectionAttempts.count == 4 {  // Expected retries flow

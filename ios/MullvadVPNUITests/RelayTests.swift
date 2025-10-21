@@ -251,7 +251,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
             VPNSettingsPage(self.app)
                 .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationOffCell()
+                .tapWireGuardObfuscationAutomaticCell()
         }
 
         HeaderBar(app)
@@ -418,7 +418,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         VPNSettingsPage(app)
             .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationAutomaticCell()
+            .tapWireGuardObfuscationOffCell()
             .tapBackButton()
 
         SettingsPage(app)
