@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel.location
 
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.util.isDaitaEnabled

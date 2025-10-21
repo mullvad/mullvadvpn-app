@@ -132,6 +132,8 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
     ManagementInterface.WireguardConstraints.newBuilder()
         .setUseMultihop(isMultihopEnabled)
         .setEntryLocation(entryLocation.fromDomain())
+        .setEntryOwnership(entryOwnership.fromDomain())
+        .addAllEntryProviders(entryProviders.fromDomain())
         .apply {
             when (val port = this@fromDomain.port) {
                 is Constraint.Any -> clearPort()
