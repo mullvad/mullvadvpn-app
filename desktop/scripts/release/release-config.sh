@@ -5,4 +5,4 @@
 # Where to download app installers locally during the release process.
 # This value is also hardcoded into the `mullvad-release` binary and
 # has to be in sync with that value
-export ARTIFACT_DIR="artifacts"
+export ARTIFACT_DIR="$HOME/.local/share/mullvad-release/artifacts"
