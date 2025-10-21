@@ -257,7 +257,7 @@ On Linux, you may also have to specify `USE_SYSTEM_FPM=true` to generate the deb
 
 This section is for building the system service individually.
 
-1. Source `env.sh` to set the default environment variables:
+1. On Windows,  source `env.sh` to set the default environment variables:
     ```bash
     source env.sh
     ```
