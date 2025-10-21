@@ -16,6 +16,7 @@ PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 CHANGELOG_PATH=$REPO_ROOT/CHANGELOG.md
 
 $REPO_ROOT/scripts/utils/gh-ready-check
+"$SCRIPT_DIR/verify-version-is-release"
 
 # shellcheck source=desktop/scripts/release/release-config.sh
 source "$SCRIPT_DIR/release-config.sh"
