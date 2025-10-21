@@ -43,8 +43,8 @@ jnix = { version = "0.5.1", features = ["derive"] }
 nix = { workspace = true, features = ["mount"] }
 inotify = "0.10"
 resolv-conf = "0.7"
-nftnl = { version = "0.7.0", features = ["nftnl-1-1-0"] }
-mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
+nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "a54c497f5cc93c0ce5de67e1f7bac850d4aa8087", features = ["nftnl-1-1-0"] }
+mnl = { git = "https://github.com/mullvad/mnl-rs", rev = "bf8829a6e00249f41438c7a97173803cc325bfe3", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 talpid-dbus = { path = "../talpid-dbus" }
 
