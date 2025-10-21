@@ -55,8 +55,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelecter
-import net.mullvad.mullvadvpn.lib.ui.component.SingleHopSelector
+//import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelecter
+//import net.mullvad.mullvadvpn.lib.ui.component.SingleHopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
@@ -192,29 +192,29 @@ private fun SelectLocationListContent(
 
                 stickyHeader {
                     Surface {
-                        AnimatedContent(
-                            state.value.relayListType is RelayListType.Multihop,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                        ) {
-                            val relayList = state.value.relayListType
-                            when (relayList) {
-                                is RelayListType.Multihop ->
-                                    MultihopSelecter(
-                                        modifier = Modifier,
-                                        selected =
-                                            relayList.multihopRelayListType ==
-                                                MultihopRelayListType.EXIT,
-                                        onSelectHop = {
-                                            val listType =
-                                                if (it) MultihopRelayListType.EXIT
-                                                else MultihopRelayListType.ENTRY
-                                            onSelectRelayList(listType)
-                                        },
-                                        progress = 1f - expandness.value,
-                                    )
-                                RelayListType.Single -> SingleHopSelector(1f - expandness.value)
-                            }
-                        }
+//                        AnimatedContent(
+//                            state.value.relayListType is RelayListType.Multihop,
+//                            modifier = Modifier.padding(bottom = 8.dp),
+//                        ) {
+//                            val relayList = state.value.relayListType
+//                            when (relayList) {
+//                                is RelayListType.Multihop ->
+//                                    MultihopSelecter(
+//                                        modifier = Modifier,
+//                                        selected =
+//                                            relayList.multihopRelayListType ==
+//                                                MultihopRelayListType.EXIT,
+//                                        onSelectHop = {
+//                                            val listType =
+//                                                if (it) MultihopRelayListType.EXIT
+//                                                else MultihopRelayListType.ENTRY
+//                                            onSelectRelayList(listType)
+//                                        },
+//                                        progress = 1f - expandness.value,
+//                                    )
+//                                RelayListType.Single -> SingleHopSelector(1f - expandness.value)
+//                            }
+//                        }
                     }
                 }
                 // When recents have been disabled and are enabled again and we are at the
