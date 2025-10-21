@@ -2931,8 +2931,7 @@ dependencies = [
 [[package]]
 name = "mnl"
 version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1a5469630da93e1813bb257964c0ccee3b26b6879dd858039ddec35cc8681ed"
+source = "git+https://github.com/mullvad/mnl-rs?rev=bf8829a6e00249f41438c7a97173803cc325bfe3#bf8829a6e00249f41438c7a97173803cc325bfe3"
 dependencies = [
  "libc",
  "log",
@@ -2942,8 +2941,7 @@ dependencies = [
 [[package]]
 name = "mnl-sys"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9750685b201e1ecfaaf7aa5d0387829170fa565989cc481b49080aa155f70457"
+source = "git+https://github.com/mullvad/mnl-rs?rev=bf8829a6e00249f41438c7a97173803cc325bfe3#bf8829a6e00249f41438c7a97173803cc325bfe3"
 dependencies = [
  "libc",
  "pkg-config",
@@ -3500,8 +3498,7 @@ dependencies = [
 [[package]]
 name = "nftnl"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06a7491dd91b71643f65546389f25506da70723d1f1ec8c8d6d20444d1c23f27"
+source = "git+https://github.com/mullvad/nftnl-rs?rev=98233b671fa2a215605e2c4876e47efe631da018#98233b671fa2a215605e2c4876e47efe631da018"
 dependencies = [
  "bitflags 2.9.0",
  "log",
@@ -3511,8 +3508,7 @@ dependencies = [
 [[package]]
 name = "nftnl-sys"
 version = "0.6.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b193f2c2a70e6421534c3f3b75eaaed4e4b9df45281b3d94f5bc8c32fb346cbb"
+source = "git+https://github.com/mullvad/nftnl-rs?rev=98233b671fa2a215605e2c4876e47efe631da018#98233b671fa2a215605e2c4876e47efe631da018"
 dependencies = [
  "cfg-if",
  "libc",
