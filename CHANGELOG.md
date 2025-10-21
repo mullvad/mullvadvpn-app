@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
   issues where users get stuck in the out-of-time view.
 - Update Electron from 36.5.0 to 37.6.0.
 
+### Removed
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
+
 ### Fixed
 #### macOS
 - Fix high CPU usage on macOS 26 by updating Electron. This affected the app when it was visible.

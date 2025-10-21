@@ -640,15 +640,12 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
   };
 }
 
-function convertFromQuantumResistantState(
-  state?: grpcTypes.QuantumResistantState.State,
-): boolean | undefined {
+function convertFromQuantumResistantState(state?: grpcTypes.QuantumResistantState.State): boolean {
   return state === undefined
-    ? undefined
+    ? true // default value
     : {
         [grpcTypes.QuantumResistantState.State.ON]: true,
         [grpcTypes.QuantumResistantState.State.OFF]: false,
-        [grpcTypes.QuantumResistantState.State.AUTO]: undefined,
       }[state];
 }
 

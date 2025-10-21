@@ -43,7 +43,7 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetWireguardMtu((mtu?: number) =>
       this.daemonRpc.setWireguardMtu(mtu),
     );
-    IpcMainEventChannel.settings.handleSetWireguardQuantumResistant((quantumResistant?: boolean) =>
+    IpcMainEventChannel.settings.handleSetWireguardQuantumResistant((quantumResistant: boolean) =>
       this.daemonRpc.setWireguardQuantumResistant(quantumResistant),
     );
     IpcMainEventChannel.settings.handleSetRelaySettings((relaySettings) =>
