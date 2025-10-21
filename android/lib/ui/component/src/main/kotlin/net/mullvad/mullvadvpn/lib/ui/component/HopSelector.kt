@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,14 +37,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -438,41 +444,40 @@ private fun VerticalLine(
     topCap: Boolean = false,
     bottomCap: Boolean = false,
 ) {
-    //    Canvas(modifier.width(width)) {
-    //        val radius = this.size.width / 2
-    //        val halfHeight = this.size.height / 2
-    //        drawLine(
-    //            color,
-    //            start = Offset(x = radius, y = if (topCap) radius else 0f),
-    //            strokeWidth = width.toPx(),
-    //            end = Offset(x = radius, y = halfHeight),
-    //            cap = if (topCap) StrokeCap.Round else StrokeCap.Butt,
-    //        )
-    //        drawLine(
-    //            color,
-    //            start = Offset(x = radius, y = halfHeight),
-    //            strokeWidth = size.width,
-    //            end = Offset(x = radius, y = if (bottomCap) size.height - radius else
-    // size.height),
-    //            cap = if (bottomCap) StrokeCap.Round else StrokeCap.Butt,
-    //        )
-    //    }
+    Canvas(modifier.width(width)) {
+        val radius = this.size.width / 2
+        val halfHeight = this.size.height / 2
+        drawLine(
+            color,
+            start = Offset(x = radius, y = if (topCap) radius else 0f),
+            strokeWidth = width.toPx(),
+            end = Offset(x = radius, y = halfHeight),
+            cap = if (topCap) StrokeCap.Round else StrokeCap.Butt,
+        )
+        drawLine(
+            color,
+            start = Offset(x = radius, y = halfHeight),
+            strokeWidth = size.width,
+            end = Offset(x = radius, y = if (bottomCap) size.height - radius else size.height),
+            cap = if (bottomCap) StrokeCap.Round else StrokeCap.Butt,
+        )
+    }
 
-    val radius = width / 2
-    Box(
-        modifier =
-            modifier
-                .width(width)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = if (topCap) radius else 0.dp,
-                        topEnd = if (topCap) radius else 0.dp,
-                        bottomStart = if (bottomCap) radius else 0.dp,
-                        bottomEnd = if (bottomCap) radius else 0.dp,
-                    )
-                )
-                .background(color)
-    )
+    //    val radius = width / 2
+    //    Box(
+    //        modifier =
+    //            modifier
+    //                .width(width)
+    //                .clip(
+    //                    RoundedCornerShape(
+    //                        topStart = if (topCap) radius else 0.dp,
+    //                        topEnd = if (topCap) radius else 0.dp,
+    //                        bottomStart = if (bottomCap) radius else 0.dp,
+    //                        bottomEnd = if (bottomCap) radius else 0.dp,
+    //                    )
+    //                )
+    //                .background(color)
+    //    )
 }
 
 @Composable
@@ -496,10 +501,9 @@ private fun LocationHint(text: String, imageVector: ImageVector, modifier: Modif
 fun HopPreview() {
     AppTheme {
         Surface {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                var error by remember { mutableStateOf(false) }
+                Switch(error, { error = it })
                 Hop(
                     modifier = Modifier.fillMaxWidth(),
                     hopState = HopState("Sweden", 0, null),
@@ -510,7 +514,7 @@ fun HopPreview() {
                 )
                 Hop(
                     modifier = Modifier.fillMaxWidth(),
-                    hopState = HopState("Sweden", 3, "whoopsy"),
+                    hopState = HopState("Sweden", 3, if (error) "whoopsy" else null),
                     leadingIcon = Icons.Default.LocationOn,
                     selected = false,
                     onSelect = {},
@@ -531,14 +535,45 @@ private fun Hop(
     onSelect: () -> Unit,
     onFilterClick: () -> Unit,
 ) {
+
+    var parentPosition by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var iconPosition by remember { mutableStateOf<LayoutCoordinates?>(null) }
     CompositionLocalProvider(
         LocalContentColor provides
             if (selected) MaterialTheme.colorScheme.onPrimary else deselectedColor
     ) {
         val alpha by animateFloatAsState(if (selected) 1f else 0f, tween())
 
-        Column(modifier) {
-            VerticalLine(Modifier.padding(start = 15.5.dp).height(4.dp))
+        Column(
+            modifier
+                .onGloballyPositioned { parentPosition = it }
+                .drawWithContent {
+                    drawContent()
+                    val realParentPosition = parentPosition ?: return@drawWithContent
+                    val realIconPosition = iconPosition ?: return@drawWithContent
+
+                    val position = realParentPosition.localPositionOf(realIconPosition)
+                    val color = Color.Black
+                    val width: Dp = 1.dp
+
+                    val x = 16.dp.toPx()
+                    drawLine(
+                        color = color,
+                        start = Offset(x = x, y = 0f),
+                        strokeWidth = width.toPx(),
+                        end = Offset(x = x, y = position.y),
+                        cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        color = color,
+                        start = Offset(x = x, y = position.y + realIconPosition.size.height),
+                        strokeWidth = width.toPx(),
+                        end = Offset(x = x, y = size.height),
+                        cap = StrokeCap.Round,
+                    )
+                }
+                .padding(vertical = 4.dp)
+        ) {
             Row(
                 modifier =
                     Modifier.semantics {
@@ -551,18 +586,14 @@ private fun Hop(
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = alpha)),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column(
-                    Modifier.width(32.dp).fillMaxHeight(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    VerticalLine(Modifier.weight(1f), bottomCap = true)
-                    Icon(
-                        modifier = Modifier.padding(horizontal = 4.dp).size(24.dp),
-                        imageVector = leadingIcon,
-                        contentDescription = null,
-                    )
-                    VerticalLine(Modifier.weight(1f), topCap = true)
-                }
+                Icon(
+                    modifier =
+                        Modifier.onGloballyPositioned { iconPosition = it }
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                            .size(24.dp),
+                    imageVector = leadingIcon,
+                    contentDescription = null,
+                )
                 Text(
                     modifier = Modifier.weight(1f),
                     text = hopState.text,
@@ -572,17 +603,13 @@ private fun Hop(
                 FilterButton(onClick = {}, filters = hopState.filters)
             }
             AnimatedVisibility(hopState.errorText != null) {
-                Row(Modifier.padding(start = 15.5.dp).height(IntrinsicSize.Min)) {
-                    VerticalLine(Modifier.fillMaxHeight())
-                    Text(
-                        modifier = Modifier.padding(start = 16.dp),
-                        text = hopState.errorText ?: "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
+                Text(
+                    modifier = Modifier.padding(start = 32.dp),
+                    text = hopState.errorText ?: "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
-            VerticalLine(Modifier.padding(start = 15.5.dp).height(4.dp))
         }
     }
 }
