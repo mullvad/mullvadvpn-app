@@ -332,7 +332,7 @@ fn test_wireguard_retry_order() {
                 );
                 assert!(match &query.wireguard_constraints().obfuscation {
                     ObfuscationQuery::Auto => true,
-                    ObfuscationQuery::Off => obfuscator.is_none(),
+                    ObfuscationQuery::Off | ObfuscationQuery::Port => obfuscator.is_none(),
                     ObfuscationQuery::Quic
                     | ObfuscationQuery::Udp2tcp(_)
                     | ObfuscationQuery::Shadowsocks(_)
