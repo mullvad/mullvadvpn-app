@@ -468,4 +468,5 @@
     <string name="include_account_token_warning_message_first">By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time.</string>
     <string name="include_account_token_warning_message_second">For details, please see our %s.</string>
     <string name="privacy_policy_lower_case">privacy policy</string>
+    <string name="add_to_list">Add to list</string>
 </resources>
