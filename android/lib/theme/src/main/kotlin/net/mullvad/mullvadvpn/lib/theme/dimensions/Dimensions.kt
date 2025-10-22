@@ -31,6 +31,7 @@ data class Dimensions(
     val customPortBoxMinWidth: Dp = 56.dp,
     val deleteIconSize: Dp = 24.dp,
     val dialogIconHeight: Dp = 48.dp,
+    val fabSpacing: Dp = 16.dp, // Copied from the private val FabSpacing in Scaffold.kt
     val formTextFieldMinHeight: Dp = 72.dp,
     val indentedCellStartPadding: Dp = 48.dp,
     val indicatorPadding: Dp = 4.dp,
