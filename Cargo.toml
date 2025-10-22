@@ -148,7 +148,8 @@ shadowsocks-service = "1.20.3"
 itertools = "0.14"
 
 # Test dependencies
-proptest = "1.4"
+proptest = "1.9"
+proptest-derive = "0.7"
 insta = { version = "1.42", features = ["yaml"] }
 
 [profile.release]
