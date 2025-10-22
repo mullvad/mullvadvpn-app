@@ -6,12 +6,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,11 +63,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.result.onResult
-import kotlin.math.abs
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedEndButton
-import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedStartButton
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
@@ -262,13 +258,14 @@ fun SelectLocation(
         snackbarHostState = snackbarHostState,
         onSelectHop = vm::selectHop,
         onModifyMultihop = vm::modifyMultihop,
-        onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
+        onSearchClick =
+            dropUnlessResumed { relayListType ->
+                navigator.navigate(SearchLocationDestination(relayListType))
+            },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick =
-            dropUnlessResumed {
-                state.value.contentOrNull()?.let {
-                    navigator.navigate(FilterDestination(it.relayListType))
-                }
+            dropUnlessResumed { relayListType ->
+                navigator.navigate(FilterDestination(relayListType))
             },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
@@ -320,12 +317,12 @@ fun SelectLocationScreen(
     onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
-    onFilterClick: () -> Unit,
+    onFilterClick: (RelayListType) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
-    removeOwnershipFilter: () -> Unit,
-    removeProviderFilter: () -> Unit,
+    removeOwnershipFilter: (RelayListType) -> Unit,
+    removeProviderFilter: (RelayListType) -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
@@ -353,9 +350,7 @@ fun SelectLocationScreen(
         modifier = Modifier.testTag(SELECT_LOCATION_SCREEN_TEST_TAG),
         snackbarHostState = snackbarHostState,
         floatingActionButton = {
-            if (!isTv() && state is Lc.Content) {
-                val isSearchButtonEnabled = state.value.isSearchButtonEnabled
-                // TODO Add some kind of "fake" enable disable for fab button
+            if (!isTv() && state is Lc.Content && state.value.isSearchButtonEnabled) {
                 FloatingActionButton(
                     modifier = Modifier.onGloballyPositioned { fabHeight = it.size.height },
                     onClick = { onSearchClick(state.value.relayListType) },
@@ -365,10 +360,7 @@ fun SelectLocationScreen(
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = stringResource(id = R.string.search),
-                        tint =
-                            MaterialTheme.colorScheme.onSurface.copy(
-                                alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
-                            ),
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -390,14 +382,11 @@ fun SelectLocationScreen(
                     )
                 }
             }
-            val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
             val disabledText = stringResource(id = R.string.recents_disabled)
             val scope = rememberCoroutineScope()
 
             SelectLocationDropdownMenu(
-                filterButtonEnabled = filterButtonEnabled,
-                onFilterClick = onFilterClick,
                 recentsEnabled = recentsCurrentlyEnabled,
                 onRecentsToggleEnableClick = {
                     if (recentsCurrentlyEnabled) {
@@ -434,14 +423,6 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
-                    /*if (state.value.relayListType is RelayListType.Multihop) {
-                        MultihopBar(
-                            pagerState,
-                            state.value.relayListType.multihopRelayListType,
-                            onSelectRelayList,
-                        )
-                    }*/
-
                     // TODO Add multihop container here
                     Column(modifier = Modifier.fillMaxWidth()) {
                         if (state.value.relayListType is RelayListType.Multihop) {
@@ -460,9 +441,40 @@ fun SelectLocationScreen(
                                     )
                                 },
                             )
+                            Row {
+                                Text("EntryFilters")
+                                IconButton(
+                                    onClick = {
+                                        onFilterClick(
+                                            RelayListType.Multihop(MultihopRelayListType.ENTRY)
+                                        )
+                                    }
+                                ) {
+                                    Icon(Icons.Default.FilterList, contentDescription = null)
+                                }
+                            }
+                            Row {
+                                Text("ExitFilters")
+                                IconButton(
+                                    onClick = {
+                                        onFilterClick(
+                                            RelayListType.Multihop(MultihopRelayListType.EXIT)
+                                        )
+                                    }
+                                ) {
+                                    Icon(Icons.Default.FilterList, contentDescription = null)
+                                }
+                            }
                         } else {
                             Spacer(modifier = Modifier.height(Dimens.largePadding))
+                            Row {
+                                Text("Filters")
+                                IconButton(onClick = { onFilterClick(RelayListType.Single) }) {
+                                    Icon(Icons.Default.FilterList, contentDescription = null)
+                                }
+                            }
                         }
+
                         AnimatedContent(
                             targetState = state.value.filterChips,
                             label = "Select location top bar",
@@ -476,15 +488,15 @@ fun SelectLocationScreen(
                                             end = Dimens.mediumPadding,
                                         ),
                                     filters = filterChips,
-                                    onRemoveOwnershipFilter = removeOwnershipFilter,
-                                    onRemoveProviderFilter = removeProviderFilter,
+                                    onRemoveOwnershipFilter = {
+                                        removeOwnershipFilter(state.value.relayListType)
+                                    },
+                                    onRemoveProviderFilter = {
+                                        removeProviderFilter(state.value.relayListType)
+                                    },
                                 )
                             }
                         }
-                    }
-
-                    if (state.value.multihopEnabled && state.value.filterChips.isEmpty()) {
-                        Spacer(modifier = Modifier.height(Dimens.smallPadding))
                     }
 
                     RelayLists(
@@ -507,8 +519,6 @@ fun SelectLocationScreen(
 
 @Composable
 private fun SelectLocationDropdownMenu(
-    filterButtonEnabled: Boolean,
-    onFilterClick: () -> Unit,
     recentsEnabled: Boolean,
     onRecentsToggleEnableClick: () -> Unit,
     onRefreshRelayList: () -> Unit,
@@ -546,17 +556,6 @@ private fun SelectLocationDropdownMenu(
             )
 
         DropdownMenuItem(
-            text = { Text(text = stringResource(R.string.filter)) },
-            onClick = {
-                showMenu = false
-                onFilterClick()
-            },
-            enabled = filterButtonEnabled,
-            colors = colors,
-            leadingIcon = { Icon(Icons.Filled.FilterList, contentDescription = null) },
-        )
-
-        DropdownMenuItem(
             text = { Text(text = stringResource(recentsItemTextId)) },
             onClick = {
                 showMenu = false
@@ -574,42 +573,6 @@ private fun SelectLocationDropdownMenu(
             },
             colors = colors,
             leadingIcon = { Icon(Icons.Filled.Refresh, contentDescription = null) },
-        )
-    }
-}
-
-@Composable
-private fun MultihopBar(
-    pagerState: PagerState,
-    relayListType: MultihopRelayListType,
-    onSelectHopList: (MultihopRelayListType) -> Unit,
-) {
-    SingleChoiceSegmentedButtonRow(
-        modifier =
-            Modifier.fillMaxWidth()
-                .padding(
-                    start = Dimens.mediumPadding,
-                    end = Dimens.mediumPadding,
-                    bottom = Dimens.smallPadding,
-                )
-    ) {
-        MullvadSegmentedStartButton(
-            selected = relayListType == MultihopRelayListType.ENTRY,
-            selectedProgress =
-                1f -
-                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.ENTRY.ordinal))
-                        .coerceIn(0f..1f),
-            onClick = { onSelectHopList(MultihopRelayListType.ENTRY) },
-            text = stringResource(id = R.string.entry),
-        )
-        MullvadSegmentedEndButton(
-            selected = relayListType == MultihopRelayListType.EXIT,
-            selectedProgress =
-                1f -
-                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.EXIT.ordinal))
-                        .coerceIn(0f..1f),
-            onClick = { onSelectHopList(MultihopRelayListType.EXIT) },
-            text = stringResource(id = R.string.exit),
         )
     }
 }

@@ -129,6 +129,7 @@ import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateRelayLocationsError
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
@@ -692,6 +693,25 @@ class ManagementService(
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set ownership and providers error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setEntryOwnershipAndProviders(
+        ownershipConstraint: Constraint<ModelOwnership>,
+        providersConstraint: Constraint<Providers>,
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    relaySettings.copy {
+                        inside(RelaySettings.relayConstraints.wireguardConstraints) {
+                            WireguardConstraints.entryProviders set providersConstraint
+                            WireguardConstraints.entryOwnership set ownershipConstraint
+                        }
+                    }
+                grpc.setRelaySettings(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set entry ownership and providers error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 

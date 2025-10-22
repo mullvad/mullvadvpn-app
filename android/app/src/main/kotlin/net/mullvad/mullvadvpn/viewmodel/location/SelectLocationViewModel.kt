@@ -189,19 +189,21 @@ class SelectLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun removeOwnerFilter() {
+    fun removeOwnerFilter(relayListType: RelayListType) {
         viewModelScope.launch {
-            _relayListType.value?.let {
-                relayListFilterRepository.updateSelectedOwnership(Constraint.Any, it)
-            }
+            relayListFilterRepository.updateSelectedOwnership(
+                relayListType = relayListType,
+                ownership = Constraint.Any,
+            )
         }
     }
 
-    fun removeProviderFilter() {
+    fun removeProviderFilter(relayListType: RelayListType) {
         viewModelScope.launch {
-            _relayListType.value?.let {
-                relayListFilterRepository.updateSelectedProviders(Constraint.Any, it)
-            }
+            relayListFilterRepository.updateSelectedProviders(
+                relayListType = relayListType,
+                providers = Constraint.Any,
+            )
         }
     }
 

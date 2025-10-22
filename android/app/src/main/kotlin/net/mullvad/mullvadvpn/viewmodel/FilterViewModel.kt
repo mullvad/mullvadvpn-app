@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.destinations.FilterDestination
+import kotlin.collections.plus
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,16 +22,17 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
+import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 
 class FilterViewModel(
-    private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
+    providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val relayListFilterRepository: RelayListFilterRepository,
+    private val relayListFilterUseCase: RelayListFilterUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val filterType: RelayListType = FilterDestination.argsFrom(savedStateHandle).filterType
+    private val relayListType = FilterDestination.argsFrom(savedStateHandle).relayListType
 
     private val _uiSideEffect = Channel<FilterScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -40,10 +42,10 @@ class FilterViewModel(
 
     init {
         viewModelScope.launch {
-            selectedProviders.value =
-                relayListFilterRepository.selectedProviders(filterType).first()
-            selectedOwnership.value =
-                relayListFilterRepository.selectedOwnership(filterType).first()
+            val (initialSelectedOwnership, initialSelectedProviders) =
+                relayListFilterUseCase.invoke(relayListType).first()
+            selectedProviders.value = initialSelectedProviders
+            selectedOwnership.value = initialSelectedOwnership
         }
     }
 
@@ -124,9 +126,9 @@ class FilterViewModel(
 
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
-                newSelectedOwnership,
-                newSelectedProviders,
-                filterType,
+                relayListType = relayListType,
+                ownership = newSelectedOwnership,
+                providers = newSelectedProviders,
             )
             _uiSideEffect.send(FilterScreenSideEffect.CloseScreen)
         }
