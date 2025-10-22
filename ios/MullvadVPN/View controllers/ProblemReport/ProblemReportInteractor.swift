@@ -43,16 +43,18 @@ final class ProblemReportInteractor: @unchecked Sendable {
     func sendReport(
         email: String,
         message: String,
+        includeDeviceTokenInLogs: Bool,
         completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
         let logString = self.consolidatedLog.string
+        let deviceToken = "deviceToken: <\(tunnelManager.deviceState.accountData?.identifier ?? "not shared"))>\n"
 
         if logString.isEmpty {
             fetchReportString { [weak self] updatedLogString in
                 self?.sendProblemReport(
                     email: email,
                     message: message,
-                    logString: updatedLogString,
+                    logString: deviceToken + updatedLogString,
                     completion: completion
                 )
             }
@@ -60,7 +62,7 @@ final class ProblemReportInteractor: @unchecked Sendable {
             sendProblemReport(
                 email: email,
                 message: message,
-                logString: logString,
+                logString: deviceToken + logString,
                 completion: completion
             )
         }

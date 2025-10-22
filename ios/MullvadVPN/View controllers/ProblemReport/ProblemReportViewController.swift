@@ -267,7 +267,8 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
         interactor.sendReport(
             email: viewModel.email,
-            message: viewModel.message
+            message: viewModel.message,
+            includeDeviceTokenInLogs: includeDeviceTokenInLogs
         ) { [weak self] completion in
             Task { @MainActor in
                 self?.didSendProblemReport(viewModel: viewModel, completion: completion)
