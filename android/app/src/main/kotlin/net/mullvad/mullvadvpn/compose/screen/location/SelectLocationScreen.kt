@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,12 +43,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -69,6 +74,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedEndButton
 import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedStartButton
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
+import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
+import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
@@ -78,6 +85,7 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
+import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
@@ -334,6 +342,8 @@ fun SelectLocationScreen(
     onRefreshRelayList: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
+    var fabHeight by remember { mutableIntStateOf(0) }
+    val bottomMarginList = with(LocalDensity.current) { fabHeight.toDp() + Dimens.fabSpacing }
 
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.select_location),
@@ -348,22 +358,44 @@ fun SelectLocationScreen(
         },
         modifier = Modifier.testTag(SELECT_LOCATION_SCREEN_TEST_TAG),
         snackbarHostState = snackbarHostState,
-        actions = {
-            val isSearchButtonEnabled = state.contentOrNull()?.isSearchButtonEnabled == true
-            IconButton(
-                enabled = isSearchButtonEnabled,
-                onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(id = R.string.search),
-                    tint =
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
-                        ),
-                )
+        floatingActionButton = {
+            if (!isTv() && state is Lc.Content) {
+                val isSearchButtonEnabled = state.value.isSearchButtonEnabled
+                // TODO Add some kind of "fake" enable disable for fab button
+                FloatingActionButton(
+                    modifier = Modifier.onGloballyPositioned { fabHeight = it.size.height },
+                    onClick = { onSearchClick(state.value.relayListType) },
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(id = R.string.search),
+                        tint =
+                            MaterialTheme.colorScheme.onSurface.copy(
+                                alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
+                            ),
+                    )
+                }
             }
-
+        },
+        actions = {
+            if (isTv()) {
+                val isSearchButtonEnabled = state.contentOrNull()?.isSearchButtonEnabled == true
+                IconButton(
+                    enabled = isSearchButtonEnabled,
+                    onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(id = R.string.search),
+                        tint =
+                            MaterialTheme.colorScheme.onSurface.copy(
+                                alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
+                            ),
+                    )
+                }
+            }
             val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
             val disabledText = stringResource(id = R.string.recents_disabled)
@@ -408,36 +440,52 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
-                    val pagerState =
-                        rememberPagerState(
-                            initialPage = state.value.relayListType.initialPage(),
-                            pageCount = { state.value.relayListType.pageCount() },
-                        )
-
-                    if (state.value.relayListType is RelayListType.Multihop) {
+                    /*if (state.value.relayListType is RelayListType.Multihop) {
                         MultihopBar(
                             pagerState,
                             state.value.relayListType.multihopRelayListType,
                             onSelectRelayList,
                         )
-                    }
+                    }*/
 
-                    AnimatedContent(
-                        targetState = state.value.filterChips,
-                        label = "Select location top bar",
-                    ) { filterChips ->
-                        if (filterChips.isNotEmpty()) {
-                            FilterRow(
-                                modifier =
-                                    Modifier.padding(
-                                        bottom = Dimens.smallPadding,
-                                        start = Dimens.mediumPadding,
-                                        end = Dimens.mediumPadding,
-                                    ),
-                                filters = filterChips,
-                                onRemoveOwnershipFilter = removeOwnershipFilter,
-                                onRemoveProviderFilter = removeProviderFilter,
+                    // TODO Add multihop container here
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        if (state.value.relayListType is RelayListType.Multihop) {
+                            HeaderSwitchComposeCell(
+                                title = "Entry",
+                                isToggled =
+                                    state.value.relayListType.multihopRelayListType ==
+                                        MultihopRelayListType.ENTRY,
+                                onCellClicked = {
+                                    onSelectRelayList(
+                                        if(it) {
+                                            MultihopRelayListType.ENTRY
+                                        } else {
+                                            MultihopRelayListType.EXIT
+                                        }
+                                    )
+                                },
                             )
+                        } else {
+                            Spacer(modifier = Modifier.height(Dimens.largePadding))
+                        }
+                        AnimatedContent(
+                            targetState = state.value.filterChips,
+                            label = "Select location top bar",
+                        ) { filterChips ->
+                            if (filterChips.isNotEmpty()) {
+                                FilterRow(
+                                    modifier =
+                                        Modifier.padding(
+                                            bottom = Dimens.smallPadding,
+                                            start = Dimens.mediumPadding,
+                                            end = Dimens.mediumPadding,
+                                        ),
+                                    filters = filterChips,
+                                    onRemoveOwnershipFilter = removeOwnershipFilter,
+                                    onRemoveProviderFilter = removeProviderFilter,
+                                )
+                            }
                         }
                     }
 
@@ -446,8 +494,8 @@ fun SelectLocationScreen(
                     }
 
                     RelayLists(
-                        pagerState,
                         state = state.value,
+                        bottomMargin = bottomMarginList,
                         onSelectHop = onSelectHop,
                         onModifyMultihop = onModifyMultihop,
                         openDaitaSettings = openDaitaSettings,
@@ -456,7 +504,6 @@ fun SelectLocationScreen(
                         onUpdateBottomSheetState = { newState ->
                             locationBottomSheetState = newState
                         },
-                        onSelectRelayList,
                     )
                 }
             }
@@ -576,32 +623,15 @@ private fun MultihopBar(
 @Composable
 @Suppress("ComplexCondition")
 private fun RelayLists(
-    pagerState: PagerState,
     state: SelectLocationUiState,
+    bottomMargin: Dp,
     onSelectHop: (hop: Hop) -> Unit,
     onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    onSelectRelayList: (MultihopRelayListType) -> Unit,
 ) {
-    if (state.relayListType is RelayListType.Multihop) {
-        // This is so that when the pager is scrolled by the user the relay list type is updated
-        // correctly.
-        // If multihop is not enabled, the pager will only have one page, so this will not be
-        // called.
-        RunOnKeyChange(pagerState.currentPage) {
-            onSelectRelayList(MultihopRelayListType.entries[pagerState.currentPage])
-        }
-        // This is so that when the relay list entry or exit button is clicked, the pager will
-        // scroll to the correct page.
-        LaunchedEffect(state.relayListType.multihopRelayListType) {
-            val index = state.relayListType.multihopRelayListType.ordinal
-            pagerState.animateScrollToPage(index)
-        }
-    }
-
     val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
         if (relayListType is RelayListType.Multihop) {
             onModifyMultihop(relayItem, relayListType.multihopRelayListType)
@@ -610,23 +640,10 @@ private fun RelayLists(
         }
     }
 
-    HorizontalPager(
-        state = pagerState,
-        userScrollEnabled = true,
-        beyondViewportPageCount =
-            if (state.multihopEnabled) {
-                1
-            } else {
-                0
-            },
-    ) { pageIndex ->
+    AnimatedContent(targetState = state.relayListType, label = "Relay list") { relayListType ->
         SelectLocationList(
-            relayListType =
-                if (state.multihopEnabled) {
-                    RelayListType.Multihop(MultihopRelayListType.entries[pageIndex])
-                } else {
-                    RelayListType.Single
-                },
+            relayListType = relayListType,
+            bottomMargin = bottomMargin,
             onSelectHop = onSelectHop,
             onSelectRelayItem = onSelectRelayItem,
             openDaitaSettings = openDaitaSettings,
@@ -641,15 +658,3 @@ private fun RelayLists(
 private fun ColumnScope.Loading() {
     MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
 }
-
-private fun RelayListType.initialPage(): Int =
-    when (this) {
-        is RelayListType.Multihop -> multihopRelayListType.ordinal
-        RelayListType.Single -> 0
-    }
-
-private fun RelayListType.pageCount(): Int =
-    when (this) {
-        is RelayListType.Multihop -> MultihopRelayListType.entries.size
-        RelayListType.Single -> 1
-    }
