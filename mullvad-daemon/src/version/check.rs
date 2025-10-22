@@ -314,7 +314,7 @@ impl UpdateContext {
         let cache_path = self.cache_path.clone();
 
         async move {
-            log::debug!("Writing version check cache to {}", cache_path.display());
+            log::trace!("Writing version check cache to {}", cache_path.display());
             let buf = serde_json::to_vec_pretty(&last_app_version).map_err(Error::Serialize)?;
             tokio::fs::write(cache_path, buf)
                 .await
