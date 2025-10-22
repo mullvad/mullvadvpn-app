@@ -92,7 +92,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     func purchase(product: Product) async throws{
-        try await storePaymentManager.purchase(product: product, for: accountNumber)
+        await storePaymentManager.purchase(product: product, for: accountNumber)
     }
     
     func purchase(product: SKProduct) {
