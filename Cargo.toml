@@ -149,6 +149,7 @@ itertools = "0.14"
 
 # Test dependencies
 proptest = "1.8"
+proptest-derive = "0.6"
 insta = { version = "1.42", features = ["yaml"] }
 
 [profile.release]
