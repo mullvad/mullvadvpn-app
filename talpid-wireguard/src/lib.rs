@@ -832,8 +832,10 @@ impl WireguardMonitor {
 
         self.pinger_stop_sender.close();
 
-        self.runtime
-            .block_on(self.event_hook.on_event(TunnelEvent::Down));
+        self.runtime.block_on(async {
+            self.event_hook.on_event(TunnelEvent::Down).await;
+            log_daita_overhead(&self.tunnel).await;
+        });
 
         self.stop_tunnel();
 
@@ -1034,6 +1036,36 @@ async fn log_tunnel_data_usage(config: &Config, tunnel: &Arc<AsyncMutex<Option<T
     let pubkey = config.entry_peer.public_key.as_bytes();
     if let Some(stats) = tunnel_stats.get(pubkey) {
         log::warn!("Entry peer stats: {:?}", stats);
+    }
+}
+
+async fn log_daita_overhead(tunnel: &Arc<AsyncMutex<Option<TunnelType>>>) {
+    let tunnel = tunnel.lock().await;
+    let Some(tunnel) = &*tunnel else { return };
+    let Ok(tunnel_stats) = tunnel.get_tunnel_stats().await else {
+        return;
+    };
+    if let Some(stats) = tunnel_stats.values().find(|stats| stats.daita.is_some()) {
+        let daita = stats.daita.as_ref().unwrap();
+        log::info!("DAITA overhead stats:");
+        log::info!("Total (outgoing) {} MiB", stats.tx_bytes / 1024 / 1024);
+        log::info!("Total (incoming) {} MiB", stats.rx_bytes / 1024 / 1024);
+        log::info!(
+            "Padding packet overhead (outgoing) {} MiB",
+            daita.tx_padding_packet_bytes / 1024 / 1024
+        );
+        log::info!(
+            "Padding packet overhead (incoming) {} MiB",
+            daita.rx_padding_packet_bytes / 1024 / 1024
+        );
+        log::info!(
+            "Constant packet size overhead (outgoing) {} MiB",
+            daita.tx_padding_bytes / 1024 / 1024
+        );
+        log::info!(
+            "Constant packet size overhead (incoming) {} MiB",
+            daita.rx_padding_bytes / 1024 / 1024
+        );
     }
 }
 
