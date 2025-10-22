@@ -419,14 +419,16 @@ message Udp2TcpObfuscationSettings { optional uint32 port = 1; }
 
 message ShadowsocksSettings { optional uint32 port = 1; }
 
+// TODO: Rename to "CensorshipCircumventionSettings"?
 message ObfuscationSettings {
   enum SelectedObfuscation {
     AUTO = 0;
     OFF = 1;
-    UDP2TCP = 2;
-    SHADOWSOCKS = 3;
-    QUIC = 4;
-    LWO = 5;
+    PORT = 2;
+    UDP2TCP = 3;
+    SHADOWSOCKS = 4;
+    QUIC = 5;
+    LWO = 6;
   }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscationSettings udp2tcp = 2;
@@ -576,7 +578,7 @@ enum IpVersion {
 }
 
 message WireguardConstraints {
-  optional uint32 port = 1;
+  optional uint32 port = 1; // value of SelectedObfuscation::PORT
   optional IpVersion ip_version = 2;
   repeated string allowed_ips = 3;
   bool use_multihop = 4;

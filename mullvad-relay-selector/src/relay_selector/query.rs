@@ -249,15 +249,14 @@ impl From<ObfuscationSettings> for ObfuscationQuery {
     /// Note that this drops obfuscation protocol specific constraints from [`ObfuscationSettings`]
     /// when the selected obfuscation type is auto.
     fn from(obfuscation: ObfuscationSettings) -> Self {
+        use SelectedObfuscation::*;
         match obfuscation.selected_obfuscation {
-            SelectedObfuscation::Off => ObfuscationQuery::Off,
-            SelectedObfuscation::Auto => ObfuscationQuery::Auto,
-            SelectedObfuscation::Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
-            SelectedObfuscation::Shadowsocks => {
-                ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks)
-            }
-            SelectedObfuscation::Quic => ObfuscationQuery::Quic,
-            SelectedObfuscation::Lwo => ObfuscationQuery::Lwo,
+            Off | Port => ObfuscationQuery::Off,
+            Auto => ObfuscationQuery::Auto,
+            Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
+            Shadowsocks => ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks),
+            Quic => ObfuscationQuery::Quic,
+            Lwo => ObfuscationQuery::Lwo,
         }
     }
 }
