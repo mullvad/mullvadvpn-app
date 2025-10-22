@@ -5,24 +5,43 @@ use std::sync::LazyLock;
 
 use regex_lite::Regex;
 
+#[cfg(test)]
+use proptest::prelude::proptest;
+#[cfg(test)]
+use proptest_derive::Arbitrary;
+
 /// The Mullvad VPN app product version
 #[cfg(has_version)]
 pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(test, derive(Arbitrary))]
 pub struct Version {
+    #[cfg_attr(test, proptest(strategy = "1000u32..=9999"))]
     pub year: u32,
+    #[cfg_attr(test, proptest(strategy = "1u32..=99"))]
     pub incremental: u32,
     /// A version can have an optional pre-stable type, e.g. alpha or beta.
     pub pre_stable: Option<PreStableType>,
     /// All versions may have an optional -dev-[commit hash] suffix.
-    pub dev: Option<String>,
+    pub dev: Option<Hash>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(test, derive(Arbitrary))]
+pub struct Hash(#[cfg_attr(test, proptest(regex = "([0-9a-f]+)"))] String);
+
+impl Display for Hash {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(test, derive(Arbitrary))]
 pub enum PreStableType {
-    Alpha(u32),
-    Beta(u32),
+    Alpha(#[cfg_attr(test, proptest(strategy = "1u32..=999"))] u32),
+    Beta(#[cfg_attr(test, proptest(strategy = "1u32..=999"))] u32),
 }
 
 impl Ord for PreStableType {
@@ -190,7 +209,10 @@ impl FromStr for Version {
 
         let alpha = captures.name("alpha").map(|m| m.as_str().parse().unwrap());
         let beta = captures.name("beta").map(|m| m.as_str().parse().unwrap());
-        let dev = captures.name("dev").map(|m| m.as_str().to_owned());
+        let dev = captures
+            .name("dev")
+            .map(|m| m.as_str().to_owned())
+            .map(Hash);
 
         let pre_stable = match (alpha, beta) {
             (None, None) => None,
@@ -373,7 +395,7 @@ mod tests {
                 year: 2021,
                 incremental: 34,
                 pre_stable: None,
-                dev: Some("0b60e4d87".to_string()),
+                dev: Some(Hash("0b60e4d87".to_string())),
             }
         );
     }
@@ -386,7 +408,7 @@ mod tests {
                 year: 2024,
                 incremental: 8,
                 pre_stable: Some(PreStableType::Beta(1)),
-                dev: Some("e5483d".to_string()),
+                dev: Some(Hash("e5483d".to_string())),
             }
         );
     }
@@ -442,5 +464,12 @@ mod tests {
         let parsed = Version::from_str("2025.10").unwrap();
         let expected = Version::from_str("2025.11").unwrap();
         assert_eq!(parsed.bump(Type::Stable).unwrap(), expected)
+    }
+
+    proptest! {
+        #[test]
+        fn parse_all_version_numbers(version: Version) {
+            parse(&version.to_string());
+        }
     }
 }
