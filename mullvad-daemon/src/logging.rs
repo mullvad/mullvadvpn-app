@@ -40,6 +40,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "ws",
     "mio",
     "hyper",
+    "hyper_util",
     "rtnetlink",
     "rustls",
     "netlink_sys",
