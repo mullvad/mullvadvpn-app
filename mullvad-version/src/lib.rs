@@ -44,9 +44,53 @@ impl PartialOrd for PreStableType {
 
 impl Version {
     /// Returns true if this version has a -dev suffix, e.g. 2025.2-beta1-dev-123abc
-    pub fn is_dev(&self) -> bool {
+    pub const fn is_dev(&self) -> bool {
         self.dev.is_some()
     }
+
+    /// Deduce the [Type] of this version.
+    pub const fn typ(&self) -> Type {
+        match self.pre_stable {
+            Some(PreStableType::Alpha(_)) => Type::Alpha,
+            Some(PreStableType::Beta(_)) => Type::Beta,
+            None if self.is_dev() => Type::Dev,
+            None => Type::Stable,
+        }
+    }
+
+    /// Get the next logical version number.
+    /// Bumping version of the same [Type] increments the version number by 1.
+    /// Bumping version of a 'stronger' [Type] changes the [Type] and increments the version
+    /// number.
+    ///
+    /// If `self` is [Type::Dev], there is no 'next' version number.
+    /// Likewise if `typ` is of a 'less stable' kind compared to `self` (i.e. Alpha is weaker than
+    /// Beta is weaker than Stable).
+    ///
+    /// For all other cases, `bump` is total.
+    pub fn bump(self, typ: Type) -> Option<Self> {
+        use Type::*;
+        let next = match self.typ() {
+            Dev => return None,
+            Stable if typ == Stable => Self {
+                incremental: self.incremental + 1,
+                ..self
+            },
+            Stable => todo!(),
+            Beta => todo!(),
+            Alpha => todo!(),
+        };
+        Some(next)
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
+#[cfg_attr(test, derive(Arbitrary))]
+pub enum Type {
+    Stable,
+    Beta,
+    Alpha,
+    Dev,
 }
 
 impl PartialOrd for Version {
@@ -391,5 +435,12 @@ mod tests {
         assert_same_display("2024.8-alpha77-dev-85483d");
         assert_same_display("2024.12");
         assert_same_display("2045.2-dev-123");
+    }
+
+    #[test]
+    fn bump_stable() {
+        let parsed = Version::from_str("2025.10").unwrap();
+        let expected = Version::from_str("2025.11").unwrap();
+        assert_eq!(parsed.bump(Type::Stable).unwrap(), expected)
     }
 }
