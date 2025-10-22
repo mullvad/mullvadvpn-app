@@ -18,6 +18,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     var textViewKeyboardResponder: AutomaticKeyboardResponder?
     var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
     var showsSubmissionOverlay = false
+    var includeAccountTokenInLogs = false
 
     /// Constraints used when description text view is active
     var activeMessageTextViewConstraints = [NSLayoutConstraint]()
@@ -34,6 +35,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     lazy var containerView: UIView = { makeContainerView() }()
     /// Subheading label displayed below navigation bar
     lazy var subheaderLabel: UILabel = { makeSubheaderLabel() }()
+    lazy var includeDeviceTokenCheckbox: UIStackView = { makeCheckboxStackView() }()
     lazy var emailTextField: CustomTextField = { makeEmailTextField() }()
     lazy var messageTextView: CustomTextView = { makeMessageTextView() }()
     /// Container view for text input fields
@@ -55,6 +57,9 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     )
 
     lazy var submissionOverlayView: ProblemReportSubmissionOverlayView = { makeSubmissionOverlayView() }()
+
+    var checkboxView: CheckboxView!
+    var reduceAnonymityWarningView: ReduceAnonymityWarningView!
 
     // MARK: - View lifecycle
 
@@ -204,7 +209,8 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     private func updatePersistentViewModel() {
         Self.persistentViewModel = ProblemReportViewModel(
             email: emailTextField.text ?? "",
-            message: messageTextView.text
+            message: messageTextView.text,
+            includeAccountTokenInLogs: includeAccountTokenInLogs
         )
 
         validateForm()
@@ -264,7 +270,8 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
         interactor.sendReport(
             email: viewModel.email,
-            message: viewModel.message
+            message: viewModel.message,
+            includeAccountTokenInLogs: includeAccountTokenInLogs
         ) { [weak self] completion in
             Task { @MainActor in
                 self?.didSendProblemReport(viewModel: viewModel, completion: completion)
@@ -273,6 +280,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     }
 
     // MARK: - Input fields notifications
+
+    func didToggleincludeAccountTokenInLogs(_ includeTokenInLogs: Bool) {
+        includeAccountTokenInLogs = includeTokenInLogs
+    }
 
     @objc private func messageTextViewDidBeginEditing() {
         setDescriptionFieldExpanded(true)

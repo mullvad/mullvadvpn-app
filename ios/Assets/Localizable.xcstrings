@@ -119,7 +119,26 @@
 
     },
     "Agree and continue" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akzeptieren und weiter"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accepter et continuer"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Godkänn och fortsätt"
+          }
+        }
+      }
     },
     "All" : {
 
@@ -176,6 +195,9 @@
 
     },
     "Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." : {
+
+    },
+    "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " : {
 
     },
     "By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." : {
@@ -533,6 +555,9 @@
     "Include all networks" : {
 
     },
+    "Include my account token for faster help with payment or account related issues" : {
+
+    },
     "Internal error occurred. Settings will be reset to defaults and device logged out." : {
 
     },
@@ -756,6 +781,9 @@
     "Previous" : {
 
     },
+    "privacy policy" : {
+
+    },
     "Providers" : {
 
     },
@@ -962,6 +990,9 @@
 
     },
     "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers." : {
+
+    },
+    "This impacts your anonymity" : {
 
     },
     "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." : {
