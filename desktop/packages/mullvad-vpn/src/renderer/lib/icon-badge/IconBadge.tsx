@@ -14,5 +14,7 @@ const sources = {
 export const StyledIconBadge = styled(Image)``;
 
 export const IconBadge = ({ state, ...props }: IconBadgeProps) => {
-  return <StyledIconBadge source={sources[state]} width={48} height={48} {...props} />;
+  return (
+    <StyledIconBadge source={sources[state]} width={48} height={48} aria-hidden="true" {...props} />
+  );
 };
