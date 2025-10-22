@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -12,9 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
@@ -33,7 +30,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,7 +71,6 @@ import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedEndButton
 import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedStartButton
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
@@ -84,7 +79,6 @@ import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParam
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -458,7 +452,7 @@ fun SelectLocationScreen(
                                         MultihopRelayListType.ENTRY,
                                 onCellClicked = {
                                     onSelectRelayList(
-                                        if(it) {
+                                        if (it) {
                                             MultihopRelayListType.ENTRY
                                         } else {
                                             MultihopRelayListType.EXIT

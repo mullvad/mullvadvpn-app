@@ -20,7 +20,7 @@ internal fun relayListItems(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
-    recents: List<Hop>?,
+    recents: List<Hop.Single<RelayItem>>?,
     selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -86,7 +86,7 @@ private fun createRelayListItems(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
-    recents: List<Hop>?,
+    recents: List<Hop.Single<RelayItem>>?,
     countries: List<RelayItem.Location.Country>,
     isEntryBlocked: Boolean,
     isExpanded: (String) -> Boolean,
@@ -115,7 +115,7 @@ private fun createRelayListItems(
 }
 
 private fun createRecentsSection(
-    recents: List<Hop>,
+    recents: List<Hop.Single<RelayItem>>,
     itemSelection: RelayItemSelection,
     isEntryBlocked: Boolean,
 ): List<RelayListItem> = buildList {
@@ -150,10 +150,10 @@ private fun createRecentsSection(
     }
 }
 
-private fun Hop.matches(itemSelection: RelayItemSelection, isEntryBlocked: Boolean): Boolean {
+private fun Hop.Single<RelayItem>.matches(itemSelection: RelayItemSelection, isEntryBlocked: Boolean): Boolean {
     return when (itemSelection) {
         is RelayItemSelection.Single -> {
-            entry().id == itemSelection.exitLocation.getOrNull()
+            relay.id == itemSelection.exitLocation.getOrNull()
         }
 
         is RelayItemSelection.Multiple -> {
