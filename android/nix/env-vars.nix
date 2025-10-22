@@ -91,6 +91,10 @@ in
       name = "CARGO_TARGET_i686_LINUX_ANDROID_LINKER";
       value = "$NDK_TOOLCHAIN_DIR/i686-linux-android${minSdkVersion}-clang";
     }
+    {
+      name = "SOURCE_DATE_EPOCH";
+      value = "0";
+    }
   ]
   ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
     {
