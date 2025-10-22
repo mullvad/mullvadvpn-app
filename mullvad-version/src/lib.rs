@@ -16,7 +16,16 @@ pub struct Version {
     /// A version can have an optional pre-stable type, e.g. alpha or beta.
     pub pre_stable: Option<PreStableType>,
     /// All versions may have an optional -dev-[commit hash] suffix.
-    pub dev: Option<String>,
+    pub dev: Option<Hash>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Hash(String);
+
+impl Display for Hash {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -85,7 +94,6 @@ impl Version {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
-#[cfg_attr(test, derive(Arbitrary))]
 pub enum Type {
     Stable,
     Beta,
@@ -190,7 +198,10 @@ impl FromStr for Version {
 
         let alpha = captures.name("alpha").map(|m| m.as_str().parse().unwrap());
         let beta = captures.name("beta").map(|m| m.as_str().parse().unwrap());
-        let dev = captures.name("dev").map(|m| m.as_str().to_owned());
+        let dev = captures
+            .name("dev")
+            .map(|m| m.as_str().to_owned())
+            .map(Hash);
 
         let pre_stable = match (alpha, beta) {
             (None, None) => None,
@@ -230,8 +241,55 @@ impl serde::Serialize for Version {
 }
 
 #[cfg(test)]
+pub mod arbitrary {
+    use super::*;
+
+    use prop::option;
+    use prop::string;
+    use proptest::prelude::*;
+
+    prop_compose! {
+        /// Generate an arbitrary [Version].
+        pub fn arb_version()
+            (year in arb_year(), incremental in arb_incremental(), pre_stable in option::of(arb_pre_stable()), dev in option::of(arb_hash()))
+            -> Version {
+                Version { year, incremental, pre_stable, dev }
+        }
+    }
+
+    /// Generate an arbitrary Mullvad App version year.
+    fn arb_year() -> impl Strategy<Value = u32> {
+        1000u32..=9999
+    }
+
+    /// Generate an arbitrary Mullvad App version incremental number.
+    fn arb_incremental() -> impl Strategy<Value = u32> {
+        1u32..=99
+    }
+
+    /// Generate an arbitrary Mullvad App version pre-stable type.
+    fn arb_pre_stable() -> impl Strategy<Value = PreStableType> {
+        (1u32..999).prop_flat_map(|number| {
+            // TODO: We probably don't want to use `Just` here, as we would like to be able to shrink `number`.
+            prop_oneof![
+                Just(PreStableType::Alpha(number)),
+                Just(PreStableType::Beta(number))
+            ]
+        })
+    }
+
+    /// Generate an arbitrary git short-hash.
+    fn arb_hash() -> impl Strategy<Value = Hash> {
+        string::string_regex("([0-9a-f]+)").unwrap().prop_map(Hash)
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
+
+    use arbitrary::arb_version;
+    use proptest::prelude::*;
 
     // Helper to parse a version string
     fn parse(version: &str) -> Version {
@@ -373,7 +431,7 @@ mod tests {
                 year: 2021,
                 incremental: 34,
                 pre_stable: None,
-                dev: Some("0b60e4d87".to_string()),
+                dev: Some(Hash("0b60e4d87".to_string())),
             }
         );
     }
@@ -386,7 +444,7 @@ mod tests {
                 year: 2024,
                 incremental: 8,
                 pre_stable: Some(PreStableType::Beta(1)),
-                dev: Some("e5483d".to_string()),
+                dev: Some(Hash("e5483d".to_string())),
             }
         );
     }
@@ -442,5 +500,12 @@ mod tests {
         let parsed = Version::from_str("2025.10").unwrap();
         let expected = Version::from_str("2025.11").unwrap();
         assert_eq!(parsed.bump(Type::Stable).unwrap(), expected)
+    }
+
+    proptest! {
+        #[test]
+        fn parse_all_version_numbers(version in arb_version()) {
+            parse(&version.to_string());
+        }
     }
 }
