@@ -25,7 +25,6 @@ internal fun relayListItems(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     expandedItems: Set<String>,
-    isEntryBlocked: Boolean,
 ): List<RelayListItem> {
     return createRelayListItems(
         relayListType = relayListType,
@@ -35,7 +34,6 @@ internal fun relayListItems(
         customLists = customLists,
         recents = recents,
         countries = relayCountries,
-        isEntryBlocked = isEntryBlocked,
     ) {
         it in expandedItems
     }
@@ -88,11 +86,10 @@ private fun createRelayListItems(
     customLists: List<RelayItem.CustomList>,
     recents: List<Hop.Single<RelayItem>>?,
     countries: List<RelayItem.Location.Country>,
-    isEntryBlocked: Boolean,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (recents != null) {
-        addAll(createRecentsSection(recents, selectedItem, isEntryBlocked))
+        addAll(createRecentsSection(recents, selectedItem, relayListType))
     }
     addAll(
         createCustomListSection(
@@ -117,28 +114,19 @@ private fun createRelayListItems(
 private fun createRecentsSection(
     recents: List<Hop.Single<RelayItem>>,
     itemSelection: RelayItemSelection,
-    isEntryBlocked: Boolean,
+    relayListType: RelayListType,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.RecentsListHeader)
 
     val shown =
         recents
             .map { recent ->
-                val isSelected = recent.matches(itemSelection, isEntryBlocked)
-                if (isEntryBlocked) {
-                    // When the entry is blocked we want to show a multihop's exit location
-                    // as a singlehop in the recents list.
-                    RelayListItem.RecentListItem(
-                        hop = Hop.Single(recent.exit()),
-                        isSelected = isSelected,
-                    )
-                } else {
-                    RelayListItem.RecentListItem(hop = recent, isSelected = isSelected)
-                }
+                val isSelected = recent.matches(itemSelection, relayListType)
+                RelayListItem.RecentListItem(hop = recent, isSelected = isSelected)
             }
             // Convert to a set to remove possible duplicates. We can get duplicate entries if
-            // multihop is enabled and isEntryBlocked is true, because multiple multihop recents
-            // can have the same exit.
+            // multihop is enabled because multiple multihop recents
+            // can have the same entry or exit.
             .toSet()
             .take(RECENTS_MAX_VISIBLE)
 
@@ -150,20 +138,24 @@ private fun createRecentsSection(
     }
 }
 
-private fun Hop.Single<RelayItem>.matches(itemSelection: RelayItemSelection, isEntryBlocked: Boolean): Boolean {
+private fun Hop.Single<RelayItem>.matches(
+    itemSelection: RelayItemSelection,
+    relayListType: RelayListType,
+): Boolean {
     return when (itemSelection) {
         is RelayItemSelection.Single -> {
             relay.id == itemSelection.exitLocation.getOrNull()
         }
 
-        is RelayItemSelection.Multiple -> {
-            if (isEntryBlocked) {
-                exit().id == itemSelection.exitLocation.getOrNull()
+        is RelayItemSelection.Multiple if relayListType is RelayListType.Multihop -> {
+            if (relayListType.multihopRelayListType == MultihopRelayListType.ENTRY) {
+                relay.id == itemSelection.entryLocation.getOrNull()
             } else {
-                entry().id == itemSelection.entryLocation.getOrNull() &&
-                    exit().id == itemSelection.exitLocation.getOrNull()
+                relay.id == itemSelection.exitLocation.getOrNull()
             }
         }
+
+        else -> false
     }
 }
 

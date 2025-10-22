@@ -168,7 +168,6 @@ class SelectLocationListViewModelTest {
                     selectedByThisEntryExitList = exitLocation.getOrNull(),
                     selectedByOtherEntryExitList = null,
                     expandedItems = emptySet(),
-                    isEntryBlocked = true,
                 )
             }
         }
