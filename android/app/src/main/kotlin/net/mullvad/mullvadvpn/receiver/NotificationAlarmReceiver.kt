@@ -33,7 +33,7 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
         goAsync {
             // Only schedule the next alarm if we still have time left on the account.
             if (context != null && expiry > ZonedDateTime.now()) {
-                scheduleNotificationAlarmUseCase(context = context, accountExpiry = expiry)
+                scheduleNotificationAlarmUseCase(accountExpiry = expiry, customContext = context)
             }
         }
     }

@@ -59,17 +59,11 @@ class MullvadApplication : Application() {
                 when (action) {
                     NotificationAction.CancelExisting -> {
                         accountExpiryNotificationProvider.cancelNotification()
-                        scheduleNotificationAlarmUseCase(
-                            context = this@MullvadApplication,
-                            accountExpiry = null,
-                        )
+                        scheduleNotificationAlarmUseCase(accountExpiry = null)
                     }
 
                     is NotificationAction.ScheduleAlarm ->
-                        scheduleNotificationAlarmUseCase(
-                            context = this@MullvadApplication,
-                            accountExpiry = action.alarmTime,
-                        )
+                        scheduleNotificationAlarmUseCase(accountExpiry = action.alarmTime)
                 }
             }
         }

@@ -12,13 +12,14 @@ import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.accountExpiryNotificationTriggerAt
 
 class ScheduleNotificationAlarmUseCase(
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val applicationContext: Context,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) {
-    suspend operator fun invoke(context: Context, accountExpiry: ZonedDateTime?) {
-        val appContext = context.applicationContext
-        val alarmManager = appContext.getSystemService(AlarmManager::class.java) ?: return
+    suspend operator fun invoke(accountExpiry: ZonedDateTime?, customContext: Context? = null) {
+        val context = customContext ?: applicationContext
+        val alarmManager = context.getSystemService(AlarmManager::class.java) ?: return
 
-        cancelExisting(appContext, alarmManager)
+        cancelExisting(context, alarmManager)
 
         if (accountExpiry == null) {
             userPreferencesRepository.clearAccountExpiry()
@@ -29,7 +30,7 @@ class ScheduleNotificationAlarmUseCase(
             accountExpiryNotificationTriggerAt(now = ZonedDateTime.now(), expiry = accountExpiry)
         val triggerAtMillis = triggerAt.toInstant().toEpochMilli()
 
-        val intent = alarmIntent(appContext, accountExpiry)
+        val intent = alarmIntent(context, accountExpiry)
         alarmManager.set(AlarmManager.RTC, triggerAtMillis, intent)
 
         // Change to UTC to avoid leaking the user's time zone in the logs

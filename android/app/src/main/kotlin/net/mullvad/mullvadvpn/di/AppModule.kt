@@ -64,7 +64,7 @@ val appModule = module {
     single { ConnectionProxy(get(), get(), get()) }
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
-    single { ScheduleNotificationAlarmUseCase(get()) }
+    single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }
     single { AccountExpiryNotificationActionUseCase(get(), get()) }
 
     single { NotificationChannel.TunnelUpdates } bind NotificationChannel::class

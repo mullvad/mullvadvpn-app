@@ -12,13 +12,14 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
+import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -37,6 +38,12 @@ class DeviceRevokedViewModelTest {
 
     private val tunnelStateFlow = MutableSharedFlow<TunnelState>()
 
+    private val mockScheduleNotificationAlarmUseCase =
+        mockk<ScheduleNotificationAlarmUseCase>(relaxed = true)
+
+    private val mockAccountExpiryNotificationProvider =
+        mockk<AccountExpiryNotificationProvider>(relaxed = true)
+
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
@@ -45,7 +52,8 @@ class DeviceRevokedViewModelTest {
             DeviceRevokedViewModel(
                 accountRepository = mockedAccountRepository,
                 connectionProxy = mockConnectionProxy,
-                dispatcher = UnconfinedTestDispatcher(),
+                scheduleNotificationAlarmUseCase = mockScheduleNotificationAlarmUseCase,
+                accountExpiryNotificationProvider = mockAccountExpiryNotificationProvider,
             )
     }
 
@@ -67,6 +75,17 @@ class DeviceRevokedViewModelTest {
             assertEquals(DeviceRevokedUiState.SECURED, awaitItem())
         }
     }
+
+    @Test
+    fun `when subscription starts the user account expiry notification should be cancelled`() =
+        runTest {
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
+                coVerify { mockScheduleNotificationAlarmUseCase(null, null) }
+                coVerify { mockAccountExpiryNotificationProvider.cancelNotification() }
+            }
+        }
 
     @Test
     fun `onGoToLoginClicked should invoke logout on AccountRepository`() {

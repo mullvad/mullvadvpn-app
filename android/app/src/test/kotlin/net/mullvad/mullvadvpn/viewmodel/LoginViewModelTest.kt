@@ -29,7 +29,9 @@ import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -45,6 +47,12 @@ class LoginViewModelTest {
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var accountHistoryFlow: MutableStateFlow<AccountNumber?>
 
+    private val mockScheduleNotificationAlarmUseCase =
+        mockk<ScheduleNotificationAlarmUseCase>(relaxed = true)
+
+    private val mockAccountExpiryNotificationProvider =
+        mockk<AccountExpiryNotificationProvider>(relaxed = true)
+
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -58,6 +66,8 @@ class LoginViewModelTest {
                 accountRepository = mockedAccountRepository,
                 newDeviceRepository = mockk(relaxUnitFun = true),
                 internetAvailableUseCase = connectivityUseCase,
+                scheduleNotificationAlarmUseCase = mockScheduleNotificationAlarmUseCase,
+                accountExpiryNotificationProvider = mockAccountExpiryNotificationProvider,
                 UnconfinedTestDispatcher(),
             )
     }
@@ -92,6 +102,17 @@ class LoginViewModelTest {
     fun `initial state should be initial`() = runTest {
         loginViewModel.uiState.test { assertEquals(LoginUiState.INITIAL, awaitItem()) }
     }
+
+    @Test
+    fun `when subscription starts the user account expiry notification should be cancelled`() =
+        runTest {
+            // Act, Assert
+            loginViewModel.uiState.test {
+                assertEquals(LoginUiState.INITIAL, awaitItem())
+                coVerify { mockScheduleNotificationAlarmUseCase(null, null) }
+                coVerify { mockAccountExpiryNotificationProvider.cancelNotification() }
+            }
+        }
 
     @Test
     fun `createAccount call should result in NavigateToWelcome side effect`() = runTest {
