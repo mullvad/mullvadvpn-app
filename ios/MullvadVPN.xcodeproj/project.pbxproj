@@ -910,6 +910,7 @@
 		A9A5FA432ACB05F20083449F /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
 		A9A60ED42DF6E5AC00CD9C3D /* UIHostingRootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A60ED32DF6E5AC00CD9C3D /* UIHostingRootController.swift */; };
 		A9A8A8EB2A262AB30086D569 /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A8A8EA2A262AB30086D569 /* FileCache.swift */; };
+		A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */; };
 		A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */; };
 		A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
 		A9B6AC1B2ADEA3AD00F7802A /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
@@ -2390,6 +2391,7 @@
 		A9A5F9A12ACB003D0083449F /* TunnelManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerTests.swift; sourceTree = "<group>"; };
 		A9A60ED32DF6E5AC00CD9C3D /* UIHostingRootController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHostingRootController.swift; sourceTree = "<group>"; };
 		A9A8A8EA2A262AB30086D569 /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
+		A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduceAnonymityWarningView.swift; sourceTree = "<group>"; };
 		A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerTests.swift; sourceTree = "<group>"; };
 		A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemorySettingsStore.swift; sourceTree = "<group>"; };
 		A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsTests.swift; sourceTree = "<group>"; };
@@ -3291,6 +3293,7 @@
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
 				A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */,
 				A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */,
+				A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */,
 			);
 			path = ProblemReport;
 			sourceTree = "<group>";
@@ -6460,6 +6463,7 @@
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
+				A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */,
 				4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */,
 				F90A988E2E13C5490020F64F /* MullvadSecondaryTextField.swift in Sources */,
 				5827B0BD2B14AC9200CCBBA1 /* AccessViewModel+TestingStatus.swift in Sources */,

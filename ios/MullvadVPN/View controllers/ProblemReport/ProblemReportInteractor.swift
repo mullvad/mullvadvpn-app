@@ -43,15 +43,20 @@ final class ProblemReportInteractor: @unchecked Sendable {
     func sendReport(
         email: String,
         message: String,
+        includeAccountTokenInLogs: Bool,
         completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
         let logString = self.consolidatedLog.string
+        let accountToken =
+            if isUserLoggedIn() && includeAccountTokenInLogs {
+                "\naccount-token: \(String(describing: tunnelManager.deviceState.accountData?.identifier))"
+            } else { "" }
 
         if logString.isEmpty {
-            fetchReportString { [weak self] updatedLogString in
+            fetchReportString { [weak self, accountToken] updatedLogString in
                 self?.sendProblemReport(
                     email: email,
-                    message: message,
+                    message: message + accountToken,
                     logString: updatedLogString,
                     completion: completion
                 )
@@ -59,11 +64,15 @@ final class ProblemReportInteractor: @unchecked Sendable {
         } else {
             sendProblemReport(
                 email: email,
-                message: message,
+                message: message + accountToken,
                 logString: logString,
                 completion: completion
             )
         }
+    }
+
+    func isUserLoggedIn() -> Bool {
+        tunnelManager.deviceState.isLoggedIn
     }
 
     func cancelSendingReport() {
