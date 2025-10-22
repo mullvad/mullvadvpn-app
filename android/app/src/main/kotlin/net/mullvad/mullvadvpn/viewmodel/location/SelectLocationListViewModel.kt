@@ -104,7 +104,6 @@ class SelectLocationListViewModel(
                             selectedItem.selectedByOtherEntryExitList(relayListType, customLists)
                         },
                     expandedItems = expandedItems,
-                    isEntryBlocked = settings?.entryBlocked() == true,
                 )
             }
         }

@@ -311,11 +311,17 @@ fun SearchLocationScreen(
                 state = lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                filterRow(
-                    filters = state.contentOrNull()?.filterChips ?: emptyList(),
-                    onRemoveOwnershipFilter = onRemoveOwnershipFilter,
-                    onRemoveProviderFilter = onRemoveProviderFilter,
-                )
+                if (state is Lce.Content) {
+                    filterRow(
+                        filters = state.value.filterChips,
+                        onRemoveOwnershipFilter =
+                            onRemoveOwnershipFilter
+                        ,
+                        onRemoveProviderFilter =
+                            onRemoveProviderFilter
+                        ,
+                    )
+                }
                 when (state) {
                     is Lce.Loading -> {
                         loading()

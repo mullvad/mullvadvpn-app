@@ -255,13 +255,13 @@ class SearchLocationViewModel(
 
     fun removeOwnerFilter() {
         viewModelScope.launch {
-            relayListFilterRepository.updateSelectedOwnership(Constraint.Any, relayListType)
+            relayListFilterRepository.updateSelectedOwnership(relayListType = relayListType, ownership = Constraint.Any)
         }
     }
 
     fun removeProviderFilter() {
         viewModelScope.launch {
-            relayListFilterRepository.updateSelectedProviders(Constraint.Any, relayListType)
+            relayListFilterRepository.updateSelectedProviders(relayListType = relayListType, providers = Constraint.Any)
         }
     }
 
