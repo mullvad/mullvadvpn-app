@@ -622,7 +622,7 @@ impl fmt::Display for SelectedObfuscation {
             SelectedObfuscation::Shadowsocks => "shadowsocks".fmt(f),
             SelectedObfuscation::Quic => "quic".fmt(f),
             SelectedObfuscation::Lwo => "lwo".fmt(f),
-            SelectedObfuscation::Port => "wireguard port".fmt(f),
+            SelectedObfuscation::Port => "port".fmt(f),
         }
     }
 }
