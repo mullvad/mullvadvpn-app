@@ -1,25 +1,40 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.content.Context
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
@@ -37,6 +52,7 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
@@ -127,43 +143,73 @@ private fun LocationBottomSheet(
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG),
     ) { ->
+        var showAddToListState by remember { mutableStateOf(false) }
         HeaderCell(
-            text = stringResource(id = R.string.add_location_to_list, item.name),
+            text = if(showAddToListState) {
+                stringResource(id = R.string.add_location_to_list, item.name)
+            } else {
+                item.name
+            },
             background = backgroundColor,
         )
         HorizontalDivider(color = onBackgroundColor)
-        customLists.forEach {
-            val enabled = it.canAddLocation(item)
-            IconCell(
-                imageVector = null,
-                title =
-                    if (enabled) {
-                        it.name
-                    } else {
-                        stringResource(id = R.string.location_added, it.name)
+        AnimatedContent(targetState = showAddToListState to customLists, transitionSpec = {
+            slideIn { IntOffset(it.width, 0) } + fadeIn() togetherWith slideOut { IntOffset(-it.width, 0) } + fadeOut()
+        }, label = "Show add to list") { (showAddToList, customLists) ->
+            if(showAddToList) {
+                Column {
+                    customLists.forEach {
+                        val enabled = it.canAddLocation(item)
+                        IconCell(
+                            imageVector = null,
+                            title =
+                                if (enabled) {
+                                    it.name
+                                } else {
+                                    stringResource(id = R.string.location_added, it.name)
+                                },
+                            titleColor =
+                                if (enabled) {
+                                    onBackgroundColor
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                            onClick = {
+                                onAddLocationToList(item, it)
+                                closeBottomSheet(true)
+                            },
+                            enabled = enabled,
+                        )
+                    }
+                    IconCell(
+                        imageVector = Icons.Default.Add,
+                        title = stringResource(id = R.string.new_list),
+                        titleColor = onBackgroundColor,
+                        onClick = {
+                            onCreateCustomList(item)
+                            closeBottomSheet(true)
+                        },
+                    )
+                }
+            } else {
+                IconCell(
+                    imageVector = null,
+                    title = stringResource(id = R.string.add_to_list),
+                    titleColor = onBackgroundColor,
+                    onClick = {
+                        showAddToListState = true
                     },
-                titleColor =
-                    if (enabled) {
-                        onBackgroundColor
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                onClick = {
-                    onAddLocationToList(item, it)
-                    closeBottomSheet(true)
-                },
-                enabled = enabled,
-            )
+                    endIcon = {
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = onBackgroundColor,
+                        )
+                    }
+                )
+            }
         }
-        IconCell(
-            imageVector = Icons.Default.Add,
-            title = stringResource(id = R.string.new_list),
-            titleColor = onBackgroundColor,
-            onClick = {
-                onCreateCustomList(item)
-                closeBottomSheet(true)
-            },
-        )
+
     }
 }
 
