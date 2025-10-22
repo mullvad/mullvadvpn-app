@@ -18,6 +18,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     var textViewKeyboardResponder: AutomaticKeyboardResponder?
     var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
     var showsSubmissionOverlay = false
+    var includeDeviceTokenInLogs = false
 
     /// Constraints used when description text view is active
     var activeMessageTextViewConstraints = [NSLayoutConstraint]()
@@ -34,6 +35,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     lazy var containerView: UIView = { makeContainerView() }()
     /// Subheading label displayed below navigation bar
     lazy var subheaderLabel: UILabel = { makeSubheaderLabel() }()
+    lazy var includeDeviceTokenCheckbox: UIStackView = { makeCheckboxStackView() }()
     lazy var emailTextField: CustomTextField = { makeEmailTextField() }()
     lazy var messageTextView: CustomTextView = { makeMessageTextView() }()
     /// Container view for text input fields
@@ -204,7 +206,8 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     private func updatePersistentViewModel() {
         Self.persistentViewModel = ProblemReportViewModel(
             email: emailTextField.text ?? "",
-            message: messageTextView.text
+            message: messageTextView.text,
+            includeDeviceTokenInLogs: includeDeviceTokenInLogs
         )
 
         validateForm()
@@ -273,6 +276,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     }
 
     // MARK: - Input fields notifications
+
+    func didToggleIncludeDeviceTokenInLogs(_ includeTokenInLogs: Bool) {
+        includeDeviceTokenInLogs = includeTokenInLogs
+    }
 
     @objc private func messageTextViewDidBeginEditing() {
         setDescriptionFieldExpanded(true)

@@ -447,6 +447,7 @@
       }
     },
     "Agree and continue" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1500,9 +1501,6 @@
       }
     },
     "DNS settings" : {
-
-    },
-    "Do you agree to remaining anonymous?" : {
 
     },
     "Do you want to create a new account?" : {
@@ -4143,6 +4141,9 @@
           }
         }
       }
+    },
+    "This is a question about account or payments\n(Include account information)" : {
+
     },
     "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." : {
       "localizations" : {

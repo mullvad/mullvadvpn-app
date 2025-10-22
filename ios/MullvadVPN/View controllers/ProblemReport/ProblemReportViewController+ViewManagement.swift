@@ -36,6 +36,40 @@ extension ProblemReportViewController {
         return textLabel
     }
 
+    func makeCheckboxStackView() -> UIStackView {
+        let button = UIButton()
+        let checkboxView = CheckboxView()
+        checkboxView.isUserInteractionEnabled = false
+        checkboxView.isChecked = false
+
+        button.addConstrainedSubviews([checkboxView]) {
+            checkboxView.pinEdgesToSuperview(.all().excluding([.trailing, .top, .bottom]))
+        }
+
+        button.addAction(
+            UIAction(title: "toggle checkbox") { _ in
+                checkboxView.isChecked.toggle()
+                self.didToggleIncludeDeviceTokenInLogs(checkboxView.isChecked)
+            },
+            for: .touchUpInside
+        )
+
+        let userPrivacyLabel = UILabel()
+        userPrivacyLabel.translatesAutoresizingMaskIntoConstraints = false
+        userPrivacyLabel.font = .mullvadTinySemiBold
+        userPrivacyLabel.adjustsFontForContentSizeCategory = true
+        userPrivacyLabel.numberOfLines = 0
+        userPrivacyLabel.textColor = .white
+        userPrivacyLabel.text = ProblemReportViewModel.userPrivacyWarningText
+
+        let stackView = UIStackView(arrangedSubviews: [button, userPrivacyLabel])
+        stackView.axis = .horizontal
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 4
+
+        return stackView
+    }
+
     func makeEmailTextField() -> CustomTextField {
         let textField = CustomTextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -147,6 +181,7 @@ extension ProblemReportViewController {
 
         scrollView.addSubview(containerView)
         containerView.addSubview(subheaderLabel)
+        containerView.addSubview(includeDeviceTokenCheckbox)
         containerView.addSubview(textFieldsHolder)
         containerView.addSubview(buttonsStackView)
 
@@ -155,8 +190,11 @@ extension ProblemReportViewController {
 
             subheaderLabel.pinEdges(.all().excluding(.bottom), to: containerView.layoutMarginsGuide)
 
+            includeDeviceTokenCheckbox.pinEdges(PinnableEdges([.leading(0), .trailing(0)]), to: containerView.layoutMarginsGuide)
+            includeDeviceTokenCheckbox.topAnchor.constraint(equalTo: subheaderLabel.bottomAnchor, constant: 24)
+
             textFieldsHolder.pinEdges(PinnableEdges([.leading(0), .trailing(0)]), to: containerView.layoutMarginsGuide)
-            textFieldsHolder.topAnchor.constraint(equalTo: subheaderLabel.bottomAnchor, constant: 24)
+            textFieldsHolder.topAnchor.constraint(equalTo: includeDeviceTokenCheckbox.bottomAnchor, constant: 24)
 
             buttonsStackView.pinEdges(.all().excluding(.top), to: containerView.layoutMarginsGuide)
             buttonsStackView.topAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor, constant: 18)

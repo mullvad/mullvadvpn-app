@@ -11,6 +11,7 @@ import Foundation
 struct ProblemReportViewModel {
     let email: String
     let message: String
+    let includeDeviceTokenInLogs: Bool
 
     static let navigationTitle = NSLocalizedString("Report a problem", comment: "")
 
@@ -18,6 +19,12 @@ struct ProblemReportViewModel {
         "To help you more effectively, your app’s log file will be attached to this message. "
             + "Your data will remain secure and private, as it is anonymised before being "
             + "sent over an encrypted channel.",
+        comment: ""
+    )
+
+    static let userPrivacyWarningText = NSLocalizedString(
+        "This is a question about account or payments\n"
+            + "(Include account information)",
         comment: ""
     )
 
@@ -45,11 +52,13 @@ struct ProblemReportViewModel {
     init() {
         email = ""
         message = ""
+        includeDeviceTokenInLogs = false
     }
 
-    init(email: String, message: String) {
+    init(email: String, message: String, includeDeviceTokenInLogs: Bool) {
         self.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         self.message = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.includeDeviceTokenInLogs = includeDeviceTokenInLogs
     }
 
     var isValid: Bool {
