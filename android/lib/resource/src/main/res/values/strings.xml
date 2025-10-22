@@ -465,4 +465,5 @@
     <string name="include_account_token_checkbox_text">This is a question about account or payments (include account information)</string>
     <string name="no_matching_relay_entry">No entry server match your settings, try changing server or other settings.</string>
     <string name="no_matching_relay_exit">No exit server match your settings, try changing server or other settings.</string>
+    <string name="add_to_list">Add to list</string>
 </resources>
