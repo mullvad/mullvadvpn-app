@@ -11,7 +11,7 @@ use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
     future::Future,
-    path::{Path, PathBuf},
+    path::PathBuf,
     pin::Pin,
     str::FromStr,
     sync::LazyLock,
@@ -95,12 +95,12 @@ impl VersionUpdater {
         refresh_rx: mpsc::UnboundedReceiver<()>,
         rollout: Rollout,
     ) {
+        let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         // load the last known AppVersionInfo from cache
-        let last_app_version_info = load_cache(&cache_dir).await;
+        let last_app_version_info = load_cache(&cache_path).await;
 
         api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
-        let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         let platform_version = talpid_platform_metadata::short_version();
 
         tokio::spawn(
@@ -549,8 +549,8 @@ async fn version_check_inner(
 ///
 /// Returns the [AppVersionInfo] along with the modification time of the cache file,
 /// or `None` on any error.
-async fn load_cache(cache_dir: &Path) -> Option<VersionCache> {
-    try_load_cache(cache_dir)
+async fn load_cache(cache_path: &PathBuf) -> Option<VersionCache> {
+    try_load_cache(cache_path)
         .await
         .inspect_err(|error| {
             if matches!(error, Error::OutdatedVersion) {
@@ -565,15 +565,14 @@ async fn load_cache(cache_dir: &Path) -> Option<VersionCache> {
         .ok()
 }
 
-async fn try_load_cache(cache_dir: &Path) -> Result<VersionCache, Error> {
+async fn try_load_cache(cache_path: &PathBuf) -> Result<VersionCache, Error> {
     if !*CHECK_ENABLED {
         return Ok(dev_version_cache());
     }
 
-    let path = cache_dir.join(VERSION_INFO_FILENAME);
-    log::debug!("Loading version check cache from {}", path.display());
+    log::debug!("Loading version check cache from {}", cache_path.display());
 
-    let content = tokio::fs::read_to_string(&path)
+    let content = tokio::fs::read_to_string(&cache_path)
         .map_err(Error::ReadVersionCache)
         .await?;
 
