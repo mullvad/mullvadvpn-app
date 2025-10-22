@@ -21,6 +21,9 @@ indent_size = 2
 end_of_line = lf
 indent_style = tab
 
+[*.{h}]
+end_of_line = lf
+
 [*.{yml,yaml}]
 indent_style = space
 indent_size = 2
