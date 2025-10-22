@@ -30,11 +30,15 @@ while [ -n "${1:-""}" ]; do
     shift 1
 done
 
-if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
+function assert_clean_working_directory {
     if [[ -n "$(git status --porcelain)" ]]; then
-      echo "Dirty working directory! Will not accept that for an official release."
-      exit 1
+        echo "Dirty working directory! Will not accept that for an official release."
+        exit 1
     fi
+}
+
+if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
+    assert_clean_working_directory
 
     if [ ! -f "$SCRIPT_DIR/credentials/keystore.properties" ]; then
         echo "ERROR: No keystore.properties file found" >&2
@@ -85,11 +89,7 @@ fi
 # working directory dirty.
 # This could for example happen if lockfiles are outdated, and the build process updates them.
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
-    if [[ -n $(git status --porcelain) ]]; then
-        log_error "The build made the working directory dirty!"
-        log_error "This should never happen, and is explicitly forbidden for release builds!"
-        exit 1
-    fi
+    assert_clean_working_directory
 fi
 
 if [[ "$RUN_PLAY_PUBLISH_TASKS" == "yes" && "${#PLAY_PUBLISH_TASKS[@]}" -ne 0 ]]; then
