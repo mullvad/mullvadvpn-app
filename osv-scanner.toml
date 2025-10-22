@@ -20,7 +20,8 @@
 # and `effectiveUntil` for `PackageOverrides` entries.
 # * The default should be to ignore a vulnerability for three months.
 # * A vulnerability can be ignored for up to a year at most (Use extremely sparsely).
-# * If anything above three months is used, write a short comment about why this ignore is longer.
+# * If anything above three months is used, write a short comment about why this ignore is longer,
+#   and add it as a comment after the `ignoreUntil` line for the entry.
 #
 # Every entry must have a `reason` field that explains why this vulnerability does not affect us,
 # and why we can't/decided not to change to an unaffected version.
