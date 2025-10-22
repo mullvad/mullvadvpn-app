@@ -288,6 +288,12 @@ private fun ParameterGenerationError.errorMessageId(): Int =
         ParameterGenerationError.NoMatchingBridgeRelay -> {
             R.string.no_matching_relay
         }
+        ParameterGenerationError.NoMatchingRelayExit -> {
+            R.string.no_matching_relay_exit
+        }
+        ParameterGenerationError.NoMatchingRelayEntry -> {
+            R.string.no_matching_relay_entry
+        }
         ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
         ParameterGenerationError.CustomTunnelHostResolutionError ->
             R.string.custom_tunnel_host_resolution_error

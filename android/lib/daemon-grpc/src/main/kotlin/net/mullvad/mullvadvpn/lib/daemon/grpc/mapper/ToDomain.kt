@@ -307,6 +307,10 @@ internal fun ManagementInterface.ErrorState.FirewallPolicyError.toDomain():
 
 internal fun ManagementInterface.ErrorState.GenerationError.toDomain(): ParameterGenerationError =
     when (this) {
+        ManagementInterface.ErrorState.GenerationError.NO_MATCHING_RELAY_ENTRY ->
+            ParameterGenerationError.NoMatchingRelayEntry
+        ManagementInterface.ErrorState.GenerationError.NO_MATCHING_RELAY_EXIT ->
+            ParameterGenerationError.NoMatchingRelayExit
         ManagementInterface.ErrorState.GenerationError.NO_MATCHING_RELAY ->
             ParameterGenerationError.NoMatchingRelay
         ManagementInterface.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY ->

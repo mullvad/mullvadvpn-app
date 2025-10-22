@@ -24,6 +24,7 @@ android {
         compilerOptions {
             jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
             allWarningsAsErrors = true
+            freeCompilerArgs = listOf("-XXLanguage:+WhenGuards")
         }
     }
 

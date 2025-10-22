@@ -80,14 +80,14 @@ fun AnimatedNotificationBanner(
                 modifier = notificationModifier,
                 visibleNotification.toNotificationData(
                     isPlayBuild = isPlayBuild,
-                    openAppListing,
-                    onClickShowAccount,
-                    onClickShowChangelog,
-                    onClickShowAndroid16UpgradeInfo,
-                    onClickDismissChangelog,
-                    onClickDismissNewDevice,
-                    onClickShowWireguardPortSettings,
-                    onClickDismissAndroid16UpgradeWarning,
+                    openAppListing = openAppListing,
+                    onClickShowAccount = onClickShowAccount,
+                    onClickShowChangelog = onClickShowChangelog,
+                    onClickShowAndroid16UpgradeInfo = onClickShowAndroid16UpgradeInfo,
+                    onClickDismissChangelog = onClickDismissChangelog,
+                    onClickDismissNewDevice = onClickDismissNewDevice,
+                    onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
+                    onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
                 ),
             )
     }

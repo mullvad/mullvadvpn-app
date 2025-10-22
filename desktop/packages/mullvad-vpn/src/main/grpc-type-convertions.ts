@@ -329,6 +329,8 @@ function convertFromParameterError(
 ): TunnelParameterError {
   switch (error) {
     case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY:
+    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY_ENTRY:
+    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY_EXIT:
       return TunnelParameterError.noMatchingRelay;
     case grpcTypes.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY:
       return TunnelParameterError.noMatchingBridgeRelay;
