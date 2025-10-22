@@ -73,7 +73,7 @@ enum StoreKitPaymentEvent {
 enum InAppPurchaseError {
     /// Purchase failed because the product being purchased is either unavailable or StoreKit services failed.
     case storeKitError(StoreKitError)
-    ///
+    /// Purchase failed because of a "purchase error".
     case purchaseError(Product.PurchaseError)
     /// User made a purchase, but we failed to verify the transaction. In this case, it is fine to not send the transaction the API.
     case verification(VerificationResult<Transaction>.VerificationError)
@@ -88,13 +88,13 @@ enum InAppPurchaseError {
     
     var description: String? {
         switch self {
-        case .storeKitError(let error):
+        case let .storeKitError(error):
             return error.localizedDescription
-        case .purchaseError(let error):
+        case let .purchaseError(error):
             return error.localizedDescription
         case .verification:
             return NSLocalizedString("Failed to verify transaction receipt", comment: "")
-        case .getPaymentToken(let error):
+        case let .getPaymentToken(error):
             return NSLocalizedString("Failed to reach Mullvad servers to initiate purchase", comment: "")
         case let .unknown(error):
             return NSLocalizedString("Unexpected error occured: \(error)", comment: "")
