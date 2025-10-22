@@ -71,11 +71,11 @@ private fun PreviewFilterScreen(
     }
 }
 
-data class FilterNavArgs(val filterType: RelayListType)
+data class FilterNavArgs(val relayListType: RelayListType)
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = FilterNavArgs::class)
 @Composable
-fun Filter(navigator: DestinationsNavigator) {
+fun Filter(navigator: DestinationsNavigator, navArgs: FilterNavArgs) {
     val viewModel = koinViewModel<FilterViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

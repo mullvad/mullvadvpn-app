@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
+import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -201,6 +202,7 @@ val uiModule = module {
             buildVersion = get(),
         )
     }
+    single { RelayListFilterUseCase(relayListFilterRepository = get()) }
 
     single { InAppNotificationController(getAll(), MainScope()) }
 
@@ -280,7 +282,7 @@ val uiModule = module {
     }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { FilterViewModel(get(), get(), get()) }
+    viewModel { FilterViewModel(get(), get(), get(), get()) }
     viewModel { CreateCustomListDialogViewModel(get(), get()) }
     viewModel { CustomListLocationsViewModel(get(), get(), get(), get()) }
     viewModel { EditCustomListViewModel(get(), get()) }
