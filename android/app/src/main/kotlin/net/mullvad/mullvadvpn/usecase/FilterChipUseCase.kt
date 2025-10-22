@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
 import net.mullvad.mullvadvpn.util.isLwoEnabled
@@ -20,17 +19,16 @@ import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 typealias ModelOwnership = Ownership
 
 class FilterChipUseCase(
-    private val relayListFilterRepository: RelayListFilterRepository,
+    private val relayListFilterUseCase: RelayListFilterUseCase,
     private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val settingsRepository: SettingsRepository,
 ) {
     operator fun invoke(relayListType: RelayListType): Flow<List<FilterChip>> =
         combine(
-            relayListFilterRepository.selectedOwnership(relayListType),
-            relayListFilterRepository.selectedProviders(relayListType),
+            relayListFilterUseCase(relayListType),
             providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
-        ) { selectedOwnership, selectedConstraintProviders, providerOwnership, settings ->
+        ) { (selectedOwnership, selectedConstraintProviders), providerOwnership, settings ->
             filterChips(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,

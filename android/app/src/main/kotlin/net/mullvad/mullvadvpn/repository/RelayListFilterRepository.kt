@@ -18,53 +18,39 @@ class RelayListFilterRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    private val selectedOwnership: StateFlow<Constraint<Ownership>> =
+    val selectedOwnership: StateFlow<Constraint<Ownership>> =
         managementService.settings
             .map { settings -> settings.relaySettings.relayConstraints.ownership }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
-    private val selectedProviders: StateFlow<Constraint<Providers>> =
+    val selectedProviders: StateFlow<Constraint<Providers>> =
         managementService.settings
             .map { settings -> settings.relaySettings.relayConstraints.providers }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
-    private val selectedMultihopEntryOwnership: StateFlow<Constraint<Ownership>> =
+    val selectedMultihopEntryOwnership: StateFlow<Constraint<Ownership>> =
         managementService.settings
             .map { settings ->
                 settings.relaySettings.relayConstraints.wireguardConstraints.entryOwnership
             }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
-    private val selectedMultihopEntryProviders: StateFlow<Constraint<Providers>> =
+    val selectedMultihopEntryProviders: StateFlow<Constraint<Providers>> =
         managementService.settings
             .map { settings ->
                 settings.relaySettings.relayConstraints.wireguardConstraints.entryProviders
             }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
-    fun selectedOwnership(filterType: RelayListType): StateFlow<Constraint<Ownership>> =
-        if (filterType.isMultihopEntry()) {
-            selectedMultihopEntryOwnership
-        } else {
-            selectedOwnership
-        }
-
-    fun selectedProviders(filterType: RelayListType): StateFlow<Constraint<Providers>> =
-        if (filterType.isMultihopEntry()) {
-            selectedMultihopEntryProviders
-        } else {
-            selectedProviders
-        }
-
     suspend fun updateSelectedOwnershipAndProviderFilter(
         ownership: Constraint<Ownership>,
         providers: Constraint<Providers>,
-        filterType: RelayListType,
-    ) = managementService.setOwnershipAndProviders(ownership, providers, filterType)
+        relayListType: RelayListType,
+    ) = managementService.setOwnershipAndProviders(ownership, providers, relayListType)
 
-    suspend fun updateSelectedOwnership(value: Constraint<Ownership>, filterType: RelayListType) =
-        managementService.setOwnership(value, filterType)
+    suspend fun updateSelectedOwnership(ownership: Constraint<Ownership>, relayListType: RelayListType) =
+        managementService.setOwnership(ownership, relayListType)
 
-    suspend fun updateSelectedProviders(value: Constraint<Providers>, filterType: RelayListType) =
-        managementService.setProviders(value, filterType)
+    suspend fun updateSelectedProviders(providers: Constraint<Providers>, relayListType: RelayListType) =
+        managementService.setProviders(providers, relayListType)
 }
