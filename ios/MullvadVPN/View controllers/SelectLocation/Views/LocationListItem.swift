@@ -34,12 +34,14 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     level: level,
                     onSelect: { onSelect(location) }
                 )
+                .accessibilityIdentifier(.locationListItem(location.name))
             } else {
                 LocationDisclosureGroup(
                     level: level,
                     position: position,
                     isActive: location.isActive && !location.isExcluded,
-                    isExpanded: $location.showsChildren
+                    isExpanded: $location.showsChildren,
+                    accessibilityIdentifier: .locationListItem(location.name)
                 ) {
                     ForEach(
                         Array(filteredChildrenIndices.enumerated()),

@@ -30,6 +30,7 @@ struct ActiveFilterView: View {
                                 } label: {
                                     Image.mullvadIconCross
                                 }
+                                .accessibilityIdentifier(.relayFilterChipCloseButton)
                             }
                         }
                         .padding(8)

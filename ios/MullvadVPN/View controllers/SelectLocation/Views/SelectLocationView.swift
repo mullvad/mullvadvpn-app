@@ -53,6 +53,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         viewModel.didFinish()
                     }
                     .foregroundStyle(Color.mullvadTextPrimary)
+                    .accessibilityIdentifier(.closeSelectLocationButton)
                 }
             )
             ToolbarItem(
@@ -68,13 +69,16 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             }
                             .foregroundStyle(Color.mullvadTextPrimary)
                         }
+                        .accessibilityIdentifier(.selectLocationFilterButton)
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
                             .foregroundStyle(Color.mullvadTextPrimary)
+                            .accessibilityIdentifier(.selectLocationToolbarMenu)
                     }
                 }
             )
         }
+        .accessibilityIdentifier(.selectLocationView)
     }
 
     struct EntryLocationView: View {
@@ -127,6 +131,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             Image.mullvadIconAdd
                                 .padding(.horizontal, 12)
                         }
+                        .accessibilityIdentifier(.addNewCustomListButton)
                         if !viewModel.activeLocationContext.customLists.isEmpty {
                             Button {
                                 viewModel.showEditCustomListView(
@@ -136,6 +141,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                                 Image.mullvadIconEdit
                                     .padding(.horizontal, 12)
                             }
+                            .accessibilityIdentifier(.editCustomListButton)
                         }
                     }
                     .padding(.vertical, 12)
@@ -215,7 +221,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     ) { location in
                         viewModel.activeLocationContext.selectLocation(location)
                     } contextMenu: { location in
-                        Section("Add country to list") {
+                        Section("Add \(location.name) to list") {
                             ForEach(
                                 viewModel.activeLocationContext.customLists,
                                 id: \.code

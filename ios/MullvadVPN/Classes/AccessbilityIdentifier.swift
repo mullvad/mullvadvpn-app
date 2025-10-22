@@ -57,7 +57,6 @@ public enum AccessibilityIdentifier: Equatable {
     case problemReportSendButton
     case relayStatusCollapseButton
     case settingsDoneButton
-    case openCustomListsMenuButton
     case addNewCustomListButton
     case editCustomListButton
     case saveCreateCustomListButton
@@ -70,6 +69,9 @@ public enum AccessibilityIdentifier: Equatable {
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
     case acceptLocalNetworkSharingButton
+    case selectLocationToolbarMenu
+    case locationListItem(String)
+    case locationItem
 
     // Cells
     case deviceCell
@@ -191,6 +193,7 @@ public enum AccessibilityIdentifier: Equatable {
     case socks5AuthenticationSwitch
     case statusImageView
     case deviceRemovalProgressView
+    case locationChildren
 
     // DNS settings
     case includeAllNetworks

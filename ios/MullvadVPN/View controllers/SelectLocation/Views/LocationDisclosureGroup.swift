@@ -10,12 +10,14 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
     let content: () -> Content
     let onSelect: (() -> Void)?
     let onLongPress: (() -> Void)?
+    let accessibilityIdentifier: AccessibilityIdentifier?
 
     init(
         level: Int,
         position: ItemPosition = .only,
         isActive: Bool = true,
         isExpanded: Binding<Bool>,
+        accessibilityIdentifier: AccessibilityIdentifier? = nil,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil,
@@ -25,6 +27,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
         self.level = level
         self.isActive = isActive
         self._isExpanded = isExpanded
+        self.accessibilityIdentifier = accessibilityIdentifier
 
         self.label = label
         self.content = content
@@ -63,6 +66,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                             .foregroundStyle(Color.colorForLevel(level))
                     }
                 }
+                .accessibilityIdentifier(.locationItem)
                 .disabled(!isActive)
                 Button {
                     withAnimation {
@@ -98,13 +102,18 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                         }
                 }
                 .contentShape(Rectangle())
+                .accessibilityIdentifier(.expandButton)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(accessibilityIdentifier)
 
             if isExpanded {
                 VStack(spacing: 1) {
                     content()
                 }
                 .padding(.top, 1)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(.locationChildren)
             }
         }
     }

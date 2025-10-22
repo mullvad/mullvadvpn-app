@@ -49,7 +49,6 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
 
         SelectLocationPage(app)
             .tapWhereStatusBarShouldBeToScrollToTopMostPosition()
-            .tapCustomListEllipsisButton()
             .tapAddNewCustomList()
 
         CustomListPage(app)

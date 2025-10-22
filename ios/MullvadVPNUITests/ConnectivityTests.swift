@@ -91,6 +91,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
+            .tapMenuButton()
             .tapFilterButton()
 
         SelectLocationFilterPage(app)
@@ -112,6 +113,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
+            .tapMenuButton()
             .tapFilterButton()
 
         SelectLocationFilterPage(app)
