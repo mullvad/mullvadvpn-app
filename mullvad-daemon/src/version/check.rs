@@ -415,7 +415,7 @@ async fn version_check_inner(
                 .map_err(Error::Download)?
             else {
                 // ETag is up to date
-                log::debug!("Version data unchanged");
+                log::trace!("Version data unchanged");
                 return Ok(VersionCache {
                     last_platform_header_check: get_last_platform_header_check(),
                     ..prev_cache
@@ -482,7 +482,7 @@ async fn version_check_inner(
                 .map_err(Error::Download)?
             else {
                 // ETag is up to date
-                log::debug!("Version data unchanged");
+                log::trace!("Version data unchanged");
                 return Ok(VersionCache {
                     last_platform_header_check: get_last_platform_header_check(),
                     ..prev_cache
