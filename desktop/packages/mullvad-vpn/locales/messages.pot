@@ -3382,6 +3382,9 @@ msgstr ""
 msgid "Share…"
 msgstr ""
 
+msgid "Show location in notification"
+msgstr ""
+
 msgid "Show system apps"
 msgstr ""
 

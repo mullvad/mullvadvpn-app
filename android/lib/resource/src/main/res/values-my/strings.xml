@@ -367,6 +367,7 @@
     <string name="settings_api_access">API ရယူသုံးစွဲခွင့်</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS နှင့်ဆက်စပ်သော ဆက်တင်များ၌ ပြုလုပ်သည့် ပြောင်းလဲမှုများသည် ယာယီသိမ်းထားသော ရလဒ်များကြောင့် ချက်ချင်း အကျိုးမသက်ရောက်နိုင်ပါ။</string>
     <string name="settings_changes_effect_warning_short">DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။</string>
+    <string name="settings_notifications">အသိပေးချက်များ</string>
     <string name="settings_patch_error_failed_to_apply_patch">ပတ်(ချ်) သုံးခြင်း မအောင်မြင်ပါ</string>
     <string name="settings_patch_error_invalid_or_missing_value">မမှန်ကန်ပါ သို့မဟုတ် \"%1$s\" တန်ဖိုး ပျောက်နေသည်</string>
     <string name="settings_patch_error_recursion_limit">ထပ်တလဲလဲ လုပ်ဆောင်မှု ကန့်သတ်ချက်</string>

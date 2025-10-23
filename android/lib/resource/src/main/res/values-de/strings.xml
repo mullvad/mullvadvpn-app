@@ -367,6 +367,7 @@
     <string name="settings_api_access">API-Zugriff</string>
     <string name="settings_changes_effect_warning_content_blocker">Änderungen an DNS-Einstellungen werden aufgrund von zwischengespeicherten Daten möglicherweise nicht sofort wirksam.</string>
     <string name="settings_changes_effect_warning_short">Die DNS-Einstellungen werden möglicherweise nicht sofort wirksam</string>
+    <string name="settings_notifications">Benachrichtigungen</string>
     <string name="settings_patch_error_failed_to_apply_patch">Patch konnte nicht angewendet werden</string>
     <string name="settings_patch_error_invalid_or_missing_value">Ungültiger oder fehlender Wert „%1$s“</string>
     <string name="settings_patch_error_recursion_limit">Rekursionslimit</string>

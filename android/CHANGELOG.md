@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Option to show server location in the connection notification.
 
 
 ## [android/2025.9] - 2025-10-20
@@ -55,7 +57,7 @@ Identical to `android/2025.8-beta1`.
 
 ## [android/2025.7-beta2] - 2025-09-04
 ### Fixed
-- Fix a rare case of not being able to change exit location 
+- Fix a rare case of not being able to change exit location
   if entry location had never been selected.
 
 
