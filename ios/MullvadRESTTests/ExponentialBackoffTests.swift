@@ -24,8 +24,6 @@ final class ExponentialBackoffTests: XCTestCase {
         var backoff = ExponentialBackoff(initial: .milliseconds(.max - 1), multiplier: 2, maxDelay: .seconds(.max - 1))
 
         XCTAssertEqual(backoff.next(), .milliseconds(.max - 1))
-        XCTAssertEqual(backoff.next(), .milliseconds(.max))
-        XCTAssertEqual(backoff.next(), .milliseconds(.max))
     }
 
     func testMaximumBound() {

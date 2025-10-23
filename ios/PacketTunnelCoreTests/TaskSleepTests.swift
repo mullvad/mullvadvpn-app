@@ -13,7 +13,7 @@ import XCTest
 final class TaskSleepTests: XCTestCase {
     func testCancellation() async throws {
         let task = Task {
-            try await Task.sleepUsingContinuousClock(for: .seconds(1))
+            try await Task.sleep(for: .seconds(1))
         }
 
         task.cancel()
@@ -32,7 +32,7 @@ final class TaskSleepTests: XCTestCase {
     func testSuccessfulEventHandlerRemovesCancellation() async throws {
         for _ in 0...20 {
             let task = recoveryTask()
-            try await Task.sleep(duration: .milliseconds(10))
+            try await Task.sleep(for: .milliseconds(10))
             task.callDummyFunctionToForceConcurrencyWait()
         }
     }
@@ -41,7 +41,7 @@ final class TaskSleepTests: XCTestCase {
         AutoCancellingTask(
             Task.detached {
                 while Task.isCancelled == false {
-                    try await Task.sleepUsingContinuousClock(for: .milliseconds(10))
+                    try await Task.sleep(for: .milliseconds(10))
                 }
             })
     }
