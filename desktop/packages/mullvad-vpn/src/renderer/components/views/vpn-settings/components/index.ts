@@ -7,4 +7,4 @@ export * from './enable-ipv6-setting';
 export * from './ip-override-settings';
 export * from './kill-switch-setting';
 export * from './lockdown-mode-setting';
-export * from './wireguard-settings';
+export * from './censorship-circumvention-list-item';
