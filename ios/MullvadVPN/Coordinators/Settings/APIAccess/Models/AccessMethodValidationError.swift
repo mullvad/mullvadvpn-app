@@ -15,11 +15,7 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
     let fieldErrors: [AccessMethodFieldValidationError]
 
     var errorDescription: String? {
-        if fieldErrors.count > 1 {
-            NSLocalizedString("Multiple validation errors occurred.", comment: "")
-        } else {
-            fieldErrors.first?.localizedDescription
-        }
+        fieldErrors.map({ $0.localizedDescription }).joinedParagraphs(lineBreaks: 1)
     }
 }
 
