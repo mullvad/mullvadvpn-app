@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+REPO_ROOT=../../
+
+VERSION=""
+MARKDOWN="false"
+PLAIN="false"
+
+source $REPO_ROOT/scripts/utils/log
+
+function print_usage {
+    log_info "Usage: $0 [--help|-h] [--markdown|--plain] <version>"
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --help|-h)
+            print_usage
+            exit 1
+            ;;
+        --markdown) MARKDOWN="true";;
+        --plain) PLAIN="true";;
+        *) VERSION=$1 ;;
+    esac
+    shift
+done
+
+if [[ -z $VERSION ]]; then
+    log_error "Please give the app version as an argument to this script."
+    print_usage
+    exit 1
+fi
+
+function search {
+    gh search issues -R mullvad/mullvadvpn-app --state open --sort updated \
+        --json "title,number,url" --jq "$1" \
+        "$VERSION"
+}
+
+jq='to_entries | map(.value+{index: .key + 1})'
+if [[ "$MARKDOWN" == "true" ]]; then
+    jq+=' | map("\(.index). \(.title) ([#\(.number)](\(.url)))") | join("\n")'
+    search "$jq"
+elif [[ "$PLAIN" == "true" ]]; then
+    jq+=' | map("\(.index). \"\(.title) (#\(.number))\": \(.url))") | join("\n")'
+    search "$jq"
+else
+    jq+='.[] | "\(.index)\t\(.title)\t\(.number)\t\(.url)"'
+    search "$jq" | \
+        while IFS=$'\t' read -r index title number url; do
+          printf '%s. %s (\e]8;;%s\e\\%s\e]8;;\e\\)\n' "$index" "$title" "$url" "#$number"
+        done
+fi
