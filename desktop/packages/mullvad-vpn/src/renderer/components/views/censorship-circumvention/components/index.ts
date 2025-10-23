@@ -1,1 +1,1 @@
-export * from './obfuscation-settings';
+export * from './method-setting';
