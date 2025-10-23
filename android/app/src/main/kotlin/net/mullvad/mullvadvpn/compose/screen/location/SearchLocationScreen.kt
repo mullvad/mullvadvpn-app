@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -101,6 +102,9 @@ private fun PreviewSearchLocationScreen(
             onDeleteCustomList = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
+            onSetAsEntry = {},
+            onSetAsExit = {},
+            onRemoveAsEntry = {},
             onGoBack = {},
         )
     }
@@ -178,6 +182,23 @@ fun SearchLocation(
                     )
                 }
             }
+            is SearchLocationSideEffect.MultihopChanged -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                if (it.enabled) {
+                                    R.string.multihop_is_enabled
+                                } else {
+                                    R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        onAction = { viewModel.setMultihop(!it.enabled) },
+                        duration = SnackbarDuration.Long,
+                    )
+                }
+            }
         }
     }
 
@@ -239,6 +260,9 @@ fun SearchLocation(
             },
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
+        onSetAsEntry = viewModel::setAsEntry,
+        onRemoveAsEntry = { viewModel.setMultihop(false) },
+        onSetAsExit = viewModel::setAsExit,
         onGoBack = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -260,6 +284,9 @@ fun SearchLocationScreen(
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
+    onSetAsEntry: (RelayItem) -> Unit,
+    onRemoveAsEntry: (RelayItem) -> Unit,
+    onSetAsExit: (RelayItem) -> Unit,
     onGoBack: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -282,6 +309,9 @@ fun SearchLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
+            onSetAsEntry = onSetAsEntry,
+            onRemoveAsEntry = onRemoveAsEntry,
+            onSetAsExit = onSetAsExit,
             onHideBottomSheet = { locationBottomSheetState = null },
         )
         Column(modifier = Modifier.padding(it)) {
@@ -314,12 +344,8 @@ fun SearchLocationScreen(
                 if (state is Lce.Content) {
                     filterRow(
                         filters = state.value.filterChips,
-                        onRemoveOwnershipFilter =
-                            onRemoveOwnershipFilter
-                        ,
-                        onRemoveProviderFilter =
-                            onRemoveProviderFilter
-                        ,
+                        onRemoveOwnershipFilter = onRemoveOwnershipFilter,
+                        onRemoveProviderFilter = onRemoveProviderFilter,
                     )
                 }
                 when (state) {
@@ -334,6 +360,7 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
+                            selection = state.value.selection,
                             onSelectHop = { error("Can not select hop in search screen") },
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)
