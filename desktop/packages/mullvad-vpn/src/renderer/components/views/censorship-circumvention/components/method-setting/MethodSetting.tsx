@@ -14,6 +14,7 @@ import {
   QuicOption,
   ShadowsocksOption,
   UdpOverTcpOption,
+  WireguardPortOption,
 } from './components';
 
 export function formatPortForSubLabel(port: Constraint<number>): string {
@@ -65,6 +66,7 @@ export function MethodSetting() {
       </SettingsListbox.Item>
       <SettingsListbox.Options>
         <AutomaticOption />
+        <WireguardPortOption />
         <LwoOption />
         <QuicOption />
         <ShadowsocksOption />
