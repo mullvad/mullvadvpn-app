@@ -25,9 +25,18 @@ export function EnableIpv6Setting() {
   );
 
   return (
-    <SettingsToggleListItem checked={enableIpv6} onCheckedChange={setEnableIpv6}>
+    <SettingsToggleListItem
+      checked={enableIpv6}
+      onCheckedChange={setEnableIpv6}
+      description={
+        // TRANSLATORS: Description of in-tunnel IPv6 setting.
+        messages.pgettext('vpn-settings-view', 'Enable to allow IPv6 traffic through the tunnel.')
+      }>
       <SettingsToggleListItem.Label>
-        {messages.pgettext('vpn-settings-view', 'Enable IPv6')}
+        {
+          // TRANSLATORS: Title of in-tunnel IPv6 setting.
+          messages.pgettext('vpn-settings-view', 'In-tunnel IPv6')
+        }
       </SettingsToggleListItem.Label>
       <SettingsToggleListItem.Group>
         <InfoButton>
