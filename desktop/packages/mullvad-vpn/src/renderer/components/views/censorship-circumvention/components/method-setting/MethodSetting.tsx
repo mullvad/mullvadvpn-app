@@ -4,8 +4,6 @@ import { Constraint, ObfuscationType } from '../../../../../../shared/daemon-rpc
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 import {
   AutomaticOption,
@@ -47,21 +45,9 @@ export function MethodSetting() {
           <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the obfuscation method selector.
-              messages.pgettext('wireguard-settings-view', 'Method')
+              messages.pgettext('censorship-circumvention-view', 'Method')
             }
           </SettingsListbox.Label>
-          <InfoButton>
-            <ModalMessage>
-              {
-                // TRANSLATORS: Describes what WireGuard obfuscation does, how it works and when
-                // TRANSLATORS: it would be useful to enable it.
-                messages.pgettext(
-                  'wireguard-settings-view',
-                  'Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.',
-                )
-              }
-            </ModalMessage>
-          </InfoButton>
         </SettingsListbox.Content>
       </SettingsListbox.Item>
       <SettingsListbox.Options>
