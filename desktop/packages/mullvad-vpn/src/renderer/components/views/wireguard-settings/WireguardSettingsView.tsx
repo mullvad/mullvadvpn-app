@@ -5,17 +5,10 @@ import { messages } from '../../../../shared/gettext';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsGroup,
-  SettingsStack,
-} from '../../Layout';
+import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { IpVersionSetting, MtuSetting, QuantumResistantSetting } from './components';
 
 export function WireguardSettingsView() {
   const { pop } = useHistory();
@@ -46,21 +39,6 @@ export function WireguardSettingsView() {
                   )}
                 </HeaderTitle>
               </SettingsHeader>
-              <SettingsContent>
-                <SettingsStack>
-                  <SettingsGroup>
-                    <QuantumResistantSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <IpVersionSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <MtuSetting />
-                  </SettingsGroup>
-                </SettingsStack>
-              </SettingsContent>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
