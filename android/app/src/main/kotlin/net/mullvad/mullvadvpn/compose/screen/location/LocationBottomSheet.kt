@@ -67,7 +67,7 @@ internal fun LocationBottomSheets(
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onSetAsEntry: (RelayItem) -> Unit,
-    onRemoveAsEntry: (RelayItem) -> Unit,
+    onDisableMultihop: () -> Unit,
     onSetAsExit: (RelayItem) -> Unit,
     onHideBottomSheet: () -> Unit,
 ) {
@@ -95,7 +95,7 @@ internal fun LocationBottomSheets(
                 onCreateCustomList = onCreateCustomList,
                 onAddLocationToList = onAddLocationToList,
                 onSetAsEntry = onSetAsEntry,
-                onRemoveAsEntry = onRemoveAsEntry,
+                onDisableMultihop = onDisableMultihop,
                 onSetAsExit = onSetAsExit,
                 closeBottomSheet = onCloseBottomSheet,
             )
@@ -111,7 +111,7 @@ internal fun LocationBottomSheets(
                 onEditLocations = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
                 onSetAsEntry = onSetAsEntry,
-                onRemoveAsEntry = onRemoveAsEntry,
+                onDisableMultihop = onDisableMultihop,
                 onSetAsExit = onSetAsExit,
                 closeBottomSheet = onCloseBottomSheet,
             )
@@ -127,7 +127,7 @@ internal fun LocationBottomSheets(
                 selection = locationBottomSheetState.selection,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onSetAsEntry = onSetAsEntry,
-                onRemoveAsEntry = onRemoveAsEntry,
+                onDisableMultihop = onDisableMultihop,
                 onSetAsExit = onSetAsExit,
                 closeBottomSheet = onCloseBottomSheet,
             )
@@ -149,8 +149,8 @@ private fun LocationBottomSheet(
     selection: RelayItemSelection,
     onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
+    onDisableMultihop: () -> Unit,
     onSetAsEntry: (RelayItem.Location) -> Unit,
-    onRemoveAsEntry: (RelayItem.Location) -> Unit,
     onSetAsExit: (RelayItem.Location) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
@@ -242,17 +242,14 @@ private fun LocationBottomSheet(
                         titleColor = onBackgroundColor,
                         onClick = {
                             if (isMultihopEntrySelection) {
-                                onRemoveAsEntry(item)
+                                onDisableMultihop()
                             } else {
                                 onSetAsEntry(item)
                             }
                             closeBottomSheet(true)
                         },
                     )
-                    if (
-                        selection is RelayItemSelection.Multiple &&
-                            selection.exitLocation.getOrNull() != item.id
-                    ) {
+                    if (selection.exitLocation.getOrNull() != item.id) {
                         IconCell(
                             imageVector = null,
                             title = stringResource(R.string.set_as_multihop_exit),
@@ -281,7 +278,7 @@ private fun EditCustomListBottomSheet(
     onEditLocations: (item: RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
     onSetAsEntry: (RelayItem.CustomList) -> Unit,
-    onRemoveAsEntry: (RelayItem.CustomList) -> Unit,
+    onDisableMultihop: () -> Unit,
     onSetAsExit: (RelayItem.CustomList) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
@@ -333,17 +330,14 @@ private fun EditCustomListBottomSheet(
             titleColor = onBackgroundColor,
             onClick = {
                 if (isMultihopEntrySelection) {
-                    onRemoveAsEntry(customList)
+                    onDisableMultihop()
                 } else {
                     onSetAsEntry(customList)
                 }
                 closeBottomSheet(true)
             },
         )
-        if (
-            selection is RelayItemSelection.Multiple &&
-                selection.exitLocation.getOrNull() != customList.id
-        ) {
+        if (selection.exitLocation.getOrNull() != customList.id) {
             IconCell(
                 imageVector = null,
                 title = stringResource(R.string.set_as_multihop_exit),
@@ -369,7 +363,7 @@ private fun CustomListEntryBottomSheet(
     selection: RelayItemSelection,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onSetAsEntry: (RelayItem.Location) -> Unit,
-    onRemoveAsEntry: (RelayItem.Location) -> Unit,
+    onDisableMultihop: () -> Unit,
     onSetAsExit: (RelayItem.Location) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
@@ -405,17 +399,14 @@ private fun CustomListEntryBottomSheet(
             titleColor = onBackgroundColor,
             onClick = {
                 if (isMultihopEntrySelection) {
-                    onRemoveAsEntry(item)
+                    onDisableMultihop()
                 } else {
                     onSetAsEntry(item)
                 }
                 closeBottomSheet(true)
             },
         )
-        if (
-            selection is RelayItemSelection.Multiple &&
-                selection.exitLocation.getOrNull() != item.id
-        ) {
+        if (selection.exitLocation.getOrNull() != item.id) {
             IconCell(
                 imageVector = null,
                 title = stringResource(R.string.set_as_multihop_exit),

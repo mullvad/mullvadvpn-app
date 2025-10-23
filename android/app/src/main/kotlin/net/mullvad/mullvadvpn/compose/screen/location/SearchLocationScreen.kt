@@ -104,7 +104,7 @@ private fun PreviewSearchLocationScreen(
             onRemoveProviderFilter = {},
             onSetAsEntry = {},
             onSetAsExit = {},
-            onRemoveAsEntry = {},
+            onDisableMultihop = {},
             onGoBack = {},
         )
     }
@@ -261,7 +261,7 @@ fun SearchLocation(
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
         onSetAsEntry = viewModel::setAsEntry,
-        onRemoveAsEntry = { viewModel.setMultihop(false) },
+        onDisableMultihop = { viewModel.setMultihop(false) },
         onSetAsExit = viewModel::setAsExit,
         onGoBack = dropUnlessResumed { navigator.navigateUp() },
     )
@@ -285,7 +285,7 @@ fun SearchLocationScreen(
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
     onSetAsEntry: (RelayItem) -> Unit,
-    onRemoveAsEntry: (RelayItem) -> Unit,
+    onDisableMultihop: () -> Unit,
     onSetAsExit: (RelayItem) -> Unit,
     onGoBack: () -> Unit,
 ) {
@@ -310,7 +310,7 @@ fun SearchLocationScreen(
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
             onSetAsEntry = onSetAsEntry,
-            onRemoveAsEntry = onRemoveAsEntry,
+            onDisableMultihop = onDisableMultihop,
             onSetAsExit = onSetAsExit,
             onHideBottomSheet = { locationBottomSheetState = null },
         )

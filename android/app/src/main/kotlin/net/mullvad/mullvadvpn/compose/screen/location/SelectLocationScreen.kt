@@ -33,6 +33,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -49,8 +54,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -65,6 +73,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.result.onResult
+import kotlin.math.max
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
@@ -90,6 +99,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
+import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
@@ -125,7 +135,7 @@ private fun PreviewSelectLocationScreen(
             onRefreshRelayList = {},
             onSetAsExit = {},
             onSetAsEntry = {},
-            setMultihop = {},
+            setMultihop = { _, _ -> },
         )
     }
 }
@@ -350,7 +360,7 @@ fun SelectLocationScreen(
     onRefreshRelayList: () -> Unit,
     onSetAsEntry: (RelayItem) -> Unit,
     onSetAsExit: (RelayItem) -> Unit,
-    setMultihop: (Boolean) -> Unit,
+    setMultihop: (enable: Boolean, showSnackbar: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -417,7 +427,7 @@ fun SelectLocationScreen(
                     onRecentsToggleEnableClick()
                 },
                 onRefreshRelayList = onRefreshRelayList,
-                onMultihopToggleEnableClick = { setMultihop(!multihopEnabled) },
+                onMultihopToggleEnableClick = { setMultihop(!multihopEnabled, false) },
             )
         },
     ) { modifier ->
@@ -433,11 +443,35 @@ fun SelectLocationScreen(
             onHideBottomSheet = { locationBottomSheetState = null },
             onSetAsEntry = onSetAsEntry,
             onSetAsExit = onSetAsExit,
-            onRemoveAsEntry = { setMultihop(false) },
+            onDisableMultihop = { setMultihop(false, true) },
         )
 
+        var scrollOffset = remember { mutableFloatStateOf(0f) }
+        var progress = Math.clamp(max(scrollOffset.floatValue / 100f, 0f), 0f, 1f)
+        val nestedScrollConnection = remember {
+            object : NestedScrollConnection {
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity {
+                    Logger.d("LOLZF consumed=$consumed available=$available")
+                    return super.onPostFling(consumed, available)
+                }
+
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    Logger.d("LOLZS available=$available")
+                    // progress.floatValue = Math.clamp(consumed.y / 100, 0f, 1f)
+                    scrollOffset.floatValue = scrollOffset.floatValue + available.y
+                    return super.onPreScroll(available, source)
+                }
+            }
+        }
         Column(
-            modifier = modifier.background(backgroundColor).fillMaxSize(),
+            modifier =
+                modifier
+                    .nestedScroll(nestedScrollConnection)
+                    .background(backgroundColor)
+                    .fillMaxSize(),
             verticalArrangement =
                 when (state) {
                     is Lc.Loading -> Arrangement.Center
@@ -450,80 +484,16 @@ fun SelectLocationScreen(
                 }
                 is Lc.Content -> {
                     // TODO Add multihop container here
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        if (state.value.relayListType is RelayListType.Multihop) {
-                            HeaderSwitchComposeCell(
-                                title = "Entry",
-                                isToggled =
-                                    state.value.relayListType.multihopRelayListType ==
-                                        MultihopRelayListType.ENTRY,
-                                onCellClicked = {
-                                    onSelectRelayList(
-                                        if (it) {
-                                            MultihopRelayListType.ENTRY
-                                        } else {
-                                            MultihopRelayListType.EXIT
-                                        }
-                                    )
-                                },
-                            )
-                            Row {
-                                Text("EntryFilters")
-                                IconButton(
-                                    onClick = {
-                                        onFilterClick(
-                                            RelayListType.Multihop(MultihopRelayListType.ENTRY)
-                                        )
-                                    }
-                                ) {
-                                    Icon(Icons.Default.FilterList, contentDescription = null)
-                                }
-                            }
-                            Row {
-                                Text("ExitFilters")
-                                IconButton(
-                                    onClick = {
-                                        onFilterClick(
-                                            RelayListType.Multihop(MultihopRelayListType.EXIT)
-                                        )
-                                    }
-                                ) {
-                                    Icon(Icons.Default.FilterList, contentDescription = null)
-                                }
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.height(Dimens.largePadding))
-                            Row {
-                                Text("Filters")
-                                IconButton(onClick = { onFilterClick(RelayListType.Single) }) {
-                                    Icon(Icons.Default.FilterList, contentDescription = null)
-                                }
-                            }
-                        }
-
-                        AnimatedContent(
-                            targetState = state.value.filterChips,
-                            label = "Select location top bar",
-                        ) { filterChips ->
-                            if (filterChips.isNotEmpty()) {
-                                FilterRow(
-                                    modifier =
-                                        Modifier.padding(
-                                            bottom = Dimens.smallPadding,
-                                            start = Dimens.mediumPadding,
-                                            end = Dimens.mediumPadding,
-                                        ),
-                                    filters = filterChips,
-                                    onRemoveOwnershipFilter = {
-                                        removeOwnershipFilter(state.value.relayListType)
-                                    },
-                                    onRemoveProviderFilter = {
-                                        removeProviderFilter(state.value.relayListType)
-                                    },
-                                )
-                            }
-                        }
-                    }
+                    Logger.d("LOLZP progress=$progress scrollOffset=$scrollOffset")
+                    SelectionContainer(
+                        progress = progress,
+                        relayListType = state.value.relayListType,
+                        filterChips = state.value.filterChips,
+                        onSelectRelayList = onSelectRelayList,
+                        onFilterClick = onFilterClick,
+                        removeOwnershipFilter = removeOwnershipFilter,
+                        removeProviderFilter = removeProviderFilter,
+                    )
 
                     RelayLists(
                         state = state.value,
@@ -650,6 +620,76 @@ private fun RelayLists(
             onEditCustomLists = onEditCustomLists,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
+    }
+}
+
+@Composable
+private fun SelectionContainer(
+    progress: Float, // 0 - 1
+    relayListType: RelayListType,
+    filterChips: List<FilterChip>,
+    onSelectRelayList: (MultihopRelayListType) -> Unit,
+    onFilterClick: (RelayListType) -> Unit,
+    removeOwnershipFilter: (RelayListType) -> Unit,
+    removeProviderFilter: (RelayListType) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().height(100.dp + 100.dp * progress)) {
+        if (relayListType is RelayListType.Multihop) {
+            HeaderSwitchComposeCell(
+                title = "Entry",
+                isToggled = relayListType.multihopRelayListType == MultihopRelayListType.ENTRY,
+                onCellClicked = {
+                    onSelectRelayList(
+                        if (it) {
+                            MultihopRelayListType.ENTRY
+                        } else {
+                            MultihopRelayListType.EXIT
+                        }
+                    )
+                },
+            )
+            Row {
+                Text("EntryFilters")
+                IconButton(
+                    onClick = { onFilterClick(RelayListType.Multihop(MultihopRelayListType.ENTRY)) }
+                ) {
+                    Icon(Icons.Default.FilterList, contentDescription = null)
+                }
+            }
+            Row {
+                Text("ExitFilters")
+                IconButton(
+                    onClick = { onFilterClick(RelayListType.Multihop(MultihopRelayListType.EXIT)) }
+                ) {
+                    Icon(Icons.Default.FilterList, contentDescription = null)
+                }
+            }
+        } else {
+            Spacer(modifier = Modifier.height(Dimens.largePadding))
+            Row {
+                Text("Filters")
+                IconButton(onClick = { onFilterClick(RelayListType.Single) }) {
+                    Icon(Icons.Default.FilterList, contentDescription = null)
+                }
+            }
+        }
+
+        AnimatedContent(targetState = filterChips, label = "Select location top bar") { filterChips
+            ->
+            if (filterChips.isNotEmpty()) {
+                FilterRow(
+                    modifier =
+                        Modifier.padding(
+                            bottom = Dimens.smallPadding,
+                            start = Dimens.mediumPadding,
+                            end = Dimens.mediumPadding,
+                        ),
+                    filters = filterChips,
+                    onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
+                    onRemoveProviderFilter = { removeProviderFilter(relayListType) },
+                )
+            }
+        }
     }
 }
 
