@@ -43,7 +43,7 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
         )
         controller.delegate = self
 
-        controller.navigationItem.title = NSLocalizedString("New custom list", comment: "")
+        controller.navigationItem.title = NSLocalizedString("Create new list", comment: "")
 
         controller.saveBarButton.title = NSLocalizedString("Create", comment: "")
 

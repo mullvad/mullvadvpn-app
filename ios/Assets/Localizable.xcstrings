@@ -5,26 +5,7 @@
 
     },
     "**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Achtung! Dies erhöht den Netzwerkverkehr und wirkt sich auch negativ auf die Geschwindigkeit, die Latenz und den Akkuverbrauch aus. Bei begrenzten Tarifen ist Vorsicht geboten.**"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Attention : cette option augmente le trafic sur le réseau et peut avoir un impact négatif sur la vitesse, la latence et l'utilisation de la batterie. À utiliser avec précaution pour les forfaits limités.**"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "**Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd.**"
-          }
-        }
-      }
+
     },
     "**Tap here** to see what’s new" : {
 
@@ -34,75 +15,25 @@
     },
     "%@ (%@) hides patterns in your encrypted VPN traffic." : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ (%2$@) verbirgt Muster in Ihrem verschlüsselten VPN-Traffic."
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ (%2$@) hides patterns in your encrypted VPN traffic."
           }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ (%2$@) masque les schémas de votre trafic VPN chiffré."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ (%2$@) döljer mönster i din krypterade VPN-trafik."
-          }
         }
       }
     },
     "%@ cannot be empty." : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ne peut pas être vide."
-          }
-        }
-      }
+
     },
     "%@ does this by carefully adding network noise and making all network packets the same size." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ tut dies, indem es Netzwerkrauschen gezielt hinzufügt und alle Netzwerkpakete gleich groß macht."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek."
-          }
-        }
-      }
+
     },
     "%@ left on this account" : {
 
     },
     "%@ via %@" : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ über %2$@"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -112,6 +43,9 @@
       }
     },
     "%@ was added to your account." : {
+
+    },
+    "%@-enabled" : {
 
     },
     "%@, %@" : {
@@ -124,133 +58,29 @@
         }
       }
     },
-    "%@: Multihop" : {
-
-    },
     "%d more..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d weitere …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d de plus…"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d till ..."
-          }
-        }
-      }
+
     },
     "%lld more..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld weitere …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld de plus…"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld till ..."
-          }
-        }
-      }
+
+    },
+    "About %@ method..." : {
+
     },
     "About API access…" : {
-
-    },
-    "About Direct method..." : {
-
-    },
-    "About Encrypted DNS proxy method..." : {
-
-    },
-    "About Mullvad bridges method..." : {
 
     },
     "About Server IP override..." : {
 
     },
     "Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto"
-          }
-        }
-      }
+
     },
     "Account created" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto erstellt"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte créé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontot har skapats"
-          }
-        }
-      }
+
     },
     "Account credit expires soon" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontoguthaben läuft bald ab"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les crédits du compte expirent bientôt"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontokrediten slutar snart gälla"
-          }
-        }
-      }
+
     },
     "Account credit has expired" : {
 
@@ -259,330 +89,58 @@
 
     },
     "Account number" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontonummer"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Numéro de compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontonummer"
-          }
-        }
-      }
-    },
-    "Active features" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktive Funktionen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fonctionnalités activées"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktiva funktioner"
-          }
-        }
-      }
-    },
-    "Add" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hinzufügen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till"
-          }
-        }
-      }
-    },
-    "Add 30 days" : {
 
     },
-    "Add 90 days" : {
+    "Active features" : {
+
+    },
+    "Add" : {
+
+    },
+    "Add 30 days time (%@)" : {
+
+    },
+    "Add 90 days time (%@)" : {
 
     },
     "Add a server" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server hinzufügen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter un serveur"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till en server"
-          }
-        }
-      }
-    },
-    "Add locations" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standorte hinzufügen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter des localisations"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till platser"
-          }
-        }
-      }
+
     },
     "Add method" : {
 
     },
-    "Add new list" : {
+    "Add time" : {
 
     },
-    "Add time" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeit hinzufügen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter du temps"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till tid"
-          }
-        }
-      }
-    },
     "Ads" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Werbung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Publicités"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annonser"
-          }
-        }
-      }
+
     },
     "Adult content" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inhalte für Erwachsene"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contenu pour adultes"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vuxet innehåll"
-          }
-        }
-      }
+
     },
     "Agree and continue" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Akzeptieren und weiter"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accepter et continuer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Godkänn och fortsätt"
-          }
-        }
-      }
+
     },
     "All" : {
 
     },
     "All locations" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Standorte"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toutes les localisations"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alla platser"
-          }
-        }
-      }
+
     },
     "All providers" : {
 
     },
     "Any" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beliebige"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "N'importe lequel"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valfri"
-          }
-        }
-      }
+
     },
     "API access" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API-Zugriff"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accès à l'API"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API-åtkomst"
-          }
-        }
-      }
+
     },
     "API reachable" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API erreichbar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API joignable"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API kan nås"
-          }
-        }
-      }
+
     },
     "API unreachable" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API nicht erreichbar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API injoignable"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "API kan inte nås"
-          }
-        }
-      }
+
     },
     "API unreachable, save method anyway?" : {
 
@@ -597,101 +155,25 @@
 
     },
     "At least one method needs to be enabled." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mindestens eine Methode muss aktiviert sein."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Au moins une méthode doit être activée."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minst en metod måste vara aktiverad."
-          }
-        }
-      }
+
     },
-    "Attention: this setting cannot be used in combination with **“%@“**." : {
+    "Attention: this setting cannot be used in combination with **%@**" : {
 
     },
     "Attention: toggling “Local network sharing” requires restarting the VPN connection." : {
 
     },
     "Authentication" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentifizierung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentification"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autentisering"
-          }
-        }
-      }
+
     },
     "Automatic" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatisch"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatique"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatisk"
-          }
-        }
-      }
+
     },
-    "Blocked connection" : {
+    "BLOCKED CONNECTION" : {
 
     },
     "BLOCKING INTERNET" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "INTERNET SPERREN"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "BLOCAGE D'INTERNET"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "BLOCKERAR INTERNET"
-          }
-        }
-      }
+
     },
     "Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." : {
 
@@ -707,48 +189,10 @@
       }
     },
     "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Durch den Einsatz hochentwickelter KI ist es möglich, den Traffic von Datenpaketen zu analysieren, die auf Ihrem Gerät ein- und ausgehen (selbst wenn der Verkehr verschlüsselt ist)."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utiliser une IA sophistiquée peut permettre d'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré)."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Med sofistikerad AI är det möjligt att analysera trafiken för datapaket som går in och ut från din enhet (även om trafiken är krypterad)."
-          }
-        }
-      }
+
     },
     "Cancel" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abbrechen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annuler"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avbryt"
-          }
-        }
-      }
+
     },
     "Cannot complete the purchase" : {
 
@@ -763,136 +207,22 @@
 
     },
     "Checking account number" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ihre Kontonummer wird geprüft"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vérification du numéro de compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontrollerar kontonummer"
-          }
-        }
-      }
+
     },
     "Cipher" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chiffre"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chiffre"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chiffrering"
-          }
-        }
-      }
+
     },
     "Clear" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Löschen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Effacer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rensa"
-          }
-        }
-      }
+
     },
     "Clear all overrides" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Überschreibungen löschen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Effacer toutes les substitutions"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rensa alla åsidosättningar"
-          }
-        }
-      }
+
     },
     "Clear all overrides?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Überschreibungen löschen?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Effacer toutes les substitutions ?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rensa alla åsidosättningar?"
-          }
-        }
-      }
+
     },
     "Clearing the imported overrides changes the server IPs, in the Select location view, back to default." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn Sie die importierten Überschreibungen löschen, werden die Server-IPs in der Ortsauswahl wieder auf die Standardwerte zurückgesetzt."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'effacement des substitutions importées rétablit la valeur par défaut des adresses IP des serveurs dans la vue Sélection d'un emplacement."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du rensar de importerade åsidosättningarna ändras servrarnas IP:adresser tillbaka till standard i Välj platsvy."
-          }
-        }
-      }
+
     },
     "Client is not allowed to issue the request." : {
 
@@ -904,303 +234,61 @@
 
     },
     "Congrats!" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Glückwunsch!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Félicitations !"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Grattis!"
-          }
-        }
-      }
+
     },
     "Connect" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbinden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anslut"
-          }
-        }
-      }
+
     },
-    "Connected" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbunden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connecté"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ansluten"
-          }
-        }
-      }
+    "CONNECTED" : {
+
     },
-    "Connected to %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Connected to %1$@, %2$@"
-          }
-        }
-      }
+    "Connected to %@" : {
+
     },
-    "Connecting to %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Connecting to %1$@, %2$@"
-          }
-        }
-      }
+    "Connecting to %@" : {
+
     },
-    "Connecting..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbinden …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connexion..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ansluter ..."
-          }
-        }
-      }
+    "CONNECTING..." : {
+
     },
     "Connection details" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbindungsdetails"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Détails de la connexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anslutningsinformation"
-          }
-        }
-      }
+
     },
     "Continue with login" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weiter mit Anmeldung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continuer avec la connexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fortsätt med inloggning"
-          }
-        }
-      }
+
     },
     "Copied Mullvad account number to pasteboard" : {
 
     },
-    "Correct account number" : {
+    "Create" : {
 
     },
-    "Create" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erstellen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Créer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skapa"
-          }
-        }
-      }
-    },
     "Create account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto erstellen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Créer un compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skapa konto"
-          }
-        }
-      }
+
     },
     "Create new account" : {
+
+    },
+    "Create new list" : {
 
     },
     "Created: %@" : {
 
     },
-    "Creating new account" : {
+    "Creating account..." : {
 
     },
     "Current device" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktuelles Gerät"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appareil actuel"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktuell enhet"
-          }
-        }
-      }
+
     },
     "Custom" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Benutzerdefiniert"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Personnalisé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anpassad"
-          }
-        }
-      }
+
     },
     "Custom DNS" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eigenes DNS"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS personnalisé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anpassad DNS"
-          }
-        }
-      }
+
     },
     "Custom lists" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eigene Listen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Listes personnalisées"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anpassade listor"
-          }
-        }
-      }
+
     },
     "DAITA" : {
 
@@ -1211,33 +299,8 @@
     "DAITA isn't available on the current entry server. After enabling, please go to the \"Select location\" view and select an entry location that supports DAITA." : {
 
     },
-    "DAITA-enabled" : {
-
-    },
-    "Defense against AI-guided Traffic Analysis" : {
-
-    },
     "Delete" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Löschen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort"
-          }
-        }
-      }
+
     },
     "Delete %@?" : {
 
@@ -1246,258 +309,46 @@
 
     },
     "Delete list" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Liste löschen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer la liste"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort lista"
-          }
-        }
-      }
+
     },
     "Delete method" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Methode löschen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer la méthode"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Radera metod"
-          }
-        }
-      }
+
     },
     "Deleting account..." : {
 
     },
     "Device is inactive" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gerät ist inaktiv"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'appareil est inactif"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enheten är inaktiv"
-          }
-        }
-      }
+
     },
     "Device name" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gerätename"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nom de l'appareil"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enhetens namn"
-          }
-        }
-      }
+
     },
     "Device name: %@" : {
 
     },
     "Direct only" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nur direkt"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Directe uniquement"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Endast direkt"
-          }
-        }
-      }
+
     },
     "Disable all \"%@\" above to activate this setting." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deaktivieren Sie oben alle „%@“, um diese Einstellung zu aktivieren."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désactivez tous les « %@ » ci-dessus pour activer ce paramètre."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inaktivera alla \"%@\" ovan för att aktivera inställningen."
-          }
-        }
-      }
-    },
-    "Disabled" : {
 
     },
     "Disabling" : {
 
     },
     "Discard changes" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Änderungen verwerfen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annuler les modifications "
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ignorera ändringarna"
-          }
-        }
-      }
+
     },
     "Disconnect" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trennen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déconnexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Koppla från"
-          }
-        }
-      }
+
     },
-    "Disconnected" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbindung getrennt"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déconnecté"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frånkopplad"
-          }
-        }
-      }
+    "DISCONNECTED" : {
+
     },
-    "Disconnecting..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbindung wird getrennt …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déconnexion en cours..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopplar från ..."
-          }
-        }
-      }
+    "DISCONNECTING..." : {
+
     },
     "DNS content blockers" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS-Inhaltssperren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bloqueurs de contenu DNS"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS-innehållsblockerare"
-          }
-        }
-      }
+
     },
     "DNS settings" : {
 
@@ -1512,26 +363,7 @@
 
     },
     "Don’t have an account number?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie haben keine Kontonummer?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous n'avez pas de numéro de compte ?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Har du inget kontonummer?"
-          }
-        }
-      }
+
     },
     "Done" : {
 
@@ -1539,256 +371,44 @@
     "Edit custom list" : {
 
     },
-    "Edit lists" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Listen bearbeiten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier les listes"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redigera listor"
-          }
-        }
-      }
-    },
-    "Edit locations" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standorte bearbeiten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier les localisations"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redigera platser"
-          }
-        }
-      }
+    "Edit custom lists" : {
+
     },
     "Edit message" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nachricht bearbeiten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier le message"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redigera meddelande"
-          }
-        }
-      }
+
+    },
+    "Edit method" : {
+
     },
     "Either buy credit on our website or make an in-app purchase via the **Add time** button below." : {
 
     },
     "Either buy credit on our website or redeem a voucher." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achetez du crédit sur notre site web ou échangez un bon."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong."
-          }
-        }
-      }
+
     },
     "Enable" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivieren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivera"
-          }
-        }
-      }
-    },
-    "Enable \"%@\"" : {
 
     },
     "Enable method" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Methode aktivieren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activer la méthode"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivera metod"
-          }
-        }
-      }
+
     },
     "Enabling" : {
 
     },
     "Enter IP" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "IP eingeben"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saisir l'IP"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ange IP"
-          }
-        }
-      }
+
     },
     "Enter voucher code" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gutscheincode eingeben"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saisissez un code de bon"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ange kupongkod"
-          }
-        }
-      }
+
     },
     "Enter your account number" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geben Sie Ihre Kontonummer ein"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saisissez votre numéro de compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ange ditt kontonummer"
-          }
-        }
-      }
+
     },
     "Entry" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eingang"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrée"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ingång"
-          }
-        }
-      }
+
     },
     "Exit" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgang"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortie"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utgång"
-          }
-        }
-      }
+
     },
     "Expand %@" : {
 
@@ -1800,26 +420,7 @@
 
     },
     "Failed to send" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fehler beim Senden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échec de l'envoi"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Det gick inte att skicka"
-          }
-        }
-      }
+
     },
     "Failed to send the receipt to server: %@" : {
 
@@ -1836,416 +437,74 @@
     "Failed to stop the tunnel." : {
 
     },
-    "Failed to validate account number: %@" : {
-
-    },
     "FAQs & Guides" : {
 
     },
     "Fetching devices..." : {
 
     },
-    "file" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "datei"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "fichier"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "fil"
-          }
-        }
-      }
-    },
     "Filter" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filtrer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filtrera"
-          }
-        }
-      }
+
     },
     "Filtered:" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gefiltert:"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filtré :"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filtrerat:"
-          }
-        }
-      }
+
     },
     "Gambling" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Glücksspiel"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jeux d'argent"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hasardspel"
-          }
-        }
-      }
+
     },
     "Go ahead and start using the app to begin reclaiming your online privacy." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Legen Sie los und erobern Sie Ihre Online-Privatsphäre mit dieser App zurück!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Commencez à utiliser l'application pour reprendre votre confidentialité en ligne en main."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sätt igång och börja använda appen för att ta tillbaka din onlinesekretess."
-          }
-        }
-      }
+
     },
     "Go to login" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zur Anmeldung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aller à la connexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gå till inloggning"
-          }
-        }
-      }
+
     },
     "Going to login will unblock the Internet on this device." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aller à la connexion débloquera la connexion Internet sur cet appareil."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du loggar in avblockeras internet på den här enheten."
-          }
-        }
-      }
+
     },
     "Got it!" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verstanden!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compris !"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jag förstår!"
-          }
-        }
-      }
+
     },
     "Here’s your account number. Save it!" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voici votre numéro de compte. Gardez-le !"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Här är ditt kontonummer. Spara det!"
-          }
-        }
-      }
+
     },
     "Hide account number" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontonummer verbergen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masquer le numéro de compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dölj kontonummer"
-          }
-        }
-      }
+
     },
     "If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn ein Beobachter diese Datenpakete überwacht, macht %@ es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen oder mit wem Sie kommunizieren."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si un observateur surveille ces paquets de données, %@ rend beaucoup plus difficile l'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om dessa datapaket övervakas av en observatör, gör %@ det svårare för dem att identifiera vilka webbplatser du besöker eller vem du kommunicerar med."
-          }
-        }
-      }
+
     },
     "If needed we will contact you at %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei Bedarf werden wir Sie über %@ kontaktieren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si nécessaire, nous vous contacterons à l'adresse %@"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om det behövs kontaktar vi dig på %@"
-          }
-        }
-      }
+
     },
     "If you are having issues connecting to VPN servers, please contact support." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn Sie Probleme mit der Verbindung zu VPN-Servern haben, wenden Sie sich bitte an den Support."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si vous rencontrez des problèmes de connexion aux serveurs VPN, veuillez contacter l'assistance."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontakta supporten om du har problem med att ansluta till VPN-servrar."
-          }
-        }
-      }
+
     },
-    "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." : {
+    "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." : {
 
     },
     "If you disconnect now, you won’t be able to secure your connection until the device is online." : {
 
     },
     "If you exit the form and try again later, the information you already entered will still be here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Informationen, die Sie bereits eingegeben haben, werden immer noch da sein, wenn Sie das Formular schließen und es später erneut versuchen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du lämnar formuläret och försöker igen senare kommer informationen du anger att finnas kvar."
-          }
-        }
-      }
+
     },
     "If you haven’t received additional VPN time after purchasing" : {
 
     },
     "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si vous vous déconnectez, l'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l'appareil reçoit un nouveau nom."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn."
-          }
-        }
-      }
+
     },
     "If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." : {
 
     },
     "Import" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importieren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importera"
-          }
-        }
-      }
+
     },
     "Import file" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datei importieren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importer un fichier"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importera fil"
-          }
-        }
-      }
+
     },
     "Import files or text with new IP addresses for the servers in the Select location view." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importieren Sie Dateien oder Text mit neuen IP-Adressen für die Server in der Ortsauswahl."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importez des fichiers ou du texte contenant les nouvelles adresses IP des serveurs dans la vue Sélectionner un emplacement."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importera filer eller text med nya IP-adresser för servrarna i Välj platsvy."
-          }
-        }
-      }
+
     },
     "Import of %@ was successful, overrides are now active." : {
 
@@ -2253,68 +512,23 @@
     "Import of %@ was unsuccessful, please try again." : {
 
     },
-    "Import successful" : {
+    "Import of text was successful, overrides are now active." : {
+
+    },
+    "Import of text was unsuccessful, please try again." : {
+
+    },
+    "IMPORT SUCCESSFUL" : {
 
     },
     "Import via text" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import via Text"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importer par texte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importera via text"
-          }
-        }
-      }
+
     },
     "In" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eingehend"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrante"
-          }
-        }
-      }
+
     },
     "In use" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wird verwendet"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En cours d'utilisation"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Används"
-          }
-        }
-      }
+
     },
     "Include all networks" : {
 
@@ -2328,6 +542,9 @@
     "Invalid account number" : {
 
     },
+    "Invalid account number: %@" : {
+
+    },
     "Invalid device state." : {
 
     },
@@ -2335,70 +552,13 @@
 
     },
     "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour ce faire, il effectue un échange de clés supplémentaire à l'aide d'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu'un nouveau tunnel est établi."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas."
-          }
-        }
-      }
+
     },
     "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous semblez avoir saisi un numéro de compte plutôt qu'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d'abord vous déconnecter."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Det verkar som om du angett ett kontonummer istället för en kupongkod. Logga först ut om du vill ändra den aktiva koden."
-          }
-        }
-      }
+
     },
     "Language" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sprache"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Langue"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Språk"
-          }
-        }
-      }
+
     },
     "Last four digits of the account number are incorrect" : {
 
@@ -2407,275 +567,64 @@
 
     },
     "Learn about privacy" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mehr über Privatsphäre erfahren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plus d'informations sur la confidentialité"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Läs mer om sekretess"
-          }
-        }
-      }
+
     },
     "Less than a day" : {
 
     },
     "Local network sharing" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Teilen im lokalen Netzwerk"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Partage réseau local"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lokal nätverksdelning"
-          }
-        }
-      }
+
     },
-    "Log in" : {
+    "Locations" : {
 
     },
     "Log out" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abmelden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déconnexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logga ut"
-          }
-        }
-      }
+
     },
     "Logged in" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Angemeldet"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connecté"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inloggad"
-          }
-        }
-      }
+
     },
     "Logging in..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anmeldung läuft..."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connexion..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loggar in..."
-          }
-        }
-      }
+
     },
     "Logging out..." : {
 
     },
     "Login" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anmelden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logga in"
-          }
-        }
-      }
+
     },
     "Login failed" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anmeldung fehlgeschlagen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échec de la connexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inloggningen misslyckades"
-          }
-        }
-      }
+
     },
     "Make a purchase with StoreKit2" : {
 
     },
     "Malware" : {
-      "localizations" : {
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skadlig kod"
-          }
-        }
-      }
+
     },
     "Manage and add custom methods to access the Mullvad API." : {
 
     },
     "Manage devices" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geräte verwalten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gérer les appareils"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hantera enheter"
-          }
-        }
-      }
-    },
-    "method" : {
 
     },
-    "Method settings" : {
+    "Mullvad owned only" : {
 
     },
     "multihop" : {
-      "localizations" : {
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "multihopp"
-          }
-        }
-      }
+
     },
     "Multihop" : {
-      "localizations" : {
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Multihopp"
-          }
-        }
-      }
+
     },
     "Multihop is being used to enable DAITA for your selected location." : {
 
     },
     "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Multihop leitet Ihren Traffic in einen WireGuard-Server hinein und aus einem anderen heraus, so dass er schwerer zu verfolgen ist. Dies führt zu einer erhöhten Latenzzeit, erhöht aber die Anonymität im Internet."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le multihop fait passer votre trafic par un serveur WireGuard et le fait sortir par un autre, ce qui le rend plus difficile à tracer. Cela se traduit par une latence accrue, mais plus d'anonymat en ligne."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online."
-          }
-        }
-      }
-    },
-    "Multiple validation errors occurred." : {
 
     },
     "Name" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nom"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Namn"
-          }
-        }
-      }
+
     },
     "Name is already taken." : {
 
@@ -2689,74 +638,14 @@
     "NETWORK ISSUES" : {
 
     },
-    "New custom list" : {
+    "NEW DEVICE CREATED" : {
 
     },
-    "NEW DEVICE CREATED" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NEUES GERÄT ERSTELLT"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NOUVEL APPAREIL CRÉÉ"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NY ENHET HAR SKAPATS"
-          }
-        }
-      }
-    },
     "NEW VERSION INSTALLED" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NEUE VERSION INSTALLIERT"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NOUVELLE VERSION INSTALLÉE"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NY VERSION INSTALLERAD"
-          }
-        }
-      }
+
     },
     "Next" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weiter"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suivant"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nästa"
-          }
-        }
-      }
+
     },
     "No DAITA compatible servers match your location settings. Try changing location." : {
 
@@ -2764,13 +653,13 @@
     "No matching relays found, check your filter settings." : {
 
     },
-    "No matching servers" : {
+    "No matching servers found." : {
 
     },
-    "No network" : {
+    "NO NETWORK" : {
 
     },
-    "No overrides imported" : {
+    "NO OVERRIDES IMPORTED" : {
 
     },
     "No servers match your location filter. Try changing filter settings." : {
@@ -2780,208 +669,44 @@
 
     },
     "No servers match your settings, try changing server or other settings." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kein Server entspricht Ihren Einstellungen. Versuchen Sie, den Server oder andere Einstellungen zu ändern."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d'autres paramètres."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inga servrar matchar dina inställningar. Försök att byta server eller ändra inställningarna."
-          }
-        }
-      }
+
     },
     "Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nicht alle unsere Server sind %1$@-fähig. Daher verwenden wir automatisch Multihop, um %2$@ mit jedem Server zu aktivieren."
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server."
           }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tous nos serveurs ne sont pas compatibles %1$@. C'est pourquoi nous utilisons automatiquement le multihop pour activer %2$@ avec n'importe quel serveur."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Det är inte alla våra servrar som är %1$@-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %2$@ med alla servrar."
-          }
         }
       }
     },
     "Obfuscation" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verschleierung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dissimulation"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obfuskering"
-          }
-        }
-      }
+
     },
     "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La dissimulation cache le trafic WireGuard à l'intérieur d'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d'autres types de filtrage, où une connexion WireGuard simple serait bloquée."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras."
-          }
-        }
-      }
+
     },
     "Obscured" : {
 
     },
     "Off" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aus"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désactivé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Av"
-          }
-        }
-      }
+
     },
     "On" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "På"
-          }
-        }
-      }
+
     },
     "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In einigen Netzwerken, in denen verschiedene Arten der Zensur eingesetzt werden, werden die IP-Adressen unserer Server manchmal blockiert."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sur certains réseaux, où divers types de censure sont utilisés, les adresses IP de notre serveur sont parfois bloquées."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "På vissa nätverk där olika typer av censureringar används blockeras blir ibland vår servers IP-adresser blockerade."
-          }
-        }
-      }
+
     },
     "On some networks, where various types of censorship are being used, the API servers might not be directly reachable." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In einigen Netzwerken, in denen verschiedene Arten der Zensur eingesetzt werden, sind die API-Server möglicherweise nicht direkt erreichbar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sur certains réseaux, où divers types de censure sont utilisés, les serveurs API peuvent ne pas être directement accessibles."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Det kanske inte går att nå API-servrarna direkt på nätverk som använder olika censureringstyper."
-          }
-        }
-      }
+
     },
     "Open %@ settings" : {
 
     },
     "Optional" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Facultatif"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valfritt"
-          }
-        }
-      }
+
     },
     "Out IPv4" : {
 
@@ -2990,208 +715,34 @@
 
     },
     "Out of time" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeit abgelaufen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plus de temps"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ingen tid kvar"
-          }
-        }
-      }
+
     },
     "OUT OF TIME" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ZEIT ABGELAUFEN"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PLUS DE TEMPS"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "INGEN TID KVAR"
-          }
-        }
-      }
+
     },
-    "Overrides active" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Überschreibungen aktiv"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substitutions actives"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Åsidosättningar aktiva"
-          }
-        }
-      }
-    },
-    "Owned" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In Besitz"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Possédé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ägd"
-          }
-        }
-      }
+    "OVERRIDES ACTIVE" : {
+
     },
     "Ownership" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eigentümerschaft"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Propriété"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ägarskap"
-          }
-        }
-      }
+
     },
     "Paid until" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bezahlt bis"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Payé jusqu'au"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Betalat till"
-          }
-        }
-      }
+
     },
     "Password" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passwort"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mot de passe"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lösenord"
-          }
-        }
-      }
+
     },
     "Performs a connection test to a Mullvad API server via this access method." : {
 
     },
     "Please enter a valid IPv4 or IPv6 address." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte geben Sie eine gültige IPv4- oder IPv6-Adresse ein."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merci de saisir une adresse IPv4 ou IPv6 valide."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ange en giltig IPv4- eller IPv6-adress."
-          }
-        }
-      }
+
     },
-    "Please enter a valid port." : {
+    "Please enter a valid remote server port." : {
 
     },
     "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merci de vous déconnecter d'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l'appareil correspondant dans les paramètres du compte de l'appareil."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar."
-          }
-        }
-      }
+
     },
     "Please retry by using the \"Restore purchases\" button." : {
 
@@ -3206,152 +757,31 @@
 
     },
     "Providers" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anbieter"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fournisseurs"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leverantörer"
-          }
-        }
-      }
+
     },
     "Providers: %d" : {
 
     },
     "Quantum resistance" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantenresistenz"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Résistance quantique"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kvantresistens"
-          }
-        }
-      }
+
     },
     "Quantum-resistant tunnel" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantenresistenter Tunnel"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tunnel résistant aux attaques quantiques"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kvantresistent tunnel"
-          }
-        }
-      }
+
     },
     "QUIC" : {
 
     },
-    "Reconnecting" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wiederherstellen der Verbindung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reconnexion"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Återansluter"
-          }
-        }
-      }
+    "RECONNECTING" : {
+
     },
-    "Reconnecting to %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Reconnecting to %1$@, %2$@"
-          }
-        }
-      }
+    "Reconnecting to %@" : {
+
     },
     "Redeem" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einlösen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échanger"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lös in"
-          }
-        }
-      }
+
     },
     "Redeem voucher" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gutschein einlösen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échangez un bon"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lös in kupong"
-          }
-        }
-      }
+
     },
     "Refund last purchase with StoreKit2" : {
 
@@ -3360,48 +790,10 @@
 
     },
     "Remove" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entfernen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort"
-          }
-        }
-      }
+
     },
     "Remove %@?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ entfernen?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer %@ ?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort %@?"
-          }
-        }
-      }
+
     },
     "Remove last used account" : {
 
@@ -3409,313 +801,59 @@
     "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
 
     },
-    "Rented" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gemietet"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loué"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hyrd"
-          }
-        }
-      }
+    "Rented only" : {
+
     },
     "Report a problem" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Problem melden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Signaler un problème"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rapportera ett problem"
-          }
-        }
-      }
+
     },
     "Required" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erforderlich"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Requis"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obligatoriskt"
-          }
-        }
-      }
+
     },
     "Restore purchases" : {
 
     },
     "Save" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Speichern"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistrer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spara"
-          }
-        }
-      }
+
     },
     "Saving changes..." : {
 
     },
     "Search for..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suchen nach …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechercher..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sök efter …"
-          }
-        }
-      }
+
     },
     "Select location" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ort auswählen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sélectionner une localisation"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Välj plats"
-          }
-        }
-      }
+
     },
     "Selected" : {
 
     },
     "Send" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Senden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envoyer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skicka"
-          }
-        }
-      }
+
     },
     "Send anyway" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trotzdem senden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envoyer quand même"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skicka ändå"
-          }
-        }
-      }
+
     },
     "Sending..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wird gesendet..."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envoi..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skicka..."
-          }
-        }
-      }
+
     },
     "Sent" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gesendet"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envoyé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skickat"
-          }
-        }
-      }
+
     },
     "Server" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Serveur"
-          }
-        }
-      }
+
     },
     "Server details" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Serverdaten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Détails du serveur"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Serverinformation"
-          }
-        }
-      }
+
     },
     "Server IP override" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server-IP überschreiben"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substitution d'IP de serveur"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Åsidosättning av serverns IP-adress"
-          }
-        }
-      }
+
     },
     "Setting: %@" : {
 
     },
     "Settings" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paramètres"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inställningar"
-          }
-        }
-      }
+
     },
     "Settings migration error" : {
 
@@ -3724,105 +862,22 @@
 
     },
     "Show account number" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontonummer anzeigen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher le numéro de compte"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visa kontonummer"
-          }
-        }
-      }
+
     },
     "Social media" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Social Media"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réseaux sociaux"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sociala medier"
-          }
-        }
-      }
+
     },
     "Socks5" : {
 
     },
     "Start using the app" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit dem Benutzen der App anfangen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Commencer à utiliser l'application"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Börja använda appen"
-          }
-        }
-      }
+
     },
     "Super!" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Super !"
-          }
-        }
-      }
+
     },
     "Switch location" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ort wechseln"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changer de localisation"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Växla plats"
-          }
-        }
-      }
+
     },
     "Tap **Edit** to add at least one DNS server." : {
 
@@ -3831,83 +886,16 @@
 
     },
     "Test method" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Methode testen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tester la méthode"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Testmetod"
-          }
-        }
-      }
+
     },
     "Testing..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Testen …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Test..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Testar ..."
-          }
-        }
-      }
-    },
-    "text" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "texte"
-          }
-        }
-      }
+
     },
     "Thanks for your purchase" : {
 
     },
     "Thanks!" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Danke!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merci !"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tack!"
-          }
-        }
-      }
+
     },
     "The app communicates with a Mullvad API server directly." : {
 
@@ -3919,95 +907,19 @@
 
     },
     "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die App muss mit einem Mullvad API-Server kommunizieren, um Sie anzumelden, Serverlisten abzurufen und andere wichtige Vorgänge durchzuführen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'application doit communiquer avec un serveur d'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d'autres opérations critiques."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appen måste kommunicera med en Mullvad API-server för att logga in dig, hämta serverlistor och andra viktiga åtgärder."
-          }
-        }
-      }
+
     },
     "The app will test the method before saving." : {
 
     },
     "The automatic setting will randomly choose from the valid port ranges shown below." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le réglage automatique choisira au hasard parmi la plage de ports valide affichée ci-dessous."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan."
-          }
-        }
-      }
+
     },
     "The custom port can be any value inside the valid ranges: %@." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der benutzerdefinierte Port kann ein beliebiger Wert innerhalb dieser gültigen Bereiche sein: %@."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le port personnalisé peut prendre n'importe quelle valeur dans les plages valides : %@."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den anpassade porten kan vara ett värde inom de giltiga intervallen: %@."
-          }
-        }
-      }
+
     },
     "The device will be removed from the list and logged out." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Gerät wird aus der Liste entfernt und abgemeldet."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'appareil sera supprimé de la liste et déconnecté."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enheten kommer att tas bort från listan och loggas ut."
-          }
-        }
-      }
+
     },
     "The entry and exit servers cannot be the same. Try changing one to a new server or location." : {
 
@@ -4032,258 +944,49 @@
 
     },
     "This can be useful if the API is censored but Mullvad’s bridge servers are not." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies kann nützlich sein, wenn die API zensiert ist, die Brückenserver von Mullvad aber nicht."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cela peut être utile si l'API est censurée, mais que les serveurs de pont Mullvad ne le sont pas."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Detta kan vara användbart om API:n är censurerad men Mullvads broservrar inte är det."
-          }
-        }
-      }
+
     },
     "This can be useful when you are not affected by censorship." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies kann nützlich sein, wenn Sie nicht von Zensur betroffen sind."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cela peut être utile lorsque vous n'êtes pas concerné par la censure."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Detta kan vara användbart när du inte påverkas av censurering."
-          }
-        }
-      }
+
     },
     "This device is not allowed to make the payment." : {
 
     },
+    "This device is now named **%@**. See more under \"Manage devices\" in Account." : {
+
+    },
     "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Funktion ermöglicht den Zugriff auf andere Geräte im lokalen Netzwerk, z. B. zum Teilen, Drucken, Streamen usw."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cette fonctionnalité permet d'accéder à d'autres appareils sur le réseau local, par exemple pour le partage, l'impression, le streaming, etc."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv."
-          }
-        }
-      }
+
     },
     "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit dieser Funktion können Sie diese Zensur umgehen, indem Sie benutzerdefinierte Wege zum Zugriff auf die API über Proxys und ähnliche Methoden hinzufügen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cette fonctionnalité vous permet de contourner cette censure en ajoutant des moyens personnalisés d'accéder à l'API via des proxys et des méthodes similaires."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Men den här funktionen kan du kringgå censureringen genom att lägga till anpassade sätt att komma åt API:n via proxyservrar och liknande metoder."
-          }
-        }
-      }
+
     },
     "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Funktion macht den WireGuard-Tunnel resistent gegen mögliche Angriffe von Quantencomputern."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer."
-          }
-        }
-      }
+
     },
     "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies ist der dem Gerät zugewiesene Name. Jedes Gerät, das in einem Mullvad-Konto angemeldet ist, erhält einen eindeutigen Namen, mit dem Sie es identifizieren können, wenn Sie Ihre Geräte in der App oder auf der Website verwalten."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il s'agit du nom attribué à l'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l'identifier lorsque vous gérez vos appareils dans l'application ou sur le site Web."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Det här är namnet som tilldelas enheten. Varje enhet som är inloggad på ett Mullvad-konto får ett unikt namn som hjälper dig att identifiera den när du hanterar dina enheter i appen eller på webbplatsen."
-          }
-        }
-      }
+
     },
     "This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit \"Delete account\" if you really want to delete the account:" : {
 
     },
     "This might cause issues on certain websites, services, and apps." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies kann bei bestimmten Websites, Diensten und Apps zu Problemen führen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cela peut causer des problèmes sur certains sites Web, services et applications."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Detta kan orsaka problem på vissa webbplatser, tjänster och appar."
-          }
-        }
-      }
-    },
-    "This voucher code has already been used." : {
 
     },
     "Time left: %@" : {
 
     },
     "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um mehr hinzuzufügen, müssen Sie Ihre Verbindung trennen und mit einer unsicheren Verbindung auf das Internet zugreifen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour en ajouter d'autres, vous devrez vous déconnecter et accéder à internet avec une connexion non sécurisée."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du vill lägga till mer måste du koppla från och öppna internet med en oskyddad anslutning."
-          }
-        }
-      }
+
     },
     "To assist you better, please write in English or Swedish and include which country you are connecting from." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour nous permettre de mieux vous assister, merci d'écrire en anglais ou en suédois et d'indiquer le pays à partir duquel vous vous connectez."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skriv på engelska eller svenska och ange från vilket land du är ansluten så att vi kan hjälpa dig bättre."
-          }
-        }
-      }
+
     },
     "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um dies zu umgehen, können Sie eine Datei oder einen von unserem Support-Team bereitgestellten Text mit neuen IP-Adressen importieren, die die Standardadressen der Server in der Ortsauswahl außer Kraft setzen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour contourner ce problème, vous pouvez importer un fichier ou du texte fourni par notre équipe d'assistance, avec de nouvelles adresses IP qui remplacent les adresses par défaut des serveurs dans la vue Sélectionner un emplacement."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "För att kringgå detta kan du importera en fil eller text, som tillhandahålls av vårt supportteam, med nya IP-adresser som åsidosätter servrarnas standardadresser i Välj platsvy."
-          }
-        }
-      }
+
     },
     "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Besuchen Sie unsere Website, um mehr über datenschutzfreundliche Gewohnheiten & Tools zu erfahren und Ihre Reise als Datenschutz-Ninja fortzufahren."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour continuer votre voyage de ninja de la confidentialité, visitez notre site Web pour découvrir d'autres outils et habitudes pour protéger votre vie privée."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du vill fortsätta din resa som sekretessninja kan du gå till vår webbplats för att lära dig sekretessvänliga vanor och verktyg."
-          }
-        }
-      }
+
     },
     "To create a custom list, tap on \"...\" " : {
 
@@ -4292,108 +995,19 @@
 
     },
     "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour mieux vous aider, le fichier journal de l'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d'être envoyées via un canal chiffré."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal."
-          }
-        }
-      }
+
     },
     "To start using the app, you first need to add time to your account." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour commencer à utiliser l'application, vous devez d'abord ajouter du temps à votre compte."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du vill börja använda appen måste du först lägga till tid i ditt konto."
-          }
-        }
-      }
+
     },
     "Too many devices" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zu viele Geräte"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trop d'appareils"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "För många enheter"
-          }
-        }
-      }
+
     },
     "Trackers" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tracker"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spårare"
-          }
-        }
-      }
+
     },
     "Try again" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erneut versuchen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réessayer"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Försök igen"
-          }
-        }
-      }
+
     },
     "TUNNEL ERROR" : {
 
@@ -4402,39 +1016,13 @@
 
     },
     "Type" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Typ"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Typ"
-          }
-        }
-      }
+
     },
     "UDP" : {
 
     },
     "UDP-over-TCP" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "UDP über TCP"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "UDP över TCP"
-          }
-        }
-      }
+
     },
     "Unable to authenticate account. Please log out and log back in." : {
 
@@ -4443,26 +1031,7 @@
 
     },
     "Unable to start tunnel connection. Please send a problem report." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Tunnelverbindung konnte nicht gestartet werden. Bitte senden Sie einen Problembericht."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Det går inte att starta tunnelanslutning. Skicka en problemrapport."
-          }
-        }
-      }
+
     },
     "Unexpected server response: %1$@ (HTTP status: %2$d)" : {
 
@@ -4471,95 +1040,23 @@
 
     },
     "Unknown error." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unbekannter Fehler."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur inconnue."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Okänt fel."
-          }
-        }
-      }
+
     },
     "Use custom DNS server" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Benutzerdefinierten DNS-Server verwenden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utiliser un serveur DNS personnalisé"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Använd anpassad DNS-server"
-          }
-        }
-      }
+
     },
     "Username" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Benutzername"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nom d'utilisateur"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Användarnamn"
-          }
-        }
-      }
+
+    },
+    "Valid account number" : {
+
     },
     "Valid range: %d - %d" : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gültiger Bereich: %1$d–%2$d"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Valid range: %1$d - %2$d"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plage valide : %1$d - %2$d"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Giltigt intervall: %1$d–%2$d"
           }
         }
       }
@@ -4568,484 +1065,85 @@
 
     },
     "Verifying voucher..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gutschein wird verifiziert ..."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vérification du bon…"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verifierar kupong ..."
-          }
-        }
-      }
+
     },
     "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lassen Sie all Ihre angemeldeten Geräte anzeigen und verwalten Sie sie. Sie können bis zu fünf Geräte gleichzeitig bei einem Konto haben. Jedes Gerät bekommt beim Anmelden einen Namen, damit Sie sie leicht unterscheiden können."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Affichez et gérez tous vos appareils connectés. Vous pouvez avoir jusqu'à 5 appareils sur un même compte. Chaque appareil reçoit un nom lorsqu'il est connecté, ce qui vous permet de le distinguer facilement."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visa och hantera alla dina inloggade enheter. Du kan ha upp till fem enheter åt gången på ett konto. Varje enhet får ett namn när den loggas in så att du enklare kan skilja dem åt."
-          }
-        }
-      }
+
     },
     "View app logs" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App-Protokolle anzeigen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher les journaux de l'application"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visa appens loggar"
-          }
-        }
-      }
+
+    },
+    "Voucher code has already been used." : {
+
     },
     "Voucher code is invalid." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Gutscheincode ist ungültig."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le code du bon n'est pas valide."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kupongkoden är ogiltig."
-          }
-        }
-      }
+
     },
     "Voucher was successfully redeemed." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Gutschein wurde erfolgreich eingelöst."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le bon a bien été échangé."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kupongen har lösts in."
-          }
-        }
-      }
+
     },
     "VPN settings" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "VPN-Einstellungen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paramètres VPN"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "VPN-inställningar"
-          }
-        }
-      }
+
     },
     "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Malware-Blocker ist kein Antivirusprogramm und sollte auch nicht als solches behandelt werden. Es dient lediglich als zusätzliche Schutzschicht."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avertissement : le bloqueur de malware n'est pas un anti-virus et ne doit pas être traité comme tel, il s'agit juste d'une couche de protection supplémentaire."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Varning! Blockering av skadlig kod är inte ett antivirusprogram och bör inte behandlas som ett. Det här är bara ett extra skyddslager."
-          }
-        }
-      }
+
     },
     "We are having some issues, please try again later" : {
 
     },
     "We will look into this." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wir werden uns das anschauen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nous allons nous pencher dessus."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vi kommer att undersöka detta."
-          }
-        }
-      }
-    },
-    "Welcome, this device is now called **%@**. For more details see the info button in Account." : {
 
     },
     "What’s new" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Was ist neu?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quoi de neuf"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vad är nytt"
-          }
-        }
-      }
+
     },
     "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domains oder Websites zu kontaktieren, die für die Verbreitung von Werbung, Malware, Trackern und mehr bekannt sind."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lorsque cette fonctionnalité est activée, elle empêche l'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera."
-          }
-        }
-      }
+
     },
     "When using DAITA, one provider with DAITA-enabled servers is required." : {
 
     },
     "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern."
-          }
-        }
-      }
+
     },
     "WireGuard obfuscation" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard-Verschleierung"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obfuscation WireGuard"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard-obfuskering"
-          }
-        }
-      }
+
     },
     "WireGuard port" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard-Port"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Port WireGuard"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WireGuard-port"
-          }
-        }
-      }
+
     },
     "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit der Methode „Direkt“ kommuniziert die App direkt mit einem Mullvad API-Server ohne zwischengeschaltete Proxys."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avec le mode « Direct », l'application communique directement avec un serveur d'API Mullvad, sans passer par des proxys intermédiaires."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Med metoden \"Direkt\" kommunicerar appen med en Mullvad API-server direkt utan mellanliggande proxyservrar."
-          }
-        }
-      }
+
     },
     "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit der Methode „Verschlüsseltes-DNS-Proxy“ kommuniziert die App mit unserer Mullvad-API über eine Proxy-Adresse. Sie tut dies, indem sie eine Adresse von einem DNS-over-HTTPS-Server (DoH) abruft und dann diese verwendet, um unsere API-Server zu erreichen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avec la méthode « proxy DNS chiffré », l'application communiquera avec notre API Mullvad par le biais d'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d'un serveur DNS over HTTPS (DoH) et l'utilise pour atteindre nos serveurs API."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad API via en proxyadress. Den gör det genom att hämta en adress från en DNS over HTTPS-server (DoH) och sedan använda den för att nå våra API-servrar."
-          }
-        }
-      }
+
     },
     "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit „Mullvad-Brücken“ kommuniziert die App mit einem Mullvad API-Server über einen Mullvad Brücken-Server. Dazu sendet sie den von Shadowsocks verschleierten Traffic."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dans la méthode « Ponts Mullvad », l'application communique avec un serveur d'API Mullvad via un serveur pont Mullvad. Pour ce faire, elle envoie le trafic obscurci par Shadowsocks."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Med metoden \"Mullvad-broar\" kommunicerar appen med en Mullvad API-server via en Mullvad-broserver. Den gör det genom att skicka trafiken som obfuskeras av Shadowsocks."
-          }
-        }
-      }
+
     },
     "Yes, continue" : {
 
     },
     "Yes, log out device" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ja, von Gerät abmelden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oui, déconnecter l'appareil"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ja, logga ut enheten"
-          }
-        }
-      }
+
     },
     "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." : {
 
     },
     "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous êtes sur le point d'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du är på väg att skicka problemrapporten utan att vi har möjlighet att besvara dig. Om du vill ha svar på din rapport måste du ange en e-postadress."
-          }
-        }
-      }
+
     },
     "You are logged in with an invalid account number. Please log out and try another one." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie sind mit einer ungültigen Kontonummer angemeldet. Bitte melden Sie sich ab und versuchen Sie es mit einer anderen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous vous êtes connecté(e) avec un numéro de compte non valide. Veuillez vous déconnecter et en essayer un autre."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du är inloggad med ett ogiltigt kontonummer. Logga ut och försök med ett annat."
-          }
-        }
-      }
+
     },
     "You can add more time via the account view or website to continue using the VPN." : {
 
     },
     "You can have up to 5 devices logged in on one Mullvad account." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous pouvez connecter jusqu'à 5 appareils au même compte Mullvad."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upp till fem enheter kan vara inloggade på ett Mullvad-konto."
-          }
-        }
-      }
+
     },
     "You can now continue logging in on this device." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie können jetzt mit der Anmeldung auf diesem Gerät fortfahren."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous pouvez maintenant continuer la connexion sur cet appareil."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kan nu fortsätta med att logga in på den här enheten."
-          }
-        }
-      }
+
     },
     "You can use the \"restore purchases\" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." : {
 
@@ -5057,117 +1155,28 @@
 
     },
     "You have no more VPN time left on this account. " : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie haben keine VPN-Zeit mehr auf diesem Konto. "
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous n'avez plus de temps de VPN sur ce compte. "
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har ingen VPN-tid kvar på det här kontot. "
-          }
-        }
-      }
+
     },
     "You have one day left on this account. Please add more time to continue using the VPN." : {
 
     },
     "You have removed this device. To connect again, you will need to log back in." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har tagit bort den här enheten. Du måste logga in igen för att återansluta."
-          }
-        }
-      }
+
     },
     "You have unsaved changes." : {
 
     },
-    "You’re all set!!" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie sind startklar!!"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du är klar!!"
-          }
-        }
-      }
+    "You’re all set!" : {
+
     },
     "Your device is offline. The tunnel will automatically connect once your device is back online." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen."
-          }
-        }
-      }
+
     },
     "Your device is offline. Try connecting again when the device has access to Internet." : {
 
     },
     "Your email (optional)" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ihre E-Mail-Adresse (optional)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre e-mail (facultatif)"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Din e-postadress (valfritt)"
-          }
-        }
-      }
+
     },
     "Your previous purchases have already been added to this account." : {
 

@@ -40,7 +40,7 @@ class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
         )
         controller.delegate = self
 
-        controller.navigationItem.title = NSLocalizedString("Add locations", comment: "")
+        controller.navigationItem.title = NSLocalizedString("Locations", comment: "")
 
         navigationController.pushViewController(controller, animated: true)
     }

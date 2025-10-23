@@ -113,6 +113,7 @@ clean_xliff_translations() {
   declare -A UNNEEDED_KEYS=(
     ["CFBundleName"]=1
     ["CFBundleDisplayName"]=1
+    ["NSHumanReadableCopyright"]=1
     # Add more keys here if needed
   )
   for xliff in "$xliff_dir"/*.xliff; do

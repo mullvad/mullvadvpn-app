@@ -39,7 +39,7 @@ struct FilterDescriptor {
 
     var title: String {
         guard isEnabled else {
-            return NSLocalizedString("No matching servers", comment: "")
+            return NSLocalizedString("No matching servers found.", comment: "")
         }
         return createTitleForAvailableServers()
     }
