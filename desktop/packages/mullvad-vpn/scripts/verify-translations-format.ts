@@ -2,9 +2,11 @@ import fs from 'fs';
 import { GetTextTranslation, po } from 'gettext-parser';
 import path from 'path';
 
+import { ALLOWED_TAGS } from '../src/renderer/lib/html-formatter';
+import { ValueOfArray } from '../src/shared/utility-types';
+
 const LOCALES_DIR = path.join('locales');
 
-const ALLOWED_TAGS = ['b', 'br', 'em'];
 const ALLOWED_VOID_TAGS = ['br'];
 
 // Make sure to report these strings to crowdin. View this as a temporary escape
@@ -69,6 +71,10 @@ function checkFormatSpecifiers(translation: GetTextTranslation): boolean {
     .every((result) => result);
 }
 
+function isAllowedTag(tag: string): tag is ValueOfArray<typeof ALLOWED_TAGS> {
+  return ALLOWED_TAGS.some((allowedTag) => tag === allowedTag);
+}
+
 function checkHtmlTagsImpl(value: string): { correct: boolean; amount: number } {
   const tagsRegexp = new RegExp('<.*?>', 'g');
   const tags = value.match(tagsRegexp) ?? [];
@@ -82,7 +88,7 @@ function checkHtmlTagsImpl(value: string): { correct: boolean; amount: number } 
     const endTag = tag.startsWith('/');
     tag = endTag ? tag.slice(1) : selfClosing ? tag.slice(0, -1).trim() : tag;
 
-    if (!ALLOWED_TAGS.includes(tag)) {
+    if (!isAllowedTag(tag)) {
       console.error(`Tag "<${tag}>" not allowed: "${value}"`);
       return { correct: false, amount: NaN };
     }
