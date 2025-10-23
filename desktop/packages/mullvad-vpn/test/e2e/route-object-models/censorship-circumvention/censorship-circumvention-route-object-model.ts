@@ -5,7 +5,7 @@ import { TestUtils } from '../../utils';
 import { NavigationObjectModel } from '../navigation';
 import { createSelectors } from './selectors';
 
-export class WireguardSettingsRouteObjectModel extends NavigationObjectModel {
+export class CensorshipCircumventionRouteObjectModel extends NavigationObjectModel {
   readonly selectors: ReturnType<typeof createSelectors>;
 
   constructor(page: Page, utils: TestUtils) {
@@ -20,7 +20,7 @@ export class WireguardSettingsRouteObjectModel extends NavigationObjectModel {
   }
 
   getAutomaticObfuscationOption() {
-    return this.selectors.automaticObfuscationOption();
+    return this.selectors.automaticOption();
   }
 
   async selectAutomaticObfuscation() {
