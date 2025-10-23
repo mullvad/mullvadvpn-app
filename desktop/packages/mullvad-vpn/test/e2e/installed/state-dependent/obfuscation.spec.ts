@@ -23,7 +23,7 @@ test.beforeAll(async () => {
   await util.expectRoute(RoutePath.main);
   await routes.main.gotoSettings();
   await routes.settings.gotoVpnSettings();
-  await routes.vpnSettings.gotoWireguardSettings();
+  await routes.vpnSettings.gotoCensorshipCircumvention();
 });
 
 test.afterAll(async () => {
