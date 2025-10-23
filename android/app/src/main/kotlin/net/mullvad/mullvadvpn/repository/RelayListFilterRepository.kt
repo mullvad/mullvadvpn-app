@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
 
 class RelayListFilterRepository(
     private val managementService: ManagementService,
@@ -48,9 +47,13 @@ class RelayListFilterRepository(
         relayListType: RelayListType,
     ) = managementService.setOwnershipAndProviders(ownership, providers, relayListType)
 
-    suspend fun updateSelectedOwnership(ownership: Constraint<Ownership>, relayListType: RelayListType) =
-        managementService.setOwnership(ownership, relayListType)
+    suspend fun updateSelectedOwnership(
+        ownership: Constraint<Ownership>,
+        relayListType: RelayListType,
+    ) = managementService.setOwnership(ownership, relayListType)
 
-    suspend fun updateSelectedProviders(providers: Constraint<Providers>, relayListType: RelayListType) =
-        managementService.setProviders(providers, relayListType)
+    suspend fun updateSelectedProviders(
+        providers: Constraint<Providers>,
+        relayListType: RelayListType,
+    ) = managementService.setProviders(providers, relayListType)
 }

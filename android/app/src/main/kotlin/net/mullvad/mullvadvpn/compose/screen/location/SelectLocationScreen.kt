@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -26,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -121,6 +123,9 @@ private fun PreviewSelectLocationScreen(
             onSelectRelayList = {},
             openDaitaSettings = {},
             onRefreshRelayList = {},
+            onSetAsExit = {},
+            onSetAsEntry = {},
+            setMultihop = {},
         )
     }
 }
@@ -212,16 +217,25 @@ fun SelectLocation(
                 }
             is SelectLocationSideEffect.FocusExitList ->
                 launch {
-                    // If multihop is enabled and the user selects a location or custom list in the
-                    // entry list
-                    // the app will switch to the exit list. Normally in this case the focus will
-                    // stay in the
-                    // entry list, but in this case we want move the focus to the exit list.
-                    focusManager.moveFocus(FocusDirection.Right)
-                    if (it.relayItem.hasChildren) {
-                        focusManager.moveFocus(FocusDirection.Right)
-                    }
+                    // TODO Do we need to do something here?
                 }
+            is SelectLocationSideEffect.MultihopChanged -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                if (it.enabled) {
+                                    R.string.multihop_is_enabled
+                                } else {
+                                    R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        onAction = { vm.setMultihop(!it.enabled) },
+                        duration = SnackbarDuration.Long,
+                    )
+                }
+            }
         }
     }
 
@@ -305,6 +319,9 @@ fun SelectLocation(
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
+        onSetAsEntry = vm::setAsEntry,
+        onSetAsExit = vm::setAsExit,
+        setMultihop = vm::setMultihop,
     )
 }
 
@@ -331,6 +348,9 @@ fun SelectLocationScreen(
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
+    onSetAsEntry: (RelayItem) -> Unit,
+    onSetAsExit: (RelayItem) -> Unit,
+    setMultihop: (Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -383,11 +403,13 @@ fun SelectLocationScreen(
                 }
             }
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
+            val multihopEnabled = state.contentOrNull()?.multihopEnabled == true
             val disabledText = stringResource(id = R.string.recents_disabled)
             val scope = rememberCoroutineScope()
 
             SelectLocationDropdownMenu(
                 recentsEnabled = recentsCurrentlyEnabled,
+                multihopEnabled = multihopEnabled,
                 onRecentsToggleEnableClick = {
                     if (recentsCurrentlyEnabled) {
                         scope.launch { snackbarHostState.showSnackbarImmediately(disabledText) }
@@ -395,6 +417,7 @@ fun SelectLocationScreen(
                     onRecentsToggleEnableClick()
                 },
                 onRefreshRelayList = onRefreshRelayList,
+                onMultihopToggleEnableClick = { setMultihop(!multihopEnabled) },
             )
         },
     ) { modifier ->
@@ -408,6 +431,9 @@ fun SelectLocationScreen(
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
             onHideBottomSheet = { locationBottomSheetState = null },
+            onSetAsEntry = onSetAsEntry,
+            onSetAsExit = onSetAsExit,
+            onRemoveAsEntry = { setMultihop(false) },
         )
 
         Column(
@@ -520,21 +546,27 @@ fun SelectLocationScreen(
 @Composable
 private fun SelectLocationDropdownMenu(
     recentsEnabled: Boolean,
+    multihopEnabled: Boolean,
     onRecentsToggleEnableClick: () -> Unit,
     onRefreshRelayList: () -> Unit,
+    onMultihopToggleEnableClick: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
     var recentsItemTextId by remember { mutableIntStateOf(R.string.disable_recents) }
+    var multihopItemTextId by remember { mutableIntStateOf(R.string.disable_multihop) }
 
     IconButton(
         onClick = {
             showMenu = !showMenu
-            // Only update the recents menu item text when the menu is being opened to prevent
-            // the text from being updated when the menu is being closed.
+            // Only update the recents and multihop menu items text when the menu is being opened to
+            // prevent
+            // the texts from being updated when the menu is being closed.
             if (showMenu) {
                 recentsItemTextId =
                     if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
+                multihopItemTextId =
+                    if (multihopEnabled) R.string.disable_multihop else R.string.enable_multihop
             }
         }
     ) {
@@ -563,6 +595,16 @@ private fun SelectLocationDropdownMenu(
             },
             colors = colors,
             leadingIcon = { Icon(Icons.Filled.History, contentDescription = null) },
+        )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(multihopItemTextId)) },
+            onClick = {
+                showMenu = false
+                onMultihopToggleEnableClick()
+            },
+            colors = colors,
+            leadingIcon = { Icon(Icons.Outlined.AddLocationAlt, contentDescription = null) },
         )
 
         DropdownMenuItem(
