@@ -7,7 +7,7 @@ import { SettingsContent, SettingsGroup } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { ObfuscationSettings, PortSetting } from './components';
+import { ObfuscationSettings } from './components';
 
 export function CensorshipCircumventionView() {
   const { pop } = useHistory();
@@ -33,10 +33,6 @@ export function CensorshipCircumventionView() {
             <SettingsContent>
               <SettingsGroup>
                 <ObfuscationSettings />
-              </SettingsGroup>
-
-              <SettingsGroup>
-                <PortSetting />
               </SettingsGroup>
             </SettingsContent>
           </NavigationScrollbars>
