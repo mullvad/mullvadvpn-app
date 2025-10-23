@@ -21,8 +21,11 @@ import {
   DnsBlockerSettings,
   EnableIpv6Setting,
   IpOverrideSettings,
+  IpVersionSetting,
   KillSwitchSetting,
   LockdownModeSetting,
+  MtuSetting,
+  QuantumResistantSetting,
 } from './components';
 
 export function VpnSettingsView() {
@@ -71,6 +74,18 @@ export function VpnSettingsView() {
 
                   <SettingsGroup>
                     <CensorshipCircumventionListItem />
+                  </SettingsGroup>
+
+                  <SettingsGroup>
+                    <QuantumResistantSetting />
+                  </SettingsGroup>
+
+                  <SettingsGroup>
+                    <IpVersionSetting />
+                  </SettingsGroup>
+
+                  <SettingsGroup>
+                    <MtuSetting />
                   </SettingsGroup>
 
                   <SettingsGroup>
