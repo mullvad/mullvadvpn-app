@@ -1,11 +1,8 @@
 # Set the default behavior
-* text=auto
+* text=auto eol=lf
 
 # Do not break script files on Windows, Bash expects LF
 *.sh text eol=lf
 
 # Use LF for Rust because rustfmt works best like that
 *.rs text eol=lf
-
-wireguard/libwg/go.mod text eol=lf
-wireguard/libwg/go.sum text eol=lf
