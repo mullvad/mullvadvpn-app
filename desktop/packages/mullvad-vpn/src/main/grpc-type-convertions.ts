@@ -669,6 +669,9 @@ function convertFromObfuscationSettings(
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO:
       selectedObfuscationType = ObfuscationType.lwo;
       break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.PORT:
+      selectedObfuscationType = ObfuscationType.port;
+      break;
   }
 
   return {
