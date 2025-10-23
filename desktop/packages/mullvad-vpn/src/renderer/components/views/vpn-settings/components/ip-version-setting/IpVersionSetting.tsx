@@ -38,8 +38,8 @@ export function IpVersionSetting() {
         <SettingsListbox.Content>
           <SettingsListbox.Label>
             {
-              // TRANSLATORS: The title for the WireGuard IP version selector.
-              messages.pgettext('wireguard-settings-view', 'IP version')
+              // TRANSLATORS: Title for device IP version setting.
+              messages.pgettext('wireguard-settings-view', 'Device IP version')
             }
           </SettingsListbox.Label>
         </SettingsListbox.Content>
