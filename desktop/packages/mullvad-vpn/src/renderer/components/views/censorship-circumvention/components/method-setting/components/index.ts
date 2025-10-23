@@ -4,3 +4,4 @@ export * from './off-option';
 export * from './quic-option';
 export * from './shadowsocks-option';
 export * from './udp-over-tcp-option';
+export * from './wireguard-port-option';
