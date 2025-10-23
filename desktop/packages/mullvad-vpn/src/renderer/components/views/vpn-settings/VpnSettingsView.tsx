@@ -61,6 +61,7 @@ export function VpnSettingsView() {
 
                   <SettingsGroup>
                     <DnsBlockerSettings />
+                    <CustomDnsSettings />
                   </SettingsGroup>
 
                   <SettingsGroup>
@@ -86,10 +87,6 @@ export function VpnSettingsView() {
 
                   <SettingsGroup>
                     <MtuSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <CustomDnsSettings />
                   </SettingsGroup>
 
                   <SettingsGroup>
