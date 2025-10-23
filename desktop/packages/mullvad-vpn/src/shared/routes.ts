@@ -34,4 +34,5 @@ export enum RoutePath {
   changelog = '/settings/changelog',
   appUpgrade = '/settings/app-upgrade',
   manageDevices = '/settings/manage-devices',
+  censorshipCircumvention = '/settings/advanced/censorship-circumvention',
 }
