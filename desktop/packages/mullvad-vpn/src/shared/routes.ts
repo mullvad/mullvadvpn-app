@@ -34,4 +34,5 @@ export enum RoutePath {
   appUpgrade = '/settings/app-upgrade',
   manageDevices = '/settings/manage-devices',
   censorshipCircumvention = '/settings/advanced/censorship-circumvention',
+  wireguardPort = '/settings/advanced/wireguard-port',
 }
