@@ -98,7 +98,7 @@ test.describe('Tunnel state and settings', () => {
 
     async function gotoUdpOverTcpSettings() {
       await gotoWireguardSettings();
-      await routes.wireguardSettings.gotoUdpOverTcpSettings();
+      await routes.censorshipCircumvention.gotoUdpOverTcpSettings();
     }
 
     test.beforeAll(async () => {
@@ -115,13 +115,13 @@ test.describe('Tunnel state and settings', () => {
     test('App should enable UDP-over-TCP', async () => {
       await gotoWireguardSettings();
 
-      const udpOverTcpOption = routes.wireguardSettings.getUdpOverTcpOption();
+      const udpOverTcpOption = routes.censorshipCircumvention.getUdpOverTcpOption();
       await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'false');
 
-      await routes.wireguardSettings.selectUdpOverTcp();
+      await routes.censorshipCircumvention.selectUdpOverTcp();
       await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'true');
 
-      await routes.wireguardSettings.goBackToRoute(RoutePath.main);
+      await routes.censorshipCircumvention.goBackToRoute(RoutePath.main);
 
       await expectConnected(page);
 
@@ -147,9 +147,9 @@ test.describe('Tunnel state and settings', () => {
 
     test('App should set obfuscation to automatic', async () => {
       await gotoWireguardSettings();
-      await routes.wireguardSettings.selectAutomaticObfuscation();
+      await routes.censorshipCircumvention.selectAutomaticObfuscation();
 
-      const automaticOption = routes.wireguardSettings.getAutomaticObfuscationOption();
+      const automaticOption = routes.censorshipCircumvention.getAutomaticObfuscationOption();
       await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
       await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
     });
