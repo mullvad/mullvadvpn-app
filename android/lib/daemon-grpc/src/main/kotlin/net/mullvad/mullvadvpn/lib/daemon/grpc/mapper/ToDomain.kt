@@ -436,6 +436,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.PORT ->
+            throw IllegalArgumentException("PORT is not a support obfuscation")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
