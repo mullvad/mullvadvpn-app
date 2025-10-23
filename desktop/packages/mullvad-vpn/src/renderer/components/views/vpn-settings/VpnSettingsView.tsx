@@ -16,13 +16,13 @@ import {
   AllowLanSetting,
   AutoConnectSetting,
   AutoStartSetting,
+  CensorshipCircumventionListItem,
   CustomDnsSettings,
   DnsBlockerSettings,
   EnableIpv6Setting,
   IpOverrideSettings,
   KillSwitchSetting,
   LockdownModeSetting,
-  WireguardSettings,
 } from './components';
 
 export function VpnSettingsView() {
@@ -70,7 +70,7 @@ export function VpnSettingsView() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <WireguardSettings />
+                    <CensorshipCircumventionListItem />
                   </SettingsGroup>
 
                   <SettingsGroup>
