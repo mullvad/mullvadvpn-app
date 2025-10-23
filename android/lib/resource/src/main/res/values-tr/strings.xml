@@ -24,6 +24,10 @@
     <string name="all_providers">Tüm hizmet sağlayıcılar</string>
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN %1$s uygulamasına atandı</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Android 16\'da bir VPN uygulaması güncellendikten sonra, cihazlar VPN uygulamalarının artık internete erişemediği bir duruma geçebilir.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Lütfen cihazınızı yeniden başlatın ve tekrar bağlanmayı deneyin. Bu işe yaramazsa lütfen %1$s adresine İsveççe veya İngilizce bir e-posta yazın.</string>
+    <string name="android_16_upgrade_warning_message">Android 16\'da bilinen bir sorun mevcut. Lütfen cihazınızı yeniden başlatıp tekrar deneyin. Daha fazla bilgi için</string>
+    <string name="android_16_upgrade_warning_title">Bağlanamıyor musunuz?</string>
     <string name="any">Tümü</string>
     <string name="api_access_description">Mullvad API\'sine erişim için özel yöntemler ekleyip yönetin.</string>
     <string name="api_access_method_info_first_line">Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir.</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">Yenilikler</string>
     <string name="cipher">Şifre</string>
     <string name="clear_input">Girişi temizle</string>
+    <string name="click_here">buraya tıklayın</string>
     <string name="close">Kapat</string>
     <string name="collapse">Daralt</string>
     <string name="confirm_ipv6_dns">VPN ayarlarındaki \"IPv6\" seçeneğini etkinleştirmediğiniz sürece IPv6 DNS sunucusu çalışmaz.</string>
@@ -248,7 +253,7 @@
     <string name="manage_devices">Cihazları yönet</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s kaldırılsın mı?</string>
     <string name="manage_devices_confirm_removal_description_line2">Cihaz listeden kaldırılacak ve oturum kapatılacak.</string>
-    <string name="manage_devices_description">Oturum açtığınız tüm cihazlarınızı görüntüleyin ve yönetin. Bir hesapta aynı anda en fazla 5 cihaz bulunabilir. Kolayca ayırt edebilmeniz için her cihaza giriş sırasında bir ad atanır.</string>
+    <string name="manage_devices_description">Oturum açtığınız tüm cihazları görüntüleyin ve yönetin. Bir hesapta aynı anda en fazla 5 cihaz bulunabilir. Kolayca ayırt edebilmeniz için her cihaza giriş sırasında bir ad atanır.</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; adlı cihazdan çıkış yapmak istediğinizden emin misiniz?</string>
     <string name="max_devices_resolved_description">Artık bu cihazda oturum açmaya devam edebilirsiniz.</string>
     <string name="max_devices_resolved_title">Süper!</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>
     <string name="no_matching_relay">Ayarlarınızla eşleşen sunucu yok. Sunucuyu veya diğer ayarları değiştirmeyi deneyin.</string>
+    <string name="no_matching_servers_found_first_line">Eşleşen sunucu bulunamadı.</string>
+    <string name="no_matching_servers_found_second_line">Lütfen filtrelerinizi değiştirmeyi deneyin.</string>
     <string name="no_recent_selection">Son seçim geçmişi yok</string>
     <string name="no_wireguard_key">Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin.</string>
     <string name="not_found">Bulunamadı</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Yeniden Bağlan</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
+    <string name="refresh_server_list">Sunucu listesini güncelle</string>
     <string name="relay_item_already_selected_as_entry">%1$s zaten giriş aktarıcısı olarak seçildi</string>
     <string name="relay_item_already_selected_as_exit">%1$s zaten çıkış aktarıcısı olarak seçildi</string>
     <string name="relayitem_is_inactive">%1$s kullanılamıyor</string>
@@ -386,7 +394,7 @@
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
     <string name="top_bar_device_name">Cihaz adı: %1$s</string>
     <string name="top_bar_time_left">Kalan süre: %1$s</string>
-    <string name="try_again">Tekrar deneyin</string>
+    <string name="try_again">Tekrar dene</string>
     <string name="type">Tür</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">TCP üzerinden UDP</string>
     <string name="update_dns_server_dialog_title">DNS sunucusunu güncelle</string>
     <string name="update_list_name">Liste adını güncelle</string>
+    <string name="updating_server_list_in_the_background">Sunucu listesi arka planda güncelleniyor...</string>
     <string name="uri_browser_app_not_found">Hiçbir tarayıcı uygulaması yüklü olmadığından bağlantı açılamadı</string>
     <string name="uri_market_app_not_found">Android uygulama mağazası yüklü olmadığından bağlantı açılamadı</string>
     <string name="use_method">Yöntemi kullan</string>

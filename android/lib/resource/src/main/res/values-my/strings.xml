@@ -24,6 +24,10 @@
     <string name="all_providers">ပံ့ပိုးသူအားလုံး</string>
     <string name="always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ &lt;b&gt;%1$s&lt;/b&gt; အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
     <string name="always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို %1$s သို့ သတ်မှတ်ထားပါသည်</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Android 16 တွင် VPN အက်ပ်ကို အပ်ဒိတ်လုပ်ပြီးနောက် စက်များတွင် VPN အက်ပ်များက အင်တာနက်ချိတ်မပေးနိုင်တော့သည့် အခြေအနေမျိုး ကြုံရတတ်သည်။</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">စက်ကို ရီစတက်ချပြီး ထပ်မံချိတ်ဆက်ကြည့်ပါ။ ချိတ်၍မရသေးလျှင် %1$s သို့ ဆွီဒင် သို့မဟုတ် အင်္ဂလိပ်ဘာသာစကားဖြင့် အီးမေးလ်ပို့ပါ။</string>
+    <string name="android_16_upgrade_warning_message">Android 16 တွင် သိထားပြီးသား ပြဿနာရှိသည်။ သင့်စက်ကို ရီစတက်ချပြီး ထပ်မံကြိုးစားပါ။ ပိုမိုလေ့လာရန်၊ </string>
+    <string name="android_16_upgrade_warning_title">ချိတ်မရဘူးလား။</string>
     <string name="any">တစ်ခုခု</string>
     <string name="api_access_description">Mullvad API ကို ရယူသုံးစွဲရန် စိတ်ကြိုက် နည်းလမ်းများကို ပေါင်းထည့်၍ စီမံပါ။</string>
     <string name="api_access_method_info_first_line">Mullvad API ဆာဗာသို့ သင်ဝင်ရောက်ရန်၊ ဆာဗာစာရင်းများ ရယူရန်နှင့် အလွန်အရေးပါသည့် အခြားလုပ်ဆောင်မှုများအတွက် ဤအက်ပ်သည် ၎င်းနှင့်ဆက်သွယ်ရန် လိုအပ်ပါသည်။</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">အသစ်ပါလာသော အကြောင်းအရာများ</string>
     <string name="cipher">ဝှက်စာ</string>
     <string name="clear_input">ထည့်သွင်းမှုကို ရှင်းရန်</string>
+    <string name="click_here">ဤနေရာကိုနှိပ်ပါ</string>
     <string name="close">ပိတ်ရန်</string>
     <string name="collapse">ချုံ့ရန်</string>
     <string name="confirm_ipv6_dns">VPN ဆက်တင်များအောက်ရှိ \"IPv6\" ကို မဖွင့်ထားပါက IPv6 DNS ဆာဗာသည် အလုပ်လုပ်မည်မဟုတ်ပါ။</string>
@@ -183,7 +188,7 @@
     <string name="expand">ဖြန့်ရန်</string>
     <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပါ။</string>
     <string name="failed_to_create_account">အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ</string>
-    <string name="failed_to_fetch_devices">စက်စာရင်းကို ယူရန် မအောင်မြင်ခဲ့ပါ</string>
+    <string name="failed_to_fetch_devices">စက်စာရင်းကို ယူ၍မရခဲ့ပါ</string>
     <string name="failed_to_load_products">ထုတ်ကုန်များကို လုပ်ဆောင်၍ မရပါ၊ ထပ်ကြိုးစားကြည့်ပါ</string>
     <string name="failed_to_remove_device">စက်ကို ဖယ်ရှားရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_send">ပို့ရန် မအောင်မြင်ခဲ့ပါ</string>
@@ -248,7 +253,7 @@
     <string name="manage_devices">စက်များကို စီမံရန်</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s ကို ဖယ်ရှားမလား။</string>
     <string name="manage_devices_confirm_removal_description_line2">စက်ကို စာရင်းမှ ဖယ်ရှားပြီး စနစ်မှ ထွက်သွားလိမ့်မည်။</string>
-    <string name="manage_devices_description">သင်ဝင်ရောက်ထားသည့် စက်ပစ္စည်းအားလုံးကို ကြည့်ရှုစီမံပါ။ အကောင့်တစ်ခုဖြင့် တစ်ချိန်တည်းတွင် စက်ပစ္စည်း ၅ ခုအထိသုံးနိုင်သည်။ စက်ပစ္စည်းတစ်ခုစီသည် ၎င်းတို့ကို အလွယ်တကူခွဲ၍သိနိုင်ရန် လော့ဂ်အင်ဝင်သည့်အခါ အမည်တစ်ခုရရှိမည်ဖြစ်သည်။</string>
+    <string name="manage_devices_description">သင်ဝင်ရောက်ထားသည့် စက်အားလုံးကို ကြည့်ရှုစီမံပါ။ အကောင့်တစ်ခုလျှင် စက် ၅ လုံးအထိ တစ်ပြိုင်နက်ဝင်ထားနိုင်သည်။ ဝင်ရောက်သည့်အခါတိုင်း ခွဲခြားရလွယ်ကူစေရန် စက်တစ်လုံးချင်းကို အမည်ပေးထားသည်။</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; မှ ထွက်လိုသည်မှာ သေချာပါသလား။</string>
     <string name="max_devices_resolved_description">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</string>
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">စိတ်ကြိုက် စာရင်းများကို မရရှိနိုင်ပါ</string>
     <string name="no_internet_connection">အင်တာနက် ချိတ်ဆက်မှု မရှိပါ</string>
     <string name="no_matching_relay">သင့်ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ၊ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်တို့ကို ပြောင်းလဲရန် ကြိုးစားကြည့်ပါ။</string>
+    <string name="no_matching_servers_found_first_line">ကိုက်ညီသည့် ဆာဗာများ မတွေ့ပါ။</string>
+    <string name="no_matching_servers_found_second_line">စစ်ထုတ်မှုများကို ပြောင်းကြည့်ပါ။</string>
     <string name="no_recent_selection">လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ</string>
     <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_found">ရှာမတွေ့ပါ</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">ပြန်ချိတ်ဆက်ရန်</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
+    <string name="refresh_server_list">ဆာဗာစာရင်းကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="relay_item_already_selected_as_entry">%1$s ကို ထပ်ဆင့်ဝင်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
     <string name="relay_item_already_selected_as_exit">%1$s ကို ထပ်ဆင့်ထွက်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
     <string name="relayitem_is_inactive">%1$s ကို မရရှိနိုင်ပါ</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS ဆာဗာကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="update_list_name">စာရင်း အမည်ကို အပ်ဒိတ်လုပ်ရန်</string>
+    <string name="updating_server_list_in_the_background">နောက်ခံတွင် ဆာဗာစာရင်းကို အပ်ဒိတ်လုပ်နေသည်...</string>
     <string name="uri_browser_app_not_found">ဘရောက်ဇာအက်ပ် တစ်ခုမျှ ထည့်သွင်းထားခြင်း မရှိပါ၊ လင့်ခ်ကို ဖွင့်၍မရပါ</string>
     <string name="uri_market_app_not_found">Android အက်ပ်စတိုး တစ်ခုမျှ ထည့်သွင်းထားခြင်း မရှိပါ၊ လင့်ခ်ကို ဖွင့်၍မရပါ</string>
     <string name="use_method">နည်းလမ်းကို သုံးရန်</string>

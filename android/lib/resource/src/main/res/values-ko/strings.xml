@@ -24,6 +24,10 @@
     <string name="all_providers">모든 제공업체</string>
     <string name="always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 &lt;b&gt;%1$s&lt;/b&gt;에 대한 상시 접속 VPN을 비활성화하세요.</string>
     <string name="always_on_vpn_error_notification_title">상시 접속 VPN이 %1$s에 할당됨</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Android 16에서 VPN 앱을 업데이트하면 VPN 앱이 더 이상 인터넷에 연결되지 않는 상태가 될 수 있습니다.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">장치를 재시작하고 다시 연결해 주세요. 그래도 해결되지 않는다면 %1$s에 스웨덴어 또는 영어로 이메일을 보내주세요.</string>
+    <string name="android_16_upgrade_warning_message">Android 16에는 알려진 문제가 있습니다. 장치를 재시작한 후 다시 시도해 주세요. 자세한 내용을 알아보려면</string>
+    <string name="android_16_upgrade_warning_title">연결이 되지 않나요?</string>
     <string name="any">모두</string>
     <string name="api_access_description">Mullvad API에 액세스하기 위한 사용자 지정 방법을 관리하고 추가합니다.</string>
     <string name="api_access_method_info_first_line">이 앱은 로그인, 서버 목록 가져오기 및 기타 중요한 작업을 위해 Mullvad API 서버와 통신해야 합니다.</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">새로운 기능</string>
     <string name="cipher">암호</string>
     <string name="clear_input">입력 지우기</string>
+    <string name="click_here">여기를 클릭하세요</string>
     <string name="close">닫기</string>
     <string name="collapse">접기</string>
     <string name="confirm_ipv6_dns">VPN 설정에서 \"IPv6\"를 활성화하지 않으면 IPv6 DNS 서버가 작동하지 않습니다.</string>
@@ -152,7 +157,7 @@
     <string name="dns_content_blockers">DNS 콘텐츠 차단기</string>
     <string name="dns_content_blockers_custom_dns_warning">주의: 이 설정은 \"사용자 지정 DNS 서버 사용\"과 함께 사용할 수 없습니다.</string>
     <string name="dns_content_blockers_info">이 기능이 활성화되면 광고, 맬웨어, 트래커 등을 배포하는 것으로 알려진 특정 도메인이나 웹사이트에 장치가 연결하지 않게 방지됩니다.</string>
-    <string name="dns_content_blockers_subtitle">이 설정을 활성화하려면 아래의 \"%1$s\"를 비활성화하세요.</string>
+    <string name="dns_content_blockers_subtitle">이 설정을 활성화하려면 아래의 \"%1$s\"을(를) 비활성화하세요.</string>
     <string name="dns_content_blockers_warning">이 기능을 사용하면 특정 웹 사이트, 서비스 및 앱에서 문제가 발생할 수 있습니다.</string>
     <string name="dont_have_an_account">계정 번호가 없으신가요?</string>
     <string name="duplicate_address_warning">이 주소는 이미 입력되었습니다.</string>
@@ -248,7 +253,7 @@
     <string name="manage_devices">장치 관리</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s을(를) 제거하시겠습니까?</string>
     <string name="manage_devices_confirm_removal_description_line2">장치가 목록에서 제거되고 로그아웃됩니다.</string>
-    <string name="manage_devices_description">로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 각 장치에는 로그인 시 이름이 부여됩니다.</string>
+    <string name="manage_devices_description">로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 로그인 시 각 장치에 이름이 부여됩니다.</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt;에서 로그아웃하시겠습니까?</string>
     <string name="max_devices_resolved_description">이제 이 장치에 계속 로그인할 수 있습니다.</string>
     <string name="max_devices_resolved_title">좋습니다!</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">이용 가능한 사용자 지정 목록 없음</string>
     <string name="no_internet_connection">인터넷에 연결되지 않음</string>
     <string name="no_matching_relay">설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요.</string>
+    <string name="no_matching_servers_found_first_line">일치하는 서버를 찾을 수 없습니다.</string>
+    <string name="no_matching_servers_found_second_line">필터를 변경해 보세요.</string>
     <string name="no_recent_selection">최근 선택 내역이 없습니다</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_found">찾을 수 없음</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">다시 연결</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
+    <string name="refresh_server_list">서버 목록 업데이트</string>
     <string name="relay_item_already_selected_as_entry">%1$s이(가) 이미 진입 릴레이로 선택되었습니다</string>
     <string name="relay_item_already_selected_as_exit">%1$s이(가) 이미 출구 릴레이로 선택되었습니다</string>
     <string name="relayitem_is_inactive">%1$s 사용 불가</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS 서버 업데이트</string>
     <string name="update_list_name">목록 이름 업데이트</string>
+    <string name="updating_server_list_in_the_background">백그라운드에서 서버 목록을 업데이트하는 중...</string>
     <string name="uri_browser_app_not_found">설치되어 있는 브라우저 앱이 없습니다. 링크를 열 수 없습니다</string>
     <string name="uri_market_app_not_found">설치되어 있는 Android 앱 스토어가 없습니다. 링크를 열 수 없습니다</string>
     <string name="use_method">방법 사용</string>

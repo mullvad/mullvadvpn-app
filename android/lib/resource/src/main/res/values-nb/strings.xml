@@ -24,6 +24,10 @@
     <string name="all_providers">Alle leverandører</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for &lt;b&gt;%1$s&lt;/b&gt; før du bruker Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet %1$s</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">Etter å ha oppdatert en VPN-app på Android 16, kan enhetene havne i en tilstand der VPN-appene ikke lenger får tilgang til internett.</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">Start enheten på nytt og prøv å koble til igjen. Hvis dette ikke fungerer, kan du skrive en e-post til %1$s på svensk eller engelsk.</string>
+    <string name="android_16_upgrade_warning_message">Android 16 har en kjent feil. Start enheten på nytt og prøv igjen. For å finne ut mer,</string>
+    <string name="android_16_upgrade_warning_title">Kan du ikke koble til?</string>
     <string name="any">Hvilken som helst</string>
     <string name="api_access_description">Administrer og legg til tilpassede metoder for tilgang til Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen må kunne kommunisere med en Mullvad API-server for å logge deg inn, hente serverlister og utføre andre kritiske operasjoner.</string>
@@ -67,12 +71,13 @@
     <string name="changelog_title">Dette er nytt</string>
     <string name="cipher">Chiffer</string>
     <string name="clear_input">Fjern inndata</string>
+    <string name="click_here">klikk her</string>
     <string name="close">Lukk</string>
     <string name="collapse">Skjul</string>
     <string name="confirm_ipv6_dns">IPv6 DNS-serveren fungerer ikke med mindre du aktiverer «IPv6» under VPN-innstillinger.</string>
     <string name="confirm_local_dns">Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under VPN-innstillinger.</string>
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
-    <string name="confirm_removal">Ja, logg av enhet</string>
+    <string name="confirm_removal">Ja, logg ut av enheten</string>
     <string name="congrats">Gratulerer!</string>
     <string name="connect">Koble til</string>
     <string name="connect_on_start">Koble til når enheten startes</string>
@@ -183,7 +188,7 @@
     <string name="expand">Utvid</string>
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Feilsøk eller send inn en problemrapport.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
-    <string name="failed_to_fetch_devices">Kunne ikke hente liste over enheter</string>
+    <string name="failed_to_fetch_devices">Kunne ikke hente listen over enheter</string>
     <string name="failed_to_load_products">Kunne ikke laste opp produkter. Prøv på nytt</string>
     <string name="failed_to_remove_device">Kunne ikke fjerne enhet</string>
     <string name="failed_to_send">Kunne ikke sende</string>
@@ -249,7 +254,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Fjerne %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheten blir fjernet fra listen og logget ut.</string>
     <string name="manage_devices_description">Se og administrer alle innloggede enheter. Du kan ha opptil fem enheter på én konto om gangen. Hver enhet får et navn når du logger inn, slik at du enkelt kan skille dem fra hverandre.</string>
-    <string name="max_devices_confirm_removal_description">Vil du virkelig logge av &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Vil du virkelig logge &lt;b&gt;%1$s&lt;/b&gt; av?</string>
     <string name="max_devices_resolved_description">Du kan nå fortsette med å logge på denne enheten.</string>
     <string name="max_devices_resolved_title">Supert!</string>
     <string name="max_devices_warning_description">Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger.</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">Ingen tilgjengelige egendefinerte lister</string>
     <string name="no_internet_connection">Ingen internettforbindelse</string>
     <string name="no_matching_relay">Ingen servere passer til innstillingene dine. Prøv å endre server eller andre innstillinger.</string>
+    <string name="no_matching_servers_found_first_line">Fant ingen matchende servere.</string>
+    <string name="no_matching_servers_found_second_line">Prøv å endre filtrene.</string>
     <string name="no_recent_selection">Ingen nylig valghistorikk</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_found">Ikke funnet</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">Koble til på nytt</string>
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
+    <string name="refresh_server_list">Oppdater serverlisten</string>
     <string name="relay_item_already_selected_as_entry">%1$s er allerede valgt som inngangsrelé</string>
     <string name="relay_item_already_selected_as_exit">%1$s er allerede valgt som utgangsrelé</string>
     <string name="relayitem_is_inactive">%1$s er utilgjengelig</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Oppdater DNS-serveren</string>
     <string name="update_list_name">Oppdater listenavn</string>
+    <string name="updating_server_list_in_the_background">Oppdater serverlisten i bakgrunnen …</string>
     <string name="uri_browser_app_not_found">Ingen nettleserapp installert. Kunne ikke åpne koblingen.</string>
     <string name="uri_market_app_not_found">Ingen Android-appbutikk installert. Kunne ikke åpne koblingen.</string>
     <string name="use_method">Bruk metode</string>

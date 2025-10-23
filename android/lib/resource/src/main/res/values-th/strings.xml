@@ -24,6 +24,10 @@
     <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
     <string name="always_on_vpn_error_notification_title">VPN เปิดอยู่เสมอ ได้รับการมอบหมายไปยัง %1$s แล้ว</string>
+    <string name="android_16_upgrade_warning_dialog_first_message">หลังจากอัปเดตแอป VPN บน Android 16 อุปกรณ์อาจอยู่ในสถานะที่แอป VPN ไม่สามารถเข้าถึงอินเทอร์เน็ตได้อีกต่อไป</string>
+    <string name="android_16_upgrade_warning_dialog_second_message">โปรดรีสตาร์ทอุปกรณ์ของคุณและลองเชื่อมต่ออีกครั้ง หากวิธีนี้ไม่ได้ผล โปรดเขียนอีเมลถึง %1$s เป็นภาษาสวีเดนหรืออังกฤษ</string>
+    <string name="android_16_upgrade_warning_message">Android 16 มีปัญหาที่ทราบแล้ว โปรดรีสตาร์ทอุปกรณ์ของคุณแล้วลองอีกครั้ง หากต้องการเรียนรู้เพิ่มเติม</string>
+    <string name="android_16_upgrade_warning_title">ไม่สามารถเชื่อมต่อได้ใช่ไหม</string>
     <string name="any">อะไรก็ได้</string>
     <string name="api_access_description">จัดการและเพิ่มวิธีแบบกำหนดเอง เพื่อเข้าถึง Mullvad API</string>
     <string name="api_access_method_info_first_line">แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ</string>
@@ -67,6 +71,7 @@
     <string name="changelog_title">มีอะไรใหม่</string>
     <string name="cipher">เข้ารหัส</string>
     <string name="clear_input">ล้างข้อมูลอินพุต</string>
+    <string name="click_here">คลิกที่นี่</string>
     <string name="close">ปิด</string>
     <string name="collapse">ยุบ</string>
     <string name="confirm_ipv6_dns">เซิร์ฟเวอร์ DNS IPv6 จะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"IPv6\" ภายใต้การตั้งค่า VPN</string>
@@ -152,7 +157,7 @@
     <string name="dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\"</string>
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
-    <string name="dns_content_blockers_subtitle">ปิดใช้งาน \"%1$s\" ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้</string>
+    <string name="dns_content_blockers_subtitle">ปิดใช้งาน \"%1$s\" ด้านล่างเพื่อเปิดใช้งานการตั้งค่าเหล่านี้</string>
     <string name="dns_content_blockers_warning">นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้</string>
     <string name="dont_have_an_account">ยังไม่มีหมายเลขบัญชีใช่ไหม</string>
     <string name="duplicate_address_warning">ที่อยู่นี้ได้รับการป้อนไปแล้ว</string>
@@ -249,7 +254,7 @@
     <string name="manage_devices_confirm_removal_description_line1">ลบ %1$s หรือไม่</string>
     <string name="manage_devices_confirm_removal_description_line2">อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ</string>
     <string name="manage_devices_description">ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย</string>
-    <string name="max_devices_confirm_removal_description">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบน &lt;b&gt;%1$s&lt;/b&gt;</string>
+    <string name="max_devices_confirm_removal_description">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="max_devices_resolved_description">คุณสามารถดำเนินการเข้าสู่ระบบต่อบนอุปกรณ์เครื่องนี้ได้แล้ว</string>
     <string name="max_devices_resolved_title">เยี่ยมยอด!</string>
     <string name="max_devices_warning_description">โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์</string>
@@ -270,6 +275,8 @@
     <string name="no_custom_lists_available">ไม่มีรายการแบบกำหนดเองที่พร้อมใช้งาน</string>
     <string name="no_internet_connection">ไม่มีการเชื่อมต่ออินเทอร์เน็ต</string>
     <string name="no_matching_relay">ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าของคุณ โปรดลองเปลี่ยนเซิร์ฟเวอร์ หรือการตั้งค่าอื่นๆ</string>
+    <string name="no_matching_servers_found_first_line">ไม่พบเซิร์ฟเวอร์ที่ตรงกัน</string>
+    <string name="no_matching_servers_found_second_line">โปรดลองเปลี่ยนตัวกรองของคุณ</string>
     <string name="no_recent_selection">ไม่มีประวัติการเลือกล่าสุด</string>
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_found">ไม่พบ</string>
@@ -316,6 +323,7 @@
     <string name="reconnect">เชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
+    <string name="refresh_server_list">อัปเดตรายการเซิร์ฟเวอร์</string>
     <string name="relay_item_already_selected_as_entry">%1$s ถูกเลือกเป็น Entry Relay อยู่แล้ว</string>
     <string name="relay_item_already_selected_as_exit">%1$s ถูกเลือกเป็น Exit Relay อยู่แล้ว</string>
     <string name="relayitem_is_inactive">%1$s ไม่พร้อมใช้งาน</string>
@@ -396,6 +404,7 @@
     <string name="upd_over_tcp">UDP-ผ่าน-TCP</string>
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="update_list_name">อัปเดตชื่อรายการ</string>
+    <string name="updating_server_list_in_the_background">กำลังอัปเดตรายชื่อเซิร์ฟเวอร์ในพื้นหลัง...</string>
     <string name="uri_browser_app_not_found">ไม่ได้ติดตั้งแอปเบราว์เซอร์ ไม่สามารถเปิดลิงก์ได้</string>
     <string name="uri_market_app_not_found">ไม่มีการติดตั้ง App Store ของ Android ไม่สามารถเปิดลิงก์ได้</string>
     <string name="use_method">ใช้วิธีการ</string>
