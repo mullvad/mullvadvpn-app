@@ -27,6 +27,7 @@ import {
   Account,
   AppInfoView,
   AppUpgradeView,
+  CensorshipCircumventionView,
   ChangelogView,
   DaitaSettingsView,
   LaunchView,
@@ -97,6 +98,11 @@ export default function AppRouter() {
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
           <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
+          <Route
+            exact
+            path={RoutePath.censorshipCircumvention}
+            component={CensorshipCircumventionView}
+          />
         </Switch>
       </Focus>
     </>
