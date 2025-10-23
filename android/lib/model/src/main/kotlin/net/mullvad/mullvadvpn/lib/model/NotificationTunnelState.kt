@@ -3,9 +3,9 @@ package net.mullvad.mullvadvpn.lib.model
 sealed interface NotificationTunnelState {
     data class Disconnected(val prepareError: PrepareError?) : NotificationTunnelState
 
-    data object Connecting : NotificationTunnelState
+    data class Connecting(val location: GeoIpLocation?) : NotificationTunnelState
 
-    data object Connected : NotificationTunnelState
+    data class Connected(val location: GeoIpLocation?) : NotificationTunnelState
 
     data object Blocking : NotificationTunnelState
 

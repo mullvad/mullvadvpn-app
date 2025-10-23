@@ -302,6 +302,7 @@
     <string name="overrides_cleared">Overrides cleared</string>
     <string name="disconnected_vpn_permission_error">Disconnected (No VPN permission)</string>
     <string name="settings_api_access">API access</string>
+    <string name="settings_notifications">Notifications</string>
     <string name="add">Add</string>
     <string name="api_access_description">Manage and add custom methods to access the Mullvad API.</string>
     <string name="current_method">Current: %s</string>
@@ -401,6 +402,7 @@
     <string name="device_ip_version_title">Device IP version</string>
     <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>
     <string name="enable_ipv6">In-tunnel IPv6</string>
+    <string name="enable_location_in_notification">Show location in notification</string>
     <string name="uri_market_app_not_found">No Android app store installed, could not open link</string>
     <string name="uri_browser_app_not_found">No browser app installed, could not open link</string>
     <string name="ipv6_info">When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.</string>

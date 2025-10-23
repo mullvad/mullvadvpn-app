@@ -368,6 +368,7 @@
     <string name="settings_api_access">API-tilgang</string>
     <string name="settings_changes_effect_warning_content_blocker">Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater.</string>
     <string name="settings_changes_effect_warning_short">DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart</string>
+    <string name="settings_notifications">Meldinger</string>
     <string name="settings_patch_error_failed_to_apply_patch">Kunne ikke bruke oppdatering</string>
     <string name="settings_patch_error_invalid_or_missing_value">Ugyldig eller mangler verdien «%1$s»</string>
     <string name="settings_patch_error_recursion_limit">Rekursjonsgrense</string>

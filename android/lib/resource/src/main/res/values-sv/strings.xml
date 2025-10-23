@@ -368,6 +368,7 @@
     <string name="settings_api_access">API-åtkomst</string>
     <string name="settings_changes_effect_warning_content_blocker">Ändringar i DNS-relaterade inställningar kanske inte börjar gälla direkt på grund av cachade resultat.</string>
     <string name="settings_changes_effect_warning_short">DNS-inställningarna kanske inte börjar gälla direkt</string>
+    <string name="settings_notifications">Meddelanden</string>
     <string name="settings_patch_error_failed_to_apply_patch">Konfigurationsfilen kunde inte tillämpas</string>
     <string name="settings_patch_error_invalid_or_missing_value">Värdet \"%1$s\" är ogiltigt eller saknas</string>
     <string name="settings_patch_error_recursion_limit">Rekursionsgräns</string>

@@ -21,9 +21,9 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.LocaleRepository
 import net.mullvad.mullvadvpn.lib.shared.PrepareVpnUseCase
 import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
+import net.mullvad.mullvadvpn.lib.shared.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferences
 import net.mullvad.mullvadvpn.repository.UserPreferencesMigration
-import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
@@ -77,6 +77,7 @@ val appModule = module {
         }
     single {
         TunnelStateNotificationProvider(
+            get(),
             get(),
             get(),
             get(),

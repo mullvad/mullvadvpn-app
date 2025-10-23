@@ -368,6 +368,7 @@
     <string name="settings_api_access">API 存取</string>
     <string name="settings_changes_effect_warning_content_blocker">由於快取的結果，對 DNS 相關設定所做的變更可能不會立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 設定可能不會立即生效</string>
+    <string name="settings_notifications">通知</string>
     <string name="settings_patch_error_failed_to_apply_patch">無法套用修補檔</string>
     <string name="settings_patch_error_invalid_or_missing_value">值「%1$s」無效或遺失</string>
     <string name="settings_patch_error_recursion_limit">遞迴限制</string>

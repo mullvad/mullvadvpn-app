@@ -8,4 +8,5 @@ message UserPreferences {
   int32 last_shown_changelog_version_code = 2;
   int64 account_expiry_unix_time_seconds = 3;
   bool show_android_16_connect_warning = 4;
+  bool show_location_in_system_notification = 5;
 }

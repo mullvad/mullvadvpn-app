@@ -7,8 +7,8 @@ import android.content.Intent
 import co.touchlab.kermit.Logger
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import net.mullvad.mullvadvpn.lib.shared.UserPreferencesRepository
 import net.mullvad.mullvadvpn.receiver.NotificationAlarmReceiver
-import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.accountExpiryNotificationTriggerAt
 
 class ScheduleNotificationAlarmUseCase(

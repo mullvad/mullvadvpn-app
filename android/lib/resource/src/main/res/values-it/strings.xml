@@ -368,6 +368,7 @@
     <string name="settings_api_access">Accesso API</string>
     <string name="settings_changes_effect_warning_content_blocker">Le modifiche alle impostazioni relative al DNS potrebbero non avere effetto immediato a causa dei risultati memorizzati nella cache.</string>
     <string name="settings_changes_effect_warning_short">Le impostazioni DNS potrebbero non avere effetto immediato</string>
+    <string name="settings_notifications">Notifiche</string>
     <string name="settings_patch_error_failed_to_apply_patch">Impossibile applicare la patch</string>
     <string name="settings_patch_error_invalid_or_missing_value">Valore \"%1$s\" non valido o mancante</string>
     <string name="settings_patch_error_recursion_limit">Limite di ricorsione</string>

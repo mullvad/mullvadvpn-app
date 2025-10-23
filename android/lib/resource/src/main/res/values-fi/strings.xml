@@ -368,6 +368,7 @@
     <string name="settings_api_access">Ohjelmointirajapinnan käyttö</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi.</string>
     <string name="settings_changes_effect_warning_short">Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi</string>
+    <string name="settings_notifications">Ilmoitukset</string>
     <string name="settings_patch_error_failed_to_apply_patch">Muutostiedoston käyttöönotto ei onnistunut</string>
     <string name="settings_patch_error_invalid_or_missing_value">Arvo \"%1$s\" puuttuu tai on virheellinen</string>
     <string name="settings_patch_error_recursion_limit">Toistorajoitus</string>

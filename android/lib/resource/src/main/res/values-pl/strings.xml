@@ -368,6 +368,7 @@
     <string name="settings_api_access">Dostęp do API</string>
     <string name="settings_changes_effect_warning_content_blocker">Zmiany w ustawieniach związanych z usługą DNS mogą nie zostać wprowadzone natychmiast ze względu na zbuforowane wyniki.</string>
     <string name="settings_changes_effect_warning_short">Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast</string>
+    <string name="settings_notifications">Powiadomienia</string>
     <string name="settings_patch_error_failed_to_apply_patch">Nie udało się zastosować poprawki</string>
     <string name="settings_patch_error_invalid_or_missing_value">Nieprawidłowa lub brakująca wartość „%1$s”</string>
     <string name="settings_patch_error_recursion_limit">Limit rekursji</string>
