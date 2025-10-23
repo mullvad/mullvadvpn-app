@@ -436,6 +436,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.PORT ->
+            throw IllegalArgumentException("PORT is not a support obfuscation")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -723,6 +725,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
+        ManagementInterface.FeatureIndicator.PORT,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
     }

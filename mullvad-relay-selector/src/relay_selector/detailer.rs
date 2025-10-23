@@ -23,7 +23,10 @@ use talpid_types::net::{
     wireguard::{PeerConfig, PublicKey},
 };
 
-use super::{WireguardConfig, query::WireguardRelayQuery};
+use super::{
+    WireguardConfig,
+    query::{ObfuscationQuery, WireguardRelayQuery},
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -182,7 +185,18 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
 ) -> Result<u16, Error> {
-    super::helpers::desired_or_random_port_from_range(&data.port_ranges, query.port)
+    // Only respect the port option if the Port method is used. Otherwise, we may pick any port.
+    //
+    // TODO: Enable the same behaviour on Android sometime later. For now, keep the old behaviour.
+    // If only || was supported in if-let-chains ..
+    let desired_port = if cfg!(target_os = "android") {
+        query.port
+    } else if let ObfuscationQuery::Port = query.obfuscation {
+        query.port
+    } else {
+        Constraint::Any
+    };
+    super::helpers::desired_or_random_port_from_range(&data.port_ranges, desired_port)
         .map_err(|_err| Error::PortSelectionError)
 }
 

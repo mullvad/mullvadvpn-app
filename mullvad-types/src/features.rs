@@ -70,6 +70,7 @@ pub enum FeatureIndicator {
     Multihop,
     SplitTunneling,
     LockdownMode,
+    Port,
     Udp2Tcp,
     Shadowsocks,
     Quic,
@@ -96,6 +97,7 @@ impl FeatureIndicator {
             FeatureIndicator::Multihop => "Multihop",
             FeatureIndicator::SplitTunneling => "Split Tunneling",
             FeatureIndicator::LockdownMode => "Lockdown Mode",
+            FeatureIndicator::Port => "WireGuard Port",
             FeatureIndicator::Udp2Tcp => "Udp2Tcp",
             FeatureIndicator::Shadowsocks => "Shadowsocks",
             FeatureIndicator::Quic => "Quic",
@@ -168,6 +170,10 @@ pub fn compute_feature_indicators(
                     .any(|single| single.obfuscation_type == obfs),
                 None => false,
             };
+            let port = matches!(
+                settings.obfuscation_settings.selected_obfuscation,
+                crate::relay_constraints::SelectedObfuscation::Port
+            );
             let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
             let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
             let quic = has_obfuscation(ObfuscationType::Quic);
@@ -200,6 +206,7 @@ pub fn compute_feature_indicators(
             vec![
                 (quantum_resistant, FeatureIndicator::QuantumResistance),
                 (multihop, FeatureIndicator::Multihop),
+                (port, FeatureIndicator::Port),
                 (udp_tcp, FeatureIndicator::Udp2Tcp),
                 (shadowsocks, FeatureIndicator::Shadowsocks),
                 (quic, FeatureIndicator::Quic),
@@ -229,7 +236,7 @@ mod tests {
         proxy::{ProxyEndpoint, ProxyType},
     };
 
-    use crate::relay_constraints::RelaySettings;
+    use crate::relay_constraints::{RelaySettings, SelectedObfuscation};
 
     use super::*;
 
@@ -362,6 +369,23 @@ mod tests {
             expected_indicators
         );
 
+        // Check that custom Port triggers a feature indicator.
+        {
+            // Stash the currently selected obfuscation method and reset it after checking for the
+            // feature indicator.
+            let prev = settings.obfuscation_settings.selected_obfuscation;
+            settings.obfuscation_settings.selected_obfuscation = SelectedObfuscation::Port;
+
+            expected_indicators.0.insert(FeatureIndicator::Port);
+            assert_eq!(
+                compute_feature_indicators(&settings, &endpoint, false),
+                expected_indicators
+            );
+
+            settings.obfuscation_settings.selected_obfuscation = prev;
+            expected_indicators.0.remove(&FeatureIndicator::Port);
+        }
+
         settings.tunnel_options.wireguard.mtu = Some(1300);
         expected_indicators.0.insert(FeatureIndicator::CustomMtu);
         assert_eq!(
@@ -434,6 +458,7 @@ mod tests {
             FeatureIndicator::Multihop => {}
             FeatureIndicator::SplitTunneling => {}
             FeatureIndicator::LockdownMode => {}
+            FeatureIndicator::Port => {}
             FeatureIndicator::Udp2Tcp => {}
             FeatureIndicator::Shadowsocks => {}
             FeatureIndicator::Quic => {}

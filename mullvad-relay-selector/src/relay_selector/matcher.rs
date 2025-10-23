@@ -121,13 +121,14 @@ fn filter_on_obfuscation(
     relay_list: &RelayList,
     relay: &Relay,
 ) -> bool {
+    use ObfuscationQuery::*;
     let Some(endpoint_data) = relay.wireguard() else {
         return true;
     };
 
     match &query.obfuscation {
         // Shadowsocks has relay-specific constraints
-        ObfuscationQuery::Shadowsocks(settings) => {
+        Shadowsocks(settings) => {
             let wg_data = &relay_list.wireguard;
             filter_on_shadowsocks(
                 &wg_data.shadowsocks_port_ranges,
@@ -137,7 +138,7 @@ fn filter_on_obfuscation(
             )
         }
         // QUIC is only enabled on some relays
-        ObfuscationQuery::Quic => match endpoint_data.quic() {
+        Quic => match endpoint_data.quic() {
             Some(quic) => match query.ip_version {
                 Constraint::Any => true,
                 Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
@@ -146,9 +147,9 @@ fn filter_on_obfuscation(
             None => false,
         },
         // LWO is only enabled on some relays
-        ObfuscationQuery::Lwo => endpoint_data.lwo,
+        Lwo => endpoint_data.lwo,
         // Other relays are compatible with this query
-        ObfuscationQuery::Off | ObfuscationQuery::Auto | ObfuscationQuery::Udp2tcp(_) => true,
+        Off | Auto | Port | Udp2tcp(_) => true,
     }
 }
 
