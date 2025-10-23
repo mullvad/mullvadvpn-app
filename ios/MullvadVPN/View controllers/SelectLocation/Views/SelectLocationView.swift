@@ -42,6 +42,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             .transformEffect(.identity)
             .padding()
         }
+        .animation(.default, value: viewModel.multihopContext)
         .background(Color.mullvadBackground)
         .navigationTitle("Select location")
         .navigationBarTitleDisplayMode(.inline)

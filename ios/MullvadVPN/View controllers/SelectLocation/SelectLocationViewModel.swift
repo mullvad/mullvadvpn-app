@@ -59,8 +59,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     @Published var isMultihopEnabled: Bool
     @Published var multihopContext: MultihopContext = .exit
 
-    @Published private var exitContext: LocationContext
-    @Published private var entryContext: LocationContext
+    @Published private var exitContext = LocationContext()
+    @Published private var entryContext = LocationContext()
     @Published var searchText: String = ""
     @Published var showDAITAInfo: Bool
 
@@ -132,27 +132,20 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         showDAITAInfo = tunnelManager.settings.daita.isAutomaticRouting
 
         self.exitContext = LocationContext(
-            locations: [],
-            customLists: [],
             filter:
                 SelectLocationViewModelImpl
                 .getActiveExitFilters(tunnelManager.settings),
-            selectedLocation: nil,
-            connectedRelayHostname: nil,
             selectLocation: { location in
                 delegate.didSelectExitRelayLocations(getUserSelectedRelays(location))
             }
         )
         self.entryContext = LocationContext(
-            locations: [],
-            customLists: [],
             filter:
                 SelectLocationViewModelImpl
                 .getActiveEntryFilters(tunnelManager.settings),
-            selectedLocation: nil,
-            connectedRelayHostname: nil,
             selectLocation: { location in
                 delegate.didSelectEntryRelayLocations(getUserSelectedRelays(location))
+                self.multihopContext = .exit
             }
         )
         let tunnelObserver =
@@ -419,7 +412,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         entryCustomListsDataSource.search(by: searchText)
     }
 
-    func getSelectedLocationNode(selectedRelays: UserSelectedRelays?, context: MultihopContext) -> LocationNode? {
+    private func getSelectedLocationNode(selectedRelays: UserSelectedRelays?, context: MultihopContext) -> LocationNode?
+    {
         let allLocationsDataSource: AllLocationDataSource? =
             switch context {
             case .entry:
@@ -453,7 +447,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         return nil
     }
 
-    fileprivate func excludeSelectedRelays(
+    private func excludeSelectedRelays(
         selectedRelays: UserSelectedRelays?,
         inContext context: MultihopContext
     ) {

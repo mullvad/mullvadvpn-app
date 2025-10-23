@@ -87,7 +87,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                         didSelectEntryRelayLocations: { [weak self] relays in
                             guard let self else { return }
                             self.didSelectEntryRelays(relays)
-                            self.didFinish?(self)
                         },
                         didFinish: { [weak self] in
                             guard let self else { return }
