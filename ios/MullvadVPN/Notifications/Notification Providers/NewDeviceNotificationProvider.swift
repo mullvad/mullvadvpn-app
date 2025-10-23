@@ -27,7 +27,7 @@ final class NewDeviceNotificationProvider: NotificationProvider,
 
     private var attributedBody: NSAttributedString {
         let formattedString = NSLocalizedString(
-            "Welcome, this device is now called **%@**. For more details see the info button in Account.",
+            "This device is now named **%@**. See more under \"Manage devices\" in Account.",
             comment: ""
         )
         let deviceName = storedDeviceData?.capitalizedName ?? ""

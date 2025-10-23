@@ -13,28 +13,19 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
     case importSuccessful(Context)
     case importFailed(Context)
 
-    enum Context {
-        case file, text
-
-        // Used in "statusDescription" below to form a complete sentence and therefore not localized here.
-        var description: String {
-            switch self {
-            case .file:
-                NSLocalizedString("file", comment: "")
-            case .text:
-                NSLocalizedString("text", comment: "")
-            }
-        }
+    enum Context: Equatable {
+        case text
+        case file(fileName: String)
     }
 
     var title: String {
         switch self {
         case .active:
-            NSLocalizedString("Overrides active", comment: "")
+            NSLocalizedString("OVERRIDES ACTIVE", comment: "")
         case .noImports, .importFailed:
-            NSLocalizedString("No overrides imported", comment: "")
+            NSLocalizedString("NO OVERRIDES IMPORTED", comment: "")
         case .importSuccessful:
-            NSLocalizedString("Import successful", comment: "")
+            NSLocalizedString("IMPORT SUCCESSFUL", comment: "")
         }
     }
 
@@ -62,15 +53,25 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
         case .active, .noImports:
             ""
         case let .importFailed(context):
-            String(
-                format: NSLocalizedString("Import of %@ was unsuccessful, please try again.", comment: ""),
-                context.description
-            )
+            switch context {
+            case .file(let fileName):
+                String(
+                    format: NSLocalizedString("Import of %@ was unsuccessful, please try again.", comment: ""),
+                    fileName
+                )
+            case .text:
+                NSLocalizedString("Import of text was unsuccessful, please try again.", comment: "")
+            }
         case let .importSuccessful(context):
-            String(
-                format: NSLocalizedString("Import of %@ was successful, overrides are now active.", comment: ""),
-                context.description
-            )
+            switch context {
+            case .file(let fileName):
+                String(
+                    format: NSLocalizedString("Import of %@ was successful, overrides are now active.", comment: ""),
+                    fileName
+                )
+            case .text:
+                NSLocalizedString("Import of text was successful, overrides are now active.", comment: "")
+            }
         }
     }
 }
