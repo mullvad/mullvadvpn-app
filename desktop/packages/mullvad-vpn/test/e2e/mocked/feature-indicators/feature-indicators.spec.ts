@@ -147,7 +147,7 @@ test.describe('Feature indicators', () => {
 
   test.beforeEach(async () => {
     await helpers.disconnect();
-    await routes.wireguardSettings.goBackToRoute(RoutePath.main);
+    await routes.censorshipCircumvention.goBackToRoute(RoutePath.main);
   });
 
   test.afterAll(async () => {
