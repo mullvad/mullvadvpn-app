@@ -150,7 +150,7 @@ class WelcomeViewModelTest {
     @Test
     fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() = runTest {
         // Arrange
-        accountExpiryStateFlow.emit(AccountData.mock(ZonedDateTime.now().plusDays(1)))
+        accountExpiryStateFlow.emit(AccountData.mock(ZonedDateTime.now().plusHours(24)))
 
         // Act, Assert
         viewModel.uiSideEffect.test {

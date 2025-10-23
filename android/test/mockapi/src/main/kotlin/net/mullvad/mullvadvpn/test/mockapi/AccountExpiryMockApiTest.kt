@@ -75,7 +75,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
         on<ConnectPage>()
 
         // Set account time as expired
-        val newAccountExpiry = ZonedDateTime.now().plusDays(3).plusSeconds(5)
+        val newAccountExpiry = ZonedDateTime.now().plusHours(3 * 24).plusSeconds(5)
         apiDispatcher.accountExpiry = newAccountExpiry
 
         on<ConnectPage> { clickAccount() }

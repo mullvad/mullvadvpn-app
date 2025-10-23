@@ -88,7 +88,7 @@ class OutOfTimeUseCaseTest {
     fun `tunnel is connected should emit false`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusDays(1))
+            val expiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusHours(24))
             val tunnelStateChanges =
                 listOf(
                     TunnelState.Disconnected(),
@@ -129,7 +129,7 @@ class OutOfTimeUseCaseTest {
     fun `account expiry that has not expired should emit false`() =
         scope.runTest {
             // Arrange
-            val notExpiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusDays(1))
+            val notExpiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusHours(24))
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -167,7 +167,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val initialAccountExpiry = AccountData.mock(ZonedDateTime.now().plusSeconds(100))
-            val updatedExpiry = AccountData.mock(initialAccountExpiry.expiryDate.plusDays(30))
+            val updatedExpiry = AccountData.mock(initialAccountExpiry.expiryDate.plusHours(30 * 24))
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -195,7 +195,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val initialAccountExpiry = AccountData.mock(ZonedDateTime.now().plusSeconds(100))
-            val updatedExpiry = AccountData.mock(initialAccountExpiry.expiryDate.plusDays(30))
+            val updatedExpiry = AccountData.mock(initialAccountExpiry.expiryDate.plusHours(30 * 24))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 // Initial event
