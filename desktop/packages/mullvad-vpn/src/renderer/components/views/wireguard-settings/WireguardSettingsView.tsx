@@ -15,13 +15,7 @@ import {
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import {
-  IpVersionSetting,
-  MtuSetting,
-  ObfuscationSettings,
-  PortSetting,
-  QuantumResistantSetting,
-} from './components';
+import { IpVersionSetting, MtuSetting, QuantumResistantSetting } from './components';
 
 export function WireguardSettingsView() {
   const { pop } = useHistory();
@@ -54,14 +48,6 @@ export function WireguardSettingsView() {
               </SettingsHeader>
               <SettingsContent>
                 <SettingsStack>
-                  <SettingsGroup>
-                    <PortSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <ObfuscationSettings />
-                  </SettingsGroup>
-
                   <SettingsGroup>
                     <QuantumResistantSetting />
                   </SettingsGroup>
