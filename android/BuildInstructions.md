@@ -93,7 +93,7 @@ Linux distro:
   sudo apt install zip openjdk-17-jdk
   ```
 
-- Install the SDK
+- Install the SDK and NDK
 
   The SDK should be placed in a separate directory, like for example `~/android` or `/opt/android`.
   This directory should be exported as the `$ANDROID_HOME` environment variable.
@@ -105,24 +105,9 @@ Linux distro:
   cd /opt/android     # Or some other directory to place the Android SDK
   export ANDROID_HOME=$PWD
 
-  wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-  unzip commandlinetools-linux-11076708_latest.zip
-  ./tools/bin/sdkmanager "platforms;android-33" "build-tools;30.0.3" "platform-tools"
-  ```
-
-- Install the NDK
-
-  The NDK should be placed in a separate directory, which can be inside the `$ANDROID_HOME` or in a
-  completely separate path. The extracted directory must be exported as the `$ANDROID_NDK_HOME`
-  environment variable.
-
-  ```bash
-  cd "$ANDROID_HOME"  # Or some other directory to place the Android NDK
-  wget https://dl.google.com/android/repository/android-ndk-r27c-linux.zip
-  unzip android-ndk-r27c-linux.zip
-
-  cd android-ndk-r27c
-  export ANDROID_NDK_HOME="$PWD"
+  wget https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip
+  unzip commandlinetools-linux-13114758_latest.zip
+  ./cmdline-tools/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" "ndk;27.3.13750724"
   ```
 
 #### 5. Install and configure Rust toolchain
@@ -134,6 +119,7 @@ environment variables:
 
   Add to `~/.bashrc` or equivalent:
   ```
+  export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.3.13750724"
   export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
   export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
   export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
