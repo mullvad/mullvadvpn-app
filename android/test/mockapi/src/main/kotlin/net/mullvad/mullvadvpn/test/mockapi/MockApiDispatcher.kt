@@ -83,7 +83,7 @@ class MockApiDispatcher : Dispatcher() {
                 .setBody(
                     accessTokenJsonResponse(
                             accessToken = DUMMY_ACCESS_TOKEN,
-                            expiry = ZonedDateTime.now().plusDays(1),
+                            expiry = ZonedDateTime.now().plusHours(24),
                         )
                         .toString()
                 )

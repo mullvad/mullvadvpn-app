@@ -75,7 +75,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
     fun `account that expires after the threshold should not emit a notification`() = runTest {
         accountExpiryInAppNotificationUseCase().test {
             assertNull(awaitItem())
-            setExpiry(notificationThreshold.plusDays(1))
+            setExpiry(notificationThreshold.plusHours(24))
             expectNoEvents()
         }
     }
@@ -124,7 +124,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
             // Make sure we reset the list of notifications emitted when new time is added
             setExpiry(
-                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusDays(1)
+                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusHours(24)
             )
             assertNull(expectMostRecentItem())
         }

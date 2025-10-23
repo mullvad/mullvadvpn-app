@@ -11,11 +11,11 @@ class AccountExpiryNotificationTriggerTest {
     fun `long account expiry should trigger 3 days before expiry`() {
         val now = ZonedDateTime.now()
 
-        val threeMonthsExpiry = now.plusDays(90)
+        val threeMonthsExpiry = now.plusHours(90 * 24)
         val trigger1 = accountExpiryNotificationTriggerAt(now, threeMonthsExpiry)
         assertEquals(87, Duration.between(now, trigger1).toDays())
 
-        val fourAndHalfDaysExpiry = now.plusDays(4).plusHours(12)
+        val fourAndHalfDaysExpiry = now.plusHours(4 * 24 + 12)
         val trigger2 = accountExpiryNotificationTriggerAt(now, fourAndHalfDaysExpiry)
         assertEquals(Duration.ofDays(1).plusHours(12), Duration.between(now, trigger2))
     }

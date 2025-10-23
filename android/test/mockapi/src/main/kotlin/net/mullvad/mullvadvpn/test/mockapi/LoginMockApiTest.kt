@@ -21,7 +21,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountNumber = null
-            accountExpiry = ZonedDateTime.now().plusDays(1)
+            accountExpiry = ZonedDateTime.now().plusHours(24)
         }
 
         // Act login with invalid credentials
@@ -42,7 +42,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
-            accountExpiry = ZonedDateTime.now().plusDays(1)
+            accountExpiry = ZonedDateTime.now().plusHours(24)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
