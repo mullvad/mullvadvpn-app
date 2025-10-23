@@ -2,7 +2,9 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemPreviewData
 import net.mullvad.mullvadvpn.usecase.FilterChip
@@ -24,6 +26,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                         ),
                     customLists = emptyList(),
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    selection = RelayItemSelection.Single(Constraint.Any),
                 )
             ),
             Lce.Error(Unit),
@@ -35,6 +38,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                         RelayListItemPreviewData.generateEmptyList("Mullvad", isSearching = true),
                     customLists = emptyList(),
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    selection = RelayItemSelection.Single(Constraint.Any),
                 )
             ),
             Lce.Content(
@@ -48,6 +52,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                         ),
                     customLists = emptyList(),
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    selection = RelayItemSelection.Single(Constraint.Any),
                 )
             ),
         )
