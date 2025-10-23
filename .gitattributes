@@ -1,5 +1,5 @@
 # Set the default behavior
-* text=auto
+* text=auto eol=lf
 
 # Do not break script files on Windows, Bash expects LF
 *.sh text eol=lf
