@@ -17,7 +17,7 @@ export function formatPortForSubLabel(port: Constraint<number>): string {
   return port === 'any' ? messages.gettext('Automatic') : `${port.only}`;
 }
 
-export function ObfuscationSettings() {
+export function MethodSetting() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
@@ -47,8 +47,8 @@ export function ObfuscationSettings() {
         <SettingsListbox.Content>
           <SettingsListbox.Label>
             {
-              // TRANSLATORS: The title for the WireGuard obfuscation selector.
-              messages.pgettext('wireguard-settings-view', 'Obfuscation')
+              // TRANSLATORS: The title for the obfuscation method selector.
+              messages.pgettext('wireguard-settings-view', 'Method')
             }
           </SettingsListbox.Label>
           <InfoButton>
