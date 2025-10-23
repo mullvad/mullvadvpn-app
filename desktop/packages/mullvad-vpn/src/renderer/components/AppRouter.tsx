@@ -43,6 +43,7 @@ import {
   UdpOverTcpSettingsView,
   UserInterfaceSettingsView,
   VpnSettingsView,
+  WireGuardPortView,
 } from './views';
 
 export default function AppRouter() {
@@ -101,6 +102,7 @@ export default function AppRouter() {
             path={RoutePath.censorshipCircumvention}
             component={CensorshipCircumventionView}
           />
+          <Route exact path={RoutePath.wireguardPort} component={WireGuardPortView} />
         </Switch>
       </Focus>
     </>
