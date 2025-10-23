@@ -44,7 +44,7 @@ function publish_metadata {
     local work_dir="$DATA_DIR/work/"
     local published_dir="$DATA_DIR/currently_published/"
     local upload_dir="$DATA_DIR/upload/"
-    local latest_path="latest.json"
+    local latest_filename="latest.json"
 
     local mullvad_release="cargo run -q --package mullvad-release --"
 
@@ -60,7 +60,7 @@ function publish_metadata {
 
     log_header "Backing up released data"
     cp -r "$signed_dir" "$published_dir"
-    cp "$latest_path" "$published_dir"
+    cp "$DATA_DIR/$latest_filename" "$published_dir"
 
     log_header "Replacing $work_dir directory with latest published data"
     cp -rf "$signed_dir" "$work_dir"
@@ -77,8 +77,8 @@ function publish_metadata {
     log_header "Creating upload dir"
     cp -rf "$signed_dir" "$upload_dir"
 
-    log_header "Generating $latest_path for current version metadata"
-    $mullvad_release query-latest "${platforms[@]}" > "$upload_dir/$latest_path"
+    log_header "Generating $latest_filename for current version metadata"
+    $mullvad_release query-latest "${platforms[@]}" > "$upload_dir/$latest_filename"
 
     log_header "New metadata including $PRODUCT_VERSION"
     git --no-pager diff --no-index -- "$published_dir" "$upload_dir" || true

@@ -8,17 +8,12 @@ use mullvad_update::{
         MIN_VERIFY_METADATA_VERSION, Rollout, VersionArchitecture, VersionInfo, VersionParameters,
     },
 };
-use std::{
-    cmp::Ordering,
-    fmt,
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::{cmp::Ordering, fmt, path::PathBuf, str::FromStr};
 use strum::IntoEnumIterator;
 use tokio::{fs, io};
 
 use crate::{
-    artifacts,
+    artifacts, get_data_dir,
     io_util::{create_dir_and_write, wait_for_confirm},
 };
 
@@ -74,25 +69,19 @@ impl Platform {
         [Platform::Windows, Platform::Linux, Platform::Macos]
     }
 
-    pub fn data_dir() -> PathBuf {
-        std::env::home_dir()
-            .expect("No home dir found")
-            .join(".local/share/mullvad-release")
-    }
-
     /// Path to WIP file in `work/` for this platform
     pub fn work_path(&self) -> PathBuf {
-        Self::data_dir().join("work").join(self.local_filename())
+        get_data_dir().join("work").join(self.local_filename())
     }
 
     /// Path to signed file in `signed/` for this platform
     pub fn signed_path(&self) -> PathBuf {
-        Self::data_dir().join("signed").join(self.local_filename())
+        get_data_dir().join("signed").join(self.local_filename())
     }
 
     /// Expected artifacts in `artifacts/` directory
     pub fn artifact_filenames(&self, version: &mullvad_version::Version) -> Artifacts {
-        let artifacts_dir = Self::data_dir().join("artifacts");
+        let artifacts_dir = get_data_dir().join("artifacts");
         match self {
             Platform::Windows => Artifacts {
                 x86_artifacts: vec![artifacts_dir.join(format!("MullvadVPN-{version}_x64.exe"))],
