@@ -51,7 +51,7 @@ class EditCustomListLocationsPage: Page {
     }
 
     @discardableResult func tapBackButton() -> Self {
-        app.navigationBars["Edit locations"].buttons.firstMatch.tap()
+        app.navigationBars["Locations"].buttons.firstMatch.tap()
         return self
     }
 }

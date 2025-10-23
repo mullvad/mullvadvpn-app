@@ -41,10 +41,8 @@ enum CustomListItemIdentifier: Hashable, CaseIterable {
         switch self {
         case .name:
             NSLocalizedString("Name", comment: "")
-        case .addLocations:
-            NSLocalizedString("Add locations", comment: "")
-        case .editLocations:
-            NSLocalizedString("Edit locations", comment: "")
+        case .addLocations, .editLocations:
+            NSLocalizedString("Locations", comment: "")
         case .deleteList:
             NSLocalizedString("Delete list", comment: "")
         }

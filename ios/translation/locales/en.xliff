@@ -45,9 +45,9 @@
         <target state="new">%1$@, %2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@: Multihop" xml:space="preserve">
-        <source>%@: Multihop</source>
-        <target state="new">%@: Multihop</target>
+      <trans-unit id="%@-enabled" xml:space="preserve">
+        <source>%@-enabled</source>
+        <target state="new">%@-enabled</target>
         <note/>
       </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve">
@@ -90,24 +90,14 @@
         <target state="new">API unreachable, save method anyway?</target>
         <note/>
       </trans-unit>
+      <trans-unit id="About %@ method..." xml:space="preserve">
+        <source>About %@ method...</source>
+        <target state="new">About %@ method...</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="About API access…" xml:space="preserve">
         <source>About API access…</source>
         <target state="new">About API access…</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="About Direct method..." xml:space="preserve">
-        <source>About Direct method...</source>
-        <target state="new">About Direct method...</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="About Encrypted DNS proxy method..." xml:space="preserve">
-        <source>About Encrypted DNS proxy method...</source>
-        <target state="new">About Encrypted DNS proxy method...</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="About Mullvad bridges method..." xml:space="preserve">
-        <source>About Mullvad bridges method...</source>
-        <target state="new">About Mullvad bridges method...</target>
         <note/>
       </trans-unit>
       <trans-unit id="About Server IP override..." xml:space="preserve">
@@ -155,14 +145,14 @@
         <target state="new">Add</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add 30 days" xml:space="preserve">
-        <source>Add 30 days</source>
-        <target state="new">Add 30 days</target>
+      <trans-unit id="Add 30 days time (%@)" xml:space="preserve">
+        <source>Add 30 days time (%@)</source>
+        <target state="new">Add 30 days time (%@)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add 90 days" xml:space="preserve">
-        <source>Add 90 days</source>
-        <target state="new">Add 90 days</target>
+      <trans-unit id="Add 90 days time (%@)" xml:space="preserve">
+        <source>Add 90 days time (%@)</source>
+        <target state="new">Add 90 days time (%@)</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add a server" xml:space="preserve">
@@ -170,19 +160,9 @@
         <target state="new">Add a server</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Add locations" xml:space="preserve">
-        <source>Add locations</source>
-        <target state="new">Add locations</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Add method" xml:space="preserve">
         <source>Add method</source>
         <target state="new">Add method</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Add new list" xml:space="preserve">
-        <source>Add new list</source>
-        <target state="new">Add new list</target>
         <note/>
       </trans-unit>
       <trans-unit id="Add time" xml:space="preserve">
@@ -245,9 +225,9 @@
         <target state="new">At least one method needs to be enabled.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: this setting cannot be used in combination with **“%@“**." xml:space="preserve">
-        <source>Attention: this setting cannot be used in combination with **“%@“**.</source>
-        <target state="new">Attention: this setting cannot be used in combination with **“%@“**.</target>
+      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
+        <source>Attention: this setting cannot be used in combination with **%@**</source>
+        <target state="new">Attention: this setting cannot be used in combination with **%@**</target>
         <note/>
       </trans-unit>
       <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
@@ -265,14 +245,14 @@
         <target state="new">Automatic</target>
         <note/>
       </trans-unit>
+      <trans-unit id="BLOCKED CONNECTION" xml:space="preserve">
+        <source>BLOCKED CONNECTION</source>
+        <target state="new">BLOCKED CONNECTION</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="BLOCKING INTERNET" xml:space="preserve">
         <source>BLOCKING INTERNET</source>
         <target state="new">BLOCKING INTERNET</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Blocked connection" xml:space="preserve">
-        <source>Blocked connection</source>
-        <target state="new">Blocked connection</target>
         <note/>
       </trans-unit>
       <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
@@ -288,6 +268,16 @@
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve">
         <source>By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</source>
         <target state="new">By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="CONNECTED" xml:space="preserve">
+        <source>CONNECTED</source>
+        <target state="new">CONNECTED</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="CONNECTING..." xml:space="preserve">
+        <source>CONNECTING...</source>
+        <target state="new">CONNECTING...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Cancel" xml:space="preserve">
@@ -370,24 +360,14 @@
         <target state="new">Connect</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected" xml:space="preserve">
-        <source>Connected</source>
-        <target state="new">Connected</target>
+      <trans-unit id="Connected to %@" xml:space="preserve">
+        <source>Connected to %@</source>
+        <target state="new">Connected to %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected to %@, %@" xml:space="preserve">
-        <source>Connected to %1$@, %2$@</source>
-        <target state="new">Connected to %1$@, %2$@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Connecting to %@, %@" xml:space="preserve">
-        <source>Connecting to %1$@, %2$@</source>
-        <target state="new">Connecting to %1$@, %2$@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Connecting..." xml:space="preserve">
-        <source>Connecting...</source>
-        <target state="new">Connecting...</target>
+      <trans-unit id="Connecting to %@" xml:space="preserve">
+        <source>Connecting to %@</source>
+        <target state="new">Connecting to %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connection details" xml:space="preserve">
@@ -405,11 +385,6 @@
         <target state="new">Copied Mullvad account number to pasteboard</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Correct account number" xml:space="preserve">
-        <source>Correct account number</source>
-        <target state="new">Correct account number</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Create" xml:space="preserve">
         <source>Create</source>
         <target state="new">Create</target>
@@ -425,14 +400,19 @@
         <target state="new">Create new account</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Create new list" xml:space="preserve">
+        <source>Create new list</source>
+        <target state="new">Create new list</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Created: %@" xml:space="preserve">
         <source>Created: %@</source>
         <target state="new">Created: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Creating new account" xml:space="preserve">
-        <source>Creating new account</source>
-        <target state="new">Creating new account</target>
+      <trans-unit id="Creating account..." xml:space="preserve">
+        <source>Creating account...</source>
+        <target state="new">Creating account...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Current device" xml:space="preserve">
@@ -470,9 +450,14 @@
         <target state="new">DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA-enabled" xml:space="preserve">
-        <source>DAITA-enabled</source>
-        <target state="new">DAITA-enabled</target>
+      <trans-unit id="DISCONNECTED" xml:space="preserve">
+        <source>DISCONNECTED</source>
+        <target state="new">DISCONNECTED</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DISCONNECTING..." xml:space="preserve">
+        <source>DISCONNECTING...</source>
+        <target state="new">DISCONNECTING...</target>
         <note/>
       </trans-unit>
       <trans-unit id="DNS content blockers" xml:space="preserve">
@@ -483,11 +468,6 @@
       <trans-unit id="DNS settings" xml:space="preserve">
         <source>DNS settings</source>
         <target state="new">DNS settings</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Defense against AI-guided Traffic Analysis" xml:space="preserve">
-        <source>Defense against AI-guided Traffic Analysis</source>
-        <target state="new">Defense against AI-guided Traffic Analysis</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete" xml:space="preserve">
@@ -545,11 +525,6 @@
         <target state="new">Disable all "%@" above to activate this setting.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabled" xml:space="preserve">
-        <source>Disabled</source>
-        <target state="new">Disabled</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disabling" xml:space="preserve">
         <source>Disabling</source>
         <target state="new">Disabling</target>
@@ -563,16 +538,6 @@
       <trans-unit id="Disconnect" xml:space="preserve">
         <source>Disconnect</source>
         <target state="new">Disconnect</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Disconnected" xml:space="preserve">
-        <source>Disconnected</source>
-        <target state="new">Disconnected</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Disconnecting..." xml:space="preserve">
-        <source>Disconnecting...</source>
-        <target state="new">Disconnecting...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
@@ -605,19 +570,19 @@
         <target state="new">Edit custom list</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit lists" xml:space="preserve">
-        <source>Edit lists</source>
-        <target state="new">Edit lists</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Edit locations" xml:space="preserve">
-        <source>Edit locations</source>
-        <target state="new">Edit locations</target>
+      <trans-unit id="Edit custom lists" xml:space="preserve">
+        <source>Edit custom lists</source>
+        <target state="new">Edit custom lists</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve">
         <source>Edit message</source>
         <target state="new">Edit message</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Edit method" xml:space="preserve">
+        <source>Edit method</source>
+        <target state="new">Edit method</target>
         <note/>
       </trans-unit>
       <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
@@ -633,11 +598,6 @@
       <trans-unit id="Enable" xml:space="preserve">
         <source>Enable</source>
         <target state="new">Enable</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enable &quot;%@&quot;" xml:space="preserve">
-        <source>Enable "%@"</source>
-        <target state="new">Enable "%@"</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enable method" xml:space="preserve">
@@ -725,11 +685,6 @@
         <target state="new">Failed to stop the tunnel: %@.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to validate account number: %@" xml:space="preserve">
-        <source>Failed to validate account number: %@</source>
-        <target state="new">Failed to validate account number: %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Fetching devices..." xml:space="preserve">
         <source>Fetching devices...</source>
         <target state="new">Fetching devices...</target>
@@ -780,6 +735,11 @@
         <target state="new">Hide account number</target>
         <note/>
       </trans-unit>
+      <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve">
+        <source>IMPORT SUCCESSFUL</source>
+        <target state="new">IMPORT SUCCESSFUL</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve">
         <source>If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</source>
         <target state="new">If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</target>
@@ -795,9 +755,9 @@
         <target state="new">If you are having issues connecting to VPN servers, please contact support.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
-        <target state="new">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</target>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
+        <target state="new">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve">
@@ -850,9 +810,14 @@
         <target state="new">Import of %@ was unsuccessful, please try again.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import successful" xml:space="preserve">
-        <source>Import successful</source>
-        <target state="new">Import successful</target>
+      <trans-unit id="Import of text was successful, overrides are now active." xml:space="preserve">
+        <source>Import of text was successful, overrides are now active.</source>
+        <target state="new">Import of text was successful, overrides are now active.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import of text was unsuccessful, please try again." xml:space="preserve">
+        <source>Import of text was unsuccessful, please try again.</source>
+        <target state="new">Import of text was unsuccessful, please try again.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import via text" xml:space="preserve">
@@ -888,6 +853,11 @@
       <trans-unit id="Invalid account number" xml:space="preserve">
         <source>Invalid account number</source>
         <target state="new">Invalid account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Invalid account number: %@" xml:space="preserve">
+        <source>Invalid account number: %@</source>
+        <target state="new">Invalid account number: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve">
@@ -940,9 +910,9 @@
         <target state="new">Local network sharing</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Log in" xml:space="preserve">
-        <source>Log in</source>
-        <target state="new">Log in</target>
+      <trans-unit id="Locations" xml:space="preserve">
+        <source>Locations</source>
+        <target state="new">Locations</target>
         <note/>
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve">
@@ -995,9 +965,9 @@
         <target state="new">Manage devices</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Method settings" xml:space="preserve">
-        <source>Method settings</source>
-        <target state="new">Method settings</target>
+      <trans-unit id="Mullvad owned only" xml:space="preserve">
+        <source>Mullvad owned only</source>
+        <target state="new">Mullvad owned only</target>
         <note/>
       </trans-unit>
       <trans-unit id="Multihop" xml:space="preserve">
@@ -1015,11 +985,6 @@
         <target state="new">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Multiple validation errors occurred." xml:space="preserve">
-        <source>Multiple validation errors occurred.</source>
-        <target state="new">Multiple validation errors occurred.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="NETWORK ISSUES" xml:space="preserve">
         <source>NETWORK ISSUES</source>
         <target state="new">NETWORK ISSUES</target>
@@ -1033,6 +998,16 @@
       <trans-unit id="NEW VERSION INSTALLED" xml:space="preserve">
         <source>NEW VERSION INSTALLED</source>
         <target state="new">NEW VERSION INSTALLED</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="NO NETWORK" xml:space="preserve">
+        <source>NO NETWORK</source>
+        <target state="new">NO NETWORK</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="NO OVERRIDES IMPORTED" xml:space="preserve">
+        <source>NO OVERRIDES IMPORTED</source>
+        <target state="new">NO OVERRIDES IMPORTED</target>
         <note/>
       </trans-unit>
       <trans-unit id="Name" xml:space="preserve">
@@ -1075,19 +1050,9 @@
         <target state="new">No matching relays found, check your filter settings.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching servers" xml:space="preserve">
-        <source>No matching servers</source>
-        <target state="new">No matching servers</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="No network" xml:space="preserve">
-        <source>No network</source>
-        <target state="new">No network</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="No overrides imported" xml:space="preserve">
-        <source>No overrides imported</source>
-        <target state="new">No overrides imported</target>
+      <trans-unit id="No matching servers found." xml:space="preserve">
+        <source>No matching servers found.</source>
+        <target state="new">No matching servers found.</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
@@ -1113,6 +1078,11 @@
       <trans-unit id="OUT OF TIME" xml:space="preserve">
         <source>OUT OF TIME</source>
         <target state="new">OUT OF TIME</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="OVERRIDES ACTIVE" xml:space="preserve">
+        <source>OVERRIDES ACTIVE</source>
+        <target state="new">OVERRIDES ACTIVE</target>
         <note/>
       </trans-unit>
       <trans-unit id="Obfuscation" xml:space="preserve">
@@ -1173,16 +1143,6 @@
       <trans-unit id="Out of time" xml:space="preserve">
         <source>Out of time</source>
         <target state="new">Out of time</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Overrides active" xml:space="preserve">
-        <source>Overrides active</source>
-        <target state="new">Overrides active</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Owned" xml:space="preserve">
-        <source>Owned</source>
-        <target state="new">Owned</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ownership" xml:space="preserve">
@@ -1265,14 +1225,14 @@
         <target state="new">Quantum-resistant tunnel</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Reconnecting" xml:space="preserve">
-        <source>Reconnecting</source>
-        <target state="new">Reconnecting</target>
+      <trans-unit id="RECONNECTING" xml:space="preserve">
+        <source>RECONNECTING</source>
+        <target state="new">RECONNECTING</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Reconnecting to %@, %@" xml:space="preserve">
-        <source>Reconnecting to %1$@, %2$@</source>
-        <target state="new">Reconnecting to %1$@, %2$@</target>
+      <trans-unit id="Reconnecting to %@" xml:space="preserve">
+        <source>Reconnecting to %@</source>
+        <target state="new">Reconnecting to %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Redeem" xml:space="preserve">
@@ -1317,9 +1277,9 @@ Do you want to remove the saved account number?</source>
 Do you want to remove the saved account number?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Rented" xml:space="preserve">
-        <source>Rented</source>
-        <target state="new">Rented</target>
+      <trans-unit id="Rented only" xml:space="preserve">
+        <source>Rented only</source>
+        <target state="new">Rented only</target>
         <note/>
       </trans-unit>
       <trans-unit id="Report a problem" xml:space="preserve">
@@ -1562,6 +1522,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">This device is not allowed to make the payment.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
+        <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
+        <target state="new">This device is now named **%@**. See more under "Manage devices" in Account.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve">
         <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</source>
         <target state="new">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</target>
@@ -1590,11 +1555,6 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve">
         <source>This might cause issues on certain websites, services, and apps.</source>
         <target state="new">This might cause issues on certain websites, services, and apps.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="This voucher code has already been used." xml:space="preserve">
-        <source>This voucher code has already been used.</source>
-        <target state="new">This voucher code has already been used.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Time left: %@" xml:space="preserve">
@@ -1722,6 +1682,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">VPN settings</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Valid account number" xml:space="preserve">
+        <source>Valid account number</source>
+        <target state="new">Valid account number</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Valid range: %d - %d" xml:space="preserve">
         <source>Valid range: %1$d - %2$d</source>
         <target state="new">Valid range: %1$d - %2$d</target>
@@ -1740,6 +1705,11 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="View app logs" xml:space="preserve">
         <source>View app logs</source>
         <target state="new">View app logs</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Voucher code has already been used." xml:space="preserve">
+        <source>Voucher code has already been used.</source>
+        <target state="new">Voucher code has already been used.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Voucher code is invalid." xml:space="preserve">
@@ -1765,11 +1735,6 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="We will look into this." xml:space="preserve">
         <source>We will look into this.</source>
         <target state="new">We will look into this.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Welcome, this device is now called **%@**. For more details see the info button in Account." xml:space="preserve">
-        <source>Welcome, this device is now called **%@**. For more details see the info button in Account.</source>
-        <target state="new">Welcome, this device is now called **%@**. For more details see the info button in Account.</target>
         <note/>
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve">
@@ -1925,29 +1890,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="new">Your purchase was successfully refunded.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You’re all set!!" xml:space="preserve">
-        <source>You’re all set!!</source>
-        <target state="new">You’re all set!!</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="file" xml:space="preserve">
-        <source>file</source>
-        <target state="new">file</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="method" xml:space="preserve">
-        <source>method</source>
-        <target state="new">method</target>
+      <trans-unit id="You’re all set!" xml:space="preserve">
+        <source>You’re all set!</source>
+        <target state="new">You’re all set!</target>
         <note/>
       </trans-unit>
       <trans-unit id="multihop" xml:space="preserve">
         <source>multihop</source>
         <target state="new">multihop</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="text" xml:space="preserve">
-        <source>text</source>
-        <target state="new">text</target>
         <note/>
       </trans-unit>
       <trans-unit id="value" xml:space="preserve">
@@ -1971,11 +1921,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -1983,11 +1928,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -1995,11 +1935,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -2007,11 +1942,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -2019,11 +1949,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -2031,11 +1956,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -2055,11 +1975,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -2111,11 +2026,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
@@ -2123,11 +2033,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSHumanReadableCopyright" translate="no" xml:space="preserve">
-        <source>Copyright © 2025 Mullvad VPN AB. All rights reserved.</source>
-        <target state="new">Copyright © 2025 Mullvad VPN AB. All rights reserved.</target>
-        <note>Copyright (human-readable)</note>
-      </trans-unit>
     </body>
   </file>
 </xliff>

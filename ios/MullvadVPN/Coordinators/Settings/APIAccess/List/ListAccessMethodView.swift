@@ -68,7 +68,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                         viewModel.itemInUse?.id == item.id
                         ? NSLocalizedString("In use", comment: "")
                         : (!item.isEnabled
-                            ? NSLocalizedString("Disabled", comment: "")
+                            ? NSLocalizedString("Off", comment: "")
                             : nil)
                     MullvadListNavigationItemView(
                         item: MullvadListNavigationItem(

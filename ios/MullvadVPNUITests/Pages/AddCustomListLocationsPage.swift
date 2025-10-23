@@ -10,7 +10,7 @@ import XCTest
 
 class AddCustomListLocationsPage: EditCustomListLocationsPage {
     @discardableResult override func tapBackButton() -> Self {
-        app.navigationBars["Add locations"].buttons.firstMatch.tap()
+        app.navigationBars["Locations"].buttons.firstMatch.tap()
         return self
     }
 }

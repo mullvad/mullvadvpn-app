@@ -106,7 +106,7 @@ extension SettingsDAITAView {
 
 extension SettingsDAITAView {
     private var dataViewModel: SettingsInfoViewModel {
-        let daitafullTitle = NSLocalizedString("Defense against AI-guided Traffic Analysis", comment: "")
+        let daitafullTitle = "Defense against AI-guided Traffic Analysis"
         let daitaTitle = NSLocalizedString("DAITA", comment: "")
         return SettingsInfoViewModel(
             pages: [
