@@ -157,8 +157,10 @@ final class StoreKit2TransactionListener: @unchecked Sendable {
 /// Delegate protocol for StoreKit2TransactionListener.
 protocol StoreKit2TransactionListenerDelegate: AnyObject {
     /// Called when the listener needs the current account number.
-    func storeKit2TransactionListener(_ listener: StoreKit2TransactionListener, didRequestAccountNumber: Void) -> String?
+    func storeKit2TransactionListener(_ listener: StoreKit2TransactionListener, didRequestAccountNumber: Void)
+        -> String?
 
     /// Called when account data has been successfully updated.
-    func storeKit2TransactionListener(_ listener: StoreKit2TransactionListener, didUpdateAccountData accountData: Account)
+    func storeKit2TransactionListener(
+        _ listener: StoreKit2TransactionListener, didUpdateAccountData accountData: Account)
 }

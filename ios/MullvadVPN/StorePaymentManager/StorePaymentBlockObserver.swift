@@ -24,7 +24,7 @@ final class StorePaymentBlockObserver: StorePaymentObserver {
     ) {
         blockHandler(manager, event)
     }
-    
+
     func storePaymentManager(
         _ manager: StorePaymentManager,
         didReceiveEvent event: StoreKitPaymentEvent,

@@ -14,6 +14,9 @@ protocol StorePaymentObserver: AnyObject, Sendable {
         _ manager: StorePaymentManager,
         didReceiveEvent event: StorePaymentEvent
     )
-    
-    func storePaymentManager(_ manager: StorePaymentManager, didReceiveEvent event: StoreKitPaymentEvent)
+
+    func storePaymentManager(
+        _ manager: StorePaymentManager,
+        didReceiveEvent event: StoreKitPaymentEvent
+    )
 }

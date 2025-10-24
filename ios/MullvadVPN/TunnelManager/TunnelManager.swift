@@ -631,32 +631,14 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             completionHandler: nil
         )
     }
-    
-    
+
     func storePaymentManager(
         _ manager: StorePaymentManager,
         didReceiveEvent event: StoreKitPaymentEvent
     ) {
-        guard case let .successfulPayment(transaction, newExpiry) = event else {
-            return
-        }
-
-        scheduleDeviceStateUpdate(
-            taskName: "Update account expiry after in-app purchase",
-            modificationBlock: { deviceState in
-                switch deviceState {
-                case .loggedIn(var accountData, let deviceData):
-                    accountData.expiry = newExpiry
-                    deviceState = .loggedIn(accountData, deviceData)
-
-                case .loggedOut, .revoked:
-                    break
-                }
-            },
-            completionHandler: nil
-        )
+        // Do nothing. Successful payment is handled in StorePaymentManager.
     }
-    
+
     // MARK: - TunnelInteractor
 
     var isConfigurationLoaded: Bool {

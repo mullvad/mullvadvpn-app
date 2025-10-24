@@ -258,7 +258,7 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
 
         /// Not implemented. Use `MullvadAPIProxy` instead.
@@ -267,7 +267,7 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<UUID>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
 
         /// Not implemented. Use `MullvadAPIProxy` instead.
@@ -275,17 +275,18 @@ extension REST {
             accountNumber: String,
             transaction: StorekitTransaction,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<Date>
+            completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
 
+        /// Not implemented. Use `MullvadAPIProxy` instead.
         public func checkApiAvailability(
             retryStrategy: REST.RetryStrategy,
             accessMethod: PersistentAccessMethod,
             completion: @escaping ProxyCompletionHandler<Bool>
         ) -> any Cancellable {
-            AnyCancellable()
+            fatalError("Not implemented. Use `MullvadAPIProxy` instead.")
         }
     }
 
@@ -312,9 +313,9 @@ extension REST {
             DateComponents(second: timeAdded)
         }
     }
-    
-    public struct UUIDParseError : Swift.Error {
-        
+
+    public struct UUIDParseError: Swift.Error {
+
         public let payload: String
     }
 }
