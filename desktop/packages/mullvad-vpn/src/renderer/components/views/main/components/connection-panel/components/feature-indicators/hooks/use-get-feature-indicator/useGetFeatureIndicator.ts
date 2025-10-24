@@ -104,7 +104,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoMtuFeature = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+    history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
       options: [
         {
@@ -116,7 +116,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoQuantumResistantFeature = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+    history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
       options: [
         {
@@ -128,7 +128,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoObfuscation = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+    history.push(RoutePath.censorshipCircumvention, {
       transition: TransitionType.show,
       options: [
         {
@@ -167,6 +167,10 @@ export const useGetFeatureIndicator = () => {
       onClick: gotoObfuscation,
     },
     [FeatureIndicator.lwo]: {
+      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      onClick: gotoObfuscation,
+    },
+    [FeatureIndicator.port]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
       onClick: gotoObfuscation,
     },

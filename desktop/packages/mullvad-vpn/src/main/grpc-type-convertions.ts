@@ -406,6 +406,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.quic;
     case grpcTypes.FeatureIndicator.LWO:
       return FeatureIndicator.lwo;
+    case grpcTypes.FeatureIndicator.PORT:
+      return FeatureIndicator.port;
   }
 }
 
@@ -670,6 +672,9 @@ function convertFromObfuscationSettings(
       break;
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO:
       selectedObfuscationType = ObfuscationType.lwo;
+      break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.PORT:
+      selectedObfuscationType = ObfuscationType.port;
       break;
   }
 

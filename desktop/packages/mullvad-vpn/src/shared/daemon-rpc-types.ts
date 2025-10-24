@@ -221,6 +221,7 @@ export enum FeatureIndicator {
   shadowsocks,
   quic,
   lwo,
+  port,
   lanSharing,
   dnsContentBlockers,
   customDns,
@@ -492,6 +493,7 @@ export enum ObfuscationType {
   shadowsocks,
   quic,
   lwo,
+  port,
 }
 
 export type ObfuscationSettings = {

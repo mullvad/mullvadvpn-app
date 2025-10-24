@@ -60,30 +60,37 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'UDP over TCP',
     featureIndicator: FeatureIndicator.udp2tcp,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.censorshipCircumvention,
     featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'shadowsocks',
     featureIndicator: FeatureIndicator.shadowsocks,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.censorshipCircumvention,
     featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'QUIC',
     featureIndicator: FeatureIndicator.quic,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.censorshipCircumvention,
     featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'LWO',
     featureIndicator: FeatureIndicator.lwo,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.censorshipCircumvention,
     featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    option: { name: 'Method', type: 'listbox' },
+  },
+  {
+    testId: 'WireGuard Port',
+    featureIndicator: FeatureIndicator.port,
+    route: RoutePath.censorshipCircumvention,
+    featureIndicatorLabel: 'Obfuscation',
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'multihop',
@@ -102,7 +109,7 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'MTU',
     featureIndicator: FeatureIndicator.customMtu,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.vpnSettings,
     featureIndicatorLabel: 'MTU',
     option: { name: 'MTU', type: 'input' },
   },
@@ -123,9 +130,9 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'quantum resistance',
     featureIndicator: FeatureIndicator.quantumResistance,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.vpnSettings,
     featureIndicatorLabel: 'Quantum resistance',
-    option: { name: 'Quantum-resistant tunnel', type: 'listbox' },
+    option: { name: 'Quantum-resistant tunnel', type: 'switch' },
   },
   {
     testId: 'dns content blockers',
@@ -147,7 +154,7 @@ test.describe('Feature indicators', () => {
 
   test.beforeEach(async () => {
     await helpers.disconnect();
-    await routes.wireguardSettings.goBackToRoute(RoutePath.main);
+    await routes.censorshipCircumvention.goBackToRoute(RoutePath.main);
   });
 
   test.afterAll(async () => {
