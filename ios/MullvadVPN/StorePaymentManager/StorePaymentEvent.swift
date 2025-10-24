@@ -60,8 +60,8 @@ struct StorePaymentFailure: @unchecked Sendable {
 }
 
 enum StoreKitPaymentEvent {
-    /// Successful payment, the verification inside is Verified.
-    case successfulPayment(Transaction, Date)
+    /// Successful payment
+    case successfulPayment
     /// Use cancelled the purchase
     case userCancelled
     /// Payment was made but it is still being processed. This transaction can be processed and the receipt uploaded to the API later, when the transaction listener handles it.
@@ -85,7 +85,7 @@ enum InAppPurchaseError {
     case receiptUpload(Error)
     /// To handle errors we don't recognize, we need to, unfortunately, wrap them in an unkown error type.
     case unknown(Error)
-    
+
     var description: String? {
         switch self {
         case let .storeKitError(error):
@@ -94,12 +94,14 @@ enum InAppPurchaseError {
             return error.localizedDescription
         case .verification:
             return NSLocalizedString("Failed to verify transaction receipt", comment: "")
-        case let .getPaymentToken(error):
+        case .getPaymentToken:
             return NSLocalizedString("Failed to reach Mullvad servers to initiate purchase", comment: "")
         case let .unknown(error):
             return NSLocalizedString("Unexpected error occured: \(error)", comment: "")
-        case .receiptUpload(_):
-            return NSLocalizedString("Failed to upload receipt to Mullvad servers. Try again later or contact support for help.", comment: "")
+        case .receiptUpload:
+            return NSLocalizedString(
+                "Failed to upload receipt to Mullvad servers. Try again later or contact support for help.", comment: ""
+            )
         }
     }
 }

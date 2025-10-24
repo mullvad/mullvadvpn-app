@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */; };
-		016937792E969B8000A8A078 /* StoreKit2TransactionListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016937782E969B8000A8A078 /* StoreKit2TransactionListener.swift */; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
@@ -1602,7 +1601,6 @@
 
 /* Begin PBXFileReference section */
 		014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedDNSProxy.swift; sourceTree = "<group>"; };
-		016937782E969B8000A8A078 /* StoreKit2TransactionListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKit2TransactionListener.swift; sourceTree = "<group>"; };
 		01EF6F2D2B6A51B100125696 /* mullvad-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
 		01EF6F332B6A590700125696 /* libmullvad_api.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_api.a; path = "../target/aarch64-apple-ios/debug/libmullvad_api.a"; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
@@ -4007,7 +4005,6 @@
 		58CE5E62224146200008646E /* MullvadVPN */ = {
 			isa = PBXGroup;
 			children = (
-				016937782E969B8000A8A078 /* StoreKit2TransactionListener.swift */,
 				5827B0A22B0E068800CCBBA1 /* AccessMethodRepository */,
 				58D7E3D629C78A130044B058 /* AddressCacheTracker */,
 				58CE5E63224146200008646E /* AppDelegate.swift */,
@@ -6378,7 +6375,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				016937792E969B8000A8A078 /* StoreKit2TransactionListener.swift in Sources */,
 				44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */,
 				F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */,
 				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,

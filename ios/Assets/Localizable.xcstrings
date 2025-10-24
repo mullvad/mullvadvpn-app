@@ -14722,6 +14722,9 @@
         }
       }
     },
+    "Failed to reach Mullvad servers to initiate purchase" : {
+
+    },
     "Failed to send" : {
       "localizations" : {
         "da" : {
@@ -14853,6 +14856,15 @@
 
     },
     "Failed to stop the tunnel." : {
+
+    },
+    "Failed to upload receipt to Mullvad servers. Try again later or contact support for help." : {
+
+    },
+    "Failed to validate account number: %@" : {
+
+    },
+    "Failed to verify transaction receipt" : {
 
     },
     "FAQs & Guides" : {
