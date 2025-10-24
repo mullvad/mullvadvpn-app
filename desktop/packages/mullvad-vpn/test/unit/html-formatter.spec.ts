@@ -1,4 +1,5 @@
 import { describe, it } from 'mocha';
+import React from 'react';
 
 import { formatHtml } from '../../src/renderer/lib/html-formatter';
 import { expectChildrenToMatch } from './utils';
@@ -78,6 +79,14 @@ describe('Format html', () => {
         'text',
         ' which was emphasized.',
       ],
+    );
+  });
+  it('should format using custom transformer', () => {
+    expectChildrenToMatch(
+      formatHtml('Some <b>bold</b> text', {
+        b: () => React.createElement(React.Fragment, null, 'override value'),
+      }),
+      ['Some ', 'override value', ' text'],
     );
   });
 });
