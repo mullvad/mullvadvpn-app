@@ -221,6 +221,7 @@ export enum FeatureIndicator {
   shadowsocks,
   quic,
   lwo,
+  port,
   lanSharing,
   dnsContentBlockers,
   customDns,
