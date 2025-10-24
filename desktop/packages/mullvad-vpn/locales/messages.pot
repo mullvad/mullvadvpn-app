@@ -8,6 +8,12 @@ msgstr ""
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr ""
 
+#. The label for the WireGuard port option.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgid "%(wireguard)s port"
+msgstr ""
+
 msgid "1 day"
 msgid_plural "%d days"
 msgstr[0] ""
@@ -290,6 +296,13 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
+msgstr ""
+
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
 msgstr ""
 
 msgctxt "accessibility"
@@ -852,6 +865,26 @@ msgstr ""
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr ""
+
+#. Page title for censorship circumvention settings view
+msgctxt "censorship-circumvention-view"
+msgid "Censorship circumvention"
+msgstr ""
+
+#. The title for the obfuscation method selector.
+msgctxt "censorship-circumvention-view"
+msgid "Method"
+msgstr ""
+
+#. First paragraph of description text in censorship circumvention settings view
+msgctxt "censorship-circumvention-view"
+msgid "Obfuscation methods makes your encrypted VPN traffic look like something else. This can be used to help circumvent censorship and other types of filtering, where a plain connection would be blocked."
+msgstr ""
+
+#. Second paragraph of description text in censorship circumvention settings view
+msgctxt "censorship-circumvention-view"
+msgid "When “Automatic” is selected, the app tries all methods when connecting until it finds one that works."
 msgstr ""
 
 #. Text displayed when there are no updates for this platform in the app version
@@ -2351,11 +2384,6 @@ msgctxt "user-interface-settings-view"
 msgid "User interface settings"
 msgstr ""
 
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr ""
-
 msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr ""
@@ -2391,6 +2419,12 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr ""
 
+#. Label for list item that navigates to censorship
+#. circumvention settings view.
+msgctxt "vpn-settings-view"
+msgid "Censorship circumvention"
+msgstr ""
+
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
@@ -2412,11 +2446,12 @@ msgid "DNS content blockers"
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
+msgid "Enable to add at least one DNS server."
 msgstr ""
 
+#. Description of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
-msgid "Enable to add at least one DNS server."
+msgid "Enable to allow IPv6 traffic through the tunnel."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2426,6 +2461,11 @@ msgstr ""
 #. Label for settings that enables block of gamling related websites.
 msgctxt "vpn-settings-view"
 msgid "Gambling"
+msgstr ""
+
+#. Title of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "In-tunnel IPv6"
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2529,13 +2569,6 @@ msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server
 msgstr ""
 
 #. Title label in navigation bar
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-nav"
-msgid "%(wireguard)s settings"
-msgstr ""
-
-#. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
 msgid "Shadowsocks"
 msgstr ""
@@ -2553,10 +2586,8 @@ msgctxt "wireguard-settings-view"
 msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
 msgstr ""
 
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "%(wireguard)s settings"
+msgid "%(wireguard)s port"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2575,11 +2606,15 @@ msgctxt "wireguard-settings-view"
 msgid "Cancel"
 msgstr ""
 
+#. Title for device IP version setting.
+msgctxt "wireguard-settings-view"
+msgid "Device IP version"
+msgstr ""
+
 msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr ""
 
-#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
 msgid "IP version"
 msgstr ""
@@ -2616,15 +2651,8 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr ""
 
-#. The title for the WireGuard obfuscation selector.
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
-msgstr ""
-
-#. Describes what WireGuard obfuscation does, how it works and when
-#. it would be useful to enable it.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr ""
 
 #. The title for the WireGuard port selector.
@@ -2693,6 +2721,11 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+msgstr ""
+
+#. Page title for WireGuard port view
+msgctxt "wireguard-settings-view"
+msgid "WireGuard port"
 msgstr ""
 
 msgid "%1$s more..."
@@ -2905,9 +2938,6 @@ msgstr ""
 msgid "Delete method?"
 msgstr ""
 
-msgid "Device IP version"
-msgstr ""
-
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
@@ -3034,9 +3064,6 @@ msgstr ""
 msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr ""
 
-msgid "In-tunnel IPv6"
-msgstr ""
-
 msgid "Invalid or missing value \"%1$s\""
 msgstr ""
 
@@ -3107,6 +3134,9 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr ""
 
 msgid "Open app details"
@@ -3371,9 +3401,6 @@ msgid "WireGuard MTU"
 msgstr ""
 
 msgid "WireGuard obfuscation"
-msgstr ""
-
-msgid "WireGuard port"
 msgstr ""
 
 msgid "Yes, log out device"
