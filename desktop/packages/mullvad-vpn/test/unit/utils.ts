@@ -1,13 +1,33 @@
 import { expect } from 'chai';
 import React from 'react';
 
-type WithChildren = React.ReactElement<{ children?: React.ReactNode }>;
+type ReactElementWithChildren = React.ReactElement<{ children: React.ReactNode }>;
 
-export const expectChildrenToMatch = (element: React.ReactElement, expectedParts: string[]) => {
-  const kids = React.Children.toArray((element as WithChildren).props.children);
+function isReactElementWithChildren(element: unknown): element is ReactElementWithChildren {
+  if (React.isValidElement(element)) {
+    if (element.props && element.props instanceof Object) {
+      return 'children' in element.props;
+    }
+  }
 
-  expect(kids).to.have.lengthOf(expectedParts.length);
-  kids.forEach((kid, index) => {
-    expect((kid as WithChildren).props.children).to.equal(expectedParts[index]);
+  return false;
+}
+
+export function expectChildrenToMatch(
+  element: React.ReactElement<unknown>,
+  expectedParts: string[],
+) {
+  if (!isReactElementWithChildren(element)) {
+    throw new Error('React element does not have children on it');
+  }
+
+  const elementChildren = React.Children.toArray(element.props.children);
+  expect(elementChildren).to.have.lengthOf(expectedParts.length);
+  elementChildren.forEach((elementChild, index) => {
+    if (!isReactElementWithChildren(elementChild)) {
+      throw new Error('React element child does not have children on it');
+    }
+
+    expect(elementChild.props.children).to.equal(expectedParts[index]);
   });
-};
+}
