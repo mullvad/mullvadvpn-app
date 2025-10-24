@@ -1,21 +1,9 @@
-import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import React from 'react';
 
 import { formatHtml } from '../../src/renderer/lib/html-formatter';
-
-type WithChildren = React.ReactElement<{ children?: React.ReactNode }>;
+import { expectChildrenToMatch } from './utils';
 
 describe('Format html', () => {
-  const expectChildrenToMatch = (element: React.ReactElement, expectedParts: string[]) => {
-    const kids = React.Children.toArray((element as WithChildren).props.children);
-
-    expect(kids).to.have.lengthOf(expectedParts.length);
-    kids.forEach((kid, index) => {
-      expect((kid as WithChildren).props.children).to.equal(expectedParts[index]);
-    });
-  };
-
   it('should format middle bold tag', () => {
     expectChildrenToMatch(formatHtml('Some <b>bold</b> text'), ['Some ', 'bold', ' text']);
   });
