@@ -59,7 +59,7 @@ jobs:
 
       - name: Check for unused dependencies
         shell: bash
-        run: source env.sh && cargo udeps --workspace
+        run: cargo udeps --workspace
 
   cargo-udeps-android:
     needs: prepare-containers
