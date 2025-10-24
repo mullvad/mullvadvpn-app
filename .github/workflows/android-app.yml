@@ -119,6 +119,14 @@ jobs:
     name: Build app
     needs: [prepare]
     runs-on: [app-gh-build, build]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variantName: wireguard-go
+            enableGotaTun: false
+          - variantName: gotatun
+            enableGotaTun: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -135,11 +143,13 @@ jobs:
         if: github.event.inputs.clean == 'true'
         run: >
           ./building/container-run.sh android android/gradlew -p android --console plain
+          -Pmullvad.app.build.boringtun.enable=${{ matrix.enableGotaTun }}
           clean
 
       - name: Build apks
         run: >
           ./building/container-run.sh android android/gradlew -p android --console plain
+          -Pmullvad.app.build.boringtun.enable=${{ matrix.enableGotaTun }}
           :app:assembleOssProdDebug
           :app:assemblePlayStagemoleDebug
           assembleOssProdAndroidTest
@@ -149,7 +159,7 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: apks
+          name: apks-${{ matrix.variantName }}
           path: android/**/*.apk
           if-no-files-found: error
           retention-days: 7
@@ -205,18 +215,28 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - test-type: app
+          - variantName: wireguard-go
+            test-type: app
             path: android/app/build/outputs/apk
             test-repeat: 1
-          - test-type: mockapi
+          - variantName: wireguard-go
+            test-type: mockapi
             path: android/test/mockapi/build/outputs/apk
             test-repeat: ${{ github.event_name == 'schedule' && 80 || github.event.inputs.mockapi_test_repeat || 1 }}
+          - variantName: gotatun
+            test-type: app
+            path: android/app/build/outputs/apk
+            test-repeat: 1
+          - variantName: gotatun
+            test-type: mockapi
+            path: android/test/mockapi/build/outputs/apk
+            test-repeat: 1
     steps:
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
         env:
-          INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
+          INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.variantName }}
         run: |
           mkdir -p $INNER_REPORT_DIR
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
@@ -230,7 +250,7 @@ jobs:
       - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
         with:
-          name: apks
+          name: apks-${{ matrix.variantName }}
           path: android
 
       - name: Calculate timeout
@@ -250,11 +270,11 @@ jobs:
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
 
-      - name: Upload instrumentation report (${{ matrix.test-type }})
+      - name: Upload instrumentation report
         uses: actions/upload-artifact@v4
         if: always() && matrix.test-repeat != 0
         with:
-          name: ${{ matrix.test-type }}-instrumentation-report
+          name: ${{ matrix.test-type }}-instrumentation-report-${{ matrix.variantName }}
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
           if-no-files-found: ignore
           retention-days: 7
@@ -264,6 +284,14 @@ jobs:
     runs-on: [self-hosted, android-device]
     needs: [prepare, build-app]
     if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variantName: wireguard-go
+            test-repeat-override: ${{ needs.prepare.outputs.E2E_TEST_REPEAT }}
+          - variantName: gotatun
+            test-repeat-override: 1
     steps:
       - name: Resolve unique runner test account secret name
         if: needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod'
@@ -278,7 +306,7 @@ jobs:
       - name: Prepare report dir
         id: prepare-report-dir
         env:
-          INNER_REPORT_DIR: /tmp/${{ github.run_id }}-${{ github.run_attempt }}
+          INNER_REPORT_DIR: /tmp/e2e-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.variantName }}
         run: |
           mkdir -p $INNER_REPORT_DIR
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
@@ -290,12 +318,12 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: apks
+          name: apks-${{ matrix.variantName }}
           path: android
 
       - name: Calculate timeout
         id: calculate-timeout
-        run: echo "timeout=$(( ${{ needs.prepare.outputs.E2E_TEST_REPEAT }} * 15 ))" >> $GITHUB_OUTPUT
+        run: echo "timeout=$(( ${{ matrix.test-repeat-override }} * 15 ))" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run instrumented test script
@@ -317,14 +345,14 @@ jobs:
           RAAS_TRAFFIC_GENERATOR_TARGET_HOST: '45.83.223.209'
           RAAS_TRAFFIC_GENERATOR_TARGET_PORT: '80'
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
-        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ needs.prepare.outputs.E2E_TEST_REPEAT }}
+        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat-override }}
 
       - name: Upload e2e instrumentation report
         uses: actions/upload-artifact@v4
         if: >
           always() && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole'
         with:
-          name: e2e-instrumentation-report
+          name: e2e-instrumentation-report-${{ matrix.variantName }}
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
 
   firebase-tests:
