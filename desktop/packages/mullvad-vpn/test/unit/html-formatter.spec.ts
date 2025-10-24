@@ -59,4 +59,31 @@ describe('Format html', () => {
       ['Some ', 'emphasized', ' and ', 'more emphasized', ' text'],
     );
   });
+  it('should format both bold and emphasis tags', () => {
+    expectChildrenToMatch(formatHtml('Some <b>bold</b> and <em>emphasized</em> text'), [
+      'Some ',
+      'bold',
+      ' and ',
+      'emphasized',
+      ' text',
+    ]);
+  });
+  it('should format multiple bold and emphasis tags', () => {
+    expectChildrenToMatch(
+      formatHtml(
+        'Some <b>bold</b> and <em>emphasized</em> text. Then another <b>bold text</b> and one more <em>text</em> which was emphasized.',
+      ),
+      [
+        'Some ',
+        'bold',
+        ' and ',
+        'emphasized',
+        ' text. Then another ',
+        'bold text',
+        ' and one more ',
+        'text',
+        ' which was emphasized.',
+      ],
+    );
+  });
 });
