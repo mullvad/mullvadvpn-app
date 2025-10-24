@@ -67,6 +67,7 @@ struct SettingsInfoView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                     bodyText(page)
+                        .fixedSize(horizontal: false, vertical: true)
                         .font(.subheadline)
                         .opacity(0.6)
                 }
