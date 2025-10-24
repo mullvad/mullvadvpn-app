@@ -27,8 +27,13 @@ struct MullvadPrimaryTextField: View {
         self.keyboardType = keyboardType
     }
 
+    @State private var hasHadInput = false
+
     var isValid: Bool {
-        validate?(text) ?? true
+        if !hasHadInput {
+            return true
+        }
+        return validate?(text) ?? true
     }
 
     @FocusState private var isFocusedInner: Bool
@@ -57,7 +62,7 @@ struct MullvadPrimaryTextField: View {
         .focused($isFocusedInner)
         .padding(.vertical, 12)
         .onAppear {
-                isFocusedInner = isFocused
+            isFocusedInner = isFocused
         }
         .onChange(of: isFocused) { newValue in
             if newValue != isFocusedInner {
@@ -67,6 +72,11 @@ struct MullvadPrimaryTextField: View {
         .onChange(of: isFocusedInner) { newValue in
             if newValue != isFocused {
                 isFocused = newValue
+            }
+        }
+        .onChange(of: text) { newValue in
+            if !newValue.isEmpty {
+                hasHadInput = true
             }
         }
     }
