@@ -57,6 +57,7 @@ struct ConnectionView: View {
                                     Text(LocalizedStringKey("Active features"))
                                         .font(.footnote.weight(.semibold))
                                         .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                                        .padding(.top, 8)
                                         .showIf(isExpanded && hasFeatureIndicators)
 
                                     ChipContainerView(
@@ -69,6 +70,7 @@ struct ConnectionView: View {
 
                                     DetailsView(viewModel: connectionViewModel)
                                         .padding(.bottom, 8)
+                                        .padding(.top, !hasFeatureIndicators ? 8 : 0)
                                         .showIf(isExpanded)
                                 }
                                 Spacer()
