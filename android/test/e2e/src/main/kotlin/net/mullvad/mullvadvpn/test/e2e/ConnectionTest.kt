@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
@@ -103,7 +104,7 @@ class ConnectionTest : EndToEndTest() {
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
-    fun testWireGuardObfuscationAutomatic() = runTest {
+    fun testWireGuardObfuscationAutomatic() = runTest(timeout = 2.minutes) {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage> { enableLocalNetworkSharingStory() }
 
