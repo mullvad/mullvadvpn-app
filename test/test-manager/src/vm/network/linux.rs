@@ -219,7 +219,8 @@ impl NetworkHandle {
 /// dnsmasq will serve IPv4 addresses within the range [TEST_SUBNET_IPV4_DHCP] using regular DHCP.
 /// It will also advertise SLAAC for IPv6 within [TEST_SUBNET_IPV6].
 async fn start_dnsmasq() -> Result<DhcpProcHandle> {
-    let mut cmd = Command::new("dnsmasq");
+    let dnsmasq = "/usr/sbin/dnsmasq";
+    let mut cmd = Command::new(dnsmasq);
 
     cmd.kill_on_drop(true);
     cmd.stdout(Stdio::piped());
@@ -350,11 +351,9 @@ where
 }
 
 pub async fn run_nft(input: &str) -> Result<()> {
-    let mut cmd = Command::new("nft");
-    cmd.args(["-f", "-"]);
-
-    cmd.stdin(Stdio::piped());
-
+    let nft = "/usr/sbin/nft";
+    let mut cmd = Command::new(nft);
+    cmd.args(["-f", "-"]).stdin(Stdio::piped());
     let mut child = cmd.spawn().map_err(Error::NftStart)?;
     let mut stdin = child.stdin.take().unwrap();
 
@@ -373,19 +372,15 @@ pub async fn run_nft(input: &str) -> Result<()> {
 }
 
 async fn enable_forwarding() -> Result<()> {
-    let mut cmd = Command::new("sysctl");
-    cmd.arg("net.ipv4.ip_forward=1");
-    let output = cmd.output().await.map_err(Error::SysctlStart)?;
-    if !output.status.success() {
-        return Err(Error::SysctlFailed(output.status.code().unwrap()));
-    }
-
-    let mut cmd = Command::new("sysctl");
-    cmd.arg("net.ipv6.conf.all.forwarding=1");
-    let output = cmd.output().await.map_err(Error::SysctlStart)?;
-    if !output.status.success() {
-        return Err(Error::SysctlFailed(output.status.code().unwrap()));
-    }
-
+    let sysctl = "/usr/sbin/sysctl";
+    let run = async |cmd: &mut Command| {
+        let exit_status = cmd.output().await.map_err(Error::SysctlStart)?.status;
+        match exit_status.success() {
+            true => Ok(()),
+            false => Err(Error::SysctlFailed(exit_status.code().unwrap())),
+        }
+    };
+    run(Command::new(sysctl).arg("net.ipv4.ip_forward=1")).await?;
+    run(Command::new(sysctl).arg("net.ipv6.conf.all.forwarding=1")).await?;
     Ok(())
 }
