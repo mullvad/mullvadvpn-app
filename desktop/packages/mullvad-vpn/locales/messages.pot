@@ -2469,6 +2469,12 @@ msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
 msgstr ""
 
+#. A complimentary description for the setting Device IP version,
+#. explaining why the user might want to configure the setting.
+msgctxt "vpn-settings-view"
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr ""
+
 msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
 msgstr ""
@@ -2525,6 +2531,12 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr ""
+
+#. A description for the setting Device IP version,
+#. explaining how the user can configure the setting.
+msgctxt "vpn-settings-view"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2691,13 +2703,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
-msgstr ""
-
-#. The hint displayed below the WireGuard IP version selector.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-view"
-msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -3065,9 +3070,6 @@ msgstr ""
 msgid "Invalid or missing value \"%1$s\""
 msgstr ""
 
-msgid "It can be useful when you are aware of problems caused by a certain IP version."
-msgstr ""
-
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr ""
 
@@ -3282,9 +3284,6 @@ msgid "The selected %s port is not supported, please change it under"
 msgstr ""
 
 msgid "This address has already been entered."
-msgstr ""
-
-msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
 msgstr ""
 
 msgid "This field is required"
