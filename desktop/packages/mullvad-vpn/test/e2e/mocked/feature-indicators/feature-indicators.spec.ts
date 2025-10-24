@@ -125,7 +125,7 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
     featureIndicator: FeatureIndicator.quantumResistance,
     route: RoutePath.wireguardSettings,
     featureIndicatorLabel: 'Quantum resistance',
-    option: { name: 'Quantum-resistant tunnel', type: 'listbox' },
+    option: { name: 'Quantum-resistant tunnel', type: 'switch' },
   },
   {
     testId: 'dns content blockers',
