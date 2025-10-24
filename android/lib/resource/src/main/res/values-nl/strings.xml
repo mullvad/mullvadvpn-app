@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">Geen overeenkomende servers gevonden.</string>
     <string name="no_matching_servers_found_second_line">Probeer de filters te veranderen.</string>
     <string name="no_recent_selection">Geen recente selectiegeschiedenis</string>
-    <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_found">Niet gevonden</string>
     <string name="number_of_providers">Providers: %1$d</string>
     <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>

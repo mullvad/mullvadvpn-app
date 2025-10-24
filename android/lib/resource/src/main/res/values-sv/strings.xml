@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">Inga överensstämmande servrar hittades.</string>
     <string name="no_matching_servers_found_second_line">Prova att ändra dina filter.</string>
     <string name="no_recent_selection">Ingen historik av senaste val</string>
-    <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_found">Hittades inte</string>
     <string name="number_of_providers">Leverantörer: %1$d</string>
     <string name="obfuscation_info">Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras.</string>

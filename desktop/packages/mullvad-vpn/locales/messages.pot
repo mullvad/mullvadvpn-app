@@ -3514,9 +3514,6 @@ msgstr ""
 msgid "VPN tunnel status"
 msgstr ""
 
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr ""
-
 msgid "Valid ranges: %s"
 msgstr ""
 

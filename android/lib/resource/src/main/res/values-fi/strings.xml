@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">Vastaavia palvelimia ei löytynyt.</string>
     <string name="no_matching_servers_found_second_line">Kokeile muuttaa suodattimiasi.</string>
     <string name="no_recent_selection">Ei viimeisimpien valintojen historiaa</string>
-    <string name="no_wireguard_key">Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa.</string>
     <string name="not_found">Ei löydy</string>
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
     <string name="obfuscation_info">Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi.</string>

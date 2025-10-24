@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">Fant ingen matchende servere.</string>
     <string name="no_matching_servers_found_second_line">Prøv å endre filtrene.</string>
     <string name="no_recent_selection">Ingen nylig valghistorikk</string>
-    <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_found">Ikke funnet</string>
     <string name="number_of_providers">Leverandører: %1$d</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter der en vanlig WireGuard-tilkobling ville blitt blokkert.</string>
