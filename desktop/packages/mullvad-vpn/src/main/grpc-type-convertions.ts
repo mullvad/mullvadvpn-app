@@ -404,6 +404,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.quic;
     case grpcTypes.FeatureIndicator.LWO:
       return FeatureIndicator.lwo;
+    case grpcTypes.FeatureIndicator.PORT:
+      return FeatureIndicator.port;
   }
 }
 
