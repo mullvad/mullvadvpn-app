@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">一致するサーバーが見つかりません。</string>
     <string name="no_matching_servers_found_second_line">条件を変更してみてください。</string>
     <string name="no_recent_selection">最近の選択履歴はありません</string>
-    <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_found">見つかりませんでした</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
     <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>

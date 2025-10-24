@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">Nie znaleziono pasujących serwerów.</string>
     <string name="no_matching_servers_found_second_line">Spróbuj zmienić filtry.</string>
     <string name="no_recent_selection">Brak historii ostatnich wyborów</string>
-    <string name="no_wireguard_key">Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach zaawansowanych.</string>
     <string name="not_found">Nie znaleziono</string>
     <string name="number_of_providers">Dostawcy: %1$d</string>
     <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
