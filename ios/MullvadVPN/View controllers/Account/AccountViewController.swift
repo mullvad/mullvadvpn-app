@@ -130,10 +130,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
         contentView.deleteButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
-        contentView.storeKit2PurchaseButton.addTarget(
-            self, action: #selector(handleStoreKit2Purchase),
-            for: .touchUpInside
-        )
         contentView.storeKit2RefundButton.addTarget(
             self, action: #selector(handleStoreKit2Refund),
             for: .touchUpInside
@@ -176,7 +172,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         contentView.logoutButton.isEnabled = isInteractionEnabled
         contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
         contentView.deleteButton.isEnabled = isInteractionEnabled
-        contentView.storeKit2PurchaseButton.isEnabled = isInteractionEnabled
         contentView.storeKit2RefundButton.isEnabled = isInteractionEnabled
         navigationItem.rightBarButtonItem?.isEnabled = isInteractionEnabled
 
