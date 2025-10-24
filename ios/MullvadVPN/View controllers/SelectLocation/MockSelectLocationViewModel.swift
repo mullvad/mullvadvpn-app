@@ -1,21 +1,25 @@
 import Foundation
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
+    func expandSelectedLocation() {
+
+    }
+
     var isMultihopEnabled: Bool = true
 
     func deleteCustomList(name: String) {
 
     }
 
-    func editCustomList(name: String) {
-        
+    func showEditCustomList(name: String) {
+
     }
 
     func removeLocationFromCustomList(
         location: LocationNode,
         customListName: String
     ) {
-        
+
     }
 
     func didFinish() {
@@ -40,7 +44,8 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
 
     var showDAITAInfo = false
 
-    var activeLocationContext: LocationContext = .init(
+    var entryContext = LocationContext()
+    var exitContext: LocationContext = .init(
         locations: [
             LocationNode(
                 name: "Sweden", code: "se",

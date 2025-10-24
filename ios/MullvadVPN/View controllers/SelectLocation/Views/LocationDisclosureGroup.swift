@@ -9,7 +9,6 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
     let label: () -> Label
     let content: () -> Content
     let onSelect: (() -> Void)?
-    let onLongPress: (() -> Void)?
     let accessibilityIdentifier: AccessibilityIdentifier?
 
     init(
@@ -21,7 +20,6 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil,
-        onLongPress: (() -> Void)? = nil
     ) {
         self.position = position
         self.level = level
@@ -32,7 +30,6 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
         self.label = label
         self.content = content
         self.onSelect = onSelect
-        self.onLongPress = onLongPress
     }
 
     var body: some View {
@@ -75,7 +72,6 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                 } label: {
                     Image.mullvadIconChevron
                         .rotationEffect(.degrees(isExpanded ? -90 : 90))
-//                        .animation(.default, value: isExpanded)
                         .padding(16)
                         .frame(maxHeight: .infinity)
                         .background {
@@ -101,8 +97,8 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                             .foregroundStyle(Color.colorForLevel(level))
                         }
                 }
-                .contentShape(Rectangle())
                 .accessibilityIdentifier(.expandButton)
+                .contentShape(Rectangle())
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier(accessibilityIdentifier)
@@ -111,9 +107,9 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                 VStack(spacing: 1) {
                     content()
                 }
-                .padding(.top, 1)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier(.locationChildren)
+                .padding(.top, 1)
             }
         }
     }

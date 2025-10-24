@@ -7,15 +7,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     let onSelect: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
     var level = 0
-    var shouldBeExpanded: Bool {
-        var childIsSelected = false
-        location.forEachDescendant { child in
-            if location.isSelected {
-                childIsSelected = true
-            }
-        }
-        return location.showsChildren || childIsSelected
-    }
 
     var filteredChildrenIndices: [Int] {
         location.children
@@ -89,6 +80,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 }
             }
         }
+        .id(location.code)  // to be able to scroll to this item programmatically
         .transformEffect(.identity)
         .contextMenu {
             contextMenu(location)

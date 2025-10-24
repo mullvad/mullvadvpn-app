@@ -126,7 +126,10 @@ extension LocationNode {
             parent: parent,
             children: [],
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch
+            isHiddenFromSearch: isHiddenFromSearch,
+            isConnected: isConnected,
+            isSelected: false, // explicity set to false since it's a different node
+            isExcluded: isExcluded
         )
 
         node.children = recursivelyCopyChildren(withParent: node)

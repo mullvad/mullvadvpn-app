@@ -2,45 +2,54 @@ import SwiftUI
 
 struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewModel {
     @ObservedObject var viewModel: ViewModel
-    //    @State var animatedFilters: [SelectLocationFilter]?
+
+    var showSearchField: Bool { !viewModel.showDAITAInfo }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if viewModel.isMultihopEnabled {
-                    SegmentedControl(
-                        segments: MultihopContext.allCases,
-                        selectedSegment: $viewModel.multihopContext
-                    )
-                }
-                switch viewModel.multihopContext {
-                case .exit:
-                    ExitLocationView(viewModel: viewModel)
-                        .transition(
-                            .move(edge: .trailing).combined(with: .opacity)
-                        )
-                        .apply {
-                            if #available(iOS 17.0, *) {
-                                $0.geometryGroup()
-                            } else {
-                                $0
-                            }
-                        }
-                case .entry:
-                    EntryLocationView(viewModel: viewModel)
-                        .transition(
-                            .move(edge: .leading).combined(with: .opacity)
-                        )
-                        .apply {
-                            if #available(iOS 17.0, *) {
-                                $0.geometryGroup()
-                            } else {
-                                $0
-                            }
-                        }
-                }
+        VStack(spacing: 16) {
+            if viewModel.isMultihopEnabled {
+                SegmentedControl(
+                    segments: MultihopContext.allCases,
+                    selectedSegment: $viewModel.multihopContext
+                )
+                .padding(.horizontal)
             }
-            .transformEffect(.identity)
-            .padding()
+            if showSearchField {
+                MullvadSecondaryTextField(
+                    placeholder: "Search for locations or servers...",
+                    text: $viewModel.searchText
+                )
+                .padding(.horizontal)
+            }
+            switch viewModel.multihopContext {
+            case .exit:
+                ExitLocationView(
+                    viewModel: viewModel,
+                    context: $viewModel.exitContext
+                )
+                .transition(
+                    .move(edge: .trailing).combined(with: .opacity)
+                )
+                .apply {
+                    if #available(iOS 17.0, *) {
+                        $0.geometryGroup()
+                    } else {
+                        $0
+                    }
+                }
+            case .entry:
+                EntryLocationView(viewModel: viewModel)
+                    .transition(
+                        .move(edge: .leading).combined(with: .opacity)
+                    )
+                    .apply {
+                        if #available(iOS 17.0, *) {
+                            $0.geometryGroup()
+                        } else {
+                            $0
+                        }
+                    }
+            }
         }
         .animation(.default, value: viewModel.multihopContext)
         .background(Color.mullvadBackground)
@@ -91,190 +100,207 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     viewModel.showDaitaSettings()
                 }
             } else {
-                ExitLocationView(viewModel: viewModel)
+                ExitLocationView(viewModel: viewModel, context: $viewModel.entryContext)
             }
         }
     }
 
     struct ExitLocationView: View {
         @ObservedObject var viewModel: ViewModel
+        @Binding var context: LocationContext
         @State var newCustomListAlert: MullvadInputAlert?
         @State var alert: MullvadAlert?
         var body: some View {
-            VStack {
-                if !viewModel.activeLocationContext.filter.isEmpty {
-                    ActiveFilterView(
-                        activeFilter: viewModel.activeLocationContext.filter
-                    ) { filter in
-                        viewModel.onFilterTapped(filter)
-                    } onRemove: { filter in
-                        viewModel.onFilterRemoved(filter)
-                    }
-                }
-                MullvadSecondaryTextField(
-                    placeholder: "Search for locations or servers...",
-                    text: $viewModel.searchText
-                )
-                if viewModel.searchText.isEmpty
-                    || (!viewModel.searchText.isEmpty
-                        && !viewModel.activeLocationContext.customLists
-                            .filter {
-                                !$0.isHiddenFromSearch
-                            }.isEmpty)
-                {
-                    HStack {
-                        ListHeader(title: "Custom lists")
-                        Button {
-                            viewModel.showAddCustomListView(
-                                locations: viewModel.activeLocationContext
-                                    .locations)
-                        } label: {
-                            Image.mullvadIconAdd
-                                .padding(.horizontal, 12)
-                        }
-                        .accessibilityIdentifier(.addNewCustomListButton)
-                        if !viewModel.activeLocationContext.customLists.isEmpty {
-                            Button {
-                                viewModel.showEditCustomListView(
-                                    locations: viewModel.activeLocationContext.locations
-                                )
-                            } label: {
-                                Image.mullvadIconEdit
-                                    .padding(.horizontal, 12)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        if !context.filter.isEmpty {
+                            ActiveFilterView(
+                                activeFilter: context.filter
+                            ) { filter in
+                                viewModel.onFilterTapped(filter)
+                            } onRemove: { filter in
+                                viewModel.onFilterRemoved(filter)
                             }
-                            .accessibilityIdentifier(.editCustomListButton)
                         }
-                    }
-                    .padding(.vertical, 12)
-                    LocationsListView(
-                        locations: $viewModel.activeLocationContext.customLists,
-                        multihopContext: viewModel.multihopContext,
-                    ) { location in
-                        viewModel.activeLocationContext.selectLocation(location)
-                    } contextMenu: { location in
-                        VStack {
-                            switch location {
-                            case let location as CustomListLocationNode:
-                                Button("Edit") {
-                                    viewModel.editCustomList(name: location.name)
+                        if viewModel.searchText.isEmpty
+                            || (!viewModel.searchText.isEmpty
+                                && !context.customLists
+                                    .filter {
+                                        !$0.isHiddenFromSearch
+                                    }.isEmpty)
+                        {
+                            HStack {
+                                ListHeader(title: "Custom lists")
+                                Button {
+                                    viewModel.showAddCustomListView(
+                                        locations: context
+                                            .locations)
+                                } label: {
+                                    Image.mullvadIconAdd
+                                        .padding(.horizontal, 12)
                                 }
-
-                                Button("Delete") {
-                                    alert = .init(
-                                        type: .warning,
-                                        messages: ["Do you want to delete the list **\(location.name)**?"],
-                                        action: .init(
-                                            type: .danger,
-                                            title: "Delete list",
-                                            identifier: nil,
-                                            handler: {
-                                                viewModel.deleteCustomList(name: location.name)
-                                                alert = nil
-                                            }
-                                        ),
-                                        dismissButtonTitle: "Cancel"
-                                    )
-                                }
-
-                            default:
-                                if let customListNode = location.parent as? CustomListLocationNode {
-                                    Button("Remove") {
-                                        viewModel
-                                            .removeLocationFromCustomList(
-                                                location: location,
-                                                customListName: customListNode.name
-                                            )
+                                .accessibilityIdentifier(.addNewCustomListButton)
+                                if !context.customLists.isEmpty {
+                                    Button {
+                                        viewModel.showEditCustomListView(
+                                            locations: context.locations
+                                        )
+                                    } label: {
+                                        Image.mullvadIconEdit
+                                            .padding(.horizontal, 12)
                                     }
-                                } else {
-                                    // Only top level nodes can be removed from a custom list
-                                    EmptyView()
+                                    .accessibilityIdentifier(.editCustomListButton)
                                 }
                             }
-                        }
-                    }
+                            .padding(.vertical, 12)
+                            LocationsListView(
+                                locations: $context.customLists,
+                                multihopContext: viewModel.multihopContext,
+                            ) { location in
+                                context.selectLocation(location)
+                            } contextMenu: { location in
+                                VStack {
+                                    switch location {
+                                    case let location as CustomListLocationNode:
+                                        Button("Edit") {
+                                            viewModel.showEditCustomList(name: location.name)
+                                        }
 
-                    let text: LocalizedStringKey =
-                        viewModel.activeLocationContext.customLists.isEmpty
-                        ? """
-                        Save locations by adding them to a custom list.
-                        """
-                        : """
-                        To add locations to a list, press the pen or long press on a country, city, or server.
-                        """
-                    Text(text)
-                        .font(.mullvadMini)
-                        .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                    ListHeader(title: "All locations")
-                        .padding(.vertical, 12)
-                }
-                if !viewModel.searchText.isEmpty
-                    && viewModel.activeLocationContext.locations
-                        .filter({ !$0.isHiddenFromSearch }).isEmpty
-                {
-                    Text("No result for \"\(viewModel.searchText)\", please try with a different search term.")
-                        .font(.mullvadMiniSemiBold)
-                        .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                        .padding(.vertical)
-                } else {
-                    LocationsListView(
-                        locations: $viewModel.activeLocationContext.locations,
-                        multihopContext: viewModel.multihopContext,
-                    ) { location in
-                        viewModel.activeLocationContext.selectLocation(location)
-                    } contextMenu: { location in
-                        Section("Add \(location.name) to list") {
-                            ForEach(
-                                viewModel.activeLocationContext.customLists,
-                                id: \.code
-                            ) { customList in
-                                var isAlreadyInList: Bool {
-                                    var isAlreadyInList = false
-                                    customList.forEachDescendant {
-                                        if $0.locations == location.locations {
-                                            isAlreadyInList = true
+                                        Button("Delete") {
+                                            alert = .init(
+                                                type: .warning,
+                                                messages: ["Do you want to delete the list **\(location.name)**?"],
+                                                action: .init(
+                                                    type: .danger,
+                                                    title: "Delete list",
+                                                    identifier: nil,
+                                                    handler: {
+                                                        viewModel.deleteCustomList(name: location.name)
+                                                        alert = nil
+                                                    }
+                                                ),
+                                                dismissButtonTitle: "Cancel"
+                                            )
+                                        }
+
+                                    default:
+                                        if let customListNode = location.parent as? CustomListLocationNode {
+                                            Button("Remove") {
+                                                viewModel
+                                                    .removeLocationFromCustomList(
+                                                        location: location,
+                                                        customListName: customListNode.name
+                                                    )
+                                                UIImpactFeedbackGenerator(
+                                                    style: .medium
+                                                )
+                                                .impactOccurred()
+                                            }
+                                        } else {
+                                            // Only top level nodes can be removed from a custom list
+                                            EmptyView()
                                         }
                                     }
-                                    return isAlreadyInList
                                 }
-                                Button(customList.name) {
-                                    viewModel
-                                        .addLocationToCustomList(
-                                            location: location,
-                                            customListName: customList.name
-                                        )
-                                }
-                                .disabled(isAlreadyInList)
                             }
-                            Button {
-                                newCustomListAlert = .init(
-                                    title: "Add new list",
-                                    placeholder: "List name",
-                                    action: .init(
-                                        type: .default,
-                                        title: "Create",
-                                        identifier: nil,
-                                        handler: { listName in
+
+                            let text: LocalizedStringKey =
+                                context.customLists.isEmpty
+                                ? """
+                                Save locations by adding them to a custom list.
+                                """
+                                : """
+                                To add locations to a list, press the pen or long press on a country, city, or server.
+                                """
+                            Text(text)
+                                .font(.mullvadMini)
+                                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                            ListHeader(title: "All locations")
+                                .padding(.vertical, 12)
+                        }
+                        if !viewModel.searchText.isEmpty
+                            && context.locations
+                                .filter({ !$0.isHiddenFromSearch }).isEmpty
+                        {
+                            Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
+                                .font(.mullvadMiniSemiBold)
+                                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                                .padding(.vertical)
+                        } else {
+                            LocationsListView(
+                                locations: $context.locations,
+                                multihopContext: viewModel.multihopContext,
+                            ) { location in
+                                context.selectLocation(location)
+                            } contextMenu: { location in
+                                Section("Add \(location.name) to list") {
+                                    ForEach(
+                                        context.customLists,
+                                        id: \.code
+                                    ) { customList in
+                                        var isAlreadyInList: Bool {
+                                            var isAlreadyInList = false
+                                            customList.forEachDescendant {
+                                                if $0.locations == location.locations {
+                                                    isAlreadyInList = true
+                                                }
+                                            }
+                                            return isAlreadyInList
+                                        }
+                                        Button(customList.name) {
                                             viewModel
                                                 .addLocationToCustomList(
                                                     location: location,
-                                                    customListName: listName
+                                                    customListName: customList.name
                                                 )
-                                            newCustomListAlert = nil
+                                            UIImpactFeedbackGenerator(
+                                                style: .medium
+                                            )
+                                            .impactOccurred()
                                         }
-                                    ),
-                                    validate: { listName in
-                                        !listName.isEmpty && listName.count <= 32
-                                    },
-                                    dismissButtonTitle: "Cancel"
-                                )
-                            } label: {
-                                Label("New list", systemImage: "plus")
+                                        .disabled(isAlreadyInList)
+                                    }
+                                    Button {
+                                        newCustomListAlert = .init(
+                                            title: "Add new list",
+                                            placeholder: "List name",
+                                            action: .init(
+                                                type: .default,
+                                                title: "Create",
+                                                identifier: nil,
+                                                handler: { listName in
+                                                    viewModel
+                                                        .addLocationToCustomList(
+                                                            location: location,
+                                                            customListName: listName
+                                                        )
+                                                    newCustomListAlert = nil
+                                                }
+                                            ),
+                                            validate: { listName in
+                                                !listName.isEmpty && listName.count <= 32
+                                            },
+                                            dismissButtonTitle: "Cancel"
+                                        )
+                                    } label: {
+                                        Label("New list", systemImage: "plus")
+                                    }
+                                }
                             }
                         }
                     }
+                    .transformEffect(.identity)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                }
+                .onAppear {
+                    if let selectedLocation = context.locations.flattened.first(where: { $0.isSelected }) {
+                        proxy.scrollTo(selectedLocation.code, anchor: .center)
+                    }
                 }
             }
-            .animation(.default, value: viewModel.activeLocationContext.filter)
+            .animation(.default, value: context.filter)
             .mullvadInputAlert(item: $newCustomListAlert)
             .mullvadAlert(item: $alert)
         }

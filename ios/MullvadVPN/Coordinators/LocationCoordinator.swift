@@ -132,7 +132,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
             listCustomListCoordinator.dismiss(animated: true)
-            //            self?.locationViewControllerWrapper?.refreshCustomLists()
             self?.selectLocationViewModel?.refreshCustomLists()
         }
 
@@ -153,8 +152,9 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             nodes: nodes
         )
 
-        coordinator.didFinish = { editCustomListCoordinator, list in
+        coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
             editCustomListCoordinator.dismiss(animated: true)
+            self?.selectLocationViewModel?.refreshCustomLists()
         }
 
         coordinator.start()

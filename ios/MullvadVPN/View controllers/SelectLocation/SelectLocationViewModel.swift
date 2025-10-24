@@ -5,7 +5,8 @@ import MullvadTypes
 
 @MainActor
 protocol SelectLocationViewModel: ObservableObject {
-    var activeLocationContext: LocationContext { get set }
+    var exitContext: LocationContext { get set }
+    var entryContext: LocationContext { get set }
     var multihopContext: MultihopContext { get set }
     var searchText: String { get set }
     var showDAITAInfo: Bool { get }
@@ -16,7 +17,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func addLocationToCustomList(location: LocationNode, customListName: String)
     func removeLocationFromCustomList(location: LocationNode, customListName: String)
     func deleteCustomList(name: String)
-    func editCustomList(name: String)
+    func showEditCustomList(name: String)
     func didFinish()
     func showDaitaSettings()
     func showEditCustomListView(locations: [LocationNode])
@@ -37,30 +38,11 @@ struct SelectLocationDelegate {
 
 @MainActor
 class SelectLocationViewModelImpl: SelectLocationViewModel {
-    var activeLocationContext: LocationContext {
-        get {
-            switch multihopContext {
-            case .entry:
-                entryContext
-            case .exit:
-                exitContext
-            }
-        }
-        set {
-            switch multihopContext {
-            case .entry:
-                entryContext = newValue
-            case .exit:
-                exitContext = newValue
-            }
-        }
-    }
-
     @Published var isMultihopEnabled: Bool
     @Published var multihopContext: MultihopContext = .exit
 
-    @Published private var exitContext = LocationContext()
-    @Published private var entryContext = LocationContext()
+    @Published var exitContext = LocationContext()
+    @Published var entryContext = LocationContext()
     @Published var searchText: String = ""
     @Published var showDAITAInfo: Bool
 
@@ -131,21 +113,16 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
         showDAITAInfo = tunnelManager.settings.daita.isAutomaticRouting
 
-        self.exitContext = LocationContext(
-            filter:
-                SelectLocationViewModelImpl
-                .getActiveExitFilters(tunnelManager.settings),
-            selectLocation: { location in
-                delegate.didSelectExitRelayLocations(getUserSelectedRelays(location))
-            }
-        )
         self.entryContext = LocationContext(
-            filter:
-                SelectLocationViewModelImpl
-                .getActiveEntryFilters(tunnelManager.settings),
+            filter: getActiveFilters(tunnelManager.settings).0,
             selectLocation: { location in
                 delegate.didSelectEntryRelayLocations(getUserSelectedRelays(location))
-                self.multihopContext = .exit
+            }
+        )
+        self.exitContext = LocationContext(
+            filter: getActiveFilters(tunnelManager.settings).1,
+            selectLocation: { location in
+                delegate.didSelectExitRelayLocations(getUserSelectedRelays(location))
             }
         )
         let tunnelObserver =
@@ -158,15 +135,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     fetchLocations()
                     isMultihopEnabled = tunnelManager.settings.tunnelMultihopState.isEnabled
                     if isMultihopEnabled {
-                        multihopContext = .exit
+                        //                        multihopContext = .exit
                         showDAITAInfo = settings.daita.isAutomaticRouting
                     }
-                    exitContext.filter =
-                        SelectLocationViewModelImpl
-                        .getActiveExitFilters(settings)
-                    entryContext.filter =
-                        SelectLocationViewModelImpl
-                        .getActiveEntryFilters(settings)
+                    let (activeEntryFilter, activeExitFilter) = getActiveFilters(settings)
+                    entryContext.filter = activeEntryFilter
+                    exitContext.filter = activeExitFilter
                     refreshCustomLists()
                     setSelection(
                         selectedExitRelays: settings.relayConstraints.exitLocations.value,
@@ -175,9 +149,17 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 }
             )
 
-        $searchText.receive(on: RunLoop.main).sink { [weak self] _ in
-            self?.search()
-        }.store(in: &cancellables)
+        $searchText
+            .removeDuplicates()
+            .withPreviousValue()
+            .sink { [weak self] prevValue, newValue in
+                if prevValue == newValue { return }
+                if prevValue == nil && newValue == "" { return }
+                self?.search(searchText: newValue)
+                if newValue == "" {
+                    self?.expandSelectedLocation()
+                }
+            }.store(in: &cancellables)
 
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
@@ -188,6 +170,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
         )
         updateConnectedLocation(tunnelManager.tunnelStatus)
+        expandSelectedLocation()
     }
 
     deinit {
@@ -230,108 +213,21 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             return
         }
         customListInteractor.delete(customList: customList)
-        reloadCustomLists()
-        setSelection(
-            selectedExitRelays: tunnelManager.settings.relayConstraints.exitLocations.value,
-            selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
-        )
-        updateConnectedLocation(tunnelManager.tunnelStatus)
+        refreshCustomLists()
     }
 
-    func editCustomList(name: String) {
+    func showEditCustomList(name: String) {
         guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
             return
         }
-        delegate
-            .showEditCustomListView(activeLocationContext.locations, customList)
-    }
-
-    func refreshCustomLists() {
-        reloadCustomLists()
-        setSelection(
-            selectedExitRelays: tunnelManager.settings.relayConstraints.exitLocations.value,
-            selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
-        )
-        updateConnectedLocation(tunnelManager.tunnelStatus)
-    }
-
-    private static func getActiveEntryFilters(_ settings: LatestTunnelSettings) -> [SelectLocationFilter] {
-        var activeFilter: [SelectLocationFilter] = []
-
-        let isMultihop = settings.tunnelMultihopState.isEnabled
-        if let ownershipFilter = settings.relayConstraints.filter.value {
-            switch ownershipFilter.ownership {
-            case .any:
-                break
-            case .owned:
-                activeFilter.append(.owned)
-            case .rented:
-                activeFilter.append(.rented)
-            }
-            if let provider = ownershipFilter.providers.value {
-                activeFilter.append(.provider(provider.count))
-            }
+        switch multihopContext {
+        case .entry:
+            delegate
+                .showEditCustomListView(entryContext.locations, customList)
+        case .exit:
+            delegate
+                .showEditCustomListView(exitContext.locations, customList)
         }
-        if settings.daita.isDirectOnly {
-            if isMultihop {
-                activeFilter.append(.daita)
-            }
-        }
-
-        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
-        if isObfuscation {
-            if isMultihop {
-                activeFilter
-                    .append(.obfuscation)
-            }
-        }
-        return activeFilter
-    }
-
-    private static func getActiveExitFilters(_ settings: LatestTunnelSettings) -> [SelectLocationFilter] {
-        var activeFilter: [SelectLocationFilter] = []
-
-        let isMultihop = settings.tunnelMultihopState.isEnabled
-        if let ownershipFilter = settings.relayConstraints.filter.value {
-            switch ownershipFilter.ownership {
-            case .any:
-                break
-            case .owned:
-                activeFilter.append(.owned)
-            case .rented:
-                activeFilter.append(.rented)
-            }
-            if let provider = ownershipFilter.providers.value {
-                activeFilter.append(.provider(provider.count))
-            }
-        }
-        if settings.daita.isDirectOnly {
-            if !isMultihop {
-                activeFilter.append(.daita)
-            }
-        }
-
-        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
-        if isObfuscation {
-            if !isMultihop {
-                activeFilter
-                    .append(
-                        .obfuscation
-                    )
-            }
-        }
-        return activeFilter
-    }
-
-    private func updateConnectedLocation(_ status: TunnelStatus) {
-        (exitContext.locations + exitContext.customLists)
-            .forEachNode { node in
-                node.isConnected = node.name == status.state.relays?.exit.hostname
-            }
-        (entryContext.locations + entryContext.customLists)
-            .forEachNode { node in
-                node.isConnected = node.name == status.state.relays?.entry?.hostname
-            }
     }
 
     private func fetchLocations() {
@@ -350,13 +246,67 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     entryLocationsDataSource.nodes
             }
         } else {
-            exitContext.locations = []
             entryContext.locations = []
+            exitContext.locations = []
         }
-        reloadCustomLists()
+        refreshCustomLists()
     }
 
-    private func reloadCustomLists() {
+    private func getActiveFilters(_ settings: LatestTunnelSettings) -> (
+        [SelectLocationFilter],
+        [SelectLocationFilter]
+    ) {
+        var activeEntryFilter: [SelectLocationFilter] = []
+        var activeExitFilter: [SelectLocationFilter] = []
+
+        let isMultihop = settings.tunnelMultihopState.isEnabled
+        if let ownershipFilter = settings.relayConstraints.filter.value {
+            switch ownershipFilter.ownership {
+            case .any:
+                break
+            case .owned:
+                activeEntryFilter.append(.owned)
+                activeExitFilter.append(.owned)
+            case .rented:
+                activeEntryFilter.append(.rented)
+                activeExitFilter.append(.rented)
+            }
+            if let provider = ownershipFilter.providers.value {
+                activeEntryFilter.append(.provider(provider.count))
+                activeExitFilter.append(.provider(provider.count))
+            }
+        }
+        if settings.daita.isDirectOnly {
+            if isMultihop {
+                activeEntryFilter.append(.daita)
+            } else {
+                activeExitFilter.append(.daita)
+            }
+        }
+
+        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
+        if isObfuscation {
+            if isMultihop {
+                activeEntryFilter.append(.obfuscation)
+            } else {
+                activeExitFilter.append(.obfuscation)
+            }
+        }
+        return (activeEntryFilter, activeExitFilter)
+    }
+
+    private func updateConnectedLocation(_ status: TunnelStatus) {
+        (exitContext.locations + exitContext.customLists)
+            .forEachNode { node in
+                node.isConnected = node.name == status.state.relays?.exit.hostname
+            }
+        (entryContext.locations + entryContext.customLists)
+            .forEachNode { node in
+                node.isConnected = node.name == status.state.relays?.entry?.hostname
+            }
+    }
+
+    func refreshCustomLists() {
         exitCustomListsDataSource.reload(allLocationNodes: exitContext.locations)
         entryCustomListsDataSource.reload(allLocationNodes: entryContext.locations)
 
@@ -405,7 +355,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             }
     }
 
-    private func search() {
+    private func search(searchText: String) {
         exitLocationsDataSource.search(by: searchText)
         entryLocationsDataSource.search(by: searchText)
         exitCustomListsDataSource.search(by: searchText)
@@ -523,19 +473,15 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 inContext: .exit
             )
         }
-
         expandSelectedLocation()
     }
 
     private func expandSelectedLocation() {
-        (entryContext.locations + entryContext.customLists + exitContext.locations + exitContext.customLists)
-            .forEachNode { node in
-                if node.isSelected {
-                    node.forEachAncestor { ancestor in
-                        ancestor.showsChildren = true
-                    }
-                }
+        allLocations.forEachNode { node in
+            if node.isSelected {
+                node.forEachAncestor { $0.showsChildren = true }
             }
+        }
     }
 
     func addLocationToCustomList(location: LocationNode, customListName: String) {
@@ -566,11 +512,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         )
         try? customListInteractor.save(list: newCustomList)
         refreshCustomLists()
-        setSelection(
-            selectedExitRelays: tunnelManager.settings.relayConstraints.exitLocations.value,
-            selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
-        )
-        updateConnectedLocation(tunnelManager.tunnelStatus)
     }
 
     func removeLocationFromCustomList(
@@ -589,11 +530,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         )
         try? customListInteractor.save(list: newCustomList)
         refreshCustomLists()
-        setSelection(
-            selectedExitRelays: tunnelManager.settings.relayConstraints.exitLocations.value,
-            selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
-        )
-        updateConnectedLocation(tunnelManager.tunnelStatus)
     }
 
     func didFinish() {
