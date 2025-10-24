@@ -1,7 +1,8 @@
 import { describe, it } from 'mocha';
+import React from 'react';
 
 import { formatHtml } from '../../src/renderer/lib/html-formatter';
-import { expectChildrenToMatch } from './utils';
+import { createFragment, expectChildrenToMatch, expectChildrenToMatchElements } from './utils';
 
 describe('Format html', () => {
   it('should format middle bold tag', () => {
@@ -78,6 +79,22 @@ describe('Format html', () => {
         'text',
         ' which was emphasized.',
       ],
+    );
+  });
+  it('should format using custom transformer', () => {
+    expectChildrenToMatch(
+      formatHtml('Some <b>bold</b> text', {
+        b: () => createFragment('override value'),
+      }),
+      ['Some ', 'override value', ' text'],
+    );
+  });
+  it('should format using custom transformer and produce correct output', () => {
+    expectChildrenToMatchElements(
+      formatHtml('Some <b>bold</b> text', {
+        b: (value) => React.createElement('div', null, value),
+      }),
+      [createFragment('Some '), React.createElement('div', null, 'bold'), createFragment(' text')],
     );
   });
 });
