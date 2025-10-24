@@ -8,7 +8,7 @@ use tokio::fs;
 #[cfg(test)]
 use vec1::Vec1;
 
-use crate::defaults::META_REPOSITORY_URL;
+use crate::defaults;
 use crate::format;
 use crate::version::{VersionInfo, VersionParameters};
 
@@ -40,11 +40,7 @@ impl MetaRepositoryPlatform {
 
     /// Return complete URL used for the metadata
     pub fn url(&self) -> String {
-        format!(
-            "{}/{}",
-            crate::defaults::META_REPOSITORY_URL,
-            self.filename()
-        )
+        format!("{}/{}", defaults::RELEASES_URL, self.filename())
     }
 
     fn filename(&self) -> &str {
@@ -87,7 +83,7 @@ impl From<MetaRepositoryPlatform> for HttpVersionInfoProvider {
         HttpVersionInfoProvider {
             url: platform.url(),
             resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
-            pinned_certificate: Some(crate::defaults::PINNED_CERTIFICATE.clone()),
+            pinned_certificate: Some(defaults::PINNED_CERTIFICATE.clone()),
             dump_to_path: None,
         }
     }
@@ -158,15 +154,17 @@ impl HttpVersionInfoProvider {
 
     /// Retrieve the `latest.json` file.
     ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate. The contents are
-    /// unsigned.
-    pub async fn get_latest_versions_file() -> anyhow::Result<Vec<u8>> {
+    /// - `pinned_certificate` will be set to the LE root certificate.
+    /// - DNS will be used to look up the URL.
+    /// - The JSON response is not signed.
+    pub async fn get_latest_versions_file() -> anyhow::Result<String> {
         Self::get(
-            &format!("{META_REPOSITORY_URL}/latest.json"),
-            Some(crate::defaults::PINNED_CERTIFICATE.clone()),
-            Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
+            &format!("{}/latest.json", defaults::METADATA_URL),
+            Some(defaults::PINNED_CERTIFICATE.clone()),
+            None,
         )
         .await
+        .and_then(|raw_json: Vec<u8>| Ok(String::from_utf8(raw_json)?))
         .context("Failed to get latest.json file")
     }
 

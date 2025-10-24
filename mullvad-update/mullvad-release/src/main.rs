@@ -129,7 +129,6 @@ pub enum Opt {
         /// By default, any non-zero rollout is accepted.
         /// Setting the value to zero will also show supported versions that have
         /// been released but are currently not being rolled out.
-        // TODO: this prints 0%, but should print 1.1920929e-7
         #[arg(long, default_value_t = mullvad_update::version::SUPPORTED_VERSION)]
         rollout: Rollout,
     },
@@ -171,12 +170,8 @@ async fn main() -> anyhow::Result<()> {
 
             // Download latest.json metadata if available
             if latest_file {
-                match HttpVersionInfoProvider::get_latest_versions_file()
-                    .await
-                    .and_then(|json| {
-                        serde_json::to_string_pretty(&json).context("Failed to format JSON")
-                    }) {
-                    Ok(json) => {
+                match HttpVersionInfoProvider::get_latest_versions_file().await {
+                    Ok(json_str) => {
                         let path = Path::new(LATEST_FILENAME);
 
                         if !assume_yes && path.exists() {
@@ -189,12 +184,12 @@ async fn main() -> anyhow::Result<()> {
                             }
                         }
 
-                        fs::write(path, json).await.context("Failed to write")?;
+                        fs::write(path, json_str).await.context("Failed to write")?;
 
                         println!("Updated {}", path.display());
                     }
                     Err(err) => {
-                        eprintln!("Failed to retrieve latest.json file: {err}");
+                        eprintln!("{err:?}");
                     }
                 }
             }
@@ -252,8 +247,15 @@ async fn main() -> anyhow::Result<()> {
             platforms,
             rollout,
         } => {
+            let mut any_failed = false;
             for platform in all_platforms_if_empty(platforms) {
-                platform.modify_release(&version, rollout).await?;
+                if let Err(err) = platform.modify_release(&version, rollout).await {
+                    any_failed = true;
+                    eprintln!("Error for {platform}: {err}");
+                }
+            }
+            if any_failed {
+                bail!("Some platforms failed to be modified");
             }
             Ok(())
         }
