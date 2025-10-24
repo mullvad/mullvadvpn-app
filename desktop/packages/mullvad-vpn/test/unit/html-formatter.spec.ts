@@ -1,21 +1,9 @@
-import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import React from 'react';
 
 import { formatHtml } from '../../src/renderer/lib/html-formatter';
-
-type WithChildren = React.ReactElement<{ children?: React.ReactNode }>;
+import { expectChildrenToMatch } from './utils';
 
 describe('Format html', () => {
-  const expectChildrenToMatch = (element: React.ReactElement, expectedParts: string[]) => {
-    const kids = React.Children.toArray((element as WithChildren).props.children);
-
-    expect(kids).to.have.lengthOf(expectedParts.length);
-    kids.forEach((kid, index) => {
-      expect((kid as WithChildren).props.children).to.equal(expectedParts[index]);
-    });
-  };
-
   it('should format middle bold tag', () => {
     expectChildrenToMatch(formatHtml('Some <b>bold</b> text'), ['Some ', 'bold', ' text']);
   });
@@ -57,6 +45,33 @@ describe('Format html', () => {
     expectChildrenToMatch(
       formatHtml('Some <em>emphasized</em> and <em>more emphasized</em> text'),
       ['Some ', 'emphasized', ' and ', 'more emphasized', ' text'],
+    );
+  });
+  it('should format both bold and emphasis tags', () => {
+    expectChildrenToMatch(formatHtml('Some <b>bold</b> and <em>emphasized</em> text'), [
+      'Some ',
+      'bold',
+      ' and ',
+      'emphasized',
+      ' text',
+    ]);
+  });
+  it('should format multiple bold and emphasis tags', () => {
+    expectChildrenToMatch(
+      formatHtml(
+        'Some <b>bold</b> and <em>emphasized</em> text. Then another <b>bold text</b> and one more <em>text</em> which was emphasized.',
+      ),
+      [
+        'Some ',
+        'bold',
+        ' and ',
+        'emphasized',
+        ' text. Then another ',
+        'bold text',
+        ' and one more ',
+        'text',
+        ' which was emphasized.',
+      ],
     );
   });
 });
