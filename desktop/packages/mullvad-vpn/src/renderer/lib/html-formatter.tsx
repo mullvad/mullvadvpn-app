@@ -10,12 +10,12 @@ const Emphasis = styled.em({ color: colors.white, fontWeight: 600 });
 export const ALLOWED_TAGS = ['b', 'br', 'em'] as const;
 export type AllowedTags = ValueOfArray<typeof ALLOWED_TAGS>;
 
-export type TransformerComponent = React.ComponentType<{ children: React.ReactNode }>;
-export type TransformerMap = Record<AllowedTags, TransformerComponent>;
+export type Transformer = (value: string) => React.ReactElement;
+export type TransformerMap = Record<AllowedTags, Transformer>;
 
 const defaultTransformers: Partial<TransformerMap> = {
-  b: Bold,
-  em: Emphasis,
+  b: (value) => <Bold>{value}</Bold>,
+  em: (value) => <Emphasis>{value}</Emphasis>,
 };
 
 export function formatHtml(
@@ -29,7 +29,7 @@ export function formatHtml(
 
   const inputStringArray: Array<string | JSX.Element> = [inputString];
 
-  const transformedStrings = Object.entries(transformers).reduce((strings, [key, Component]) => {
+  const transformedStrings = Object.entries(transformers).reduce((strings, [key, transformer]) => {
     const newStrings = strings.flatMap((value) => {
       // If the value is a string:
       //   it can be transformed by a transformer into a component.
@@ -51,8 +51,7 @@ export function formatHtml(
               const transformReplacer = new RegExp(replacePattern, 'g');
 
               const valueWithoutTags = substring.replaceAll(transformReplacer, '');
-
-              return <Component key={substring}>{valueWithoutTags}</Component>;
+              return transformer(valueWithoutTags);
             } else {
               // If the value is not a match for the current transformer we should return the string as is,
               // so it can be potentially manipulated by a later transformer
