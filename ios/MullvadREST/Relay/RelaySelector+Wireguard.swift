@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import CoreLocation
 import MullvadSettings
 import MullvadTypes
 
@@ -47,7 +48,11 @@ extension RelaySelector {
 
             var relayWithLocation: RelayWithLocation<REST.ServerRelay>?
             if let referenceLocation {
-                let relay = closestRelay(to: referenceLocation, using: relayWithLocations)
+                let relay = closestRelay(
+                    to: CLLocationCoordinate2D(
+                        latitude: referenceLocation.latitude, longitude: referenceLocation.longitude),
+                    using: relayWithLocations
+                )
                 relayWithLocation = relayWithLocations.first(where: { $0.relay == relay })
             }
 
@@ -61,7 +66,7 @@ extension RelaySelector {
         }
 
         public static func closestRelay(
-            to location: Location,
+            to location: CLLocationCoordinate2D,
             using relayWithLocations: [RelayWithLocation<REST.ServerRelay>]
         ) -> REST.ServerRelay? {
             let relaysWithDistance = relayWithLocations.map {

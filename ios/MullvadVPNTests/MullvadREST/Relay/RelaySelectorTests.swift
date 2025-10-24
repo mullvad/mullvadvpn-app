@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import CoreLocation
 import MullvadMockData
 import MullvadTypes
 import Network
@@ -141,17 +142,8 @@ class RelaySelectorTests: XCTestCase {
         }
 
         let sampleLocation = try XCTUnwrap(sampleRelays.locations["se-got"])
-        let location = Location(
-            country: "Sweden",
-            countryCode: sampleLocation.country,
-            city: "Gothenburg",
-            cityCode: sampleLocation.city,
-            latitude: sampleLocation.latitude,
-            longitude: sampleLocation.longitude
-        )
-
         let selectedRelay = RelaySelector.WireGuard.closestRelay(
-            to: location,
+            to: CLLocationCoordinate2D(latitude: sampleLocation.latitude, longitude: sampleLocation.longitude),
             using: relayWithLocations
         )
 
