@@ -63,6 +63,7 @@ import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
@@ -145,6 +146,7 @@ private fun ReportProblemScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.report_a_problem),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        modifier = Modifier.accessibilityDataSensitive(),
     ) { modifier ->
         // Show sending states
         if (state.sendingState != null) {

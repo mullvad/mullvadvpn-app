@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ui
 
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -85,7 +86,13 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         setContent { AppTheme { MullvadApp() } }
 
         // This is to protect against tapjacking attacks
-        window.decorView.rootView.filterTouchesWhenObscured = true
+        // This is applied at an OS level since Android 12 so it is only required on older versions
+        // of Android
+        // See https://developer.android.com/privacy-and-security/risks/tapjacking for more
+        // information
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+            window.decorView.rootView.filterTouchesWhenObscured = true
+        }
 
         // Needs to be before we start the service, since we need to access the intent there
         lifecycleScope.launch { intents().collect(::handleIntent) }
