@@ -15,11 +15,7 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
     let fieldErrors: [AccessMethodFieldValidationError]
 
     var errorDescription: String? {
-        if fieldErrors.count > 1 {
-            NSLocalizedString("Multiple validation errors occurred.", comment: "")
-        } else {
-            fieldErrors.first?.localizedDescription
-        }
+        fieldErrors.map({ $0.localizedDescription }).joinedParagraphs(lineBreaks: 1)
     }
 }
 
@@ -74,7 +70,7 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
         case .invalidIPAddress:
             NSLocalizedString("Please enter a valid IPv4 or IPv6 address.", comment: "")
         case .invalidPort:
-            NSLocalizedString("Please enter a valid port.", comment: "")
+            NSLocalizedString("Please enter a valid remote server port.", comment: "")
         case .nameTooLong:
             String(
                 format: NSLocalizedString("Name should be no longer than %i characters.", comment: ""),

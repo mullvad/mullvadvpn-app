@@ -20,7 +20,7 @@ extension StorePaymentManagerError: DisplayError {
             let reason = (error as? DisplayError)?.displayErrorDescription ?? ""
 
             return String(
-                format: NSLocalizedString("Failed to validate account number: %@", comment: ""), reason
+                format: NSLocalizedString("Invalid account number: %@", comment: ""), reason
             )
 
         case let .readReceipt(readReceiptError):

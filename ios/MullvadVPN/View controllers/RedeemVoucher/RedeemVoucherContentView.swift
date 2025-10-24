@@ -344,7 +344,7 @@ private extension REST.Error {
         if compareErrorCode(.invalidVoucher) {
             return NSLocalizedString("Voucher code is invalid.", comment: "")
         } else if compareErrorCode(.usedVoucher) {
-            return NSLocalizedString("This voucher code has already been used.", comment: "")
+            return NSLocalizedString("Voucher code has already been used.", comment: "")
         }
         return displayErrorDescription ?? ""
     }

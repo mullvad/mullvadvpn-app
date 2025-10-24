@@ -21,7 +21,7 @@ class SetupAccountCompletedContentView: UIView {
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.text = NSLocalizedString("You’re all set!!", comment: "")
+        label.text = NSLocalizedString("You’re all set!", comment: "")
         return label
     }()
 

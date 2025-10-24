@@ -39,7 +39,7 @@ final class IPOverrideInteractor {
 
     func `import`(url: URL) {
         let data = (try? Data(contentsOf: url)) ?? Data()
-        handleImport(of: data, context: .file)
+        handleImport(of: data, context: .file(fileName: url.lastPathComponent))
     }
 
     func `import`(text: String) {

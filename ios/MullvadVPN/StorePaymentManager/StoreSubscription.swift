@@ -17,9 +17,9 @@ enum StoreSubscription: String, CaseIterable {
     var localizedTitle: String {
         switch self {
         case .thirtyDays:
-            return NSLocalizedString("Add 30 days", comment: "")
+            return NSLocalizedString("Add 30 days time (%@)", comment: "")
         case .ninetyDays:
-            return NSLocalizedString("Add 90 days", comment: "")
+            return NSLocalizedString("Add 90 days time (%@)", comment: "")
         }
     }
 }
@@ -31,7 +31,7 @@ extension SKProduct {
         else {
             return nil
         }
-        return "\(localizedTitle) (\(localizedPrice))"
+        return String(format: localizedTitle, localizedPrice)
     }
 }
 

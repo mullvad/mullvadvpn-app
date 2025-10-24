@@ -999,9 +999,6 @@
 		F072D3CF2C07122400906F64 /* SettingsUpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */; };
 		F072D3D22C071AD100906F64 /* ShadowsocksLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */; };
 		F073FCB32C6617D70062EA1D /* TunnelStore+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F073FCB22C6617D70062EA1D /* TunnelStore+Stubs.swift */; };
-		F075C15C2E96A0C600B3C769 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F075C15B2E96A0C600B3C769 /* Localizable.xcstrings */; };
-		F075C15D2E96A0C600B3C769 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F075C15B2E96A0C600B3C769 /* Localizable.xcstrings */; };
-		F075C15E2E96A0C600B3C769 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F075C15B2E96A0C600B3C769 /* Localizable.xcstrings */; };
 		F07751552C50F149006E6A12 /* EphemeralPeerExchangeActorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C4C9BF2C495E7500A79006 /* EphemeralPeerExchangeActorStub.swift */; };
 		F07751572C50F149006E6A12 /* EphemeralPeerExchangingPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F053F4B92C4A94D300FBD937 /* EphemeralPeerExchangingPipelineTests.swift */; };
 		F07751582C50F149006E6A12 /* MultiHopEphemeralPeerExchangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C4C9BD2C49477B00A79006 /* MultiHopEphemeralPeerExchangerTests.swift */; };
@@ -1058,6 +1055,9 @@
 		F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D02D01B55C00299F09 /* ChipModel.swift */; };
 		F0ADF1D32D01B6B400299F09 /* FeatureIndicatorsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */; };
 		F0ADF1D52D01DCFD00299F09 /* ChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D42D01DCFD00299F09 /* ChipView.swift */; };
+		F0B06BC22EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
+		F0B06BC32EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
+		F0B06BC42EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
 		F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */; };
 		F0B495762D02025200CFEC2A /* ChipContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495752D02025200CFEC2A /* ChipContainerView.swift */; };
 		F0B495782D02038B00CFEC2A /* ChipViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */; };
@@ -2475,7 +2475,6 @@
 		F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdaterTests.swift; sourceTree = "<group>"; };
 		F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderTests.swift; sourceTree = "<group>"; };
 		F073FCB22C6617D70062EA1D /* TunnelStore+Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TunnelStore+Stubs.swift"; sourceTree = "<group>"; };
-		F075C15B2E96A0C600B3C769 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F0791F1A2D76377400449F6D /* RelayCandidates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCandidates.swift; sourceTree = "<group>"; };
 		F07B53562C53B5270024F547 /* LocalNetworkIPs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNetworkIPs.swift; sourceTree = "<group>"; };
 		F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputTextFormatterTests.swift; sourceTree = "<group>"; };
@@ -2514,6 +2513,7 @@
 		F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureIndicatorsViewModel.swift; sourceTree = "<group>"; };
 		F0ADF1D42D01DCFD00299F09 /* ChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipView.swift; sourceTree = "<group>"; };
 		F0AE6DB72E4A3285001A7B23 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
 		F0B495752D02025200CFEC2A /* ChipContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipContainerView.swift; sourceTree = "<group>"; };
 		F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipViewModelProtocol.swift; sourceTree = "<group>"; };
@@ -4224,7 +4224,7 @@
 			children = (
 				5859A55429CD9DD800F66591 /* changes.txt */,
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
-				F075C15B2E96A0C600B3C769 /* Localizable.xcstrings */,
+				F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -5702,7 +5702,7 @@
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				5859A55529CD9DD900F66591 /* changes.txt in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
-				F075C15C2E96A0C600B3C769 /* Localizable.xcstrings in Resources */,
+				F0B06BC22EAA4191008C0A0B /* Localizable.xcstrings in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5726,7 +5726,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F075C15D2E96A0C600B3C769 /* Localizable.xcstrings in Resources */,
+				F0B06BC32EAA4191008C0A0B /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5783,7 +5783,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F075C15E2E96A0C600B3C769 /* Localizable.xcstrings in Resources */,
+				F0B06BC42EAA4191008C0A0B /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

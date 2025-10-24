@@ -206,8 +206,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             body: .init(
                 string: NSLocalizedString(
                     """
-                    Your device is offline. The tunnel will automatically connect once \
-                    your device is back online.
+                    Your device is offline. The tunnel will automatically connect once your device is back online.
                     """,
                     comment: ""
                 )

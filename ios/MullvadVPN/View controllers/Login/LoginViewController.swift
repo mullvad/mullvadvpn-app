@@ -49,7 +49,7 @@ class LoginViewController: UIViewController, RootContainment {
 
     private lazy var accountInputAccessoryLoginButton: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(
-            title: NSLocalizedString("Log in", comment: ""),
+            title: NSLocalizedString("Login", comment: ""),
             style: .done,
             target: self,
             action: #selector(doLogin)
@@ -415,7 +415,7 @@ private extension LoginState {
             case .useExistingAccount:
                 return NSLocalizedString("Checking account number", comment: "")
             case .createAccount:
-                return NSLocalizedString("Creating new account", comment: "")
+                return NSLocalizedString("Creating account...", comment: "")
             }
 
         case let .failure(_, error):
@@ -424,7 +424,7 @@ private extension LoginState {
         case let .success(method):
             switch method {
             case .useExistingAccount:
-                return NSLocalizedString("Correct account number", comment: "")
+                return NSLocalizedString("Valid account number", comment: "")
             case .createAccount:
                 return NSLocalizedString("Account created", comment: "")
             }

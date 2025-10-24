@@ -23,8 +23,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
         case .localNetworkSharing:
             [
                 NSLocalizedString(
-                    "This feature allows access to other devices on the local network, "
-                        + "such as for sharing, printing, streaming, etc.",
+                    "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.",
                     comment: ""
                 ),
                 NSLocalizedString(
@@ -45,7 +44,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 ),
                 String(
                     format: NSLocalizedString(
-                        "Attention: this setting cannot be used in combination with **“%@“**.",
+                        "Attention: this setting cannot be used in combination with **%@**",
                         comment: ""
                     ),
                     NSLocalizedString("Use custom DNS server", comment: "")

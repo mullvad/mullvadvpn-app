@@ -76,7 +76,7 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
 
         controller.navigationItem.prompt = NSLocalizedString("The app will test the method before saving.", comment: "")
 
-        controller.navigationItem.title = NSLocalizedString("Method settings", comment: "")
+        controller.navigationItem.title = NSLocalizedString("Edit method", comment: "")
 
         controller.saveBarButton.title = NSLocalizedString("Save", comment: "")
 

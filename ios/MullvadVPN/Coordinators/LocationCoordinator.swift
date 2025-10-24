@@ -191,7 +191,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
         actionSheet.view.tintColor = .AlertController.tintColor
 
         let addCustomListAction = UIAlertAction(
-            title: NSLocalizedString("Add new list", comment: ""),
+            title: NSLocalizedString("Create new list", comment: ""),
             style: .default,
             handler: { [weak self] _ in
                 self?.showAddCustomList(nodes: nodes)
@@ -201,7 +201,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
         actionSheet.addAction(addCustomListAction)
 
         let editAction = UIAlertAction(
-            title: NSLocalizedString("Edit lists", comment: ""),
+            title: NSLocalizedString("Edit custom lists", comment: ""),
             style: .default,
             handler: { [weak self] _ in
                 self?.showEditCustomLists(nodes: nodes)

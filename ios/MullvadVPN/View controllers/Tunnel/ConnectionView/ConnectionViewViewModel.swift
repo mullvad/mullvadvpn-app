@@ -102,19 +102,19 @@ extension ConnectionViewViewModel {
     var localizedTitleForSecureLabel: LocalizedStringKey {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer:
-            LocalizedStringKey("Connecting...")
+            LocalizedStringKey("CONNECTING...")
         case .connected:
-            LocalizedStringKey("Connected")
+            LocalizedStringKey("CONNECTED")
         case .disconnecting(.nothing):
-            LocalizedStringKey("Disconnecting...")
+            LocalizedStringKey("DISCONNECTING...")
         case .disconnecting(.reconnect), .pendingReconnect:
-            LocalizedStringKey("Reconnecting")
+            LocalizedStringKey("RECONNECTING")
         case .disconnected:
-            LocalizedStringKey("Disconnected")
+            LocalizedStringKey("DISCONNECTED")
         case .waitingForConnectivity(.noConnection), .error:
-            LocalizedStringKey("Blocked connection")
+            LocalizedStringKey("BLOCKED CONNECTION")
         case .waitingForConnectivity(.noNetwork):
-            LocalizedStringKey("No network")
+            LocalizedStringKey("NO NETWORK")
         }
     }
 
@@ -134,17 +134,21 @@ extension ConnectionViewViewModel {
         case .disconnected, .waitingForConnectivity, .disconnecting, .pendingReconnect, .error:
             localizedTitleForSecureLabel
         case let .connected(tunnelInfo, _, _):
-            LocalizedStringKey("Connected to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)")
+            LocalizedStringKey(
+                "Connected to \([tunnelInfo.exit.location.city,tunnelInfo.exit.location.country].joined(separator: ", "))"
+            )
         case let .connecting(tunnelInfo, _, _):
             if let tunnelInfo {
                 LocalizedStringKey(
-                    "Connecting to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)"
+                    "Connecting to \([tunnelInfo.exit.location.city,tunnelInfo.exit.location.country].joined(separator: ", "))"
                 )
             } else {
                 localizedTitleForSecureLabel
             }
         case let .reconnecting(tunnelInfo, _, _), let .negotiatingEphemeralPeer(tunnelInfo, _, _, _):
-            LocalizedStringKey("Reconnecting to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)")
+            LocalizedStringKey(
+                "Reconnecting to \([tunnelInfo.exit.location.city,tunnelInfo.exit.location.country].joined(separator: ", "))"
+            )
         }
     }
 
@@ -189,7 +193,7 @@ extension ConnectionViewViewModel {
         return if let entryName {
             LocalizedStringKey("\(exitName) via \(entryName)")
         } else {
-            LocalizedStringKey("\(exitName)")
+            "\(exitName)"
         }
     }
 

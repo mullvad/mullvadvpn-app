@@ -109,7 +109,7 @@ final class RelayFilterViewModel {
         return RelayFilterDataSourceItem(
             name: providerName,
             description: isDaitaEnabled && isProviderEnabled
-                ? NSLocalizedString("DAITA-enabled", comment: "")
+                ? String(format: NSLocalizedString("%@-enabled", comment: ""), "DAITA")
                 : "",
             type: .provider,
             // If the current filter is valid, return true immediately.

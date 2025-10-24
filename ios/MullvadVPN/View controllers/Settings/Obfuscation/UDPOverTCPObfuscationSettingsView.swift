@@ -20,10 +20,7 @@ struct UDPOverTCPObfuscationSettingsView<VM>: View where VM: UDPOverTCPObfuscati
             value: $viewModel.value,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationUdpOverTcpTable.asString,
             itemDescription: { item in
-                String(
-                    format: NSLocalizedString("%@", comment: ""),
-                    "\(item)"
-                )
+                "\(item)"
             }
         ).onDisappear {
             viewModel.commit()

@@ -64,7 +64,7 @@ class IPOverrideStatusView: UIView {
     }
 
     func setStatus(_ status: IPOverrideStatus) {
-        titleLabel.text = status.title.uppercased()
+        titleLabel.text = status.title
         titleLabel.numberOfLines = 0
         statusIcon.image = status.icon
         descriptionLabel.text = status.description

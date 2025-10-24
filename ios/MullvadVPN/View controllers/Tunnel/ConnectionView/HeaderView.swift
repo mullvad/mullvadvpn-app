@@ -22,7 +22,6 @@ extension ConnectionView {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(alignment: .top) {
                         Text(viewModel.localizedTitleForSecureLabel)
-                            .textCase(.uppercase)
                             .font(.title3.weight(.semibold))
                             .foregroundStyle(viewModel.textColorForSecureLabel.color)
                             .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)

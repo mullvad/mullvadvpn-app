@@ -82,7 +82,7 @@ extension AccessMethodViewModel {
         case AccessMethodRepository.directId:
             InfoHeaderConfig(
                 body: NSLocalizedString("The app communicates with a Mullvad API server directly.", comment: ""),
-                link: NSLocalizedString("About Direct method...", comment: "")
+                link: String(format: NSLocalizedString("About %@ method...", comment: ""), "Direct")
             )
         case AccessMethodRepository.bridgeId:
             InfoHeaderConfig(
@@ -90,7 +90,7 @@ extension AccessMethodViewModel {
                     "The app communicates with a Mullvad API server via a Mullvad bridge server.",
                     comment: ""
                 ),
-                link: NSLocalizedString("About Mullvad bridges method...", comment: "")
+                link: String(format: NSLocalizedString("About %@ method...", comment: ""), "Mullvad bridges")
             )
         case AccessMethodRepository.encryptedDNSId:
             InfoHeaderConfig(
@@ -98,7 +98,7 @@ extension AccessMethodViewModel {
                     "The app communicates with a Mullvad API server via a proxy address.",
                     comment: ""
                 ),
-                link: NSLocalizedString("About Encrypted DNS proxy method...", comment: "")
+                link: String(format: NSLocalizedString("About %@ method...", comment: ""), "Encrypted DNS proxy")
             )
         default:
             nil
@@ -155,9 +155,11 @@ extension AccessMethodViewModel {
                         comment: ""
                     ),
                     NSLocalizedString(
-                        "If you are not connected to our VPN, then the Encrypted DNS proxy will use "
-                            + "your own non-VPN IP when connecting. The DoH servers are hosted by one of the "
-                            + "following providers: Quad9 or Cloudflare.",
+                        """
+                        If you are not connected to our VPN, then the Encrypted DNS proxy will \
+                        use your own non-VPN IP when connecting. The DoH servers are hosted by \
+                        one of the following providers: Quad9 or CloudFlare.
+                        """,
                         comment: ""
                     ),
                 ]

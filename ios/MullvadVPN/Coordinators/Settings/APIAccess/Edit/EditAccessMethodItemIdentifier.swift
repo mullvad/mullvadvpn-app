@@ -56,7 +56,7 @@ enum EditAccessMethodItemIdentifier: Hashable {
         case .enableMethod:
             NSLocalizedString("Enable method", comment: "")
         case .methodSettings:
-            NSLocalizedString("Method settings", comment: "")
+            NSLocalizedString("Edit method", comment: "")
         case .testMethod:
             NSLocalizedString("Test method", comment: "")
         case .cancelTest:

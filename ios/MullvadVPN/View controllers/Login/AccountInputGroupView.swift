@@ -25,7 +25,7 @@ final class AccountInputGroupView: UIView {
         button.setImage(UIImage.Buttons.rightArrow, for: .normal)
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         button.setAccessibilityIdentifier(.loginTextFieldButton)
-        button.accessibilityLabel = NSLocalizedString("Log in", comment: "")
+        button.accessibilityLabel = NSLocalizedString("Login", comment: "")
         return button
     }()
 
