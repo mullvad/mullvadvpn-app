@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# This script does the following:
+# 1. Fetch the latest metadata for the provided version and platforms.
+# 2. Set the `rollout` fraction to the provided value in [0, 1].
+# 3. Sign and upload the updated metadata files.
+#
+# * You need to put the private ed25519 signing key in the clipboard before running this script.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+if [ $# -lt 5 ]; then
+    echo "Please provide the following arguments:"
+    echo "    $(basename "$0") \\"
+    echo "        <build server SSH destination> \\"
+    echo "        <metadata server SSH destination> \\"
+    echo "        <product version> \\"
+    echo "        <rollout> \\"
+    echo "        <..platforms> \\"
+    echo ""
+    echo "Note that the metadata server SSH destination is part of the rsync command executed on the build server and will be checked against the SSH config of build@\$buildserver_host."
+    exit 1
+fi
+
+# The hostname (can be the alias in your ~/.ssh/config) of the build server
+BUILDSERVER_HOST=$1
+# The server to upload the metadata to *from* the build server (argument above)
+METADATA_SERVER_HOST=$2
+PRODUCT_VERSION=$3
+ROLLOUT=$4
+
+shift 4; # past the first arguments
+
+# the trailing arguments are the platform targets
+PLATFORMS=("$@")
+
+# shellcheck source=desktop/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
+
+function modify_rollout {
+    local signed_dir="signed/"
+    local work_dir="work/"
+    local published_dir="currently_published/"
+    local upload_dir="upload/"
+    local latest_file="latest.json"
+    local all_platforms=(linux macos windows)
+
+    rm -rf "$signed_dir"
+    rm -rf "$work_dir"
+    rm -rf "$published_dir"
+    rm -rf "$upload_dir"
+
+    echo ">>> Platforms:" "${PLATFORMS[@]}"
+
+    echo ">>> Fetching current version metadata"
+    mullvad-release pull --latest-file --assume-yes "${all_platforms[@]}"
+    echo ""
+
+    echo ">>> Backing up released data"
+    cp -r $signed_dir $published_dir
+    mv "./$latest_file" "$published_dir/$latest_file"
+    echo ""
+
+    echo ">>> Replacing $work_dir directory with latest published data"
+    cp -rf "$signed_dir" "$work_dir"
+    echo ""
+
+    echo ">>> Setting rollout = $ROLLOUT for $PRODUCT_VERSION"
+    mullvad-release modify-release "$PRODUCT_VERSION" --rollout "$ROLLOUT" "${PLATFORMS[@]}"
+    echo ""
+
+    echo ">>> Signing $PRODUCT_VERSION metadata. Reading signing key from clipboard"
+    xclip -sensitive | mullvad-release sign "${PLATFORMS[@]}"
+    echo ""
+
+    echo ">>> Verifying signed metadata"
+    mullvad-release verify "${all_platforms[@]}"
+    echo ""
+
+    echo ">>> Creating upload dir"
+    cp -rf "$signed_dir" "$upload_dir"
+    echo ""
+
+    echo ">>> Generating $latest_file for current version metadata"
+    mullvad-release query-latest "${all_platforms[@]}" > "$upload_dir/$latest_file"
+    echo ""
+
+    echo ">>> New metadata including $PRODUCT_VERSION"
+    git --no-pager diff --no-index -- $published_dir $upload_dir || true
+    echo ""
+
+    read -rp "Press enter to upload if the diffs look good "
+    ./publish-metadata-to-api $upload_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+}
+
+modify_rollout

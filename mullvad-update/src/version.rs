@@ -205,14 +205,23 @@ impl TryFrom<f32> for Rollout {
     }
 }
 
-// TODO: the mullvad-release cli might rely on this being formatted as an f32
-impl Display for Rollout {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}%", (self.0 * 100.) as u32)
+impl Eq for Rollout {}
+
+#[allow(clippy::derive_ord_xor_partial_ord)] // we impl Ord in terms of PartalOrd, so it's fine
+impl Ord for Rollout {
+    fn cmp(&self, other: &Self) -> Ordering {
+        debug_assert!(self.0.is_finite());
+        debug_assert!(other.0.is_finite());
+        self.partial_cmp(other).expect("rollout is always in 0..=1")
     }
 }
 
-// TODO: the mullvad-release cli might rely on this being formatted as an f32
+impl Display for Rollout {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Display::fmt(&self.0, f)
+    }
+}
+
 impl FromStr for Rollout {
     type Err = anyhow::Error;
 
@@ -256,7 +265,7 @@ pub fn generate_rollout_seed() -> u32 {
 mod test {
     use std::str::FromStr;
 
-    use insta::assert_yaml_snapshot;
+    use insta::{assert_snapshot, assert_yaml_snapshot};
 
     use super::*;
 
@@ -387,13 +396,35 @@ mod test {
         Ok(())
     }
 
+    const GOOD_ROLLOUT_EXAMPLES: &[f32] = &[
+        -0.0,                // 0%
+        0.0,                 // 0%
+        -0.0 + f32::EPSILON, // > 0%
+        1.0 / 3.0,           // 33%
+        1.0 - f32::EPSILON,  // 99%
+        1.0,                 // 100%
+    ];
+
     const BAD_ROLLOUT_EXAMPLES: &[f32] = &[
         -f32::EPSILON,
         1.0 + f32::EPSILON,
         f32::NAN,
         f32::INFINITY,
         f32::NEG_INFINITY,
+        100.0,
     ];
+
+    #[test]
+    fn test_rollout_serialization() {
+        for &valid_rollout in GOOD_ROLLOUT_EXAMPLES {
+            let serialized_f32 = serde_json::to_string(&valid_rollout).unwrap();
+            let deserialized_rollout: Rollout = serde_json::from_str(&serialized_f32).unwrap();
+            let serialized_rollout = serde_json::to_string(&deserialized_rollout).unwrap();
+
+            assert_eq!(deserialized_rollout.0, valid_rollout);
+            assert_eq!(serialized_rollout, serialized_f32);
+        }
+    }
 
     #[test]
     fn test_rollout_deserialize_bad() {
@@ -402,6 +433,18 @@ mod test {
             serde_json::from_str::<Rollout>(&rollout_str)
                 .expect_err("must fail to deserialize bad rollout");
         }
+    }
+
+    /// Test that the `Display` impl of [Rollout] makes sense.
+    /// Note clap requires that `Display` must be the inverse of `FromStr`.
+    #[test]
+    fn test_rollout_display() {
+        let string_reprs = GOOD_ROLLOUT_EXAMPLES
+            .iter()
+            .map(|&f| format!("{f} => {}\n", Rollout::try_from(f).unwrap()))
+            .collect::<String>();
+
+        assert_snapshot!(&string_reprs);
     }
 
     #[test]
