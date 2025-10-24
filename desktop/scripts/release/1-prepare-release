@@ -10,9 +10,10 @@ cd "$SCRIPT_DIR"
 
 REPO_ROOT=../../../
 
+$REPO_ROOT/scripts/utils/commit-verification
+
 source $REPO_ROOT/scripts/utils/log
 source $REPO_ROOT/scripts/utils/print-and-run
-
 
 for argument in "$@"; do
     case "$argument" in
@@ -46,15 +47,6 @@ function checks {
         log_error "It looks like you did not update $changes_path"
         exit 1
     fi
-}
-
-function check_commit_signature {
-    if ! git verify-commit HEAD; then
-        log_error \
-            "Current commit lacks valid signature. Releases can only be made from signed commits."
-        exit 1
-    fi
-    echo ""
 }
 
 function check_changelog {
@@ -104,7 +96,6 @@ function update_product_version {
 }
 
 checks
-check_commit_signature
 check_changelog
 update_changelog
 update_copyright_year
