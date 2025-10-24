@@ -87,6 +87,7 @@ import net.mullvad.mullvadvpn.viewmodel.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.MultihopViewModel
+import net.mullvad.mullvadvpn.viewmodel.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
@@ -290,6 +291,7 @@ val uiModule = module {
     viewModel { ShadowsocksSettingsViewModel(get()) }
     viewModel { ShadowsocksCustomPortDialogViewModel(get()) }
     viewModel { MultihopViewModel(get(), get()) }
+    viewModel { NotificationSettingsViewModel(get()) }
     viewModel {
         SearchLocationViewModel(
             get(),

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.shared
 
 import androidx.datastore.core.DataStore
 import java.time.Instant
@@ -7,6 +7,7 @@ import java.time.ZonedDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
+import net.mullvad.mullvadvpn.repository.UserPreferences
 
 class UserPreferencesRepository(
     private val userPreferencesStore: DataStore<UserPreferences>,
@@ -31,6 +32,12 @@ class UserPreferencesRepository(
     suspend fun setAccountExpiry(expiry: ZonedDateTime) {
         userPreferencesStore.updateData { prefs ->
             prefs.toBuilder().setAccountExpiryUnixTimeSeconds(expiry.toEpochSecond()).build()
+        }
+    }
+
+    suspend fun setLocationInNotificationEnabled(enable: Boolean) {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setShowLocationInSystemNotification(enable).build()
         }
     }
 

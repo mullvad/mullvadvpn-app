@@ -30,6 +30,7 @@ import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDest
 import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
+import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
@@ -74,6 +75,7 @@ private fun PreviewSettingsScreen(
             onMultihopClick = {},
             onDaitaClick = {},
             onBackClick = {},
+            onNotificationSettingsCellClick = {},
         )
     }
 }
@@ -96,6 +98,8 @@ fun Settings(navigator: DestinationsNavigator) {
         onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination()) },
         onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination()) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onNotificationSettingsCellClick =
+            dropUnlessResumed { navigator.navigate(NotificationSettingsDestination()) },
     )
 }
 
@@ -110,6 +114,7 @@ fun SettingsScreen(
     onMultihopClick: () -> Unit,
     onDaitaClick: () -> Unit,
     onBackClick: () -> Unit,
+    onNotificationSettingsCellClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
@@ -132,6 +137,7 @@ fun SettingsScreen(
                         onApiAccessClick = onApiAccessClick,
                         onMultihopClick = onMultihopClick,
                         onDaitaClick = onDaitaClick,
+                        onNotificationSettingsCellClick = onNotificationSettingsCellClick,
                     )
                 }
             }
@@ -148,6 +154,7 @@ private fun LazyListScope.content(
     onApiAccessClick: () -> Unit,
     onMultihopClick: () -> Unit,
     onDaitaClick: () -> Unit,
+    onNotificationSettingsCellClick: () -> Unit,
 ) {
     if (state.isLoggedIn) {
         itemWithDivider {
@@ -171,12 +178,19 @@ private fun LazyListScope.content(
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
     }
 
-    item {
+    itemWithDivider {
         NavigationComposeCell(
             title = stringResource(id = R.string.settings_api_access),
             onClick = onApiAccessClick,
         )
     }
+    item {
+        NavigationComposeCell(
+            title = stringResource(id = R.string.settings_notifications),
+            onClick = onNotificationSettingsCellClick,
+        )
+    }
+
     item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
 
     item { AppInfo(onAppInfoClick, state) }

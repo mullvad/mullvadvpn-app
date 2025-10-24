@@ -367,6 +367,7 @@
     <string name="settings_api_access">API 访问</string>
     <string name="settings_changes_effect_warning_content_blocker">由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 设置可能不会立即生效</string>
+    <string name="settings_notifications">通知</string>
     <string name="settings_patch_error_failed_to_apply_patch">无法应用补丁</string>
     <string name="settings_patch_error_invalid_or_missing_value">值“%1$s”无效或者缺失</string>
     <string name="settings_patch_error_recursion_limit">递归限制</string>

@@ -367,6 +367,7 @@
     <string name="settings_api_access">API 액세스</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다.</string>
     <string name="settings_changes_effect_warning_short">DNS 설정이 즉시 적용되지 않을 수도 있습니다</string>
+    <string name="settings_notifications">알림</string>
     <string name="settings_patch_error_failed_to_apply_patch">패치 적용 실패</string>
     <string name="settings_patch_error_invalid_or_missing_value">\"%1$s\" 값이 유효하지 않거나 누락되었습니다</string>
     <string name="settings_patch_error_recursion_limit">반복 제한</string>

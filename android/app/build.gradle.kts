@@ -12,7 +12,6 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
-    alias(libs.plugins.protobuf.core)
     alias(libs.plugins.junit5.android)
     alias(libs.plugins.baselineprofile)
     id("me.sigptr.rust-android")
@@ -333,19 +332,6 @@ play {
     track = "internal"
     releaseStatus = ReleaseStatus.COMPLETED
     userFraction = 1.0
-}
-
-protobuf {
-    protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
-    plugins {
-        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
-    }
-    generateProtoTasks {
-        all().forEach {
-            it.plugins { create("java") { option("lite") } }
-            it.builtins { create("kotlin") { option("lite") } }
-        }
-    }
 }
 
 dependencies {

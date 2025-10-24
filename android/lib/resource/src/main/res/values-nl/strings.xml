@@ -367,6 +367,7 @@
     <string name="settings_api_access">API-toegang</string>
     <string name="settings_changes_effect_warning_content_blocker">Wijzigingen in DNS-gerelateerde instellingen worden mogelijk niet onmiddellijk van kracht vanwege gecachete resultaten.</string>
     <string name="settings_changes_effect_warning_short">DNS-instellingen worden mogelijk niet onmiddellijk van kracht</string>
+    <string name="settings_notifications">Notificaties</string>
     <string name="settings_patch_error_failed_to_apply_patch">Patch toepassen mislukt</string>
     <string name="settings_patch_error_invalid_or_missing_value">Ongeldige of ontbrekende waarde \"%1$s\"</string>
     <string name="settings_patch_error_recursion_limit">Recursielimiet</string>

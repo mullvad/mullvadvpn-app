@@ -19,6 +19,7 @@ internal fun Notification.Tunnel.toNotification(context: Context) =
     NotificationCompat.Builder(context, channelId.value)
         .setContentIntent(contentIntent(context))
         .setContentTitle(state.contentTitleResourceId(context))
+        .setContentText(state.contentText())
         .setSmallIcon(R.drawable.small_logo_white)
         .apply { actions.forEach { addAction(it.toCompatAction(context)) } }
         .setOngoing(ongoing)
@@ -38,8 +39,8 @@ private fun Notification.Tunnel.contentIntent(context: Context): PendingIntent {
 
 private fun NotificationTunnelState.contentTitleResourceId(context: Context): String =
     when (this) {
-        NotificationTunnelState.Connected -> context.getString(R.string.connected)
-        NotificationTunnelState.Connecting -> context.getString(R.string.connecting)
+        is NotificationTunnelState.Connected -> context.getString(R.string.connected)
+        is NotificationTunnelState.Connecting -> context.getString(R.string.connecting)
         is NotificationTunnelState.Disconnected -> {
             when (prepareError) {
                 is PrepareError.NotPrepared ->
@@ -60,6 +61,20 @@ private fun NotificationTunnelState.contentTitleResourceId(context: Context): St
         NotificationTunnelState.Error.LegacyLockdown ->
             context.getString(R.string.legacy_always_on_vpn_error_notification_title)
     }
+
+private fun NotificationTunnelState.contentText(): CharSequence? {
+    val location =
+        when (this) {
+            is NotificationTunnelState.Connected -> location
+            is NotificationTunnelState.Connecting -> location
+            else -> null
+        }
+    return if (location != null) {
+        "${location.country}, ${location.city}, ${location.hostname}"
+    } else {
+        null
+    }
+}
 
 internal fun NotificationAction.Tunnel.toCompatAction(context: Context): NotificationCompat.Action {
 

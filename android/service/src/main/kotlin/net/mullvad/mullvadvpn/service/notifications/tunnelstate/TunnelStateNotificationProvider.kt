@@ -19,28 +19,35 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.PrepareVpnUseCase
+import net.mullvad.mullvadvpn.lib.shared.UserPreferencesRepository
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
     connectionProxy: ConnectionProxy,
     vpnPermissionRepository: PrepareVpnUseCase,
     deviceRepository: DeviceRepository,
+    preferences: UserPreferencesRepository,
     channelId: NotificationChannelId,
     scope: CoroutineScope,
 ) : NotificationProvider<Notification.Tunnel> {
     internal val notificationId = NotificationId(2)
 
     override val notifications: StateFlow<NotificationUpdate<Notification.Tunnel>> =
-        combine(connectionProxy.tunnelState, deviceRepository.deviceState) {
-                tunnelState,
-                deviceState ->
+        combine(
+                connectionProxy.tunnelState,
+                deviceRepository.deviceState,
+                preferences.preferencesFlow(),
+            ) { tunnelState, deviceState, prefs ->
                 if (
                     deviceState is DeviceState.LoggedOut && tunnelState is TunnelState.Disconnected
                 ) {
                     return@combine NotificationUpdate.Cancel(notificationId)
                 }
                 val notificationTunnelState =
-                    tunnelState(tunnelState, vpnPermissionRepository.invoke().leftOrNull())
+                    tunnelState.toNotificationTunnelState(
+                        prepareError = vpnPermissionRepository.invoke().leftOrNull(),
+                        showLocation = prefs.showLocationInSystemNotification,
+                    )
 
                 return@combine NotificationUpdate.Notify(
                     notificationId,
@@ -54,22 +61,22 @@ class TunnelStateNotificationProvider(
             }
             .stateIn(scope, SharingStarted.Eagerly, NotificationUpdate.Cancel(notificationId))
 
-    private fun tunnelState(
-        tunnelState: TunnelState,
+    private fun TunnelState.toNotificationTunnelState(
         prepareError: PrepareError?,
-    ): NotificationTunnelState = tunnelState.toNotificationTunnelState(prepareError)
-
-    private fun TunnelState.toNotificationTunnelState(prepareError: PrepareError?) =
+        showLocation: Boolean,
+    ) =
         when (this) {
             is TunnelState.Disconnected -> NotificationTunnelState.Disconnected(prepareError)
-            is TunnelState.Connecting -> NotificationTunnelState.Connecting
+            is TunnelState.Connecting ->
+                NotificationTunnelState.Connecting(if (showLocation) location else null)
             is TunnelState.Disconnecting ->
                 when (actionAfterDisconnect) {
-                    ActionAfterDisconnect.Reconnect -> NotificationTunnelState.Connecting
+                    ActionAfterDisconnect.Reconnect -> NotificationTunnelState.Connecting(null)
                     ActionAfterDisconnect.Block -> NotificationTunnelState.Blocking
                     ActionAfterDisconnect.Nothing -> NotificationTunnelState.Disconnecting
                 }
-            is TunnelState.Connected -> NotificationTunnelState.Connected
+            is TunnelState.Connected ->
+                NotificationTunnelState.Connected(if (showLocation) location else null)
             is TunnelState.Error -> toNotificationTunnelState()
         }
 
@@ -104,8 +111,8 @@ class TunnelStateNotificationProvider(
             NotificationTunnelState.Error.Blocked,
             NotificationTunnelState.Blocking,
             NotificationTunnelState.Error.DeviceOffline,
-            NotificationTunnelState.Connected -> NotificationAction.Tunnel.Disconnect
-            NotificationTunnelState.Connecting -> NotificationAction.Tunnel.Cancel
+            is NotificationTunnelState.Connected -> NotificationAction.Tunnel.Disconnect
+            is NotificationTunnelState.Connecting -> NotificationAction.Tunnel.Cancel
             is NotificationTunnelState.Error.Critical,
             NotificationTunnelState.Error.VpnPermissionDenied,
             is NotificationTunnelState.Error.AlwaysOnVpn,

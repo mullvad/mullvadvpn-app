@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.junit5.android)
+    alias(libs.plugins.protobuf.core)
 }
 
 android {
@@ -34,6 +35,19 @@ android {
     buildFeatures { buildConfig = true }
 }
 
+protobuf {
+    protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
+    plugins {
+        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.plugins { create("java") { option("lite") } }
+            it.builtins { create("kotlin") { option("lite") } }
+        }
+    }
+}
+
 dependencies {
     implementation(projects.lib.resource)
     implementation(projects.lib.common)
@@ -44,6 +58,8 @@ dependencies {
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.datastore)
+    implementation(libs.protobuf.kotlin.lite)
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
