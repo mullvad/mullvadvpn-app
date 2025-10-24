@@ -2,11 +2,29 @@ use std::fmt;
 use std::time::{Duration, SystemTime};
 
 /// Contains bytes sent and received through a tunnel
-#[derive(Default, PartialEq, Eq, Clone, Copy)]
+#[derive(Default, PartialEq, Eq, Clone)]
 pub struct Stats {
     pub tx_bytes: u64,
     pub rx_bytes: u64,
     pub last_handshake_time: Option<SystemTime>,
+    // Optional DAITA stats
+    // Currently only available for GotaTun
+    pub daita: Option<DaitaStats>,
+}
+
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
+pub struct DaitaStats {
+    /// Extra bytes added due to constant-size padding of data packets
+    pub tx_padding_bytes: u64,
+
+    /// Bytes of standalone padding packets transmitted
+    pub tx_padding_packet_bytes: u64,
+
+    /// Total extra bytes removed due to constant-size padding of data packets
+    pub rx_padding_bytes: u64,
+
+    /// Bytes of standalone padding packets received
+    pub rx_padding_packet_bytes: u64,
 }
 
 impl fmt::Debug for Stats {
@@ -45,6 +63,8 @@ impl fmt::Debug for StatsDebug<'_> {
             dbg.field("last_handshake", &"no handshake");
         }
 
+        dbg.field("daita", &self.stats.daita);
+
         dbg.finish()
     }
 }
@@ -64,6 +84,7 @@ mod test {
             tx_bytes: 100,
             rx_bytes: 100,
             last_handshake_time: Some(SystemTime::UNIX_EPOCH),
+            ..Default::default()
         };
 
         insta::assert_debug_snapshot!(StatsDebug { now, stats: &stats });
