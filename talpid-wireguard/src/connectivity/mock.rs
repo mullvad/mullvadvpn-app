@@ -1,5 +1,6 @@
 use std::future::Future;
 use std::pin::Pin;
+use talpid_tunnel_config_client::DaitaSettings;
 use tokio::time::Instant;
 
 use super::Check;
@@ -117,16 +118,9 @@ impl Tunnel for MockTunnel {
     fn set_config(
         &mut self,
         _config: Config,
+        _daita: Option<DaitaSettings>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
         Box::pin(async { Ok(()) })
-    }
-
-    #[cfg(daita)]
-    fn start_daita(
-        &mut self,
-        _: talpid_tunnel_config_client::DaitaSettings,
-    ) -> std::result::Result<(), TunnelError> {
-        Ok(())
     }
 }
 

@@ -968,6 +968,7 @@ impl Tunnel for WgNtTunnel {
     fn set_config(
         &mut self,
         config: Config,
+        _daita: Option<DaitaSettings>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let device = self.device.clone();
         let current_config = self.config.clone();
@@ -987,10 +988,6 @@ impl Tunnel for WgNtTunnel {
                 super::TunnelError::SetConfigError
             })
         })
-    }
-
-    fn start_daita(&mut self, _settings: DaitaSettings) -> std::result::Result<(), TunnelError> {
-        unimplemented!("DAITA is not supported on wireguard-nt")
     }
 }
 

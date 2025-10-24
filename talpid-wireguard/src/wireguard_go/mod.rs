@@ -690,32 +690,34 @@ impl Tunnel for WgGoTunnel {
     fn set_config(
         &mut self,
         config: Config,
+        daita: Option<DaitaSettings>,
     ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
-        Box::pin(async move { self.set_config(config).await })
-    }
+        Box::pin(async move {
+            self.set_config(config).await?;
 
-    #[cfg(daita)]
-    fn start_daita(&mut self, settings: DaitaSettings) -> Result<()> {
-        log::info!("Initializing DAITA for wireguard device");
-        let peer_public_key = self.handle().config.entry_peer.public_key.clone();
+            if let Some(daita) = daita {
+                log::info!("Initializing DAITA for wireguard device");
+                let peer_public_key = self.handle().config.entry_peer.public_key.clone();
 
-        let machines = settings.client_machines.join("\n");
-        let machines =
-            CString::new(machines).map_err(|err| TunnelError::StartDaita(Box::new(err)))?;
+                let machines = daita.client_machines.join("\n");
+                let machines =
+                    CString::new(machines).map_err(|err| TunnelError::StartDaita(Box::new(err)))?;
 
-        self.handle()
-            .tunnel_handle
-            .activate_daita(
-                peer_public_key.as_bytes(),
-                &machines,
-                settings.max_padding_frac,
-                settings.max_blocking_frac,
-                DAITA_EVENTS_CAPACITY,
-                DAITA_ACTIONS_CAPACITY,
-            )
-            .map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
+                self.handle()
+                    .tunnel_handle
+                    .activate_daita(
+                        peer_public_key.as_bytes(),
+                        &machines,
+                        daita.max_padding_frac,
+                        daita.max_blocking_frac,
+                        DAITA_EVENTS_CAPACITY,
+                        DAITA_ACTIONS_CAPACITY,
+                    )
+                    .map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
+            }
 
-        Ok(())
+            Ok(())
+        })
     }
 }
 
