@@ -104,39 +104,40 @@ class ConnectionTest : EndToEndTest() {
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
-    fun testWireGuardObfuscationAutomatic() = runTest(timeout = 2.minutes) {
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharingStory() }
+    fun testWireGuardObfuscationAutomatic() =
+        runTest(timeout = 2.minutes) {
+            app.launchAndLogIn(accountTestRule.validAccountNumber)
+            on<ConnectPage> { enableLocalNetworkSharingStory() }
 
-        on<ConnectPage> { clickSelectLocation() }
+            on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-            clickLocationCell(relayProvider.getDefaultRelay().relay)
+            on<SelectLocationPage> {
+                clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+                clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+                clickLocationCell(relayProvider.getDefaultRelay().relay)
+            }
+
+            device.acceptVpnPermissionDialog()
+
+            var relayIpAddress: String? = null
+
+            on<ConnectPage> {
+                waitForConnectedLabel()
+                relayIpAddress = extractInIpv4Address()
+                clickDisconnect()
+            }
+
+            // Block UDP traffic to the relay
+            val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
+            firewallClient.createRule(firewallRule)
+
+            on<ConnectPage> {
+                clickConnect()
+                // Currently it takes ~45 seconds to connect with wg obfuscation automatic and UDP
+                // traffic blocked so we need to be very forgiving
+                waitForConnectedLabel(timeout = VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT)
+            }
         }
-
-        device.acceptVpnPermissionDialog()
-
-        var relayIpAddress: String? = null
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            relayIpAddress = extractInIpv4Address()
-            clickDisconnect()
-        }
-
-        // Block UDP traffic to the relay
-        val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
-        firewallClient.createRule(firewallRule)
-
-        on<ConnectPage> {
-            clickConnect()
-            // Currently it takes ~45 seconds to connect with wg obfuscation automatic and UDP
-            // traffic blocked so we need to be very forgiving
-            waitForConnectedLabel(timeout = VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT)
-        }
-    }
 
     @Test
     @HasDependencyOnLocalAPI
