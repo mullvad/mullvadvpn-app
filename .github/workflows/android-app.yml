@@ -116,7 +116,7 @@ jobs:
       E2E_TEST_REPEAT: ${{ env.INNER_E2E_TEST_REPEAT }}
 
   build-app:
-    name: Build app
+    name: Build app (${{ matrix.variantName }})
     needs: [prepare]
     runs-on: [app-gh-build, build]
     strategy:
@@ -208,7 +208,7 @@ jobs:
           read-only: ${{ github.ref != 'refs/heads/main' }}
 
   instrumented-tests:
-    name: Run instrumented tests
+    name: Run instrumented tests (${{ matrix.test-type }}, ${{ matrix.variantName }})
     runs-on: [self-hosted, android-device]
     needs: [build-app]
     strategy:
@@ -280,7 +280,7 @@ jobs:
           retention-days: 7
 
   instrumented-e2e-tests:
-    name: Run instrumented e2e tests
+    name: Run instrumented e2e tests (${{ matrix.variantName }})
     runs-on: [self-hosted, android-device]
     needs: [prepare, build-app]
     if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
