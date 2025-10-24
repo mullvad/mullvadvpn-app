@@ -77,7 +77,6 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
         accountNumber: String,
         paymentAction: PaymentAction
     ) {
-
         let coordinator = InAppPurchaseCoordinator(
             storePaymentManager: storePaymentManager,
             accountNumber: accountNumber,

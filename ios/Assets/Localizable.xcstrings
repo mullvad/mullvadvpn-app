@@ -262,6 +262,7 @@
 
     },
     "Account deletion" : {
+
     },
     "Account number" : {
       "localizations" : {
@@ -1282,6 +1283,7 @@
 
     },
     "Delete Account" : {
+
     },
     "Delete list" : {
       "localizations" : {
@@ -1328,6 +1330,7 @@
       }
     },
     "Deleting account..." : {
+
     },
     "Device is inactive" : {
       "localizations" : {
@@ -1864,6 +1867,9 @@
     "Failed to connect to App store, please try again later." : {
 
     },
+    "Failed to reach Mullvad servers to initiate purchase" : {
+
+    },
     "Failed to send" : {
       "localizations" : {
         "de" : {
@@ -1901,7 +1907,13 @@
     "Failed to stop the tunnel." : {
 
     },
+    "Failed to upload receipt to Mullvad servers. Try again later or contact support for help." : {
+
+    },
     "Failed to validate account number: %@" : {
+
+    },
+    "Failed to verify transaction receipt" : {
 
     },
     "FAQs & Guides" : {
@@ -2469,6 +2481,7 @@
       }
     },
     "Last four digits of the account number are incorrect" : {
+
     },
     "Last used account" : {
 
@@ -2635,9 +2648,6 @@
           }
         }
       }
-    },
-    "Make a purchase with StoreKit2" : {
-
     },
     "Malware" : {
       "localizations" : {

@@ -56,7 +56,7 @@ struct PaymentAlertPresenter {
         let presenter = AlertPresenter(context: alertContext)
         presenter.showAlert(presentation: presentation, animated: true)
     }
-    
+
     func showAlertForError(
         _ error: InAppPurchaseError,
         context: REST.CreateApplePaymentResponse.Context,

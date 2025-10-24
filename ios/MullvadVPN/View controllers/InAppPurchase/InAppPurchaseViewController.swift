@@ -10,8 +10,6 @@ import StoreKit
 import UIKit
 
 class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
-
-    
     private let storePaymentManager: StorePaymentManager
     private let accountNumber: String
     private let paymentAction: PaymentAction
@@ -50,25 +48,13 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
 
     override func viewDidLoad() {
         spinnerView.startAnimating()
-        let productIdentifiers = Set(StoreSubscription.allCases)
         switch paymentAction {
         case .purchase:
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    var products: [Product]
-                    do {
-                        products = try await storePaymentManager.products()
-                    } catch {
-                        self.didFinish?()
-                        self.spinnerView.stopAnimating()
-                        return
-                    }
-                    self.spinnerView.stopAnimating()
-                    guard !products.isEmpty else {
-                        return
-                    }
-                    self.showPurchaseOptions(for: products)
-            }
+            #if DEBUG
+                startPaymentFlow()
+            #else
+                startOldPaymentFlow()
+            #endif
         case .restorePurchase:
             _ = storePaymentManager.restorePurchases(for: accountNumber) { result in
                 Task { @MainActor [weak self] in
@@ -91,13 +77,29 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         }
     }
 
-    func purchase(product: Product) async throws{
-        await storePaymentManager.purchase(product: product, for: accountNumber)
+    func startPaymentFlow() {
+        Task {
+            var products: [Product]
+            do {
+                products = try await storePaymentManager.products()
+            } catch {
+                spinnerView.stopAnimating()
+                didFinish?()
+                return
+            }
+
+            spinnerView.stopAnimating()
+
+            guard !products.isEmpty else {
+                return
+            }
+
+            showPurchaseOptions(for: products)
+        }
     }
-    
-    func purchase(product: SKProduct) {
-        let payment = SKPayment(product: product)
-        storePaymentManager.addPayment(payment, for: accountNumber)
+
+    func purchase(product: Product) async throws {
+        await storePaymentManager.purchase(product: product, for: accountNumber)
     }
 
     func showPurchaseOptions(for products: [Product]) {
@@ -119,7 +121,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                         completion: {
                             self.spinnerView.startAnimating()
                             Task { @MainActor in
-                                   try await self.purchase(product: product)
+                                try await self.purchase(product: product)
                             }
                         })
                 })
@@ -136,7 +138,32 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         present(sheetController, animated: true)
     }
 
+    func startOldPaymentFlow() {
+        let productIdentifiers = Set(StoreSubscription.allCases)
 
+        _ = storePaymentManager.requestProducts(
+            with: productIdentifiers
+        ) { result in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.spinnerView.stopAnimating()
+                switch result {
+                case let .success(success):
+                    let products = success.products
+                    guard !products.isEmpty else {
+                        return
+                    }
+                    self.oldShowPurchaseOptions(for: products)
+                case let .failure(failure as StorePaymentManagerError):
+                    self.errorPresenter.showAlertForError(failure, context: .purchase) {
+                        self.didFinish?()
+                    }
+                case .failure:
+                    self.didFinish?()
+                }
+            }
+        }
+    }
 
     func oldShowPurchaseOptions(for products: [SKProduct]) {
         let localizedString = NSLocalizedString("Add Time", comment: "")
@@ -172,6 +199,11 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         present(sheetController, animated: true)
     }
 
+    func purchase(product: SKProduct) {
+        let payment = SKPayment(product: product)
+        storePaymentManager.addPayment(payment, for: accountNumber)
+    }
+
     nonisolated func storePaymentManager(_ manager: StorePaymentManager, didReceiveEvent event: StorePaymentEvent) {
         Task { @MainActor in
             spinnerView.stopAnimating()
@@ -193,7 +225,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
             }
         }
     }
-    
+
     nonisolated func storePaymentManager(_ manager: StorePaymentManager, didReceiveEvent event: StoreKitPaymentEvent) {
         Task { @MainActor in
             spinnerView.stopAnimating()
@@ -201,7 +233,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
             case .successfulPayment, .pending, .userCancelled:
                 self.didFinish?()
             case let .failed(error):
-                 errorPresenter.showAlertForError(error, context: .purchase) {
+                errorPresenter.showAlertForError(error, context: .purchase) {
                     self.didFinish?()
                 }
             @unknown default:
