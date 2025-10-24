@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">ไม่พบเซิร์ฟเวอร์ที่ตรงกัน</string>
     <string name="no_matching_servers_found_second_line">โปรดลองเปลี่ยนตัวกรองของคุณ</string>
     <string name="no_recent_selection">ไม่มีประวัติการเลือกล่าสุด</string>
-    <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>

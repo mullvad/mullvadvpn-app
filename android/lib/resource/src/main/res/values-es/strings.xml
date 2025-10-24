@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">No se han encontrado servidores coincidentes.</string>
     <string name="no_matching_servers_found_second_line">Intente cambiar los filtros.</string>
     <string name="no_recent_selection">No hay historial de selecciones recientes</string>
-    <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
     <string name="not_found">No encontrado</string>
     <string name="number_of_providers">Proveedores: %1$d</string>
     <string name="obfuscation_info">La ofuscación oculta el tráfico de WireGuard dentro de otro protocolo. Puede usarse para sortear la censura y otros tipos de filtrado donde podría bloquearse una conexión de WireGuard normal.</string>

@@ -63,7 +63,6 @@ export enum AuthFailedError {
 export enum TunnelParameterError {
   noMatchingRelay,
   noMatchingBridgeRelay,
-  noWireguardKey,
   customTunnelHostResolutionError,
   ipv4Unavailable,
   ipv6Unavailable,

@@ -278,7 +278,6 @@
     <string name="no_matching_servers_found_first_line">Подходящих серверов не найдено.</string>
     <string name="no_matching_servers_found_second_line">Попробуйте изменить фильтры.</string>
     <string name="no_recent_selection">Нет истории недавнего выбора</string>
-    <string name="no_wireguard_key">Не найден действительный ключ WireGuard. Управлять ключами можно в дополнительных настройках.</string>
     <string name="not_found">Не найдено</string>
     <string name="number_of_providers">провайдеры: %1$d</string>
     <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычные соединения WireGuard блокируются.</string>
