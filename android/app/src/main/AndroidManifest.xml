@@ -80,8 +80,12 @@
         <!--
             foregroundServiceType="systemExempted" is required in Android 14+
             https://developer.android.com/guide/components/fg-service-types#system-exempted
+            directBootAware="true" allows the VPN service to start before device unlock (BFU)
+            This is critical for GrapheneOS and other security-focused ROMs that run
+            system updates in BFU mode. Without this, the kill-switch blocks updates.
             -->
         <service android:name="net.mullvad.mullvadvpn.service.MullvadVpnService"
+                 android:directBootAware="true"
                  android:exported="false"
                  android:foregroundServiceType="systemExempted"
                  android:permission="android.permission.BIND_VPN_SERVICE"
@@ -134,19 +138,23 @@
                 android:exported="false" />
         <receiver
                 android:name=".receiver.AutoStartVpnBootCompletedReceiver"
+                android:directBootAware="true"
                 android:enabled="false"
                 android:exported="false">
             <intent-filter android:priority="999">
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver
                 android:name=".receiver.ScheduleNotificationBootCompletedReceiver"
+                android:directBootAware="true"
                 android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <!--
