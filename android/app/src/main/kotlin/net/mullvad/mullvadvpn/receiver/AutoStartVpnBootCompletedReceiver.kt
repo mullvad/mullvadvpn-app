@@ -11,7 +11,8 @@ import org.koin.core.component.KoinComponent
 
 class AutoStartVpnBootCompletedReceiver : BroadcastReceiver(), KoinComponent {
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
+        val action = intent?.action
+        if (action == Intent.ACTION_BOOT_COMPLETED || action == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
             context?.let { startAndConnectTunnel(context) }
         }
     }
