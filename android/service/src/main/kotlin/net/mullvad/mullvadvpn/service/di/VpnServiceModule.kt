@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.service.di
 
 import android.content.Context
-import android.os.Build
 import net.mullvad.mullvadvpn.lib.common.constant.CACHE_DIR_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.FILES_DIR_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
@@ -12,24 +11,16 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val vpnServiceModule = module {
-    single(named(FILES_DIR_NAMED_ARGUMENT)) { 
-        // Use device-protected storage for Direct Boot support on Android N+
-        val context = androidContext()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !context.isDeviceProtectedStorage) {
-            context.createDeviceProtectedStorageContext().filesDir
-        } else {
-            context.filesDir
-        }
+    single(named(FILES_DIR_NAMED_ARGUMENT)) {
+        // Use device-protected storage for Direct Boot support.
+        val context = androidContext().deviceProtected()
+        context.filesDir
     }
-    
-    single(named(CACHE_DIR_NAMED_ARGUMENT)) { 
-        // Use device-protected storage for Direct Boot support on Android N+
-        val context = androidContext()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !context.isDeviceProtectedStorage) {
-            context.createDeviceProtectedStorageContext().cacheDir
-        } else {
-            context.cacheDir
-        }
+
+    single(named(CACHE_DIR_NAMED_ARGUMENT)) {
+        // Use device-protected storage for Direct Boot support.
+        val context = androidContext().deviceProtected()
+        context.cacheDir
     }
 
     single { MigrateSplitTunneling(androidContext()) }
@@ -43,3 +34,6 @@ val vpnServiceModule = module {
         )
     }
 }
+
+private fun Context.deviceProtected(): Context =
+    if (isDeviceProtectedStorage) this else createDeviceProtectedStorageContext()
