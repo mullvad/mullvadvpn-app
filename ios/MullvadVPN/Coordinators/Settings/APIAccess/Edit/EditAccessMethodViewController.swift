@@ -364,10 +364,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     }
 
     private func onDelete() {
-        let methodName =
-            subject.value.name.isEmpty
-            ? NSLocalizedString("method", comment: "")
-            : subject.value.name
+        let methodName = subject.value.name
 
         let presentation = AlertPresentation(
             id: "api-access-methods-delete-method-alert",

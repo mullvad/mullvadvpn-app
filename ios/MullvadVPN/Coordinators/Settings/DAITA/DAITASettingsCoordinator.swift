@@ -86,7 +86,7 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
             message: item.description,
             buttons: [
                 AlertAction(
-                    title: String(format: NSLocalizedString("Enable \"%@\"", comment: ""), item.title),
+                    title: "\(NSLocalizedString("Enable", comment: "")) \"\(item.title)\"",
                     style: .default,
                     accessibilityId: .daitaConfirmAlertEnableButton,
                     handler: { onSave() }
