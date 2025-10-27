@@ -68,7 +68,7 @@ fun NotificationSettingsScreen(
             when (state) {
                 is Lc.Loading -> Loading()
                 is Lc.Content -> {
-                    GeneralSettingsContent(
+                    NotificationSettingsContent(
                         state = state.value,
                         onToggleLocationInNotifications = onToggleLocationInNotifications,
                     )
@@ -79,7 +79,7 @@ fun NotificationSettingsScreen(
 }
 
 @Composable
-fun GeneralSettingsContent(
+private fun NotificationSettingsContent(
     state: NotificationSettingsUiState,
     onToggleLocationInNotifications: (Boolean) -> Unit,
 ) {
