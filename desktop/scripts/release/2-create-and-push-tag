@@ -12,6 +12,8 @@ PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
 PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 BASE_URL="https://releases.mullvad.net/desktop/releases/$PRODUCT_VERSION"
 
+$REPO_ROOT/scripts/utils/commit-verification
+
 source $REPO_ROOT/scripts/utils/print-and-run
 source $REPO_ROOT/scripts/utils/log
 
@@ -53,7 +55,6 @@ function wait_for_build {
   log_success "\nAll artifacts are now available"
 }
 
-git verify-commit HEAD
 push_tag
 
 log_success "Follow build progress here: $BASE_URL"
