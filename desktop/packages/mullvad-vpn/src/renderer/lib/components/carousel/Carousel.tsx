@@ -106,7 +106,7 @@ export function Carousel(props: PageSliderProps) {
           <StyledPage key={`page-${i}`}>{page}</StyledPage>
         ))}
       </StyledPageSlider>
-      <Controls
+      <CarouselControls
         goToPage={goToPage}
         hasNext={hasNext}
         hasPrev={hasPrev}
@@ -159,7 +159,7 @@ const StyledPageIndicator = styled.button`
   }
 `;
 
-interface ControlsProps {
+interface CarouselControlsProps {
   pageNumber: number;
   numberOfPages: number;
   hasNext: boolean;
@@ -169,7 +169,7 @@ interface ControlsProps {
   goToPage: (page: number) => void;
 }
 
-function Controls(props: ControlsProps) {
+function CarouselControls(props: CarouselControlsProps) {
   return (
     <StyledControlsContainer>
       <StyledControlElement>{/* spacer to make page indicators centered */}</StyledControlElement>
