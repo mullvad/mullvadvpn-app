@@ -126,8 +126,7 @@ sealed interface ApiAccessMethodDetailsSideEffect {
 
     data object GenericError : ApiAccessMethodDetailsSideEffect
 
-    data class TestApiAccessMethodResult(val successful: Boolean) :
-        ApiAccessMethodDetailsSideEffect
+    data class TestApiAccessMethodResult(val successful: Boolean) : ApiAccessMethodDetailsSideEffect
 
     data class UnableToSetCurrentMethod(val testMethodFailed: Boolean) :
         ApiAccessMethodDetailsSideEffect

@@ -40,7 +40,7 @@ androidx-tv = "1.0.1"
 arrow = "2.1.2"
 
 # Compose
-compose = "1.9.3"
+compose = "1.9.4"
 compose-destinations = "2.3.0"
 compose-constraintlayout = "1.1.1"
 compose-material3 = "1.4.0"
@@ -65,14 +65,14 @@ ktor = "3.3.1"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.2.20"
-kotlin-ksp = "2.2.20-2.0.4"
+kotlin = "2.2.21"
+kotlin-ksp = "2.3.0"
 kotlinx = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
-protobuf = "4.32.1"
+protobuf = "4.33.0"
 
 # Misc
 commonsvalidator = "1.10.0"
@@ -80,7 +80,7 @@ dependency-versions = "0.53.0"
 detekt = "1.23.8"
 kermit = "2.0.8"
 konsist = "0.17.3"
-ktfmt = "0.24.0"
+ktfmt = "0.25.0"
 leakcanary = "2.14"
 
 mockk = "1.14.6"

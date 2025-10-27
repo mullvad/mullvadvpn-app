@@ -98,6 +98,7 @@
          <trusted-key id="447C96E2C6AE137D1DC239B85A456ADE180A42C5">
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.23.0"/>
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.24.0"/>
+            <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.25.0"/>
          </trusted-key>
          <trusted-key id="47504B76CF89C15C0512D9AFE16AB52D79FD224F" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j"/>
@@ -121,6 +122,7 @@
          <trusted-key id="648190996EC0930A6D7D49A978178478013521D0">
             <trusting group="com.facebook" name="ktfmt" version="0.55"/>
             <trusting group="com.facebook" name="ktfmt" version="0.58"/>
+            <trusting group="com.facebook" name="ktfmt" version="0.59"/>
          </trusted-key>
          <trusted-key id="64B9B09F164AA0BF88742EB61188B69F6D6259CA" group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.3"/>
          <trusted-key id="694621A7227D8D5289699830ABE9F3126BB741C1" group="^com[.]google($|([.].*))" regex="true"/>

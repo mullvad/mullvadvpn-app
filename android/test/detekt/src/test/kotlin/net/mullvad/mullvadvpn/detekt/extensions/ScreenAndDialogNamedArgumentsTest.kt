@@ -36,63 +36,63 @@ class ScreenAndDialogNamedArgumentsTest {
 
 private val incorrectCall: String =
     """
-        @Composable
-        fun ExampleComposeScreen(
-            arg1: Int,
-            arg2: String = "",
-        ) {}
+    @Composable
+    fun ExampleComposeScreen(
+        arg1: Int,
+        arg2: String = "",
+    ) {}
 
-        @Composable
-        fun Caller() {
-            ExampleComposeScreen(2, args2 = "named")
-        }
+    @Composable
+    fun Caller() {
+        ExampleComposeScreen(2, args2 = "named")
+    }
     """
         .trimIndent()
 
 private val correctCall: String =
     """
-        @Composable
-        fun ExampleComposeScreen(
-            arg1: Int,
-            arg2: String = "",
-        ) {}
+    @Composable
+    fun ExampleComposeScreen(
+        arg1: Int,
+        arg2: String = "",
+    ) {}
 
-        @Composable
-        fun Caller() {
-            ExampleComposeScreen(arg1 = 2, args2 = "named")
-        }
+    @Composable
+    fun Caller() {
+        ExampleComposeScreen(arg1 = 2, args2 = "named")
+    }
     """
         .trimIndent()
 
 private val ignoredCall: String =
     """
-        @Composable
-        fun ExampleComposable(
-            arg1: Int,
-            arg2: String = "",
-        ) {}
+    @Composable
+    fun ExampleComposable(
+        arg1: Int,
+        arg2: String = "",
+    ) {}
 
-        fun initScreen(arg: Int) {}
+    fun initScreen(arg: Int) {}
 
-        @Composable
-        fun Caller() {
-            ExampleComposable(2, args2 = "named")
-            initScreen(2)
-        }
+    @Composable
+    fun Caller() {
+        ExampleComposable(2, args2 = "named")
+        initScreen(2)
+    }
     """
         .trimIndent()
 
 private val trailingLambda: String =
     """
-        @Composable
-        fun TrailingLambdaDialog(arg: Int, callback: (Int) -> Unit) {
-            callback(arg)
+    @Composable
+    fun TrailingLambdaDialog(arg: Int, callback: (Int) -> Unit) {
+        callback(arg)
+    }
+    @Composable
+    fun Caller() {
+        TrailingLambdaDialog(arg = 2) {
+            println(it)
         }
-        @Composable
-        fun Caller() {
-            TrailingLambdaDialog(arg = 2) {
-                println(it)
-            }
-        }
+    }
     """
         .trimIndent()

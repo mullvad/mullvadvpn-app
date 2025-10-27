@@ -108,8 +108,7 @@ class AccountViewModel(
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
 
-        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) :
-            UiSideEffect()
+        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect()
 
         data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
 
