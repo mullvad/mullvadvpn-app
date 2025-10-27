@@ -13,7 +13,7 @@ import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import PageSlider from '../../PageSlider';
+import { PageSlider } from '../../PageSlider';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { useShowDaitaMultihopInfo } from './hooks';
 
