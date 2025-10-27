@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -445,19 +444,26 @@ fun SelectLocationScreen(
             onDisableMultihop = { setMultihop(false, true) },
         )
 
-        var expandProgress = remember { Animatable(1f) }
+        val expandProgress = remember { Animatable(1f) }
         val scope = rememberCoroutineScope()
         val nestedScrollConnection = remember {
             object : NestedScrollConnection {
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                     // TODO Calculate the value
                     val delta = available.y / 265f
-                    scope.launch { expandProgress.snapTo((expandProgress.value + delta).coerceIn(0f, 1f)) }
+                    scope.launch {
+                        expandProgress.snapTo((expandProgress.value + delta).coerceIn(0f, 1f))
+                    }
                     return super.onPreScroll(available, source)
                 }
 
-                override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                    scope.launch { expandProgress.animateTo(if (expandProgress.value < 0.5f) 0f else 1f) }
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity {
+                    scope.launch {
+                        expandProgress.animateTo(if (expandProgress.value < 0.5f) 0f else 1f)
+                    }
                     return super.onPostFling(consumed, available)
                 }
             }
@@ -634,7 +640,10 @@ private fun SelectionContainer(
     removeProviderFilter: (RelayListType) -> Unit,
 ) {
     Column {
-        AnimatedContent(relayListType is RelayListType.Single, modifier = Modifier.padding(horizontal = Dimens.mediumPadding)) {
+        AnimatedContent(
+            relayListType is RelayListType.Single,
+            modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
+        ) {
             if (it) {
                 Singlehop(
                     exitLocation = exitSelection ?: "Any", // TODO
@@ -672,8 +681,7 @@ private fun SelectionContainer(
         }
     }
 
-    AnimatedContent(targetState = filterChips, label = "Select location top bar") { filterChips
-        ->
+    AnimatedContent(targetState = filterChips, label = "Select location top bar") { filterChips ->
         if (filterChips.isNotEmpty()) {
             FilterRow(
                 modifier =
@@ -686,90 +694,6 @@ private fun SelectionContainer(
                 onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
                 onRemoveProviderFilter = { removeProviderFilter(relayListType) },
             )
-        }
-    }
-}
-
-@Composable
-private fun SingleHop(
-    exitLocation: String,
-    errorText: String? = null,
-    filters: Int = 0,
-    onFilterClick: () -> Unit = {},
-) {
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Location: $exitLocation")
-            IconButton(onClick = onFilterClick) {
-                Icon(Icons.Default.FilterList, contentDescription = null)
-            }
-            Text("Filters: $filters")
-        }
-        if (errorText != null) {
-            ErrorSupportingText(errorText)
-        }
-    }
-}
-
-@Composable
-private fun MultiHop(
-    modifier: Modifier = Modifier,
-    exitSelected: Boolean = true,
-    entryLocation: String,
-    entryErrorText: String? = null,
-    entryFilters: Int = 0,
-    onEntryFilterClick: () -> Unit = {},
-    exitLocation: String,
-    exitErrorText: String? = null,
-    exitFilters: Int = 0,
-    onExitFilterClick: () -> Unit = {},
-    onSelectList: (MultihopRelayListType) -> Unit,
-    // colors: HopSelectorColors = HopSelectorDefaults.colors(),
-) {
-    Column(modifier = modifier.background(Color.Black).fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "Location: $entryLocation",
-                modifier =
-                    Modifier.background(
-                            color =
-                                if (!exitSelected) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    Color.Transparent
-                                }
-                        )
-                        .clickable(onClick = { onSelectList(MultihopRelayListType.ENTRY) }),
-            )
-            IconButton(onClick = onEntryFilterClick) {
-                Icon(Icons.Default.FilterList, contentDescription = null)
-            }
-            Text("Filters: $entryFilters")
-        }
-        if (entryErrorText != null) {
-            ErrorSupportingText(entryErrorText)
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "Location: $exitLocation",
-                modifier =
-                    Modifier.background(
-                            color =
-                                if (exitSelected) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    Color.Transparent
-                                }
-                        )
-                        .clickable(onClick = { onSelectList(MultihopRelayListType.EXIT) }),
-            )
-            IconButton(onClick = onExitFilterClick) {
-                Icon(Icons.Default.FilterList, contentDescription = null)
-            }
-            Text("Filters: $exitFilters")
-        }
-        if (exitErrorText != null) {
-            ErrorSupportingText(exitErrorText)
         }
     }
 }
