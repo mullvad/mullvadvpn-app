@@ -2,19 +2,18 @@ package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
@@ -39,8 +38,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -53,6 +52,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
+import androidx.constraintlayout.compose.ExperimentalMotionApi
+import androidx.constraintlayout.compose.MotionLayout
+import androidx.constraintlayout.compose.MotionScene
+import androidx.constraintlayout.compose.Visibility
+import androidx.constraintlayout.compose.layoutId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -78,7 +82,6 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
-import net.mullvad.mullvadvpn.compose.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.isTv
@@ -612,9 +615,9 @@ private fun RelayLists(
         }
     }
 
-    AnimatedContent(targetState = state.relayListType, label = "Relay list") { relayListType ->
+    Crossfade(state.relayListType) {
         SelectLocationList(
-            relayListType = relayListType,
+            relayListType = it,
             bottomMargin = bottomMargin,
             onSelectHop = onSelectHop,
             onSelectRelayItem = onSelectRelayItem,
@@ -626,6 +629,7 @@ private fun RelayLists(
     }
 }
 
+@OptIn(ExperimentalMotionApi::class)
 @Composable
 private fun SelectionContainer(
     progress: Float, // 0 - 1
@@ -679,21 +683,48 @@ private fun SelectionContainer(
                 )
             }
         }
-    }
 
-    AnimatedContent(targetState = filterChips, label = "Select location top bar") { filterChips ->
-        if (filterChips.isNotEmpty()) {
-            FilterRow(
-                modifier =
-                    Modifier.padding(
-                        bottom = Dimens.smallPadding,
-                        start = Dimens.mediumPadding,
-                        end = Dimens.mediumPadding,
-                    ),
-                filters = filterChips[relayListType] ?: emptyList(),
-                onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
-                onRemoveProviderFilter = { removeProviderFilter(relayListType) },
-            )
+        val hasFilters = (filterChips[relayListType] ?: emptyList()).isNotEmpty()
+        val keyFilters = "filters"
+        val scene = MotionScene {
+            val expandSet =
+                constraintSet("expanded") {
+                    val filters = createRefFor(keyFilters)
+                    constrain(filters) {
+                        centerTo(parent)
+                        visibility = Visibility.Visible
+                    }
+                }
+
+            val collapseSet =
+                constraintSet("collapsed") {
+                    val filters = createRefFor(keyFilters)
+                    constrain(filters) {
+                        linkTo(start = parent.start, end = parent.end)
+                        bottom.linkTo(parent.top)
+                        visibility = Visibility.Gone
+                    }
+                }
+
+            defaultTransition(collapseSet, expandSet) {}
+        }
+        MotionLayout(
+            modifier =
+                Modifier.padding(
+                    bottom = Dimens.smallPadding,
+                    start = Dimens.mediumPadding,
+                    end = Dimens.mediumPadding,
+                ),
+            motionScene = scene,
+            progress = progress,
+        ) {
+            AnimatedContent(relayListType, Modifier.animateContentSize().layoutId(keyFilters).alpha(progress)) {
+                FilterRow(
+                    filters = filterChips[it]!!,
+                    onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
+                    onRemoveProviderFilter = { removeProviderFilter(relayListType) },
+                )
+            }
         }
     }
 }
