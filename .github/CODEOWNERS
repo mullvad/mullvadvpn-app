@@ -18,6 +18,9 @@
 /ci/buildserver* @faern @raksooo
 /ci/linux-repository-builder/ @faern @raksooo
 
+# Desktpo release config containing
+/desktop/scripts/release/release-config.sh
+
 # Cargo deny config must be approved by tech lead or desktop team lead
 **/deny.toml @faern @raksooo
 
