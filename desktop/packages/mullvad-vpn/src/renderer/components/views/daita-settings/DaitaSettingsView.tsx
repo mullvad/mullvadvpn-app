@@ -18,6 +18,7 @@ import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
+import { Carousel } from '../../Carousel';
 import * as Cell from '../../cell';
 import InfoButton from '../../InfoButton';
 import { BackAction } from '../../KeyboardNavigation';
@@ -25,7 +26,6 @@ import { Layout, SettingsContainer } from '../../Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import { PageSlider } from '../../PageSlider';
 import { SettingsToggleListItem } from '../../settings-toggle-list-item';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { useShowDaitaMultihopInfo } from './hooks';
@@ -68,7 +68,7 @@ export function DaitaSettingsView() {
                     </Text>
                   </Flex>
                 )}
-                <PageSlider
+                <Carousel
                   content={[
                     <React.Fragment key="without-daita">
                       <StyledIllustration source="daita-off-illustration" />
