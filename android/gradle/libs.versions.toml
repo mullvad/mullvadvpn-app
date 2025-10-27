@@ -80,7 +80,7 @@ dependency-versions = "0.53.0"
 detekt = "1.23.8"
 kermit = "2.0.8"
 konsist = "0.17.3"
-ktfmt = "0.24.0"
+ktfmt = "0.25.0"
 leakcanary = "2.14"
 
 mockk = "1.14.6"

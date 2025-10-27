@@ -104,8 +104,7 @@ sealed interface ApiUnreachableSideEffect {
         ApiUnreachableSideEffect
 
     sealed interface EnableAllApiAccessMethods : ApiUnreachableSideEffect {
-        data class Success(val navArgs: ApiUnreachableInfoDialogNavArgs) :
-            EnableAllApiAccessMethods
+        data class Success(val navArgs: ApiUnreachableInfoDialogNavArgs) : EnableAllApiAccessMethods
 
         data object Error : EnableAllApiAccessMethods
     }

@@ -9,8 +9,7 @@ enum class MultihopRelayListType {
 }
 
 sealed interface RelayListType : Parcelable {
-    @Parcelize
-    data class Multihop(val multihopRelayListType: MultihopRelayListType) : RelayListType
+    @Parcelize data class Multihop(val multihopRelayListType: MultihopRelayListType) : RelayListType
 
     @Parcelize data object Single : RelayListType
 }
