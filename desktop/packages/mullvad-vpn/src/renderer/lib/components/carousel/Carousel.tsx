@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { NonEmptyArray } from '../../../../shared/utils';
-import { colors } from '../../foundations';
 import { useStyledRef } from '../../utility-hooks';
 import { Flex, IconButton, Layout } from '..';
+import { PageIndicator } from './components';
 
 const PAGE_GAP = 16;
 
@@ -119,23 +119,6 @@ export function Carousel(props: PageSliderProps) {
   );
 }
 
-const StyledPageIndicator = styled.button`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${colors.whiteAlpha80};
-  &&:hover {
-    background-color: ${colors.whiteAlpha80};
-  }
-  &&:disabled {
-    background-color: ${colors.whiteAlpha40};
-  }
-  &&:focus-visible {
-    outline: 2px solid ${colors.white};
-    outline-offset: '2px';
-  }
-`;
-
 interface CarouselControlsProps {
   pageNumber: number;
   numberOfPages: number;
@@ -174,19 +157,4 @@ function CarouselControls(props: CarouselControlsProps) {
       </Flex>
     </StyledGrid>
   );
-}
-
-type PageIndicatorProps = React.ComponentPropsWithRef<'button'> & {
-  pageNumber: number;
-  goToPage: (page: number) => void;
-};
-
-function PageIndicator(props: PageIndicatorProps) {
-  const { goToPage } = props;
-
-  const onClick = useCallback(() => {
-    goToPage(props.pageNumber);
-  }, [goToPage, props.pageNumber]);
-
-  return <StyledPageIndicator onClick={onClick} {...props} />;
 }
