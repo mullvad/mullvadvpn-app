@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { NonEmptyArray } from '../../shared/utils';
-import { IconButton } from '../lib/components';
-import { colors } from '../lib/foundations';
-import { useStyledRef } from '../lib/utility-hooks';
+import { NonEmptyArray } from '../../../../shared/utils';
+import { colors } from '../../foundations';
+import { useStyledRef } from '../../utility-hooks';
+import { IconButton } from '..';
 
 const PAGE_GAP = 16;
 
