@@ -255,8 +255,8 @@ jobs:
         if: ${{ steps.test-config.outputs.test_repeat != 0 }}
         id: prepare-report-dir
         run:
-          INNER_REPORT_DIR="/tmp/${{ matrix.test-type }}-${{ github.run_id }}"
-          INNER_REPORT_DIR+="-${{ github.run_attempt }}-${{ matrix.variantName }}"
+          INNER_REPORT_DIR="/tmp/${{ matrix.test-type }}-${{ github.run_id }}-"\
+          "${{ github.run_attempt }}-${{ matrix.variantName }}"
           mkdir -p $INNER_REPORT_DIR
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
