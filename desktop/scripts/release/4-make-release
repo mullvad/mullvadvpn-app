@@ -62,10 +62,22 @@ function publish_release {
 
     body+="\n$changelog"
 
+    read -rp "The suggested changelog will be opened in an editor, please finalize and save it before exiting. Press enter to open changelog..."
+
+    tmp_changelog_file=$(mktemp)
+    {
+      printf "%b" "$body"
+      printf "%b" "\n\n<!--\nThe following artifacts will be included:\n"
+      # shellcheck disable=SC2012
+      ls -lh "$ARTIFACT_DIR" | tail -n +2 | awk '{print $9,"( Size:",$5,")"}'
+      echo "-->" >> "$tmp_changelog_file"
+    } > "$tmp_changelog_file"
+
+    "${EDITOR:-"vim"}" "$tmp_changelog_file"
+
     log_header "Creating GitHub release"
-    # shellcheck disable=SC2059
     # shellcheck disable=SC2046
-    printf "$body" | gh release create "${release_flags[@]}" "$PRODUCT_VERSION" $(printf "%s " "$ARTIFACT_DIR"/*)
+    gh release create "${release_flags[@]}" "$PRODUCT_VERSION" $(printf "%s " "$ARTIFACT_DIR"/*) < "$tmp_changelog_file"
 
     log_success "\nThe above URL contains the text \"untagged\", but don't worry it is tagged properly and everything will look correct once it's published."
 }
