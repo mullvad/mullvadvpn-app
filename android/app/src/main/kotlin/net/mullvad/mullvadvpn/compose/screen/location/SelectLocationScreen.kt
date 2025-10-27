@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -32,7 +32,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +53,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import co.touchlab.kermit.Logger
@@ -72,7 +70,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.result.onResult
-import kotlin.math.max
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
@@ -98,6 +95,8 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
+import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.FilterChip
@@ -446,23 +445,20 @@ fun SelectLocationScreen(
             onDisableMultihop = { setMultihop(false, true) },
         )
 
-        var scrollOffset = remember { mutableFloatStateOf(0f) }
-        var progress = Math.clamp(max(scrollOffset.floatValue / 100f, 0f), 0f, 1f)
+        var expandProgress = remember { Animatable(1f) }
+        val scope = rememberCoroutineScope()
         val nestedScrollConnection = remember {
             object : NestedScrollConnection {
-                override suspend fun onPostFling(
-                    consumed: Velocity,
-                    available: Velocity,
-                ): Velocity {
-                    Logger.d("LOLZF consumed=$consumed available=$available")
-                    return super.onPostFling(consumed, available)
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    // TODO Calculate the value
+                    val delta = available.y / 265f
+                    scope.launch { expandProgress.snapTo((expandProgress.value + delta).coerceIn(0f, 1f)) }
+                    return super.onPreScroll(available, source)
                 }
 
-                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    Logger.d("LOLZS available=$available")
-                    // progress.floatValue = Math.clamp(consumed.y / 100, 0f, 1f)
-                    scrollOffset.floatValue = scrollOffset.floatValue + available.y
-                    return super.onPreScroll(available, source)
+                override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                    scope.launch { expandProgress.animateTo(if (expandProgress.value < 0.5f) 0f else 1f) }
+                    return super.onPostFling(consumed, available)
                 }
             }
         }
@@ -483,10 +479,8 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
-                    // TODO select hop container here
-                    Logger.d("LOLZP progress=$progress scrollOffset=$scrollOffset")
                     SelectionContainer(
-                        progress = progress,
+                        progress = expandProgress.value,
                         relayListType = state.value.relayListType,
                         filterChips = state.value.filterChips,
                         entrySelection = state.value.entrySelection,
@@ -639,53 +633,59 @@ private fun SelectionContainer(
     removeOwnershipFilter: (RelayListType) -> Unit,
     removeProviderFilter: (RelayListType) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().height(100.dp + 100.dp * progress)) {
-        if (relayListType is RelayListType.Single) {
-            SingleHop(
-                exitLocation = exitSelection ?: "Any", // TODO
-                errorText = error.errorText(RelayListType.Single),
-                filters = filterChips[RelayListType.Single]?.size ?: 0,
-                onFilterClick = { onFilterClick(RelayListType.Single) },
-            )
-        } else {
-            MultiHop(
-                exitSelected =
-                    (relayListType as? RelayListType.Multihop)?.multihopRelayListType ==
-                        MultihopRelayListType.EXIT,
-                entryLocation = entrySelection ?: "Any", // TODO
-                entryErrorText =
-                    error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
-                entryFilters =
-                    filterChips[RelayListType.Multihop(MultihopRelayListType.ENTRY)]?.size ?: 0,
-                onEntryFilterClick = {
-                    onFilterClick(RelayListType.Multihop(MultihopRelayListType.ENTRY))
-                },
-                exitLocation = exitSelection ?: "Any", // TODO
-                exitErrorText = error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
-                exitFilters =
-                    filterChips[RelayListType.Multihop(MultihopRelayListType.EXIT)]?.size ?: 0,
-                onExitFilterClick = {
-                    onFilterClick(RelayListType.Multihop(MultihopRelayListType.EXIT))
-                },
-                onSelectList = onSelectRelayList,
-            )
-        }
-
-        AnimatedContent(targetState = filterChips, label = "Select location top bar") { filterChips
-            ->
-            if (filterChips.isNotEmpty()) {
-                FilterRow(
-                    modifier =
-                        Modifier.padding(
-                            bottom = Dimens.smallPadding,
-                            start = Dimens.mediumPadding,
-                            end = Dimens.mediumPadding,
-                        ),
-                    filters = filterChips[relayListType] ?: emptyList(),
-                    onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
-                    onRemoveProviderFilter = { removeProviderFilter(relayListType) },
+    Column {
+        AnimatedContent(relayListType is RelayListType.Single, modifier = Modifier.padding(horizontal = Dimens.mediumPadding)) {
+            if (it) {
+                Singlehop(
+                    exitLocation = exitSelection ?: "Any", // TODO
+                    errorText = error.errorText(RelayListType.Single),
+                    filters = filterChips[RelayListType.Single]?.size ?: 0,
+                    onFilterClick = { onFilterClick(RelayListType.Single) },
+                    expandProgress = progress,
+                )
+            } else {
+                MultihopSelector(
+                    exitSelected =
+                        (relayListType as? RelayListType.Multihop)?.multihopRelayListType ==
+                            MultihopRelayListType.EXIT,
+                    exitLocation = exitSelection ?: "Any", // TODO
+                    exitErrorText =
+                        error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+                    exitFilters =
+                        filterChips[RelayListType.Multihop(MultihopRelayListType.EXIT)]?.size ?: 0,
+                    onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
+                    onExitFilterClick = {
+                        onFilterClick(RelayListType.Multihop(MultihopRelayListType.EXIT))
+                    },
+                    entryLocation = entrySelection ?: "Any", // TODO
+                    entryErrorText =
+                        error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+                    entryFilters =
+                        filterChips[RelayListType.Multihop(MultihopRelayListType.ENTRY)]?.size ?: 0,
+                    onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
+                    onEntryFilterClick = {
+                        onFilterClick(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+                    },
+                    expandProgress = progress,
                 )
             }
+        }
+    }
+
+    AnimatedContent(targetState = filterChips, label = "Select location top bar") { filterChips
+        ->
+        if (filterChips.isNotEmpty()) {
+            FilterRow(
+                modifier =
+                    Modifier.padding(
+                        bottom = Dimens.smallPadding,
+                        start = Dimens.mediumPadding,
+                        end = Dimens.mediumPadding,
+                    ),
+                filters = filterChips[relayListType] ?: emptyList(),
+                onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
+                onRemoveProviderFilter = { removeProviderFilter(relayListType) },
+            )
         }
     }
 }
