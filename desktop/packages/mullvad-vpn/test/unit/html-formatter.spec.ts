@@ -22,6 +22,12 @@ describe('Format html', () => {
       ' text',
     ]);
   });
+  it('should produce reliable output on each call', () => {
+    expectChildrenToMatch(formatHtml('<b>Some</b> bold text'), ['Some', ' bold text']);
+    expectChildrenToMatch(formatHtml('Some non bold text'), ['Some non bold text']);
+    // Same string used as in first expectChildrenToMatch call
+    expectChildrenToMatch(formatHtml('<b>Some</b> bold text'), ['Some', ' bold text']);
+  });
   it('should format middle emphasis tag', () => {
     expectChildrenToMatch(formatHtml('Some <em>emphasized</em> text'), [
       'Some ',
