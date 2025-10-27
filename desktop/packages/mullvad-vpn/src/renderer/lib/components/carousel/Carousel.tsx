@@ -142,23 +142,22 @@ const StyledPageIndicators = styled(StyledControlElement)({
   justifyContent: 'center',
 });
 
-const StyledTransparentButton = styled.button({
-  border: 'none',
-  background: colors.transparent,
-  padding: '4px',
-  margin: 0,
-});
-
-const StyledPageIndicator = styled.div<{ $current: boolean }>((props) => ({
-  width: '8px',
-  height: '8px',
-  borderRadius: '50%',
-  backgroundColor: props.$current ? colors.whiteAlpha80 : colors.whiteAlpha40,
-
-  [`${StyledTransparentButton}:hover &&`]: {
-    backgroundColor: colors.whiteAlpha80,
-  },
-}));
+const StyledPageIndicator = styled.button`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: ${colors.whiteAlpha80};
+  &&:hover {
+    background-color: ${colors.whiteAlpha80};
+  }
+  &&:disabled {
+    background-color: ${colors.whiteAlpha40};
+  }
+  &&:focus-visible {
+    outline: 2px solid ${colors.white};
+    outline-offset: '2px';
+  }
+`;
 
 interface ControlsProps {
   pageNumber: number;
@@ -209,9 +208,5 @@ function PageIndicator(props: PageIndicatorProps) {
     goToPage(props.pageNumber);
   }, [goToPage, props.pageNumber]);
 
-  return (
-    <StyledTransparentButton onClick={onClick}>
-      <StyledPageIndicator $current={props.current} />
-    </StyledTransparentButton>
-  );
+  return <StyledPageIndicator onClick={onClick} {...props} />;
 }
