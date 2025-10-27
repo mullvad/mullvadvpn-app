@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared
+package net.mullvad.mullvadvpn.lib.repository
 
 import arrow.core.Either
 import arrow.core.raise.either

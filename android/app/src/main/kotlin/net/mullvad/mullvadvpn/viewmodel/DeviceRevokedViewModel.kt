@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 

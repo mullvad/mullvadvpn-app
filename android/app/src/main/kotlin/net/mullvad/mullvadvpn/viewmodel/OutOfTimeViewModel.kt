@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
-import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase

@@ -28,10 +28,10 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
-import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository

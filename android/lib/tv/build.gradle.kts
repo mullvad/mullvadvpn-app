@@ -42,7 +42,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(projects.lib.model)
     implementation(projects.lib.resource)
-    implementation(projects.lib.shared)
+    implementation(projects.lib.repository)
     implementation(projects.lib.theme)
     implementation(projects.lib.ui.component)
 

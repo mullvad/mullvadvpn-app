@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared
+package net.mullvad.mullvadvpn.lib.repository
 
 import arrow.core.right
 import io.mockk.coEvery

@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.service.BuildConfig
 
 const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"

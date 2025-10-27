@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
-import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 
 class DeviceListViewModel(
     private val deviceRepository: DeviceRepository,

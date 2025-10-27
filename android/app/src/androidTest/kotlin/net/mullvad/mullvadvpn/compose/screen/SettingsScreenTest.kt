@@ -33,6 +33,7 @@ class SettingsScreenTest {
         onMultihopClick: () -> Unit = {},
         onDaitaClick: () -> Unit = {},
         onBackClick: () -> Unit = {},
+        onNotificationSettingsCellClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             SettingsScreen(
@@ -45,6 +46,7 @@ class SettingsScreenTest {
                 onMultihopClick = onMultihopClick,
                 onDaitaClick = onDaitaClick,
                 onBackClick = onBackClick,
+                onNotificationSettingsCellClick = onNotificationSettingsCellClick,
             )
         }
     }

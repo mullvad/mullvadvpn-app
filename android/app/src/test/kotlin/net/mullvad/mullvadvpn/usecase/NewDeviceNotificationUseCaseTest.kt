@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
-import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.usecase.inappnotification.NewDeviceNotificationUseCase
 import org.junit.jupiter.api.AfterEach

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.InAppAccountExpiryTicker

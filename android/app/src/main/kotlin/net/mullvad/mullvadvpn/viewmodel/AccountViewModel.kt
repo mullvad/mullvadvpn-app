@@ -22,8 +22,8 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.hasPendingPayment

@@ -31,7 +31,7 @@ import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase

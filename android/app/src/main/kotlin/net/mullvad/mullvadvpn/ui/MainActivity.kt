@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
-import net.mullvad.mullvadvpn.lib.shared.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
