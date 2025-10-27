@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+# shellcheck disable=SC1091
+source ./log
+
+if ! git verify-commit HEAD; then
+  log_error "Current commit failed signature check"
+  exit 1
+fi
