@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { NonEmptyArray } from '../../../../shared/utils';
 import { colors } from '../../foundations';
 import { useStyledRef } from '../../utility-hooks';
-import { IconButton } from '..';
+import { Flex, IconButton, Layout } from '..';
 
 const PAGE_GAP = 16;
 
@@ -119,29 +119,6 @@ export function Carousel(props: PageSliderProps) {
   );
 }
 
-const StyledControlsContainer = styled.div({
-  display: 'flex',
-  marginTop: '12px',
-  alignItems: 'center',
-});
-
-const StyledControlElement = styled.div({
-  flex: '1 0 60px',
-  display: 'flex',
-});
-
-const StyledArrows = styled(StyledControlElement)({
-  display: 'flex',
-  justifyContent: 'right',
-  gap: '12px',
-});
-
-const StyledPageIndicators = styled(StyledControlElement)({
-  display: 'flex',
-  flexGrow: 2,
-  justifyContent: 'center',
-});
-
 const StyledPageIndicator = styled.button`
   width: 8px;
   height: 8px;
@@ -169,37 +146,40 @@ interface CarouselControlsProps {
   goToPage: (page: number) => void;
 }
 
+const StyledGrid = styled(Layout)`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+`;
+
 function CarouselControls(props: CarouselControlsProps) {
   return (
-    <StyledControlsContainer>
-      <StyledControlElement>{/* spacer to make page indicators centered */}</StyledControlElement>
-      <StyledPageIndicators>
-        {[...Array(props.numberOfPages)].map((_, i) => (
-          <PageIndicator
-            key={i}
-            current={i === props.pageNumber}
-            pageNumber={i}
-            goToPage={props.goToPage}
-          />
-        ))}
-      </StyledPageIndicators>
-      <StyledArrows>
+    <StyledGrid $margin={{ top: 'small' }}>
+      <div>{/* spacer to make page indicators centered */}</div>
+      <Flex $gap="small">
+        {[...Array(props.numberOfPages)].map((_, i) => {
+          const current = i === props.pageNumber;
+          return (
+            <PageIndicator key={i} disabled={current} pageNumber={i} goToPage={props.goToPage} />
+          );
+        })}
+      </Flex>
+      <Flex $justifyContent="right" $gap="small">
         <IconButton disabled={!props.hasPrev} onClick={props.prev}>
           <IconButton.Icon icon="chevron-left" />
         </IconButton>
         <IconButton disabled={!props.hasNext} onClick={props.next}>
           <IconButton.Icon icon="chevron-right" />
         </IconButton>
-      </StyledArrows>
-    </StyledControlsContainer>
+      </Flex>
+    </StyledGrid>
   );
 }
 
-interface PageIndicatorProps {
+type PageIndicatorProps = React.ComponentPropsWithRef<'button'> & {
   pageNumber: number;
   goToPage: (page: number) => void;
-  current: boolean;
-}
+};
 
 function PageIndicator(props: PageIndicatorProps) {
   const { goToPage } = props;
