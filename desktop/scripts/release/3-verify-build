@@ -14,6 +14,8 @@ PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
 PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 
 $REPO_ROOT/scripts/utils/gh-ready-check
+"$SCRIPT_DIR/verify-version-is-release"
+
 source $REPO_ROOT/scripts/utils/log
 
 WAIT="false"
