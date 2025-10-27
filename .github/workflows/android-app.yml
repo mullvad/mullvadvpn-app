@@ -241,7 +241,9 @@ jobs:
         id: test-config
         run: |
           if [ "${{ matrix.variantName }}" = "gotatun" ]; then
-            echo "test_repeat=1" >> $GITHUB_OUTPUT
+            # Disable app and mockapi tests for gotatun variant since it's unlikely
+            # to catch issues that the wireguard-go variant wont catch.
+            echo "test_repeat=0" >> $GITHUB_OUTPUT
           elif [ "${{ matrix.test-type }}" = "app" ]; then
             echo "test_repeat=1" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" = "schedule" ]; then
@@ -274,6 +276,7 @@ jobs:
 
       - name: Calculate timeout
         id: calculate-timeout
+        if: ${{ steps.test-config.outputs.test_repeat != 0 }}
         run: echo "timeout=$(( ${{ steps.test-config.outputs.test_repeat }} * 10 ))" >> $GITHUB_OUTPUT
         shell: bash
 
