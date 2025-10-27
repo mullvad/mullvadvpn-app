@@ -10,10 +10,16 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-if [ $# -ne 3 ]; then
+REPO_ROOT=../../../
+PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
+PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
+
+$REPO_ROOT/scripts/utils/commit-verification
+"$SCRIPT_DIR/verify-version-is-release"
+
+if [ $# -ne 2 ]; then
     echo "Please provide the following arguments:"
     echo "    $(basename "$0") \\"
-    echo "        <product version> \\"
     echo "        <build server SSH destination> \\"
     echo "        <metadata server SSH destination>"
     echo ""
@@ -21,72 +27,67 @@ if [ $# -ne 3 ]; then
     exit 1
 fi
 
-PRODUCT_VERSION=$1
 # The hostname (can be the alias in your ~/.ssh/config) of the build server
-BUILDSERVER_HOST=$2
+BUILDSERVER_HOST=$1
 # The server to upload the metadata to *from* the build server (argument above)
-METADATA_SERVER_HOST=$3
+METADATA_SERVER_HOST=$2
 
 # shellcheck source=desktop/scripts/release/release-config.sh
 source "$SCRIPT_DIR/release-config.sh"
+source $REPO_ROOT/scripts/utils/log
 
 function publish_metadata {
     local platforms
     platforms=(windows macos linux)
-    local signed_dir="signed/"
-    local work_dir="work/"
-    local published_dir="currently_published/"
-    local upload_dir="upload/"
-    local latest_path="latest.json"
+    local signed_dir="$DATA_DIR/signed/"
+    local work_dir="$DATA_DIR/work/"
+    local published_dir="$DATA_DIR/currently_published/"
+    local upload_dir="$DATA_DIR/upload/"
+    local latest_filename="latest.json"
+
+    local mullvad_release="cargo run -q --package mullvad-release --"
 
     rm -rf "$signed_dir"
     rm -rf "$work_dir"
     rm -rf "$published_dir"
     rm -rf "$upload_dir"
 
-    echo ">>> Fetching current version metadata"
-    mullvad-release pull --assume-yes --latest-file "${platforms[@]}"
-    echo ""
+    mkdir -p "$DATA_DIR"
 
-    echo ">>> Backing up released data"
-    cp -r $signed_dir $published_dir
-    cp "$latest_path" "$published_dir"
-    echo ""
+    log_header "Fetching current version metadata"
+    $mullvad_release pull --assume-yes --latest-file "${platforms[@]}"
 
-    echo ">>> Replacing $work_dir directory with latest published data"
+    log_header "Backing up released data"
+    cp -r "$signed_dir" "$published_dir"
+    cp "$DATA_DIR/$latest_filename" "$published_dir"
+
+    log_header "Replacing $work_dir directory with latest published data"
     cp -rf "$signed_dir" "$work_dir"
-    echo ""
 
-    echo ">>> Adding new release $PRODUCT_VERSION (rollout = 1)"
-    mullvad-release add-release "$PRODUCT_VERSION" --rollout 1 "${platforms[@]}"
-    echo ""
+    log_header "Adding new release $PRODUCT_VERSION (rollout = 1)"
+    $mullvad_release add-release "$PRODUCT_VERSION" --rollout 1 "${platforms[@]}"
 
-    echo ">>> Signing $PRODUCT_VERSION metadata. Reading signing key from clipboard"
-    xclip -sensitive | mullvad-release sign "${platforms[@]}"
-    echo ""
+    log_header "Signing $PRODUCT_VERSION metadata. Reading signing key from clipboard"
+    xclip -sensitive | $mullvad_release sign "${platforms[@]}"
 
-    echo ">>> Verifying signed metadata"
-    mullvad-release verify "${platforms[@]}"
-    echo ""
+    log_header "Verifying signed metadata"
+    $mullvad_release verify "${platforms[@]}"
 
-    echo ">>> Creating upload dir"
+    log_header "Creating upload dir"
     cp -rf "$signed_dir" "$upload_dir"
-    echo ""
 
-    echo ">>> Generating $latest_path for current version metadata"
-    mullvad-release query-latest "${platforms[@]}" > "$upload_dir/$latest_path"
-    echo ""
+    log_header "Generating $latest_filename for current version metadata"
+    $mullvad_release query-latest "${platforms[@]}" > "$upload_dir/$latest_filename"
 
-    echo ">>> New metadata including $PRODUCT_VERSION"
-    git --no-pager diff --no-index -- $published_dir $upload_dir || true
-    echo ""
+    log_header "New metadata including $PRODUCT_VERSION"
+    git --no-pager diff --no-index -- "$published_dir" "$upload_dir" || true
 
     read -rp "Press enter to upload if the diffs look good "
-    ./publish-metadata-to-api $upload_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    ./publish-metadata-to-api "$upload_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 function remove_release_artifacts {
-    echo ">>> Cleaning up $ARTIFACT_DIR"
+    log_header "Cleaning up $ARTIFACT_DIR"
     rm -r "$ARTIFACT_DIR"
 }
 
