@@ -28,6 +28,7 @@ RSYNC_OPTIONS=(-av --mkpath)
 METADATA_SERVER_RSYNC_OPTIONS=("${RSYNC_OPTIONS[@]}" '--rsh="ssh -p 1122"')
 
 function run_on_build_server {
+  # This should be expanded client side
   # shellcheck disable=SC2029
   ssh "$BUILD_SERVER_HOST" "$@"
 }
