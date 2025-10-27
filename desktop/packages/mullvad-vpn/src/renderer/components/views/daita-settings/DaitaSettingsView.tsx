@@ -14,11 +14,11 @@ import {
   LabelTinySemiBold,
   Text,
 } from '../../../lib/components';
+import { Carousel } from '../../../lib/components/carousel';
 import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import { Carousel } from '../../Carousel';
 import * as Cell from '../../cell';
 import InfoButton from '../../InfoButton';
 import { BackAction } from '../../KeyboardNavigation';
