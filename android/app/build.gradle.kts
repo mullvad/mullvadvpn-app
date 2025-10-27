@@ -254,7 +254,7 @@ cargo {
     val isReleaseBuild = isReleaseBuild()
     val generateDebugSymbolsForReleaseBuilds =
         getBooleanProperty("mullvad.app.build.cargo.generateDebugSymbolsForReleaseBuilds")
-    val enableBoringTun = getBooleanProperty("mullvad.app.build.boringtun.enable")
+    val enableGotaTun = getBooleanProperty("mullvad.app.build.gotatun.enable")
     val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
     module = repoRootPath
     libname = "mullvad-jni"
@@ -275,7 +275,7 @@ cargo {
                     if (enableApiOverride) {
                         add("api-override")
                     }
-                    if (enableBoringTun) {
+                    if (enableGotaTun) {
                         add("boringtun")
                     }
                 }
