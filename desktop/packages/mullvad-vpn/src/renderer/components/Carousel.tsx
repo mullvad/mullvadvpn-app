@@ -40,7 +40,7 @@ interface PageSliderProps {
   content: NonEmptyArray<React.ReactNode>;
 }
 
-export function PageSlider(props: PageSliderProps) {
+export function Carousel(props: PageSliderProps) {
   // A state is needed to trigger a rerender. This is needed to update the "disabled" and "$current"
   // props of the arrows and page indicators.
   const [, setPageNumberState] = useState(0);
