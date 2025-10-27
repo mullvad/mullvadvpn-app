@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+REPO_ROOT=../../../
+PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
+PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
+
+$REPO_ROOT/scripts/utils/commit-verification
+"$SCRIPT_DIR/verify-version-is-release"
+
+if [ $# -ne 1 ]; then
+    echo "Please provide the following arguments:"
+    echo "    $(basename "$0") \\"
+    echo "        <build server SSH destination>"
+    exit 1
+fi
+
+# shellcheck source=desktop/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
+
+# The hostname (can be the alias in your ~/.ssh/config) of the build server
+BUILD_SERVER_HOST=$1
+
+source $REPO_ROOT/scripts/utils/log
+
+function run_on_build_server {
+  # shellcheck disable=SC2029
+  ssh "$BUILD_SERVER_HOST" "$@"
+}
+
+function run_on_build_server_as_build_user {
+  run_on_build_server sudo -i -u "$BUILDSERVER_BUILDUSER" "$@"
+}
+
+run_on_build_server_as_build_user \
+  "autobuild-linux/publish-app-to-repositories.sh" \
+  --production \
+  "autobuild-linux/artifacts/$PRODUCT_VERSION" \
+  "$PRODUCT_VERSION"
