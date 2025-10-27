@@ -225,6 +225,7 @@ fun MultihopSelector(
                         start = parent.start,
                         end = parent.end,
                         startMargin = 28.dp,
+                        startGoneMargin = 28.dp,
                         endMargin = 8.dp,
                     )
                 }
@@ -234,6 +235,7 @@ fun MultihopSelector(
                         start = parent.start,
                         end = parent.end,
                         startMargin = 28.dp,
+                        startGoneMargin = 28.dp,
                         endMargin = 8.dp,
                     )
                 }
@@ -277,6 +279,7 @@ fun MultihopSelector(
                         start = parent.start,
                         end = parent.end,
                         startMargin = 28.dp,
+                        startGoneMargin = 28.dp,
                         endMargin = 8.dp,
                     )
                 }
@@ -287,6 +290,7 @@ fun MultihopSelector(
                         start = parent.start,
                         end = parent.end,
                         startMargin = 28.dp,
+                        startGoneMargin = 28.dp,
                         endMargin = 8.dp,
                     )
                 }
@@ -368,7 +372,6 @@ fun MultihopSelector(
             Modifier.layoutId(keyPanel)
                 .clip(RoundedCornerShape(16.dp))
                 .background(colors.panelColor)
-                .padding(16.dp)
         ) {}
         Hop(
             modifier =
