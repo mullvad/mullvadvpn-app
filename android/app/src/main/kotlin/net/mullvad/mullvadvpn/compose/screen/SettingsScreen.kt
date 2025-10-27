@@ -178,20 +178,21 @@ private fun LazyListScope.content(
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
     }
 
-    itemWithDivider {
+    item {
         NavigationComposeCell(
             title = stringResource(id = R.string.settings_api_access),
             onClick = onApiAccessClick,
         )
     }
-    item {
+
+    item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
+
+    itemWithDivider {
         NavigationComposeCell(
             title = stringResource(id = R.string.settings_notifications),
             onClick = onNotificationSettingsCellClick,
         )
     }
-
-    item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
 
     item { AppInfo(onAppInfoClick, state) }
 
