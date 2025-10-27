@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.shared.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
 data class PrivacyDisclaimerViewState(val isStartingService: Boolean, val isPlayBuild: Boolean)
 

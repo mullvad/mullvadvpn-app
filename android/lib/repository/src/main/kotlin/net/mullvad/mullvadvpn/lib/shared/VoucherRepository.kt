@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared
+package net.mullvad.mullvadvpn.lib.repository
 
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.VoucherCode

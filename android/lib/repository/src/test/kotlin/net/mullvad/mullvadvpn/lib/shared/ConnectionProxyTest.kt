@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared
+package net.mullvad.mullvadvpn.lib.repository
 
 import android.content.Intent
 import arrow.core.left

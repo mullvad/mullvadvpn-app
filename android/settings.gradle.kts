@@ -27,7 +27,7 @@ include(
     ":lib:model",
     ":lib:payment",
     ":lib:resource",
-    ":lib:shared",
+    ":lib:repository",
     ":lib:talpid",
     ":lib:theme",
     ":lib:tv",

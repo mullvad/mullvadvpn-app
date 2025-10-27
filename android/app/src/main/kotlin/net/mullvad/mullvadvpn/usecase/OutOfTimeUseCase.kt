@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.common.util.millisFromNow
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 
 class OutOfTimeUseCase(
     private val connectionProxy: ConnectionProxy,

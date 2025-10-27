@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared
+package net.mullvad.mullvadvpn.lib.repository
 
 import androidx.datastore.core.DataStore
 import java.time.Instant

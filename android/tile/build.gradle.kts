@@ -37,7 +37,7 @@ dependencies {
     implementation(projects.lib.daemonGrpc)
     implementation(projects.lib.model)
     implementation(projects.lib.resource)
-    implementation(projects.lib.shared)
+    implementation(projects.lib.repository)
     implementation(projects.lib.talpid)
 
     implementation(libs.koin)

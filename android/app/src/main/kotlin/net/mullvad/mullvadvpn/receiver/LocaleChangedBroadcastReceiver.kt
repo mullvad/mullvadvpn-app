@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import net.mullvad.mullvadvpn.lib.shared.LocaleRepository
+import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
