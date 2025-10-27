@@ -275,30 +275,33 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                     )
             )
             .focused($customValueIsFocused)
-            .onChange(of: customValueInput) { _ in
-                if let maxInputLength {
-                    if customValueInput.count > maxInputLength {
-                        customValueInput = String(customValueInput.prefix(maxInputLength))
+            onChange(
+                of: customValueInput,
+                {
+                    if let maxInputLength {
+                        if customValueInput.count > maxInputLength {
+                            customValueInput = String(customValueInput.prefix(maxInputLength))
+                        }
+                    }
+                    if let parsedValue = toValue(customValueInput) {
+                        value.wrappedValue = parsedValue
+                        customValueInputIsInvalid = false
+                    } else {
+                        // this is not a valid value, so we fall back to the
+                        // initial value, showing the invalid-value state if
+                        // the field is not empty
+                        // As `customValueIsFocused` takes a while to propagate, we
+                        // only reset the field to the initial value if it was previously
+                        // a custom value. Otherwise, blanking this field when the user
+                        // has selected another field will cause the user's choice to be
+                        // overridden.
+                        if let initialValue, fromValue(value.wrappedValue) != nil {
+                            value.wrappedValue = initialValue
+                        }
+                        customValueInputIsInvalid = !customValueInput.isEmpty
                     }
                 }
-                if let parsedValue = toValue(customValueInput) {
-                    value.wrappedValue = parsedValue
-                    customValueInputIsInvalid = false
-                } else {
-                    // this is not a valid value, so we fall back to the
-                    // initial value, showing the invalid-value state if
-                    // the field is not empty
-                    // As `customValueIsFocused` takes a while to propagate, we
-                    // only reset the field to the initial value if it was previously
-                    // a custom value. Otherwise, blanking this field when the user
-                    // has selected another field will cause the user's choice to be
-                    // overridden.
-                    if let initialValue, fromValue(value.wrappedValue) != nil {
-                        value.wrappedValue = initialValue
-                    }
-                    customValueInputIsInvalid = !customValueInput.isEmpty
-                }
-            }
+            )
             .onAppear {
                 if let valueText = fromValue(value.wrappedValue) {
                     customValueInput = valueText

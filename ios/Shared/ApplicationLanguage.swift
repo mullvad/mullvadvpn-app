@@ -129,7 +129,7 @@ enum ApplicationLanguage: String, CaseIterable, Identifiable {
 
         // Otherwise, try to get languageCode (e.g., "en", "fr")
         let locale = Locale(identifier: fullCode)
-        let langCode = locale.languageCode ?? defaultCode
+        let langCode = locale.language.languageCode?.identifier ?? defaultCode
 
         return ApplicationLanguage(rawValue: langCode) ?? .english
     }
