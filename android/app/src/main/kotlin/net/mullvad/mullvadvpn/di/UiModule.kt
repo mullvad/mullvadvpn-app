@@ -209,6 +209,7 @@ val uiModule = module {
         SelectedLocationRelayItemUseCase(
             customListRelayItemUseCase = get(),
             relayListRepository = get(),
+            wireguardConstraintsRepository = get(),
         )
     }
 
@@ -274,6 +275,7 @@ val uiModule = module {
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
         SelectLocationViewModel(
+            get(),
             get(),
             get(),
             get(),

@@ -3,17 +3,16 @@ package net.mullvad.mullvadvpn.compose.screen.location
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
@@ -42,13 +41,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -77,20 +76,22 @@ import kotlin.math.max
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
-import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.compose.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -165,7 +166,6 @@ fun SelectLocation(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
@@ -483,12 +483,15 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
-                    // TODO Add multihop container here
+                    // TODO select hop container here
                     Logger.d("LOLZP progress=$progress scrollOffset=$scrollOffset")
                     SelectionContainer(
                         progress = progress,
                         relayListType = state.value.relayListType,
                         filterChips = state.value.filterChips,
+                        entrySelection = state.value.entrySelection,
+                        exitSelection = state.value.exitSelection,
+                        error = state.value.tunnelErrorStateCause,
                         onSelectRelayList = onSelectRelayList,
                         onFilterClick = onFilterClick,
                         removeOwnershipFilter = removeOwnershipFilter,
@@ -627,51 +630,45 @@ private fun RelayLists(
 private fun SelectionContainer(
     progress: Float, // 0 - 1
     relayListType: RelayListType,
-    filterChips: List<FilterChip>,
+    entrySelection: String?,
+    exitSelection: String?,
+    error: ErrorStateCause?,
+    filterChips: Map<RelayListType, List<FilterChip>>,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     onFilterClick: (RelayListType) -> Unit,
     removeOwnershipFilter: (RelayListType) -> Unit,
     removeProviderFilter: (RelayListType) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().height(100.dp + 100.dp * progress)) {
-        if (relayListType is RelayListType.Multihop) {
-            HeaderSwitchComposeCell(
-                title = "Entry",
-                isToggled = relayListType.multihopRelayListType == MultihopRelayListType.ENTRY,
-                onCellClicked = {
-                    onSelectRelayList(
-                        if (it) {
-                            MultihopRelayListType.ENTRY
-                        } else {
-                            MultihopRelayListType.EXIT
-                        }
-                    )
-                },
+        if (relayListType is RelayListType.Single) {
+            SingleHop(
+                exitLocation = exitSelection ?: "Any", // TODO
+                errorText = error.errorText(RelayListType.Single),
+                filters = filterChips[RelayListType.Single]?.size ?: 0,
+                onFilterClick = { onFilterClick(RelayListType.Single) },
             )
-            Row {
-                Text("EntryFilters")
-                IconButton(
-                    onClick = { onFilterClick(RelayListType.Multihop(MultihopRelayListType.ENTRY)) }
-                ) {
-                    Icon(Icons.Default.FilterList, contentDescription = null)
-                }
-            }
-            Row {
-                Text("ExitFilters")
-                IconButton(
-                    onClick = { onFilterClick(RelayListType.Multihop(MultihopRelayListType.EXIT)) }
-                ) {
-                    Icon(Icons.Default.FilterList, contentDescription = null)
-                }
-            }
         } else {
-            Spacer(modifier = Modifier.height(Dimens.largePadding))
-            Row {
-                Text("Filters")
-                IconButton(onClick = { onFilterClick(RelayListType.Single) }) {
-                    Icon(Icons.Default.FilterList, contentDescription = null)
-                }
-            }
+            MultiHop(
+                exitSelected =
+                    (relayListType as? RelayListType.Multihop)?.multihopRelayListType ==
+                        MultihopRelayListType.EXIT,
+                entryLocation = entrySelection ?: "Any", // TODO
+                entryErrorText =
+                    error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+                entryFilters =
+                    filterChips[RelayListType.Multihop(MultihopRelayListType.ENTRY)]?.size ?: 0,
+                onEntryFilterClick = {
+                    onFilterClick(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+                },
+                exitLocation = exitSelection ?: "Any", // TODO
+                exitErrorText = error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+                exitFilters =
+                    filterChips[RelayListType.Multihop(MultihopRelayListType.EXIT)]?.size ?: 0,
+                onExitFilterClick = {
+                    onFilterClick(RelayListType.Multihop(MultihopRelayListType.EXIT))
+                },
+                onSelectList = onSelectRelayList,
+            )
         }
 
         AnimatedContent(targetState = filterChips, label = "Select location top bar") { filterChips
@@ -684,7 +681,7 @@ private fun SelectionContainer(
                             start = Dimens.mediumPadding,
                             end = Dimens.mediumPadding,
                         ),
-                    filters = filterChips,
+                    filters = filterChips[relayListType] ?: emptyList(),
                     onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
                     onRemoveProviderFilter = { removeProviderFilter(relayListType) },
                 )
@@ -694,6 +691,111 @@ private fun SelectionContainer(
 }
 
 @Composable
+private fun SingleHop(
+    exitLocation: String,
+    errorText: String? = null,
+    filters: Int = 0,
+    onFilterClick: () -> Unit = {},
+) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Location: $exitLocation")
+            IconButton(onClick = onFilterClick) {
+                Icon(Icons.Default.FilterList, contentDescription = null)
+            }
+            Text("Filters: $filters")
+        }
+        if (errorText != null) {
+            ErrorSupportingText(errorText)
+        }
+    }
+}
+
+@Composable
+private fun MultiHop(
+    modifier: Modifier = Modifier,
+    exitSelected: Boolean = true,
+    entryLocation: String,
+    entryErrorText: String? = null,
+    entryFilters: Int = 0,
+    onEntryFilterClick: () -> Unit = {},
+    exitLocation: String,
+    exitErrorText: String? = null,
+    exitFilters: Int = 0,
+    onExitFilterClick: () -> Unit = {},
+    onSelectList: (MultihopRelayListType) -> Unit,
+    // colors: HopSelectorColors = HopSelectorDefaults.colors(),
+) {
+    Column(modifier = modifier.background(Color.Black).fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Location: $entryLocation",
+                modifier =
+                    Modifier.background(
+                            color =
+                                if (!exitSelected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    Color.Transparent
+                                }
+                        )
+                        .clickable(onClick = { onSelectList(MultihopRelayListType.ENTRY) }),
+            )
+            IconButton(onClick = onEntryFilterClick) {
+                Icon(Icons.Default.FilterList, contentDescription = null)
+            }
+            Text("Filters: $entryFilters")
+        }
+        if (entryErrorText != null) {
+            ErrorSupportingText(entryErrorText)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Location: $exitLocation",
+                modifier =
+                    Modifier.background(
+                            color =
+                                if (exitSelected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    Color.Transparent
+                                }
+                        )
+                        .clickable(onClick = { onSelectList(MultihopRelayListType.EXIT) }),
+            )
+            IconButton(onClick = onExitFilterClick) {
+                Icon(Icons.Default.FilterList, contentDescription = null)
+            }
+            Text("Filters: $exitFilters")
+        }
+        if (exitErrorText != null) {
+            ErrorSupportingText(exitErrorText)
+        }
+    }
+}
+
+@Composable
 private fun ColumnScope.Loading() {
     MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
 }
+
+@Composable
+private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
+    when ((this as? ErrorStateCause.TunnelParameterError)?.error) {
+        ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single -> {
+            stringResource(R.string.no_matching_relay)
+        }
+        ParameterGenerationError.NoMatchingRelayEntry if
+            relayListType is RelayListType.Multihop &&
+                relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+         -> {
+            stringResource(R.string.no_matching_relay)
+        }
+        ParameterGenerationError.NoMatchingRelayExit if
+            relayListType is RelayListType.Multihop &&
+                relayListType.multihopRelayListType == MultihopRelayListType.EXIT
+         -> {
+            stringResource(R.string.no_matching_relay)
+        }
+        else -> null
+    }
