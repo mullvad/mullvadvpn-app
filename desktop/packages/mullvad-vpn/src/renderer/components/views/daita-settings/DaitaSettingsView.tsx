@@ -25,7 +25,7 @@ import { Layout, SettingsContainer } from '../../Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import PageSlider from '../../PageSlider';
+import { PageSlider } from '../../PageSlider';
 import { SettingsToggleListItem } from '../../settings-toggle-list-item';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { useShowDaitaMultihopInfo } from './hooks';
