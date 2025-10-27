@@ -8,12 +8,12 @@ import { DaitaDirectOnlySetting, DaitaSetting } from '../../../features/daita/co
 import { Flex, Icon, Image, LabelTiny, LabelTinySemiBold, Text } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
+import { Carousel } from '../../Carousel';
 import * as Cell from '../../cell';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import { PageSlider } from '../../PageSlider';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { useShowDaitaMultihopInfo } from './hooks';
 
@@ -55,7 +55,7 @@ export function DaitaSettingsView() {
                     </Text>
                   </Flex>
                 )}
-                <PageSlider
+                <Carousel
                   content={[
                     <React.Fragment key="without-daita">
                       <StyledIllustration source="daita-off-illustration" />
