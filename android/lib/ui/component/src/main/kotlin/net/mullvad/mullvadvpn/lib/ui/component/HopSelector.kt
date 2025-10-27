@@ -66,12 +66,6 @@ import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
-
-enum class RelayList {
-    Entry,
-    Exit,
-}
 
 private const val keyInternet = "internet"
 private const val keyPanel = "panel"
@@ -626,7 +620,7 @@ private fun Hop(
     leadingIcon: ImageVector,
     text: String,
     selected: Boolean,
-    onSelect: () -> Unit,
+    onSelect: (() -> Unit)?,
     isError: Boolean,
     filters: Int,
     onFilterClick: () -> Unit,
@@ -647,7 +641,13 @@ private fun Hop(
                     }
                     .clip(RoundedCornerShape(12.dp))
                     .background(colors.containerColor(selected))
-                    .clickable(onClick = onSelect)
+                    .let {
+                        if (onSelect != null) {
+                            it.clickable(onClick = onSelect)
+                        } else {
+                            it
+                        }
+                    }
                     .border(
                         1.dp,
                         animateColorAsState(if (isError) colors.errorColor else Color.Transparent)
