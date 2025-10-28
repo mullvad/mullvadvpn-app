@@ -14,7 +14,6 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
     migrate_block_when_disconnected(settings)?;
     migrate_duplicated_api_access_method_names(settings)?;
-    migrate_quantum_resistance(settings)?;
 
     settings["settings_version"] = serde_json::json!(SettingsVersion::V12);
 
@@ -152,35 +151,6 @@ fn migrate_duplicated_api_access_method_names(settings: &mut serde_json::Value) 
         }
     }
 
-    Ok(())
-}
-/// Map "quantum_resistant": "auto" -> "quantum_resistant": "on".
-fn migrate_quantum_resistance(settings: &mut serde_json::Value) -> Result<()> {
-    use serde_json::Value;
-    // settings.tunnel_options.wireguard
-    fn wg(settings: &mut Value) -> Option<&mut Value> {
-        settings
-            .as_object_mut()?
-            .get_mut("tunnel_options")?
-            .get_mut("wireguard")
-    }
-    let wg = wg(settings).ok_or(Error::InvalidSettingsContent)?;
-    match wg.get_mut("quantum_resistant") {
-        Some(quantum_resistance) => {
-            if quantum_resistance == "auto" {
-                *quantum_resistance = "on".into();
-            }
-        }
-        None => {
-            // Believe it or not, the PQ setting is not guaranteed to exist coming from an earlier
-            // settings version, because it was never added through a settings migration!
-            // I'll go ahead and fix that right here, but going forward we should be more cautious
-            // about *not* adding certain settings via migrations. Not doing so means that we rely on
-            // the implemenation of Settings::default to fill in all the missing details, which might
-            // be ok..
-            wg["quantum_resistant"] = "on".into();
-        }
-    }
     Ok(())
 }
 
@@ -350,34 +320,6 @@ mod test {
             }
         });
         migrate_duplicated_api_access_method_names(&mut old_settings).unwrap();
-        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
-    }
-
-    /// quantum resistant setting is migrated from auto to on.
-    #[test]
-    fn test_v11_to_v12_migration_pq_auto_to_on() {
-        let mut old_settings = json!({
-            "tunnel_options": {
-              "wireguard": {
-                "quantum_resistant": "auto"
-              }
-            }
-        });
-        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
-        migrate_quantum_resistance(&mut old_settings).unwrap();
-        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
-    }
-
-    /// quantum resistant setting is set to on if it does not exist.
-    #[test]
-    fn test_v11_to_v12_migration_pq_default_to_on() {
-        let mut old_settings = json!({
-            "tunnel_options": {
-              "wireguard": { }
-            }
-        });
-        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
-        migrate_quantum_resistance(&mut old_settings).unwrap();
         insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
     }
 }
