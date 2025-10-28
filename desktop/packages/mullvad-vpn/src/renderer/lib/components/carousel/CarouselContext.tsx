@@ -4,10 +4,10 @@ import { useStyledRef } from '../../utility-hooks';
 import { CarouselProps } from './Carousel';
 
 type CarouselContextextProps = {
-  pageNumber: number;
-  setPageNumber: React.Dispatch<React.SetStateAction<number>>;
-  numberOfPages: number;
-  pageContainerRef: React.RefObject<HTMLDivElement | null>;
+  slideIndex: number;
+  setSlideIndex: React.Dispatch<React.SetStateAction<number>>;
+  numberOfSlides: number;
+  slidesRef: React.RefObject<HTMLDivElement | null>;
   content: CarouselProps['content'];
 };
 
@@ -27,19 +27,16 @@ export function CarouselProvider({
   content,
   children,
 }: React.PropsWithChildren<Pick<CarouselProviderProps, 'content'>>) {
-  const pageContainerRef = useStyledRef<HTMLDivElement>();
-
-  // A state is needed to trigger a rerender. This is needed to update the "disabled" and "$current"
-  // props of the arrows and page indicators.
-  const [pageNumber, setPageNumber] = React.useState(0);
+  const slidesRef = useStyledRef<HTMLDivElement>();
+  const [slideIndex, setSlideIndex] = React.useState(0);
 
   return (
     <CarouselContextext.Provider
       value={{
-        pageNumber,
-        setPageNumber,
-        numberOfPages: content.length,
-        pageContainerRef,
+        slideIndex,
+        setSlideIndex,
+        numberOfSlides: content.length,
+        slidesRef,
         content,
       }}>
       {children}
