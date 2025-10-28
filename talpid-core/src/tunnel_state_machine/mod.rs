@@ -456,6 +456,7 @@ impl TunnelStateMachine {
             #[cfg(target_os = "android")]
             excluded_packages: args.settings.exclude_paths,
             runtime,
+            wg_runtime: None,
             firewall,
             dns_monitor,
             route_manager: args.route_manager,
@@ -549,6 +550,11 @@ struct SharedTunnelStateValues {
     #[cfg(target_os = "android")]
     excluded_packages: Vec<String>,
     runtime: tokio::runtime::Handle,
+    /// A dedicated runtime for WireGuard.
+    ///
+    /// This will be initialized in the `Connecting` state, alive during the `Connected state`, and
+    /// torn-down during the `Disconnecting` state.
+    wg_runtime: Option<tokio::runtime::Runtime>,
     firewall: Firewall,
     dns_monitor: DnsMonitor,
     route_manager: RouteManagerHandle,

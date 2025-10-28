@@ -138,8 +138,18 @@ impl ConnectingState {
                         }
                     }
 
+                    // TODO: Create a new, dedicated runtime for WireGuard.
+                    // If WireGuard is running in userspace, it would be undesirable for it to
+                    // compete with the existing TSM runtime for scheduler time.
+                    // TODO: Should this be spawned on a separate thread? Probably.
+
+                    let wg_runtime = tokio::runtime::Builder::new_multi_thread()
+                        .enable_all() // TODO: Do we need time?
+                        .build()
+                        .unwrap();
+                    let wg_runtime_handle = wg_runtime.handle();
                     let connecting_state = Self::start_tunnel(
-                        shared_values.runtime.clone(),
+                        wg_runtime_handle.clone(),
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
@@ -147,7 +157,7 @@ impl ConnectingState {
                         &shared_values.route_manager,
                         retry_attempt,
                     );
-
+                    shared_values.wg_runtime = Some(wg_runtime);
                     let params = connecting_state.tunnel_parameters.clone();
                     (
                         Box::new(connecting_state),

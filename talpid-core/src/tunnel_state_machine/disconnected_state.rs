@@ -19,6 +19,8 @@ impl DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        // WireGuard should not be running in the disconnected state.
+        debug_assert!(shared_values.wg_runtime.is_none());
         #[cfg(target_os = "macos")]
         if let Err(err) = shared_values
             .runtime

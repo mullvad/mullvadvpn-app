@@ -119,6 +119,12 @@ impl DisconnectingState {
         block_reason: Option<ErrorStateCause>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        // Stop the WireGuard go runtime.
+        // TODO: Assert that there are no other live handles.
+        if let Some(wg_runtime) = shared_values.wg_runtime.take() {
+            drop(wg_runtime)
+        }
+
         if let Some(reason) = block_reason {
             return ErrorState::enter(shared_values, reason);
         }
