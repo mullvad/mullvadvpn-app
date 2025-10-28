@@ -60,6 +60,7 @@ import net.mullvad.mullvadvpn.relaylist.canAddLocation
 @Composable
 internal fun LocationBottomSheets(
     locationBottomSheetState: LocationBottomSheetState?,
+    enableEntryOption: Boolean,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
     onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
@@ -92,6 +93,7 @@ internal fun LocationBottomSheets(
                 customLists = locationBottomSheetState.customLists,
                 item = locationBottomSheetState.item,
                 selection = locationBottomSheetState.selection,
+                enableEntryOption = enableEntryOption,
                 onCreateCustomList = onCreateCustomList,
                 onAddLocationToList = onAddLocationToList,
                 onSetAsEntry = onSetAsEntry,
@@ -107,6 +109,7 @@ internal fun LocationBottomSheets(
                 sheetState = sheetState,
                 customList = locationBottomSheetState.customList,
                 selection = locationBottomSheetState.selection,
+                enableEntryOption = enableEntryOption,
                 onEditName = onEditCustomListName,
                 onEditLocations = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
@@ -125,6 +128,7 @@ internal fun LocationBottomSheets(
                 customListName = locationBottomSheetState.customListName,
                 item = locationBottomSheetState.item,
                 selection = locationBottomSheetState.selection,
+                enableEntryOption = enableEntryOption,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onSetAsEntry = onSetAsEntry,
                 onDisableMultihop = onDisableMultihop,
@@ -147,6 +151,7 @@ private fun LocationBottomSheet(
     customLists: List<RelayItem.CustomList>,
     item: RelayItem.Location,
     selection: RelayItemSelection,
+    enableEntryOption: Boolean,
     onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     onDisableMultihop: () -> Unit,
@@ -230,25 +235,28 @@ private fun LocationBottomSheet(
                             )
                         },
                     )
-                    val isMultihopEntrySelection = item.id == selection.entryLocation()?.getOrNull()
-                    IconCell(
-                        imageVector = null,
-                        title =
-                            if (isMultihopEntrySelection) {
-                                stringResource(R.string.remove_as_multihop_entry)
-                            } else {
-                                stringResource(R.string.set_as_multihop_entry)
+                    if (enableEntryOption) {
+                        val isMultihopEntrySelection =
+                            item.id == selection.entryLocation()?.getOrNull()
+                        IconCell(
+                            imageVector = null,
+                            title =
+                                if (isMultihopEntrySelection) {
+                                    stringResource(R.string.remove_as_multihop_entry)
+                                } else {
+                                    stringResource(R.string.set_as_multihop_entry)
+                                },
+                            titleColor = onBackgroundColor,
+                            onClick = {
+                                if (isMultihopEntrySelection) {
+                                    onDisableMultihop()
+                                } else {
+                                    onSetAsEntry(item)
+                                }
+                                closeBottomSheet(true)
                             },
-                        titleColor = onBackgroundColor,
-                        onClick = {
-                            if (isMultihopEntrySelection) {
-                                onDisableMultihop()
-                            } else {
-                                onSetAsEntry(item)
-                            }
-                            closeBottomSheet(true)
-                        },
-                    )
+                        )
+                    }
                     if (selection.exitLocation.getOrNull() != item.id) {
                         IconCell(
                             imageVector = null,
@@ -274,6 +282,7 @@ private fun EditCustomListBottomSheet(
     sheetState: SheetState,
     customList: RelayItem.CustomList,
     selection: RelayItemSelection,
+    enableEntryOption: Boolean,
     onEditName: (item: RelayItem.CustomList) -> Unit,
     onEditLocations: (item: RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
@@ -318,25 +327,27 @@ private fun EditCustomListBottomSheet(
                 closeBottomSheet(true)
             },
         )
-        val isMultihopEntrySelection = customList.id == selection.entryLocation()?.getOrNull()
-        IconCell(
-            imageVector = null,
-            title =
-                if (isMultihopEntrySelection) {
-                    stringResource(R.string.remove_as_multihop_entry)
-                } else {
-                    stringResource(R.string.set_as_multihop_entry)
+        if (enableEntryOption) {
+            val isMultihopEntrySelection = customList.id == selection.entryLocation()?.getOrNull()
+            IconCell(
+                imageVector = null,
+                title =
+                    if (isMultihopEntrySelection) {
+                        stringResource(R.string.remove_as_multihop_entry)
+                    } else {
+                        stringResource(R.string.set_as_multihop_entry)
+                    },
+                titleColor = onBackgroundColor,
+                onClick = {
+                    if (isMultihopEntrySelection) {
+                        onDisableMultihop()
+                    } else {
+                        onSetAsEntry(customList)
+                    }
+                    closeBottomSheet(true)
                 },
-            titleColor = onBackgroundColor,
-            onClick = {
-                if (isMultihopEntrySelection) {
-                    onDisableMultihop()
-                } else {
-                    onSetAsEntry(customList)
-                }
-                closeBottomSheet(true)
-            },
-        )
+            )
+        }
         if (selection.exitLocation.getOrNull() != customList.id) {
             IconCell(
                 imageVector = null,
@@ -361,6 +372,7 @@ private fun CustomListEntryBottomSheet(
     customListName: CustomListName,
     item: RelayItem.Location,
     selection: RelayItemSelection,
+    enableEntryOption: Boolean,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onSetAsEntry: (RelayItem.Location) -> Unit,
     onDisableMultihop: () -> Unit,
@@ -387,35 +399,37 @@ private fun CustomListEntryBottomSheet(
                 closeBottomSheet(true)
             },
         )
-        val isMultihopEntrySelection = item.id == selection.entryLocation()?.getOrNull()
-        IconCell(
-            imageVector = null,
-            title =
-                if (isMultihopEntrySelection) {
-                    stringResource(R.string.remove_as_multihop_entry)
-                } else {
-                    stringResource(R.string.set_as_multihop_entry)
-                },
-            titleColor = onBackgroundColor,
-            onClick = {
-                if (isMultihopEntrySelection) {
-                    onDisableMultihop()
-                } else {
-                    onSetAsEntry(item)
-                }
-                closeBottomSheet(true)
-            },
-        )
-        if (selection.exitLocation.getOrNull() != item.id) {
+        if (enableEntryOption) {
+            val isMultihopEntrySelection = item.id == selection.entryLocation()?.getOrNull()
             IconCell(
                 imageVector = null,
-                title = stringResource(R.string.set_as_multihop_exit),
+                title =
+                    if (isMultihopEntrySelection) {
+                        stringResource(R.string.remove_as_multihop_entry)
+                    } else {
+                        stringResource(R.string.set_as_multihop_entry)
+                    },
                 titleColor = onBackgroundColor,
                 onClick = {
-                    onSetAsExit(item)
+                    if (isMultihopEntrySelection) {
+                        onDisableMultihop()
+                    } else {
+                        onSetAsEntry(item)
+                    }
                     closeBottomSheet(true)
                 },
             )
+            if (selection.exitLocation.getOrNull() != item.id) {
+                IconCell(
+                    imageVector = null,
+                    title = stringResource(R.string.set_as_multihop_exit),
+                    titleColor = onBackgroundColor,
+                    onClick = {
+                        onSetAsExit(item)
+                        closeBottomSheet(true)
+                    },
+                )
+            }
         }
     }
 }

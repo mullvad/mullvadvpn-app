@@ -303,6 +303,7 @@ fun SearchLocationScreen(
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
+            enableEntryOption = state.contentOrNull()?.entrySelectionAllowed == true,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,

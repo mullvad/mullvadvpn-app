@@ -24,6 +24,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     entrySelection = null,
                     exitSelection = null,
                     tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -43,6 +44,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     entrySelection = null,
                     exitSelection = null,
                     tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -55,6 +57,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     entrySelection = null,
                     exitSelection = null,
                     tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -74,6 +77,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     entrySelection = null,
                     exitSelection = null,
                     tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
         )
