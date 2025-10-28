@@ -13,6 +13,9 @@ if [ $# -lt 3 ]; then
     exit 1
 fi
 
+# shellcheck source=desktop/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
+
 LOCAL_METADATA_DIR=$1
 BUILD_SERVER_HOST=$2
 METADATA_SERVER_HOST=$3
@@ -21,12 +24,11 @@ BUILDSERVER_TMP_DIR="/tmp/desktop-upload-release"
 BUILDSERVER_METADATA_DIR="$BUILDSERVER_TMP_DIR/metadata"
 METADATA_SERVER_METADATA_DIR="desktop/metadata"
 
-BUILDSERVER_BUILDUSER="build"
-
 RSYNC_OPTIONS=(-av --mkpath)
 METADATA_SERVER_RSYNC_OPTIONS=("${RSYNC_OPTIONS[@]}" '--rsh="ssh -p 1122"')
 
 function run_on_build_server {
+  # This should be expanded client side
   # shellcheck disable=SC2029
   ssh "$BUILD_SERVER_HOST" "$@"
 }
