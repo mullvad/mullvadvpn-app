@@ -1,17 +1,9 @@
 import styled from 'styled-components';
 
 import { Flex, IconButton } from '../../..';
+import { useCarouselContext } from '../../CarouselContext';
+import { usePages } from '../../hooks';
 import { PageIndicator } from '..';
-
-interface CarouselControlsProps {
-  pageNumber: number;
-  numberOfPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-  next: () => void;
-  prev: () => void;
-  goToPage: (page: number) => void;
-}
 
 const StyledGrid = styled.div`
   display: grid;
@@ -19,23 +11,23 @@ const StyledGrid = styled.div`
   align-items: center;
 `;
 
-export function CarouselControls(props: CarouselControlsProps) {
+export function CarouselControls() {
+  const { numberOfPages, pageNumber } = useCarouselContext();
+  const { next, prev, hasNext, hasPrev } = usePages();
   return (
     <StyledGrid>
       <div>{/* spacer to make page indicators centered */}</div>
       <Flex $gap="small">
-        {[...Array(props.numberOfPages)].map((_, i) => {
-          const current = i === props.pageNumber;
-          return (
-            <PageIndicator key={i} disabled={current} pageNumber={i} goToPage={props.goToPage} />
-          );
+        {[...Array(numberOfPages)].map((_, i) => {
+          const current = i === pageNumber;
+          return <PageIndicator key={i} disabled={current} pageToGoTo={i} />;
         })}
       </Flex>
       <Flex $justifyContent="right" $gap="small">
-        <IconButton disabled={!props.hasPrev} onClick={props.prev}>
+        <IconButton disabled={!hasPrev} onClick={prev}>
           <IconButton.Icon icon="chevron-left" />
         </IconButton>
-        <IconButton disabled={!props.hasNext} onClick={props.next}>
+        <IconButton disabled={!hasNext} onClick={next}>
           <IconButton.Icon icon="chevron-right" />
         </IconButton>
       </Flex>
