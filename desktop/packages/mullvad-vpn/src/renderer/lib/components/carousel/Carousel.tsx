@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { NonEmptyArray } from '../../../../shared/utils';
 import { useStyledRef } from '../../utility-hooks';
 import { Flex } from '../flex';
+import { Gallery } from '../gallery';
 import { CarouselControls } from './components';
 
 const PAGE_GAP = 16;
@@ -37,7 +38,7 @@ interface PageSliderProps {
   content: NonEmptyArray<React.ReactNode>;
 }
 
-export function Carousel(props: PageSliderProps) {
+function Carousel(props: PageSliderProps) {
   // A state is needed to trigger a rerender. This is needed to update the "disabled" and "$current"
   // props of the arrows and page indicators.
   const [, setPageNumberState] = useState(0);
@@ -115,3 +116,12 @@ export function Carousel(props: PageSliderProps) {
     </StyledCarousel>
   );
 }
+
+const CarouselNamespace = Object.assign(Carousel, {
+  Text: Gallery.Text,
+  TextGroup: Gallery.TextGroup,
+  Image: Gallery.Image,
+  Page: Gallery,
+});
+
+export { CarouselNamespace as Carousel };
