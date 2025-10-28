@@ -23,9 +23,9 @@ class SelectedLocationRelayItemUseCase(
         combine(
             customListRelayItemUseCase(),
             relayListRepository.relayList,
-            wireguardConstraintsRepository.wireguardConstraints.map {
-                it?.entryLocation
-            }.filterNotNull(),
+            wireguardConstraintsRepository.wireguardConstraints
+                .map { it?.entryLocation }
+                .filterNotNull(),
             relayListRepository.selectedLocation,
         ) { customLists, relayList, selectedEntryLocation, selectedExitLocation ->
             selectedEntryLocation.toRelayItem(customLists, relayList) to
