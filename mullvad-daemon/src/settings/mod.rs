@@ -1,3 +1,4 @@
+use either::Either;
 use futures::TryFutureExt;
 use mullvad_types::{
     access_method::Error as ApiAccessMethodError,
@@ -5,6 +6,7 @@ use mullvad_types::{
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
     settings::{DnsState, Settings},
 };
+use serde::{Deserialize, Serialize};
 use std::{
     fmt::{self, Display},
     ops::Deref,
@@ -126,6 +128,7 @@ impl SettingsPersister {
     /// settings.
     pub async fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
+        log::info!("Loading settings from {}", path.display());
         let LoadSettingsResult {
             settings,
             should_save,
@@ -164,16 +167,21 @@ impl SettingsPersister {
     /// `load_inner` will always succeed, even in the presence of IO operations.
     /// Errors are handled gracefully by returning the default [`Settings`] if
     /// necessary.
-    async fn load_inner<F, R>(load_settings: F) -> LoadSettingsResult
-    where
-        F: FnOnce() -> R,
-        R: std::future::Future<Output = Result<Settings, Error>>,
-    {
+    async fn load_inner(
+        load_settings: impl AsyncFnOnce() -> Result<Either<PartialSettings, Settings>, Error>,
+    ) -> LoadSettingsResult {
         let mut result = match load_settings().await {
-            Ok(settings) => LoadSettingsResult {
+            Ok(Either::Right(settings)) => LoadSettingsResult {
                 settings,
                 should_save: false,
             },
+            Ok(Either::Left(partial)) => {
+                log::warn!("Failed to load all settings. Trying to recover as much as possible.");
+                LoadSettingsResult {
+                    settings: partial.reconstruct(),
+                    should_save: true,
+                }
+            }
             Err(Error::ReadError(_, err)) if err.kind() == io::ErrorKind::NotFound => {
                 log::info!("No settings were found. Using defaults.");
                 LoadSettingsResult {
@@ -184,14 +192,14 @@ impl SettingsPersister {
             Err(error) => {
                 log::warn!(
                     "{}",
-                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
+                    error.display_chain_with_msg("Failed to load settings. Resetting to defaults.")
                 );
 
+                // If there's any suspicion that the user might be leaking, protect the user by blocking
+                // the internet by default. Previous settings may not have caused the daemon to enter the
+                // non-blocking disconnected state.
                 let settings = Settings {
-                    // Protect the user by blocking the internet by default. Previous settings may
-                    // not have caused the daemon to enter the non-blocking disconnected state.
-                    // On android lockdown mode is handled by the OS so setting this to true
-                    // has no effect.
+                    // On android lockdown mode is handled by the OS so setting this to true has no effect.
                     #[cfg(not(target_os = "android"))]
                     lockdown_mode: true,
                     ..Self::default_settings()
@@ -216,21 +224,31 @@ impl SettingsPersister {
         result
     }
 
-    async fn load_from_file<P>(path: P) -> Result<Settings, Error>
-    where
-        P: AsRef<Path> + Clone,
-    {
-        let display = path.clone();
-        log::info!("Loading settings from {}", display.as_ref().display());
-        let settings_bytes = fs::read(path)
+    /// Try to read [Settings] from disk.
+    ///
+    /// If this function were to fail because the settings blob is partially corrupt, try to
+    /// recover as much as possible. If settings could only partially be de-serialized, the return
+    /// value is `Ok(Left)`.
+    ///
+    /// If settings are missing, or too corrupt to recover anything valuable (see above comment),
+    /// return an [Error].
+    async fn load_from_file(
+        path: impl AsRef<Path>,
+    ) -> Result<Either<PartialSettings, Settings>, Error> {
+        let settings = fs::read(&path)
             .await
-            .map_err(|error| Error::ReadError(display.as_ref().display().to_string(), error))?;
-        let settings = Self::load_from_bytes(&settings_bytes)?;
-        Ok(settings)
-    }
-
-    fn load_from_bytes(bytes: &[u8]) -> Result<Settings, Error> {
-        serde_json::from_slice(bytes).map_err(Error::ParseError)
+            .map_err(|err| Error::ReadError(path.as_ref().display().to_string(), err))?;
+        let result = match load_from_bytes(&settings) {
+            Ok(settings) => Either::Right(settings),
+            Err(err) => {
+                // Try to recover the lockdown_mode key before failing.
+                let Ok(partial) = load_from_bytes(&settings) else {
+                    return Err(err);
+                };
+                Either::Left(partial)
+            }
+        };
+        Ok(result)
     }
 
     async fn save(&mut self) -> Result<(), Error> {
@@ -411,6 +429,37 @@ impl SettingsPersister {
             listener(&self.settings);
         }
     }
+}
+
+/// Implement a subset of [Settings] that ha a higher likelihood of being deserialized succesfully
+/// in case of failure, such as a corrupt disk or a failed settings migration.
+//
+// NOTE: This struct's field names have to match the corresponding field names in [Settings].
+// #[serde(alias)] can be used for this purpose as well.
+// NOTE: This could probably be implemented for more values, but `lockdown_mode` is fine for now.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct PartialSettings {
+    /// However, the previous value of `lockdown_mode` might have been recovered!
+    #[serde(alias = "lockdown_mode")]
+    lockdown_mode: bool,
+}
+
+impl PartialSettings {
+    /// Given a partial settings blob, reconstruct [Settings] on a best-effort basis.
+    fn reconstruct(self) -> Settings {
+        let lockdown_mode = self.lockdown_mode;
+        Settings {
+            lockdown_mode,
+            ..Default::default()
+        }
+    }
+}
+
+fn load_from_bytes<'a, S>(bytes: &'a [u8]) -> Result<S, Error>
+where
+    S: Deserialize<'a>,
+{
+    serde_json::from_slice(bytes).map_err(Error::ParseError)
 }
 
 struct LoadSettingsResult {
@@ -663,7 +712,7 @@ mod test {
               ]
             }"#;
 
-        let _ = SettingsPersister::load_from_bytes(settings).unwrap();
+        let _: Settings = load_from_bytes(settings).unwrap();
     }
 
     /// The [`SettingsPersister`] should always succeed when deserializing a
@@ -712,7 +761,7 @@ mod test {
             should_save,
             settings,
         } = SettingsPersister::load_inner(|| async {
-            SettingsPersister::load_from_bytes(b"Not a valid settings file")
+            load_from_bytes(b"Not a valid settings file")
         })
         .await;
 

@@ -25,6 +25,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
   in the disconnected state.
+- Change `lockdown_mode` to only be turned on automatically if settings file is corrupt and the
+  previous value can not be inferred.
+
+### Added
+- Add fallback mechanism for recovering settings values in case the settings file were to corrupted.
 
 
 ## [2025.13-beta1] - 2025-10-20
