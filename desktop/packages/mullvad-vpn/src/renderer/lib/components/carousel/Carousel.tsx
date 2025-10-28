@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { NonEmptyArray } from '../../../../shared/utils';
@@ -6,6 +6,7 @@ import { useStyledRef } from '../../utility-hooks';
 import { Flex } from '../flex';
 import { Gallery } from '../gallery';
 import { CarouselControls } from './components';
+import { useHandleOptionsKeyboardNavigation } from './hooks';
 
 const PAGE_GAP = 16;
 
@@ -76,29 +77,17 @@ function Carousel(props: PageSliderProps) {
   const next = useCallback(() => goToPage(getPageNumber() + 1), [goToPage, getPageNumber]);
   const prev = useCallback(() => goToPage(getPageNumber() - 1), [goToPage, getPageNumber]);
 
-  // Callback that navigates when left and right arrows are pressed.
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') {
-        prev();
-      } else if (event.key === 'ArrowRight') {
-        next();
-      }
-    },
-    [next, prev],
-  );
+  const handleKeyboardNavigation = useHandleOptionsKeyboardNavigation({
+    next,
+    previous: prev,
+  });
 
   // Trigger a rerender when the page number has changed. This needs to be done to update the
   // states of the arrows and page indicators.
   const handleScroll = useCallback(() => setPageNumberState(getPageNumber()), [getPageNumber]);
 
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
-
   return (
-    <StyledCarousel $flexDirection="column" $gap="medium">
+    <StyledCarousel $flexDirection="column" $gap="medium" onKeyDown={handleKeyboardNavigation}>
       <StyledPageSlider ref={pageContainerRef} onScroll={handleScroll}>
         {props.content.map((page, i) => (
           <StyledPage key={`page-${i}`}>{page}</StyledPage>
