@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
@@ -114,6 +113,7 @@ class SelectLocationViewModel(
                         entrySelection = entryRelayItem?.name,
                         exitSelection = exitRelayItem?.name,
                         tunnelErrorStateCause = errorStateCause,
+                        entrySelectionAllowed = !settings.entryBlocked(),
                     )
                 )
             }
@@ -160,12 +160,15 @@ class SelectLocationViewModel(
         viewModelScope.launch { _relayListType.emit(RelayListType.Multihop(multihopRelayListType)) }
     }
 
-    fun selectHop(hop: Hop) {
+    fun selectHop(hop: Hop, onSuccess: suspend () -> Unit = {}) {
         viewModelScope.launch {
             selectHopUseCase(hop)
                 .fold(
                     { _uiSideEffect.send(it.toSideEffect()) },
-                    { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) },
+                    {
+                        onSuccess()
+                        _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
+                    },
                 )
         }
     }
@@ -177,26 +180,24 @@ class SelectLocationViewModel(
                 MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
             }
 
-        viewModelScope.launch {
-            modifyMultihopUseCase(change)
-                .fold(
-                    { _uiSideEffect.send(it.toSideEffect(multihopRelayListType)) },
-                    {
-                        when (multihopRelayListType) {
-                            MultihopRelayListType.ENTRY -> {
-                                _relayListType.emit(
-                                    RelayListType.Multihop(MultihopRelayListType.EXIT)
-                                )
-                                _uiSideEffect.send(
-                                    SelectLocationSideEffect.FocusExitList(relayItem)
-                                )
-                            }
-                            MultihopRelayListType.EXIT ->
-                                _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
+        viewModelScope.launch { modifyMultihop(change) }
+    }
+
+    private suspend fun modifyMultihop(change: MultihopChange, onSuccess: suspend () -> Unit = {}) {
+        modifyMultihopUseCase(change)
+            .fold(
+                { _uiSideEffect.send(it.toSideEffect(change)) },
+                {
+                    when (change) {
+                        is MultihopChange.Entry -> {
+                            _relayListType.emit(RelayListType.Multihop(MultihopRelayListType.EXIT))
                         }
-                    },
-                )
-        }
+                        is MultihopChange.Exit ->
+                            _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
+                    }
+                    onSuccess()
+                },
+            )
     }
 
     fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
@@ -262,15 +263,15 @@ class SelectLocationViewModel(
 
     fun setAsEntry(item: RelayItem) {
         viewModelScope.launch {
-            modifyMultihop(relayItem = item, multihopRelayListType = MultihopRelayListType.ENTRY)
-            // If multihop is not turned on, turn it on and show a snackbar to the user
-            if (
-                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
-                    false
-            ) {
-                delay(300) // TODO Fix race condition and remove this
-                setMultihop(enable = true, showSnackbar = true)
-                _uiSideEffect.send(SelectLocationSideEffect.MultihopChanged(true))
+            modifyMultihop(MultihopChange.Entry(item)) {
+                // If we were successful we should set multihop to true if required
+                if (
+                    wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
+                        false
+                ) {
+                    setMultihop(enable = true, showSnackbar = true)
+                    _uiSideEffect.send(SelectLocationSideEffect.MultihopChanged(true))
+                }
             }
         }
     }
@@ -286,12 +287,14 @@ class SelectLocationViewModel(
                 // After that we turn on multihop
                 val previousSelection = selectedLocationRelayItemUseCase().first().second
                 if (previousSelection != null) {
-                    selectHop(Hop.Multi(entry = previousSelection, exit = item))
+                    selectHop(Hop.Multi(entry = previousSelection, exit = item)) {
+                        setMultihop(enable = true, showSnackbar = true)
+                    }
+                } else {
+                    setMultihop(enable = true, showSnackbar = true)
                 }
-                delay(300) // TODO Fix race condition and remove this
-                setMultihop(enable = true, showSnackbar = true)
             } else {
-                modifyMultihop(relayItem = item, multihopRelayListType = MultihopRelayListType.EXIT)
+                modifyMultihop(MultihopChange.Exit(item))
             }
         }
     }
@@ -319,14 +322,14 @@ class SelectLocationViewModel(
     }
 
     private fun ModifyMultihopError.toSideEffect(
-        multihopRelayListType: MultihopRelayListType
+        multihopChange: MultihopChange
     ): SelectLocationSideEffect =
         when (this) {
             is ModifyMultihopError.EntrySameAsExit ->
-                when (multihopRelayListType) {
-                    MultihopRelayListType.ENTRY ->
+                when (multihopChange) {
+                    is MultihopChange.Entry ->
                         SelectLocationSideEffect.ExitAlreadySelected(relayItem = relayItem)
-                    MultihopRelayListType.EXIT ->
+                    is MultihopChange.Exit ->
                         SelectLocationSideEffect.EntryAlreadySelected(relayItem = relayItem)
                 }
             ModifyMultihopError.GenericError -> SelectLocationSideEffect.GenericError
@@ -360,8 +363,6 @@ sealed interface SelectLocationSideEffect {
     data object EntryAndExitAreSame : SelectLocationSideEffect
 
     data object RelayListUpdating : SelectLocationSideEffect
-
-    data class FocusExitList(val relayItem: RelayItem) : SelectLocationSideEffect
 
     data class MultihopChanged(val enabled: Boolean) : SelectLocationSideEffect
 }

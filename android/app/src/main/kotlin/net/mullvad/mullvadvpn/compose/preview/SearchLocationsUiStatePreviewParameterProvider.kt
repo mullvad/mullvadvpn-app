@@ -27,6 +27,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                     customLists = emptyList(),
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
                     selection = RelayItemSelection.Single(Constraint.Any),
+                    entrySelectionAllowed = true,
                 )
             ),
             Lce.Error(Unit),
@@ -39,6 +40,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                     customLists = emptyList(),
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
                     selection = RelayItemSelection.Single(Constraint.Any),
+                    entrySelectionAllowed = true,
                 )
             ),
             Lce.Content(
@@ -53,6 +55,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                     customLists = emptyList(),
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
                     selection = RelayItemSelection.Single(Constraint.Any),
+                    entrySelectionAllowed = true,
                 )
             ),
         )

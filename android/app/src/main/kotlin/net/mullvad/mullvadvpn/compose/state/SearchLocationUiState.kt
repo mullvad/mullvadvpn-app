@@ -13,4 +13,5 @@ data class SearchLocationUiState(
     val relayListItems: List<RelayListItem>,
     val customLists: List<RelayItem.CustomList>,
     val selection: RelayItemSelection,
+    val entrySelectionAllowed: Boolean,
 )

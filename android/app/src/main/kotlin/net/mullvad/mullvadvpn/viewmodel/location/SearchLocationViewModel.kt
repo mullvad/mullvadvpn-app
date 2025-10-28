@@ -120,6 +120,7 @@ class SearchLocationViewModel(
                         customLists = customLists,
                         filterChips = filterChips,
                         selection = selectedItem,
+                        entrySelectionAllowed = settings?.entryBlocked() == false,
                     )
                 )
             }

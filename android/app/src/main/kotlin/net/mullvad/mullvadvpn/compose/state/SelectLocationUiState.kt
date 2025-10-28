@@ -14,4 +14,5 @@ data class SelectLocationUiState(
     val entrySelection: String?,
     val exitSelection: String?,
     val tunnelErrorStateCause: ErrorStateCause?,
+    val entrySelectionAllowed: Boolean,
 )
