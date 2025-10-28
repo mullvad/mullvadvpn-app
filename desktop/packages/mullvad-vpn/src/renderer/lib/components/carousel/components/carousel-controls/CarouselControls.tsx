@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Flex, IconButton, Layout } from '../../..';
+import { Flex, IconButton } from '../../..';
 import { PageIndicator } from '..';
 
 interface CarouselControlsProps {
@@ -13,7 +13,7 @@ interface CarouselControlsProps {
   goToPage: (page: number) => void;
 }
 
-const StyledGrid = styled(Layout)`
+const StyledGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -21,7 +21,7 @@ const StyledGrid = styled(Layout)`
 
 export function CarouselControls(props: CarouselControlsProps) {
   return (
-    <StyledGrid $margin={{ top: 'small' }}>
+    <StyledGrid>
       <div>{/* spacer to make page indicators centered */}</div>
       <Flex $gap="small">
         {[...Array(props.numberOfPages)].map((_, i) => {
