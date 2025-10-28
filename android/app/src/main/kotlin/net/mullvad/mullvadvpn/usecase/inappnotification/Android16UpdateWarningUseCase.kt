@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
 class Android16UpdateWarningUseCase(
     private val userPreferencesRepository: UserPreferencesRepository,

@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.cities
 import net.mullvad.mullvadvpn.lib.model.name
-import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.relaylist.sortedByName
 

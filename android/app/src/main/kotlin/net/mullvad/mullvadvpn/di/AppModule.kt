@@ -15,15 +15,15 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
-import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.LocaleRepository
-import net.mullvad.mullvadvpn.lib.shared.PrepareVpnUseCase
-import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
+import net.mullvad.mullvadvpn.lib.repository.PrepareVpnUseCase
+import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferences
 import net.mullvad.mullvadvpn.repository.UserPreferencesMigration
-import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
@@ -77,6 +77,7 @@ val appModule = module {
         }
     single {
         TunnelStateNotificationProvider(
+            get(),
             get(),
             get(),
             get(),

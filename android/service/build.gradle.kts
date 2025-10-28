@@ -73,7 +73,7 @@ dependencies {
     implementation(projects.lib.daemonGrpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.model)
-    implementation(projects.lib.shared)
+    implementation(projects.lib.repository)
     implementation(projects.lib.talpid)
 
     implementation(libs.androidx.ktx)
@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.protobuf.kotlin.lite)
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)

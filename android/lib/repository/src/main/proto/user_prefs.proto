@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "net.mullvad.mullvadvpn.repository";
+option java_multiple_files = true;
+
+message UserPreferences {
+  bool is_privacy_disclosure_accepted = 1;
+  int32 last_shown_changelog_version_code = 2;
+  int64 account_expiry_unix_time_seconds = 3;
+  bool show_android_16_connect_warning = 4;
+  bool show_location_in_system_notification = 5;
+}

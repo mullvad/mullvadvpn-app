@@ -367,6 +367,7 @@
     <string name="settings_api_access">การเข้าถึง API</string>
     <string name="settings_changes_effect_warning_content_blocker">การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้</string>
     <string name="settings_changes_effect_warning_short">การตั้งค่า DNS อาจไม่มีผลทันที</string>
+    <string name="settings_notifications">การแจ้งเตือน</string>
     <string name="settings_patch_error_failed_to_apply_patch">ล้มเหลวในการปรับใช้แพตช์</string>
     <string name="settings_patch_error_invalid_or_missing_value">ค่า \"%1$s” ไม่ถูกต้องหรือขาดหายไป</string>
     <string name="settings_patch_error_recursion_limit">ขีดจำกัดการเรียกซ้ำ</string>

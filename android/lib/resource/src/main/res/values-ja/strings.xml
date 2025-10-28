@@ -367,6 +367,7 @@
     <string name="settings_api_access">APIアクセス</string>
     <string name="settings_changes_effect_warning_content_blocker">結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。</string>
     <string name="settings_changes_effect_warning_short">DNS設定はすぐに適用されない可能性があります</string>
+    <string name="settings_notifications">通知</string>
     <string name="settings_patch_error_failed_to_apply_patch">パッチを適用できませんでした</string>
     <string name="settings_patch_error_invalid_or_missing_value">値「%1$s」は無効であるか、欠測しています</string>
     <string name="settings_patch_error_recursion_limit">繰り返しの制限</string>

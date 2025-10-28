@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 
 private val noServiceDestinations = listOf(SplashDestination, PrivacyDisclaimerDestination)
 
