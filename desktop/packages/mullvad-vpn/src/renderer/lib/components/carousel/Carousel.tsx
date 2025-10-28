@@ -6,13 +6,13 @@ import { Flex } from '../flex';
 import { Gallery } from '../gallery';
 import { CarouselProvider, useCarouselContext } from './CarouselContext';
 import { CarouselControls } from './components';
-import { useGetPageNumber, useHandleKeyboardNavigation } from './hooks';
+import { useGetSlideIndex, useHandleKeyboardNavigation } from './hooks';
 
-const PAGE_GAP = 16;
+const SLIDE_GAP = 16;
 
 const StyledCarousel = styled(Flex)``;
 
-const StyledPageSlider = styled.div({
+const StyledSlides = styled.div({
   whiteSpace: 'nowrap',
   overflow: 'scroll hidden',
   scrollSnapType: 'x mandatory',
@@ -23,7 +23,7 @@ const StyledPageSlider = styled.div({
   },
 });
 
-const StyledPage = styled.div({
+const StyledSlide = styled.div({
   display: 'inline-block',
   width: '100%',
   whiteSpace: 'normal',
@@ -31,7 +31,7 @@ const StyledPage = styled.div({
   scrollSnapAlign: 'start',
 
   '&&:not(:last-child)': {
-    marginRight: `${PAGE_GAP}px`,
+    marginRight: `${SLIDE_GAP}px`,
   },
 });
 
@@ -40,24 +40,23 @@ export interface CarouselProps {
 }
 
 function CarouselImpl() {
-  const { pageContainerRef, setPageNumber, content } = useCarouselContext();
+  const { slidesRef, setSlideIndex, content } = useCarouselContext();
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
 
-  const getPageNumber = useGetPageNumber();
+  const getSlideIndex = useGetSlideIndex();
 
-  // Trigger a rerender when the page number has changed. This needs to be done to update the
-  // states of the arrows and page indicators.
+  // Update slide number after scrolling.
   const handleScroll = useCallback(() => {
-    return setPageNumber(getPageNumber());
-  }, [getPageNumber, setPageNumber]);
+    return setSlideIndex(getSlideIndex());
+  }, [getSlideIndex, setSlideIndex]);
 
   return (
     <StyledCarousel $flexDirection="column" $gap="medium" onKeyDown={handleKeyboardNavigation}>
-      <StyledPageSlider ref={pageContainerRef} onScrollEnd={handleScroll}>
-        {content.map((page, i) => (
-          <StyledPage key={`page-${i}`}>{page}</StyledPage>
+      <StyledSlides ref={slidesRef} onScrollEnd={handleScroll}>
+        {content.map((slide, i) => (
+          <StyledSlide key={`slide-${i}`}>{slide}</StyledSlide>
         ))}
-      </StyledPageSlider>
+      </StyledSlides>
       <CarouselControls />
     </StyledCarousel>
   );
@@ -75,7 +74,7 @@ const CarouselNamespace = Object.assign(Carousel, {
   Text: Gallery.Text,
   TextGroup: Gallery.TextGroup,
   Image: Gallery.Image,
-  Page: Gallery,
+  Slide: Gallery,
 });
 
 export { CarouselNamespace as Carousel };

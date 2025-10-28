@@ -3,17 +3,17 @@ import styled from 'styled-components';
 
 import { colors } from '../../../../foundations';
 import { Dot } from '../../../dot';
-import { usePages } from '../../hooks';
+import { useSlides } from '../../hooks';
 
 export type PageIndicatorProps = React.ComponentPropsWithRef<'button'> & {
-  pageToGoTo: number;
+  slideToGoTo: number;
 };
 
 const StyledPageIndicator = styled(Dot)`
   background-color: ${colors.whiteAlpha80};
 `;
 
-const StyledIconButton = styled.button`
+const StyledSlideIndicator = styled.button`
   position: relative;
   display: flex;
   justify-content: center;
@@ -40,16 +40,16 @@ const StyledIconButton = styled.button`
   }
 `;
 
-export function PageIndicator({ pageToGoTo, ...props }: PageIndicatorProps) {
-  const { goToPage } = usePages();
+export function SlideIndicator({ slideToGoTo: pageToGoTo, ...props }: PageIndicatorProps) {
+  const { goToSlide } = useSlides();
 
   const onClick = React.useCallback(() => {
-    goToPage(pageToGoTo);
-  }, [goToPage, pageToGoTo]);
+    goToSlide(pageToGoTo);
+  }, [goToSlide, pageToGoTo]);
 
   return (
-    <StyledIconButton onClick={onClick} {...props}>
+    <StyledSlideIndicator onClick={onClick} {...props}>
       <StyledPageIndicator size="tiny" />
-    </StyledIconButton>
+    </StyledSlideIndicator>
   );
 }

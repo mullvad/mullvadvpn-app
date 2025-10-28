@@ -50,7 +50,7 @@ export function DaitaSettingsView() {
 
                   <Carousel
                     content={[
-                      <Carousel.Page key="without-daita">
+                      <Carousel.Slide key="without-daita">
                         <Carousel.Image source="daita-off-illustration" />
                         <Carousel.TextGroup>
                           <Carousel.Text variant="labelTinySemiBold">
@@ -83,8 +83,8 @@ export function DaitaSettingsView() {
                             )}
                           </Carousel.Text>
                         </Carousel.TextGroup>
-                      </Carousel.Page>,
-                      <Carousel.Page key="with-daita">
+                      </Carousel.Slide>,
+                      <Carousel.Slide key="with-daita">
                         <Carousel.Image source="daita-on-illustration" />
                         <Carousel.TextGroup>
                           <Carousel.Text>
@@ -125,7 +125,7 @@ export function DaitaSettingsView() {
                             )}
                           </Carousel.Text>
                         </Carousel.TextGroup>
-                      </Carousel.Page>,
+                      </Carousel.Slide>,
                     ]}
                   />
                 </FlexColumn>
