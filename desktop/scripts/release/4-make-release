@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
-# creates a GitHub draft release. This should be run after `3-verify-build`.
+# creates a GitHub release. This should be run after `3-verify-build`. To create a draft release,
+# add the --draft flag.
 
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
+
+function usage {
+    echo "Usage: $0 [--draft] [-h|--help]"
+    echo "  --draft Creates the GitHub release as a draft"
+    exit 0
+}
+
+DRAFT="false"
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --draft) DRAFT="true";;
+        -h|--help) usage ;;
+    esac
+    shift
+done
 
 REPO_ROOT=../../../
 PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
@@ -37,12 +53,15 @@ function publish_release {
         awk 'NF { last = last ? last ORS $0 : $0 } END { print last }')
 
     release_flags=(
-      --draft
       --repo "git@github.com:mullvad/mullvadvpn-app"
       --verify-tag
       --notes-file -
       --title "$PRODUCT_VERSION"
     )
+
+    if [[ "$DRAFT" == "true" ]]; then
+      release_flags+=(--draft)
+    fi
 
     previous_release=$(echo "$changelog_extract" | tail -1 | grep -oP '## \[\K[^\]]+')
 
@@ -62,12 +81,26 @@ function publish_release {
 
     body+="\n$changelog"
 
-    log_header "Creating GitHub release"
-    # shellcheck disable=SC2059
-    # shellcheck disable=SC2046
-    printf "$body" | gh release create "${release_flags[@]}" "$PRODUCT_VERSION" $(printf "%s " "$ARTIFACT_DIR"/*)
+    read -rp "The suggested changelog will be opened in an editor, please finalize and save it before exiting. Press enter to open changelog..."
 
-    log_success "\nThe above URL contains the text \"untagged\", but don't worry it is tagged properly and everything will look correct once it's published."
+    tmp_changelog_file=$(mktemp)
+    {
+      printf "%b" "$body"
+      printf "%b" "\n\n<!--\nThe following artifacts will be included:\n"
+      # shellcheck disable=SC2012
+      ls -lh "$ARTIFACT_DIR" | tail -n +2 | awk '{print $9,"( Size:",$5,")"}'
+      echo "-->"
+    } > "$tmp_changelog_file"
+
+    "${EDITOR:-"vim"}" "$tmp_changelog_file"
+
+    log_header "Creating GitHub release"
+    # shellcheck disable=SC2046
+    gh release create "${release_flags[@]}" "$PRODUCT_VERSION" $(printf "%s " "$ARTIFACT_DIR"/*) < "$tmp_changelog_file"
+
+    if [[ "$DRAFT" == "true" ]]; then
+      log_success "\nThe above URL contains the text \"untagged\", but don't worry it is tagged properly and everything will look correct once it's published."
+    fi
 }
 
 ./download-release-artifacts "$PRODUCT_VERSION" "$ARTIFACT_DIR"
