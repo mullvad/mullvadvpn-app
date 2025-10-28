@@ -226,10 +226,6 @@ fun SelectLocation(
                         message = context.getString(R.string.updating_server_list_in_the_background)
                     )
                 }
-            is SelectLocationSideEffect.FocusExitList ->
-                launch {
-                    // TODO Do we need to do something here?
-                }
             is SelectLocationSideEffect.MultihopChanged -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -435,6 +431,7 @@ fun SelectLocationScreen(
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
+            enableEntryOption = state.contentOrNull()?.entrySelectionAllowed == true,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
@@ -650,7 +647,7 @@ private fun SelectionContainer(
         ) {
             if (it) {
                 Singlehop(
-                    exitLocation = exitSelection ?: "Any", // TODO
+                    exitLocation = exitSelection ?: stringResource(R.string.any),
                     errorText = error.errorText(RelayListType.Single),
                     filters = filterChips[RelayListType.Single]?.size ?: 0,
                     onFilterClick = { onFilterClick(RelayListType.Single) },
@@ -661,7 +658,7 @@ private fun SelectionContainer(
                     exitSelected =
                         (relayListType as? RelayListType.Multihop)?.multihopRelayListType ==
                             MultihopRelayListType.EXIT,
-                    exitLocation = exitSelection ?: "Any", // TODO
+                    exitLocation = exitSelection ?: stringResource(R.string.any),
                     exitErrorText =
                         error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
                     exitFilters =
@@ -670,7 +667,7 @@ private fun SelectionContainer(
                     onExitFilterClick = {
                         onFilterClick(RelayListType.Multihop(MultihopRelayListType.EXIT))
                     },
-                    entryLocation = entrySelection ?: "Any", // TODO
+                    entryLocation = entrySelection ?: stringResource(R.string.any),
                     entryErrorText =
                         error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
                     entryFilters =
