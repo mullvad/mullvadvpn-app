@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 import { colors } from '../../../../foundations';
 import { Dot } from '../../../dot';
+import { usePages } from '../../hooks';
 
-type PageIndicatorProps = React.ComponentPropsWithRef<'button'> & {
-  pageNumber: number;
-  goToPage: (page: number) => void;
+export type PageIndicatorProps = React.ComponentPropsWithRef<'button'> & {
+  pageToGoTo: number;
 };
 
 const StyledPageIndicator = styled(Dot)`
@@ -40,12 +40,12 @@ const StyledIconButton = styled.button`
   }
 `;
 
-export function PageIndicator(props: PageIndicatorProps) {
-  const { goToPage } = props;
+export function PageIndicator({ pageToGoTo, ...props }: PageIndicatorProps) {
+  const { goToPage } = usePages();
 
   const onClick = React.useCallback(() => {
-    goToPage(props.pageNumber);
-  }, [goToPage, props.pageNumber]);
+    goToPage(pageToGoTo);
+  }, [goToPage, pageToGoTo]);
 
   return (
     <StyledIconButton onClick={onClick} {...props}>
