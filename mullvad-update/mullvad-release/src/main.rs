@@ -5,7 +5,7 @@
 
 use anyhow::{Context, bail};
 use clap::Parser;
-use std::{path::Path, str::FromStr};
+use std::{path::PathBuf, str::FromStr};
 use tokio::fs;
 
 use config::Config;
@@ -172,7 +172,8 @@ async fn main() -> anyhow::Result<()> {
             if latest_file {
                 match HttpVersionInfoProvider::get_latest_versions_file().await {
                     Ok(json_str) => {
-                        let path = Path::new(LATEST_FILENAME);
+                        let path_buf = get_data_dir().join(LATEST_FILENAME);
+                        let path = path_buf.as_path();
 
                         if !assume_yes && path.exists() {
                             let msg = format!(
@@ -335,4 +336,10 @@ fn all_platforms_if_empty(platforms: Vec<Platform>) -> Vec<Platform> {
         return Platform::all().to_vec();
     }
     platforms
+}
+
+pub fn get_data_dir() -> PathBuf {
+    std::env::home_dir()
+        .expect("No home dir found")
+        .join(".local/share/mullvad-release")
 }
