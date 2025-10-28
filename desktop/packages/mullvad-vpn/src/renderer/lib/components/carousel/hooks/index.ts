@@ -1,4 +1,4 @@
-export * from './use-get-page-number';
-export * from './use-go-to-page';
+export * from './use-get-slide-index';
+export * from './use-go-to-slide';
 export * from './use-handle-keyboard-navigation';
-export * from './use-pages';
+export * from './use-slides';
