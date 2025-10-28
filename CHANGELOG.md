@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+- Fix bug introduced in 2025.13-beta1 with translations sometimes not being formatted
+  correctly.
 
 
 ## [2025.13-beta1] - 2025-10-20
