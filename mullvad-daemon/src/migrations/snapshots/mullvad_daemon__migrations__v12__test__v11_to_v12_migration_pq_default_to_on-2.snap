@@ -1,5 +1,5 @@
 ---
-source: mullvad-daemon/src/migrations/v11.rs
+source: mullvad-daemon/src/migrations/v12.rs
 expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
 ---
 {
