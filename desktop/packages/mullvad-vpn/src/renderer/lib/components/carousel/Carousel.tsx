@@ -3,14 +3,12 @@ import styled from 'styled-components';
 
 import { NonEmptyArray } from '../../../../shared/utils';
 import { useStyledRef } from '../../utility-hooks';
+import { Flex } from '../flex';
 import { CarouselControls } from './components';
 
 const PAGE_GAP = 16;
 
-const StyledPageSliderContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-});
+const StyledCarousel = styled(Flex)``;
 
 const StyledPageSlider = styled.div({
   whiteSpace: 'nowrap',
@@ -99,7 +97,7 @@ export function Carousel(props: PageSliderProps) {
   }, [handleKeyDown]);
 
   return (
-    <StyledPageSliderContainer>
+    <StyledCarousel $flexDirection="column" $gap="medium">
       <StyledPageSlider ref={pageContainerRef} onScroll={handleScroll}>
         {props.content.map((page, i) => (
           <StyledPage key={`page-${i}`}>{page}</StyledPage>
@@ -114,6 +112,6 @@ export function Carousel(props: PageSliderProps) {
         pageNumber={pageNumber}
         numberOfPages={props.content.length}
       />
-    </StyledPageSliderContainer>
+    </StyledCarousel>
   );
 }
