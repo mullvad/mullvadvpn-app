@@ -2,8 +2,8 @@ import styled from 'styled-components';
 
 import { Flex, IconButton } from '../../..';
 import { useCarouselContext } from '../../CarouselContext';
-import { usePages } from '../../hooks';
-import { PageIndicator } from '..';
+import { useSlides } from '../../hooks';
+import { SlideIndicator } from '..';
 
 const StyledGrid = styled.div`
   display: grid;
@@ -12,15 +12,15 @@ const StyledGrid = styled.div`
 `;
 
 export function CarouselControls() {
-  const { numberOfPages, pageNumber } = useCarouselContext();
-  const { next, prev, hasNext, hasPrev } = usePages();
+  const { numberOfSlides, slideIndex } = useCarouselContext();
+  const { next, prev, hasNext, hasPrev } = useSlides();
   return (
     <StyledGrid>
-      <div>{/* spacer to make page indicators centered */}</div>
+      <div>{/* spacer to make slide indicators centered */}</div>
       <Flex $gap="small">
-        {[...Array(numberOfPages)].map((_, i) => {
-          const current = i === pageNumber;
-          return <PageIndicator key={i} disabled={current} pageToGoTo={i} />;
+        {[...Array(numberOfSlides)].map((_, i) => {
+          const current = i === slideIndex;
+          return <SlideIndicator key={i} disabled={current} slideToGoTo={i} />;
         })}
       </Flex>
       <Flex $justifyContent="right" $gap="small">

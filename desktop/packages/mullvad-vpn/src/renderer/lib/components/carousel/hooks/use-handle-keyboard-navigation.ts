@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { usePages } from './use-pages';
+import { useSlides } from './use-slides';
 
 export const useHandleKeyboardNavigation = () => {
-  const { next, prev } = usePages();
+  const { next, prev } = useSlides();
   return React.useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
