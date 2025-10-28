@@ -35,7 +35,7 @@ const StyledPage = styled.div({
   },
 });
 
-export interface PageSliderProps {
+export interface CarouselProps {
   content: NonEmptyArray<React.ReactNode>;
 }
 
@@ -63,7 +63,7 @@ function CarouselImpl() {
   );
 }
 
-function Carousel({ content }: PageSliderProps) {
+function Carousel({ content }: CarouselProps) {
   return (
     <CarouselProvider content={content}>
       <CarouselImpl />

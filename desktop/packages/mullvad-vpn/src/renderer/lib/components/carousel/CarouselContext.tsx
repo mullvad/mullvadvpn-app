@@ -1,14 +1,14 @@
 import React from 'react';
 
 import { useStyledRef } from '../../utility-hooks';
-import { PageSliderProps } from './Carousel';
+import { CarouselProps } from './Carousel';
 
 type CarouselContextextProps = {
   pageNumber: number;
   setPageNumber: React.Dispatch<React.SetStateAction<number>>;
   numberOfPages: number;
   pageContainerRef: React.RefObject<HTMLDivElement | null>;
-  content: PageSliderProps['content'];
+  content: CarouselProps['content'];
 };
 
 const CarouselContextext = React.createContext<CarouselContextextProps | undefined>(undefined);
