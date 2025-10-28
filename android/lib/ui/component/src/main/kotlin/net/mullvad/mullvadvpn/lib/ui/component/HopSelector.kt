@@ -215,23 +215,13 @@ fun MultihopSelector(
                 constrain(entry) { linkTo(start = parent.start, end = parent.end) }
                 constrain(exitError) {
                     visibility = if (exitErrorText == null) Visibility.Gone else Visibility.Visible
-                    linkTo(
-                        start = parent.start,
-                        end = parent.end,
-                        startMargin = 28.dp,
-                        startGoneMargin = 28.dp,
-                        endMargin = 8.dp,
-                    )
+                    width = Dimension.fillToConstraints
+                    linkTo(start = parent.start, end = parent.end)
                 }
                 constrain(entryError) {
                     visibility = if (entryErrorText == null) Visibility.Gone else Visibility.Visible
-                    linkTo(
-                        start = parent.start,
-                        end = parent.end,
-                        startMargin = 28.dp,
-                        startGoneMargin = 28.dp,
-                        endMargin = 8.dp,
-                    )
+                    width = Dimension.fillToConstraints
+                    linkTo(start = parent.start, end = parent.end)
                 }
                 constrain(panel) {
                     width = Dimension.fillToConstraints
@@ -269,24 +259,12 @@ fun MultihopSelector(
                 constrain(exitError) {
                     visibility = if (exitErrorText == null) Visibility.Gone else Visibility.Visible
                     width = Dimension.fillToConstraints
-                    linkTo(
-                        start = parent.start,
-                        end = parent.end,
-                        startMargin = 28.dp,
-                        startGoneMargin = 28.dp,
-                        endMargin = 8.dp,
-                    )
+                    linkTo(start = parent.start, end = parent.end)
                 }
                 constrain(entryError) {
                     visibility = if (entryErrorText == null) Visibility.Gone else Visibility.Visible
                     width = Dimension.fillToConstraints
-                    linkTo(
-                        start = parent.start,
-                        end = parent.end,
-                        startMargin = 28.dp,
-                        startGoneMargin = 28.dp,
-                        endMargin = 8.dp,
-                    )
+                    linkTo(start = parent.start, end = parent.end)
                 }
 
                 constrain(panel) {
@@ -388,7 +366,7 @@ fun MultihopSelector(
         )
 
         Text(
-            modifier = Modifier.layoutId(keyExitError).padding(end = 4.dp),
+            modifier = Modifier.layoutId(keyExitError).padding(start = 28.dp, end = 8.dp),
             text = exitErrorText ?: "No error",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
@@ -413,7 +391,8 @@ fun MultihopSelector(
         )
 
         Text(
-            modifier = Modifier.layoutId(keyEntryError).padding(end = 4.dp),
+            modifier =
+                Modifier.layoutId(keyEntryError).padding(start = 28.dp, end = 8.dp, bottom = 4.dp),
             text = entryErrorText ?: "No error",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
@@ -458,12 +437,7 @@ fun Singlehop(
                 constrain(exitError) {
                     visibility = if (errorText == null) Visibility.Gone else Visibility.Visible
                     width = Dimension.fillToConstraints
-                    linkTo(
-                        start = parent.start,
-                        end = parent.end,
-                        startMargin = 28.dp,
-                        endMargin = 4.dp,
-                    )
+                    linkTo(start = parent.start, end = parent.end)
                 }
             }
 
@@ -476,12 +450,7 @@ fun Singlehop(
                 constrain(exitError) {
                     visibility = if (errorText == null) Visibility.Gone else Visibility.Visible
                     width = Dimension.fillToConstraints
-                    linkTo(
-                        start = parent.start,
-                        end = parent.end,
-                        startMargin = 28.dp,
-                        endMargin = 4.dp,
-                    )
+                    linkTo(start = parent.start, end = parent.end)
                 }
                 constrain(device) { bottom.linkTo(parent.bottom) }
             }
@@ -549,7 +518,7 @@ fun Singlehop(
             onIconGloballyPositioned = { exitIconLC = it },
         )
         Text(
-            modifier = Modifier.layoutId(keyExitError),
+            modifier = Modifier.layoutId(keyExitError).padding(start = 28.dp, end = 4.dp),
             text = errorText ?: "",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
