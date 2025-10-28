@@ -1,22 +1,19 @@
 import React from 'react';
 
-export const useHandleOptionsKeyboardNavigation = ({
-  next,
-  previous,
-}: {
-  next: () => void;
-  previous: () => void;
-}) => {
+import { usePages } from './use-pages';
+
+export const useHandleKeyboardNavigation = () => {
+  const { next, prev } = usePages();
   return React.useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
-        previous();
+        prev();
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
         next();
       }
     },
-    [next, previous],
+    [next, prev],
   );
 };
