@@ -718,7 +718,10 @@ private fun SelectionContainer(
             motionScene = scene,
             progress = progress,
         ) {
-            AnimatedContent(relayListType, Modifier.animateContentSize().layoutId(keyFilters).alpha(progress)) {
+            AnimatedContent(
+                relayListType,
+                Modifier.animateContentSize().layoutId(keyFilters).alpha(progress),
+            ) {
                 FilterRow(
                     filters = filterChips[it]!!,
                     onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
