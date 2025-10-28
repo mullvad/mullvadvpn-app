@@ -25,6 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
   in the disconnected state.
+
+
+## [2025.13-beta2] - 2025-10-28
 ### Fixed
 - Fix bug introduced in 2025.13-beta1 with translations sometimes not being formatted
   correctly.
