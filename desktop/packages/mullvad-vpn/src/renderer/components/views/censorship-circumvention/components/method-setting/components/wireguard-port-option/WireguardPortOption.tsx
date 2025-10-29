@@ -6,17 +6,13 @@ import { messages } from '../../../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../../../shared/routes';
 import { Text } from '../../../../../../../lib/components';
 import { FlexColumn } from '../../../../../../../lib/components/flex-column';
-import { useSelector } from '../../../../../../../redux/store';
+import { useNormalRelaySettings } from '../../../../../../../lib/relay-settings-hooks';
 import { SettingsListbox } from '../../../../../../settings-listbox';
 import { formatRelayPort } from '../../../../utils';
 
 export function WireguardPortOption() {
-  const relaySettings = useSelector((state) => state.settings.relaySettings);
-
-  let port = undefined;
-  if ('normal' in relaySettings) {
-    port = relaySettings.normal.wireguard.port;
-  }
+  const normalRelaySettings = useNormalRelaySettings();
+  const port = normalRelaySettings?.wireguard?.port;
 
   // TRANSLATORS: Text showing currently selected port.
   // TRANSLATORS: Available placeholders:
