@@ -1,6 +1,8 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import { Gallery } from '../../../gallery';
+import { useCarouselContext } from '../../CarouselContext';
 
 export type CarouselSlideProps = React.ComponentPropsWithRef<'div'>;
 
@@ -13,8 +15,11 @@ const StyledSlide = styled.div`
 `;
 
 export function CarouselSlide({ children, ...props }: CarouselSlideProps) {
+  const id = React.useId();
+  const { slides, slideIndex } = useCarouselContext();
+  const isActiveSlide = slides[slideIndex]?.id === id;
   return (
-    <StyledSlide data-carousel-slide {...props}>
+    <StyledSlide id={id} aria-hidden={!isActiveSlide} data-carousel-slide {...props}>
       <Gallery>{children}</Gallery>
     </StyledSlide>
   );
