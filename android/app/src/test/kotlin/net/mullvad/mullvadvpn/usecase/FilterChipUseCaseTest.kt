@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -13,19 +14,19 @@ import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class FilterChipUseCaseTest {
 
-    private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
+    private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk()
     private val mockProviderToOwnershipsUseCase: ProviderToOwnershipsUseCase = mockk()
     private val mockSettingRepository: SettingsRepository = mockk()
 
     private val selectedOwnership = MutableStateFlow<Constraint<Ownership>>(Constraint.Any)
     private val selectedProviders = MutableStateFlow<Constraint<Providers>>(Constraint.Any)
+    private val selectedFilters = combine(selectedOwnership, selectedProviders) { a, b -> a to b }
     private val providerToOwnerships = MutableStateFlow<Map<ProviderId, Set<Ownership>>>(emptyMap())
     private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
 
@@ -33,16 +34,13 @@ class FilterChipUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        every { mockRelayListFilterRepository.selectedOwnership(any()) } returns selectedOwnership
-        every { mockRelayListFilterRepository.selectedOwnership(any()) } returns selectedOwnership
-        every { mockRelayListFilterRepository.selectedProviders(any()) } returns selectedProviders
-        every { mockRelayListFilterRepository.selectedProviders(any()) } returns selectedProviders
+        every { mockRelayListFilterUseCase(relayListType = any()) } returns selectedFilters
         every { mockProviderToOwnershipsUseCase() } returns providerToOwnerships
         every { mockSettingRepository.settingsUpdates } returns settings
 
         filterChipUseCase =
             FilterChipUseCase(
-                relayListFilterRepository = mockRelayListFilterRepository,
+                relayListFilterUseCase = mockRelayListFilterUseCase,
                 providerToOwnershipsUseCase = mockProviderToOwnershipsUseCase,
                 settingsRepository = mockSettingRepository,
             )
