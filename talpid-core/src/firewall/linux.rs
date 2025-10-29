@@ -332,7 +332,7 @@ impl<'a> PolicyBatch<'a> {
 
     /// Allow split-tunneled traffic outside the tunnel.
     ///
-    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup
+    /// This is achieved by setting `fwmark` on connections initiated by processes in the cgroup
     /// defined by [split_tunnel::NET_CLS_CLASSID].
     fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         // Send select DNS requests in the tunnel
