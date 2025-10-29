@@ -720,7 +720,7 @@ private fun SelectionContainer(
                 Modifier.animateContentSize().layoutId(keyFilters).alpha(progress),
             ) {
                 FilterRow(
-                    filters = filterChips[it]!!,
+                    filters = filterChips[it] ?: emptyList(),
                     onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
                     onRemoveProviderFilter = { removeProviderFilter(relayListType) },
                 )

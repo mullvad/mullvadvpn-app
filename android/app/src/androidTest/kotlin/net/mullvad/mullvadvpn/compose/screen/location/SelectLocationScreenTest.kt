@@ -18,10 +18,12 @@ import net.mullvad.mullvadvpn.compose.data.createSimpleRelayListItemList
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -67,11 +69,11 @@ class SelectLocationScreenTest {
         onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
-        onFilterClick: () -> Unit = {},
+        onFilterClick: (RelayListType) -> Unit = {},
         onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
         onEditCustomLists: () -> Unit = {},
-        removeOwnershipFilter: () -> Unit = {},
-        removeProviderFilter: () -> Unit = {},
+        removeOwnershipFilter: (RelayListType) -> Unit = {},
+        removeProviderFilter: (RelayListType) -> Unit = {},
         onAddLocationToList:
             (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
             { _, _ ->
@@ -87,6 +89,9 @@ class SelectLocationScreenTest {
         openDaitaSettings: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
+        onSetAsEntry: (RelayItem) -> Unit = {},
+        onSetAsExit: (RelayItem) -> Unit = {},
+        setMultihop: (Boolean, Boolean) -> Unit = { _, _ -> },
     ) {
 
         setContentWithTheme {
@@ -110,6 +115,9 @@ class SelectLocationScreenTest {
                 openDaitaSettings = openDaitaSettings,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
+                onSetAsEntry = onSetAsEntry,
+                onSetAsExit = onSetAsExit,
+                setMultihop = setMultihop,
             )
         }
     }
@@ -131,6 +139,7 @@ class SelectLocationScreenTest {
                                     )
                                 },
                             customLists = emptyList(),
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -138,12 +147,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -168,6 +181,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.CustomListFooter(false)),
                             customLists = emptyList(),
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -175,12 +189,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -201,6 +219,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.CustomListItem(customList)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -209,12 +228,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -239,6 +262,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.RecentListItem(recent)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -247,12 +271,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -277,6 +305,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.CustomListItem(hop = customList)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -285,12 +314,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -321,6 +354,7 @@ class SelectLocationScreenTest {
                                 ),
                             customLists = emptyList(),
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -329,12 +363,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -365,6 +403,7 @@ class SelectLocationScreenTest {
                                 ),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -372,12 +411,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -409,6 +452,7 @@ class SelectLocationScreenTest {
                                 ),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -416,12 +460,16 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyList(),
+                            filterChips = emptyMap(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = false,
+                            entrySelection = null,
+                            exitSelection = null,
+                            tunnelErrorStateCause = null,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
