@@ -675,6 +675,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
+            .waitForConnectedLabel()
             .verifyConnectingUsingQuantumResistance()
 
         HeaderBar(app)
