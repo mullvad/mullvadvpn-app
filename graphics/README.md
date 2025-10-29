@@ -38,7 +38,7 @@ icon template available at https://developer.apple.com/design/resources/.
 
 The `icon-square.svg` is used to generate Android's square icon used in the app's Google Play Store
 listing. The resulting 512x512 PNG image should be placed in the
-`android/app/src/main/play/listings/en-US/graphics/icon/` directory. The file can be generate with the
+`android/app/src/main/play/listings/en-US/graphics/icon/` directory. The file can be generated with the
 following command:
 
 ```
