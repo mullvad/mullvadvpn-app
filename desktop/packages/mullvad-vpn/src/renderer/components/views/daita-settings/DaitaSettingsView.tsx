@@ -42,10 +42,23 @@ export function DaitaSettingsView() {
                     </Flex>
                   )}
 
-                  <Carousel>
+                  <Carousel
+                    aria-label={
+                      // TRANSLATORS: Accessibility label for a carousel that explains the DAITA feature to the user.
+                      messages.pgettext('accessibility', 'DAITA information carousel')
+                    }>
                     <Carousel.Slides>
                       <Carousel.Slide key="without-daita">
-                        <Carousel.Image source="daita-off-illustration" />
+                        <Carousel.Image
+                          source="daita-off-illustration"
+                          alt={
+                            // TRANSLATORS: Alt text for an illustration showing VPN traffic without DAITA.
+                            messages.pgettext(
+                              'accessibility',
+                              'Illustration showing VPN traffic without DAITA',
+                            )
+                          }
+                        />
                         <Carousel.TextGroup>
                           <Carousel.Text variant="labelTinySemiBold">
                             {messages.pgettext(
@@ -78,7 +91,16 @@ export function DaitaSettingsView() {
                         </Carousel.TextGroup>
                       </Carousel.Slide>
                       <Carousel.Slide key="with-daita">
-                        <Carousel.Image source="daita-on-illustration" />
+                        <Carousel.Image
+                          source="daita-on-illustration"
+                          alt={
+                            // TRANSLATORS: Alt text for an illustration showing VPN traffic with DAITA.
+                            messages.pgettext(
+                              'accessibility',
+                              'Illustration showing VPN traffic with DAITA enabled',
+                            )
+                          }
+                        />
                         <Carousel.TextGroup>
                           <Carousel.Text>
                             {sprintf(
@@ -121,8 +143,18 @@ export function DaitaSettingsView() {
                     <Carousel.Controls>
                       <Carousel.Indicators />
                       <Carousel.ControlGroup>
-                        <Carousel.PrevButton />
-                        <Carousel.NextButton />
+                        <Carousel.PrevButton
+                          aria-label={
+                            // TRANSLATORS: Accessibility label for a button that navigates to the previous slide in a carousel.
+                            messages.pgettext('accessibility', 'Previous slide')
+                          }
+                        />
+                        <Carousel.NextButton
+                          aria-label={
+                            // TRANSLATORS: Accessibility label for a button that navigates to the next slide in a carousel.
+                            messages.pgettext('accessibility', 'Next slide')
+                          }
+                        />
                       </Carousel.ControlGroup>
                     </Carousel.Controls>
                   </Carousel>
