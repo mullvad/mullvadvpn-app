@@ -276,7 +276,6 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
             obfuscation_settings: ObfuscationSettings,
         ) -> WireguardRelayQuery {
             let WireguardConstraints {
-                port,
                 ip_version,
                 allowed_ips,
                 use_multihop,
@@ -290,7 +289,6 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
                 quantum_resistant,
             } = additional_constraints;
             WireguardRelayQuery {
-                port,
                 ip_version,
                 allowed_ips,
                 use_multihop: Constraint::Only(use_multihop),
@@ -824,7 +822,7 @@ impl RelaySelector {
             ObfuscationQuery::Off => Ok(None),
             #[cfg(not(feature = "staggered-obfuscation"))]
             ObfuscationQuery::Auto => Ok(None),
-            ObfuscationQuery::Port => Ok(None),
+            ObfuscationQuery::Port(_) => Ok(None),
             #[cfg(feature = "staggered-obfuscation")]
             ObfuscationQuery::Auto => {
                 let shadowsocks_ports = &parsed_relays.wireguard.shadowsocks_port_ranges;

@@ -336,15 +336,10 @@ fn test_wireguard_retry_order() {
                         std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
                     }
                 ));
-                assert!(
-                    query
-                        .wireguard_constraints()
-                        .port
-                        .matches_eq(&endpoint.peer.endpoint.port())
-                );
+
                 assert!(match &query.wireguard_constraints().obfuscation {
                     ObfuscationQuery::Auto => true,
-                    ObfuscationQuery::Off | ObfuscationQuery::Port => obfuscator.is_none(),
+                    ObfuscationQuery::Off | ObfuscationQuery::Port(_) => obfuscator.is_none(),
                     ObfuscationQuery::Quic
                     | ObfuscationQuery::Udp2tcp(_)
                     | ObfuscationQuery::Shadowsocks(_)
