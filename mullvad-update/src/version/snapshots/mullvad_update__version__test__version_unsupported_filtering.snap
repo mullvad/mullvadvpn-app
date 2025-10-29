@@ -6,7 +6,6 @@ stable:
   version: "2026.10"
   urls: []
   size: 0
-  changelog: ""
   sha256:
     - 0
     - 0
@@ -40,4 +39,5 @@ stable:
     - 0
     - 0
     - 0
+  changelog: ""
 beta: ~

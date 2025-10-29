@@ -10,9 +10,8 @@ use std::cmp::Ordering;
 
 use anyhow::{Context, bail};
 use itertools::Itertools;
-use mullvad_version::PreStableType;
 
-use crate::format::{self, Installer, Response};
+use crate::format::{self, Installer as AppInstaller, Release};
 use rollout::Rollout;
 
 /// Lowest version to accept using 'verify'
@@ -50,95 +49,194 @@ pub struct VersionInfo {
 pub struct Version {
     /// Version
     pub version: mullvad_version::Version,
-    /// URLs to use for downloading the app installer
-    pub urls: Vec<String>,
-    /// Size of installer, in bytes
-    pub size: usize,
+    /// App installer
+    #[serde(flatten)]
+    installer: Installer,
     /// Version changelog
     pub changelog: String,
+}
+
+impl Version {
+    /// Create a [Version] which does not contain an installer.
+    ///
+    /// This is useful for broadcasting version info on Linux, where installers will never exist.
+    pub fn suckless(version: mullvad_version::Version, changelog: String) -> Self {
+        Version {
+            version,
+            changelog,
+            installer: Installer::empty(),
+        }
+    }
+
+    /// Returns the chronological order between two app versions.
+    ///
+    /// Invariant: the versions compared ought to be of the same kind, i.e. stable, beta or alpha.
+    // F: FnMut(&Self::Item, &Self::Item) -> Ordering
+    pub fn latest(&self, other: &Self) -> Ordering {
+        self.version
+            .partial_cmp(&other.version)
+            .unwrap_or(Ordering::Equal)
+    }
+
+    /// True if self is a stable app version.
+    pub const fn stable(&self) -> bool {
+        self.version.is_stable()
+    }
+
+    /// True if self is a beta app version.
+    pub const fn beta(&self) -> bool {
+        self.version.is_beta()
+    }
+}
+
+/// TODO: Document
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
+struct Installer {
+    /// URLs to use for downloading the app installer
+    urls: Vec<String>,
+    /// Size of installer, in bytes
+    size: usize,
     /// App installer checksum
-    pub sha256: [u8; 32],
+    sha256: [u8; 32],
+}
+
+impl Installer {
+    fn new(urls: Vec<String>, size: usize, sha256: String) -> anyhow::Result<Self> {
+        Ok(Self {
+            size,
+            urls,
+            sha256: hex::decode(sha256)
+                .context("Invalid checksum hex")?
+                .try_into()
+                .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?,
+        })
+    }
+
+    fn empty() -> Self {
+        Self::default()
+    }
 }
 
 impl VersionInfo {
     /// Convert signed response data to public version type
     /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
+    //
+    // TODO: Decompose
     pub fn try_from_response(
         params: &VersionParameters,
         response: format::Response,
     ) -> anyhow::Result<Self> {
-        // Fail if there are duplicate versions.
         // Check this before anything else so that it's rejected independently of `params`.
-        if !response.releases.iter().map(|r| &r.version).all_unique() {
+        Self::validate_releases(&response.releases)?;
+
+        let version_info = get_version_info(
+            response.releases,
+            params.rollout,
+            params.allow_empty,
+            params.architecture,
+        )?;
+
+        Ok(version_info)
+    }
+
+    /// Fail if there are duplicate versions.
+    fn validate_releases(releases: &[Release]) -> anyhow::Result<()> {
+        if !releases.iter().map(|r| &r.version).all_unique() {
             bail!("API response contains multiple release for the same version");
         }
+        Ok(())
+    }
+}
 
-        // Filter releases based on rollout, architecture and dev versions.
-        let available_versions: Vec<Version> = response.releases
+/// TODO: Document this function *very well*.
+/// Input: TODO
+/// Output: TODO
+fn get_version_info(
+    releases: Vec<Release>,
+    rollout: Rollout,
+    allow_empty: bool,
+    architecture: format::Architecture,
+) -> anyhow::Result<VersionInfo> {
+    let available_versions: Vec<Version> =
+        get_version_info_intermediary(releases, rollout, allow_empty, architecture)?;
+    let stable = get_latest_version(&available_versions, Version::stable)
+        .context("No stable version found")?;
+    // Find the latest beta version.
+    //
+    // If the latest beta version is older than latest stable, dispose of it.
+    let beta = get_latest_version(&available_versions, |app| {
+        app.beta() && app.version > stable.version
+    });
+    Ok(VersionInfo {
+        stable: stable.clone(),
+        beta: beta.cloned(),
+    })
+}
+
+/// Filter releases based on rollout, architecture and dev versions.
+///
+/// Properties:
+/// - If no release in `releases`
+fn get_version_info_intermediary(
+    releases: Vec<Release>,
+    rollout: Rollout,
+    allow_empty: bool,
+    architecture: format::Architecture,
+) -> anyhow::Result<Vec<Version>> {
+    // Map a [Release] into an [AppInstaller]
+    let something = |release: Release| {
+        // TODO: Can this edge-case be replaced?
+        if release.installers().is_empty() && allow_empty {
+            return Some(Ok(Version::suckless(release.version, release.changelog)));
+        }
+        // Map each artifact to a [Version]
+        let version = release.version.clone();
+        let changelog = release.changelog.clone();
+        release.into_installer(architecture).map(
+            |AppInstaller {
+                 urls, size, sha256, ..
+             }| {
+                let installer = Installer::new(urls, size, sha256)?;
+                Ok(Version {
+                    version,
+                    changelog,
+                    installer,
+                })
+            },
+        )
+    };
+
+    // Filter releases based on rollout, architecture and dev versions.
+    releases
         .into_iter()
         // Filter out releases that are not rolled out to us
-        .filter(|release| release.rollout >= params.rollout)
+        .filter(|release| release.rollout >= rollout)
         // Filter out dev versions
         .filter(|release| !release.version.is_dev())
-        .flat_map(|format::Release { version, changelog, installers, .. }| {
-            if installers.is_empty() && params.allow_empty {
-                // HACK: If there are no installers (e.g. on Linux), return the version anyway
-                return Some(anyhow::Ok(Version {
-                    version,
-                    size: 0,
-                    urls: vec![],
-                    changelog,
-                    sha256: [0u8; 32],
-                }));
-            }
-            installers
-                .into_iter()
-                // Find installer for the requested architecture (assumed to be unique)
-                .find(|installer| params.architecture == installer.architecture)
-                // Map each artifact to a [Version]
-                .map(|Installer { urls, size, sha256,.. }| {
-                    anyhow::Ok(Version {
-                        version,
-                        size,
-                        urls,
-                        changelog,
-                        sha256: hex::decode(sha256)
-                        .context("Invalid checksum hex")?
-                        .try_into()
-                        .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?,
-                    })
-                })
-        }).try_collect()?;
+        .flat_map(something).try_collect()
+}
 
-        // Find latest stable version
-        let stable = available_versions
-            .iter()
-            .filter(|release| release.version.pre_stable.is_none())
-            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
-            .context("No stable version found")?
-            .clone();
-
-        // Find the latest beta version
-        let beta = available_versions
-            .iter()
-            .filter(|release| matches!(release.version.pre_stable, Some(PreStableType::Beta(_))))
-            // If the latest beta version is older than latest stable, dispose of it
-            .filter(|release| release.version > stable.version)
-            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
-            .cloned();
-
-        Ok(Self { stable, beta })
-    }
+/// Find latest version of some kind (i.e. stable, beta, alpha).
+//
+// TODO: Define properties of this function.
+fn get_latest_version(
+    available_versions: &[Version],
+    kind: impl Fn(&Version) -> bool,
+) -> Option<&Version> {
+    available_versions
+        .iter()
+        .filter(|v| kind(v))
+        .max_by(|this, that| Version::latest(this, that))
 }
 
 /// A version is considered supported if the version exists in the metadata. Versions with a
 /// rollout of 0 is still considered supported.
+// TODO: Define properties
 pub fn is_version_supported(
     current_version: mullvad_version::Version,
-    response: &Response,
+    releases: &[Release],
 ) -> bool {
-    response
-        .releases
+    releases
         .iter()
         .any(|release| release.version.eq(&current_version))
 }
@@ -264,14 +362,17 @@ mod test {
         let supported_rollout_zero_version = mullvad_version::Version::from_str("2030.3").unwrap();
         let non_supported_version = mullvad_version::Version::from_str("2025.5").unwrap();
 
-        assert!(is_version_supported(supported_version, &response.signed));
+        assert!(is_version_supported(
+            supported_version,
+            &response.signed.releases
+        ));
         assert!(is_version_supported(
             supported_rollout_zero_version,
-            &response.signed
+            &response.signed.releases
         ));
         assert!(!is_version_supported(
             non_supported_version,
-            &response.signed
+            &response.signed.releases
         ));
 
         Ok(())

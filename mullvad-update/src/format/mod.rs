@@ -72,11 +72,26 @@ pub struct Release {
     /// Changelog entries
     pub changelog: String,
     /// Installer details for different architectures
-    pub installers: Vec<Installer>,
+    installers: Vec<Installer>,
     /// Fraction of users that should receive the new version
     #[serde(default = "complete_rollout")]
     #[serde(skip_serializing_if = "is_complete_rollout")]
     pub rollout: Rollout,
+}
+
+impl Release {
+    /// Find installer for the requested architecture.
+    //
+    // INVARIANT: (assumed to be unique per architecture)
+    pub fn into_installer(self, architecture: Architecture) -> Option<Installer> {
+        self.installers
+            .into_iter()
+            .find(|installer| architecture == installer.architecture)
+    }
+
+    pub fn installers(&self) -> &[Installer] {
+        &self.installers
+    }
 }
 
 impl PartialEq for Release {

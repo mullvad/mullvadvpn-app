@@ -7,7 +7,6 @@ stable:
   urls:
     - "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2.exe"
   size: 101384672
-  changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
   sha256:
     - 244
     - 178
@@ -41,12 +40,12 @@ stable:
     - 186
     - 4
     - 96
+  changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
 beta:
   version: 2025.3-beta1
   urls:
     - "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_x64.exe"
   size: 106297504
-  changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
   sha256:
     - 12
     - 86
@@ -80,3 +79,4 @@ beta:
     - 177
     - 84
     - 3
+  changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
