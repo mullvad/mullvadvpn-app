@@ -246,8 +246,6 @@ impl Relay {
 
                 println!("WireGuard constraints");
 
-                print_option!("Port", constraints.wireguard_constraints.port,);
-
                 print_option!("IP protocol", constraints.wireguard_constraints.ip_version,);
 
                 print_option!(
@@ -360,19 +358,20 @@ impl Relay {
                 let wireguard = rpc.get_relay_locations().await?.wireguard;
                 let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
 
-                wireguard_constraints.port = match port {
-                    Constraint::Any => Constraint::Any,
-                    Constraint::Only(specific_port) => {
-                        let is_valid_port = wireguard
-                            .port_ranges
-                            .into_iter()
-                            .any(|range| range.contains(&specific_port));
-                        if !is_valid_port {
-                            return Err(anyhow!("The specified port is invalid"));
-                        }
-                        Constraint::Only(specific_port)
-                    }
-                };
+                // wireguard_constraints.port = match port {
+                //     Constraint::Any => Constraint::Any,
+                //     Constraint::Only(specific_port) => {
+                //         let is_valid_port = wireguard
+                //             .port_ranges
+                //             .into_iter()
+                //             .any(|range| range.contains(&specific_port));
+                //         if !is_valid_port {
+                //             return Err(anyhow!("The specified port is invalid"));
+                //         }
+                //         Constraint::Only(specific_port)
+                //     }
+                // };
+                // TODO: move to obfuscation settings
 
                 Self::update_constraints(|constraints| {
                     constraints.wireguard_constraints = wireguard_constraints;
