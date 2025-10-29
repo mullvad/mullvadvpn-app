@@ -8,7 +8,7 @@ import { SettingsListbox } from '../../../../settings-listbox';
 import {
   AutomaticOption,
   LwoOption,
-  OffOption,
+  NoneOption,
   QuicOption,
   ShadowsocksOption,
   UdpOverTcpOption,
@@ -53,7 +53,7 @@ export function MethodSetting() {
         <QuicOption />
         <ShadowsocksOption />
         <UdpOverTcpOption />
-        <OffOption />
+        <NoneOption />
       </SettingsListbox.Options>
     </SettingsListbox>
   );
