@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { Constraint, ObfuscationType } from '../../../../../../shared/daemon-rpc-types';
+import { ObfuscationType } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
@@ -15,17 +15,13 @@ import {
   WireguardPortOption,
 } from './components';
 
-export function formatPortForSubLabel(port: Constraint<number>): string {
-  return port === 'any' ? messages.gettext('Automatic') : `${port.only}`;
-}
-
 export function MethodSetting() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
-  const obfuscationType = obfuscationSettings.selectedObfuscation;
+  const { selectedObfuscation } = obfuscationSettings;
 
-  const selectObfuscationType = useCallback(
+  const handleSelectObfuscation = useCallback(
     async (value: ObfuscationType) => {
       await setObfuscationSettings({
         ...obfuscationSettings,
@@ -38,8 +34,8 @@ export function MethodSetting() {
   return (
     <SettingsListbox
       anchorId="obfuscation-setting"
-      onValueChange={selectObfuscationType}
-      value={obfuscationType}>
+      onValueChange={handleSelectObfuscation}
+      value={selectedObfuscation}>
       <SettingsListbox.Item>
         <SettingsListbox.Content>
           <SettingsListbox.Label>
