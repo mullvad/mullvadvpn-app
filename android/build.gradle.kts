@@ -21,11 +21,6 @@ plugins {
 }
 
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
     dependencies {
         //noinspection UseTomlInstead
         // Dependency class paths are required for Gradle metadata verification to work properly,
@@ -109,11 +104,6 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 
 allprojects {
     apply(plugin = rootProject.libs.plugins.ktfmt.get().pluginId)
-
-    repositories {
-        google()
-        mavenCentral()
-    }
 
     // Should be the same as ktfmt config in buildSrc/build.gradle.kts
     configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
