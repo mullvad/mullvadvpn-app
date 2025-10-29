@@ -18,9 +18,9 @@ use mullvad_types::{
 };
 use rand::seq::IndexedRandom;
 use talpid_types::net::{
-    IpVersion,
     proxy::Shadowsocks,
     wireguard::{PeerConfig, PublicKey},
+    IpVersion,
 };
 
 use super::{WireguardConfig, query::WireguardRelayQuery};

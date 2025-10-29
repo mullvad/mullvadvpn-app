@@ -1,10 +1,10 @@
-use crate::types::{FromProtobufTypeError, proto};
+use crate::types::{proto, FromProtobufTypeError};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::Id,
     relay_constraints::{
-        GeographicLocationConstraint,
         allowed_ip::{self, AllowedIps},
+        GeographicLocationConstraint,
     },
 };
 use std::str::FromStr;
@@ -62,7 +62,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
     fn try_from(
         settings: proto::RelaySettings,
     ) -> Result<mullvad_types::relay_constraints::RelaySettings, Self::Error> {
-        use mullvad_types::{CustomTunnelEndpoint, relay_constraints as mullvad_constraints};
+        use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
 
         let update_value = settings
             .endpoint
