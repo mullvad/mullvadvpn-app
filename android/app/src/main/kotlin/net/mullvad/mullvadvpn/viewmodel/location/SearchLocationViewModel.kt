@@ -44,7 +44,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseC
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.util.combine
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class SearchLocationViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
