@@ -446,12 +446,19 @@ struct PartialSettings {
 
 impl PartialSettings {
     /// Given a partial settings blob, reconstruct [Settings] on a best-effort basis.
+    #[cfg(not(target_os = "android"))]
     fn reconstruct(self) -> Settings {
         let lockdown_mode = self.lockdown_mode;
         Settings {
             lockdown_mode,
             ..Default::default()
         }
+    }
+
+    /// Given a partial settings blob, reconstruct [Settings] on a best-effort basis.
+    #[cfg(target_os = "android")]
+    fn reconstruct(self: _) -> Settings {
+        ..Default::default()
     }
 }
 
