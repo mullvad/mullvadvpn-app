@@ -184,14 +184,8 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &EndpointData,
 ) -> Result<u16, Error> {
-    // Only respect the port option if the Port method is used. Otherwise, we may pick any port.
-    //
-    // TODO: Enable the same behaviour on Android sometime later. For now, keep the old behaviour.
-    // If only || was supported in if-let-chains ..
-    let port = if cfg!(target_os = "android") {
-        query.port
-    } else if let ObfuscationQuery::Port = query.obfuscation {
-        query.port
+    let port = if let ObfuscationQuery::Port(port) = query.obfuscation {
+        Constraint::Only(port)
     } else {
         Constraint::Any
     };
