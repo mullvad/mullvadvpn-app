@@ -1,5 +1,5 @@
 ---
-source: mullvad-update/src/version.rs
+source: mullvad-update/src/version/mod.rs
 expression: "&string_reprs"
 ---
 -0 => -0
