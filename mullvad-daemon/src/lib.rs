@@ -430,6 +430,20 @@ pub enum DaemonCommand {
         relay: String,
         tx: oneshot::Sender<()>,
     },
+    /// Calculate and return the rollout threshold for this client.
+    #[cfg(not(target_os = "android"))]
+    GetRolloutThreshold(oneshot::Sender<f32>),
+    /// Generate a new rollout threshold seed and update settings. Returns the new rollout
+    /// threshold.
+    #[cfg(not(target_os = "android"))]
+    GenerateNewRolloutSeed(oneshot::Sender<f32>),
+    /// Set the rollout threshold seed to the provided value and update settings.
+    #[cfg(not(target_os = "android"))]
+    SetRolloutThresholdSeed {
+        seed: u32,
+        tx: oneshot::Sender<()>,
+    },
+
     // App upgrade
     /// Prompt the daemon to start an app version upgrade.
     ///
@@ -1558,6 +1572,19 @@ impl Daemon {
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
             DisableRelay { relay, tx } => self.on_toggle_relay(relay, false, tx),
             EnableRelay { relay, tx } => self.on_toggle_relay(relay, true, tx),
+            #[cfg(not(target_os = "android"))]
+            GetRolloutThreshold(tx) => self.get_rollout_threshold(tx).await,
+            #[cfg(not(target_os = "android"))]
+            GenerateNewRolloutSeed(tx) => {
+                let seed = self.generate_and_set().await;
+                let threshold = Self::calculate_rollout_threshold(seed);
+                let _ = tx.send(threshold);
+            }
+            #[cfg(not(target_os = "android"))]
+            SetRolloutThresholdSeed { seed, tx } => {
+                self.set_rollout_threshold_seed(seed).await;
+                let _ = tx.send(());
+            }
             AppUpgrade(tx) => self.on_app_upgrade(tx).await,
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
             GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
@@ -3260,6 +3287,48 @@ impl Daemon {
         });
 
         self.reconnect_tunnel();
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn get_rollout_threshold(&mut self, reply: oneshot::Sender<f32>) {
+        let seed = match self.settings.rollout_threshold_seed {
+            Some(seed) => seed,
+            None => self.generate_and_set().await,
+        };
+        let _ = reply.send(Self::calculate_rollout_threshold(seed));
+    }
+
+    #[cfg(not(target_os = "android"))]
+    fn calculate_rollout_threshold(seed: u32) -> f32 {
+        let version = mullvad_version::VERSION
+            .parse::<mullvad_version::Version>()
+            .expect("Failed to parse version");
+        let threshold = mullvad_update::version::Rollout::threshold(seed, version);
+        // a tiny bit hacky way to map Rollout -> f32, but it works.
+        threshold
+            .to_string()
+            .parse()
+            .expect("threshold is a valid Rollout is a valid f32")
+    }
+
+    // Regenrate a new seed and store it to settings.
+    #[cfg(not(target_os = "android"))]
+    async fn generate_and_set(&mut self) -> u32 {
+        let seed = generate_rollout_seed();
+        self.set_rollout_threshold_seed(seed).await;
+        seed
+    }
+
+    // Store the given seed to settings.
+    #[cfg(not(target_os = "android"))]
+    async fn set_rollout_threshold_seed(&mut self, seed: u32) {
+        if let Err(err) = self
+            .settings
+            .update(|settings| settings.rollout_threshold_seed = Some(seed))
+            .await
+        {
+            log::warn!("Failed to save settings when updating rollout seed: {err}");
+        }
     }
 
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
