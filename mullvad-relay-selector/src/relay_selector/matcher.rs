@@ -149,7 +149,7 @@ fn filter_on_obfuscation(
         // LWO is only enabled on some relays
         Lwo => endpoint_data.lwo,
         // Other relays are compatible with this query
-        Off | Auto | Port | Udp2tcp(_) => true,
+        Off | Auto | Port(_) | Udp2tcp(_) => true,
     }
 }
 
