@@ -74,6 +74,11 @@ function modify_rollout {
     log_header "Setting rollout = $ROLLOUT for $PRODUCT_VERSION"
     $mullvad_release modify-release "$PRODUCT_VERSION" --rollout "$ROLLOUT" "${PLATFORMS[@]}"
 
+    log "\nScript paused allow manual edits to the metadata before signing and publishing."
+    log "Before continuing, make sure your release metadata signing key in the clipboard."
+    log "Press enter to continue..."
+    read -rs
+
     log_header "Signing $PRODUCT_VERSION metadata. Reading signing key from clipboard"
     xclip -sensitive | $mullvad_release sign "${PLATFORMS[@]}"
 
