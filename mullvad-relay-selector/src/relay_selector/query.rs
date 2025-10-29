@@ -248,6 +248,13 @@ impl ObfuscationQuery {
             ..Default::default()
         }
     }
+
+    pub const fn port(&self) -> Option<u16> {
+        match self {
+            ObfuscationQuery::Port(port) => Some(*port),
+            _ => None,
+        }
+    }
 }
 
 impl From<ObfuscationSettings> for ObfuscationQuery {
