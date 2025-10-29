@@ -215,59 +215,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         actionHandler?(.showRestorePurchases)
     }
 
-    // This function is for testing only
-    @objc private func handleStoreKit2Purchase() {
-        guard let accountData = interactor.deviceState.accountData else {
-            return
-        }
-
-        setPaymentState(.makingStoreKit2Purchase, animated: true)
-
-        Task {
-            do {
-                let product = try await Product.products(
-                    for: [
-                        storeKit2TestProduct
-                    ]
-                ).first!
-                let token =
-                    switch await interactor
-                        .getPaymentToken(for: accountData.number)
-                    {
-                    case let .success(token):
-                        token
-                    case let .failure(error):
-                        throw error
-                    }
-
-                let result = try await product.purchase(
-                    options: [.appAccountToken(token)]
-                )
-
-                switch result {
-                case let .success(verification):
-                    let transaction = try checkVerified(verification)
-                    await sendReceiptToAPI(
-                        accountNumber: accountData.number,
-                        receipt: verification
-                    )
-                    await transaction.finish()
-                case .userCancelled:
-                    print("User cancelled the purchase")
-                case .pending:
-                    print("Purchase is pending")
-                @unknown default:
-                    print("Unknown purchase result")
-                }
-            } catch {
-                print("Error: \(error)")
-                errorPresenter.showAlertForStoreKitError(error, context: .purchase)
-            }
-
-            setPaymentState(.none, animated: true)
-        }
-    }
-
+    // For testing StoreKit 2 refunds only.
     @objc private func handleStoreKit2Refund() {
         setPaymentState(.makingStoreKit2Refund, animated: true)
 
@@ -296,33 +244,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                 }
             } catch {
                 print("Error: \(error)")
-                errorPresenter.showAlertForStoreKitError(error, context: .purchase)
+                errorPresenter.showAlertForRefundError(error, context: .purchase)
             }
 
             setPaymentState(.none, animated: true)
         }
     }
-
-    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
-        switch result {
-        case .unverified:
-            throw StoreKit2Error.verificationFailed
-        case let .verified(safe):
-            return safe
-        }
-    }
-
-    private func sendReceiptToAPI(accountNumber: String, receipt: VerificationResult<Transaction>) async {
-        switch await interactor.sendStoreKitReceipt(receipt, for: accountNumber) {
-        case .success:
-            print("Receipt sent successfully")
-        case let .failure(error):
-            print("Error sending receipt: \(error)")
-            errorPresenter.showAlertForStoreKitError(error, context: .purchase)
-        }
-    }
-}
-
-private enum StoreKit2Error: Error {
-    case verificationFailed
 }

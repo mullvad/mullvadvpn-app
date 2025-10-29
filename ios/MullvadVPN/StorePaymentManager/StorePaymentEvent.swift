@@ -10,67 +10,20 @@ import Foundation
 import MullvadREST
 @preconcurrency import StoreKit
 
-/// The payment event received by observers implementing ``StorePaymentObserver``.
-enum StorePaymentEvent: @unchecked Sendable {
-    /// The payment is successfully completed.
-    case finished(StorePaymentCompletion)
+// MARK: StoreKit 2 flow
 
-    /// Failure to complete the payment.
-    case failure(StorePaymentFailure)
-
-    /// An instance of `SKPayment` held in the associated value.
-    var payment: SKPayment {
-        switch self {
-        case let .finished(completion):
-            return completion.transaction.payment
-        case let .failure(failure):
-            return failure.payment
-        }
-    }
-}
-
-/// Successful payment metadata.
-struct StorePaymentCompletion {
-    /// Transaction object.
-    let transaction: SKPaymentTransaction
-
-    /// The account number credited.
-    let accountNumber: String
-
-    /// The server response received after uploading the AppStore receipt.
-    let serverResponse: REST.CreateApplePaymentResponse
-}
-
-/// Failed payment metadata.
-struct StorePaymentFailure: @unchecked Sendable {
-    /// Transaction object, if available.
-    /// May not be available due to account validation failure.
-    let transaction: SKPaymentTransaction?
-
-    /// The payment object associated with payment request.
-    let payment: SKPayment
-
-    /// The account number to credit.
-    /// May not be available if the payment manager couldn't establish the association between the payment and account number.
-    /// Typically in such case, the error would be set to ``StorePaymentManagerError/noAccountSet``.
-    let accountNumber: String?
-
-    /// The payment manager error.
-    let error: StorePaymentManagerError
-}
-
-enum StoreKitPaymentEvent {
+enum StorePaymentEvent {
     /// Successful payment
-    case successfulPayment
+    case successfulPayment(StorePaymentOutcome)
     /// Use cancelled the purchase
     case userCancelled
     /// Payment was made but it is still being processed. This transaction can be processed and the receipt uploaded to the API later, when the transaction listener handles it.
     case pending
     /// Purchasing failed
-    case failed(InAppPurchaseError)
+    case failed(StorePaymentError)
 }
 
-enum InAppPurchaseError {
+enum StorePaymentError {
     /// Purchase failed because the product being purchased is either unavailable or StoreKit services failed.
     case storeKitError(StoreKitError)
     /// Purchase failed because of a "purchase error".
@@ -104,4 +57,55 @@ enum InAppPurchaseError {
             )
         }
     }
+}
+
+// MARK: Legacy StoreKit flow
+
+/// The payment event received by observers implementing ``StorePaymentObserver``.
+enum LegacyStorePaymentEvent: @unchecked Sendable {
+    /// The payment is successfully completed.
+    case finished(LegacyStorePaymentCompletion)
+
+    /// Failure to complete the payment.
+    case failure(LegacyStorePaymentFailure)
+
+    /// An instance of `SKPayment` held in the associated value.
+    var payment: SKPayment {
+        switch self {
+        case let .finished(completion):
+            return completion.transaction.payment
+        case let .failure(failure):
+            return failure.payment
+        }
+    }
+}
+
+/// Successful payment metadata.
+struct LegacyStorePaymentCompletion {
+    /// Transaction object.
+    let transaction: SKPaymentTransaction
+
+    /// The account number credited.
+    let accountNumber: String
+
+    /// The server response received after uploading the AppStore receipt.
+    let serverResponse: REST.CreateApplePaymentResponse
+}
+
+/// Failed payment metadata.
+struct LegacyStorePaymentFailure: @unchecked Sendable {
+    /// Transaction object, if available.
+    /// May not be available due to account validation failure.
+    let transaction: SKPaymentTransaction?
+
+    /// The payment object associated with payment request.
+    let payment: SKPayment
+
+    /// The account number to credit.
+    /// May not be available if the payment manager couldn't establish the association between the payment and account number.
+    /// Typically in such case, the error would be set to ``StorePaymentManagerError/noAccountSet``.
+    let accountNumber: String?
+
+    /// The payment manager error.
+    let error: LegacyStorePaymentManagerError
 }

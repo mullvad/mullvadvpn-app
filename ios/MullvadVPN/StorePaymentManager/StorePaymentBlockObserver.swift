@@ -10,7 +10,7 @@ import Foundation
 import StoreKit
 
 final class StorePaymentBlockObserver: StorePaymentObserver {
-    typealias BlockHandler = @Sendable (StorePaymentManager, StorePaymentEvent) -> Void
+    typealias BlockHandler = @Sendable (LegacyStorePaymentEvent) -> Void
 
     private let blockHandler: BlockHandler
 
@@ -18,17 +18,11 @@ final class StorePaymentBlockObserver: StorePaymentObserver {
         self.blockHandler = blockHandler
     }
 
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didReceiveEvent event: StorePaymentEvent
-    ) {
-        blockHandler(manager, event)
+    func storePaymentManager(didReceiveEvent event: LegacyStorePaymentEvent) {
+        blockHandler(event)
     }
 
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didReceiveEvent event: StoreKitPaymentEvent,
-    ) {
+    func storePaymentManager(didReceiveEvent event: StorePaymentEvent) {
         // Not used.
     }
 }

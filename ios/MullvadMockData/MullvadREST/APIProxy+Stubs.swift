@@ -27,15 +27,6 @@ struct APIProxyStub: APIQuerying {
         AnyCancellable()
     }
 
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data
-    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse> {
-        RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
-            .timeAdded(42, .distantFuture)
-        })
-    }
-
     func sendProblemReport(
         _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,

@@ -19,9 +19,7 @@ import UIKit
 import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate,
-    @unchecked Sendable
-{
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, @unchecked Sendable {
     nonisolated(unsafe) private var logger: Logger!
 
     #if targetEnvironment(simulator)
@@ -157,10 +155,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         storePaymentManager = StorePaymentManager(
             backgroundTaskProvider: backgroundTaskProvider,
-            queue: .default(),
-            apiProxy: apiProxy,
-            accountsProxy: accountsProxy,
-            transactionLog: .default
+            interactor: StorePaymentManagerInteractor(
+                tunnelManager: tunnelManager,
+                apiProxy: apiProxy,
+                accountProxy: accountsProxy
+            )
         )
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
@@ -193,7 +192,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         registerBackgroundTasks()
-        setupPaymentHandler()
         setupNotifications()
         addApplicationNotifications(application: application)
 
@@ -474,7 +472,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func setupPaymentHandler() {
-        storePaymentManager.delegate = self
         storePaymentManager.addPaymentObserver(tunnelManager)
     }
 

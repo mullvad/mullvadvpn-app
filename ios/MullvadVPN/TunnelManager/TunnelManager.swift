@@ -602,10 +602,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
     // MARK: - StorePaymentObserver
 
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didReceiveEvent event: StorePaymentEvent
-    ) {
+    func storePaymentManager(didReceiveEvent event: LegacyStorePaymentEvent) {
         guard case let .finished(paymentCompletion) = event else {
             return
         }
@@ -628,11 +625,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         )
     }
 
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didReceiveEvent event: StoreKitPaymentEvent
-    ) {
-        // Not used. Successful payment is handled in StorePaymentManager.
+    func storePaymentManager(didReceiveEvent event: StorePaymentEvent) {
+        // Not used.
     }
 
     // MARK: - TunnelInteractor
