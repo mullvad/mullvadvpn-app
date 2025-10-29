@@ -1,14 +1,14 @@
 import React from 'react';
 
 import { useStyledRef } from '../../utility-hooks';
-import { CarouselProps } from './Carousel';
+import { getSlides } from './utils/get-slides';
 
 type CarouselContextextProps = {
   slideIndex: number;
   setSlideIndex: React.Dispatch<React.SetStateAction<number>>;
   numberOfSlides: number;
   slidesRef: React.RefObject<HTMLDivElement | null>;
-  content: CarouselProps['content'];
+  slides: HTMLElement[];
 };
 
 const CarouselContextext = React.createContext<CarouselContextextProps | undefined>(undefined);
@@ -21,23 +21,25 @@ export const useCarouselContext = (): CarouselContextextProps => {
   return context;
 };
 
-type CarouselProviderProps = React.PropsWithChildren<CarouselContextextProps>;
+type CarouselProviderProps = React.PropsWithChildren;
 
-export function CarouselProvider({
-  content,
-  children,
-}: React.PropsWithChildren<Pick<CarouselProviderProps, 'content'>>) {
+export function CarouselProvider({ children }: CarouselProviderProps) {
   const slidesRef = useStyledRef<HTMLDivElement>();
   const [slideIndex, setSlideIndex] = React.useState(0);
+  const [slides, setSlides] = React.useState<HTMLElement[]>([]);
+
+  React.useLayoutEffect(() => {
+    setSlides(getSlides(slidesRef.current));
+  }, [slidesRef]);
 
   return (
     <CarouselContextext.Provider
       value={{
         slideIndex,
         setSlideIndex,
-        numberOfSlides: content.length,
+        numberOfSlides: slides.length,
         slidesRef,
-        content,
+        slides,
       }}>
       {children}
     </CarouselContextext.Provider>
