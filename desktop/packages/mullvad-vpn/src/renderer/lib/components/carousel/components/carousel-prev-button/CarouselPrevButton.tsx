@@ -1,11 +1,13 @@
-import { IconButton } from '../../../icon-button';
+import { IconButton, IconButtonProps } from '../../../icon-button';
 import { useSlides } from '../../hooks';
 
-export function CarouselPrevButton() {
+export type CarouselPrevButtonProps = IconButtonProps;
+
+export function CarouselPrevButton(props: CarouselPrevButtonProps) {
   const { prev, hasPrev } = useSlides();
 
   return (
-    <IconButton disabled={!hasPrev} onClick={prev}>
+    <IconButton disabled={!hasPrev} onClick={prev} {...props}>
       <IconButton.Icon icon="chevron-left" />
     </IconButton>
   );
