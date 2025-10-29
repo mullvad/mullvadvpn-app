@@ -126,8 +126,15 @@ export function DaitaSettingsView() {
                           </Carousel.Text>
                         </Carousel.TextGroup>
                       </Carousel.Slide>,
-                    ]}
-                  />
+                    ]}>
+                    <Carousel.Controls>
+                      <Carousel.Indicators />
+                      <Carousel.ControlGroup>
+                        <Carousel.PrevButton />
+                        <Carousel.NextButton />
+                      </Carousel.ControlGroup>
+                    </Carousel.Controls>
+                  </Carousel>
                 </FlexColumn>
               </View.Container>
               <FlexColumn $padding={{ bottom: 'medium' }}>

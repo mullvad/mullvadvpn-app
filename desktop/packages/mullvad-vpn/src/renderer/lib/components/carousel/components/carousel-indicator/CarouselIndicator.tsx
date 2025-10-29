@@ -5,23 +5,23 @@ import { colors } from '../../../../foundations';
 import { Dot } from '../../../dot';
 import { useSlides } from '../../hooks';
 
-export type PageIndicatorProps = React.ComponentPropsWithRef<'button'> & {
+export type CarouselIndicatorProps = React.ComponentPropsWithRef<'button'> & {
   slideToGoTo: number;
 };
 
-const StyledPageIndicator = styled(Dot)`
+const StyledSlideIndicator = styled(Dot)`
   background-color: ${colors.whiteAlpha80};
 `;
 
-const StyledSlideIndicator = styled.button`
+const StyledCarouselIndicator = styled.button`
   position: relative;
   display: flex;
   justify-content: center;
   border-radius: 50%;
-  &&:hover ${StyledPageIndicator} {
+  &&:hover ${StyledSlideIndicator} {
     background-color: ${colors.whiteAlpha40};
   }
-  &&:disabled ${StyledPageIndicator} {
+  &&:disabled ${StyledSlideIndicator} {
     background-color: ${colors.whiteAlpha40};
   }
   &&:focus-visible {
@@ -40,16 +40,16 @@ const StyledSlideIndicator = styled.button`
   }
 `;
 
-export function SlideIndicator({ slideToGoTo: pageToGoTo, ...props }: PageIndicatorProps) {
+export function CarouselIndicator({ slideToGoTo, ...props }: CarouselIndicatorProps) {
   const { goToSlide } = useSlides();
 
   const onClick = React.useCallback(() => {
-    goToSlide(pageToGoTo);
-  }, [goToSlide, pageToGoTo]);
+    goToSlide(slideToGoTo);
+  }, [goToSlide, slideToGoTo]);
 
   return (
-    <StyledSlideIndicator onClick={onClick} {...props}>
-      <StyledPageIndicator size="tiny" />
-    </StyledSlideIndicator>
+    <StyledCarouselIndicator onClick={onClick} {...props}>
+      <StyledSlideIndicator size="tiny" />
+    </StyledCarouselIndicator>
   );
 }
