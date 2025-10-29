@@ -834,7 +834,9 @@ impl WireguardMonitor {
 
         self.runtime.block_on(async {
             self.event_hook.on_event(TunnelEvent::Down).await;
-            log_daita_overhead(&self.tunnel).await;
+            if let Some(tunnel) = self.tunnel.lock().await.as_ref() {
+                log_daita_overhead(tunnel).await;
+            };
         });
 
         self.stop_tunnel();
@@ -1039,33 +1041,22 @@ async fn log_tunnel_data_usage(config: &Config, tunnel: &Arc<AsyncMutex<Option<T
     }
 }
 
-async fn log_daita_overhead(tunnel: &Arc<AsyncMutex<Option<TunnelType>>>) {
-    let tunnel = tunnel.lock().await;
-    let Some(tunnel) = &*tunnel else { return };
+async fn log_daita_overhead(tunnel: &TunnelType) {
     let Ok(tunnel_stats) = tunnel.get_tunnel_stats().await else {
         return;
     };
     if let Some(stats) = tunnel_stats.values().find(|stats| stats.daita.is_some()) {
         let daita = stats.daita.as_ref().unwrap();
-        log::info!("DAITA overhead stats:");
-        log::info!("Total (outgoing) {} MiB", stats.tx_bytes / 1024 / 1024);
-        log::info!("Total (incoming) {} MiB", stats.rx_bytes / 1024 / 1024);
-        log::info!(
-            "Padding packet overhead (outgoing) {} MiB",
-            daita.tx_padding_packet_bytes / 1024 / 1024
-        );
-        log::info!(
-            "Padding packet overhead (incoming) {} MiB",
-            daita.rx_padding_packet_bytes / 1024 / 1024
-        );
-        log::info!(
-            "Constant packet size overhead (outgoing) {} MiB",
-            daita.tx_padding_bytes / 1024 / 1024
-        );
-        log::info!(
-            "Constant packet size overhead (incoming) {} MiB",
-            daita.rx_padding_bytes / 1024 / 1024
-        );
+        let total_out = stats.tx_bytes / 1024 / 1024;
+        let total_in = stats.rx_bytes / 1024 / 1024;
+        let padding_packet_out = stats.tx_bytes / 1024 / 1024;
+        let padding_packet_in = stats.rx_bytes / 1024 / 1024;
+        let constant_size_padding_out = daita.tx_padding_bytes / 1024 / 1024;
+        let constant_size_padding_in = daita.rx_padding_bytes / 1024 / 1024;
+
+        log::info!("DAITA overhead stats:
+Outgoing: {total_out} MiB total, {padding_packet_out} MiB padding packets, {constant_size_padding_out} MiB constant size padding
+Incoming: {total_in} MiB total, {padding_packet_in} MiB padding packets, {constant_size_padding_in} MiB constant size padding");
     }
 }
 
