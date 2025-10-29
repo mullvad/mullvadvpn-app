@@ -27,7 +27,13 @@ export function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
   }, [getSlideIndex, setSlideIndex]);
 
   return (
-    <StyledSlides ref={slidesRef} onScrollEnd={handleScroll} {...props}>
+    <StyledSlides
+      ref={slidesRef}
+      onScrollEnd={handleScroll}
+      tabIndex={-1}
+      aria-live="polite"
+      aria-atomic="true"
+      {...props}>
       {children}
     </StyledSlides>
   );
