@@ -42,8 +42,8 @@ export function DaitaSettingsView() {
                     </Flex>
                   )}
 
-                  <Carousel
-                    content={[
+                  <Carousel>
+                    <Carousel.Slides>
                       <Carousel.Slide key="without-daita">
                         <Carousel.Image source="daita-off-illustration" />
                         <Carousel.TextGroup>
@@ -76,7 +76,7 @@ export function DaitaSettingsView() {
                             )}
                           </Carousel.Text>
                         </Carousel.TextGroup>
-                      </Carousel.Slide>,
+                      </Carousel.Slide>
                       <Carousel.Slide key="with-daita">
                         <Carousel.Image source="daita-on-illustration" />
                         <Carousel.TextGroup>
@@ -116,8 +116,8 @@ export function DaitaSettingsView() {
                             )}
                           </Carousel.Text>
                         </Carousel.TextGroup>
-                      </Carousel.Slide>,
-                    ]}>
+                      </Carousel.Slide>
+                    </Carousel.Slides>
                     <Carousel.Controls>
                       <Carousel.Indicators />
                       <Carousel.ControlGroup>
