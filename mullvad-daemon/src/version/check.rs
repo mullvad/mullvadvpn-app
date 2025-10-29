@@ -596,13 +596,10 @@ fn dev_version_cache() -> VersionCache {
         cache_version: mullvad_version::VERSION.parse().unwrap(),
         current_version_supported: false,
         version_info: VersionInfo {
-            stable: mullvad_update::version::Version {
-                version: mullvad_version::VERSION.parse().unwrap(),
-                changelog: "".to_owned(),
-                urls: vec![],
-                sha256: [0u8; 32],
-                size: 0,
-            },
+            stable: mullvad_update::version::Version::suckless(
+                mullvad_version::VERSION.parse().unwrap(),
+                "".to_owned(),
+            ),
             beta: None,
         },
         last_platform_header_check: SystemTime::now(),
@@ -652,20 +649,8 @@ mod test {
             cache_version: cache_version.parse().unwrap(),
             current_version_supported: false,
             version_info: VersionInfo {
-                stable: Version {
-                    version: stable.parse().unwrap(),
-                    urls: vec![],
-                    size: 0,
-                    changelog: "".to_owned(),
-                    sha256: [0u8; 32],
-                },
-                beta: beta.map(|beta| Version {
-                    version: beta.parse().unwrap(),
-                    urls: vec![],
-                    size: 0,
-                    changelog: "".to_owned(),
-                    sha256: [0u8; 32],
-                }),
+                stable: Version::suckless(stable.parse().unwrap(), "".to_owned()),
+                beta: beta.map(|beta| Version::suckless(beta.parse().unwrap(), "".to_owned())),
             },
             last_platform_header_check: SystemTime::now(),
             #[cfg(not(target_os = "android"))]
@@ -908,13 +893,7 @@ mod test {
             cache_version: mullvad_version::VERSION.parse().unwrap(),
             current_version_supported: true,
             version_info: VersionInfo {
-                stable: Version {
-                    version: "2025.5".parse::<mullvad_version::Version>().unwrap(),
-                    urls: vec![],
-                    size: 0,
-                    changelog: "".to_owned(),
-                    sha256: [0u8; 32],
-                },
+                stable: Version::suckless("2025.5".parse().unwrap(), "".to_owned()),
                 beta: None,
             },
             last_platform_header_check: SystemTime::now(),

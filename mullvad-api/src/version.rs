@@ -157,7 +157,8 @@ impl AppVersionProxy {
 
             let current_version =
                 mullvad_version::Version::from_str(mullvad_version::VERSION).unwrap();
-            let current_version_supported = is_version_supported(current_version, &response.signed);
+            let current_version_supported =
+                is_version_supported(current_version, &response.signed.releases);
 
             let metadata_version = response.signed.metadata_version;
             Ok(Some(AppVersionResponse2 {
