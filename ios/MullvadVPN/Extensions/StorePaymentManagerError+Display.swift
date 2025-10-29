@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 import StoreKit
 
-extension StorePaymentManagerError: DisplayError {
+extension LegacyStorePaymentManagerError: DisplayError {
     var displayErrorDescription: String? {
         switch self {
         case .noAccountSet:

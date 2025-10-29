@@ -23,11 +23,6 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable
 
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data
-    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
-
     func legacyStorekitPayment(
         accountNumber: String,
         request: LegacyStorekitRequest,
@@ -154,16 +149,6 @@ extension REST {
             completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
         ) -> Cancellable {
             AnyCancellable()
-        }
-
-        /// Not implemented. Use `RESTAPIProxy` instead.
-        public func createApplePayment(
-            accountNumber: String,
-            receiptString: Data
-        ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse> {
-            RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
-                .timeAdded(0, .now)
-            })
         }
 
         public func checkApiAvailability(

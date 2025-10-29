@@ -74,7 +74,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
                 error: error,
                 message: "Failed to read the AppStore receipt."
             )
-            finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
+            finish(result: .failure(LegacyStorePaymentManagerError.readReceipt(error)))
         }
     }
 
@@ -91,7 +91,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
                     error: error,
                     message: "Failed to read the AppStore receipt after refresh."
                 )
-                self.finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
+                self.finish(result: .failure(LegacyStorePaymentManagerError.readReceipt(error)))
             }
         }
     }
@@ -102,7 +102,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
                 error: error,
                 message: "Failed to refresh the AppStore receipt."
             )
-            self.finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
+            self.finish(result: .failure(LegacyStorePaymentManagerError.readReceipt(error)))
         }
     }
 
@@ -132,45 +132,12 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
         }
     }
 
-    #if DEBUG
-        private func sendReceipt(_ receiptData: Data) {
-            submitReceiptTask = apiProxy.legacyStorekitPayment(
-                accountNumber: accountNumber,
-                request: LegacyStorekitRequest(receiptString: receiptData),
-                retryStrategy: .default,
-                completionHandler: { result in
-                    switch result {
-                    case let .success(response):
-                        self.logger.info(
-                            """
-                            AppStore receipt was processed. \
-                            Time added: \(response.timeAdded), \
-                            New expiry: \(response.newExpiry.logFormatted)
-                            """
-                        )
-                        self.finish(result: .success(response))
-
-                    case let .failure(error):
-                        if error.isOperationCancellationError {
-                            self.logger.debug("Receipt submission cancelled.")
-                            self.finish(result: .failure(error))
-                        } else {
-                            self.logger.error(
-                                error: error,
-                                message: "Failed to send the AppStore receipt."
-                            )
-                            self.finish(result: .failure(StorePaymentManagerError.sendReceipt(error)))
-                        }
-                    }
-                }
-            )
-        }
-    #else
-        private func sendReceipt(_ receiptData: Data) {
-            submitReceiptTask = apiProxy.createApplePayment(
-                accountNumber: accountNumber,
-                receiptString: receiptData
-            ).execute(retryStrategy: .noRetry) { result in
+    private func sendReceipt(_ receiptData: Data) {
+        submitReceiptTask = apiProxy.legacyStorekitPayment(
+            accountNumber: accountNumber,
+            request: LegacyStorekitRequest(receiptString: receiptData),
+            retryStrategy: .default,
+            completionHandler: { result in
                 switch result {
                 case let .success(response):
                     self.logger.info(
@@ -191,12 +158,12 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
                             error: error,
                             message: "Failed to send the AppStore receipt."
                         )
-                        self.finish(result: .failure(StorePaymentManagerError.sendReceipt(error)))
+                        self.finish(result: .failure(LegacyStorePaymentManagerError.sendReceipt(error)))
                     }
                 }
             }
-        }
-    #endif
+        )
+    }
 }
 
 struct StoreReceiptNotFound: LocalizedError {

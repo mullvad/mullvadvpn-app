@@ -81,7 +81,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         paymentAction: PaymentAction
     ) {
         guard let accountNumber = interactor.deviceState.accountData?.number else { return }
-
         let coordinator = InAppPurchaseCoordinator(
             storePaymentManager: storePaymentManager,
             accountNumber: accountNumber,

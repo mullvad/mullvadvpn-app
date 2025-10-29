@@ -19,9 +19,7 @@ import UIKit
 import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate,
-    @unchecked Sendable
-{
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, @unchecked Sendable {
     nonisolated(unsafe) private var logger: Logger!
 
     #if targetEnvironment(simulator)
@@ -157,10 +155,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         storePaymentManager = StorePaymentManager(
             backgroundTaskProvider: backgroundTaskProvider,
-            queue: .default(),
-            apiProxy: apiProxy,
-            accountsProxy: accountsProxy,
-            transactionLog: .default
+            interactor: StorePaymentManagerInteractor(
+                tunnelManager: tunnelManager,
+                apiProxy: apiProxy,
+                accountProxy: accountsProxy
+            )
         )
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
@@ -193,7 +192,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         registerBackgroundTasks()
-        setupPaymentHandler()
         setupNotifications()
         addApplicationNotifications(application: application)
 
@@ -475,7 +473,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func setupPaymentHandler() {
-        storePaymentManager.delegate = self
         storePaymentManager.addPaymentObserver(tunnelManager)
     }
 
@@ -625,37 +622,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             FirstTimeLaunch.setHasFinished()
             SettingsManager.setShouldWipeSettings()
-        }
-    }
-
-    // MARK: - StorePaymentManagerDelegate
-
-    nonisolated func fetchAccountToken(for payment: SKPayment) -> String? {
-        // Since we do not persist the relation between payment and account number between the
-        // app launches, we assume that all successful purchases belong to the active account
-        // number.
-        tunnelManager.deviceState.accountData?.number
-    }
-
-    nonisolated func fetchAccountNumber() -> String? {
-        tunnelManager.deviceState.accountData?.number
-    }
-
-    nonisolated func fetchAccountExpiry() -> Date? {
-        tunnelManager.deviceState.accountData?.expiry
-    }
-
-    nonisolated func updateAccountData(for account: Account) {
-        // Update the tunnel manager's device state with the new account data
-        Task { @MainActor in
-            guard case .loggedIn(var storedAccountData, let deviceData) = tunnelManager.deviceState else {
-                return
-            }
-
-            storedAccountData.expiry = account.expiry
-            let newDeviceState = DeviceState.loggedIn(storedAccountData, deviceData)
-
-            tunnelManager.setDeviceState(newDeviceState, persist: true)
         }
     }
 
