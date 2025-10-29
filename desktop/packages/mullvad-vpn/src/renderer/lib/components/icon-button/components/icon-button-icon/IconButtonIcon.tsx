@@ -8,5 +8,5 @@ export const StyledIconButtonIcon = styled(Icon)``;
 
 export const IconButtonIcon = (props: IconButtonIconProps) => {
   const { size } = useIconButtonContext();
-  return <StyledIconButtonIcon size={size} {...props} />;
+  return <StyledIconButtonIcon size={size} aria-hidden {...props} />;
 };
