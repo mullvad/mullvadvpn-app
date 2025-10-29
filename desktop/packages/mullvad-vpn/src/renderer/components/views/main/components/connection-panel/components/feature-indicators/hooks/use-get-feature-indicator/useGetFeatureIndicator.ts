@@ -127,7 +127,7 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
-  const gotoObfuscation = React.useCallback(() => {
+  const gotoCensorshipCircumvention = React.useCallback(() => {
     history.push(RoutePath.censorshipCircumvention, {
       transition: TransitionType.show,
       options: [
@@ -156,23 +156,23 @@ export const useGetFeatureIndicator = () => {
     },
     [FeatureIndicator.udp2tcp]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      onClick: gotoCensorshipCircumvention,
     },
     [FeatureIndicator.shadowsocks]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      onClick: gotoCensorshipCircumvention,
     },
     [FeatureIndicator.quic]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      onClick: gotoCensorshipCircumvention,
     },
     [FeatureIndicator.lwo]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      onClick: gotoCensorshipCircumvention,
     },
     [FeatureIndicator.port]: {
       label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      onClick: gotoCensorshipCircumvention,
     },
     [FeatureIndicator.multihop]: {
       label:
