@@ -23,10 +23,7 @@ use talpid_types::net::{
     wireguard::{PeerConfig, PublicKey},
 };
 
-use super::{
-    WireguardConfig,
-    query::{ObfuscationQuery, WireguardRelayQuery},
-};
+use super::{WireguardConfig, query::WireguardRelayQuery};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -185,12 +182,7 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
 ) -> Result<u16, Error> {
-    let desired_port = if let ObfuscationQuery::Port(port) = query.obfuscation {
-        Constraint::Only(port)
-    } else {
-        Constraint::Any
-    };
-
+    let desired_port = query.obfuscation.port().into();
     super::helpers::desired_or_random_port_from_range(&data.port_ranges, desired_port)
         .map_err(|_err| Error::PortSelectionError)
 }
