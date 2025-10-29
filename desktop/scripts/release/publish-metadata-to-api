@@ -2,6 +2,9 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
 if [ $# -lt 3 ]; then
     echo "Please provide the following arguments:"
     echo "    $(basename "$0") \\"
