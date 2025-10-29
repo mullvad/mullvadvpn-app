@@ -56,3 +56,7 @@ export function expectChildrenToMatchElements(
     expect(elementChild.props.children).to.equal(expectedElement.props.children);
   });
 }
+
+export function createFragment<T extends React.ReactNode>(value: T) {
+  return React.createElement(React.Fragment, null, value);
+}
