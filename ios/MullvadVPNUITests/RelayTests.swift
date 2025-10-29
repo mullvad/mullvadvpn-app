@@ -410,20 +410,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
             FirewallRule.makeBlockUDPTrafficRule(toIPAddress: "8.8.8.8", inverted: true)
         )
 
-        HeaderBar(app)
-            .tapSettingsButton()
-
-        SettingsPage(app)
-            .tapVPNSettingsCell()
-
-        VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationOffCell()
-            .tapBackButton()
-
-        SettingsPage(app)
-            .tapDoneButton()
-
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
