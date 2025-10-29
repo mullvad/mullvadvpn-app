@@ -47,7 +47,7 @@ import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.onFirst
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val customListsRepository: CustomListsRepository,
