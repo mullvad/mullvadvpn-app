@@ -6,16 +6,17 @@ const SLIDE_GAP = 16;
 
 // Calculate the slide index based on the scroll position.
 export const useGetSlideIndex = () => {
-  const { content, slidesRef } = useCarouselContext();
+  const { slides, slidesRef } = useCarouselContext();
+
   return React.useCallback(() => {
     if (slidesRef.current) {
       const scrollLeft = slidesRef.current.scrollLeft;
       const slideWidth = slidesRef.current.offsetWidth + SLIDE_GAP;
 
-      // Clamp it between 0 and content.length-1 to make sure it will correspond to a slide.
-      return Math.max(0, Math.min(Math.round(scrollLeft / slideWidth), content.length - 1));
+      // Clamp it between 0 and slides.length-1 to make sure it will correspond to a slide.
+      return Math.max(0, Math.min(Math.round(scrollLeft / slideWidth), slides.length - 1));
     } else {
       return 0;
     }
-  }, [content.length, slidesRef]);
+  }, [slides.length, slidesRef]);
 };
