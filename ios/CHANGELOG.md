@@ -12,7 +12,7 @@ add, fix, increase, force etc.. Not added, fixed, increased, forced etc.
 
 Line wrap the file at 100 chars.                                              That is over here -> |
 
-### Categories each change fall into
+### Categories each change falls into
 
 * **Added**: for new features.
 * **Changed**: for changes in existing functionality.
