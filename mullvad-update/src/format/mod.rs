@@ -15,8 +15,7 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::version::FULLY_ROLLED_OUT;
-use crate::version::rollout::Rollout;
+use crate::version::rollout::{FULLY_ROLLED_OUT, Rollout};
 
 pub mod deserializer;
 pub mod key;

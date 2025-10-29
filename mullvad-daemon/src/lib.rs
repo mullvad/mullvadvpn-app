@@ -967,7 +967,7 @@ impl Daemon {
             let version = mullvad_version::VERSION
                 .parse()
                 .expect("App version to be parsable");
-            mullvad_update::version::Rollout::threshold(seed, version)
+            mullvad_update::version::rollout::Rollout::threshold(seed, version)
         };
         #[cfg(target_os = "android")]
         let rollout = mullvad_update::version::SUPPORTED_VERSION;
