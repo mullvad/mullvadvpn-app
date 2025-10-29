@@ -128,7 +128,16 @@ export function DaitaSettingsView() {
                       </Carousel.Slide>
                     </Carousel.Slides>
                     <Carousel.Controls>
-                      <Carousel.Indicators />
+                      <Carousel.Indicators
+                        ariaLabelTemplate={messages.pgettext(
+                          // TRANSLATORS: Accessibility label for carousel indicators that
+                          // TRANSLATORS: allow navigation between slides.
+                          // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(index)s - Will be replaced with the slide index number.
+                          'accessibility',
+                          'Go to slide %(index)s',
+                        )}
+                      />
                       <Carousel.ControlGroup>
                         <Carousel.PrevButton />
                         <Carousel.NextButton />
