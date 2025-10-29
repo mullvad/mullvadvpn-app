@@ -57,6 +57,11 @@ impl Version {
         self.pre_stable.is_none() && !self.is_dev()
     }
 
+    /// Returns true if this version is a beta version.
+    pub const fn is_beta(&self) -> bool {
+        matches!(self.pre_stable, Some(PreStableType::Beta(_)))
+    }
+
     /// Returns true if this version has a -dev suffix, e.g. 2025.2-beta1-dev-123abc
     pub const fn is_dev(&self) -> bool {
         self.dev.is_some()
