@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+import { Gallery } from '../../../gallery';
+
 export type CarouselSlideProps = React.ComponentPropsWithRef<'div'>;
 
 const StyledSlide = styled.div`
@@ -13,7 +15,7 @@ const StyledSlide = styled.div`
 export function CarouselSlide({ children, ...props }: CarouselSlideProps) {
   return (
     <StyledSlide data-carousel-slide {...props}>
-      {children}
+      <Gallery>{children}</Gallery>
     </StyledSlide>
   );
 }
