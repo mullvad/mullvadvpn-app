@@ -17,22 +17,28 @@ import { useHandleKeyboardNavigation } from './hooks';
 
 const StyledCarousel = styled(Flex)``;
 
-export type CarouselProps = React.ComponentPropsWithRef<'div'>;
+export type CarouselProps = React.ComponentPropsWithRef<'section'>;
 
-function CarouselImpl({ children }: Pick<CarouselProps, 'children'>) {
+function CarouselImpl({ children, ...props }: CarouselProps) {
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
 
   return (
-    <StyledCarousel $flexDirection="column" $gap="medium" onKeyDown={handleKeyboardNavigation}>
+    <StyledCarousel
+      as={'section'}
+      $flexDirection="column"
+      $gap="medium"
+      onKeyDown={handleKeyboardNavigation}
+      aria-roledescription="carousel"
+      {...props}>
       {children}
     </StyledCarousel>
   );
 }
 
-function Carousel({ children }: CarouselProps) {
+function Carousel({ children, ...props }: CarouselProps) {
   return (
     <CarouselProvider>
-      <CarouselImpl>{children}</CarouselImpl>
+      <CarouselImpl {...props}>{children}</CarouselImpl>
     </CarouselProvider>
   );
 }

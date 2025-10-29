@@ -19,7 +19,14 @@ export function CarouselSlide({ children, ...props }: CarouselSlideProps) {
   const { slides, slideIndex } = useCarouselContext();
   const isActiveSlide = slides[slideIndex]?.id === id;
   return (
-    <StyledSlide id={id} aria-hidden={!isActiveSlide} data-carousel-slide {...props}>
+    <StyledSlide
+      id={id}
+      tabIndex={-1}
+      aria-hidden={!isActiveSlide}
+      data-carousel-slide
+      role="group"
+      aria-roledescription="slide"
+      {...props}>
       <Gallery>{children}</Gallery>
     </StyledSlide>
   );
