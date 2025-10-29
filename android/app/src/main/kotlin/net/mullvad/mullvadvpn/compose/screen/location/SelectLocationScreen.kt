@@ -627,6 +627,7 @@ private fun RelayLists(
 }
 
 @OptIn(ExperimentalMotionApi::class)
+@Suppress("LongMethod")
 @Composable
 private fun SelectionContainer(
     progress: Float, // 0 - 1
@@ -681,7 +682,6 @@ private fun SelectionContainer(
             }
         }
 
-        val hasFilters = (filterChips[relayListType] ?: emptyList()).isNotEmpty()
         val keyFilters = "filters"
         val scene = MotionScene {
             val expandSet =

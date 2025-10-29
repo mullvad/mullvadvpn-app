@@ -75,7 +75,7 @@ data class FilterNavArgs(val relayListType: RelayListType)
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = FilterNavArgs::class)
 @Composable
-fun Filter(navigator: DestinationsNavigator, navArgs: FilterNavArgs) {
+fun Filter(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<FilterViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
