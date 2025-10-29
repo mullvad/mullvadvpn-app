@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, anyhow, bail};
+use anyhow::{Context, Result, bail};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
@@ -88,12 +88,6 @@ pub enum SetCommands {
     Ownership {
         /// Servers to select from: 'any', 'owned', or 'rented'.
         ownership: Constraint<Ownership>,
-    },
-
-    /// Set tunnel port constraint
-    Port {
-        /// Port to use, or 'any'
-        port: Constraint<u16>,
     },
 
     /// Set tunnel IP version constraint
@@ -353,31 +347,6 @@ impl Relay {
             }
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
-            SetCommands::Port { port } => {
-                let mut rpc = MullvadProxyClient::new().await?;
-                let wireguard = rpc.get_relay_locations().await?.wireguard;
-                let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
-
-                // wireguard_constraints.port = match port {
-                //     Constraint::Any => Constraint::Any,
-                //     Constraint::Only(specific_port) => {
-                //         let is_valid_port = wireguard
-                //             .port_ranges
-                //             .into_iter()
-                //             .any(|range| range.contains(&specific_port));
-                //         if !is_valid_port {
-                //             return Err(anyhow!("The specified port is invalid"));
-                //         }
-                //         Constraint::Only(specific_port)
-                //     }
-                // };
-                // TODO: move to obfuscation settings
-
-                Self::update_constraints(|constraints| {
-                    constraints.wireguard_constraints = wireguard_constraints;
-                })
-                .await
-            }
             SetCommands::IpVersion { ip_version } => {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
