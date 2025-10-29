@@ -37,7 +37,6 @@ impl TryFrom<&proto::WireguardConstraints>
             .to_constraint();
 
         Ok(mullvad_constraints::WireguardConstraints {
-            port: Constraint::from(constraints.port.map(|port| port as u16)),
             ip_version: Constraint::from(ip_version),
             allowed_ips,
             use_multihop: constraints.use_multihop,
@@ -144,6 +143,9 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
             selected_obfuscation,
             udp2tcp: Some(proto::Udp2TcpObfuscationSettings::from(&settings.udp2tcp)),
             shadowsocks: Some(proto::ShadowsocksSettings::from(&settings.shadowsocks)),
+            port: Some(proto::Port {
+                port: settings.port.into(),
+            }),
         }
     }
 }
@@ -228,11 +230,6 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
 
                     wireguard_constraints: Some(proto::WireguardConstraints {
-                        port: constraints
-                            .wireguard_constraints
-                            .port
-                            .map(u32::from)
-                            .option(),
                         ip_version: constraints
                             .wireguard_constraints
                             .ip_version
@@ -465,6 +462,11 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
             selected_obfuscation,
             udp2tcp,
             shadowsocks,
+            port: settings
+                .port
+                .and_then(|port_msg| port_msg.port)
+                .and_then(|port| u16::try_from(port).ok())
+                .unwrap_or_default(),
         })
     }
 }
