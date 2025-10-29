@@ -1,11 +1,17 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { NonEmptyArray } from '../../../../shared/utils';
 import { Flex } from '../flex';
 import { Gallery } from '../gallery';
 import { CarouselProvider, useCarouselContext } from './CarouselContext';
-import { CarouselControls } from './components';
+import {
+  CarouselControlGroup,
+  CarouselControls,
+  CarouselIndicators,
+  CarouselNextButton,
+  CarouselPrevButton,
+} from './components';
 import { useGetSlideIndex, useHandleKeyboardNavigation } from './hooks';
 
 const SLIDE_GAP = 16;
@@ -35,11 +41,11 @@ const StyledSlide = styled.div({
   },
 });
 
-export interface CarouselProps {
+export type CarouselProps = React.PropsWithChildren<{
   content: NonEmptyArray<React.ReactNode>;
-}
+}>;
 
-function CarouselImpl() {
+function CarouselImpl({ children }: Pick<CarouselProps, 'children'>) {
   const { slidesRef, setSlideIndex, content } = useCarouselContext();
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
 
@@ -57,15 +63,15 @@ function CarouselImpl() {
           <StyledSlide key={`slide-${i}`}>{slide}</StyledSlide>
         ))}
       </StyledSlides>
-      <CarouselControls />
+      {children}
     </StyledCarousel>
   );
 }
 
-function Carousel({ content }: CarouselProps) {
+function Carousel({ content, children }: CarouselProps) {
   return (
     <CarouselProvider content={content}>
-      <CarouselImpl />
+      <CarouselImpl>{children}</CarouselImpl>
     </CarouselProvider>
   );
 }
@@ -75,6 +81,11 @@ const CarouselNamespace = Object.assign(Carousel, {
   TextGroup: Gallery.TextGroup,
   Image: Gallery.Image,
   Slide: Gallery,
+  Controls: CarouselControls,
+  ControlGroup: CarouselControlGroup,
+  NextButton: CarouselNextButton,
+  PrevButton: CarouselPrevButton,
+  Indicators: CarouselIndicators,
 });
 
 export { CarouselNamespace as Carousel };
