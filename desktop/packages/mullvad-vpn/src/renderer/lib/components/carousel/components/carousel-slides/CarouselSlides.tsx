@@ -6,16 +6,16 @@ import { useGetSlideIndex } from '../../hooks';
 
 export type CarouselSlidesProps = React.ComponentPropsWithRef<'div'>;
 
-const StyledSlides = styled.div({
-  whiteSpace: 'nowrap',
-  overflow: 'scroll hidden',
-  scrollSnapType: 'x mandatory',
-  scrollBehavior: 'smooth',
+const StyledSlides = styled.div`
+  white-space: nowrap;
+  overflow: scroll hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
 
-  '&&::-webkit-scrollbar': {
-    display: 'none',
-  },
-});
+  &&::-webkit-scrollbar {
+    display: none;
+  }
+`;
 
 export function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
   const { slidesRef, setSlideIndex } = useCarouselContext();
@@ -25,6 +25,7 @@ export function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
   const handleScroll = React.useCallback(() => {
     return setSlideIndex(getSlideIndex());
   }, [getSlideIndex, setSlideIndex]);
+
   return (
     <StyledSlides ref={slidesRef} onScrollEnd={handleScroll} {...props}>
       {children}
