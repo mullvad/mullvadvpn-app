@@ -96,7 +96,7 @@ final class StorePaymentManager: @unchecked Sendable {
 
         switch result {
         case let .success(.verified(transaction)):
-            await purchaseWasSuccessful(accountNumber: accountNumber, transaction: transaction)
+            await purchaseWasSuccessful(transaction: transaction)
         case let .success(.unverified(_, verificationFailure)):
             didFailVerification(error: verificationFailure)
         case .userCancelled:
@@ -109,11 +109,6 @@ final class StorePaymentManager: @unchecked Sendable {
     }
 
     func processUnfinishedTransactions() async throws -> StorePaymentOutcome {
-        guard let accountNumber = interactor.accountNumber else {
-            logger.error("No account number available for transaction.")
-            return .noTimeAdded
-        }
-
         var timeAdded: TimeInterval = 0
 
         // Attempt processing unfinished transactions.
@@ -130,7 +125,7 @@ final class StorePaymentManager: @unchecked Sendable {
             }
 
             // Upload transaction to API
-            try await uploadReceipt(accountNumber: accountNumber, jwsRepresentation: verification.jwsRepresentation)
+            try await uploadReceipt(jwsRepresentation: verification.jwsRepresentation)
 
             addToProcessedTransactions(verification)
             timeAdded += try timeFromProduct(id: verification.payloadValue.productID)
@@ -159,8 +154,8 @@ final class StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    private func uploadReceipt(accountNumber: String, jwsRepresentation: String) async throws {
-        let result = await interactor.checkPayment(accountNumber: accountNumber, jwsRepresentation: jwsRepresentation)
+    private func uploadReceipt(jwsRepresentation: String) async throws {
+        let result = await interactor.checkPayment(jwsRepresentation: jwsRepresentation)
 
         switch result {
         case .success(): return
@@ -168,11 +163,11 @@ final class StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    private func purchaseWasSuccessful(accountNumber: String, transaction: Transaction) async {
+    private func purchaseWasSuccessful(transaction: Transaction) async {
         let verification = VerificationResult<Transaction>.verified(transaction)
 
         do {
-            try await uploadReceipt(accountNumber: accountNumber, jwsRepresentation: verification.jwsRepresentation)
+            try await uploadReceipt(jwsRepresentation: verification.jwsRepresentation)
             await updateAccountData()
 
             try await verification.payloadValue.finish()
