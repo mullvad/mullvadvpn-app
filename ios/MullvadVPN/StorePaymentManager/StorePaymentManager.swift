@@ -46,27 +46,35 @@ final class StorePaymentManager: @unchecked Sendable {
         )
     }
 
+    deinit {
+        updateListenerTask?.cancel()
+    }
+
     /// Start listening for transaction updates.
     func start() {
         logger.debug("Starting StoreKit 2 transaction listener.")
 
-        updateListenerTask = Task.detached { [weak self] in
+        updateListenerTask?.cancel()
+        updateListenerTask = Task { [weak self] in
             guard let self else { return }
 
-            _ = try? await processUnfinishedTransactions()
-
             // If the purchase was made out-of-band, we need not upload the receipt.
-            for await transaction in Transaction.updates {
-                if case let .verified(purchase) = transaction {
-                    if purchase.revocationDate != nil,
-                        !transactionHasBeenProcessed(transaction)
-                    {
-                        await updateAccountData()
-                        addToProcessedTransactions(transaction)
-                    }
+            for await verification in Transaction.updates {
+                guard shouldProcessPayment(verification: verification) else {
+                    continue
                 }
+
+                await updateAccountData()
+                addToProcessedTransactions(verification)
             }
         }
+    }
+
+    // MARK: Notifications
+
+    func addPaymentObserver(_ observer: StorePaymentObserver) {
+        observerList.append(observer)
+        legacyStorePaymentManager.addPaymentObserver(observer)
     }
 
     // MARK: - Products and payments
@@ -108,39 +116,27 @@ final class StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    func processUnfinishedTransactions() async throws -> StorePaymentOutcome {
+    func processOutstandingTransactions() async throws -> StorePaymentOutcome {
         var timeAdded: TimeInterval = 0
 
-        // Attempt processing unfinished transactions.
         for await verification in Transaction.unfinished {
-            guard try verification.payloadValue.revocationDate != nil,
-                !transactionHasBeenProcessed(verification)
-            else {
+            guard shouldProcessPayment(verification: verification) else {
                 continue
             }
 
-            guard case VerificationResult<Transaction>.verified = verification else {
-                logger.error("Failed to verify transaction.")
-                continue
-            }
-
-            // Upload transaction to API
             try await uploadReceipt(jwsRepresentation: verification.jwsRepresentation)
 
             addToProcessedTransactions(verification)
             timeAdded += try timeFromProduct(id: verification.payloadValue.productID)
         }
 
-        let outcome: StorePaymentOutcome
-        if timeAdded > 0 {
-            // Update account data if transactions were processed.
-            await updateAccountData()
-            outcome = .timeAdded(timeAdded)
-        } else {
-            outcome = .noTimeAdded
-        }
+        await updateAccountData()
 
-        return outcome
+        return if timeAdded > 0 {
+            .timeAdded(timeAdded)
+        } else {
+            .noTimeAdded
+        }
     }
 
     // MARK: - Private methods
@@ -189,8 +185,6 @@ final class StorePaymentManager: @unchecked Sendable {
         switch result {
         case let .success(accountData):
             logger.info("Successfully updated account data. New expiry: \(accountData.expiry.logFormatted)")
-
-            // Notify delegate about successful account update.
             interactor.updateAccountData(for: accountData)
 
         case let .failure(error):
@@ -220,52 +214,62 @@ final class StorePaymentManager: @unchecked Sendable {
         }
     }
 
+    // Returns time added, in seconds.
     private func timeFromProduct(id: String) -> TimeInterval {
         let product = ProductId(rawValue: id)
 
         return switch product {
-        case .thirtyDays: 30
-        case .ninetyDays: 90
+        case .thirtyDays: Duration.days(30).timeInterval
+        case .ninetyDays: Duration.days(90).timeInterval
         case .none: 0
         }
+    }
+
+    private func shouldProcessPayment(verification: VerificationResult<Transaction>) -> Bool {
+        guard case VerificationResult<Transaction>.verified = verification else {
+            return false
+        }
+
+        let revocationDate = try? verification.payloadValue.revocationDate
+        return (revocationDate != nil) && !transactionHasBeenProcessed(verification)
     }
 
     // MARK: Notifications
 
     /// Purchase was successful.
     private func didPurchaseMoreTime(outcome: StorePaymentOutcome) {
-        notifyObservers(of: StorePaymentEvent.successfulPayment(outcome))
+        notifyObservers(of: .successfulPayment(outcome))
     }
 
     /// User cancelled purchase before it was completed.
     private func userDidCancel() {
-        notifyObservers(of: StorePaymentEvent.userCancelled)
+        notifyObservers(of: .userCancelled)
     }
 
     /// Purchase is still pending, transaction may be delivered asynchronously.
     private func didSuspendPurchase() {
-        notifyObservers(of: StorePaymentEvent.pending)
+        notifyObservers(of: .pending)
     }
 
     /// Handle failure to fetch a payment token
     ///
     /// - Parameter error: error thrown by the API client
     private func didFailFetchingToken(error: Error) {
-        notifyObservers(of: StorePaymentEvent.failed(.getPaymentToken(error)))
+        notifyObservers(of: .failed(.getPaymentToken(error)))
     }
 
     /// Handle failure to upload a payment receipt to the API. This transaction should be uploaded again.
     ///
     /// - Parameter error: error thrown by the API client
     private func didFailUploadingReceipt(error: Error) {
-        notifyObservers(of: StorePaymentEvent.failed(.receiptUpload(error)))
+        notifyObservers(of: .failed(.receiptUpload(error)))
     }
 
     /// Handle failure to verify the payment transaction.
     ///
     /// - Parameter error: error thrown by the API client
     private func didFailVerification(error: VerificationResult<Transaction>.VerificationError) {
-        notifyObservers(of: StorePaymentEvent.failed(.verification(error)))
+        notifyObservers(of: .failed(.verification(error)))
     }
 
     /// Handle an error thrown from the Product.purchase call
@@ -285,7 +289,7 @@ final class StorePaymentManager: @unchecked Sendable {
             failure = .unknown(error)
         }
 
-        notifyObservers(of: StorePaymentEvent.failed(failure))
+        notifyObservers(of: .failed(failure))
     }
 
     private func notifyObservers(of storeKitEvent: StorePaymentEvent) {
@@ -306,10 +310,6 @@ extension StorePaymentManager {
 
     func addPayment(_ payment: SKPayment, for accountNumber: String) {
         legacyStorePaymentManager.addPayment(payment, for: accountNumber)
-    }
-
-    func addPaymentObserver(_ observer: StorePaymentObserver) {
-        legacyStorePaymentManager.addPaymentObserver(observer)
     }
 
     func restorePurchases(

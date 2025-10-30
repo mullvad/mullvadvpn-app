@@ -64,9 +64,17 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
             startPaymentFlow()
         case .restorePurchase:
             Task {
-                let outcome = (try? await storePaymentManager.processUnfinishedTransactions()) ?? .noTimeAdded
-                errorPresenter.showAlertForOutcome(outcome, context: .restoration) {
-                    self.didFinish?()
+                do {
+                    let outcome = try await storePaymentManager.processOutstandingTransactions()
+                    spinnerView.stopAnimating()
+                    errorPresenter.showAlertForOutcome(outcome, context: .restoration) {
+                        self.didFinish?()
+                    }
+                } catch {
+                    spinnerView.stopAnimating()
+                    errorPresenter.showAlertForError(.unknown(error), context: .restoration) {
+                        self.didFinish?()
+                    }
                 }
             }
         }
@@ -234,7 +242,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
             self.didFinish?()
         }
-        cancelAction.accessibilityIdentifier = "actoin-sheet-cancel-button"
+        cancelAction.accessibilityIdentifier = "action-sheet-cancel-button"
         sheetController.addAction(cancelAction)
         present(sheetController, animated: true)
     }

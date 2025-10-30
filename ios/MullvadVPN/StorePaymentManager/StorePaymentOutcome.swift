@@ -17,7 +17,7 @@ enum StorePaymentOutcome {
         case .noTimeAdded:
             return 0
         case let .timeAdded(timeAdded):
-            return TimeInterval(timeAdded)
+            return timeAdded
         }
     }
 
