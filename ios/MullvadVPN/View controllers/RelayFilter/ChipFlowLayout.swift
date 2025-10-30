@@ -30,8 +30,8 @@ class ChipFlowLayout: UICollectionViewFlowLayout {
         let attributes = originalAttributes.compactMap { $0.copy() as? UICollectionViewLayoutAttributes }
 
         // Detect RTL
-        let languageCode = Locale.current.languageCode ?? "en"
-        let isRTL = Locale.characterDirection(forLanguage: languageCode) == .rightToLeft
+        let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
+        let isRTL = Locale.Language(identifier: languageCode).characterDirection == .rightToLeft
 
         var currentLineY: CGFloat = -1
         var currentLineAttributes: [UICollectionViewLayoutAttributes] = []
