@@ -59,8 +59,9 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
       {subtitle.map((subtitle, index, arr) => {
         const content = formatSubtitle(subtitle);
 
+        // TODO: Use a better key!
         return (
-          <React.Fragment key={subtitle.content}>
+          <React.Fragment key={index}>
             {content}
             {index !== arr.length - 1 && ' '}
           </React.Fragment>
