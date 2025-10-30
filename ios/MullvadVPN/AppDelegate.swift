@@ -574,9 +574,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 self.logger.debug("Finished initialization.")
 
                 NotificationManager.shared.updateNotifications()
-                self.storePaymentManager.start()
 
-                finish(nil)
+                Task {
+                    await self.storePaymentManager.start()
+                    finish(nil)
+                }
             }
         }
     }

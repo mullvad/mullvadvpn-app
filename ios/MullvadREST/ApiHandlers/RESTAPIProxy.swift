@@ -248,7 +248,6 @@ extension REST {
     }
 
     public struct UUIDParseError: Swift.Error {
-
         public let payload: String
     }
 }
