@@ -180,6 +180,17 @@ final class LegacyStorePaymentManager: NSObject, SKPaymentTransactionObserver, @
         )
     }
 
+    // Returns time added, in seconds.
+    func timeFromProduct(id: String) -> TimeInterval {
+        let product = StoreSubscription(rawValue: id)
+
+        return switch product {
+        case .thirtyDays: Duration.days(30).timeInterval
+        case .ninetyDays: Duration.days(90).timeInterval
+        case .none: 0
+        }
+    }
+
     // MARK: - Private methods
 
     private func transactionHasBeenProcessed(id: String) -> Bool {

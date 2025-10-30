@@ -571,12 +571,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // and leave user in logged out state. VPN config will be removed as well.
         AsyncBlockOperation(dispatchQueue: .main) { finish in
             self.tunnelManager.loadConfiguration {
-                self.logger.debug("Finished initialization.")
+                Task {
+                    self.logger.debug("Finished initialization.")
 
-                NotificationManager.shared.updateNotifications()
-                self.storePaymentManager.start()
+                    NotificationManager.shared.updateNotifications()
 
-                finish(nil)
+                    await self.storePaymentManager.start()
+                    finish(nil)
+                }
             }
         }
     }
