@@ -89,13 +89,24 @@ export interface InAppNotification {
   indicator?: InAppNotificationIndicatorType;
   action?: InAppNotificationAction;
   title: string;
-  subtitle?: string | InAppNotificationSubtitle[];
+  subtitle?: string | React.ReactElement | InAppNotificationSubtitle[];
 }
 
-export interface InAppNotificationSubtitle {
+export type InAppNotificationSubtitleString = {
   content: string;
+};
+
+export type InAppNotificationSubtitleElement = {
+  content: React.ReactElement;
+  key: string;
+};
+
+export type InAppNotificationSubtitle = (
+  | InAppNotificationSubtitleString
+  | InAppNotificationSubtitleElement
+) & {
   action?: InAppNotificationAction;
-}
+};
 
 export interface SystemNotificationProvider extends NotificationProvider {
   getSystemNotification(): SystemNotification | undefined;
