@@ -91,9 +91,13 @@ private struct MullvadListButtonStyle: ButtonStyle {
     let onButtonPressedChange: (Bool) -> Void
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .onChange(of: configuration.isPressed) { newValue in
-                onButtonPressedChange(newValue)
-            }
+            .onChange(
+                of: configuration.isPressed,
+                { oldValue, newValue in
+                    if oldValue != newValue {
+                        onButtonPressedChange(newValue)
+                    }
+                })
     }
 }
 

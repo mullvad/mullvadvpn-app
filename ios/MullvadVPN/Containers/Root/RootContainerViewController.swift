@@ -753,7 +753,7 @@ class RootContainerViewController: UIViewController {
 
             // Tell UIKit to update the interface orientation
             if attemptRotateToDeviceOrientation {
-                Self.attemptRotationToDeviceOrientation()
+                setNeedsUpdateOfSupportedInterfaceOrientations()
             }
         }
     }
