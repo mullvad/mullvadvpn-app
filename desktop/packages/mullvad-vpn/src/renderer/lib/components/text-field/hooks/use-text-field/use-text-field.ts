@@ -29,10 +29,11 @@ export function useTextField({
   const [dirty, setDirty] = React.useState(false);
 
   const reset = React.useCallback(() => {
-    setValue(defaultValue ?? '');
-    setInvalid(false);
+    const newValue = defaultValue ?? '';
+    setValue(newValue);
+    setInvalid(validate ? !validate(newValue) : false);
     setDirty(false);
-  }, [defaultValue]);
+  }, [defaultValue, validate]);
 
   const focus = React.useCallback(() => {
     inputRef.current?.focus();

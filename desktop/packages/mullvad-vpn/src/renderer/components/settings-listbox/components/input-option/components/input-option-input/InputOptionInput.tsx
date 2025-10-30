@@ -13,6 +13,11 @@ export function InputOptionInput(props: InputOptionInputProps) {
   const { inputRef, labelId, inputState } = useInputOptionContext();
   const { value, invalid, dirty, blur, handleChange, reset } = inputState;
 
+  // Prevent the click from propagating to the ListboxOption, which would select the option.
+  const handleClick = React.useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+  }, []);
+
   const handleBlur = React.useCallback(() => {
     if (invalid) {
       reset();
@@ -38,6 +43,7 @@ export function InputOptionInput(props: InputOptionInputProps) {
         aria-labelledby={labelId}
         tabIndex={-1}
         inputMode="numeric"
+        onClick={handleClick}
         onBlur={handleBlur}
         onChange={handleChange}
         {...props}
