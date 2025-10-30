@@ -6,8 +6,8 @@ use std::{
 use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
-    self, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt, reload::Handle,
-    util::SubscriberInitExt, EnvFilter, Registry,
+    self, EnvFilter, Registry, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt,
+    reload::Handle, util::SubscriberInitExt,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -149,8 +149,11 @@ pub fn init_logger(
         _file_appender_guard,
     };
 
+    let console_layer = console_subscriber::spawn();
+
     let reg = tracing_subscriber::registry()
         .with(user_filter)
+        .with(console_layer)
         .with(default_filter);
 
     if let Some(log_dir) = log_dir {

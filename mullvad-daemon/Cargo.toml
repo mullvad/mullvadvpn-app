@@ -58,11 +58,12 @@ clap = { workspace = true }
 log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 tracing-appender = "0.2.3"
+console-subscriber = "0.5.0"
 
 [dev-dependencies]
 insta = { workspace = true, features = ["json"] }
 talpid-time = { path = "../talpid-time", features = ["test"] }
-tokio = { workspace = true, features =  ["test-util"] }
+tokio = { workspace = true, features =  ["test-util", "tracing"] }
 
 [target.'cfg(target_os="android")'.dependencies]
 async-trait = "0.1"
