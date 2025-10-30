@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.util.Lc
@@ -15,47 +15,69 @@ class SelectLocationsUiStatePreviewParameterProvider :
         sequenceOf(
             Lc.Loading(Unit),
             SelectLocationUiState(
-                    filterChips = emptyList(),
+                    filterChips = emptyMap(),
                     multihopEnabled = false,
                     relayListType = RelayListType.Single,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelection = null,
+                    exitSelection = null,
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
                     filterChips =
-                        listOf(
-                            FilterChip.Ownership(ownership = ModelOwnership.Rented),
-                            FilterChip.Provider(PROVIDER_COUNT),
+                        mapOf(
+                            RelayListType.Single to
+                                listOf(
+                                    FilterChip.Ownership(ownership = ModelOwnership.Rented),
+                                    FilterChip.Provider(PROVIDER_COUNT),
+                                )
                         ),
                     multihopEnabled = false,
                     relayListType = RelayListType.Single,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelection = null,
+                    exitSelection = null,
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
-                    filterChips = emptyList(),
+                    filterChips = emptyMap(),
                     multihopEnabled = true,
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelection = null,
+                    exitSelection = null,
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
                     filterChips =
-                        listOf(
-                            FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
-                            FilterChip.Provider(PROVIDER_COUNT),
+                        mapOf(
+                            RelayListType.Multihop(MultihopRelayListType.ENTRY) to
+                                listOf(
+                                    FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
+                                    FilterChip.Provider(PROVIDER_COUNT),
+                                )
                         ),
                     multihopEnabled = true,
                     relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelection = null,
+                    exitSelection = null,
+                    tunnelErrorStateCause = null,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
         )

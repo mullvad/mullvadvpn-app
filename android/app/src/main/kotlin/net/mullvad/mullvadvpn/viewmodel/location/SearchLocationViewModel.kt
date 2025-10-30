@@ -15,15 +15,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -44,7 +44,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseC
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.util.combine
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class SearchLocationViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
@@ -119,6 +119,8 @@ class SearchLocationViewModel(
                             ),
                         customLists = customLists,
                         filterChips = filterChips,
+                        selection = selectedItem,
+                        entrySelectionAllowed = settings?.entryBlocked() == false,
                     )
                 )
             }
@@ -254,11 +256,46 @@ class SearchLocationViewModel(
     }
 
     fun removeOwnerFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedOwnership(
+                relayListType = relayListType,
+                ownership = Constraint.Any,
+            )
+        }
     }
 
     fun removeProviderFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedProviders(
+                relayListType = relayListType,
+                providers = Constraint.Any,
+            )
+        }
+    }
+
+    fun setAsEntry(item: RelayItem) {
+        viewModelScope.launch {
+            modifyMultihop(MultihopChange.Entry(item))
+            // If multihop is not turned on, turn it on and show a snackbar to the user
+            if (
+                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
+                    false
+            ) {
+                wireguardConstraintsRepository.setMultihop(true)
+                _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(true))
+            }
+        }
+    }
+
+    fun setAsExit(item: RelayItem) {
+        viewModelScope.launch { modifyMultihop(MultihopChange.Exit(item)) }
+    }
+
+    fun setMultihop(enable: Boolean) {
+        viewModelScope.launch {
+            wireguardConstraintsRepository.setMultihop(enable)
+            _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(enable))
+        }
     }
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
@@ -279,6 +316,8 @@ sealed interface SearchLocationSideEffect {
 
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect
+
+    data class MultihopChanged(val enabled: Boolean) : SearchLocationSideEffect
 
     data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 

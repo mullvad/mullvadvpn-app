@@ -2,17 +2,16 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
@@ -23,9 +22,9 @@ class RecentsUseCase(
     private val settingsRepository: SettingsRepository,
 ) {
 
-    operator fun invoke(isMultihop: Boolean): Flow<List<Hop>?> =
-        if (isMultihop) {
-            multiHopRecents()
+    operator fun invoke(relayListType: RelayListType): Flow<List<Hop.Single<RelayItem>>?> =
+        if (relayListType is RelayListType.Multihop) {
+            multiHopRecents(relayListType.multihopRelayListType)
         } else {
             singleHopRecents()
         }
@@ -38,28 +37,27 @@ class RecentsUseCase(
         ) { recents, relayList, customList ->
             recents?.mapNotNull { recent ->
                 val relayListItem = recent.location.findItem(customList, relayList)
-
                 relayListItem?.let { Hop.Single(it) }
             }
         }
 
-    private fun multiHopRecents(): Flow<List<Hop.Multi>?> =
+    private fun multiHopRecents(
+        multihopRelayListType: MultihopRelayListType
+    ): Flow<List<Hop.Single<RelayItem>>?> =
         combine(
             recents().map { it?.filterIsInstance<Recent.Multihop>() },
-            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
-            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
-            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
-            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
-        ) { recents, entryRelayList, entryCustomLists, exitRelayList, exitCustomLists ->
+            filteredRelayListUseCase(RelayListType.Multihop(multihopRelayListType)),
+            customListsRelayItemUseCase(RelayListType.Multihop(multihopRelayListType)),
+        ) { recents, relayList, customLists ->
             recents?.mapNotNull { recent ->
-                val entry = recent.entry.findItem(entryCustomLists, entryRelayList)
-                val exit = recent.exit.findItem(exitCustomLists, exitRelayList)
-
-                if (entry != null && exit != null) {
-                    Hop.Multi(entry, exit)
-                } else {
-                    null
-                }
+                val item =
+                    if (multihopRelayListType == MultihopRelayListType.ENTRY) {
+                            recent.entry
+                        } else {
+                            recent.exit
+                        }
+                        .findItem(customLists, relayList)
+                item?.let { Hop.Single(it) }
             }
         }
 

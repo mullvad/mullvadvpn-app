@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -62,7 +63,6 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -70,6 +70,7 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -101,6 +102,9 @@ private fun PreviewSearchLocationScreen(
             onDeleteCustomList = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
+            onSetAsEntry = {},
+            onSetAsExit = {},
+            onDisableMultihop = {},
             onGoBack = {},
         )
     }
@@ -178,6 +182,23 @@ fun SearchLocation(
                     )
                 }
             }
+            is SearchLocationSideEffect.MultihopChanged -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                if (it.enabled) {
+                                    R.string.multihop_is_enabled
+                                } else {
+                                    R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        onAction = { viewModel.setMultihop(!it.enabled) },
+                        duration = SnackbarDuration.Long,
+                    )
+                }
+            }
         }
     }
 
@@ -239,11 +260,14 @@ fun SearchLocation(
             },
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
+        onSetAsEntry = viewModel::setAsEntry,
+        onDisableMultihop = { viewModel.setMultihop(false) },
+        onSetAsExit = viewModel::setAsExit,
         onGoBack = dropUnlessResumed { navigator.navigateUp() },
     )
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
@@ -260,6 +284,9 @@ fun SearchLocationScreen(
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
+    onSetAsEntry: (RelayItem) -> Unit,
+    onDisableMultihop: () -> Unit,
+    onSetAsExit: (RelayItem) -> Unit,
     onGoBack: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -276,12 +303,16 @@ fun SearchLocationScreen(
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
+            enableEntryOption = state.contentOrNull()?.entrySelectionAllowed == true,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
+            onSetAsEntry = onSetAsEntry,
+            onDisableMultihop = onDisableMultihop,
+            onSetAsExit = onSetAsExit,
             onHideBottomSheet = { locationBottomSheetState = null },
         )
         Column(modifier = Modifier.padding(it)) {
@@ -311,11 +342,13 @@ fun SearchLocationScreen(
                 state = lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                filterRow(
-                    filters = state.contentOrNull()?.filterChips ?: emptyList(),
-                    onRemoveOwnershipFilter = onRemoveOwnershipFilter,
-                    onRemoveProviderFilter = onRemoveProviderFilter,
-                )
+                if (state is Lce.Content) {
+                    filterRow(
+                        filters = state.value.filterChips,
+                        onRemoveOwnershipFilter = onRemoveOwnershipFilter,
+                        onRemoveProviderFilter = onRemoveProviderFilter,
+                    )
+                }
                 when (state) {
                     is Lce.Loading -> {
                         loading()
@@ -328,6 +361,7 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
+                            selection = state.value.selection,
                             onSelectHop = { error("Can not select hop in search screen") },
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)

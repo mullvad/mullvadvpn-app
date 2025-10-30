@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
@@ -44,7 +44,7 @@ class SelectLocationListViewModel(
                 relayListItems(),
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
-            ) { relayListItems, customLists, settings ->
+            ) { (relayListItems, selectedItem), customLists, settings ->
                 if (relayListType.isEntryAndBlocked(settings)) {
                     Lce.Error(Unit)
                 } else {
@@ -53,6 +53,7 @@ class SelectLocationListViewModel(
                             relayListType = relayListType,
                             relayListItems = relayListItems,
                             customLists = customLists,
+                            selection = selectedItem,
                         )
                     )
                 }
@@ -71,7 +72,7 @@ class SelectLocationListViewModel(
         combine(
             filteredRelayListUseCase(relayListType = relayListType),
             filteredCustomListRelayItemsUseCase(relayListType = relayListType),
-            recentsUseCase(isMultihop = relayListType is RelayListType.Multihop),
+            recentsUseCase(relayListType = relayListType),
             selectedLocationUseCase(),
             _expandedItems,
         ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
@@ -104,9 +105,8 @@ class SelectLocationListViewModel(
                             selectedItem.selectedByOtherEntryExitList(relayListType, customLists)
                         },
                     expandedItems = expandedItems,
-                    isEntryBlocked = settings?.entryBlocked() == true,
                 )
-            }
+            } to selectedItem
         }
 
     private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {

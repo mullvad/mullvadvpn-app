@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -34,13 +37,13 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsListUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -62,6 +65,7 @@ private fun PreviewSelectLocationList(
             SelectLocationListContent(
                 state = state,
                 lazyListState = rememberLazyListState(),
+                bottomMargin = 0.dp,
                 openDaitaSettings = {},
                 onSelectHop = {},
                 onSelectRelayItem = { _, _ -> },
@@ -80,6 +84,7 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 
 @Composable
 fun SelectLocationList(
+    bottomMargin: Dp,
     relayListType: RelayListType,
     onSelectHop: (Hop) -> Unit,
     onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
@@ -107,6 +112,7 @@ fun SelectLocationList(
     SelectLocationListContent(
         state = state,
         lazyListState = lazyListState,
+        bottomMargin = bottomMargin,
         openDaitaSettings = openDaitaSettings,
         onSelectHop = onSelectHop,
         onSelectRelayItem = onSelectRelayItem,
@@ -121,6 +127,7 @@ fun SelectLocationList(
 private fun SelectLocationListContent(
     state: Lce<Unit, SelectLocationListUiState, Unit>,
     lazyListState: LazyListState,
+    bottomMargin: Dp,
     openDaitaSettings: () -> Unit,
     onSelectHop: (Hop) -> Unit,
     onSelectRelayItem: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
@@ -140,6 +147,7 @@ private fun SelectLocationListContent(
                     MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                 )
                 .testTag(SELECT_LOCATION_LIST_TEST_TAG),
+        contentPadding = PaddingValues(bottom = bottomMargin),
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement =
@@ -176,6 +184,7 @@ private fun SelectLocationListContent(
                             if (state.value.customLists.isNotEmpty()) onEditCustomLists else null,
                         )
                     },
+                    selection = state.value.selection,
                 )
 
                 if (shouldScrollToTop) {
