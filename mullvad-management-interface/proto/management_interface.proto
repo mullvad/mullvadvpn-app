@@ -136,6 +136,10 @@ service ManagementService {
   rpc DisableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc EnableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
+  rpc GetRolloutThreshold(google.protobuf.Empty) returns (Rollout) {}
+  rpc RegenerateRolloutThreshold(google.protobuf.Empty) returns (Rollout) {}
+  rpc SetRolloutThresholdSeed(Seed) returns (google.protobuf.Empty) {}
+
   // App upgrade
   rpc AppUpgrade(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc AppUpgradeAbort(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -171,6 +175,9 @@ message AppUpgradeError {
   }
   Error error = 1;
 }
+
+message Seed { uint32 seed = 1; }
+message Rollout { float threshold = 1; }
 
 message UUID { string value = 1; }
 

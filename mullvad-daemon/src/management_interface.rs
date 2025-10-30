@@ -1168,6 +1168,51 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    #[cfg(not(target_os = "android"))]
+    async fn get_rollout_threshold(&self, _: Request<()>) -> ServiceResult<types::Rollout> {
+        log::debug!("get_rollout_threshold");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetRolloutThreshold(tx))?;
+        let threshold = self.wait_for_result(rx).await?;
+        let rollout = types::Rollout { threshold };
+        Ok(Response::new(rollout))
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn set_rollout_threshold_seed(&self, seed: Request<types::Seed>) -> ServiceResult<()> {
+        log::debug!("set_rollout_threshold_seed");
+        let seed = seed.into_inner().seed;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetRolloutThresholdSeed { seed, tx })?;
+        self.wait_for_result(rx).await?;
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn regenerate_rollout_threshold(&self, _: Request<()>) -> ServiceResult<types::Rollout> {
+        log::debug!("regenerate_rollout_threshold");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GenerateNewRolloutSeed(tx))?;
+        let threshold = self.wait_for_result(rx).await?;
+        let rollout = types::Rollout { threshold };
+        Ok(Response::new(rollout))
+    }
+
+    #[cfg(target_os = "android")]
+    async fn get_rollout_threshold(&self, _: Request<()>) -> ServiceResult<types::Rollout> {
+        unreachable!("You should not call get_rollout_threshold");
+    }
+
+    #[cfg(target_os = "android")]
+    async fn set_rollout_threshold_seed(&self, _: Request<types::Seed>) -> ServiceResult<()> {
+        unreachable!("You should not call set_rollout_threshold_seed");
+    }
+
+    #[cfg(target_os = "android")]
+    async fn regenerate_rollout_threshold(&self, _: Request<()>) -> ServiceResult<types::Rollout> {
+        unreachable!("You should not call regenerate_rollout_threshold");
+    }
+
     // App upgrade
 
     async fn app_upgrade(&self, _: Request<()>) -> ServiceResult<()> {
