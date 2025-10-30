@@ -250,13 +250,79 @@ pub fn generate_rollout_seed() -> u32 {
 }
 
 #[cfg(test)]
-mod test {
-    use insta::assert_yaml_snapshot;
-    use std::str::FromStr;
-
+pub mod arbitrary {
     use super::*;
 
+    use format::Architecture;
+    use mullvad_version::arbitrary::arb_version as arb_app_version;
+    use prop::collection;
+    use prop::option;
+    use proptest::prelude::*;
+    use rollout::arbitrary::*;
+
+    prop_compose! {
+        /// Generate arbitrary [VersionParameters].
+        pub fn arb_version_parameters(allow_empty: bool)
+            (rollout in arb_rollout(), architecture in arb_architecture(), lowest_metadata_version in 0..100usize)
+            -> VersionParameters {
+                // TODO: Check the `lowest_metadata_version` generations.
+            VersionParameters { architecture, rollout, allow_empty, lowest_metadata_version }
+        }
+    }
+
+    prop_compose! {
+        /// Generate arbitrary [VersionInfo] (API responses).
+        pub fn arb_version_info()
+            (stable in arb_version(), beta in option::of(arb_version()))
+            -> VersionInfo {
+            VersionInfo { stable, beta }
+        }
+    }
+
+    prop_compose! {
+        /// Generate arbitrary [Version].
+        pub fn arb_version()
+                          (app_version in arb_app_version(), changelog: String, installer in arb_installer())
+                          -> Version {
+            Version {
+                version: app_version,
+                installer,
+                changelog,
+            }
+        }
+    }
+
+    /// Generate an arbitrary [Installer].
+    // TODO: This sucks.
+    fn arb_installer() -> impl Strategy<Value = Installer> {
+        // TODO
+        collection::vec("XD".boxed(), 5).prop_map(|urls| {
+            let size = 256; // TODO
+            let sha256 = [0; 32]; // TODO
+            Installer { urls, size, sha256 }
+        })
+    }
+
+    /// Generate a random [Architecture] uniformly.
+    fn arb_architecture() -> impl Strategy<Value = Architecture> {
+        prop_oneof![Just(Architecture::X86), Just(Architecture::Arm64)]
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    use std::str::FromStr;
+
+    use insta::assert_yaml_snapshot;
+    use proptest::prelude::*;
+
     const TEST_RESPONSE: &[u8] = include_bytes!("../../test-version-response.json");
+
+    proptest! {
+        // TODO
+    }
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
     // then most likely the snapshots need to be updated. The most convenient way to review
