@@ -1122,6 +1122,7 @@
 		F91CCBF82DFABB75007F1925 /* DeviceManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBF72DFABB70007F1925 /* DeviceManagementView.swift */; };
 		F91CCBFA2DFAC8ED007F1925 /* DeviceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBF92DFAC8ED007F1925 /* DeviceListView.swift */; };
 		F91CCBFC2DFAF5E6007F1925 /* MullvadProgressViewStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */; };
+		F91E0CF32E6853D60056BD7C /* MullvadRoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91E0CF12E6853770056BD7C /* MullvadRoundedCorner.swift */; };
 		F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C4522D706929001F4660 /* MullvadApiTests.swift */; };
 		F924C5A42DA65F28001F4660 /* Storekit2.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C5A32DA65F28001F4660 /* Storekit2.swift */; };
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
@@ -1129,6 +1130,7 @@
 		F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
 		F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */; };
 		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
+		F95AC9EA2E5DFB0600A55B52 /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */; };
 		F97C38CA2DE49869006DCB08 /* MultihopSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38C92DE49869006DCB08 /* MultihopSettingsCoordinator.swift */; };
 		F97C38D92DE5930F006DCB08 /* CustomDNSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38D82DE59307006DCB08 /* CustomDNSCoordinator.swift */; };
 		F97C38DF2DEEDB0F006DCB08 /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
@@ -1137,6 +1139,10 @@
 		F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
+		F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E32412E7AA109004A7EFE /* MultihopContext.swift */; };
+		F9C579C42E8FE08600C90C50 /* LocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C32E8FE08600C90C50 /* LocationListItem.swift */; };
+		F9C579C62E8FE0D000C90C50 /* LocationDisclosureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */; };
+		F9C579C82E8FE10400C90C50 /* RelayItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C72E8FE10400C90C50 /* RelayItemView.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 /* End PBXBuildFile section */
 
@@ -2578,6 +2584,7 @@
 		F91CCBF72DFABB70007F1925 /* DeviceManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagementView.swift; sourceTree = "<group>"; };
 		F91CCBF92DFAC8ED007F1925 /* DeviceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceListView.swift; sourceTree = "<group>"; };
 		F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadProgressViewStyle.swift; sourceTree = "<group>"; };
+		F91E0CF12E6853770056BD7C /* MullvadRoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadRoundedCorner.swift; sourceTree = "<group>"; };
 		F924C4522D706929001F4660 /* MullvadApiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiTests.swift; sourceTree = "<group>"; };
 		F924C5A32DA65F28001F4660 /* Storekit2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storekit2.swift; sourceTree = "<group>"; };
 		F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerRelayTests.swift; sourceTree = "<group>"; };
@@ -2585,12 +2592,17 @@
 		F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Mullvad.swift"; sourceTree = "<group>"; };
 		F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListNavigationItemView.swift; sourceTree = "<group>"; };
 		F9394EF22DC21D8C009595EA /* MullvadList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadList.swift; sourceTree = "<group>"; };
+		F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsListView.swift; sourceTree = "<group>"; };
 		F97C38C92DE49869006DCB08 /* MultihopSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopSettingsCoordinator.swift; sourceTree = "<group>"; };
 		F97C38D82DE59307006DCB08 /* CustomDNSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDNSCoordinator.swift; sourceTree = "<group>"; };
 		F97C38E22DEEDC28006DCB08 /* MullvadListActionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListActionItemView.swift; sourceTree = "<group>"; };
 		F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+Assets.swift"; sourceTree = "<group>"; };
 		F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAlert.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
+		F99E32412E7AA109004A7EFE /* MultihopContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopContext.swift; sourceTree = "<group>"; };
+		F9C579C32E8FE08600C90C50 /* LocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationListItem.swift; sourceTree = "<group>"; };
+		F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDisclosureGroup.swift; sourceTree = "<group>"; };
+		F9C579C72E8FE10400C90C50 /* RelayItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayItemView.swift; sourceTree = "<group>"; };
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3241,13 +3253,16 @@
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 				F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */,
 				7A6652B62BB44B120042D848 /* LocationDiffableDataSourceProtocol.swift */,
-				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
 				7A5468AB2C6A55B100590086 /* LocationRelays.swift */,
 				F050AE512B70DFC0003F4EDB /* LocationSection.swift */,
 				F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */,
 				5888AD86227B17950051EB06 /* LocationViewController.swift */,
 				7AB3BEB42BD7A6CB00E34384 /* LocationViewControllerWrapper.swift */,
 				F01DAE322C2B032A00521E46 /* RelaySelection.swift */,
+				F99E32412E7AA109004A7EFE /* MultihopContext.swift */,
+				F95A28302E8A8FC300C3F75D /* LocationContext.swift */,
+				F9C579C02E8FB4A800C90C50 /* DataSource */,
+				F900524C2E6B04470085C80E /* Views */,
 			);
 			path = SelectLocation;
 			sourceTree = "<group>";
@@ -3386,6 +3401,7 @@
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
 				7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */,
+				F91E0CF12E6853770056BD7C /* MullvadRoundedCorner.swift */,
 				A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */,
 			);
 			path = Views;
@@ -4958,6 +4974,17 @@
 			path = Filter;
 			sourceTree = "<group>";
 		};
+		F900524C2E6B04470085C80E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */,
+				F9C579C32E8FE08600C90C50 /* LocationListItem.swift */,
+				F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */,
+				F9C579C72E8FE10400C90C50 /* RelayItemView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		F910A4322D4A1BA1002FF3BB /* InAppPurchase */ = {
 			isa = PBXGroup;
 			children = (
@@ -4974,6 +5001,14 @@
 				F9394EF22DC21D8C009595EA /* MullvadList.swift */,
 			);
 			path = List;
+			sourceTree = "<group>";
+		};
+		F9C579C02E8FB4A800C90C50 /* DataSource */ = {
+			isa = PBXGroup;
+			children = (
+				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
+			);
+			path = DataSource;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -6427,6 +6462,7 @@
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
 				7A9CCCB32A96302800DD6A34 /* WelcomeCoordinator.swift in Sources */,
 				587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */,
+				F95AC9EA2E5DFB0600A55B52 /* LocationsListView.swift in Sources */,
 				5827B0922B0CAB2800CCBBA1 /* MethodSettingsViewController.swift in Sources */,
 				F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
@@ -6462,6 +6498,7 @@
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				58EFC7752AFB4CEF00E9F4CB /* AboutViewController.swift in Sources */,
 				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
+				F9C579C42E8FE08600C90C50 /* LocationListItem.swift in Sources */,
 				7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */,
 				F0B495782D02038B00CFEC2A /* ChipViewModelProtocol.swift in Sources */,
 				58CEB30A2AFD584700E6E088 /* CustomCellDisclosureHandling.swift in Sources */,
@@ -6511,6 +6548,7 @@
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
+				F9C579C62E8FE0D000C90C50 /* LocationDisclosureGroup.swift in Sources */,
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				586C0D872B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift in Sources */,
 				7A9CCCBD2A96302800DD6A34 /* LoginCoordinator.swift in Sources */,
@@ -6592,6 +6630,7 @@
 				063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */,
 				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
+				F9C579C82E8FE10400C90C50 /* RelayItemView.swift in Sources */,
 				F050AE602B73A41E003F4EDB /* AllLocationDataSource.swift in Sources */,
 				587EB6742714520600123C75 /* VPNSettingsDataSourceDelegate.swift in Sources */,
 				7AB2B6712BA1EB8C00B03E3B /* ListCustomListCoordinator.swift in Sources */,
@@ -6640,6 +6679,7 @@
 				58CEB2F92AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift in Sources */,
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
+				F95A28312E8A8FC300C3F75D /* LocationContext.swift in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
@@ -6713,6 +6753,7 @@
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				7A5869BF2B57D0A100640D27 /* IPOverrideStatus.swift in Sources */,
+				F91E0CF32E6853D60056BD7C /* MullvadRoundedCorner.swift in Sources */,
 				44E1F7582D3EA83A003A60FF /* DestinationDescriber.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */,
@@ -6763,6 +6804,7 @@
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */,
 				F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */,
+				F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,

@@ -70,6 +70,7 @@ public enum AccessibilityIdentifier: Equatable {
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
     case acceptLocalNetworkSharingButton
+    case locationListItem(String)
 
     // Cells
     case deviceCell
