@@ -152,6 +152,22 @@ mod test {
          fn valid_rollout(r in arb_rollout()) {
              Rollout::from_str(&r.to_string()).unwrap();
          }
+
+         /// Test that inequality works as expected (i.e. as for floating point numbers).
+         #[test]
+         fn rollout_inequality(r1 in arb_rollout(), r2 in arb_rollout()) {
+            if r1.0 < r2.0 {
+                assert!(r1 < r2)
+            } else if r1.0 > r2.0 {
+                assert!(r1 > r2)
+            }
+         }
+
+         /// Test that eqaulity works as expected (i.e. as for floating point numbers).
+         #[test]
+         fn rollout_identity(rollout in arb_rollout()) {
+             assert_eq!(rollout, rollout)
+         }
     }
 
     const GOOD_ROLLOUT_EXAMPLES: &[f32] = &[
