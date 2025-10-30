@@ -116,23 +116,23 @@ impl Serialize for Rollout {
 }
 
 #[cfg(test)]
-mod test {
+/// Generators for [Rollout].
+pub mod arbitrary {
     use super::*;
 
-    use insta::{assert_snapshot, assert_yaml_snapshot};
     use proptest::prelude::*;
 
     /// Generate *any* arbitrary [Rollout] values.
     ///
     /// This generator assume that [VALID_ROLLOUT] represent all valid rollouts.
-    fn arb_any_rollout() -> BoxedStrategy<Rollout> {
+    pub fn arb_any_rollout() -> BoxedStrategy<Rollout> {
         VALID_ROLLOUT.prop_map(Rollout).boxed()
     }
 
     /// Generate an arbitrary [Rollout] values.
     ///
     /// This generator is heavily biased towards edge cases such as zero rollout, full rollout etc.
-    fn arb_rollout() -> impl Strategy<Value = Rollout> {
+    pub fn arb_rollout() -> impl Strategy<Value = Rollout> {
         let any = arb_any_rollout();
         let edge_cases = prop_oneof![
             Just(IGNORE),            // = 0
@@ -145,6 +145,15 @@ mod test {
             20 => edge_cases
         ]
     }
+}
+
+#[cfg(test)]
+mod test {
+    use super::arbitrary::*;
+    use super::*;
+
+    use insta::{assert_snapshot, assert_yaml_snapshot};
+    use proptest::prelude::*;
 
     proptest! {
          /// Assert that all rollout values from 0 up to 1 are valid rollouts.
