@@ -89,11 +89,11 @@ export interface InAppNotification {
   indicator?: InAppNotificationIndicatorType;
   action?: InAppNotificationAction;
   title: string;
-  subtitle?: string | InAppNotificationSubtitle[];
+  subtitle?: string | React.ReactElement | InAppNotificationSubtitle[];
 }
 
 export interface InAppNotificationSubtitle {
-  content: string;
+  content: string | React.ReactElement;
   action?: InAppNotificationAction;
 }
 
