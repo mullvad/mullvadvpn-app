@@ -48,7 +48,6 @@ pub const SILENCED_CRATES: &[&str] = &[
     "rtnetlink",
     "rustls",
     "netlink_sys",
-    "tracing",
     "hickory_proto",
     "hickory_server",
     "hickory_resolver",
@@ -123,8 +122,7 @@ pub fn init_logger(
         log::LevelFilter::Trace => LevelFilter::TRACE,
     };
 
-    let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::from_default_env().add_directive(level_filter.into()));
+    let env_filter = EnvFilter::new("tokio=trace,runtime=trace,info");
 
     let default_filter = get_default_filter(level_filter);
 
