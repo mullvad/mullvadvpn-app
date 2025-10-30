@@ -137,3 +137,9 @@ reason = "wireguard-go does not use net/url"
 id = "CVE-2025-58185" # GO-2025-4011
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use encoding/asn1"
+
+# Lack of limit when parsing cookies can cause memory exhaustion (net/http)
+[[IgnoredVulns]]
+id = "CVE-2025-58186" # GO-2025-4012
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/http"
