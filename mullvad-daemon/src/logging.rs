@@ -69,7 +69,7 @@ pub fn is_enabled() -> bool {
 }
 
 pub struct LogHandle {
-    level_filter: Handle<EnvFilter, Registry>,
+    env_filter: Handle<EnvFilter, Registry>,
     log_stream: LogStreamer,
     _file_appender_guard: non_blocking::WorkerGuard,
 }
@@ -99,8 +99,8 @@ impl LogHandle {
         &self,
         level_filter: impl AsRef<str>,
     ) -> Result<(), tracing_subscriber::reload::Error> {
-        self.level_filter
-            .modify(|filter| *filter = tracing_subscriber::EnvFilter::new(level_filter))
+        let new = silence_crates(EnvFilter::new(level_filter));
+        self.env_filter.modify(|env_filter| *env_filter = new)
     }
 
     pub fn get_log_stream(&self) -> tokio::sync::broadcast::Receiver<String> {
@@ -122,9 +122,10 @@ pub fn init_logger(
         log::LevelFilter::Trace => LevelFilter::TRACE,
     };
 
-    let env_filter = EnvFilter::new("tokio=trace,runtime=trace,info");
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new(level_filter.to_string()));
 
-    let default_filter = get_default_filter(level_filter);
+    let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
     let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
@@ -136,23 +137,21 @@ pub fn init_logger(
         // buffer: String::with_capacity(1024),
     };
 
-    let stdout_formatter = tracing_subscriber::fmt::layer()
-        .with_ansi(true)
-        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
-
-    let (user_filter, reload_handle) = tracing_subscriber::reload::Layer::new(env_filter);
+    let (user_filter, reload_handle) = tracing_subscriber::reload::Layer::new(default_filter);
     let reload_handle = LogHandle {
-        level_filter: reload_handle,
+        env_filter: reload_handle,
         log_stream: log_stream.clone(),
         _file_appender_guard,
     };
 
+    let stdout_formatter = tracing_subscriber::fmt::layer()
+        .with_ansi(true)
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
     let console_layer = console_subscriber::spawn();
 
     let reg = tracing_subscriber::registry()
         .with(user_filter)
-        .with(console_layer)
-        .with(default_filter);
+        .with(console_layer);
 
     if let Some(log_dir) = log_dir {
         rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
@@ -210,8 +209,7 @@ pub fn init_logger(
     Ok(reload_handle)
 }
 
-fn get_default_filter(level_filter: LevelFilter) -> EnvFilter {
-    let mut env_filter = EnvFilter::builder().parse("trace").unwrap();
+fn silence_crates(mut env_filter: EnvFilter) -> EnvFilter {
     for silenced_crate in WARNING_SILENCED_CRATES {
         env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
     }
@@ -222,6 +220,7 @@ fn get_default_filter(level_filter: LevelFilter) -> EnvFilter {
     // NOTE: the levels set here will never be overwritten, since the default filter cannot be
     // reloaded
     for silenced_crate in SLIGHTLY_SILENCED_CRATES {
+        let level_filter = env_filter.max_level_hint().unwrap();
         env_filter = env_filter.add_directive(
             format!("{silenced_crate}={}", one_level_quieter(level_filter))
                 .parse()
