@@ -6,8 +6,10 @@ import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
 import { isInRanges } from '../../../shared/utils';
+import { InternalLink } from '../../components/InternalLink';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
 import { RelaySettingsRedux } from '../../redux/settings/reducers';
+import { formatHtml } from '../html-formatter';
 
 interface UnsupportedWireGuardPortNotificationContext {
   connection: IConnectionReduxState;
@@ -15,6 +17,24 @@ interface UnsupportedWireGuardPortNotificationContext {
   relaySettings: RelaySettingsRedux;
   allowedPortRanges: [number, number][];
 }
+
+const transformerMap = {
+  a: (value: string) => (
+    <InternalLink
+      aria-label={sprintf(
+        // TRANSLATORS: Accessibility label for link to VPN settings where
+        // TRANSLATORS: the user can change WireGuard port.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
+        messages.pgettext('accessibility', 'Go to VPN settings to change %(wireGuard)s port'),
+        { wireGuard: strings.wireguard },
+      )}
+      variant="labelTinySemiBold"
+      to={RoutePath.vpnSettings}>
+      <InternalLink.Text>{value}</InternalLink.Text>
+    </InternalLink>
+  ),
+};
 
 export class UnsupportedWireGuardPortNotificationProvider implements InAppNotificationProvider {
   public constructor(private context: UnsupportedWireGuardPortNotificationContext) {}
@@ -36,38 +56,20 @@ export class UnsupportedWireGuardPortNotificationProvider implements InAppNotifi
       title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
       subtitle: [
         {
-          content: sprintf(
-            // TRANSLATORS: Notification subtitle indicating the user is using an unsupported port for WireGuard.
-            // TRANSLATORS: Available placeholders:
-            // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
-            messages.pgettext(
-              'in-app-notifications',
-              'The selected %(wireGuard)s port is not supported, please change it under ',
-            ),
-            { wireGuard: strings.wireguard },
-          ),
-        },
-        {
-          content: sprintf(
-            // TRANSLATORS: Link in notication to go to WireGuard settings.
-            // TRANSLATORS: Available placeholders:
-            // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
-            messages.pgettext('in-app-notifications', '%(wireGuard)s settings.'),
-            { wireGuard: strings.wireguard },
-          ),
-          action: {
-            type: 'navigate-internal',
-            link: {
-              to: RoutePath.wireguardSettings,
-              'aria-label': sprintf(
-                // TRANSLATORS: Accessibility label for link to wireguard settings.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
-                messages.pgettext('accessibility', 'Go to %(wireGuard)s settings.'),
-                { wireGuard: strings.wireguard },
+          key: 'in-app-notifications-unsupported-wireguard-port',
+          content: formatHtml(
+            sprintf(
+              // TRANSLATORS: Notification subtitle indicating the user is using an unsupported port for WireGuard.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
+              messages.pgettext(
+                'in-app-notifications',
+                'The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>',
               ),
-            },
-          },
+              { wireGuard: strings.wireguard },
+            ),
+            transformerMap,
+          ),
         },
       ],
     };
