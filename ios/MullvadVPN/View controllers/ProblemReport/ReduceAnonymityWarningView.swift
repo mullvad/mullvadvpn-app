@@ -19,8 +19,7 @@ class ReduceAnonymityWarningView: UIView {
         super.init(frame: frame)
 
         let warningIcon = UIImageView(image: UIImage(systemName: "exclamationmark.circle"))
-        warningIcon.contentMode = .scaleAspectFill
-        warningIcon.adjustsImageSizeForAccessibilityContentSizeCategory = true
+        warningIcon.contentMode = .scaleAspectFit
         warningIcon.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         warningIcon.tintColor = UIColor.warningColor
 
@@ -31,8 +30,6 @@ class ReduceAnonymityWarningView: UIView {
         warningHeader.numberOfLines = 0
         warningHeader.textColor = .white
         warningHeader.adjustsFontForContentSizeCategory = true
-        warningHeader.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        warningHeader.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
         let normalTextAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.mullvadMini,
@@ -118,7 +115,7 @@ class ReduceAnonymityWarningView: UIView {
         verticalStackView.addConstrainedSubviews([horizontalStackView, warningTextContainer]) {
             horizontalStackView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .top(0), .trailing(0)]))
             warningTextContainer.topAnchor.constraint(equalTo: horizontalStackView.bottomAnchor, constant: 10)
-            warningTextContainer.pinEdgesToSuperviewMargins(PinnableEdges([.leading(10), .trailing(10), .bottom(10)]))
+            warningTextContainer.pinEdgesToSuperviewMargins(PinnableEdges([.leading(4), .trailing(10), .bottom(10)]))
         }
 
         verticalStackView.addGestureRecognizer(
