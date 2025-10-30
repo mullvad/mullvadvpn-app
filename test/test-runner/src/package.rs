@@ -14,6 +14,8 @@ pub async fn uninstall_app(env: HashMap<String, String>) -> Result<()> {
             uninstall_apt("mullvad-vpn", env, true).await
         }
         Distribution::Fedora => uninstall_rpm("mullvad-vpn", env).await,
+        // FIXME: Do not assume that it is Debian/Ubuntu-based.
+        Distribution::Unofficial { name: _ } => uninstall_apt("mullvad-vpn", env, true).await,
     }
 }
 
@@ -105,6 +107,8 @@ pub async fn install_package(package: Package) -> Result<()> {
     match get_distribution()? {
         Distribution::Debian | Distribution::Ubuntu => install_apt(&package.path).await,
         Distribution::Fedora => install_rpm(&package.path).await,
+        // FIXME: Do not assume that it is Debian/Ubuntu-based.
+        Distribution::Unofficial { name: _ } => install_apt(&package.path).await,
     }
 }
 
@@ -263,26 +267,30 @@ async fn install_nsis_exe(path: &Path) -> Result<()> {
 }
 
 #[cfg(target_os = "linux")]
+#[allow(unused)]
 enum Distribution {
     Debian,
     Ubuntu,
     Fedora,
+    // Not an officially supported Linux distro.
+    Unofficial { name: String },
 }
 
 #[cfg(target_os = "linux")]
 fn get_distribution() -> Result<Distribution> {
     let os_release =
         rs_release::get_os_release().map_err(|_error| Error::UnknownOs("unknown".to_string()))?;
-    match os_release
+    let id = os_release
         .get("id")
         .or(os_release.get("ID"))
-        .ok_or(Error::UnknownOs("unknown".to_string()))?
-        .as_str()
-    {
+        .ok_or(Error::UnknownOs("unknown".to_string()))?;
+    match id.as_str() {
         "debian" => Ok(Distribution::Debian),
         "ubuntu" => Ok(Distribution::Ubuntu),
         "fedora" => Ok(Distribution::Fedora),
-        os => Err(Error::UnknownOs(os.to_string())),
+        other => Ok(Distribution::Unofficial {
+            name: other.to_string(),
+        }),
     }
 }
 

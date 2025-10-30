@@ -174,7 +174,7 @@ See [this](Release.md) for instructions on how to make a new release.
   (macOS only).
 
 * `TALPID_FORCE_USERSPACE_WIREGUARD` - Forces the daemon to use the userspace implementation of
-   WireGuard on Linux.
+   WireGuard.
 
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 
