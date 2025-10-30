@@ -334,13 +334,6 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr ""
 
-#. Accessibility label for link to wireguard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "accessibility"
-msgid "Go to %(wireGuard)s settings."
-msgstr ""
-
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
@@ -349,6 +342,14 @@ msgstr ""
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
+msgstr ""
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to VPN settings to change %(wireGuard)s port"
 msgstr ""
 
 #. Accessibility label for link to VPN settings where
@@ -1224,13 +1225,6 @@ msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr ""
 
-#. Link in notication to go to WireGuard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "%(wireGuard)s settings."
-msgstr ""
-
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr ""
@@ -1404,7 +1398,7 @@ msgstr ""
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
-msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr ""
 
 #. Notification text when a new device has been created.
@@ -2906,6 +2900,9 @@ msgid "%s is already selected as exit relay"
 msgstr ""
 
 msgid "%s is unavailable"
+msgstr ""
+
+msgid "%s settings."
 msgstr ""
 
 msgid "%s was added to your account."
