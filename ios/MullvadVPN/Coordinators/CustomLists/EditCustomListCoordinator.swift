@@ -12,10 +12,6 @@ import Routing
 import UIKit
 
 class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
-    enum FinishAction {
-        case save, delete
-    }
-
     let navigationController: UINavigationController
     let customListInteractor: CustomListInteractorProtocol
     let customList: CustomList
@@ -29,7 +25,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: ((EditCustomListCoordinator, FinishAction, CustomList) -> Void)?
+    var didFinish: ((EditCustomListCoordinator, CustomList) -> Void)?
     var didCancel: ((EditCustomListCoordinator) -> Void)?
 
     init(
@@ -122,11 +118,11 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
 
 extension EditCustomListCoordinator: @preconcurrency CustomListViewControllerDelegate {
     func customListDidSave(_ list: CustomList) {
-        didFinish?(self, .save, list)
+        didFinish?(self, list)
     }
 
     func customListDidDelete(_ list: CustomList) {
-        didFinish?(self, .delete, list)
+        didFinish?(self, list)
     }
 
     func showLocations(_ list: CustomList) {

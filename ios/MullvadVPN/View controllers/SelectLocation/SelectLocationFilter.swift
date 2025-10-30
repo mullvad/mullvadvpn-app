@@ -1,3 +1,4 @@
+import MullvadSettings
 import SwiftUI
 
 enum SelectLocationFilter: Hashable {
@@ -7,27 +8,27 @@ enum SelectLocationFilter: Hashable {
     case rented
     case provider(Int)
 
-    var canBeRemoved: Bool {
+    var isRemovable: Bool {
         switch self {
         case .daita, .obfuscation:
-            return false
+            false
         case .provider, .owned, .rented:
-            return true
+            true
         }
     }
 
     var title: LocalizedStringKey {
         switch self {
         case .daita:
-            return "Setting: \("DAITA")"
+            "Setting: \("DAITA")"
         case .obfuscation:
-            return "Setting: \("Obfuscation")"
+            "Setting: \("Obfuscation")"
         case .owned:
-            return "Owned"
+            "Owned"
         case .rented:
-            return "Rented"
+            "Rented"
         case .provider(let count):
-            return "Providers: \(count)"
+            "Providers: \(count)"
         }
     }
 
@@ -37,7 +38,62 @@ enum SelectLocationFilter: Hashable {
             .daitaFilterPill
         case .obfuscation:
             .obfuscationFilterPill
-        default: nil
+        case .owned, .rented, .provider:
+            .selectLocationFilterButton
+        }
+    }
+
+    static func getActiveFilters(_ settings: LatestTunnelSettings) -> (
+        [SelectLocationFilter],
+        [SelectLocationFilter]
+    ) {
+        var activeEntryFilter: [SelectLocationFilter] = []
+        var activeExitFilter: [SelectLocationFilter] = []
+
+        let isMultihop = settings.tunnelMultihopState.isEnabled
+        if let ownershipFilter = settings.relayConstraints.filter.value {
+            switch ownershipFilter.ownership {
+            case .any:
+                break
+            case .owned:
+                activeEntryFilter.append(.owned)
+                activeExitFilter.append(.owned)
+            case .rented:
+                activeEntryFilter.append(.rented)
+                activeExitFilter.append(.rented)
+            }
+            if let provider = ownershipFilter.providers.value {
+                activeEntryFilter.append(.provider(provider.count))
+                activeExitFilter.append(.provider(provider.count))
+            }
+        }
+        if settings.daita.isDirectOnly {
+            if isMultihop {
+                activeEntryFilter.append(.daita)
+            } else {
+                activeExitFilter.append(.daita)
+            }
+        }
+
+        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
+        if isObfuscation {
+            if isMultihop {
+                activeEntryFilter.append(.obfuscation)
+            } else {
+                activeExitFilter.append(.obfuscation)
+            }
+        }
+        return (activeEntryFilter, activeExitFilter)
+    }
+}
+
+private extension WireGuardObfuscationState {
+    /// This flag affects whether the "Setting: Obfuscation" pill is shown when selecting a location
+    var affectsRelaySelection: Bool {
+        switch self {
+        case .shadowsocks, .quic:
+            true
+        default: false
         }
     }
 }

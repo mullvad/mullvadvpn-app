@@ -8,70 +8,60 @@
 
 import SwiftUI
 
-class SegmentedControlViewModel: ObservableObject {
-    @Published var selectedSegmentIndex = 0
-}
-
-struct SegmentedControl<Segment: StringProtocol>: View {
-    var segments: [Segment]
-    @ObservedObject var viewModel: SegmentedControlViewModel
-    public var onSelectedSegment: ((Int) -> Void)?
-
-    func isSelected(segment: Segment) -> Bool {
-        viewModel.selectedSegmentIndex == segments.firstIndex(of: segment)
-    }
-
+struct SegmentedControl<Segment>: View where Segment: CustomStringConvertible, Segment: Hashable {
+    let segments: [Segment]
+    @Binding var selectedSegment: Segment
+    @State private var id: UUID = .init()
+    @Namespace var animation
     var body: some View {
-        GeometryReader { proxy in
-            HStack(spacing: 0) {
-                ForEach(segments, id: \.self) { segment in
-                    // The segments are expected to be already localised
-                    Text(segment)
-                        .font(.mullvadSmallSemiBold)
+        HStack(spacing: 0) {
+            ForEach(segments, id: \.self) { segment in
+                // The segments are expected to be already localised
+                Button {
+                    withAnimation {
+                        selectedSegment = segment
+                    }
+                } label: {
+                    Text(LocalizedStringKey(segment.description))
+                        .padding(5)
+                        .font(.mullvadTinySemiBold)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)  // Makes the text take all the available space
                         .contentShape(Rectangle())  // Makes the tappable area extend beyond just the text
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                viewModel.selectedSegmentIndex = segments.firstIndex(of: segment)!
-                                onSelectedSegment?(viewModel.selectedSegmentIndex)
-                            }
-                        }
                         .background(
                             Group {
-                                if isSelected(segment: segment) {
+                                if segment == selectedSegment {
                                     Capsule()
                                         .fill(UIColor.SegmentedControl.selectedColor.color)
-                                        .frame(height: 36)
+                                        .matchedGeometryEffect(id: id, in: animation)
                                 } else {
                                     Capsule()
-                                        .fill(UIColor.SegmentedControl.backgroundColor.color)
-                                        .frame(height: 36)
+                                        .fill(.clear)
                                 }
                             }
                         )
+                        .frame(maxWidth: .infinity)
                 }
+                .disabled(segment == selectedSegment)
             }
-            .padding([.leading, .trailing], 4)  // Insets the inner shape to not overlay with the outer one
-            .frame(maxWidth: .infinity, maxHeight: proxy.size.height)
-            .background(
-                Capsule(style: .circular)
-                    .fill(UIColor.SegmentedControl.backgroundColor.color)
-            )
-            .clipShape(Capsule())
         }
+        .padding(4)
+        .background {
+            Capsule(style: .circular)
+                .fill(UIColor.SegmentedControl.backgroundColor.color)
+        }
+        .frame(minHeight: 44)
     }
 }
 
 #Preview {
+    @Previewable @State var selectedSegment = "Exit"
     VStack {
         Spacer()
         SegmentedControl(
             segments: ["Entry", "Exit"],
-            viewModel: SegmentedControlViewModel(),
-            onSelectedSegment: { newIndex in print("Selected \(newIndex)") }
+            selectedSegment: $selectedSegment
         )
-        .frame(height: 44)
         Spacer()
     }
     .background(Color.mullvadBackground)

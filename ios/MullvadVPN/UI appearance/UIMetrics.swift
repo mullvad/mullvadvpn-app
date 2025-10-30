@@ -122,13 +122,6 @@ enum UIMetrics {
         static let secondaryButton = CGSize(width: 42, height: 42)
     }
 
-    enum FilterView {
-        static let interChipViewSpacing: CGFloat = 8
-        static let chipViewCornerRadius: CGFloat = 8
-        static let chipViewLayoutMargins = UIEdgeInsets(top: 5, left: 8, bottom: 5, right: 8)
-        static let chipViewLabelSpacing: CGFloat = 7
-    }
-
     enum ConnectionPanelView {
         static let inRowHeight: CGFloat = 22
         static let outRowHeight: CGFloat = 44

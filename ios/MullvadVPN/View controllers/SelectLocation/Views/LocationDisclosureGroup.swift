@@ -1,27 +1,26 @@
 import SwiftUI
 
-struct LocationDisclosureGroup<Label: View, Content: View>: View {
+struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: View {
     @Binding private var isExpanded: Bool
 
-    let position: ItemPosition
     let level: Int
     let isActive: Bool
     let label: () -> Label
     let content: () -> Content
     let onSelect: (() -> Void)?
+    let contextMenu: () -> ContextMenu
     let accessibilityIdentifier: AccessibilityIdentifier?
 
     init(
         level: Int,
-        position: ItemPosition = .only,
         isActive: Bool = true,
         isExpanded: Binding<Bool>,
+        @ViewBuilder contextMenu: @escaping () -> ContextMenu,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil,
     ) {
-        self.position = position
         self.level = level
         self.isActive = isActive
         self._isExpanded = isExpanded
@@ -30,6 +29,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
         self.label = label
         self.content = content
         self.onSelect = onSelect
+        self.contextMenu = contextMenu
     }
 
     var body: some View {
@@ -44,23 +44,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                     }
                     .frame(maxHeight: .infinity)
                     .background {
-                        let corners: UIRectCorner =
-                            if level == 0 {
-                                if isExpanded {
-                                    [.topLeft]
-                                } else {
-                                    [.topLeft, .bottomLeft]
-                                }
-                            } else {
-                                switch position {
-                                case .only: [.topLeft, .bottomLeft]
-                                case .first: [.topLeft]
-                                case .middle: []
-                                case .last: isExpanded ? [] : [.bottomLeft]
-                                }
-                            }
-                        MullvadRoundedCorner(cornerRadius: 16, corners: corners)
-                            .foregroundStyle(Color.colorForLevel(level))
+                        Color.colorForLevel(level)
                     }
                 }
                 .disabled(!isActive)
@@ -74,26 +58,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                         .padding(16)
                         .frame(maxHeight: .infinity)
                         .background {
-                            let corners: UIRectCorner =
-                                if level == 0 {
-                                    if isExpanded {
-                                        [.topRight]
-                                    } else {
-                                        [.topRight, .bottomRight]
-                                    }
-                                } else {
-                                    switch position {
-                                    case .only: [.topRight, .bottomRight]
-                                    case .first: [.topRight]
-                                    case .middle: []
-                                    case .last: isExpanded ? [] : [.bottomRight]
-                                    }
-                                }
-                            MullvadRoundedCorner(
-                                cornerRadius: 16,
-                                corners: corners
-                            )
-                            .foregroundStyle(Color.colorForLevel(level))
+                            Color.colorForLevel(level)
                         }
                 }
                 .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
@@ -103,8 +68,11 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
             .accessibilityElement(children: .combine)
             .accessibilityIdentifier(accessibilityIdentifier)
 
+            .contextMenu {
+                contextMenu()
+            }
             if isExpanded {
-                VStack(spacing: 1) {
+                LazyVStack(spacing: 1) {
                     content()
                 }
                 .padding(.top, 1)
