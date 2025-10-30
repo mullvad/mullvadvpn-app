@@ -15,10 +15,15 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+arbitrary = ["dep:proptest"]
 
 [dependencies]
 regex-lite = "0.1"
 serde = { workspace = true, optional = true }
+proptest = { workspace = true, optional = true }
 
 [dev-dependencies]
+# The self-referential dependency is required for enabling the proptest generators in tests.
+mullvad-version = { path = ".", features = ["arbitrary"] }
 proptest = { workspace = true }

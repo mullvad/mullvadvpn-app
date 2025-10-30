@@ -197,7 +197,7 @@ impl serde::Serialize for Version {
     }
 }
 
-#[cfg(test)]
+#[cfg(feature = "arbitrary")]
 pub mod arbitrary {
     use super::*;
 
