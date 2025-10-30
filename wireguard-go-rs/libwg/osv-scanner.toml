@@ -125,3 +125,9 @@ reason = "wireguard-go does not use crypto/tls"
 id = "CVE-2025-61723" # GO-2025-4009
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use encoding/pem"
+
+# Insufficient validation of bracketed IPv6 hostnames
+[[IgnoredVulns]]
+id = "CVE-2025-47912" # GO-2025-4010
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/url"
