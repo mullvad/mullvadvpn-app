@@ -41,6 +41,14 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
   return subtitle.content;
 };
 
+const getSubtitleKey = (subtitle: InAppNotificationSubtitle) => {
+  if ('key' in subtitle) {
+    return subtitle.key;
+  }
+
+  return subtitle.content;
+};
+
 export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitleProps) => {
   if (!subtitle) {
     return null;
@@ -58,9 +66,10 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
     <LabelTinySemiBold color="whiteAlpha60" {...props}>
       {subtitle.map((subtitle, index, arr) => {
         const content = formatSubtitle(subtitle);
+        const key = getSubtitleKey(subtitle);
 
         return (
-          <React.Fragment key={subtitle.content}>
+          <React.Fragment key={key}>
             {content}
             {index !== arr.length - 1 && ' '}
           </React.Fragment>
