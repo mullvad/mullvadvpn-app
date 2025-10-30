@@ -100,3 +100,9 @@ reason = "wireguard-go does not use database/sql"
 id = "CVE-2025-47906" # GO-2025-3956
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use os/exec"
+
+# Excessive CPU consumption in ParseAddress in net/mail
+[[IgnoredVulns]]
+id = "CVE-2025-61725" # GO-2025-4006
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/mail"
