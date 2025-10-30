@@ -122,6 +122,9 @@ pub fn init_logger(
         log::LevelFilter::Trace => LevelFilter::TRACE,
     };
 
+    // NOTE: for `tokio-console` to work,
+    // * Build with RUSTFLAGS="--cfg tokio_unstable"
+    // * Start with RUST_LOG="tokio=trace,runtime=trace,info"
     let env_filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new(level_filter.to_string()));
 
