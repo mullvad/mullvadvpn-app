@@ -17,14 +17,14 @@ enum StorePaymentOutcome {
         case .noTimeAdded:
             return 0
         case let .timeAdded(timeAdded):
-            return TimeInterval(timeAdded)
+            return timeAdded
         }
     }
 
     /// Returns a formatted string for the `timeAdded` interval, i.e "30 days"
     var formattedTimeAdded: String? {
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.day, .hour]
+        formatter.allowedUnits = [.day]
         formatter.unitsStyle = .full
 
         return formatter.string(from: timeAdded)
@@ -34,7 +34,7 @@ enum StorePaymentOutcome {
         switch context {
         case .purchase:
             return String(
-                format: NSLocalizedString("%@ have been added to your account", comment: ""),
+                format: NSLocalizedString("%@ have been added to your account.", comment: ""),
                 formattedTimeAdded ?? ""
             )
         case .restoration:
@@ -45,9 +45,9 @@ enum StorePaymentOutcome {
                     comment: ""
                 )
             case .timeAdded:
-                return String(
-                    format: NSLocalizedString("%@ have been added to your account", comment: ""),
-                    formattedTimeAdded ?? ""
+                return NSLocalizedString(
+                    "Your previous purchases have been added to your account.",
+                    comment: ""
                 )
             }
         }

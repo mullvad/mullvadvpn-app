@@ -92,7 +92,7 @@
         }
       }
     },
-    "%@ have been added to your account" : {
+    "%@ have been added to your account." : {
 
     },
     "%@ left on this account" : {
@@ -5285,6 +5285,9 @@
       }
     },
     "Your previous purchases have already been added to this account." : {
+
+    },
+    "Your previous purchases have been added to your account." : {
 
     },
     "Your purchase was successfully refunded." : {

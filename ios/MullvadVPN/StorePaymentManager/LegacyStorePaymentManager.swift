@@ -180,6 +180,17 @@ final class LegacyStorePaymentManager: NSObject, SKPaymentTransactionObserver, @
         )
     }
 
+    // Returns time added, in seconds.
+    func timeFromProduct(id: String) -> TimeInterval {
+        let product = StoreSubscription(rawValue: id)
+
+        return switch product {
+        case .thirtyDays: Duration.days(30).timeInterval
+        case .ninetyDays: Duration.days(90).timeInterval
+        case .none: 0
+        }
+    }
+
     // MARK: - Private methods
 
     private func transactionHasBeenProcessed(id: String) -> Bool {
@@ -261,6 +272,7 @@ final class LegacyStorePaymentManager: NSObject, SKPaymentTransactionObserver, @
         forceRefresh: Bool,
         completionHandler: @escaping @Sendable (Result<REST.CreateApplePaymentResponse, Error>) -> Void
     ) -> Cancellable {
+        return AnyCancellable()
         let operation = SendStoreReceiptOperation(
             apiProxy: interactor.apiProxy,
             accountNumber: accountNumber,
@@ -327,7 +339,7 @@ final class LegacyStorePaymentManager: NSObject, SKPaymentTransactionObserver, @
     ///
     /// - Parameter transaction: the failed transaction.
     private func didFailPurchase(transaction: SKPaymentTransaction) {
-        paymentQueue.finishTransaction(transaction)
+        //        paymentQueue.finishTransaction(transaction)
 
         let paymentFailure =
             if let accountToken = deassociateAccountNumber(transaction.payment) {
@@ -369,7 +381,7 @@ final class LegacyStorePaymentManager: NSObject, SKPaymentTransactionObserver, @
         // Check if transaction is already processed.
         guard !transactionHasBeenProcessed(id: transactionIdentifier) else {
             logger.debug("Found transaction that is already processed.")
-            paymentQueue.finishTransaction(transaction)
+            //            paymentQueue.finishTransaction(transaction)
             return
         }
 
@@ -435,7 +447,7 @@ final class LegacyStorePaymentManager: NSObject, SKPaymentTransactionObserver, @
             addToProcessedTransactions(id: transactionIdentifier)
 
             // Finish transaction to remove it from the payment queue.
-            paymentQueue.finishTransaction(transaction)
+            //            paymentQueue.finishTransaction(transaction)
 
             event = LegacyStorePaymentEvent.finished(
                 LegacyStorePaymentCompletion(
