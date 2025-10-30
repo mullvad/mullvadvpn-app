@@ -25,6 +25,22 @@ struct MullvadAlert: Identifiable {
     let dismissButtonTitle: LocalizedStringKey
 }
 
+struct MullvadInputAlert: Identifiable {
+    struct Action {
+        let type: MainButtonStyle.Style
+        let title: LocalizedStringKey
+        let identifier: AccessibilityIdentifier?
+        let handler: (String) async -> Void
+    }
+
+    let id = UUID()
+    let title: LocalizedStringKey
+    let placeholder: LocalizedStringKey
+    let action: Action
+    let validate: ((String) -> Bool)?
+    let dismissButtonTitle: LocalizedStringKey
+}
+
 struct AlertModifier: ViewModifier {
     @Binding var alert: MullvadAlert?
     @State var loading = false
@@ -117,9 +133,74 @@ struct AlertModifier: ViewModifier {
     }
 }
 
+struct InputAlertModifier: ViewModifier {
+    @Binding var alert: MullvadInputAlert?
+    @State var loading = false
+    @State var text = ""
+
+    func body(content: Content) -> some View {
+        content
+            .fullScreenCover(item: $alert) { alert in
+                VStack {
+                    Spacer()
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(alert.title)
+                            .font(.mullvadLarge)
+                            .foregroundStyle(Color.mullvadTextPrimary)
+                        MullvadPrimaryTextField(
+                            label: "",
+                            placeholder: alert.placeholder,
+                            text: $text,
+                            isFocused: .constant(true),
+                            validate: alert.validate
+                        )
+                        VStack(spacing: 16) {
+                            MainButton(
+                                text: alert.action.title,
+                                style: alert.action.type,
+                                action: {
+                                    Task {
+                                        loading = true
+                                        await alert.action.handler(text)
+                                        loading = false
+                                    }
+                                }
+                            )
+                            .disabled(!(alert.validate?(text) ?? true))
+                            .accessibilityIdentifier(alert.action.identifier)
+                            MainButton(
+                                text: alert.dismissButtonTitle,
+                                style: .default,
+                                action: { self.alert = nil }
+                            )
+                        }
+                    }
+                    .padding()
+                    .background(Color.mullvadBackground)
+                    .cornerRadius(8)
+                    Spacer()
+                }
+                .onAppear {
+                    text = ""
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(.alertContainerView)
+                .padding()
+                .background(ClearBackgroundView())
+            }
+            .transaction {
+                $0.disablesAnimations = true
+            }
+    }
+}
+
 extension View {
     func mullvadAlert(item: Binding<MullvadAlert?>) -> some View {
         modifier(AlertModifier(alert: item))
+    }
+
+    func mullvadInputAlert(item: Binding<MullvadInputAlert?>) -> some View {
+        modifier(InputAlertModifier(alert: item))
     }
 }
 
@@ -137,6 +218,27 @@ extension View {
                             identifier: nil,
                             handler: {}
                         ),
+                        dismissButtonTitle: "Cancel"
+                    )
+                )
+        )
+}
+
+#Preview("Input") {
+    Text("Hello, World!")
+        .mullvadInputAlert(
+            item:
+                .constant(
+                    .init(
+                        title: "Title",
+                        placeholder: "Placeholder",
+                        action: .init(
+                            type: .default,
+                            title: "Do it!",
+                            identifier: nil,
+                            handler: { _ in }
+                        ),
+                        validate: nil,
                         dismissButtonTitle: "Cancel"
                     )
                 )
