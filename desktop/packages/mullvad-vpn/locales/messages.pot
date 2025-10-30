@@ -2599,7 +2599,7 @@ msgid "%(wireGuard)s port"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2855,9 +2855,6 @@ msgid "Attention: If \"Block connections without VPN\" is enabled, split apps wi
 msgstr ""
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
-msgstr ""
-
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr ""
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
