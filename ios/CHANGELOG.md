@@ -21,8 +21,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## UNRELEASED
+## [UNRELEASED]
 
+## [2025.9]
 ### Changed
 - Quantum-resistant tunnel setting is now on by default through the "Automatic" setting.
 
