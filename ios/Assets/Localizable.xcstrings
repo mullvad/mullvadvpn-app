@@ -97,6 +97,9 @@
     "Add" : {
 
     },
+    "Add %@ to list" : {
+
+    },
     "Add 30 days time (%@)" : {
 
     },
@@ -227,6 +230,9 @@
     "Client is not allowed to issue the request." : {
 
     },
+    "Collapse" : {
+
+    },
     "Collapse %@" : {
 
     },
@@ -240,6 +246,9 @@
 
     },
     "CONNECTED" : {
+
+    },
+    "Connected server" : {
 
     },
     "Connected to %@" : {
@@ -368,6 +377,9 @@
     "Done" : {
 
     },
+    "Edit" : {
+
+    },
     "Edit custom list" : {
 
     },
@@ -404,10 +416,7 @@
     "Enter your account number" : {
 
     },
-    "Entry" : {
-
-    },
-    "Exit" : {
+    "Expand" : {
 
     },
     "Expand %@" : {
@@ -447,6 +456,9 @@
 
     },
     "Filtered:" : {
+
+    },
+    "Filters" : {
 
     },
     "Gambling" : {
@@ -572,6 +584,9 @@
     "Less than a day" : {
 
     },
+    "List name" : {
+
+    },
     "Local network sharing" : {
 
     },
@@ -611,9 +626,6 @@
     "Mullvad owned only" : {
 
     },
-    "multihop" : {
-
-    },
     "Multihop" : {
 
     },
@@ -641,6 +653,9 @@
     "NEW DEVICE CREATED" : {
 
     },
+    "New list" : {
+
+    },
     "NEW VERSION INSTALLED" : {
 
     },
@@ -660,6 +675,9 @@
 
     },
     "NO OVERRIDES IMPORTED" : {
+
+    },
+    "No result for \"%@\", please try a different search term." : {
 
     },
     "No servers match your location filter. Try changing filter settings." : {
@@ -723,6 +741,9 @@
     "OVERRIDES ACTIVE" : {
 
     },
+    "Owned" : {
+
+    },
     "Ownership" : {
 
     },
@@ -760,6 +781,9 @@
 
     },
     "Providers: %d" : {
+
+    },
+    "Providers: %lld" : {
 
     },
     "Quantum resistance" : {
@@ -801,6 +825,9 @@
     "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
 
     },
+    "Rented" : {
+
+    },
     "Rented only" : {
 
     },
@@ -816,10 +843,10 @@
     "Save" : {
 
     },
-    "Saving changes..." : {
+    "Save locations by adding them to a custom list." : {
 
     },
-    "Search for..." : {
+    "Saving changes..." : {
 
     },
     "Select location" : {
@@ -924,12 +951,12 @@
     "The entry and exit servers cannot be the same. Try changing one to a new server or location." : {
 
     },
-    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." : {
+    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings."
+            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings."
           }
         }
       }
@@ -974,6 +1001,9 @@
 
     },
     "Time left: %@" : {
+
+    },
+    "To add locations to a list, press the pen or long press on a country, city, or server." : {
 
     },
     "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
