@@ -25,7 +25,6 @@ class ReduceAnonymityWarningView: UIView {
 
         let warningHeader = UILabel()
         warningHeader.text = NSLocalizedString("This impacts your anonymity", comment: "")
-        warningHeader.translatesAutoresizingMaskIntoConstraints = false
         warningHeader.font = .mullvadMiniSemiBold
         warningHeader.numberOfLines = 0
         warningHeader.textColor = .white
@@ -84,11 +83,10 @@ class ReduceAnonymityWarningView: UIView {
 
         let horizontalStackView = UIStackView()
         horizontalStackView.axis = .horizontal
-        horizontalStackView.translatesAutoresizingMaskIntoConstraints = false
         horizontalStackView.spacing = 8
 
         horizontalStackView.addConstrainedSubviews([warningIcon, warningHeader, chevronIcon]) {
-            warningIcon.pinEdgesToSuperviewMargins(PinnableEdges([.leading(4), .top(10), .bottom(0)]))
+            warningIcon.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .top(10), .bottom(0)]))
             chevronIcon.pinEdgesToSuperview(PinnableEdges([.trailing(10), .top(10)]))
             warningIcon.centerYAnchor.constraint(equalTo: chevronIcon.centerYAnchor)
 
@@ -102,31 +100,30 @@ class ReduceAnonymityWarningView: UIView {
         self.warningTextContainer = warningTextContainer
         warningTextContainer.axis = .horizontal
         warningTextContainer.distribution = .equalSpacing
-        warningTextContainer.translatesAutoresizingMaskIntoConstraints = false
         warningTextContainer.spacing = 8
 
         let verticalStackView = UIStackView()
         verticalStackView.axis = .vertical
         verticalStackView.spacing = 8
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
-        verticalStackView.layer.backgroundColor = CGColor(red: 0.06, green: 0.09, blue: 0.14, alpha: 0.4)
+        verticalStackView.layer.backgroundColor = CGColor.ReduceAnonymityWarningView.backroundColor
         verticalStackView.layer.cornerRadius = 4
 
         verticalStackView.addConstrainedSubviews([horizontalStackView, warningTextContainer]) {
             horizontalStackView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .top(0), .trailing(0)]))
-            warningTextContainer.topAnchor.constraint(equalTo: horizontalStackView.bottomAnchor, constant: 10)
-            warningTextContainer.pinEdgesToSuperviewMargins(PinnableEdges([.leading(4), .trailing(10), .bottom(10)]))
+            warningTextContainer.topAnchor.constraint(equalTo: horizontalStackView.bottomAnchor, constant: 4)
+            warningTextContainer.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(10), .bottom(8)]))
         }
 
         verticalStackView.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(expandAnonymityWarning)))
+            UITapGestureRecognizer(target: self, action: #selector(toggleAnonymityWarning)))
 
         addConstrainedSubviews([verticalStackView]) {
             verticalStackView.pinEdgesToSuperviewMargins()
         }
     }
 
-    @objc func expandAnonymityWarning() {
+    @objc func toggleAnonymityWarning() {
         UIView.animate(withDuration: 0.2) { [weak self] in
             guard let self else { return }
             viewIsExpanded.toggle()
