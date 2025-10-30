@@ -1442,6 +1442,8 @@
         }
       }
     },
+    },
+
     "Add" : {
       "localizations" : {
         "da" : {
@@ -1559,6 +1561,7 @@
           }
         }
       }
+    "Add %@ to list" : {
     },
     "Add 30 days time (%@)" : {
       "localizations" : {
@@ -8435,6 +8438,9 @@
     "Client is not allowed to issue the request." : {
 
     },
+    "Collapse" : {
+
+    },
     "Collapse %@" : {
 
     },
@@ -8912,6 +8918,9 @@
           }
         }
       }
+    },
+    "Connected server" : {
+
     },
     "Connected to %@" : {
 
@@ -15568,6 +15577,9 @@
           }
         }
       }
+    },
+    "Filters" : {
+
     },
     "Gambling" : {
       "localizations" : {
@@ -24667,6 +24679,8 @@
         }
       }
     },
+    "Copied Mullvad account number to pasteboard" : {
+
     "Multihop" : {
       "localizations" : {
         "da" : {
@@ -25378,6 +25392,8 @@
     "NETWORK ISSUES" : {
 
     },
+    },
+
     "NEW DEVICE CREATED" : {
       "localizations" : {
         "da" : {
@@ -25495,6 +25511,7 @@
           }
         }
       }
+    "New list" : {
     },
     "NEW VERSION INSTALLED" : {
       "localizations" : {
@@ -26331,6 +26348,8 @@
     "NO NETWORK" : {
 
     },
+    },
+
     "NO OVERRIDES IMPORTED" : {
       "localizations" : {
         "da" : {
@@ -26448,6 +26467,7 @@
           }
         }
       }
+    "No result for \"%@\", please try a different search term." : {
     },
     "No servers match your location filter. Try changing filter settings." : {
 
@@ -28240,6 +28260,8 @@
         }
       }
     },
+    },
+
     "OVERRIDES ACTIVE" : {
       "localizations" : {
         "da" : {
@@ -28357,6 +28379,7 @@
           }
         }
       }
+    "Owned" : {
     },
     "Ownership" : {
       "localizations" : {
@@ -30485,6 +30508,9 @@
     "Providers: %d" : {
 
     },
+
+    "Providers: %lld" : {
+    },
     "Quantum resistance" : {
       "localizations" : {
         "da" : {
@@ -31565,6 +31591,9 @@
     "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
 
     },
+
+    "Rented" : {
+    },
     "Rented only" : {
       "localizations" : {
         "da" : {
@@ -32630,7 +32659,7 @@
         }
       }
     },
-    "Saving changes..." : {
+    "Save locations by adding them to a custom list." : {
 
     },
     "Search for..." : {
@@ -32751,6 +32780,8 @@
         }
       }
     },
+    "Invalid device state." : {
+
     "Seattle, WA" : {
       "localizations" : {
         "da" : {
@@ -32869,6 +32900,7 @@
         }
       }
     },
+    "Invalid purchase identifier." : {
     "Secaucus, NJ" : {
       "localizations" : {
         "da" : {
@@ -37504,12 +37536,12 @@
     "The entry and exit servers cannot be the same. Try changing one to a new server or location." : {
 
     },
-    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." : {
+    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings."
+            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings."
           }
         }
       }
