@@ -131,3 +131,9 @@ reason = "wireguard-go does not use encoding/pem"
 id = "CVE-2025-47912" # GO-2025-4010
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use net/url"
+
+# Pre-allocating memory when parsing DER payload can cause memory exhaustion (encoding/asn1)
+[[IgnoredVulns]]
+id = "CVE-2025-58185" # GO-2025-4011
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use encoding/asn1"
