@@ -49,7 +49,6 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
 
         SelectLocationPage(app)
             .tapWhereStatusBarShouldBeToScrollToTopMostPosition()
-            .tapCustomListEllipsisButton()
             .tapAddNewCustomList()
 
         CustomListPage(app)
@@ -88,6 +87,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
+            .tapMenuButton()
             .tapFilterButton()
 
         snapshot("RelayFilter")
