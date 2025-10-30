@@ -43,12 +43,7 @@ struct TermsOfServiceView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            // Disable scrolling if the contents do not overflow
-            if #available(iOS 16.4, *) {
-                scrollableContent.scrollBounceBehavior(.basedOnSize)
-            } else {
-                scrollableContent
-            }
+            scrollableContent.scrollBounceBehavior(.basedOnSize)
             HStack {
                 Text(privacyPolicyLink)
                     .font(.mullvadSmall)

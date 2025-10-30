@@ -77,4 +77,21 @@ extension Duration {
     public static func > (lhs: TimeInterval, rhs: Duration) -> Bool {
         return lhs > rhs.timeInterval
     }
+
+    public func logFormat() -> String {
+        let timeInterval = timeInterval
+
+        guard timeInterval >= 1 else {
+            return "\(milliseconds)ms"
+        }
+
+        let trailingZeroesSuffix = ".00"
+        var string = String(format: "%.2f", timeInterval)
+
+        if string.hasSuffix(trailingZeroesSuffix) {
+            string.removeLast(trailingZeroesSuffix.count)
+        }
+
+        return "\(string)s"
+    }
 }
