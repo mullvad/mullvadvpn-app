@@ -14,6 +14,7 @@ workspace = true
 default = []
 sign = ["rand08", "clap"]
 client = ["reqwest", "tokio", "thiserror"]
+arbitrary = ["proptest"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -42,10 +43,13 @@ clap = { workspace = true, optional = true }
 # (as of ed25519-dalek 2.2.0)
 rand08 = { package = "rand", version = "0.8.5", optional = true }
 rand = { workspace = true }
+proptest = { workspace = true, optional = true }
 
 thiserror = { workspace = true, optional = true }
 
 [dev-dependencies]
+# The self-referential dependency is required for enabling the proptest generators in tests.
+mullvad-update = { path = ".", features = ["arbitrary"] }
 async-tempfile = "0.6"
 insta = { workspace = true }
 mockito = "1.6.1"
