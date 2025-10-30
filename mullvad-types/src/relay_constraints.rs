@@ -359,7 +359,6 @@ pub struct TransportPort {
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", default)]
 pub struct WireguardConstraints {
-    pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
     pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: bool,
@@ -516,10 +515,6 @@ pub struct WireguardConstraintsFormatter<'a> {
 
 impl fmt::Display for WireguardConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.constraints.port {
-            Constraint::Any => write!(f, "any port")?,
-            Constraint::Only(port) => write!(f, "port {port}")?,
-        }
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
             write!(f, ", {ip_version},")?;
         }
@@ -667,6 +662,7 @@ pub struct ObfuscationSettings {
     pub selected_obfuscation: SelectedObfuscation,
     pub udp2tcp: Udp2TcpObfuscationSettings,
     pub shadowsocks: ShadowsocksSettings,
+    pub port: u16,
 }
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.

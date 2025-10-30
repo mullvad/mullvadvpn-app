@@ -37,7 +37,6 @@ impl TryFrom<&proto::WireguardConstraints>
             .to_constraint();
 
         Ok(mullvad_constraints::WireguardConstraints {
-            port: Constraint::from(constraints.port.map(|port| port as u16)),
             ip_version: Constraint::from(ip_version),
             allowed_ips,
             use_multihop: constraints.use_multihop,
@@ -142,8 +141,15 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
         });
         Self {
             selected_obfuscation,
-            udp2tcp: Some(proto::Udp2TcpObfuscationSettings::from(&settings.udp2tcp)),
-            shadowsocks: Some(proto::ShadowsocksSettings::from(&settings.shadowsocks)),
+            udp2tcp: Some(proto::obfuscation_settings::Udp2TcpObfuscation::from(
+                &settings.udp2tcp,
+            )),
+            shadowsocks: Some(proto::obfuscation_settings::Shadowsocks::from(
+                &settings.shadowsocks,
+            )),
+            port: Some(proto::obfuscation_settings::Port {
+                port: settings.port.into(),
+            }),
         }
     }
 }
@@ -155,7 +161,7 @@ impl From<mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obfu
 }
 
 impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
-    for proto::Udp2TcpObfuscationSettings
+    for proto::obfuscation_settings::Udp2TcpObfuscation
 {
     fn from(settings: &mullvad_types::relay_constraints::Udp2TcpObfuscationSettings) -> Self {
         Self {
@@ -164,7 +170,9 @@ impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
     }
 }
 
-impl From<&mullvad_types::relay_constraints::ShadowsocksSettings> for proto::ShadowsocksSettings {
+impl From<&mullvad_types::relay_constraints::ShadowsocksSettings>
+    for proto::obfuscation_settings::Shadowsocks
+{
     fn from(settings: &mullvad_types::relay_constraints::ShadowsocksSettings) -> Self {
         Self {
             port: settings.port.map(u32::from).option(),
@@ -228,11 +236,6 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
 
                     wireguard_constraints: Some(proto::WireguardConstraints {
-                        port: constraints
-                            .wireguard_constraints
-                            .port
-                            .map(u32::from)
-                            .option(),
                         ip_version: constraints
                             .wireguard_constraints
                             .ip_version
@@ -465,28 +468,34 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
             selected_obfuscation,
             udp2tcp,
             shadowsocks,
+            port: settings
+                .port
+                .and_then(|p| u16::try_from(p.port).ok())
+                .unwrap_or_default(),
         })
     }
 }
 
-impl TryFrom<&proto::Udp2TcpObfuscationSettings>
+impl TryFrom<&proto::obfuscation_settings::Udp2TcpObfuscation>
     for mullvad_types::relay_constraints::Udp2TcpObfuscationSettings
 {
     type Error = FromProtobufTypeError;
 
-    fn try_from(settings: &proto::Udp2TcpObfuscationSettings) -> Result<Self, Self::Error> {
+    fn try_from(
+        settings: &proto::obfuscation_settings::Udp2TcpObfuscation,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             port: Constraint::from(settings.port.map(|port| port as u16)),
         })
     }
 }
 
-impl TryFrom<&proto::ShadowsocksSettings>
+impl TryFrom<&proto::obfuscation_settings::Shadowsocks>
     for mullvad_types::relay_constraints::ShadowsocksSettings
 {
     type Error = FromProtobufTypeError;
 
-    fn try_from(settings: &proto::ShadowsocksSettings) -> Result<Self, Self::Error> {
+    fn try_from(settings: &proto::obfuscation_settings::Shadowsocks) -> Result<Self, Self::Error> {
         Ok(Self {
             port: Constraint::from(settings.port.map(|port| port as u16)),
         })
