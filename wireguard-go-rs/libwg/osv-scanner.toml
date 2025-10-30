@@ -156,3 +156,9 @@ reason = "'This affects programs which validate arbitrary certificate chains.' w
 id = "CVE-2025-58183" # GO-2025-4014
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use archive/tar"
+
+# Excessive CPU consumption in Reader.ReadResponse (net/textproto)
+[[IgnoredVulns]]
+id = "CVE-2025-61724" # GO-2025-4015
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/textproto"
