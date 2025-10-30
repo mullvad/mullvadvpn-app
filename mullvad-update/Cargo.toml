@@ -52,6 +52,7 @@ mockito = "1.6.1"
 rand = { workspace = true }
 tokio = { workspace = true, features = ["fs", "test-util", "time", "macros"] }
 proptest = { workspace = true }
+mullvad-version = { path = "../mullvad-version", features = ["arbitrary"] }
 
 [[bin]]
 name = "mullvad-version-metadata"
