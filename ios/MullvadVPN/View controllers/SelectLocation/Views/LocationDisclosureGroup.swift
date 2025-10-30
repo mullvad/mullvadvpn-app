@@ -1,28 +1,37 @@
 import SwiftUI
 
-struct LocationDisclosureGroup<Label: View, Content: View>: View {
+struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: View {
     @Binding private var isExpanded: Bool
 
-    let position: ItemPosition
     let level: Int
+    let isLastInList: Bool
     let isActive: Bool
     let label: () -> Label
     let content: () -> Content
     let onSelect: (() -> Void)?
+    let contextMenu: () -> ContextMenu
     let accessibilityIdentifier: AccessibilityIdentifier?
+
+    private var topRadius: CGFloat {
+        level == 0 ? 16 : 0
+    }
+    private var bottomRadius: CGFloat {
+        isLastInList && !isExpanded ? 16 : 0
+    }
 
     init(
         level: Int,
-        position: ItemPosition = .only,
+        isLastInList: Bool,
         isActive: Bool = true,
         isExpanded: Binding<Bool>,
+        @ViewBuilder contextMenu: @escaping () -> ContextMenu,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil,
     ) {
-        self.position = position
         self.level = level
+        self.isLastInList = isLastInList
         self.isActive = isActive
         self._isExpanded = isExpanded
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -30,85 +39,60 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
         self.label = label
         self.content = content
         self.onSelect = onSelect
+        self.contextMenu = contextMenu
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 2) {
-                Button {
-                    onSelect?()
-                } label: {
-                    HStack {
-                        label()
-                        Spacer()
-                    }
+        HStack(spacing: 2) {
+            Button {
+                onSelect?()
+            } label: {
+                HStack {
+                    label()
+                    Spacer()
+                }
+                .frame(maxHeight: .infinity)
+                .background {
+                    Color.colorForLevel(level)
+                }
+            }
+            .disabled(!isActive)
+            Button {
+                withAnimation(.default.speed(3)) {
+                    isExpanded.toggle()
+                }
+            } label: {
+                Image.mullvadIconChevron
+                    .rotationEffect(.degrees(isExpanded ? -90 : 90))
+                    .padding(16)
                     .frame(maxHeight: .infinity)
                     .background {
-                        let corners: UIRectCorner =
-                            if level == 0 {
-                                if isExpanded {
-                                    [.topLeft]
-                                } else {
-                                    [.topLeft, .bottomLeft]
-                                }
-                            } else {
-                                switch position {
-                                case .only: [.topLeft, .bottomLeft]
-                                case .first: [.topLeft]
-                                case .middle: []
-                                case .last: isExpanded ? [] : [.bottomLeft]
-                                }
-                            }
-                        MullvadRoundedCorner(cornerRadius: 16, corners: corners)
-                            .foregroundStyle(Color.colorForLevel(level))
+                        Color.colorForLevel(level)
                     }
-                }
-                .disabled(!isActive)
-                Button {
-                    withAnimation {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    Image.mullvadIconChevron
-                        .rotationEffect(.degrees(isExpanded ? -90 : 90))
-                        .padding(16)
-                        .frame(maxHeight: .infinity)
-                        .background {
-                            let corners: UIRectCorner =
-                                if level == 0 {
-                                    if isExpanded {
-                                        [.topRight]
-                                    } else {
-                                        [.topRight, .bottomRight]
-                                    }
-                                } else {
-                                    switch position {
-                                    case .only: [.topRight, .bottomRight]
-                                    case .first: [.topRight]
-                                    case .middle: []
-                                    case .last: isExpanded ? [] : [.bottomRight]
-                                    }
-                                }
-                            MullvadRoundedCorner(
-                                cornerRadius: 16,
-                                corners: corners
-                            )
-                            .foregroundStyle(Color.colorForLevel(level))
-                        }
-                }
-                .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
-                .accessibilityIdentifier(.expandButton)
-                .contentShape(Rectangle())
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(accessibilityIdentifier)
+            .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
+            .accessibilityIdentifier(.expandButton)
+            .contentShape(Rectangle())
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(accessibilityIdentifier)
+        .clipShape(
+            UnevenRoundedRectangle(
+                cornerRadii: .init(
+                    topLeading: topRadius,
+                    bottomLeading: bottomRadius,
+                    bottomTrailing: bottomRadius,
+                    topTrailing: topRadius
+                )
+            )
+        )
+        .contextMenu {
+            contextMenu()
+        }
+        .padding(.top, level == 0 ? 4 : 1)
 
-            if isExpanded {
-                VStack(spacing: 1) {
-                    content()
-                }
-                .padding(.top, 1)
-            }
+        if isExpanded {
+            content()
         }
     }
 }

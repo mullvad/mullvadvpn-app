@@ -10,15 +10,24 @@ import Combine
 import MullvadSettings
 import MullvadTypes
 
-struct CustomListsRepositoryStub: CustomListRepositoryProtocol {
-    let customLists: [CustomList]
+class CustomListsRepositoryStub: CustomListRepositoryProtocol {
+    var customLists: [CustomList]
 
-    func save(list: CustomList) throws {}
+    init(customLists: [CustomList] = []) {
+        self.customLists = customLists
+    }
 
-    func delete(id: UUID) {}
+    func save(list: CustomList) throws {
+        delete(id: list.id)
+        customLists.append(list)
+    }
+
+    func delete(id: UUID) {
+        customLists.removeAll { $0.id == id }
+    }
 
     func fetch(by id: UUID) -> CustomList? {
-        nil
+        customLists.first { $0.id == id }
     }
 
     func fetchAll() -> [CustomList] {
