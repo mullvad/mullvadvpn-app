@@ -113,3 +113,9 @@ reason = "wireguard-go does not use net/mail"
 id = "CVE-2025-58187" # GO-2025-4007
 ignoreUntil = 2026-10-30
 reason = "'This affects programs which validate arbitrary certificate chains.' wireguard-go does not do that"
+
+# ALPN negotiation errors can contain arbitrary text
+[[IgnoredVulns]]
+id = "CVE-2025-58189" # GO-2025-4008
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use crypto/tls"
