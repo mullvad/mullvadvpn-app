@@ -50,7 +50,6 @@ public protocol APIQuerying: Sendable {
     ) -> Cancellable
 
     func checkStorekitPayment(
-        accountNumber: String,
         transaction: StorekitTransaction,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
@@ -231,7 +230,6 @@ extension REST {
         }
 
         public func checkStorekitPayment(
-            accountNumber: String,
             transaction: StorekitTransaction,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
@@ -242,7 +240,6 @@ extension REST {
                 request:
                     .checkStorekitPayment(
                         retryStrategy: retryStrategy,
-                        accountNumber: accountNumber,
                         transaction: transaction
                     ),
                 responseHandler: responseHandler,

@@ -179,8 +179,6 @@ async fn mullvad_ios_init_storekit_payment_inner(
 /// `retry_strategy` must have been created by a call to either of the following functions
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
-/// `account_number` must be a pointer to a null terminated string.
-///
 /// `body` must be a pointer to a contiguous memory segment
 ///
 /// `body_size` must be the size of the body
@@ -191,7 +189,6 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    account_number: *const c_char,
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
@@ -209,16 +206,12 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
 
     let completion = completion_handler.clone();
 
-    // SAFETY: See param documentation for `account_number`.
-    let account_number = AccountNumber::from(unsafe { get_string(account_number) });
-
     // SAFETY: See param documentation for `body`.
     let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();
     let task = tokio_handle.spawn(async move {
         match mullvad_ios_check_storekit_payment_inner(
             api_context.rest_handle(),
             retry_strategy,
-            account_number,
             body,
         )
         .await
@@ -237,13 +230,12 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
 async fn mullvad_ios_check_storekit_payment_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
-    account_number: AccountNumber,
     body: Vec<u8>,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let account_proxy = AccountsProxy::new(rest_client);
 
     let future_factory =
-        || account_proxy.check_storekit_payment(account_number.clone(), body.clone());
+        || account_proxy.check_storekit_payment(body.clone());
 
     do_request(retry_strategy, future_factory).await
 }

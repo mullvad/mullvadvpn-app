@@ -215,7 +215,6 @@ extension REST {
 
         /// Not implemented. Use `MullvadAPIProxy` instead.
         public func checkStorekitPayment(
-            accountNumber: String,
             transaction: StorekitTransaction,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>

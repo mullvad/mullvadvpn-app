@@ -53,10 +53,9 @@ final class StorePaymentManagerInteractor {
         }
     }
 
-    func checkPayment(accountNumber: String, jwsRepresentation: String) async -> Result<Void, Error> {
+    func checkPayment(jwsRepresentation: String) async -> Result<Void, Error> {
         await withCheckedContinuation { continuation in
             _ = apiProxy.checkStorekitPayment(
-                accountNumber: accountNumber,
                 transaction: StorekitTransaction(transaction: jwsRepresentation),
                 retryStrategy: .noRetry,
                 completionHandler: { result in

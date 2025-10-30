@@ -160,7 +160,6 @@ public struct MullvadApiRequestFactory: Sendable {
                     ))
             case let .checkStorekitPayment(
                 retryStrategy: retryStrategy,
-                accountNumber: accountNumber,
                 transaction: transaction
             ):
                 let body = try encoder.encode(transaction)
@@ -169,7 +168,6 @@ public struct MullvadApiRequestFactory: Sendable {
                         apiContext.context,
                         rawCompletionPointer,
                         retryStrategy.toRustStrategy(),
-                        accountNumber,
                         body.map { $0 },
                         UInt(body.count)
                     ))

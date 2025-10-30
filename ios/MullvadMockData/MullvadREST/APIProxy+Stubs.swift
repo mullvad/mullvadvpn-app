@@ -62,7 +62,6 @@ struct APIProxyStub: APIQuerying {
     }
 
     func checkStorekitPayment(
-        accountNumber: String,
         transaction: StorekitTransaction,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
