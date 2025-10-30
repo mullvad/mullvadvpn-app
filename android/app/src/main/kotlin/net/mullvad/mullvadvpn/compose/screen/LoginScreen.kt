@@ -91,6 +91,7 @@ import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.compose.util.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.compose.util.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
@@ -226,6 +227,7 @@ private fun LoginScreen(
 ) {
     ScaffoldWithTopBar(
         snackbarHostState = snackbarHostState,
+        modifier = Modifier.accessibilityDataSensitive(),
         topBarColor = MaterialTheme.colorScheme.primary,
         iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClick,
