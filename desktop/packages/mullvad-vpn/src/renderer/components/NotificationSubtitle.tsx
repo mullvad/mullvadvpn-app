@@ -1,16 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { InAppNotificationSubtitle } from '../../shared/notifications';
+import { InAppNotification, InAppNotificationSubtitle } from '../../shared/notifications';
 import { LabelTinySemiBold } from '../lib/components';
 import { Link } from '../lib/components/link';
 import { formatHtml } from '../lib/html-formatter';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
 
-export type NotificationSubtitleProps = {
-  subtitle?: string | InAppNotificationSubtitle[];
-};
+export type NotificationSubtitleProps = Pick<InAppNotification, 'subtitle'>;
 
 const StyledLink = styled(Link)``;
 
