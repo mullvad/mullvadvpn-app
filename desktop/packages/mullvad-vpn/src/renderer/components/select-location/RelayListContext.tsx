@@ -6,7 +6,6 @@ import {
   RelayLocation,
 } from '../../../shared/daemon-rpc-types';
 import {
-  EndpointType,
   filterLocations,
   filterLocationsByDaita,
   filterLocationsByEndPointType,
@@ -15,11 +14,7 @@ import {
   getLocationsExpandedBySearch,
   searchForLocations,
 } from '../../lib/filter-locations';
-import {
-  useNormalBridgeSettings,
-  useNormalRelaySettings,
-  useTunnelProtocol,
-} from '../../lib/relay-settings-hooks';
+import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
 import { useEffectEvent } from '../../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
@@ -83,17 +78,13 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
-  const tunnelProtocol = useTunnelProtocol();
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
   const ipVersion = relaySettings?.wireguard.ipVersion ?? 'any';
 
-  // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
-  // "openvpn" or "bridge"
+  // Filters the relays to only keep the ones of the desired endpoint type: "wireguard"
   const relayListForEndpointType = useMemo(() => {
-    const endpointType =
-      locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
-    return filterLocationsByEndPointType(fullRelayList, endpointType, tunnelProtocol);
-  }, [fullRelayList, locationType, tunnelProtocol]);
+    return filterLocationsByEndPointType(fullRelayList);
+  }, [fullRelayList]);
 
   const relayListForDaita = useMemo(() => {
     return filterLocationsByDaita(
@@ -101,26 +92,18 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       daita,
       directOnly,
       locationType,
-      tunnelProtocol,
       multihop,
     );
-  }, [daita, directOnly, locationType, relayListForEndpointType, tunnelProtocol, multihop]);
+  }, [daita, directOnly, locationType, relayListForEndpointType, multihop]);
 
   // Only show relays that have QUIC endpoints when QUIC obfuscation is enabled.
   const relayListForQuic = useMemo(() => {
-    return filterLocationsByQuic(
-      relayListForDaita,
-      quic,
-      tunnelProtocol,
-      locationType,
-      multihop,
-      ipVersion,
-    );
-  }, [quic, relayListForDaita, locationType, tunnelProtocol, multihop, ipVersion]);
+    return filterLocationsByQuic(relayListForDaita, quic, locationType, multihop, ipVersion);
+  }, [quic, relayListForDaita, locationType, multihop, ipVersion]);
   // Only show relays that have LWO endpoints when LWO is enabled.
   const relayListForLwo = useMemo(() => {
-    return filterLocationsByLwo(relayListForQuic, lwo, tunnelProtocol, locationType, multihop);
-  }, [lwo, relayListForQuic, locationType, tunnelProtocol, multihop]);
+    return filterLocationsByLwo(relayListForQuic, lwo, locationType, multihop);
+  }, [lwo, relayListForQuic, locationType, multihop]);
 
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers
@@ -253,13 +236,8 @@ function useRelayList(
 }
 
 export function usePreventDueToCustomBridgeSelected(): boolean {
-  const relaySettings = useNormalRelaySettings();
-  const { locationType } = useSelectLocationContext();
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
-  const isBridgeSelection =
-    relaySettings?.tunnelProtocol === 'openvpn' && locationType === LocationType.entry;
-
-  return isBridgeSelection && bridgeSettings.type === 'custom';
+  return bridgeSettings.type === 'custom';
 }
 
 // Return all RelayLocations that should be expanded
@@ -267,12 +245,11 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
   const { locationType, searchTerm } = useSelectLocationContext();
   const { spacePreAllocationViewRef, scrollIntoView } = useScrollPositionContext();
   const relaySettings = useNormalRelaySettings();
-  const bridgeSettings = useNormalBridgeSettings();
 
   // Keeps the state of which locations are expanded for which locationType. This is used to restore
   // the state when switching back and forth between entry and exit.
   const [expandedLocationsMap, setExpandedLocations] = useState<ExpandedLocations>(() =>
-    defaultExpandedLocations(relaySettings, bridgeSettings),
+    defaultExpandedLocations(relaySettings),
   );
 
   const expandLocation = useCallback(
@@ -313,7 +290,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
   const expandSearchResults = useCallback(
     (searchTerm: string) => {
       if (searchTerm === '') {
-        setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
+        setExpandedLocations(defaultExpandedLocations(relaySettings));
       } else {
         setExpandedLocations((expandedLocations) => ({
           ...expandedLocations,
@@ -321,7 +298,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
         }));
       }
     },
-    [relaySettings, bridgeSettings, locationType, filteredLocations],
+    [relaySettings, locationType, filteredLocations],
   );
 
   const expandLocationsForSearch = useEffectEvent(
@@ -359,7 +336,7 @@ export function useDisabledLocation() {
   const relaySettings = useNormalRelaySettings();
 
   return useMemo(() => {
-    if (relaySettings?.tunnelProtocol !== 'openvpn' && relaySettings?.wireguard.useMultihop) {
+    if (relaySettings?.wireguard.useMultihop) {
       if (locationType === LocationType.exit && relaySettings?.wireguard.entryLocation !== 'any') {
         return {
           location: relaySettings?.wireguard.entryLocation,
@@ -373,7 +350,6 @@ export function useDisabledLocation() {
     return undefined;
   }, [
     locationType,
-    relaySettings?.tunnelProtocol,
     relaySettings?.wireguard.useMultihop,
     relaySettings?.wireguard.entryLocation,
     relaySettings?.location,
@@ -384,23 +360,14 @@ export function useDisabledLocation() {
 export function useSelectedLocation(): RelayLocation | undefined {
   const { locationType } = useSelectLocationContext();
   const relaySettings = useNormalRelaySettings();
-  const bridgeSettings = useNormalBridgeSettings();
 
   return useMemo(() => {
     if (locationType === LocationType.exit) {
       return relaySettings?.location === 'any' ? undefined : relaySettings?.location;
-    } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
+    } else {
       return relaySettings?.wireguard.entryLocation === 'any'
         ? undefined
         : relaySettings?.wireguard.entryLocation;
-    } else {
-      return bridgeSettings?.location === 'any' ? undefined : bridgeSettings?.location;
     }
-  }, [
-    locationType,
-    relaySettings?.location,
-    relaySettings?.tunnelProtocol,
-    relaySettings?.wireguard.entryLocation,
-    bridgeSettings?.location,
-  ]);
+  }, [locationType, relaySettings?.location, relaySettings?.wireguard.entryLocation]);
 }

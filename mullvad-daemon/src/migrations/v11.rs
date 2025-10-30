@@ -4,6 +4,7 @@ use mullvad_types::settings::SettingsVersion;
 /// The migration handles:
 /// - Renaming of block_when_disconnected option to lockdown_mode.
 /// - API access method names must now be unique and duplicates will be renamed.
+/// - Removing the Automatic option from the quantum resistance setting. The default is now "On".
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !(version(settings) == Some(SettingsVersion::V11)) {
         return Ok(());
@@ -155,10 +156,8 @@ fn migrate_duplicated_api_access_method_names(settings: &mut serde_json::Value) 
 
 #[cfg(test)]
 mod test {
+    use super::*;
     use serde_json::json;
-
-    use crate::migrations::v11::migrate_block_when_disconnected;
-    use crate::migrations::v11::migrate_duplicated_api_access_method_names;
 
     /// "block_when_disconnected" is renamed to "lockdown_mode"
     #[test]

@@ -16,7 +16,6 @@ import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
-  NormalBridgeSettingsRedux,
   NormalRelaySettingsRedux,
 } from '../../redux/settings/reducers';
 import { DisabledReason, LocationSpecification, LocationType } from './select-location-types';
@@ -39,10 +38,7 @@ export function isExpanded(
 }
 
 // Calculates which locations should be expanded based on selected location
-export function defaultExpandedLocations(
-  relaySettings?: NormalRelaySettingsRedux,
-  bridgeSettings?: NormalBridgeSettingsRedux,
-) {
+export function defaultExpandedLocations(relaySettings?: NormalRelaySettingsRedux) {
   const expandedLocations: Partial<Record<LocationType, Array<RelayLocation>>> = {};
 
   const exitLocation = relaySettings?.location;
@@ -50,12 +46,7 @@ export function defaultExpandedLocations(
     expandedLocations[LocationType.exit] = expandRelayLocation(exitLocation);
   }
 
-  if (relaySettings?.tunnelProtocol === 'openvpn') {
-    const bridgeLocation = bridgeSettings?.location;
-    if (bridgeLocation && bridgeLocation !== 'any') {
-      expandedLocations[LocationType.entry] = expandRelayLocation(bridgeLocation);
-    }
-  } else if (relaySettings?.wireguard.useMultihop) {
+  if (relaySettings?.wireguard.useMultihop) {
     const entryLocation = relaySettings?.wireguard.entryLocation;
     if (entryLocation && entryLocation !== 'any') {
       expandedLocations[LocationType.entry] = expandRelayLocation(entryLocation);

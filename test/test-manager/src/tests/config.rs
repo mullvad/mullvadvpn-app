@@ -1,16 +1,10 @@
-use std::{net::Ipv4Addr, ops::Deref, path::Path, sync::OnceLock};
+use std::{net::Ipv4Addr, ops::Deref, sync::OnceLock};
 use test_rpc::meta::Os;
 
 pub static TEST_CONFIG: TestConfigContainer = TestConfigContainer::new();
 
 /// Default `mullvad_host`. This should match the production env.
 pub const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
-/// Bundled OpenVPN CA certificate use with the installed Mullvad app.
-const OPENVPN_CA_CERTIFICATE: &[u8] = include_bytes!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/../assets/",
-    "openvpn.ca.crt"
-));
 /// Script for bootstrapping the test-runner after the test-manager has successfully logged in.
 pub const BOOTSTRAP_SCRIPT: &[u8] = include_bytes!(concat!(
     env!("CARGO_MANIFEST_DIR"),
@@ -36,8 +30,6 @@ pub struct TestConfig {
     pub host_bridge_name: String,
     pub host_bridge_ip: Ipv4Addr,
     pub os: Os,
-    /// The OpenVPN CA certificate to use with the installed Mullvad App.
-    pub openvpn_certificate: OpenVPNCertificate,
 }
 
 impl TestConfig {
@@ -53,7 +45,6 @@ impl TestConfig {
         host_bridge_name: String,
         host_bridge_ip: Ipv4Addr,
         os: Os,
-        openvpn_certificate: OpenVPNCertificate,
     ) -> Self {
         Self {
             account_number,
@@ -65,32 +56,7 @@ impl TestConfig {
             host_bridge_name,
             host_bridge_ip,
             os,
-            openvpn_certificate,
         }
-    }
-}
-
-/// The OpenVPN CA certificate to use with the installed Mullvad App.
-#[derive(Clone, Debug)]
-pub struct OpenVPNCertificate(Vec<u8>);
-
-impl OpenVPNCertificate {
-    pub fn from_file(path: impl AsRef<Path>) -> std::io::Result<Self> {
-        Ok(Self(std::fs::read(path)?))
-    }
-}
-
-impl Deref for OpenVPNCertificate {
-    type Target = [u8];
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl Default for OpenVPNCertificate {
-    fn default() -> Self {
-        Self(Vec::from(OPENVPN_CA_CERTIFICATE))
     }
 }
 

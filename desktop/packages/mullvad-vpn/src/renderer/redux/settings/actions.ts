@@ -2,7 +2,6 @@ import { ISplitTunnelingApplication } from '../../../shared/application-types';
 import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
-  BridgeState,
   CustomLists,
   IDaitaSettings,
   IDnsOptions,
@@ -58,16 +57,6 @@ export interface IUpdateBridgeSettingsAction {
   bridgeSettings: BridgeSettingsRedux;
 }
 
-export interface IUpdateBridgeStateAction {
-  type: 'UPDATE_BRIDGE_STATE';
-  bridgeState: BridgeState;
-}
-
-export interface IUpdateOpenVpnMssfixAction {
-  type: 'UPDATE_OPENVPN_MSSFIX';
-  mssfix?: number;
-}
-
 export interface IUpdateWireguardMtuAction {
   type: 'UPDATE_WIREGUARD_MTU';
   mtu?: number;
@@ -75,7 +64,7 @@ export interface IUpdateWireguardMtuAction {
 
 export interface IUpdateWireguardQuantumResistantAction {
   type: 'UPDATE_WIREGUARD_QUANTUM_RESISTANT';
-  quantumResistant?: boolean;
+  quantumResistant: boolean;
 }
 
 export interface IUpdateWireguardDaitaAction {
@@ -138,8 +127,6 @@ export type SettingsAction =
   | IUpdateLockdownModeAction
   | IUpdateShowBetaReleasesAction
   | IUpdateBridgeSettingsAction
-  | IUpdateBridgeStateAction
-  | IUpdateOpenVpnMssfixAction
   | IUpdateWireguardMtuAction
   | IUpdateWireguardQuantumResistantAction
   | IUpdateWireguardDaitaAction
@@ -220,20 +207,6 @@ function updateBridgeSettings(bridgeSettings: BridgeSettingsRedux): IUpdateBridg
   };
 }
 
-function updateBridgeState(bridgeState: BridgeState): IUpdateBridgeStateAction {
-  return {
-    type: 'UPDATE_BRIDGE_STATE',
-    bridgeState,
-  };
-}
-
-function updateOpenVpnMssfix(mssfix?: number): IUpdateOpenVpnMssfixAction {
-  return {
-    type: 'UPDATE_OPENVPN_MSSFIX',
-    mssfix,
-  };
-}
-
 function updateWireguardMtu(mtu?: number): IUpdateWireguardMtuAction {
   return {
     type: 'UPDATE_WIREGUARD_MTU',
@@ -242,7 +215,7 @@ function updateWireguardMtu(mtu?: number): IUpdateWireguardMtuAction {
 }
 
 function updateWireguardQuantumResistant(
-  quantumResistant?: boolean,
+  quantumResistant: boolean,
 ): IUpdateWireguardQuantumResistantAction {
   return {
     type: 'UPDATE_WIREGUARD_QUANTUM_RESISTANT',
@@ -334,8 +307,6 @@ export default {
   updateLockdownMode,
   updateShowBetaReleases,
   updateBridgeSettings,
-  updateBridgeState,
-  updateOpenVpnMssfix,
   updateWireguardMtu,
   updateWireguardQuantumResistant,
   updateWireguardDaita,

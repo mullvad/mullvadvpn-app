@@ -11,7 +11,6 @@ usage() {
     echo "Optional environment variables:"
     echo "  - APP_VERSION: The version of the app to test (defaults to the latest stable release)"
     echo "  - APP_PACKAGE_TO_UPGRADE_FROM: The package version to upgrade from (defaults to none)"
-    echo "  - OPENVPN_CERTIFICATE: Path to an OpenVPN CA certificate the app should use during test (defaults to assets/openvpn.ca.crt)"
     echo "  - MULLVAD_HOST: Conncheck and API environment to use, eg stagemole.eu (defaults to mullvad.net, or the config file if set)"
     echo "  - TEST_DIST_DIR: Relative path to a directory with prebuilt binaries as produced by scripts/build.sh."
     echo "  - TEST_FILTERS: specifies which tests to run (defaults to all)"

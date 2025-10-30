@@ -2,6 +2,7 @@ import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
 import { AccountRouteObjectModel } from './account';
+import { CensorshipCircumventionRouteObjectModel } from './censorship-circumvention';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { DeviceRevokedRouteObjectModel } from './device-revoked';
 import { ExpiredRouteObjectModel } from './expired';
@@ -24,7 +25,6 @@ import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
 import { VoucherSuccessRouteObjectModel } from './voucher-success';
 import { VpnSettingsRouteObjectModel } from './vpn-settings';
-import { WireguardSettingsRouteObjectModel } from './wireguard-settings';
 
 export class RoutesObjectModel {
   readonly main: MainRouteObjectModel;
@@ -43,7 +43,7 @@ export class RoutesObjectModel {
   readonly filter: FilterRouteObjectModel;
   readonly selectLocation: SelectLocationRouteObjectModel;
   readonly vpnSettings: VpnSettingsRouteObjectModel;
-  readonly wireguardSettings: WireguardSettingsRouteObjectModel;
+  readonly censorshipCircumvention: CensorshipCircumventionRouteObjectModel;
   readonly udpOverTcpSettings: UdpOverTcpSettingsRouteObjectModel;
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
@@ -69,7 +69,7 @@ export class RoutesObjectModel {
     this.filter = new FilterRouteObjectModel(page, utils);
     this.selectLocation = new SelectLocationRouteObjectModel(page, utils);
     this.vpnSettings = new VpnSettingsRouteObjectModel(page, utils);
-    this.wireguardSettings = new WireguardSettingsRouteObjectModel(page, utils);
+    this.censorshipCircumvention = new CensorshipCircumventionRouteObjectModel(page, utils);
     this.udpOverTcpSettings = new UdpOverTcpSettingsRouteObjectModel(page, utils);
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);

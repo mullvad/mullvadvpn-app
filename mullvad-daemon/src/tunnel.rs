@@ -8,11 +8,6 @@ use mullvad_types::{
     settings::TunnelOptions,
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
-#[cfg(not(target_os = "android"))]
-use talpid_types::net::{
-    Endpoint, TunnelParameters, obfuscation::Obfuscators, openvpn, proxy::CustomProxy, wireguard,
-};
-#[cfg(target_os = "android")]
 use talpid_types::net::{TunnelParameters, obfuscation::Obfuscators, wireguard};
 
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
@@ -76,10 +71,6 @@ impl ParametersGenerator {
             LastSelectedRelays::WireGuard {
                 server_override, ..
             } => *server_override,
-            #[cfg(not(target_os = "android"))]
-            LastSelectedRelays::OpenVpn {
-                server_override, ..
-            } => *server_override,
         }
     }
 
@@ -109,14 +100,6 @@ impl ParametersGenerator {
                 obfuscator_hostname = take_hostname(obfuscator);
                 bridge_hostname = None;
                 location = exit.location.clone();
-            }
-            #[cfg(not(target_os = "android"))]
-            LastSelectedRelays::OpenVpn { relay, bridge, .. } => {
-                hostname = relay.hostname.clone();
-                bridge_hostname = take_hostname(bridge);
-                entry_hostname = None;
-                obfuscator_hostname = None;
-                location = relay.location.clone();
             }
         };
 
@@ -148,26 +131,6 @@ impl InnerParametersGenerator {
             .get_relay(retry_attempt as usize, ip_availability)?;
 
         match selected_relay {
-            #[cfg(not(target_os = "android"))]
-            GetRelay::OpenVpn {
-                endpoint,
-                exit,
-                bridge,
-            } => {
-                let bridge_relay = bridge.as_ref().and_then(|bridge| bridge.relay());
-                let server_override = {
-                    let first_relay = bridge_relay.unwrap_or(&exit);
-                    (first_relay.overridden_ipv4 && endpoint.address.is_ipv4())
-                        || (first_relay.overridden_ipv6 && endpoint.address.is_ipv6())
-                };
-                self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
-                    relay: exit.clone(),
-                    bridge: bridge_relay.cloned(),
-                    server_override,
-                });
-                let bridge_settings = bridge.map(|bridge| bridge.to_proxy());
-                Ok(self.create_openvpn_tunnel_parameters(endpoint, data, bridge_settings))
-            }
             GetRelay::Wireguard {
                 endpoint,
                 obfuscator,
@@ -208,24 +171,6 @@ impl InnerParametersGenerator {
                     })
             }
         }
-    }
-
-    #[cfg(not(target_os = "android"))]
-    fn create_openvpn_tunnel_parameters(
-        &self,
-        endpoint: Endpoint,
-        data: PrivateAccountAndDevice,
-        bridge_settings: Option<CustomProxy>,
-    ) -> TunnelParameters {
-        openvpn::TunnelParameters {
-            config: openvpn::ConnectionConfig::new(endpoint, data.account_number, "-".to_string()),
-            options: self.tunnel_options.openvpn.clone(),
-            generic_options: self.tunnel_options.generic.clone(),
-            proxy: bridge_settings,
-            #[cfg(target_os = "linux")]
-            fwmark: mullvad_types::TUNNEL_FWMARK,
-        }
-        .into()
     }
 
     fn create_wireguard_tunnel_parameters(
@@ -317,6 +262,7 @@ impl From<Error> for ParameterGenerationError {
 }
 
 /// Contains all relays that were selected last time when tunnel parameters were generated.
+// TODO: flatten
 enum LastSelectedRelays {
     /// Represents all relays generated for a WireGuard tunnel.
     /// The traffic flow can look like this:
@@ -327,15 +273,6 @@ enum LastSelectedRelays {
         wg_entry: Option<Relay>,
         wg_exit: Relay,
         obfuscator: Option<Relay>,
-        server_override: bool,
-    },
-    /// Represents all relays generated for an OpenVPN tunnel.
-    /// The traffic flows like this:
-    ///     client -> bridge -> relay -> internet
-    #[cfg(not(target_os = "android"))]
-    OpenVpn {
-        relay: Relay,
-        bridge: Option<Relay>,
         server_override: bool,
     },
 }

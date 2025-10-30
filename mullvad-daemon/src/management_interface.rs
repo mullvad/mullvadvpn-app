@@ -13,8 +13,7 @@ use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     account::AccountNumber,
     relay_constraints::{
-        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
-        allowed_ip::AllowedIps,
+        BridgeSettings, ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -235,17 +234,6 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn set_bridge_state(&self, request: Request<types::BridgeState>) -> ServiceResult<()> {
-        let bridge_state =
-            BridgeState::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
-
-        log::debug!("set_bridge_state({:?})", bridge_state);
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetBridgeState(tx, bridge_state))?;
-        self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
-    }
-
     // Settings
     //
 
@@ -308,20 +296,6 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_auto_connect({})", auto_connect);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetAutoConnect(tx, auto_connect))?;
-        self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
-    }
-
-    async fn set_openvpn_mssfix(&self, request: Request<u32>) -> ServiceResult<()> {
-        let mssfix = request.into_inner();
-        let mssfix = if mssfix != 0 {
-            Some(mssfix as u16)
-        } else {
-            None
-        };
-        log::debug!("set_openvpn_mssfix({:?})", mssfix);
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }

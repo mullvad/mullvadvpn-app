@@ -27,6 +27,7 @@ import {
   Account,
   AppInfoView,
   AppUpgradeView,
+  CensorshipCircumventionView,
   ChangelogView,
   DaitaSettingsView,
   LaunchView,
@@ -34,7 +35,6 @@ import {
   MainView,
   ManageDevicesView,
   MultihopSettingsView,
-  OpenVpnSettingsView,
   SelectLanguageView,
   SettingsView,
   ShadowsocksSettingsView,
@@ -43,7 +43,7 @@ import {
   UdpOverTcpSettingsView,
   UserInterfaceSettingsView,
   VpnSettingsView,
-  WireguardSettingsView,
+  WireguardPortView,
 } from './views';
 
 export default function AppRouter() {
@@ -79,11 +79,9 @@ export default function AppRouter() {
           />
           <Route exact path={RoutePath.multihopSettings} component={MultihopSettingsView} />
           <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
-          <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsView} />
           <Route exact path={RoutePath.daitaSettings} component={DaitaSettingsView} />
           <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcpSettingsView} />
           <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
-          <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettingsView} />
           <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingView} />
           <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
           <Route exact path={RoutePath.settingsImport} component={SettingsImport} />
@@ -99,6 +97,12 @@ export default function AppRouter() {
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
           <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
+          <Route
+            exact
+            path={RoutePath.censorshipCircumvention}
+            component={CensorshipCircumventionView}
+          />
+          <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
         </Switch>
       </Focus>
     </>

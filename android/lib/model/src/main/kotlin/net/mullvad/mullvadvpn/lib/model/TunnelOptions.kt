@@ -4,9 +4,11 @@ import arrow.optics.optics
 
 @optics
 data class TunnelOptions(
-    val wireguard: WireguardTunnelOptions,
+    val mtu: Mtu?,
+    val quantumResistant: QuantumResistantState,
+    val daitaSettings: DaitaSettings,
     val dnsOptions: DnsOptions,
-    val genericOptions: GenericOptions,
+    val enableIpv6: Boolean,
 ) {
     companion object
 }

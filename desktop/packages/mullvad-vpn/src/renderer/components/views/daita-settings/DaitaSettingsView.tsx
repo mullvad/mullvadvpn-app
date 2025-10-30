@@ -74,15 +74,12 @@ export function DaitaSettingsView() {
                       <StyledIllustration source="daita-off-illustration" />
                       <Flex $flexDirection="column" $gap="medium">
                         <StyledLabelTinySemiBold>
-                          {sprintf(
-                            messages.pgettext(
-                              // TRANSLATORS: Information to the user that with this setting enabled
-                              // TRANSLATORS: their network and device's battery life will be
-                              // TRANSLATORS: affected negatively.
-                              'wireguard-settings-view',
-                              'Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s.',
-                            ),
-                            { wireguard: strings.wireguard },
+                          {messages.pgettext(
+                            // TRANSLATORS: Information to the user that with this setting enabled
+                            // TRANSLATORS: their network and device's battery life will be
+                            // TRANSLATORS: affected negatively.
+                            'wireguard-settings-view',
+                            'Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.',
                           )}
                         </StyledLabelTinySemiBold>
                         <StyledLabelTiny>
@@ -173,8 +170,7 @@ function DaitaToggle() {
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
-  const unavailable =
-    'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
+  const unavailable = !('normal' in relaySettings);
 
   const setDaita = useCallback(
     (value: boolean) => {

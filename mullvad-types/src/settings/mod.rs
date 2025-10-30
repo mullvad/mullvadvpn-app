@@ -3,9 +3,9 @@ use crate::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeSettings, BridgeState, GeographicLocationConstraint, LocationConstraint,
-        ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
-        RelaySettingsFormatter, SelectedObfuscation, WireguardConstraints,
+        BridgeSettings, GeographicLocationConstraint, LocationConstraint, ObfuscationSettings,
+        RelayConstraints, RelayOverride, RelaySettings, RelaySettingsFormatter,
+        SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
 };
@@ -78,9 +78,9 @@ impl Serialize for SettingsVersion {
 #[serde(default)]
 pub struct Settings {
     pub relay_settings: RelaySettings,
+    // TODO: remove
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
-    pub bridge_state: BridgeState,
     /// All of the custom relay lists
     pub custom_lists: CustomListsSettings,
     /// API access methods
@@ -276,7 +276,6 @@ impl Default for Settings {
                 selected_obfuscation: SelectedObfuscation::Auto,
                 ..Default::default()
             },
-            bridge_state: BridgeState::Auto,
             custom_lists: CustomListsSettings::default(),
             api_access_methods: access_method::Settings::default(),
             allow_lan: false,
@@ -307,10 +306,6 @@ impl Settings {
 
     pub fn set_relay_settings(&mut self, new_settings: RelaySettings) {
         if self.relay_settings != new_settings {
-            if !new_settings.supports_bridge() && BridgeState::On == self.bridge_state {
-                self.bridge_state = BridgeState::Auto;
-            }
-
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
                 RelaySettingsFormatter {

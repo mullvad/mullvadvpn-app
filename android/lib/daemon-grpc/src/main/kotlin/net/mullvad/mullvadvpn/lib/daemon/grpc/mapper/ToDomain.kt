@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.model.GenericOptions
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -80,7 +79,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
@@ -436,6 +434,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.PORT ->
+            throw IllegalArgumentException("PORT is not a support obfuscation")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -463,16 +463,11 @@ internal fun ManagementInterface.CustomList.toDomain(): CustomList =
 
 internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
     TunnelOptions(
-        wireguard = wireguard.toDomain(),
-        dnsOptions = dnsOptions.toDomain(),
-        genericOptions = generic.toDomain(),
-    )
-
-internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): WireguardTunnelOptions =
-    WireguardTunnelOptions(
         mtu = if (hasMtu()) Mtu(mtu) else null,
         quantumResistant = quantumResistant.toDomain(),
         daitaSettings = daita.toDomain(),
+        dnsOptions = dnsOptions.toDomain(),
+        enableIpv6 = enableIpv6,
     )
 
 internal fun ManagementInterface.DaitaSettings.toDomain(): DaitaSettings =
@@ -480,7 +475,6 @@ internal fun ManagementInterface.DaitaSettings.toDomain(): DaitaSettings =
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
     when (state) {
-        ManagementInterface.QuantumResistantState.State.AUTO -> QuantumResistantState.Auto
         ManagementInterface.QuantumResistantState.State.ON -> QuantumResistantState.On
         ManagementInterface.QuantumResistantState.State.OFF -> QuantumResistantState.Off
         ManagementInterface.QuantumResistantState.State.UNRECOGNIZED ->
@@ -520,7 +514,6 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
     ManagementInterface.QuantumResistantState.newBuilder()
         .setState(
             when (this) {
-                QuantumResistantState.Auto -> ManagementInterface.QuantumResistantState.State.AUTO
                 QuantumResistantState.On -> ManagementInterface.QuantumResistantState.State.ON
                 QuantumResistantState.Off -> ManagementInterface.QuantumResistantState.State.OFF
             }
@@ -709,9 +702,6 @@ internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
 internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
     activeFeaturesList.map { it.toDomain() }.sorted()
 
-internal fun ManagementInterface.TunnelOptions.GenericOptions.toDomain(): GenericOptions =
-    GenericOptions(enableIpv6 = enableIpv6)
-
 @Suppress("ComplexMethod")
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
@@ -733,8 +723,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
-        ManagementInterface.FeatureIndicator.BRIDGE_MODE,
-        ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,
+        ManagementInterface.FeatureIndicator.PORT,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
     }

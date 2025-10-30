@@ -71,6 +71,9 @@ pub enum Error {
     #[error("Unexpected settings format")]
     InvalidSettingsContent,
 
+    #[error("Missing setting {0}")]
+    MissingKey(&'static str),
+
     #[error("Unable to serialize settings to JSON")]
     Serialize(#[source] serde_json::Error),
 

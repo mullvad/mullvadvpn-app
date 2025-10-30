@@ -14,7 +14,7 @@ use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
     GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
-    query::{OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
+    query::{RelayQuery, WireguardRelayQuery},
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -77,10 +77,6 @@ pub async fn install_app(
         .await
         .context("Failed to set log level")?;
 
-    replace_openvpn_certificate(rpc)
-        .await
-        .context("Replace OpenVPN certs")?;
-
     // Override env vars
     rpc.set_daemon_environment(get_app_env().await?)
         .await
@@ -92,27 +88,6 @@ pub async fn install_app(
         .await
         .context("Failed to update relay list")?;
     Ok(mullvad_client)
-}
-
-/// Replace the OpenVPN CA certificate which is currently used by the installed Mullvad App.
-/// This needs to be invoked after reach (re)installation to use the custom OpenVPN certificate.
-async fn replace_openvpn_certificate(rpc: &ServiceClient) -> Result<(), Error> {
-    const DEST_CERT_FILENAME: &str = "ca.crt";
-
-    let dest_dir = match TEST_CONFIG.os {
-        Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
-        Os::Linux => "/opt/Mullvad VPN/resources",
-        Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",
-    };
-
-    let dest = Path::new(dest_dir)
-        .join(DEST_CERT_FILENAME)
-        .as_os_str()
-        .to_string_lossy()
-        .into_owned();
-    rpc.write_file(dest, TEST_CONFIG.openvpn_certificate.to_vec())
-        .await
-        .map_err(Error::Rpc)
 }
 
 pub fn get_package_desc(name: &str) -> Package {
@@ -606,21 +581,12 @@ pub async fn apply_settings_from_relay_query(
         .with_context(|| {
             format!("Failed to join query with current daemon settings. Query: {query:#?}")
         })?;
-    let (constraints, bridge_state, bridge_settings, obfuscation) =
-        intersected_relay_query.into_settings();
+    let (constraints, obfuscation) = intersected_relay_query.into_settings();
 
     mullvad_client
         .set_relay_settings(constraints.into())
         .await
         .context("Failed to set daemon settings")?;
-    mullvad_client
-        .set_bridge_state(bridge_state)
-        .await
-        .context("Failed to set bridge state")?;
-    mullvad_client
-        .set_bridge_settings(bridge_settings)
-        .await
-        .context("Failed to set bridge settings")?;
     mullvad_client
         .set_obfuscation_settings(obfuscation)
         .await
@@ -761,18 +727,11 @@ async fn intersect_with_current_location(
         constraint.location,
         Constraint::Any,
         Constraint::Any,
-        query.tunnel_protocol(),
         WireguardRelayQuery {
             entry_location: constraint.wireguard_constraints.entry_location,
             ..Default::default()
         },
-        OpenVpnRelayQuery {
-            bridge_settings: mullvad_relay_selector::query::BridgeQuery::Normal(
-                settings.bridge_settings.normal,
-            ),
-            ..Default::default()
-        },
-    )?;
+    );
     use mullvad_types::Intersection;
     let intersect_query = query
         .intersection(current_location_query)
@@ -824,8 +783,7 @@ async fn get_single_relay_location_contraint(
             GetRelay::Wireguard {
                 inner: WireguardConfig::Singlehop { exit },
                 ..
-            }
-            | GetRelay::OpenVpn { exit, .. } => {
+            } => {
                 let location = into_constraint(&exit);
                 let (mut relay_constraints, ..) = query.into_settings();
                 relay_constraints.location = location;
@@ -1347,7 +1305,7 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
 }
 
 /// Set the location to the given [`LocationConstraint`]. The same location constraint will be set
-/// for the multihop entry and OpenVPN bridge location as well.
+/// for the multihop entry.
 pub async fn set_location(
     mullvad_client: &mut MullvadProxyClient,
     location: impl Into<LocationConstraint>,
