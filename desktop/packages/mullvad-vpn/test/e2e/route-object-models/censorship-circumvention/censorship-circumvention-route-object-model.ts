@@ -14,6 +14,11 @@ export class CensorshipCircumventionRouteObjectModel extends NavigationObjectMod
     this.selectors = createSelectors(page);
   }
 
+  async gotoWireguardPort() {
+    await this.selectors.wireguardPortButton().click();
+    await this.utils.expectRoute(RoutePath.wireguardPort);
+  }
+
   async gotoUdpOverTcpSettings() {
     await this.selectors.udpOverTcpSettingsButton().click();
     await this.utils.expectRoute(RoutePath.udpOverTcp);
