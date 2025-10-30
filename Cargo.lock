@@ -3407,6 +3407,7 @@ dependencies = [
 name = "mullvad-version"
 version = "0.0.0"
 dependencies = [
+ "mullvad-version",
  "proptest",
  "regex-lite",
  "serde",
