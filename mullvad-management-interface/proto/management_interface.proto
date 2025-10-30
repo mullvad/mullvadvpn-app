@@ -424,12 +424,6 @@ message GeographicLocationConstraint {
   optional string hostname = 3;
 }
 
-message Udp2TcpObfuscationSettings { optional uint32 port = 1; }
-
-message ShadowsocksSettings { optional uint32 port = 1; }
-
-message Port { uint32 port = 1; }
-
 // TODO: Rename to "CensorshipCircumventionSettings"?
 message ObfuscationSettings {
   enum SelectedObfuscation {
@@ -441,9 +435,12 @@ message ObfuscationSettings {
     QUIC = 5;
     LWO = 6;
   }
+  message Udp2TcpObfuscation { optional uint32 port = 1; }
+  message Shadowsocks { optional uint32 port = 1; }
+  message Port { optional uint32 port = 1; }
   SelectedObfuscation selected_obfuscation = 1;
-  Udp2TcpObfuscationSettings udp2tcp = 2;
-  ShadowsocksSettings shadowsocks = 3;
+  Udp2TcpObfuscation udp2tcp = 2;
+  Shadowsocks shadowsocks = 3;
   Port port = 4;
 }
 
