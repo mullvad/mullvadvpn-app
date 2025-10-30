@@ -150,3 +150,9 @@ reason = "wireguard-go does not use net/http"
 id = "CVE-2025-58188" # GO-2025-4013
 ignoreUntil = 2026-10-30
 reason = "'This affects programs which validate arbitrary certificate chains.' wireguard-go does not do that"
+
+# Unbounded allocation when parsing GNU sparse map (archive/tar)
+[[IgnoredVulns]]
+id = "CVE-2025-58183" # GO-2025-4014
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use archive/tar"
