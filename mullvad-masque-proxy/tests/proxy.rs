@@ -178,7 +178,6 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .server_addr(masque_server_addr)
         .server_host(HOST.to_owned())
         .target_addr(target_udp_addr)
-        .mtu(mtu)
         .idle_timeout(Some(Duration::from_secs(10)))
         .auth_header(Some("Bearer test".to_owned()))
         .build();
