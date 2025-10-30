@@ -281,7 +281,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
     // MARK: - Input fields notifications
 
-    func didToggleincludeAccountTokenInLogs(_ includeTokenInLogs: Bool) {
+    func didToggleIncludeAccountTokenInLogs(_ includeTokenInLogs: Bool) {
         includeAccountTokenInLogs = includeTokenInLogs
     }
 

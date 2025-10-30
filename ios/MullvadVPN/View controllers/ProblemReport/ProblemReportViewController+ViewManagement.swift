@@ -37,14 +37,13 @@ extension ProblemReportViewController {
     }
 
     func makeCheckboxStackView() -> UIStackView {
-        let checkboxView = CheckboxView()
+        checkboxView = CheckboxView()
         checkboxView.isUserInteractionEnabled = false
         checkboxView.isChecked = false
 
         let reduceAnonymityWarningView = ReduceAnonymityWarningView()
         reduceAnonymityWarningView.isHidden = true
         let userPrivacyLabel = UILabel()
-        userPrivacyLabel.translatesAutoresizingMaskIntoConstraints = false
         userPrivacyLabel.font = .mullvadTiny
         userPrivacyLabel.adjustsFontForContentSizeCategory = true
         userPrivacyLabel.numberOfLines = 0
@@ -54,7 +53,6 @@ extension ProblemReportViewController {
         let horizontalStackView = UIStackView()
         horizontalStackView.axis = .horizontal
         horizontalStackView.distribution = .fillEqually
-        horizontalStackView.translatesAutoresizingMaskIntoConstraints = false
         horizontalStackView.spacing = 4
         horizontalStackView.isUserInteractionEnabled = true
         horizontalStackView.addGestureRecognizer(
@@ -63,10 +61,16 @@ extension ProblemReportViewController {
         let verticalStackView = UIStackView(arrangedSubviews: [horizontalStackView, reduceAnonymityWarningView])
         verticalStackView.axis = .vertical
         verticalStackView.spacing = 4
+        verticalStackView.isLayoutMarginsRelativeArrangement = true
+        verticalStackView.directionalLayoutMargins = .init(top: 12, leading: 0, bottom: 0, trailing: 0)
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
         verticalStackView.layer.borderColor = UIColor.primaryColor.cgColor
         verticalStackView.layer.borderWidth = 1
         verticalStackView.layer.cornerRadius = 4
+
+        NSLayoutConstraint.activate(
+            horizontalStackView.pinEdgesToSuperview(PinnableEdges([.leading(0), .trailing(0)])))
+        NSLayoutConstraint.activate(reduceAnonymityWarningView.pinEdgesToSuperviewMargins(.all().excluding(.top)))
 
         horizontalStackView.addConstrainedSubviews([checkboxView, userPrivacyLabel]) {
             checkboxView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(10), .top(0)]))
@@ -74,14 +78,6 @@ extension ProblemReportViewController {
             userPrivacyLabel.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .trailing(0), .bottom(10)]))
         }
 
-        NSLayoutConstraint.activate(
-            horizontalStackView.pinEdgesToSuperview(PinnableEdges([.leading(0), .top(12), .trailing(0)])))
-        NSLayoutConstraint.activate([
-            reduceAnonymityWarningView.topAnchor.constraint(equalTo: horizontalStackView.bottomAnchor, constant: 10)
-        ])
-        NSLayoutConstraint.activate(reduceAnonymityWarningView.pinEdgesToSuperviewMargins(.all().excluding(.top)))
-
-        self.checkboxView = checkboxView
         self.reduceAnonymityWarningView = reduceAnonymityWarningView
 
         return verticalStackView
@@ -89,7 +85,7 @@ extension ProblemReportViewController {
 
     @objc func toggleCheckbox() {
         checkboxView.isChecked.toggle()
-        self.didToggleincludeAccountTokenInLogs(checkboxView.isChecked)
+        self.didToggleIncludeAccountTokenInLogs(checkboxView.isChecked)
 
         UIView.animate(withDuration: 0.2) { [weak self] in
             guard let self else { return }
