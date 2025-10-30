@@ -10,7 +10,7 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Routing
-import UIKit
+import SwiftUI
 
 class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
@@ -24,11 +24,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var locationViewControllerWrapper: LocationViewControllerWrapper? {
-        return navigationController.viewControllers.first {
-            $0 is LocationViewControllerWrapper
-        } as? LocationViewControllerWrapper
-    }
+    var selectLocationViewModel: (any SelectLocationViewModel)!
 
     var didFinish: ((LocationCoordinator) -> Void)?
 
@@ -45,56 +41,61 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        // If multihop is enabled, we should check if there's a DAITA related error when opening the location
-        // view. If there is, help the user by showing the entry instead of the exit view.
-        var startContext: LocationViewControllerWrapper.MultihopContext = .exit
-        if tunnelManager.settings.tunnelMultihopState.isEnabled {
-            startContext =
-                if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
-                    .blockedState?.reason
-                { .entry } else { .exit }
-        }
-
-        let locationViewControllerWrapper = LocationViewControllerWrapper(
-            settings: tunnelManager.settings,
+        let selectLocationViewModelImpl = SelectLocationViewModelImpl(
+            tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
             customListRepository: customListRepository,
-            startContext: startContext
-        )
-
-        locationViewControllerWrapper.delegate = self
-
-        locationViewControllerWrapper.didFinish = { [weak self] in
-            guard let self else { return }
-
-            if let tunnelObserver {
-                tunnelManager.removeObserver(tunnelObserver)
-            }
-            didFinish?(self)
-        }
-
-        addTunnelObserver()
-
-        navigationController.pushViewController(locationViewControllerWrapper, animated: false)
-    }
-
-    private func addTunnelObserver() {
-        let tunnelObserver =
-            TunnelBlockObserver(
-                didUpdateTunnelSettings: { [weak self] _, settings in
+            delegate: .init(
+                showDaitaSettings: { [weak self] in
+                    self?.navigateToDaitaSettings()
+                },
+                showObfuscationSettings: { [weak self] in
+                    self?.navigateToObfuscationSettings()
+                },
+                showFilterView: { [weak self] in
+                    self?.navigateToFilter()
+                },
+                showEditCustomListView: { [weak self] locations, customList in
+                    if let customList {
+                        self?.showEditCustomList(
+                            list: customList,
+                            nodes: locations
+                        )
+                    } else {
+                        self?.showEditCustomLists(nodes: locations)
+                    }
+                },
+                showAddCustomListView: { [weak self] locations in
+                    self?.showAddCustomList(nodes: locations)
+                },
+                didSelectExitRelayLocations: { [weak self] relays in
                     guard let self else { return }
-                    locationViewControllerWrapper?.onNewSettings?(settings)
+                    self.didSelectExitRelays(relays)
+                    self.didFinish?(self)
+                },
+                didSelectEntryRelayLocations: { [weak self] relays in
+                    self?.didSelectEntryRelays(relays)
+                },
+                didFinish: { [weak self] in
+                    guard let self else { return }
+                    self.didFinish?(self)
                 }
             )
+        )
+        selectLocationViewModel = selectLocationViewModelImpl
+        let hostingController = UIHostingController(
+            rootView: SelectLocationView(
+                viewModel: selectLocationViewModelImpl)
+        )
 
-        tunnelManager.addObserver(tunnelObserver)
-        self.tunnelObserver = tunnelObserver
+        navigationController.pushViewController(hostingController, animated: false)
     }
 
     private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
             navigationController: CustomNavigationController(),
             interactor: CustomListInteractor(
+                tunnelManager: tunnelManager,
                 repository: customListRepository
             ),
             nodes: nodes
@@ -102,7 +103,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] addCustomListCoordinator in
             addCustomListCoordinator.dismiss(animated: true)
-            self?.locationViewControllerWrapper?.refreshCustomLists()
+            self?.selectLocationViewModel?.customListsChanged()
         }
 
         coordinator.start()
@@ -112,14 +113,17 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private func showEditCustomLists(nodes: [LocationNode]) {
         let coordinator = ListCustomListCoordinator(
             navigationController: InterceptibleNavigationController(),
-            interactor: CustomListInteractor(repository: customListRepository),
+            interactor: CustomListInteractor(
+                tunnelManager: tunnelManager,
+                repository: customListRepository
+            ),
             tunnelManager: tunnelManager,
             nodes: nodes
         )
 
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
             listCustomListCoordinator.dismiss(animated: true)
-            self?.locationViewControllerWrapper?.refreshCustomLists()
+            self?.selectLocationViewModel?.customListsChanged()
         }
 
         coordinator.start()
@@ -127,17 +131,40 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.presentedViewController.presentationController?.delegate = self
     }
+
+    private func showEditCustomList(list: CustomList, nodes: [LocationNode]) {
+        let coordinator = EditCustomListCoordinator(
+            navigationController: InterceptibleNavigationController(),
+            customListInteractor: CustomListInteractor(
+                tunnelManager: tunnelManager,
+                repository: customListRepository
+            ),
+            customList: list,
+            nodes: nodes
+        )
+
+        coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
+            editCustomListCoordinator.dismiss(animated: true)
+            self?.selectLocationViewModel?.customListsChanged()
+        }
+
+        coordinator.start()
+        presentChild(coordinator, animated: true)
+
+        coordinator.presentedViewController.presentationController?.delegate = self
+    }
+
 }
 
 // Intercept dismissal (by down swipe) of ListCustomListCoordinator and apply custom actions.
 // See showEditCustomLists() above.
 extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        locationViewControllerWrapper?.refreshCustomLists()
+        selectLocationViewModel?.customListsChanged()
     }
 }
 
-extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDelegate {
+extension LocationCoordinator {
     func navigateToFilter() {
         let relayFilterCoordinator = RelayFilterCoordinator(
             navigationController: CustomNavigationController(),
@@ -164,6 +191,10 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
 
     func navigateToDaitaSettings() {
         applicationRouter?.present(.daita)
+    }
+
+    func navigateToObfuscationSettings() {
+        applicationRouter?.present(.vpnSettings(.obfuscation))
     }
 
     func didSelectExitRelays(_ relays: UserSelectedRelays) {

@@ -33,6 +33,10 @@ class BaseUITestCase: XCTestCase {
     static let testsDefaultCityName = "Gothenburg"
     static let testsDefaultCityIdentifier = "se-got"
 
+    /// Default Mullvad owned relays to use in tests
+    static let testsDefaultMullvadOwnedCityName = "Stockholm"
+    static let testsDefaultMullvadOwnedRelayName = "se-sto-wg-001"
+
     /// Default relay to use in tests
     static let testsDefaultRelayName = "se-got-wg-001"
 

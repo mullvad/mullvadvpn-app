@@ -6,9 +6,9 @@ enum MultihopContext: CaseIterable, CustomStringConvertible, Hashable {
     var description: String {
         switch self {
         case .entry:
-            "Entry"
+            NSLocalizedString("Entry", comment: "")
         case .exit:
-            "Exit"
+            NSLocalizedString("Exit", comment: "")
         }
     }
 }

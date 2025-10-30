@@ -3,8 +3,8 @@ import SwiftUI
 struct RelayItemView: View {
     let location: LocationNode
     let multihopContext: MultihopContext
-    let position: ItemPosition
     let level: Int
+    var isLastInList = true
     let onSelect: () -> Void
 
     var disabled: Bool {
@@ -23,13 +23,13 @@ struct RelayItemView: View {
             switch multihopContext {
             case .entry:
                 return """
-                    \(location.name) (\(String(localized: 
+                    \(location.name) (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.exit.description))))
                     """
             case .exit:
                 return """
-                    \(location.name) (\(String(localized: 
+                    \(location.name) (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.entry.description))))
                     """
@@ -43,12 +43,7 @@ struct RelayItemView: View {
             onSelect()
         } label: {
             HStack {
-                if !location.isActive {
-                    Image.mullvadRedDot
-                } else if location.isSelected {
-                    Image.mullvadIconTick
-                        .foregroundStyle(Color.mullvadSuccessColor)
-                }
+                locationStatusIndicator()
                 VStack(alignment: .leading) {
                     Text(title)
                         .font(.mullvadSmallSemiBold)
@@ -70,26 +65,31 @@ struct RelayItemView: View {
             .padding(.vertical, subtitle != nil ? 8 : 16)
             .padding(.horizontal, CGFloat(16 * (level + 1)))
             .background {
-                let backgroundColor = Color.colorForLevel(level)
-                let corners: UIRectCorner =
-                    if level == 0 {
-                        .allCorners
-                    } else {
-                        switch position {
-                        case .only: .allCorners
-                        case .first: []
-                        case .middle: []
-                        case .last: [.bottomLeft, .bottomRight]
-                        }
-                    }
-                MullvadRoundedCorner(
-                    cornerRadius: 16,
-                    corners: corners
-                )
-                .foregroundStyle(backgroundColor)
+                Color.colorForLevel(level)
             }
         }
         .disabled(disabled)
+        .clipShape(
+            UnevenRoundedRectangle(
+                cornerRadii: .init(
+                    topLeading: level == 0 ? 16 : 0,
+                    bottomLeading: isLastInList ? 16 : 0,
+                    bottomTrailing: isLastInList ? 16 : 0,
+                    topTrailing: level == 0 ? 16 : 0
+                )
+            )
+        )
+
+    }
+
+    @ViewBuilder
+    func locationStatusIndicator() -> some View {
+        if !location.isActive {
+            Image.mullvadRedDot
+        } else if location.isSelected {
+            Image.mullvadIconTick
+                .foregroundStyle(Color.mullvadSuccessColor)
+        }
     }
 }
 
@@ -100,7 +100,6 @@ struct RelayItemView: View {
             code: "a-great-location"
         ),
         multihopContext: .exit,
-        position: .only,
         level: 0,
         onSelect: {}
     )
