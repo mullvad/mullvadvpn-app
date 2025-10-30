@@ -88,7 +88,7 @@ class ReduceAnonymityWarningView: UIView {
         horizontalStackView.spacing = 8
 
         horizontalStackView.addConstrainedSubviews([warningIcon, warningHeader, chevronIcon]) {
-            warningIcon.pinEdgesToSuperviewMargins(PinnableEdges([.leading(4), .top(10), .bottom(0)]))
+            warningIcon.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .top(10), .bottom(0)]))
             chevronIcon.pinEdgesToSuperview(PinnableEdges([.trailing(10), .top(10)]))
             warningIcon.centerYAnchor.constraint(equalTo: chevronIcon.centerYAnchor)
 
@@ -114,8 +114,8 @@ class ReduceAnonymityWarningView: UIView {
 
         verticalStackView.addConstrainedSubviews([horizontalStackView, warningTextContainer]) {
             horizontalStackView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .top(0), .trailing(0)]))
-            warningTextContainer.topAnchor.constraint(equalTo: horizontalStackView.bottomAnchor, constant: 10)
-            warningTextContainer.pinEdgesToSuperviewMargins(PinnableEdges([.leading(4), .trailing(10), .bottom(10)]))
+            warningTextContainer.topAnchor.constraint(equalTo: horizontalStackView.bottomAnchor, constant: 4)
+            warningTextContainer.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(10), .bottom(8)]))
         }
 
         verticalStackView.addGestureRecognizer(
