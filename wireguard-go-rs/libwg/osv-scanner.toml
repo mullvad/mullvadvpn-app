@@ -100,3 +100,65 @@ reason = "wireguard-go does not use database/sql"
 id = "CVE-2025-47906" # GO-2025-3956
 ignoreUntil = 2026-09-12
 reason = "wireguard-go does not use os/exec"
+
+# Excessive CPU consumption in ParseAddress in net/mail
+[[IgnoredVulns]]
+id = "CVE-2025-61725" # GO-2025-4006
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/mail"
+
+# Quadratic complexity when checking name constraints (x509)
+# This affects programs which validate arbitrary certificate chains
+[[IgnoredVulns]]
+id = "CVE-2025-58187" # GO-2025-4007
+ignoreUntil = 2026-10-30
+reason = "'This affects programs which validate arbitrary certificate chains.' wireguard-go does not do that"
+
+# ALPN negotiation errors can contain arbitrary text
+[[IgnoredVulns]]
+id = "CVE-2025-58189" # GO-2025-4008
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use crypto/tls"
+
+# Quadratic complexity when parsing some invalid inputs (encoding/pem)
+[[IgnoredVulns]]
+id = "CVE-2025-61723" # GO-2025-4009
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use encoding/pem"
+
+# Insufficient validation of bracketed IPv6 hostnames
+[[IgnoredVulns]]
+id = "CVE-2025-47912" # GO-2025-4010
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/url"
+
+# Pre-allocating memory when parsing DER payload can cause memory exhaustion (encoding/asn1)
+[[IgnoredVulns]]
+id = "CVE-2025-58185" # GO-2025-4011
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use encoding/asn1"
+
+# Lack of limit when parsing cookies can cause memory exhaustion (net/http)
+[[IgnoredVulns]]
+id = "CVE-2025-58186" # GO-2025-4012
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/http"
+
+# Panic when validating certificates with DSA public keys (crypto/x509)
+# This affects programs which validate arbitrary certificate chains
+[[IgnoredVulns]]
+id = "CVE-2025-58188" # GO-2025-4013
+ignoreUntil = 2026-10-30
+reason = "'This affects programs which validate arbitrary certificate chains.' wireguard-go does not do that"
+
+# Unbounded allocation when parsing GNU sparse map (archive/tar)
+[[IgnoredVulns]]
+id = "CVE-2025-58183" # GO-2025-4014
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use archive/tar"
+
+# Excessive CPU consumption in Reader.ReadResponse (net/textproto)
+[[IgnoredVulns]]
+id = "CVE-2025-61724" # GO-2025-4015
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use net/textproto"
