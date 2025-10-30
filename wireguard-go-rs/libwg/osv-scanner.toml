@@ -119,3 +119,9 @@ reason = "'This affects programs which validate arbitrary certificate chains.' w
 id = "CVE-2025-58189" # GO-2025-4008
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use crypto/tls"
+
+# Quadratic complexity when parsing some invalid inputs (encoding/pem)
+[[IgnoredVulns]]
+id = "CVE-2025-61723" # GO-2025-4009
+ignoreUntil = 2026-10-30
+reason = "wireguard-go does not use encoding/pem"
