@@ -343,6 +343,9 @@
         }
       }
     },
+    "%@ have been added to your account." : {
+
+    },
     "%@ left on this account" : {
 
     },
@@ -2149,6 +2152,9 @@
           }
         }
       }
+    },
+    "Add Time" : {
+
     },
     "Adelaide" : {
       "localizations" : {
@@ -14861,9 +14867,6 @@
     "Failed to upload receipt to Mullvad servers. Try again later or contact support for help." : {
 
     },
-    "Failed to validate account number: %@" : {
-
-    },
     "Failed to verify transaction receipt" : {
 
     },
@@ -22787,9 +22790,6 @@
           }
         }
       }
-    },
-    "Make a purchase with StoreKit2" : {
-
     },
     "Malaysia" : {
       "localizations" : {
@@ -45248,6 +45248,9 @@
       }
     },
     "Your previous purchases have already been added to this account." : {
+
+    },
+    "Your previous purchases have been added to your account." : {
 
     },
     "Your purchase was successfully refunded." : {

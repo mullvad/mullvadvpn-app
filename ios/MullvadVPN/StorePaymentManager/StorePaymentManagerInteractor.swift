@@ -41,15 +41,18 @@ final class StorePaymentManagerInteractor {
 
     // MARK: API proxy
 
-    func initPayment(accountNumber: String) async -> Result<UUID, Error> {
-        await withCheckedContinuation { continuation in
+    func initPayment() async -> Result<UUID, Error> {
+        guard let accountNumber = accountNumber else {
+            return .failure(NSError(domain: "User is not logged in", code: 0))
+        }
+
+        return await withCheckedContinuation { continuation in
             _ = apiProxy.initStorekitPayment(
                 accountNumber: accountNumber,
                 retryStrategy: .noRetry,
-                completionHandler: { result in
-                    continuation.resume(returning: result)
-                }
-            )
+            ) { result in
+                continuation.resume(returning: result)
+            }
         }
     }
 
@@ -58,10 +61,37 @@ final class StorePaymentManagerInteractor {
             _ = apiProxy.checkStorekitPayment(
                 transaction: StorekitTransaction(transaction: jwsRepresentation),
                 retryStrategy: .noRetry,
-                completionHandler: { result in
-                    continuation.resume(returning: result)
+            ) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+
+    func legacySendReceipt() async -> Result<Void, Error> {
+        guard let accountNumber = accountNumber else {
+            return .failure(NSError(domain: "User is not logged in", code: 0))
+        }
+
+        let receiptData: Data
+        do {
+            receiptData = try readReceiptFromDisk()
+        } catch {
+            return .failure(error)
+        }
+
+        return await withCheckedContinuation { continuation in
+            _ = apiProxy.legacyStorekitPayment(
+                accountNumber: accountNumber,
+                request: LegacyStorekitRequest(receiptString: receiptData),
+                retryStrategy: .default,
+            ) { result in
+                switch result {
+                case .success:
+                    continuation.resume(returning: .success(()))
+                case let .failure(error):
+                    continuation.resume(returning: .failure(error))
                 }
-            )
+            }
         }
     }
 
@@ -75,6 +105,24 @@ final class StorePaymentManagerInteractor {
             ) { result in
                 continuation.resume(returning: result)
             }
+        }
+    }
+
+    // MARK: Private functions
+
+    private func readReceiptFromDisk() throws -> Data {
+        guard let appStoreReceiptURL = Bundle.main.appStoreReceiptURL else {
+            throw StoreReceiptNotFound()
+        }
+
+        do {
+            return try Data(contentsOf: appStoreReceiptURL)
+        } catch let error as CocoaError
+            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile
+        {
+            throw StoreReceiptNotFound()
+        } catch {
+            throw error
         }
     }
 }
