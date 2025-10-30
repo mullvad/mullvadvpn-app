@@ -634,6 +634,24 @@ pub mod builder {
     impl<Multihop, Daita, QuantumResistant>
         RelayQueryBuilder<Wireguard<Multihop, Any, Daita, QuantumResistant>>
     {
+        /// Set a custom port for the WireGuard connection.
+        pub fn port(
+            mut self,
+            port: u16,
+        ) -> RelayQueryBuilder<Wireguard<Multihop, u16, Daita, QuantumResistant>> {
+            let protocol = Wireguard {
+                multihop: self.protocol.multihop,
+                obfuscation: port,
+                daita: self.protocol.daita,
+                quantum_resistant: self.protocol.quantum_resistant,
+            };
+            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Port(port);
+            RelayQueryBuilder {
+                query: self.query,
+                protocol,
+            }
+        }
+
         /// Enable `UDP2TCP` obufscation. This will in turn enable the option to configure the
         /// `UDP2TCP` port.
         pub fn udp2tcp(
