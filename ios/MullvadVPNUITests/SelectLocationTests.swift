@@ -28,7 +28,7 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
-        XCTAssertTrue(app.staticTexts[AccessibilityIdentifier.daitaFilterPill.asString].exists)
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.daitaFilterPill.asString].exists)
     }
 
     func testEnableShadowsocksObfuscation() {
@@ -49,6 +49,6 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
-        XCTAssertTrue(app.staticTexts[AccessibilityIdentifier.obfuscationFilterPill.asString].exists)
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.obfuscationFilterPill.asString].exists)
     }
 }

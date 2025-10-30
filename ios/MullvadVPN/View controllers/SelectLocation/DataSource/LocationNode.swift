@@ -54,10 +54,23 @@ extension LocationNode {
         parent?.root ?? self
     }
 
-    var hierarchyLevel: Int {
-        var level = 0
-        forEachAncestor { _ in level += 1 }
-        return level
+    var asCustomListNode: CustomListLocationNode? {
+        self as? CustomListLocationNode
+    }
+
+    var userSelectedRelays: UserSelectedRelays {
+        var customListSelection: UserSelectedRelays.CustomListSelection?
+        if let topmostNode = root.asCustomListNode {
+            customListSelection = UserSelectedRelays.CustomListSelection(
+                listId: topmostNode.customList.id,
+                isList: topmostNode == self
+            )
+        }
+
+        return UserSelectedRelays(
+            locations: locations,
+            customListSelection: customListSelection
+        )
     }
 
     func countryFor(code: String) -> LocationNode? {
@@ -164,12 +177,6 @@ extension Array where Element == LocationNode {
             body(element)
             element.children.forEachNode(body)
         }
-    }
-
-    var flattened: [LocationNode] {
-        var result: [LocationNode] = self
-        result += self.flatMap { $0.flattened }
-        return result
     }
 }
 

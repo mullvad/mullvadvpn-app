@@ -70,7 +70,10 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         ListCustomListsPage(app)
             .tapDoneButton()
 
-        XCTAssertTrue(app.staticTexts[customListName].exists)
+        let customListItem = SelectLocationPage(app)
+            .cellWithIdentifier(identifier: .locationListItem(customListName))
+
+        XCTAssertTrue(customListItem.exists)
     }
 
     func testAddSingleLocationToCustomList() throws {
@@ -99,17 +102,16 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         ListCustomListsPage(app)
             .tapDoneButton()
 
-        SelectLocationPage(app)
+        let customListLocation = SelectLocationPage(app)
             .tapLocationCellExpandButton(withName: customListName)
-        let customListLocationName = "\(customListName)-\(BaseUITestCase.testsDefaultRelayName)"
-        let customListLocationCell = SelectLocationPage(app).cellWithIdentifier(identifier: customListLocationName)
-        XCTAssertTrue(customListLocationCell.exists)
+            .cellWithIdentifier(identifier: .locationListItem(BaseUITestCase.testsDefaultRelayName))
+
+        XCTAssertTrue(customListLocation.exists)
     }
 
     func createCustomList(named name: String) {
         SelectLocationPage(app)
             .tapWhereStatusBarShouldBeToScrollToTopMostPosition()
-            .tapCustomListEllipsisButton()
             .tapAddNewCustomList()
 
         // When creating a new custom list, the "create" button should be disabled until the list has a name at minimum
@@ -123,7 +125,6 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
     func startEditingCustomList(named customListName: String) {
         SelectLocationPage(app)
             .tapWhereStatusBarShouldBeToScrollToTopMostPosition()
-            .tapCustomListEllipsisButton()
             .editExistingCustomLists()
 
         ListCustomListsPage(app)
@@ -138,7 +139,6 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
     func deleteCustomList(named customListName: String) {
         SelectLocationPage(app)
             .tapWhereStatusBarShouldBeToScrollToTopMostPosition()
-            .tapCustomListEllipsisButton()
             .editExistingCustomLists()
 
         ListCustomListsPage(app)

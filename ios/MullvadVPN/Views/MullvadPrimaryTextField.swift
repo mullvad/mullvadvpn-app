@@ -1,17 +1,19 @@
 import SwiftUI
 
 struct MullvadPrimaryTextField: View {
-    private let label: String
-    private let placeholder: String
+    private let label: LocalizedStringKey
+    private let placeholder: LocalizedStringKey
     @Binding private var text: String
     @Binding private var suggestion: String?
     private let validate: ((String) -> Bool)?
     private let keyboardType: UIKeyboardType?
+    @Binding private var isFocused: Bool
 
     init(
-        label: String,
-        placeholder: String,
+        label: LocalizedStringKey,
+        placeholder: LocalizedStringKey,
         text: Binding<String>,
+        isFocused: Binding<Bool>? = nil,
         suggestion: Binding<String?>? = nil,
         validate: ((String) -> Bool)? = nil,
         keyboardType: UIKeyboardType? = nil
@@ -19,16 +21,22 @@ struct MullvadPrimaryTextField: View {
         self.label = label
         self.placeholder = placeholder
         self._text = text
+        self._isFocused = isFocused ?? .constant(false)
         self._suggestion = suggestion ?? .constant(nil)
         self.validate = validate
         self.keyboardType = keyboardType
     }
 
+    @State private var hasHadInput = false
+
     var isValid: Bool {
-        validate?(text) ?? true
+        if !hasHadInput {
+            return true
+        }
+        return validate?(text) ?? true
     }
 
-    @FocusState private var isFocused: Bool
+    @FocusState private var isFocusedInner: Bool
     @Environment(\.isEnabled) private var isEnabled
 
     private var showSuggestion: Bool {
@@ -51,8 +59,26 @@ struct MullvadPrimaryTextField: View {
                     isEnabled ? .MullvadTextField.inputPlaceholder : .MullvadTextField.textDisabled
                 )
         )
-        .focused($isFocused)
+        .focused($isFocusedInner)
         .padding(.vertical, 12)
+        .onAppear {
+            isFocusedInner = isFocused
+        }
+        .onChange(of: isFocused) {
+            if isFocused != isFocusedInner {
+                isFocusedInner = isFocused
+            }
+        }
+        .onChange(of: isFocusedInner) {
+            if isFocusedInner != isFocused {
+                isFocused = isFocusedInner
+            }
+        }
+        .onChange(of: text) {
+            if !text.isEmpty {
+                hasHadInput = true
+            }
+        }
     }
 
     var body: some View {
@@ -229,8 +255,8 @@ class UIMullvadPrimaryTextField: UIHostingController<UIMullvadPrimaryTextField.W
     }
 
     struct Wrapper: View {
-        let label: String
-        let placeholder: String
+        let label: LocalizedStringKey
+        let placeholder: LocalizedStringKey
         @State var text = ""
         @State var suggestion: String?
         let validate: ((String) -> Bool)?
@@ -258,8 +284,8 @@ class UIMullvadPrimaryTextField: UIHostingController<UIMullvadPrimaryTextField.W
     }
 
     init(
-        label: String,
-        placeholder: String,
+        label: LocalizedStringKey,
+        placeholder: LocalizedStringKey,
         validate: ((String) -> Bool)? = nil,
         contentType: UITextContentType? = nil,
         keyboardType: UIKeyboardType = .default
