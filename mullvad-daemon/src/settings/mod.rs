@@ -53,15 +53,11 @@ impl From<Error> for mullvad_management_interface::Status {
             Error::DeleteError(..) | Error::WriteError(..) | Error::ReadError(..) => {
                 Status::new(Code::FailedPrecondition, error.to_string())
             }
-            Error::UpdateFailed(err)
-                if err
-                    .downcast_ref::<mullvad_types::custom_list::Error>()
-                    .is_some() =>
-            {
+            Error::UpdateFailed(err) if err.is::<mullvad_types::custom_list::Error>() => {
                 let custom_list_err = *err.downcast::<CustomListError>().unwrap();
                 handle_custom_list_error(custom_list_err)
             }
-            Error::UpdateFailed(err) if err.downcast_ref::<ApiAccessMethodError>().is_some() => {
+            Error::UpdateFailed(err) if err.is::<ApiAccessMethodError>() => {
                 let api_access_method_err = *err.downcast::<ApiAccessMethodError>().unwrap();
                 handle_api_access_method_error(api_access_method_err)
             }
