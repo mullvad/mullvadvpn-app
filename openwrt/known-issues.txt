@@ -1,0 +1,26 @@
+# This is a list of known errors / blockers for running `mullvad-daemon` on OpenWRT
+
+## tun kmod is missing
+
+OpenWRT need to install a kernel module required for creating TUN devices.
+
+Hacky solution: run `opkg install kmod-tun` on the OpenWRT host.
+
+Proper solution: Mark kmod-tun as a dependency in the `mullvad` OpenWRT package.
+
+## Read-only fs
+
+Example log:
+
+```
+[2025-10-31 09:56:37.275][mullvad_daemon][ERROR] Error: Unable to get cache dir
+Caused by: Failed to create directory /var/cache/mullvad-vpn
+Caused by: No such file or directory (os error 2)
+````
+
+Hacky solution: create the `/var/cache` directory on the OpenWRT host.
+
+		mkdir -p /var/cache
+
+
+Proper solution: Allow `mullvad-daemon` to use RAM as a cache storage. Routers are long-running systems anyway.
