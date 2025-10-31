@@ -1,13 +1,15 @@
-import BuildTypes.BENCHMARK
-import BuildTypes.DEBUG
-import BuildTypes.FDROID
-import BuildTypes.LEAK_CANARY
-import BuildTypes.NON_MINIFIED
-import BuildTypes.RELEASE
-import Flavors.OSS
-import Flavors.PLAY
-import Flavors.PROD
-import Flavors.STAGEMOLE
+package utilities
+
+import utilities.BuildTypes.BENCHMARK
+import utilities.BuildTypes.DEBUG
+import utilities.BuildTypes.FDROID
+import utilities.BuildTypes.LEAK_CANARY
+import utilities.BuildTypes.NON_MINIFIED
+import utilities.BuildTypes.RELEASE
+import utilities.Flavors.OSS
+import utilities.Flavors.PLAY
+import utilities.Flavors.PROD
+import utilities.Flavors.STAGEMOLE
 
 val ossProdAnyBuildType =
     VariantFilter(

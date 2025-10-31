@@ -249,3 +249,4 @@ baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprof
 
 # Mullvad
 mullvad-android-library = { id = "mullvad.android-library" }
+mullvad-utilities = { id = "mullvad.utilities" }
