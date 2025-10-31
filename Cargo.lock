@@ -311,6 +311,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
 
 [[package]]
+name = "bin-tracer"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tracing-core",
+ "tracing-serde-structured",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "bincode"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
