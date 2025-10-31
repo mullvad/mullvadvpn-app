@@ -30,16 +30,16 @@ class AllLocationsDataSourceTests: XCTestCase {
     }
 
     func testSearch() throws {
-        let nodes = dataSource.search(by: "got")
-        let rootNode = RootLocationNode(children: nodes)
+        dataSource.search(by: "got")
+        let rootNode = RootLocationNode(children: dataSource.nodes)
 
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "got"])?.isHiddenFromSearch == false)
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "sto"])?.isHiddenFromSearch == true)
     }
 
     func testSearch2() throws {
-        let nodes = dataSource.search(by: "s")
-        let rootNode = RootLocationNode(children: nodes)
+        dataSource.search(by: "s")
+        let rootNode = RootLocationNode(children: dataSource.nodes)
 
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "got"])?.isHiddenFromSearch == false)
         XCTAssertTrue(
@@ -62,8 +62,8 @@ class AllLocationsDataSourceTests: XCTestCase {
     }
 
     func testSearch3() throws {
-        let nodes = dataSource.search(by: "Sweden")
-        let rootNode = RootLocationNode(children: nodes)
+        dataSource.search(by: "Sweden")
+        let rootNode = RootLocationNode(children: dataSource.nodes)
 
         rootNode.countryFor(code: "se")?.forEachAncestor { location in
             XCTAssertFalse(location.isHiddenFromSearch)
@@ -71,8 +71,10 @@ class AllLocationsDataSourceTests: XCTestCase {
     }
 
     func testSearchWithEmptyText() throws {
-        let nodes = dataSource.search(by: "")
-        XCTAssertEqual(nodes, dataSource.nodes)
+        dataSource.search(by: "")
+        dataSource.nodes.forEachNode {
+            XCTAssertFalse($0.isHiddenFromSearch)
+        }
     }
 
     func testNodeByLocation() throws {
