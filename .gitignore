@@ -26,6 +26,8 @@
 /dist-assets/aarch64-unknown-linux-gnu/
 /dist-assets/riscv64gc-unknown-linux-gnu/
 /dist-assets/x86_64-apple-darwin/
+/openwrt/package/data/usr/
+*.ipk
 /windows/version.h
 /windows/winfw/src/winfw/lannetworks.h
 /windows/**/bin/
