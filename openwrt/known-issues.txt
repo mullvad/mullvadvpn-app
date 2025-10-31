@@ -1,0 +1,14 @@
+# This is a list of known errors / blockers for running `mullvad-daemon` on OpenWRT
+
+## Read-only fs
+
+Example log:
+
+```
+[2025-10-31 09:56:37.275][mullvad_daemon][ERROR] Error: Unable to get cache dir
+Caused by: Failed to create directory /var/cache/mullvad-vpn
+Caused by: No such file or directory (os error 2)
+````
+
+Hacky solution: The provided (minimal) system service will create the `/var/cache/` directory.
+Proper solution: Allow `mullvad-daemon` to use RAM as a cache storage. Routers are long-running systems anyway.
