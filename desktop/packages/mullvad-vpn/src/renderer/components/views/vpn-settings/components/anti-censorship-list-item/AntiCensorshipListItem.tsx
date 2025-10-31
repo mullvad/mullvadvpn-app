@@ -4,17 +4,17 @@ import { useSelector } from '../../../../../redux/store';
 import { SettingsNavigationListItem } from '../../../../settings-navigation-list-item';
 import { getObfuscationLabel } from './utils';
 
-export function CensorshipCircumventionListItem() {
+export function AntiCensorshipListItem() {
   const { selectedObfuscation } = useSelector((state) => state.settings.obfuscationSettings);
   const obfuscationLabel = getObfuscationLabel(selectedObfuscation);
 
   return (
-    <SettingsNavigationListItem to={RoutePath.censorshipCircumvention}>
+    <SettingsNavigationListItem to={RoutePath.antiCensorship}>
       <SettingsNavigationListItem.Label>
         {
-          // TRANSLATORS: Label for list item that navigates to censorship
-          // TRANSLATORS: circumvention settings view.
-          messages.pgettext('vpn-settings-view', 'Censorship circumvention')
+          // TRANSLATORS: Label for list item that navigates to anti-censorship
+          // TRANSLATORS: settings view.
+          messages.pgettext('vpn-settings-view', 'Anti-censorship')
         }
       </SettingsNavigationListItem.Label>
       <SettingsNavigationListItem.Group>
