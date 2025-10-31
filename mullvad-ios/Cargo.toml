@@ -34,6 +34,9 @@ talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tonic = { workspace = true }
 tower = { workspace = true }
+tun07 = { package = "tun", version = "0.7.11", features = [
+  "async",
+]}
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 shadowsocks-service = { workspace = true, features = [
     "local",
@@ -41,6 +44,11 @@ shadowsocks-service = { workspace = true, features = [
     "local-http",
     "local-tunnel",
 ] }
+
+[dependencies.boringtun]
+git = "https://github.com/mullvad/gotatun"
+rev = "d8ddd4232c9636aa98ab4bd14093e256f7d09abb"
+features = [ "device", "tun" ]
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }

@@ -3055,10 +3055,12 @@ name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "boringtun",
  "cbindgen",
  "futures",
  "hyper",
  "hyper-util",
+ "ipnetwork",
  "libc",
  "log",
  "mockito",
@@ -3073,6 +3075,7 @@ dependencies = [
  "tokio",
  "tonic",
  "tower",
+ "tun 0.7.13",
  "tunnel-obfuscation",
 ]
 

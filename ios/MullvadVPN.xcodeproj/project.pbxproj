@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */; };
+		017BF7D02EB4AF9D00783AF6 /* GotaAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BF7CF2EB4AF9D00783AF6 /* GotaAdapter.swift */; };
+		017BF7D12EB4AF9D00783AF6 /* GotaAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BF7CF2EB4AF9D00783AF6 /* GotaAdapter.swift */; };
+		017BF7D32EB4F54100783AF6 /* GotaTun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BF7D22EB4F54100783AF6 /* GotaTun.swift */; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
@@ -1573,6 +1577,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedDNSProxy.swift; sourceTree = "<group>"; };
+		017BF7CF2EB4AF9D00783AF6 /* GotaAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GotaAdapter.swift; path = PacketTunnel/WireGuardAdapter/GotaAdapter.swift; sourceTree = "<group>"; };
+		017BF7D22EB4F54100783AF6 /* GotaTun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTun.swift; sourceTree = "<group>"; };
 		01EF6F2D2B6A51B100125696 /* mullvad-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
 		01EF6F332B6A590700125696 /* libmullvad_api.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_api.a; path = "../target/aarch64-apple-ios/debug/libmullvad_api.a"; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
@@ -3873,6 +3880,7 @@
 		58CE5E57224146200008646E = {
 			isa = PBXGroup;
 			children = (
+				017BF7CF2EB4AF9D00783AF6 /* GotaAdapter.swift */,
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				584F991F2902CBDD001F858D /* Frameworks */,
@@ -4567,6 +4575,7 @@
 				A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */,
 				A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */,
 				A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */,
+				017BF7D22EB4F54100783AF6 /* GotaTun.swift */,
 			);
 			path = MullvadRustRuntime;
 			sourceTree = "<group>";
@@ -6683,6 +6692,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				017BF7D12EB4AF9D00783AF6 /* GotaAdapter.swift in Sources */,
 				581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */,
 				580810E52A30E13A00B74552 /* DeviceStateAccessorProtocol.swift in Sources */,
 				44B02E3C2BC5B8A5008EDF34 /* Bundle+ProductVersion.swift in Sources */,
@@ -6848,6 +6858,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				017BF7D02EB4AF9D00783AF6 /* GotaAdapter.swift in Sources */,
 				A9BFB0012BD00B7F00F2BCA1 /* CustomListPage.swift in Sources */,
 				8585CBE32BC684180015B6A4 /* EditAccessMethodPage.swift in Sources */,
 				8556EB522B9A1C6900D26DD4 /* MullvadApi.swift in Sources */,
@@ -6920,6 +6931,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9D9A4B12C36D10E004088DD /* ShadowSocksProxy.swift in Sources */,
+				014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */,
+				017BF7D32EB4F54100783AF6 /* GotaTun.swift in Sources */,
 				F0A89CB52D9D864B00580C27 /* RustProblemReportRequest.swift in Sources */,
 				7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */,
 				A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */,

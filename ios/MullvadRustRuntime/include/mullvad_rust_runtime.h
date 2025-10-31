@@ -21,6 +21,10 @@ typedef struct ApiContext ApiContext;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct GotaTun GotaTun;
+
+typedef struct GotaTunConfiguration GotaTunConfiguration;
+
 typedef struct Map Map;
 
 typedef struct RequestCancelHandle RequestCancelHandle;
@@ -125,6 +129,13 @@ typedef struct ProxyHandle {
   void *context;
   uint16_t port;
 } ProxyHandle;
+typedef struct SwiftGotaTun {
+  const struct GotaTun *_0;
+} SwiftGotaTun;
+
+typedef struct SwiftGotaTunConfiguration {
+  struct GotaTunConfiguration *_0;
+} SwiftGotaTunConfiguration;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
@@ -855,6 +866,83 @@ struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    const void *packet_tunnel,
                                                    int32_t tunnel_handle,
                                                    struct EphemeralPeerParameters peer_parameters);
+
+/**
+ *
+ */
+int32_t mullvad_ios_gotatun_start(struct SwiftGotaTun *tun_ptr,
+                                  struct SwiftGotaTunConfiguration configuration,
+                                  int32_t tun_fd);
+
+/**
+ * Rebind sockets when the default route changes
+ */
+int32_t mullvad_ios_gotatun_rebind_sockets(struct SwiftGotaTun *tun_ptr);
+
+/**
+ *
+ */
+int32_t mullvad_ios_gotatun_stop(struct SwiftGotaTun *tun_ptr);
+
+/**
+ *
+ */
+void mullvad_ios_gotatun_drop(struct SwiftGotaTun tun_ptr);
+
+/**
+ *
+ */
+struct SwiftGotaTunConfiguration mullvad_ios_gotatun_config_new(void);
+
+/**
+ *
+ */
+int32_t mullvad_ios_gotatun_config_set_exit(struct SwiftGotaTunConfiguration config,
+                                            const uint8_t *local_private_key,
+                                            const uint8_t *local_ephemeral_key,
+                                            const uint8_t *peer_public_key,
+                                            const char *peer_endpoint);
+
+/**
+ *
+ */
+int32_t mullvad_ios_gotatun_config_set_entry(struct SwiftGotaTunConfiguration config,
+                                             const uint8_t *local_private_key,
+                                             const uint8_t *local_ephemeral_key,
+                                             const uint8_t *peer_public_key,
+                                             const char *peer_endpoint);
+
+/**
+ *
+ */
+void mullvad_ios_gotatun_config_drop(struct SwiftGotaTunConfiguration config);
+
+/**
+ * # Safety
+ * `addr`, `password`, `cipher` must be valid for the lifetime of this function call and they must
+ * be backed by the amount of bytes as stored in the respective `*_len` parameters.
+ *
+ * `proxy_config` must be pointing to a valid memory region for the size of a `ProxyHandle`
+ * instance.
+ */
+int32_t start_shadowsocks_proxy(const uint8_t *forward_address,
+                                uintptr_t forward_address_len,
+                                uint16_t forward_port,
+                                const uint8_t *addr,
+                                uintptr_t addr_len,
+                                uint16_t port,
+                                const uint8_t *password,
+                                uintptr_t password_len,
+                                const uint8_t *cipher,
+                                uintptr_t cipher_len,
+                                struct ProxyHandle *proxy_config);
+
+/**
+ * # Safety
+ * `proxy_config` must be pointing to a valid instance of a `ProxyInstance`, as instantiated by
+ * `start_shadowsocks_proxy`.
+ */
+int32_t stop_shadowsocks_proxy(struct ProxyHandle *proxy_config);
 
 int32_t start_udp2tcp_obfuscator_proxy(const uint8_t *peer_address,
                                        uintptr_t peer_address_len,
