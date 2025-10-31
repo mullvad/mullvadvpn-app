@@ -87,7 +87,8 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
         self.probeAddress = probeAddress
         state.connectionState = .pendingStart
 
-        startMonitoring()
+        // startMonitoring()
+        sendConnectionEstablishedEvent()
     }
 
     public func stop() {

@@ -10,30 +10,49 @@ import Foundation
 import MullvadRustRuntimeProxy
 
 public class GotaTun {
+    public enum Error: Swift.Error {
+        case startFailed(Int32)
+    }
     private var handle: SwiftGotaTun = SwiftGotaTun(_0: nil)
 
-    init(tunnelFileDescriptor: Int32, configuration: GotaTunConfig) {
-        mullvad_ios_gotatun_start(&handle, configruation.handle, tunnelFileDescriptor, )
+    public init(){}
 
+
+    public func start(tunnelFileDescriptor: Int32, configuration: GotaTunConfig) throws {
+        let status = mullvad_ios_gotatun_start(&handle, configuration.handle, tunnelFileDescriptor, )
+        if status != 0 {
+            throw Error.startFailed(status)
+        }
+    }
+
+    public func stop() {
+        mullvad_ios_gotatun_stop(handle)
+        mullvad_ios_gotatun_drop(handle)
     }
 
     deinit {
-
+        mullvad_ios_gotatun_drop(handle)
     }
 }
 
 public class GotaTunConfig {
     fileprivate var handle = mullvad_ios_gotatun_config_new()
 
-    func addEntry() {
+    public init() {}
+
+    public func addEntry() {
 
     }
 
-    func addExit(privateKey: Data, preSharedKey: Data? = nil, publicKey: Data, endpoint: String) {
-        mullvad_ios_gotatun_config_set_exit(handle,  privateKey, preSharedKey, publicKey, endpoint)
+    public func addExit(privateKey: Data, preSharedKey: Data?, publicKey: Data, endpoint: String) {
+        var preSharedKey = preSharedKey
+        if preSharedKey == nil {
+            preSharedKey = Data(repeating: 0, count: 32)
+        }
+        mullvad_ios_gotatun_config_set_exit(
+            handle, privateKey.map { $0 }, preSharedKey?.map { $0 }, publicKey.map { $0 }, endpoint)
     }
 
-    
     deinit {
         mullvad_ios_gotatun_config_drop(handle)
     }

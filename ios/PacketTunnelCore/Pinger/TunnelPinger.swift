@@ -20,43 +20,43 @@ public final class TunnelPinger: PingerProtocol, @unchecked Sendable {
     private var destAddress: IPv4Address?
     /// Always accessed from the `replyQueue` and is assigned once, on the main thread of the PacketTunnel. It is thread safe.
     public var onReply: ((PingerReply) -> Void)?
-    private var pingProvider: ICMPPingProvider
+    private var pingProvider: ICMPPingProvider?
 
     private let logger: Logger
 
-    init(pingProvider: ICMPPingProvider, replyQueue: DispatchQueue) {
-        self.pingProvider = pingProvider
+    init( replyQueue: DispatchQueue) {
         self.replyQueue = replyQueue
         self.pingReceiveQueue = DispatchQueue(label: "PacketTunnel.Receive.icmp")
         self.logger = Logger(label: "TunnelPinger")
     }
 
     public func startPinging(destAddress: IPv4Address) throws {
-        stateLock.withLock {
-            self.destAddress = destAddress
-        }
-        pingReceiveQueue.async { [weak self] in
-            while let self {
-                do {
-                    let seq = try pingProvider.receiveICMP()
-
-                    replyQueue.async { [weak self] in
-                        self?.stateLock.withLock {
-                            self?.onReply?(PingerReply.success(destAddress, UInt16(seq)))
-                        }
-                    }
-                } catch {
-                    replyQueue.async { [weak self] in
-                        self?.stateLock.withLock {
-                            if self?.destAddress != nil {
-                                self?.onReply?(PingerReply.parseError(error))
-                            }
-                        }
-                    }
-                    return
-                }
-            }
-        }
+        return 
+//        stateLock.withLock {
+//            self.destAddress = destAddress
+//        }
+//        pingReceiveQueue.async { [weak self] in
+//            while let self {
+//                do {
+//                    let seq = try pingProvider.receiveICMP()
+//
+//                    replyQueue.async { [weak self] in
+//                        self?.stateLock.withLock {
+//                            self?.onReply?(PingerReply.success(destAddress, UInt16(seq)))
+//                        }
+//                    }
+//                } catch {
+//                    replyQueue.async { [weak self] in
+//                        self?.stateLock.withLock {
+//                            if self?.destAddress != nil {
+//                                self?.onReply?(PingerReply.parseError(error))
+//                            }
+//                        }
+//                    }
+//                    return
+//                }
+//            }
+//        }
     }
 
     public func stopPinging() {
@@ -72,7 +72,7 @@ public final class TunnelPinger: PingerProtocol, @unchecked Sendable {
         defer { stateLock.unlock() }
         guard destAddress != nil else { throw WireGuardAdapterError.invalidState }
         // NOTE: we cheat here by returning the destination address we were passed, rather than parsing it from the packet on the other side of the FFI boundary.
-        try pingProvider.sendICMPPing(seqNumber: sequenceNumber)
+//        try pingProvider.sendICMPPing(seqNumber: sequenceNumber)
 
         return PingerSendResult(sequenceNumber: UInt16(sequenceNumber))
     }

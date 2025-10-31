@@ -24,7 +24,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
-    private var adapter: WgAdapter!
+    //    private var adapter: WgAdapter!
+    private var adapter: GotaAdapter!
     private var relaySelector: RelaySelectorWrapper!
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
     private let tunnelSettingsUpdater: SettingsUpdater
@@ -33,9 +34,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
     private let tunnelSettingsListener = TunnelSettingsListener()
-    private lazy var ephemeralPeerReceiver = {
-        EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
-    }()
+    private var ephemeralPeerReceiver: EphemeralPeerReceiver!
+    //    private lazy var ephemeralPeerReceiver = {
+    //        EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
+    //    }()
 
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
@@ -60,6 +62,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         defaultPathObserver = PacketTunnelPathObserver(eventQueue: internalQueue)
 
         super.init()
+
+        Thread.sleep(forTimeInterval: 4)
 
         performSettingsMigration()
 
@@ -89,9 +93,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             )
         )
 
-        adapter = WgAdapter(packetTunnelProvider: self)
+        adapter = GotaAdapter(provider: self)
+        //        adapter = WgAdapter(packetTunnelProvider: self)
 
-        let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
+        let pinger = TunnelPinger(replyQueue: internalQueue)
 
         let tunnelMonitor = TunnelMonitor(
             eventQueue: internalQueue,
@@ -134,24 +139,24 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             apiRequestProxy: apiRequestProxy
         )
 
-        ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
-            EphemeralPeerExchangeActor(
-                packetTunnel: ephemeralPeerReceiver,
-                onFailure: self.ephemeralPeerExchangeFailed,
-                iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
-            ),
-            onUpdateConfiguration: { [unowned self] configuration in
-                let channel = OneshotChannel()
-                actor.changeEphemeralPeerNegotiationState(
-                    configuration: configuration,
-                    reconfigurationSemaphore: channel
-                )
-                await channel.receive()
-            },
-            onFinish: { [unowned self] in
-                actor.notifyEphemeralPeerNegotiated()
-            }
-        )
+//        ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
+//            EphemeralPeerExchangeActor(
+//                packetTunnel: ephemeralPeerReceiver,
+//                onFailure: self.ephemeralPeerExchangeFailed,
+//                iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
+//            ),
+//            onUpdateConfiguration: { [unowned self] configuration in
+//                let channel = OneshotChannel()
+//                actor.changeEphemeralPeerNegotiationState(
+//                    configuration: configuration,
+//                    reconfigurationSemaphore: channel
+//                )
+//                await channel.receive()
+//            },
+//            onFinish: { [unowned self] in
+//                actor.notifyEphemeralPeerNegotiated()
+//            }
+//        )
     }
 
     override func startTunnel(options: [String: NSObject]? = nil) async throws {
