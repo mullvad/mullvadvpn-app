@@ -98,6 +98,9 @@ profileinstaller = "1.4.1"
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
 android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
+# Required for build-logic convention plugins to apply AGP and Kotlin Gradle Plugin
+android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
