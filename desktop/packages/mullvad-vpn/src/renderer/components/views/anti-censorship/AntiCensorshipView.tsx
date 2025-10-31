@@ -33,12 +33,12 @@ export function AntiCensorshipView() {
             </SettingsHeader>
             <FlexColumn $gap="medium">
               <Container size="4" $flexDirection="column" $gap="medium">
-                <Text variant="labelTinySemiBold" color="whiteAlpha60">
+                <Text variant="labelTiny" color="whiteAlpha60">
                   {
                     // TRANSLATORS: First paragraph of description text in anti-censorship view
                     messages.pgettext(
                       'anti-censorship-view',
-                      'Obfuscation methods makes your encrypted VPN traffic look like something else. This can be used to help circumvent censorship and other types of filtering, where a plain connection would be blocked.',
+                      'These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.',
                     )
                   }
                 </Text>
@@ -47,7 +47,7 @@ export function AntiCensorshipView() {
                     // TRANSLATORS: Second paragraph of description text in anti-censorship view
                     messages.pgettext(
                       'anti-censorship-view',
-                      'When “Automatic” is selected, the app tries all methods when connecting until it finds one that works.',
+                      'Please note that these methods do not improve performance, and may increase system utilization and battery consumption.',
                     )
                   }
                 </Text>
