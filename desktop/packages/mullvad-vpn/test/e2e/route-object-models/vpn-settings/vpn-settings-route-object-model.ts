@@ -16,9 +16,9 @@ export class VpnSettingsRouteObjectModel extends NavigationObjectModel {
     this.selectors = createSelectors(page);
   }
 
-  async gotoCensorshipCircumvention() {
-    await this.selectors.censorshipCircumventionButton().click();
-    await this.utils.expectRoute(RoutePath.censorshipCircumvention);
+  async gotoAntiCensorship() {
+    await this.selectors.antiCensorship().click();
+    await this.utils.expectRoute(RoutePath.antiCensorship);
   }
 
   getAutoConnectSwitch() {

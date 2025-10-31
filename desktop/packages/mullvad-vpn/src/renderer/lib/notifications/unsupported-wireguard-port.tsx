@@ -24,11 +24,14 @@ const transformerMap = {
         // TRANSLATORS: the user can change WireGuard port.
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
-        messages.pgettext('accessibility', 'Go to VPN settings to change %(wireGuard)s port'),
+        messages.pgettext(
+          'accessibility',
+          'Go to anti-censorship settings to change %(wireGuard)s port',
+        ),
         { wireGuard: strings.wireguard },
       )}
       variant="labelTinySemiBold"
-      to={RoutePath.vpnSettings}>
+      to={RoutePath.antiCensorship}>
       <InternalLink.Text>{value}</InternalLink.Text>
     </InternalLink>
   ),

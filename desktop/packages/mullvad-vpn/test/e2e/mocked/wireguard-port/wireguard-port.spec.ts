@@ -21,8 +21,8 @@ test.describe('WireGuard port settings', () => {
 
     await routes.main.gotoSettings();
     await routes.settings.gotoVpnSettings();
-    await routes.vpnSettings.gotoCensorshipCircumvention();
-    await routes.censorshipCircumvention.gotoWireguardPort();
+    await routes.vpnSettings.gotoAntiCensorship();
+    await routes.antiCensorship.gotoWireguardPort();
   };
 
   test.beforeAll(async () => {
