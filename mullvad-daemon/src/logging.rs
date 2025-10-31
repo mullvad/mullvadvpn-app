@@ -108,6 +108,7 @@ impl LogHandle {
     }
 }
 
+#[cfg_attr(feature = "console-subscriber", allow(unused_variables))]
 pub fn init_logger(
     log_level: log::LevelFilter,
     log_dir: Option<&PathBuf>,
@@ -124,9 +125,13 @@ pub fn init_logger(
 
     // NOTE: for `tokio-console` to work,
     // * Build with RUSTFLAGS="--cfg tokio_unstable"
-    // * Start with RUST_LOG="tokio=trace,runtime=trace,info"
-    let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(level_filter.to_string()));
+    #[cfg(feature = "console-subscriber")]
+    let env_filter = EnvFilter::new("tokio=trace,runtime=trace,debug");
+    #[cfg(not(feature = "console-subscriber"))]
+    let env_filter = {
+        EnvFilter::try_from_default_env()
+            .unwrap_or_else(|_| EnvFilter::new(level_filter.to_string()))
+    };
 
     let default_filter = silence_crates(env_filter);
 
@@ -150,11 +155,14 @@ pub fn init_logger(
     let stdout_formatter = tracing_subscriber::fmt::layer()
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
-    let console_layer = console_subscriber::spawn();
 
-    let reg = tracing_subscriber::registry()
-        .with(user_filter)
-        .with(console_layer);
+    let reg = tracing_subscriber::registry().with(user_filter);
+
+    #[cfg(feature = "console-subscriber")]
+    let reg = {
+        let console_layer = console_subscriber::spawn();
+        reg.with(console_layer)
+    };
 
     if let Some(log_dir) = log_dir {
         rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
