@@ -1,0 +1,7 @@
+Package: mullvad
+Version: 2025.13
+Architecture: x86_64
+Maintainer: admin@mullvad.net
+Description: It creates a secure network between your router and Mullvad
+Priority: optional
+Depends: kmod-tun
