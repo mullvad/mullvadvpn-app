@@ -1,41 +1,11 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    id("mullvad.android-library")
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.junit5.android)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.lib.model"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
-    buildToolsVersion = libs.versions.build.tools.get()
-
-    defaultConfig {
-        minSdk = libs.versions.min.sdk.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
-            allWarningsAsErrors = true
-        }
-    }
-
-    lint {
-        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        abortOnError = true
-        warningsAsErrors = true
-    }
-}
+android { namespace = "net.mullvad.mullvadvpn.lib.model" }
 
 dependencies {
     implementation(libs.kotlin.stdlib)

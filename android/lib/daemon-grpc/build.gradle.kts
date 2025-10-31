@@ -1,9 +1,7 @@
 import com.google.protobuf.gradle.proto
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    id("mullvad.android-library")
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.protobuf.core)
     alias(libs.plugins.junit5.android)
@@ -11,35 +9,14 @@ plugins {
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.daemon.grpc"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
-    buildToolsVersion = libs.versions.build.tools.get()
-
-    defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
-            allWarningsAsErrors = true
-            freeCompilerArgs = listOf("-XXLanguage:+WhenGuards")
-        }
-    }
-
-    lint {
-        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        abortOnError = true
-        warningsAsErrors = true
-    }
 
     sourceSets {
         getByName("main") {
             proto { srcDir("${rootProject.projectDir}/../mullvad-management-interface/proto") }
         }
     }
+
+    kotlin { compilerOptions { freeCompilerArgs.add("-XXLanguage:+WhenGuards") } }
 }
 
 protobuf {
