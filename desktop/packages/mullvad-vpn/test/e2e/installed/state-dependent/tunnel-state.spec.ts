@@ -93,12 +93,12 @@ test.describe('Tunnel state and settings', () => {
     async function gotoWireguardSettings() {
       await routes.main.gotoSettings();
       await routes.settings.gotoVpnSettings();
-      await routes.vpnSettings.gotoCensorshipCircumvention();
+      await routes.vpnSettings.gotoAntiCensorship();
     }
 
     async function gotoUdpOverTcpSettings() {
       await gotoWireguardSettings();
-      await routes.censorshipCircumvention.gotoUdpOverTcpSettings();
+      await routes.antiCensorship.gotoUdpOverTcpSettings();
     }
 
     test.beforeAll(async () => {
@@ -115,13 +115,13 @@ test.describe('Tunnel state and settings', () => {
     test('App should enable UDP-over-TCP', async () => {
       await gotoWireguardSettings();
 
-      const udpOverTcpOption = routes.censorshipCircumvention.getUdpOverTcpOption();
+      const udpOverTcpOption = routes.antiCensorship.getUdpOverTcpOption();
       await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'false');
 
-      await routes.censorshipCircumvention.selectUdpOverTcp();
+      await routes.antiCensorship.selectUdpOverTcp();
       await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'true');
 
-      await routes.censorshipCircumvention.goBackToRoute(RoutePath.main);
+      await routes.antiCensorship.goBackToRoute(RoutePath.main);
 
       await expectConnected(page);
 
@@ -147,9 +147,9 @@ test.describe('Tunnel state and settings', () => {
 
     test('App should set obfuscation to automatic', async () => {
       await gotoWireguardSettings();
-      await routes.censorshipCircumvention.selectAutomaticObfuscation();
+      await routes.antiCensorship.selectAutomaticObfuscation();
 
-      const automaticOption = routes.censorshipCircumvention.getAutomaticObfuscationOption();
+      const automaticOption = routes.antiCensorship.getAutomaticObfuscationOption();
       await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
       await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
     });
