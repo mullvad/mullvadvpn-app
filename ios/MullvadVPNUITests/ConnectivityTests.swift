@@ -91,6 +91,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
+            .tapMenuButton()
             .tapFilterButton()
 
         SelectLocationFilterPage(app)
@@ -99,12 +100,10 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         // Select the first country, its first city and its first relay
         SelectLocationPage(app)
-            .tapCountryLocationCellExpandButton(
-                withName: BaseUITestCase
-                    .testsDefaultCountryName
-            )  // Must be a little specific here in order to avoid using relay services country with experimental relays
-            .tapCityLocationCellExpandButton(withIndex: 0)
-            .tapRelayLocationCell(withIndex: 0)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountryName)
+            // Must be a little specific here in order to avoid using relay services country with experimental relays
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultMullvadOwnedCityName)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultMullvadOwnedRelayName)
 
         allowAddVPNConfigurationsIfAsked()
 
@@ -112,6 +111,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
+            .tapMenuButton()
             .tapFilterButton()
 
         SelectLocationFilterPage(app)
