@@ -25,9 +25,9 @@ import StateTriggeredNavigation from './StateTriggeredNavigation';
 import Support from './Support';
 import {
   Account,
+  AntiCensorshipView,
   AppInfoView,
   AppUpgradeView,
-  CensorshipCircumventionView,
   ChangelogView,
   DaitaSettingsView,
   LaunchView,
@@ -97,11 +97,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
           <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
-          <Route
-            exact
-            path={RoutePath.censorshipCircumvention}
-            component={CensorshipCircumventionView}
-          />
+          <Route exact path={RoutePath.antiCensorship} component={AntiCensorshipView} />
           <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
         </Switch>
       </Focus>

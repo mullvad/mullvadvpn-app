@@ -60,35 +60,35 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'UDP over TCP',
     featureIndicator: FeatureIndicator.udp2tcp,
-    route: RoutePath.censorshipCircumvention,
+    route: RoutePath.antiCensorship,
     featureIndicatorLabel: 'Obfuscation',
     option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'shadowsocks',
     featureIndicator: FeatureIndicator.shadowsocks,
-    route: RoutePath.censorshipCircumvention,
+    route: RoutePath.antiCensorship,
     featureIndicatorLabel: 'Obfuscation',
     option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'QUIC',
     featureIndicator: FeatureIndicator.quic,
-    route: RoutePath.censorshipCircumvention,
+    route: RoutePath.antiCensorship,
     featureIndicatorLabel: 'Obfuscation',
     option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'LWO',
     featureIndicator: FeatureIndicator.lwo,
-    route: RoutePath.censorshipCircumvention,
+    route: RoutePath.antiCensorship,
     featureIndicatorLabel: 'Obfuscation',
     option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'WireGuard Port',
     featureIndicator: FeatureIndicator.port,
-    route: RoutePath.censorshipCircumvention,
+    route: RoutePath.antiCensorship,
     featureIndicatorLabel: 'Obfuscation',
     option: { name: 'Method', type: 'listbox' },
   },
@@ -154,7 +154,7 @@ test.describe('Feature indicators', () => {
 
   test.beforeEach(async () => {
     await helpers.disconnect();
-    await routes.censorshipCircumvention.goBackToRoute(RoutePath.main);
+    await routes.antiCensorship.goBackToRoute(RoutePath.main);
   });
 
   test.afterAll(async () => {
