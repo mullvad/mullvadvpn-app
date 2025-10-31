@@ -27,6 +27,8 @@
 /dist-assets/x86_64-apple-darwin/
 /openwrt/package/data/usr/
 *.ipk
+*.img
+*.qcow2
 /windows/version.h
 /windows/winfw/src/winfw/lannetworks.h
 /windows/**/bin/
