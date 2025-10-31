@@ -1,9 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import utilities.FlavorDimensions
+import utilities.Flavors
+import utilities.Variant
+import utilities.baselineFilter
+import utilities.matches
 
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.baselineprofile)
+    id("mullvad.utilities")
 }
 
 android {

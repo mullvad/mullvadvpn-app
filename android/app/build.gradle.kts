@@ -4,6 +4,25 @@ import java.io.FileInputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import utilities.BuildTypes
+import utilities.FlavorDimensions
+import utilities.Flavors
+import utilities.SigningConfigs
+import utilities.Variant
+import utilities.allPlayDebugReleaseVariants
+import utilities.baselineFilter
+import utilities.generateRemapArguments
+import utilities.generateVersionCode
+import utilities.generateVersionName
+import utilities.getBooleanProperty
+import utilities.getStringListProperty
+import utilities.isAlphaBuild
+import utilities.isDevBuild
+import utilities.isReleaseBuild
+import utilities.leakCanaryImplementation
+import utilities.matchesAny
+import utilities.ossProdAnyBuildType
+import utilities.playImplementation
 
 plugins {
     alias(libs.plugins.android.application)
@@ -14,6 +33,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.junit5.android)
     alias(libs.plugins.baselineprofile)
+    id("mullvad.utilities")
     id("me.sigptr.rust-android")
 }
 
