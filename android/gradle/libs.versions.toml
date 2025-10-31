@@ -246,3 +246,6 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
+
+# Mullvad
+mullvad-android-library = { id = "mullvad.android-library" }
