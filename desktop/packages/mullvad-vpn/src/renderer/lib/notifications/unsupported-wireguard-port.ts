@@ -56,12 +56,10 @@ export class UnsupportedWireGuardPortNotificationProvider implements InAppNotifi
           action: {
             type: 'navigate-internal',
             link: {
-              to: RoutePath.censorshipCircumvention,
+              to: RoutePath.antiCensorship,
               'aria-label':
-                // TRANSLATORS: Accessibility label for link to wireguard settings.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
-                messages.pgettext('accessibility', 'Go to censorship circumvention settings.'),
+                // TRANSLATORS: Accessibility label for link to anti-censorship settings.
+                messages.pgettext('accessibility', 'Go to anti-censorship settings.'),
             },
           },
         },

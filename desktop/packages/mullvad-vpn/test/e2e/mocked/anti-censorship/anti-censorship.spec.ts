@@ -10,7 +10,7 @@ let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 
-test.describe('Censorship circumvention settings', () => {
+test.describe('Anti censorship settings', () => {
   const startup = async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
@@ -19,7 +19,7 @@ test.describe('Censorship circumvention settings', () => {
 
     await routes.main.gotoSettings();
     await routes.settings.gotoVpnSettings();
-    await routes.vpnSettings.gotoCensorshipCircumvention();
+    await routes.vpnSettings.gotoAntiCensorship();
   };
 
   test.beforeAll(async () => {
@@ -44,7 +44,7 @@ test.describe('Censorship circumvention settings', () => {
   test('Should select automatic obfuscation', async () => {
     await setObfuscation(ObfuscationType.off);
 
-    const option = routes.censorshipCircumvention.selectors.automaticOption();
+    const option = routes.antiCensorship.selectors.automaticOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setObfuscation(ObfuscationType.auto);
@@ -52,7 +52,7 @@ test.describe('Censorship circumvention settings', () => {
   });
 
   test('Should select WireGuard port obfuscation', async () => {
-    const option = routes.censorshipCircumvention.selectors.wireguardPortOption();
+    const option = routes.antiCensorship.selectors.wireguardPortOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setObfuscation(ObfuscationType.port);
@@ -60,7 +60,7 @@ test.describe('Censorship circumvention settings', () => {
   });
 
   test('Should select LWO obfuscation', async () => {
-    const option = routes.censorshipCircumvention.selectors.lwoOption();
+    const option = routes.antiCensorship.selectors.lwoOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setObfuscation(ObfuscationType.lwo);
@@ -68,7 +68,7 @@ test.describe('Censorship circumvention settings', () => {
   });
 
   test('Should select QUIC obfuscation', async () => {
-    const option = routes.censorshipCircumvention.selectors.quicOption();
+    const option = routes.antiCensorship.selectors.quicOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setObfuscation(ObfuscationType.quic);
@@ -76,7 +76,7 @@ test.describe('Censorship circumvention settings', () => {
   });
 
   test('Should select shadowsocks obfuscation', async () => {
-    const option = routes.censorshipCircumvention.selectors.shadowsocksOption();
+    const option = routes.antiCensorship.selectors.shadowsocksOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setObfuscation(ObfuscationType.shadowsocks);
@@ -84,7 +84,7 @@ test.describe('Censorship circumvention settings', () => {
   });
 
   test('Should select udp-over-tcp obfuscation', async () => {
-    const option = routes.censorshipCircumvention.selectors.udpOverTcpOption();
+    const option = routes.antiCensorship.selectors.udpOverTcpOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setObfuscation(ObfuscationType.udp2tcp);

@@ -341,16 +341,14 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr ""
 
+#. Accessibility label for link to anti-censorship settings.
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings."
+msgstr ""
+
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
-msgstr ""
-
-#. Accessibility label for link to wireguard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "accessibility"
-msgid "Go to censorship circumvention settings."
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe
@@ -460,6 +458,26 @@ msgstr ""
 
 msgctxt "account-view"
 msgid "Paid until"
+msgstr ""
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr ""
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr ""
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr ""
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
 msgstr ""
 
 msgctxt "api-access-methods-view"
@@ -868,26 +886,6 @@ msgstr ""
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr ""
-
-#. Page title for censorship circumvention settings view
-msgctxt "censorship-circumvention-view"
-msgid "Censorship circumvention"
-msgstr ""
-
-#. The title for the obfuscation method selector.
-msgctxt "censorship-circumvention-view"
-msgid "Method"
-msgstr ""
-
-#. First paragraph of description text in censorship circumvention settings view
-msgctxt "censorship-circumvention-view"
-msgid "Obfuscation methods makes your encrypted VPN traffic look like something else. This can be used to help circumvent censorship and other types of filtering, where a plain connection would be blocked."
-msgstr ""
-
-#. Second paragraph of description text in censorship circumvention settings view
-msgctxt "censorship-circumvention-view"
-msgid "When “Automatic” is selected, the app tries all methods when connecting until it finds one that works."
 msgstr ""
 
 #. Text displayed when there are no updates for this platform in the app version
@@ -2406,6 +2404,12 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr ""
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr ""
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr ""
@@ -2420,12 +2424,6 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
-msgstr ""
-
-#. Label for list item that navigates to censorship
-#. circumvention settings view.
-msgctxt "vpn-settings-view"
-msgid "Censorship circumvention"
 msgstr ""
 
 #. This is displayed when the custom DNS setting is turned on which makes the block

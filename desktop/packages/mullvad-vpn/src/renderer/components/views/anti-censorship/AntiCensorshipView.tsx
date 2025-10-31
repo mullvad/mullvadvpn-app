@@ -11,7 +11,7 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { MethodSetting } from './components';
 
-export function CensorshipCircumventionView() {
+export function AntiCensorshipView() {
   const { pop } = useHistory();
 
   return (
@@ -19,35 +19,35 @@ export function CensorshipCircumventionView() {
       <BackAction action={pop}>
         <NavigationContainer>
           <AppNavigationHeader
-            title={messages.pgettext('censorship-circumvention-view', 'Censorship circumvention')}
+            title={messages.pgettext('anti-censorship-view', 'Anti-censorship')}
           />
 
           <NavigationScrollbars>
             <SettingsHeader>
               <HeaderTitle>
                 {
-                  // TRANSLATORS: Page title for censorship circumvention settings view
-                  messages.pgettext('censorship-circumvention-view', 'Censorship circumvention')
+                  // TRANSLATORS: Page title for anti censorship settings view
+                  messages.pgettext('anti-censorship-view', 'Anti-censorship')
                 }
               </HeaderTitle>
             </SettingsHeader>
             <FlexColumn $gap="medium">
               <Container size="4" $flexDirection="column" $gap="medium">
-                <Text variant="labelTinySemiBold" color="whiteAlpha60">
+                <Text variant="labelTiny" color="whiteAlpha60">
                   {
-                    // TRANSLATORS: First paragraph of description text in censorship circumvention settings view
+                    // TRANSLATORS: First paragraph of description text in anti-censorship view
                     messages.pgettext(
-                      'censorship-circumvention-view',
-                      'Obfuscation methods makes your encrypted VPN traffic look like something else. This can be used to help circumvent censorship and other types of filtering, where a plain connection would be blocked.',
+                      'anti-censorship-view',
+                      'These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.',
                     )
                   }
                 </Text>
                 <Text variant="labelTinySemiBold" color="whiteAlpha60">
                   {
-                    // TRANSLATORS: Second paragraph of description text in censorship circumvention settings view
+                    // TRANSLATORS: Second paragraph of description text in anti-censorship view
                     messages.pgettext(
-                      'censorship-circumvention-view',
-                      'When “Automatic” is selected, the app tries all methods when connecting until it finds one that works.',
+                      'anti-censorship-view',
+                      'Please note that these methods do not improve performance, and may increase system utilization and battery consumption.',
                     )
                   }
                 </Text>

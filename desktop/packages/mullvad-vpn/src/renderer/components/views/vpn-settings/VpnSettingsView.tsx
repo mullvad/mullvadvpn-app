@@ -14,9 +14,9 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
   AllowLanSetting,
+  AntiCensorshipListItem,
   AutoConnectSetting,
   AutoStartSetting,
-  CensorshipCircumventionListItem,
   CustomDnsSettings,
   DnsBlockerSettings,
   EnableIpv6Setting,
@@ -74,7 +74,7 @@ export function VpnSettingsView() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <CensorshipCircumventionListItem />
+                    <AntiCensorshipListItem />
                   </SettingsGroup>
 
                   <SettingsGroup>

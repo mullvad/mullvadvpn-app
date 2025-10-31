@@ -41,7 +41,7 @@ export function MethodSetting() {
           <SettingsListbox.Label>
             {
               // TRANSLATORS: The title for the obfuscation method selector.
-              messages.pgettext('censorship-circumvention-view', 'Method')
+              messages.pgettext('anti-censorship-view', 'Method')
             }
           </SettingsListbox.Label>
         </SettingsListbox.Content>
