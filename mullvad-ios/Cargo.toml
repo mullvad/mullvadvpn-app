@@ -47,7 +47,7 @@ shadowsocks-service = { workspace = true, features = [
 
 [dependencies.boringtun]
 git = "https://github.com/mullvad/gotatun"
-rev = "d8ddd4232c9636aa98ab4bd14093e256f7d09abb"
+rev = "9aa8ec67d4fcd8cd79862a6c48f5c2500c65ef8b"
 features = [ "device", "tun" ]
 
 [target.'cfg(target_os = "macos")'.build-dependencies]

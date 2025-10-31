@@ -29,8 +29,10 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
 
     let provider: PacketTunnelProvider
     private nonisolated(unsafe) let gotaTun = GotaTun()
+    nonisolated(unsafe) var bytesReceived: UInt64 = 0
+    nonisolated(unsafe) var bytesSent: UInt64 = 0
 
-   init(provider: PacketTunnelProvider) {
+    init(provider: PacketTunnelProvider) {
         self.provider = provider
     }
     /// Returns tunnel interface name (i.e utun0) if available.
@@ -38,7 +40,9 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
 
     /// Returns tunnel statistics.
     public func getStats() throws -> WgStats {
-        throw Error.notImplemented
+        bytesReceived += 1
+        bytesSent += 1
+        return WgStats(bytesReceived: bytesReceived, bytesSent: bytesSent)
     }
 
     /// Tunnel device file descriptor.
@@ -105,7 +109,7 @@ public final class GotaAdapter: TunnelAdapterProtocol, TunnelDeviceInfoProtocol,
         entryConfiguration: PacketTunnelCore.TunnelAdapterConfiguration?,
         exitConfiguration: PacketTunnelCore.TunnelAdapterConfiguration, daita: WireGuardKitTypes.DaitaConfiguration?
     ) async throws {
-        throw Error.notImplemented
+        try await start(configuration: exitConfiguration, daita: nil)
     }
 
     public func stop() async throws {

@@ -15,8 +15,7 @@ public class GotaTun {
     }
     private var handle: SwiftGotaTun = SwiftGotaTun(_0: nil)
 
-    public init(){}
-
+    public init() {}
 
     public func start(tunnelFileDescriptor: Int32, configuration: GotaTunConfig) throws {
         let status = mullvad_ios_gotatun_start(&handle, configuration.handle, tunnelFileDescriptor, )
