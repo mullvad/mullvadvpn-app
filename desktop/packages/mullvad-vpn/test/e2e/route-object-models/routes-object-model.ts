@@ -2,7 +2,7 @@ import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
 import { AccountRouteObjectModel } from './account';
-import { CensorshipCircumventionRouteObjectModel } from './censorship-circumvention';
+import { AntiCensorshipRouteObjectModel } from './anti-censorship';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { DeviceRevokedRouteObjectModel } from './device-revoked';
 import { ExpiredRouteObjectModel } from './expired';
@@ -44,7 +44,7 @@ export class RoutesObjectModel {
   readonly filter: FilterRouteObjectModel;
   readonly selectLocation: SelectLocationRouteObjectModel;
   readonly vpnSettings: VpnSettingsRouteObjectModel;
-  readonly censorshipCircumvention: CensorshipCircumventionRouteObjectModel;
+  readonly antiCensorship: AntiCensorshipRouteObjectModel;
   readonly udpOverTcpSettings: UdpOverTcpSettingsRouteObjectModel;
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
@@ -71,7 +71,7 @@ export class RoutesObjectModel {
     this.filter = new FilterRouteObjectModel(page, utils);
     this.selectLocation = new SelectLocationRouteObjectModel(page, utils);
     this.vpnSettings = new VpnSettingsRouteObjectModel(page, utils);
-    this.censorshipCircumvention = new CensorshipCircumventionRouteObjectModel(page, utils);
+    this.antiCensorship = new AntiCensorshipRouteObjectModel(page, utils);
     this.udpOverTcpSettings = new UdpOverTcpSettingsRouteObjectModel(page, utils);
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);

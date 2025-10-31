@@ -23,7 +23,7 @@ test.beforeAll(async () => {
   await util.expectRoute(RoutePath.main);
   await routes.main.gotoSettings();
   await routes.settings.gotoVpnSettings();
-  await routes.vpnSettings.gotoCensorshipCircumvention();
+  await routes.vpnSettings.gotoAntiCensorship();
 });
 
 test.afterAll(async () => {
@@ -31,7 +31,7 @@ test.afterAll(async () => {
 });
 
 test('App should have automatic obfuscation', async () => {
-  const automaticObfuscationOption = routes.censorshipCircumvention.selectors.automaticOption();
+  const automaticObfuscationOption = routes.antiCensorship.selectors.automaticOption();
 
   await expect(automaticObfuscationOption).toHaveAttribute('aria-selected', 'true');
 
@@ -42,7 +42,7 @@ test('App should have automatic obfuscation', async () => {
 });
 
 test('App should set obfuscation to shadowsocks with custom port', async () => {
-  await routes.censorshipCircumvention.gotoShadowSocksSettings();
+  await routes.antiCensorship.gotoShadowSocksSettings();
   const automaticOption = routes.shadowsocksSettings.selectors.automaticPortOption();
 
   await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
@@ -54,10 +54,10 @@ test('App should set obfuscation to shadowsocks with custom port', async () => {
 
   await routes.shadowsocksSettings.goBack();
 
-  const shadowsocksOption = routes.censorshipCircumvention.selectors.shadowsocksOption();
+  const shadowsocksOption = routes.antiCensorship.selectors.shadowsocksOption();
   await expect(shadowsocksOption).toContainText(`Port: ${SHADOWSOCKS_PORT}`);
 
-  await routes.censorshipCircumvention.selectShadowsocks();
+  await routes.antiCensorship.selectShadowsocks();
   await expect(shadowsocksOption).toHaveAttribute('aria-selected', 'true');
 
   const cliObfuscation = execSync('mullvad obfuscation get').toString().split('\n')[2];
@@ -65,7 +65,7 @@ test('App should set obfuscation to shadowsocks with custom port', async () => {
 });
 
 test('App should still have shadowsocks custom port', async () => {
-  await routes.censorshipCircumvention.gotoShadowSocksSettings();
+  await routes.antiCensorship.gotoShadowSocksSettings();
 
   const customPortOption = routes.shadowsocksSettings.selectors.customPortOption();
   await expect(customPortOption).toHaveAttribute('aria-selected', 'true');
@@ -74,7 +74,7 @@ test('App should still have shadowsocks custom port', async () => {
 });
 
 test('App should set obfuscation to UDP-over-TCP with port', async () => {
-  await routes.censorshipCircumvention.gotoUdpOverTcpSettings();
+  await routes.antiCensorship.gotoUdpOverTcpSettings();
 
   const automaticOption = routes.udpOverTcpSettings.selectors.automaticPortOption();
   await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
@@ -85,8 +85,8 @@ test('App should set obfuscation to UDP-over-TCP with port', async () => {
 
   await routes.udpOverTcpSettings.goBack();
 
-  const udpOverTcpItem = routes.censorshipCircumvention.selectors.udpOverTcpOption();
-  await routes.censorshipCircumvention.selectUdpOverTcp();
+  const udpOverTcpItem = routes.antiCensorship.selectors.udpOverTcpOption();
+  await routes.antiCensorship.selectUdpOverTcp();
   await expect(udpOverTcpItem).toHaveAttribute('aria-selected', 'true');
   await expect(udpOverTcpItem).toContainText(`Port: ${UDPOVERTCP_PORT}`);
 
