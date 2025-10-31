@@ -1,34 +1,7 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
-plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-}
+plugins { id("mullvad.android-library") }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.common.test"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
-    buildToolsVersion = libs.versions.build.tools.get()
-
-    defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
-            allWarningsAsErrors = true
-        }
-    }
-
-    lint {
-        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        abortOnError = true
-        warningsAsErrors = true
-    }
 
     packaging {
         resources {

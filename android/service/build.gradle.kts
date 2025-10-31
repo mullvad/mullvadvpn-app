@@ -1,10 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import utilities.FlavorDimensions
+import utilities.Flavors
+import utilities.isDevBuild
+import utilities.isReleaseBuild
 
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.junit5.android)
+    id("mullvad.utilities")
 }
 
 android {

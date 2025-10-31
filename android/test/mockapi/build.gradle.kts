@@ -1,9 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import utilities.FlavorDimensions
+import utilities.Flavors
 
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.junit5.android)
+    id("mullvad.utilities")
 }
 
 android {

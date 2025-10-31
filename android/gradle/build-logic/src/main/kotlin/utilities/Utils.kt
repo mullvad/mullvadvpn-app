@@ -1,3 +1,5 @@
+package utilities
+
 import org.gradle.api.Project
 
 // This is a hack and will not work correctly under all scenarios.

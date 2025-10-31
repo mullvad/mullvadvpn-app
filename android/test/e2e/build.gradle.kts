@@ -1,10 +1,17 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import utilities.FlavorDimensions
+import utilities.Flavors
+import utilities.Variant
+import utilities.matchesAny
+import utilities.ossProdDebug
+import utilities.playStagemoleDebug
 
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.junit5.android)
+    id("mullvad.utilities")
 }
 
 android {
