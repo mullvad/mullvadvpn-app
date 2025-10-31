@@ -47,7 +47,8 @@ function parseTranslation(
   domain: string,
   catalogue: Gettext,
 ): GetTextTranslations | undefined {
-  const filename = path.join(LOCALES_DIR, locale, `${domain}.po`);
+  const aliasedLocale = getAliasedLocale(locale);
+  const filename = path.join(LOCALES_DIR, aliasedLocale, `${domain}.po`);
   let contents: string;
 
   try {
@@ -69,7 +70,68 @@ function parseTranslation(
     return undefined;
   }
 
-  catalogue.addTranslations(locale, domain, translations);
+  if (locale === 'sv-rö') {
+    robberifyTranslations(translations);
+  }
+
+  catalogue.addTranslations(aliasedLocale, domain, translations);
 
   return translations;
+}
+
+function getAliasedLocale(locale: string): string {
+  return locale === 'sv-rö' ? 'sv' : locale;
+}
+
+function robberifyTranslations(translations: GetTextTranslations) {
+  for (const contextKey in translations.translations) {
+    const context = translations.translations[contextKey];
+
+    for (const messageKey in context) {
+      const message = context[messageKey];
+
+      if (!message.msgstr[0].startsWith('Content-Type:')) {
+        message.msgstr = message.msgstr.map((msgstr) => robberifyString(msgstr));
+      }
+    }
+  }
+}
+
+const CONSONANTS = 'bcdfghjklmnpqrstvxzBCDFGHJKLMNPQRSTVXZ';
+const PLACEHOLDER_TYPES = ['s', 'd'];
+
+function robberifyString(value: string): string {
+  let robberValue = '';
+
+  const chars = value.split('');
+  let skipDueTo: string | null = null;
+  for (let i = 0; i < chars.length; i++) {
+    const char = chars[i];
+    const nextChar = i < chars.length - 1 ? chars[i + 1] : '';
+
+    if (char === '<') {
+      skipDueTo = char;
+      robberValue += char;
+    } else if (skipDueTo === '<' && char === '>') {
+      skipDueTo = null;
+      robberValue += char;
+    } else if (char === '%' && PLACEHOLDER_TYPES.includes(nextChar)) {
+      robberValue += `${char}${nextChar}`;
+      i++;
+    } else if (char === '%' && nextChar === '(') {
+      skipDueTo = char;
+      robberValue += `${char}${nextChar}`;
+      i++;
+    } else if (skipDueTo === '%' && char === ')' && PLACEHOLDER_TYPES.includes(nextChar)) {
+      skipDueTo = null;
+      robberValue += `${char}${nextChar}`;
+      i++;
+    } else if (skipDueTo === null && CONSONANTS.includes(char)) {
+      robberValue += `${char}o${char.toLowerCase()}`;
+    } else {
+      robberValue += char;
+    }
+  }
+
+  return robberValue;
 }
