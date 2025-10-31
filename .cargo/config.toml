@@ -10,6 +10,13 @@ rustflags = ["-Ctarget-feature=+crt-static"]
 [target.x86_64-unknown-linux-musl]
 rustflags = ["-Ctarget-feature=+crt-static", "-Clink-self-contained=yes"]
 
+[target.x86_64-unknown-linux-musl.mnl]
+rustc-link-lib = ["mnl"]
+rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-musl"]
+
+[target.x86_64-unknown-linux-musl.nftnl]
+rustc-link-lib = ["nftnl", "mnl"]
+rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-musl"]
 
 [target.x86_64-unknown-linux-gnu.mnl]
 rustc-link-lib = ["mnl"]
