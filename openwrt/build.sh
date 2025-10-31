@@ -9,8 +9,6 @@
 set -eux
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export LIBMNL_LIB_DIR="$SCRIPT_DIR/../dist-assets/binaries/x86_64-unknown-linux-musl"
-export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/../dist-assets/binaries/x86_64-unknown-linux-musl"
 
 # Install the appropriate rust target(s)
 rustup target add x86_64-unknown-linux-musl
