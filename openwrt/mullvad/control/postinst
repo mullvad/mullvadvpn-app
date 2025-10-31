@@ -1,0 +1,3 @@
+#!/bin/sh
+/etc/init.d/mullvad enable
+/etc/init.d/mullvad start
