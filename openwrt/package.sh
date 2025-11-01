@@ -6,7 +6,12 @@
 #
 # The architecture is assumed to be x86/x86_64 musl for now.
 #
+# Arguments:
+#   --minify: Use `upx` to compress binaries.
+#
 # Example: bash build.sh --release && bash package.sh 2025.13
+#
+# Depends: upx (optional)
 
 set -eux
 
@@ -33,6 +38,12 @@ cp -r ./mullvad/* "$IPK_FILES/"
 # Then, move app artifacts to the appropriate location in the .ipk archive hierarchy.
 # This will be reflected in the OpenWRT host.
 cp "$APP_REPO_ROOT"/target/x86_64-unknown-linux-musl/release/{mullvad,mullvad-daemon} "$IPK_FILES/data/usr/bin/"
+
+# Optional: If `--minify` is used, invoke `upx` to compress binaries before packaging.
+case $2 in
+    --minify) upx "$IPK_FILES"/data/usr/bin/* || true ;; # Disregard failure, minify on a best-effort basis.
+    *) ;;
+esac
 
 # Then make sure everything is owned by root before creating the .ipk archive.
 chown -R root:root "$IPK_FILES/"
