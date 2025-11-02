@@ -5795,6 +5795,7 @@ dependencies = [
  "widestring",
  "windows-sys 0.61.1",
  "wireguard-go-rs",
+ "zerocopy",
  "zeroize",
 ]
 
