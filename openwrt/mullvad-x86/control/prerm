@@ -1,0 +1,3 @@
+#!/bin/sh
+/etc/init.d/mullvad stop
+/etc/init.d/mullvad disable

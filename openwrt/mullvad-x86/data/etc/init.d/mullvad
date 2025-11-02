@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+START=80
+
+start_service() {
+  procd_open_instance
+
+  procd_set_param command /usr/bin/mullvad-daemon
+  # procd_set_param env SOME_VARIABLE=funtimes  # pass environment variables to your process
+  procd_set_param stdout 1 # forward stdout of the command to logd
+  procd_set_param stderr 1 # same for stderr
+
+  procd_close_instance
+}
