@@ -11,10 +11,8 @@ use netlink_packet_core::{Emitable, Parseable};
 use netlink_packet_core::{
     NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
 };
-use nix::sys::{
-    socket::{SockaddrIn, SockaddrIn6},
-    time::TimeSpec,
-};
+use nix::sys::socket::{SockaddrIn, SockaddrIn6};
+use std::time::SystemTime;
 use std::{
     ffi::CString,
     io::Write,
@@ -344,7 +342,7 @@ pub enum PeerNla {
     Flags(u32),
     Endpoint(SocketAddr),
     PersistentKeepaliveInterval(u16),
-    LastHandshakeTime(TimeSpec),
+    LastHandshakeTime(SystemTime),
     RxBytes(u64),
     TxBytes(u64),
     AllowedIps(Vec<AllowedIpMessage>),
@@ -361,7 +359,7 @@ impl Nla for PeerNla {
                 SocketAddr::V6(_) => mem::size_of::<libc::sockaddr_in6>(),
             },
             PersistentKeepaliveInterval(_) => 2,
-            LastHandshakeTime(_) => mem::size_of::<libc::timespec>(),
+            LastHandshakeTime(_) => 16, // size_of(__kernel_timespec)
             RxBytes(_) | TxBytes(_) => 8,
             AllowedIps(ips) => ips.as_slice().buffer_len(),
             Flags(_) | ProtocolVersion(_) => 4,
@@ -415,11 +413,16 @@ impl Nla for PeerNla {
                 NativeEndian::write_u16(buffer, *interval);
             }
             LastHandshakeTime(last_handshake) => {
-                let timespec: &libc::timespec = last_handshake.as_ref();
-                buffer
-                    // SAFETY: `timespec` has no padding bytes
-                    .write_all(unsafe { struct_as_slice(timespec) })
-                    .expect("Buffer too small for timespec");
+                let timestamp = last_handshake
+                    .duration_since(SystemTime::UNIX_EPOCH)
+                    .expect("last handshake was made after UNIX_EPOCH");
+                NativeEndian::write_u64(buffer, timestamp.as_secs());
+                // Nanos may be safely used as a 32 bit integer, but the handshake timestamp from
+                // kernel space is 64 bits in both seconds and nanos.
+                NativeEndian::write_u64(
+                    &mut buffer[size_of::<u64>()..],
+                    timestamp.subsec_nanos().into(),
+                );
             }
             RxBytes(num_bytes) | TxBytes(num_bytes) => NativeEndian::write_u64(buffer, *num_bytes),
             AllowedIps(ips) => ips.as_slice().emit(buffer),
@@ -601,7 +604,6 @@ fn ip_addr_to_bytes(addr: &IpAddr) -> Vec<u8> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use nix::sys::time::TimeValLike;
     use std::{net::Ipv4Addr, str::FromStr};
 
     #[test]
@@ -717,7 +719,7 @@ mod test {
         use DeviceNla::*;
         use PeerNla::*;
 
-        let if_name = CString::new(b"wg-test".to_vec()).unwrap();
+        let if_name = c"wg-test".to_owned();
 
         let peer_1 = PeerMessage(vec![
             PeerNla::PublicKey([
@@ -728,7 +730,7 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0,
             ]),
-            LastHandshakeTime(TimeSpec::seconds(0)),
+            LastHandshakeTime(SystemTime::UNIX_EPOCH),
             PersistentKeepaliveInterval(0),
             TxBytes(0),
             RxBytes(0),
@@ -750,7 +752,7 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0,
             ]),
-            LastHandshakeTime(TimeSpec::seconds(0)),
+            LastHandshakeTime(SystemTime::UNIX_EPOCH),
             PersistentKeepaliveInterval(0),
             TxBytes(0),
             RxBytes(0),
