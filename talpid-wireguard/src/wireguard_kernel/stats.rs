@@ -1,5 +1,3 @@
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-
 use super::wg_message::{DeviceMessage, DeviceNla, PeerNla};
 use crate::stats::{Stats, StatsMap};
 
@@ -19,18 +17,10 @@ impl Stats {
                         match nla {
                             PeerNla::TxBytes(bytes) => tx_bytes = *bytes,
                             PeerNla::RxBytes(bytes) => rx_bytes = *bytes,
-                            PeerNla::LastHandshakeTime(time) => {
-                                last_handshake_time = || -> Option<SystemTime> {
-                                    // handshake_{sec,nsec} are relative to UNIX_EPOCH
-                                    // https://www.wireguard.com/xplatform/
-                                    Some(
-                                        UNIX_EPOCH
-                                            + Duration::new(
-                                                time.tv_sec().try_into().ok()?,
-                                                time.tv_nsec().try_into().ok()?,
-                                            ),
-                                    )
-                                }();
+                            PeerNla::LastHandshakeTime(timestamp) => {
+                                if let Some(timestamp) = timestamp.as_systemtime() {
+                                    last_handshake_time = Some(timestamp)
+                                }
                             }
                             PeerNla::PublicKey(key) => pub_key = Some(*key),
                             _ => continue,
