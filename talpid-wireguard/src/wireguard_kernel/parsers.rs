@@ -1,12 +1,10 @@
 use byteorder::{ByteOrder, NativeEndian};
-use nix::sys::{
-    socket::{SockaddrIn, SockaddrIn6},
-    time::TimeSpec,
-};
+use nix::sys::socket::{SockaddrIn, SockaddrIn6};
 use std::{
     ffi::{CStr, CString},
     mem::{self, transmute},
     net::{IpAddr, SocketAddr},
+    time::{Duration, SystemTime},
 };
 
 use netlink_packet_core::DecodeError;
@@ -81,16 +79,25 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<SocketAddr, DecodeError> {
     }
 }
 
-pub fn parse_timespec(buffer: &[u8]) -> Result<TimeSpec, DecodeError> {
-    if buffer.len() != mem::size_of::<libc::timespec>() {
+/// Parse the last WireGuard handshake timestamp.
+/// The resulting [SystemTime] is a timestamp relative to [SystemTime::UNIX_EPOCH].
+pub fn parse_last_handshake_time(buffer: &[u8]) -> Result<SystemTime, DecodeError> {
+    // Note: The 64-bit UAPI time type (__kernel_timespec) is used for the WireGuard handshake timestamp,
+    // Which is to say, 8 (time64_t) + 8 (long long) bytes.
+    //
+    // Source: Linux kernel source code
+    // - drivers/net/wireguard/netlink.c
+    // - include/uapi/linux/time_types.h
+    if buffer.len() != 16 {
         return Err(format!("Unexpected size for timespec: {}", buffer.len()).into());
     }
-
-    Ok(TimeSpec::from(libc::timespec {
-        tv_sec: NativeEndian::read_i64(buffer),
-        // TODO: become compatible with 32-bit systems maybe?
-        tv_nsec: NativeEndian::read_i64(buffer),
-    }))
+    let (tv_sec, tv_nsec) = (
+        Duration::from_secs(NativeEndian::read_u64(&buffer[..8])),
+        Duration::from_nanos(NativeEndian::read_u64(&buffer[8..16])),
+    );
+    // handshake_{sec,nsec} are relative to UNIX_EPOCH
+    // https://www.wireguard.com/xplatform/
+    Ok(SystemTime::UNIX_EPOCH + tv_sec + tv_nsec)
 }
 
 pub fn parse_cstring(buffer: &[u8]) -> Result<CString, DecodeError> {
