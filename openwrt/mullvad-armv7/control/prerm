@@ -1,4 +1,5 @@
 #!/bin/sh
+mullvad account logout
 /etc/init.d/mullvad stop
 /etc/init.d/mullvad disable
 rm -rf /etc/mullvad-vpn
