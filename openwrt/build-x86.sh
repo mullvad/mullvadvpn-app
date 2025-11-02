@@ -14,4 +14,4 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 rustup target add x86_64-unknown-linux-musl
 
 # Build the app fully statically linked! :-)
-RUSTFLAGS="-C target-feature=+crt-static" cargo zigbuild --target x86_64-unknown-linux-musl --features boringtun "$@"
+RUSTFLAGS="-C target-feature=+crt-static" cargo zigbuild --target x86_64-unknown-linux-musl "$@"

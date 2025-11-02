@@ -1,0 +1,10 @@
+Package: mullvad
+Version: 2025.13
+Description: Easily create a secure network between your router and Mullvad
+Section: net
+Maintainer: Mullvad VPN <admin@mullvad.net>
+License: GPL-3.0
+Architecture: x86_64
+Homepage: mullvad.net
+Depends: kmod-tun
+Priority: optional

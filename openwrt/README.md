@@ -6,14 +6,14 @@ See [vm/](vm/README.md) for getting started with a VM quickly!
 
 # Step 1
 ```bash
-$ build.sh --release
+$ build-x86.sh --release
 ```
 
 # Step 2
 Yes, this has to be run as `root`.
 
 ```bash
-$ sudo package.sh 2025.13
+$ sudo bash package.sh 2025.13 <x86 | armv7>
 ```
 
 Ultimately I followed [this guide](https://raymii.org/s/tutorials/Building_IPK_packages_by_hand.html) to learn how to create an `.ipk`.
