@@ -280,7 +280,7 @@ impl Default for Settings {
             },
             custom_lists: CustomListsSettings::default(),
             api_access_methods: access_method::Settings::default(),
-            allow_lan: false,
+            allow_lan: true, // TODO: This should always be true for routers.
             #[cfg(not(target_os = "android"))]
             lockdown_mode: false,
             auto_connect: false,
