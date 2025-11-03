@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
   in the disconnected state.
 
 ### Removed
+- Remove OpenVPN support from the app.
+  - See blog post for more info: https://mullvad.net/en/blog/removing-openvpn-15th-january-2026
 - Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 
