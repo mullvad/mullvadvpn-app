@@ -1,6 +1,6 @@
 import { useAppContext } from '../../../../../../../../../context';
+import { Switch } from '../../../../../../../../../lib/components/switch';
 import { useSelector } from '../../../../../../../../../redux/store';
-import { Switch } from '../../../../../../../../cell';
 import { useDisabled } from './hooks';
 
 export function SplitTunnelingStateSwitch() {
@@ -9,6 +9,13 @@ export function SplitTunnelingStateSwitch() {
   const splitTunnelingEnabled = useSelector((state) => state.settings.splitTunneling);
 
   return (
-    <Switch isOn={splitTunnelingEnabled} disabled={disabled} onChange={setSplitTunnelingState} />
+    <Switch
+      checked={splitTunnelingEnabled}
+      disabled={disabled}
+      onCheckedChange={setSplitTunnelingState}>
+      <Switch.Trigger>
+        <Switch.Thumb />
+      </Switch.Trigger>
+    </Switch>
   );
 }

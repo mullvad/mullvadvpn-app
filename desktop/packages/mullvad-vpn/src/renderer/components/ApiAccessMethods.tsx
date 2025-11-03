@@ -8,6 +8,7 @@ import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { Button, Container, Flex, Spinner } from '../lib/components';
+import { Switch } from '../lib/components/switch';
 import { colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
@@ -293,7 +294,11 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           <ContextMenuTrigger />
           <ContextMenu items={menuItems} align="right" />
         </ContextMenuContainer>
-        <Cell.Switch isOn={props.method.enabled} onChange={toggle} />
+        <Switch checked={props.method.enabled} onCheckedChange={toggle}>
+          <Switch.Trigger>
+            <Switch.Thumb />
+          </Switch.Trigger>
+        </Switch>
       </Flex>
 
       {/* Confirmation dialog for method removal */}
