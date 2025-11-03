@@ -205,7 +205,7 @@ export class ErrorNotificationProvider
   }
 
   private getTunnelParameterMessage(error: TunnelParameterError): string {
-    const ipVersion = messages.pgettext('wireguard-settings-view', 'IP version');
+    const ipVersion = messages.pgettext('wireguard-settings-view', 'Device IP version');
     switch (error) {
       /// TODO: once bridge constraints can be set, add a more descriptive error message
       case TunnelParameterError.noMatchingBridgeRelay:
