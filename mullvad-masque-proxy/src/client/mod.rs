@@ -39,6 +39,7 @@ const MAX_REDIRECT_COUNT: usize = 1;
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
+/// Handle to a ready client that's connected, but is not yet proxying traffic.
 pub struct Client {
     client_socket: Arc<UdpSocket>,
 
@@ -50,7 +51,7 @@ pub struct Client {
 
     /// Send stream over a QUIC connection - this needs to be kept alive to not close the HTTP
     /// QUIC stream.
-    _send_stream: client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
+    send_stream: client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
 
     /// Request stream for the currently open request, must not be dropped, otherwise proxy
     /// connection is terminated
@@ -60,6 +61,23 @@ pub struct Client {
     max_udp_payload_size: u16,
 
     stats: Arc<Stats>,
+}
+
+/// Handle to a running masque proxy client.
+///
+/// Dropping this will stop the proxy.
+pub struct RunningClient {
+    tasks: JoinSet<Result<Stopped>>,
+
+    /// Send stream over a QUIC connection - this needs to be kept alive to not close the HTTP
+    /// QUIC stream.
+    _send_stream: client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
+
+    /// Request stream for the currently open request, must not be dropped, otherwise proxy
+    /// connection is terminated
+    _request_stream: client::RequestStream<h3_quinn::BidiStream<bytes::Bytes>, bytes::Bytes>,
+
+    _stats: Arc<Stats>,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -197,7 +215,7 @@ impl Client {
             connection: h3_connection,
             client_socket: Arc::new(config.client_socket),
             request_stream,
-            _send_stream: send_stream,
+            send_stream,
             max_udp_payload_size,
             stats: Arc::default(),
         })
@@ -396,19 +414,17 @@ impl Client {
             Arc::clone(&self.stats),
         ));
 
-        RunningClient { tasks }
+        RunningClient {
+            tasks,
+            _send_stream: self.send_stream,
+            _request_stream: self.request_stream,
+            _stats: self.stats,
+        }
     }
 }
 
 /// Task stopped gracefully because the client was shutting down.
 struct Stopped;
-
-/// Drive execution by `await`ing a RunningClient.
-///
-/// All inner tasks will be aborted upon drop.
-pub struct RunningClient {
-    tasks: JoinSet<Result<Stopped>>,
-}
 
 impl RunningClient {
     /// Wait until the connection is remotely closed, or an error occurs.
