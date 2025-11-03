@@ -1682,12 +1682,12 @@ msgstr ""
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgid "IPv4 is not available, please try changing Device IP version setting."
 msgstr ""
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgid "IPv6 is not available, please try changing Device IP version setting."
 msgstr ""
 
 msgctxt "notifications"
@@ -2619,10 +2619,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "IP version"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
