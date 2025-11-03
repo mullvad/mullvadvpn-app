@@ -34,6 +34,7 @@ on:
         type: string
       gotatun:
         type: boolean
+        default: false
         description: "Run tests with GotaTun 🦀"
 
 permissions: {}
@@ -146,12 +147,12 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build app
-        if: ${{ !github.event.inputs.gotatun }}
+        if: ${{ github.event.inputs.gotatun == 'false' }}
         run: |
           export CARGO_TARGET_DIR=target/
           ./build.sh --optimize
       - name: Build app (with GotaTun 🦀)
-        if: ${{ github.event.inputs.gotatun }}
+        if: ${{ github.event.inputs.gotatun == 'true' }}
         run: |
           export CARGO_TARGET_DIR=target/
           ./build.sh --optimize --boringtun
@@ -336,7 +337,7 @@ jobs:
         uses: actions/checkout@v4
       - uses: ./.github/actions/mullvad-build-env
       - name: Build app
-        if: ${{ !github.event.inputs.gotatun }}
+        if: ${{ github.event.inputs.gotatun == 'false' }}
         shell: bash
         run: |
           ./build.sh
@@ -349,7 +350,7 @@ jobs:
           mv "$original_file" "$new_file"
           popd
       - name: Build app (with GotaTun 🦀)
-        if: ${{ github.event.inputs.gotatun }}
+        if: ${{ github.event.inputs.gotatun == 'true' }}
         shell: bash
         run: |
           ./build.sh --optimize --boringtun
@@ -443,10 +444,10 @@ jobs:
         uses: actions/checkout@v4
       - uses: ./.github/actions/mullvad-build-env
       - name: Build app
-        if: ${{ !github.event.inputs.gotatun }}
+        if: ${{ github.event.inputs.gotatun == 'false' }}
         run: ./build.sh
       - name: Build app (with GotaTun 🦀)
-        if: ${{ github.event.inputs.gotatun }}
+        if: ${{ github.event.inputs.gotatun == 'true' }}
         run: ./build.sh --optimize --boringtun
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
