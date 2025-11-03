@@ -1573,7 +1573,7 @@ impl Daemon {
             DisableRelay { relay, tx } => self.on_toggle_relay(relay, false, tx),
             EnableRelay { relay, tx } => self.on_toggle_relay(relay, true, tx),
             #[cfg(not(target_os = "android"))]
-            GetRolloutThreshold(tx) => self.get_rollout_threshold(tx).await,
+            GetRolloutThreshold(tx) => self.on_get_rollout_threshold(tx).await,
             #[cfg(not(target_os = "android"))]
             GenerateNewRolloutSeed(tx) => {
                 let seed = self.generate_and_set().await;
@@ -3290,7 +3290,7 @@ impl Daemon {
     }
 
     #[cfg(not(target_os = "android"))]
-    async fn get_rollout_threshold(&mut self, reply: oneshot::Sender<f32>) {
+    async fn on_get_rollout_threshold(&mut self, reply: oneshot::Sender<f32>) {
         let seed = match self.settings.rollout_threshold_seed {
             Some(seed) => seed,
             None => self.generate_and_set().await,
