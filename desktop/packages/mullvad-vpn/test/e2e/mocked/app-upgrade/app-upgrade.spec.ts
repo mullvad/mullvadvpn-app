@@ -265,4 +265,71 @@ test.describe('App upgrade', () => {
       await expect(resumeButton).toBeHidden();
     });
   });
+
+  // NOTE: "Release halting" means that a release was made unavailable after it has been published,
+  // likely due to a bug being detected after the release was published.
+  //
+  // When a release is halted it is no longer promoted in the app as a suggested upgrade.
+  test.describe('Should handle release halting', () => {
+    test.afterAll(() => restart());
+
+    const releaseHalt = async () => {
+      // Simulate release being halted
+      await util.ipc.upgradeVersion[''].notify({
+        supported: true,
+        suggestedIsBeta: false,
+        suggestedUpgrade: undefined,
+      });
+    };
+
+    const releaseResume = async () => {
+      // Simulate release being resumed
+      await util.ipc.upgradeVersion[''].notify({
+        supported: true,
+        suggestedIsBeta: false,
+        suggestedUpgrade: {
+          changelog: mockData.changelog,
+          version: mockData.version,
+        },
+      });
+    };
+
+    test('Should handle release being halted and resumed before upgrade started', async () => {
+      await releaseHalt();
+
+      await expect(page.getByText('You are using the latest version')).toBeVisible();
+      await expect(page.getByText('Latest version: 2000.1')).toBeVisible();
+
+      const downloadAndLaunchInstallerButton = selectors.downloadAndLaunchInstallerButton();
+      await expect(downloadAndLaunchInstallerButton).toBeVisible();
+      await expect(downloadAndLaunchInstallerButton).toBeDisabled();
+
+      await releaseResume();
+      await expect(downloadAndLaunchInstallerButton).toBeEnabled();
+    });
+
+    test('Should handle release being halted and resumed after upgrade started', async () => {
+      await helpers.startAppUpgrade();
+
+      await upgradeEventIpc.send.appUpgradeEventDownloadProgress({
+        progress: 10,
+        server: 'cdn.mullvad.net',
+        timeLeft: 120,
+      });
+
+      await releaseHalt();
+
+      await expect(page.getByText('You are using the latest version')).toBeVisible();
+      await expect(page.getByText('Latest version: 2000.1')).toBeVisible();
+
+      const downloadAndLaunchInstallerButton = selectors.downloadAndLaunchInstallerButton();
+      await expect(downloadAndLaunchInstallerButton).toBeVisible();
+      await expect(downloadAndLaunchInstallerButton).toBeDisabled();
+
+      await releaseResume();
+
+      // User should now be able to restart the upgrade
+      await helpers.startAppUpgrade();
+    });
+  });
 });
