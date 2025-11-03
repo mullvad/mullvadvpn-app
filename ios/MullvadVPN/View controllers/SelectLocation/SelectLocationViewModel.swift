@@ -315,49 +315,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         exitCustomListsDataSource.reload(allLocationNodes: exitContext.locations)
         entryCustomListsDataSource.reload(allLocationNodes: entryContext.locations)
 
-        exitContext.customLists =
-            exitCustomListsDataSource.nodes
-            .map {
-                newCustomList in
-                let oldCustomList =
-                    exitContext.customLists
-                    .first { existingCustomList in
-                        existingCustomList.code == newCustomList.code
-                    }
-                newCustomList.showsChildren = oldCustomList?.showsChildren ?? false
-                newCustomList.children = newCustomList.children.map { newLocation in
-                    let existingLocation = exitContext.customLists
-                        .first {
-                            oldLocation in
-                            oldLocation.code == newLocation.code
-                        }
-                    newLocation.showsChildren = existingLocation?.showsChildren ?? false
-                    return newLocation
-                }
-                return newCustomList
-            }
-
-        entryContext.customLists =
-            entryCustomListsDataSource.nodes
-            .map {
-                newCustomList in
-                let oldCustomList =
-                    entryContext.customLists
-                    .first { existingCustomList in
-                        existingCustomList.code == newCustomList.code
-                    }
-                newCustomList.showsChildren = oldCustomList?.showsChildren ?? false
-                newCustomList.children = newCustomList.children.map { newLocation in
-                    let existingLocation = exitContext.customLists
-                        .first {
-                            oldLocation in
-                            oldLocation.code == newLocation.code
-                        }
-                    newLocation.showsChildren = existingLocation?.showsChildren ?? false
-                    return newLocation
-                }
-                return newCustomList
-            }
+        exitContext.customLists = exitCustomListsDataSource.nodes
+        entryContext.customLists = entryCustomListsDataSource.nodes
     }
 
     private func search(searchText: String) {
