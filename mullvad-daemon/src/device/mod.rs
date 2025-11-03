@@ -25,11 +25,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
-use talpid_types::{
-    ErrorExt,
-    net::{TunnelEndpoint, TunnelType},
-    tunnel::TunnelStateTransition,
-};
+use talpid_types::{ErrorExt, tunnel::TunnelStateTransition};
 use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
@@ -1324,16 +1320,11 @@ impl TunnelStateChangeHandler {
     ///
     /// Reset to the counter to `0` when we manage to successfully connect to a Wireguard relay.
     fn update_retry_counter(new_state: &TunnelStateTransition, retry_attempt: usize) -> usize {
-        let wireguard =
-            |endpoint: &TunnelEndpoint| matches!(endpoint.tunnel_type, TunnelType::Wireguard);
-
         match new_state {
             // Increment the counter if this is another Wireguard attempt
-            TunnelStateTransition::Connecting(endpoint) if wireguard(endpoint) => {
-                retry_attempt.wrapping_add(1)
-            }
+            TunnelStateTransition::Connecting(_) => retry_attempt.wrapping_add(1),
             // Only reset the counter if we managed to connect to a Wireguard relay
-            TunnelStateTransition::Connected(endpoint) if wireguard(endpoint) => 0,
+            TunnelStateTransition::Connected(_) => 0,
             // Any other state transition doesn't affect the counter
             _ => retry_attempt,
         }

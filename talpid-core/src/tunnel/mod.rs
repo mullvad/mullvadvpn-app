@@ -1,23 +1,14 @@
-use crate::logging;
-#[cfg(not(target_os = "android"))]
-use futures::channel::oneshot;
 use std::path;
-#[cfg(not(target_os = "android"))]
-use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider;
 pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
-#[cfg(not(target_os = "android"))]
-use talpid_types::net::openvpn as openvpn_types;
+
 use talpid_types::{
-    net::{TunnelParameters, wireguard as wireguard_types},
+    net::{wireguard as wireguard_types, wireguard::TunnelParameters},
     tunnel::ErrorStateCause,
 };
+use talpid_wireguard::WireguardMonitor;
 
-#[cfg(not(target_os = "android"))]
-use talpid_tunnel::EventHook;
-
-const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
 /// Results from operations in the tunnel module.
@@ -37,11 +28,6 @@ pub enum Error {
     /// Failed to rotate tunnel log file
     #[error("Failed to rotate tunnel log file")]
     RotateLogError(#[from] crate::logging::RotateLogError),
-
-    /// There was an error listening for events from the OpenVPN tunnel
-    #[cfg(not(target_os = "android"))]
-    #[error("Failed while listening for events from the OpenVPN tunnel")]
-    OpenVpnTunnelMonitoringError(#[from] talpid_openvpn::Error),
 
     /// There was an error listening for events from the Wireguard tunnel
     #[error("Failed while listening for events from the Wireguard tunnel")]
@@ -96,8 +82,6 @@ impl Error {
     pub fn is_recoverable(&self) -> bool {
         match self {
             Error::WireguardTunnelMonitoringError(error) => error.is_recoverable(),
-            #[cfg(not(target_os = "android"))]
-            Error::OpenVpnTunnelMonitoringError(error) => error.is_recoverable(),
             _ => false,
         }
     }
@@ -107,7 +91,6 @@ impl Error {
     pub fn get_tunnel_device_error(&self) -> Option<&std::io::Error> {
         match self {
             Error::WireguardTunnelMonitoringError(error) => error.get_tunnel_device_error(),
-            Error::OpenVpnTunnelMonitoringError(error) => error.get_tunnel_device_error(),
             _ => None,
         }
     }
@@ -115,7 +98,7 @@ impl Error {
 
 /// Abstraction for monitoring a generic VPN tunnel.
 pub struct TunnelMonitor {
-    monitor: InternalTunnelMonitor,
+    monitor: WireguardMonitor,
 }
 
 // TODO(emilsp) move most of the openvpn tunnel details to OpenVpnTunnelMonitor
@@ -129,25 +112,9 @@ impl TunnelMonitor {
         args: TunnelArgs<'_>,
     ) -> Result<Self> {
         Self::ensure_ipv6_can_be_used_if_enabled(tunnel_parameters)?;
-        let log_file = Self::prepare_tunnel_log_file(tunnel_parameters, log_dir)?;
+        let log_file = Self::prepare_tunnel_log_file(log_dir)?;
 
-        match tunnel_parameters {
-            #[cfg(not(target_os = "android"))]
-            TunnelParameters::OpenVpn(config) => args.runtime.block_on(Self::start_openvpn_tunnel(
-                config,
-                log_file,
-                args.resource_dir,
-                args.event_hook,
-                args.tunnel_close_rx,
-                args.route_manager,
-            )),
-            #[cfg(target_os = "android")]
-            TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
-
-            TunnelParameters::Wireguard(config) => {
-                Self::start_wireguard_tunnel(config, log_file, args)
-            }
-        }
+        Self::start_wireguard_tunnel(tunnel_parameters, log_file, args)
     }
 
     /// Returns a path to an executable that communicates with relay servers.
@@ -157,17 +124,7 @@ impl TunnelMonitor {
         resource_dir: &path::Path,
         params: &TunnelParameters,
     ) -> Option<path::PathBuf> {
-        use talpid_types::net::proxy::CustomProxy;
-
-        let resource_dir = resource_dir.to_path_buf();
-        match params {
-            TunnelParameters::OpenVpn(params) => match &params.proxy {
-                Some(CustomProxy::Shadowsocks(_)) => Some(std::env::current_exe().unwrap()),
-                Some(CustomProxy::Socks5Local(_)) => None,
-                Some(CustomProxy::Socks5Remote(_)) | None => Some(resource_dir.join("openvpn.exe")),
-            },
-            _ => Some(std::env::current_exe().unwrap()),
-        }
+        Some(std::env::current_exe().unwrap())
     }
 
     fn start_wireguard_tunnel(
@@ -176,43 +133,11 @@ impl TunnelMonitor {
         args: TunnelArgs<'_>,
     ) -> Result<Self> {
         let monitor = talpid_wireguard::WireguardMonitor::start(params, args, log.as_deref())?;
-        Ok(TunnelMonitor {
-            monitor: InternalTunnelMonitor::Wireguard(monitor),
-        })
-    }
-
-    #[cfg(not(target_os = "android"))]
-    async fn start_openvpn_tunnel(
-        config: &openvpn_types::TunnelParameters,
-        log: Option<path::PathBuf>,
-        resource_dir: &path::Path,
-        event_hook: EventHook,
-        tunnel_close_rx: oneshot::Receiver<()>,
-        route_manager: RouteManagerHandle,
-    ) -> Result<Self> {
-        let monitor = talpid_openvpn::OpenVpnMonitor::start(
-            event_hook,
-            config,
-            log,
-            resource_dir,
-            route_manager,
-        )
-        .await?;
-
-        let close_handle = monitor.close_handle();
-        tokio::spawn(async move {
-            if tunnel_close_rx.await.is_ok() {
-                close_handle.close();
-            }
-        });
-
-        Ok(TunnelMonitor {
-            monitor: InternalTunnelMonitor::OpenVpn(monitor),
-        })
+        Ok(TunnelMonitor { monitor })
     }
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_parameters: &TunnelParameters) -> Result<()> {
-        let options = tunnel_parameters.get_generic_options();
+        let options = &tunnel_parameters.generic_options;
         if options.enable_ipv6 {
             if is_ipv6_enabled_in_os() {
                 Ok(())
@@ -225,36 +150,20 @@ impl TunnelMonitor {
     }
 
     #[cfg(not(target_os = "windows"))]
-    fn prepare_tunnel_log_file(
-        parameters: &TunnelParameters,
-        log_dir: &Option<path::PathBuf>,
-    ) -> Result<Option<path::PathBuf>> {
+    fn prepare_tunnel_log_file(log_dir: &Option<path::PathBuf>) -> Result<Option<path::PathBuf>> {
         if let Some(log_dir) = log_dir {
-            match parameters {
-                TunnelParameters::OpenVpn(_) => {
-                    let tunnel_log = log_dir.join(OPENVPN_LOG_FILENAME);
-                    logging::rotate_log(&tunnel_log)?;
-                    Ok(Some(tunnel_log))
-                }
-                TunnelParameters::Wireguard(_) => Ok(Some(log_dir.join(WIREGUARD_LOG_FILENAME))),
-            }
+            Ok(Some(log_dir.join(WIREGUARD_LOG_FILENAME)))
         } else {
             Ok(None)
         }
     }
 
     #[cfg(target_os = "windows")]
-    fn prepare_tunnel_log_file(
-        parameters: &TunnelParameters,
-        log_dir: &Option<path::PathBuf>,
-    ) -> Result<Option<path::PathBuf>> {
+    fn prepare_tunnel_log_file(log_dir: &Option<path::PathBuf>) -> Result<Option<path::PathBuf>> {
         if let Some(log_dir) = log_dir {
-            let filename = match parameters {
-                TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
-                TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
-            };
+            let filename = WIREGUARD_LOG_FILENAME;
             let tunnel_log = log_dir.join(filename);
-            logging::rotate_log(&tunnel_log)?;
+            crate::logging::rotate_log(&tunnel_log)?;
             Ok(Some(tunnel_log))
         } else {
             Ok(None)
@@ -263,28 +172,7 @@ impl TunnelMonitor {
 
     /// Consumes the monitor and blocks until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
-        self.monitor.wait()
-    }
-}
-
-enum InternalTunnelMonitor {
-    #[cfg(not(target_os = "android"))]
-    OpenVpn(talpid_openvpn::OpenVpnMonitor),
-    Wireguard(talpid_wireguard::WireguardMonitor),
-}
-
-impl InternalTunnelMonitor {
-    fn wait(self) -> Result<()> {
-        #[cfg(not(target_os = "android"))]
-        let handle = tokio::runtime::Handle::current();
-
-        match self {
-            #[cfg(not(target_os = "android"))]
-            InternalTunnelMonitor::OpenVpn(tun) => handle.block_on(tun.wait())?,
-            InternalTunnelMonitor::Wireguard(tun) => tun.wait()?,
-        }
-
-        Ok(())
+        self.monitor.wait().map_err(Error::from)
     }
 }
 

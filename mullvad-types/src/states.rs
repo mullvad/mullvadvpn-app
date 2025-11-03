@@ -3,7 +3,7 @@ use either::Either;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::{
-    net::{TunnelEndpoint, TunnelType},
+    net::TunnelEndpoint,
     tunnel::{ActionAfterDisconnect, ErrorState},
 };
 
@@ -113,15 +113,6 @@ impl TunnelState {
                 Some(endpoint)
             }
             _ => None,
-        }
-    }
-
-    /// Returns the tunnel type for an active connection.
-    /// This value exists in the connecting and connected states.
-    pub const fn get_tunnel_type(&self) -> Option<TunnelType> {
-        match self.endpoint() {
-            Some(endpoint) => Some(endpoint.tunnel_type),
-            None => None,
         }
     }
 

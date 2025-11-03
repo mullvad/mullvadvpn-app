@@ -412,7 +412,6 @@ pub mod builder {
         },
         wireguard::QuantumResistantState,
     };
-    use talpid_types::net::TunnelType;
 
     use super::{BridgeQuery, ObfuscationQuery, RelayQuery};
 

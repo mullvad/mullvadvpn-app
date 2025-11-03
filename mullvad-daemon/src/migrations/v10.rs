@@ -1,6 +1,5 @@
 use super::{Error, Result};
 use mullvad_types::settings::SettingsVersion;
-use talpid_types::net::TunnelType;
 
 /// Automatic tunnel protocol has been removed. If the tunnel protocol is set to `any`, it will be
 /// migrated to `wireguard`, unless the location is an openvpn relay, in which case it will be
@@ -50,12 +49,12 @@ fn migrate_tunnel_type_inner(normal: &mut serde_json::Value) -> Result<()> {
 
             let protocol = if let Some(serde_json::Value::String(s)) = hostname {
                 if s.split('-').any(|token| token == "ovpn") {
-                    TunnelType::OpenVpn
+                    "openvpn"
                 } else {
-                    TunnelType::Wireguard
+                    "wireguard"
                 }
             } else {
-                TunnelType::Wireguard
+                "wireguard"
             };
 
             normal["tunnel_protocol"] = serde_json::json!(protocol);
@@ -64,9 +63,13 @@ fn migrate_tunnel_type_inner(normal: &mut serde_json::Value) -> Result<()> {
         // to '"tunnel_protocol": $tunnel_protocol'
         Some(serde_json::Value::Object(constraint)) => {
             if let Some(tunnel_type) = constraint.get("only") {
-                let tunnel_type: TunnelType = serde_json::from_value(tunnel_type.clone())
-                    .map_err(|_| Error::InvalidSettingsContent)?;
-                normal["tunnel_protocol"] = serde_json::json!(tunnel_type);
+                let serde_json::Value::String(s) = tunnel_type else {
+                    return Err(Error::InvalidSettingsContent);
+                };
+                if !(s.eq("wireguard") || s.eq("openvpn")) {
+                    return Err(Error::InvalidSettingsContent);
+                }
+                normal["tunnel_protocol"] = serde_json::json!(s);
             } else {
                 return Err(Error::InvalidSettingsContent);
             }

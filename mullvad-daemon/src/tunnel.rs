@@ -1,5 +1,6 @@
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 
+use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex;
 
 use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
@@ -8,7 +9,7 @@ use mullvad_types::{
     settings::TunnelOptions,
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
-use talpid_types::net::{TunnelParameters, obfuscation::Obfuscators, wireguard};
+use talpid_types::net::{obfuscation::Obfuscators, wireguard};
 
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
@@ -164,7 +165,7 @@ impl InnerParametersGenerator {
                 self.last_generated_relays = None;
                 custom_relay
                     // TODO: generate proxy settings for custom tunnels
-                    .to_tunnel_parameters(self.tunnel_options.clone(), None)
+                    .to_tunnel_parameters(self.tunnel_options.clone())
                     .map_err(|e| {
                         log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
                         Error::ResolveCustomHostname
@@ -204,7 +205,6 @@ impl InnerParametersGenerator {
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
         }
-        .into()
     }
 
     async fn device(&self) -> Result<PrivateAccountAndDevice, Error> {
