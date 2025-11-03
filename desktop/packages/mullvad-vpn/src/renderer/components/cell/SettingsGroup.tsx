@@ -27,6 +27,7 @@ const StyledInfoButton = styled(InfoButton)({
 export const StyledSettingsGroup = styled.div({});
 
 interface SettingsGroupContext {
+  key?: string;
   setError?: (key: string, errorMessage: string) => void;
   unsetError?: (key: string) => void;
 }
@@ -48,7 +49,7 @@ export function useSettingsGroupContext() {
 
   useEffect(() => () => unsetErrorImpl(), [unsetErrorImpl]);
 
-  return { reportError, unsetError: unsetErrorImpl };
+  return { key, reportError, unsetError: unsetErrorImpl };
 }
 
 interface SettingsGroupProps {

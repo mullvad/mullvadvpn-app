@@ -4,6 +4,7 @@ import { SwitchLabel, SwitchThumb, SwitchTrigger } from './components';
 import { SwitchProvider } from './SwitchContext';
 
 export interface SwitchProps {
+  id: string;
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
   labelId?: string;
@@ -12,6 +13,7 @@ export interface SwitchProps {
 }
 
 function Switch({
+  id,
   labelId: labelIdProp,
   checked,
   onCheckedChange,
@@ -21,6 +23,7 @@ function Switch({
   const labelId = React.useId();
   return (
     <SwitchProvider
+      id={id}
       labelId={labelIdProp ?? labelId}
       checked={checked}
       onCheckedChange={onCheckedChange}

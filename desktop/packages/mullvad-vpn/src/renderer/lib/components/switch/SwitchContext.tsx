@@ -3,6 +3,7 @@ import React from 'react';
 import { SwitchProps } from './Switch';
 
 interface SwitchContextProps {
+  id: string;
   labelId: string;
   disabled: SwitchProps['disabled'];
   checked?: SwitchProps['checked'];
@@ -20,6 +21,7 @@ export const useSwitchContext = (): SwitchContextProps => {
 };
 
 interface SwitchProviderProps {
+  id: string;
   labelId: string;
   disabled: SwitchProps['disabled'];
   checked?: SwitchProps['checked'];

@@ -14,6 +14,7 @@ import { FlexRow } from '../lib/components/flex-row';
 import { Switch } from '../lib/components/switch';
 import { IpAddress } from '../lib/ip';
 import { useEffectEvent } from '../lib/utility-hooks';
+import { useAriaInputContext } from './AriaGroup';
 import { SettingsForm, useSettingsFormSubmittable } from './cell/SettingsForm';
 import { SettingsGroup } from './cell/SettingsGroup';
 import { SettingsRadioGroup } from './cell/SettingsRadioGroup';
@@ -393,6 +394,18 @@ function EditSocks5Remote(props: EditProxyProps<Socks5RemoteCustomProxy>) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onUpdate(ip, port, username, password), [ip, port, username, password]);
 
+  const SettingsAuthentication = () => {
+    const { inputId } = useAriaInputContext();
+
+    return (
+      <Switch id={inputId} checked={authentication} onCheckedChange={setAuthentication}>
+        <Switch.Trigger>
+          <Switch.Thumb />
+        </Switch.Trigger>
+      </Switch>
+    );
+  };
+
   return (
     <SettingsGroup title={messages.pgettext('api-access-methods-view', 'Remote Server')}>
       <SettingsRow
@@ -424,11 +437,7 @@ function EditSocks5Remote(props: EditProxyProps<Socks5RemoteCustomProxy>) {
       </SettingsRow>
 
       <SettingsRow label={messages.pgettext('api-access-methods-view', 'Authentication')}>
-        <Switch checked={authentication} onCheckedChange={setAuthentication}>
-          <Switch.Trigger>
-            <Switch.Thumb />
-          </Switch.Trigger>
-        </Switch>
+        <SettingsAuthentication />
       </SettingsRow>
 
       {authentication && (

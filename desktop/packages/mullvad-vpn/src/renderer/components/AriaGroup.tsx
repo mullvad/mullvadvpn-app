@@ -56,6 +56,8 @@ const AriaInputContext = React.createContext<IAriaInputContext>({
   },
 });
 
+export const useAriaInputContext = () => useContext(AriaInputContext);
+
 export function AriaInputGroup(props: IAriaGroupProps) {
   const id = useId();
 
