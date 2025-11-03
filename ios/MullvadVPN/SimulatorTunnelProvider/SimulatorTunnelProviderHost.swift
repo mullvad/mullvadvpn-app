@@ -19,7 +19,6 @@
     final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unchecked Sendable {
         private var observedState: ObservedState = .disconnected
         private var selectedRelays: SelectedRelays?
-        private let urlRequestProxy: URLRequestProxy
         private let apiRequestProxy: APIRequestProxy
         private let relaySelector: RelaySelectorProtocol
 
@@ -30,14 +29,9 @@
 
         init(
             relaySelector: RelaySelectorProtocol,
-            transportProvider: TransportProvider,
             apiTransportProvider: APITransportProvider
         ) {
             self.relaySelector = relaySelector
-            self.urlRequestProxy = URLRequestProxy(
-                dispatchQueue: dispatchQueue,
-                transportProvider: transportProvider
-            )
             self.apiRequestProxy = APIRequestProxy(
                 dispatchQueue: dispatchQueue,
                 transportProvider: apiTransportProvider
@@ -157,18 +151,8 @@
                 }
 
             case let .sendURLRequest(proxyRequest):
-                urlRequestProxy.sendRequest(proxyRequest) { response in
-                    var reply: Data?
-                    do {
-                        reply = try TunnelProviderReply(response).encode()
-                    } catch {
-                        self.providerLogger.error(
-                            error: error,
-                            message: "Failed to encode ProxyURLResponse."
-                        )
-                    }
-                    handler?(reply)
-                }
+                // this no longer does anything. This case should be removed.
+                break
 
             case let .sendAPIRequest(proxyRequest):
                 apiRequestProxy.sendRequest(proxyRequest) { response in
@@ -185,9 +169,7 @@
                 }
 
             case let .cancelURLRequest(listId):
-                urlRequestProxy.cancelRequest(identifier: listId)
-
-                completionHandler?(nil)
+                break
 
             case let .cancelAPIRequest(listId):
                 apiRequestProxy.cancelRequest(identifier: listId)

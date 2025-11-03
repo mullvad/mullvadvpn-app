@@ -131,16 +131,13 @@ extension REST {
     }
 
     public class ProxyConfiguration: @unchecked Sendable {
-        public let transportProvider: RESTTransportProvider
         public let apiTransportProvider: APITransportProviderProtocol
         public let addressCacheStore: AddressCache
 
         public init(
-            transportProvider: RESTTransportProvider,
             apiTransportProvider: APITransportProviderProtocol,
             addressCacheStore: AddressCache
         ) {
-            self.transportProvider = transportProvider
             self.apiTransportProvider = apiTransportProvider
             self.addressCacheStore = addressCacheStore
         }
@@ -156,7 +153,6 @@ extension REST {
             self.accessTokenManager = accessTokenManager
 
             super.init(
-                transportProvider: proxyConfiguration.transportProvider,
                 apiTransportProvider: proxyConfiguration.apiTransportProvider,
                 addressCacheStore: proxyConfiguration.addressCacheStore
             )

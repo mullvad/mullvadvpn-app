@@ -17,7 +17,6 @@ public protocol ProxyFactoryProtocol {
     func createDevicesProxy() -> DeviceHandling
 
     static func makeProxyFactory(
-        transportProvider: RESTTransportProvider,
         apiTransportProvider: APITransportProviderProtocol,
         addressCache: REST.AddressCache
     ) -> ProxyFactoryProtocol
@@ -28,12 +27,10 @@ extension REST {
         public var configuration: AuthProxyConfiguration
 
         public static func makeProxyFactory(
-            transportProvider: any RESTTransportProvider,
             apiTransportProvider: any APITransportProviderProtocol,
             addressCache: REST.AddressCache
         ) -> any ProxyFactoryProtocol {
             let basicConfiguration = REST.ProxyConfiguration(
-                transportProvider: transportProvider,
                 apiTransportProvider: apiTransportProvider,
                 addressCacheStore: addressCache
             )
