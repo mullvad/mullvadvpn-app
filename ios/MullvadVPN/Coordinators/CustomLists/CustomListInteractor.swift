@@ -58,10 +58,7 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
             in: list
         )
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
-            guard let self else { return }
-            self.tunnelManager.reconnectTunnel(selectNewRelay: true)
-        }
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
     }
 
     private func updateRelayConstraint(
