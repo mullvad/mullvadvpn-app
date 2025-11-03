@@ -98,6 +98,10 @@ const SUPPORTED_LOCALE_LIST = [
   { name: '繁體中文', code: 'zh-TW' },
 ];
 
+if (window.env.development) {
+  SUPPORTED_LOCALE_LIST.push({ name: 'Rövarspråket', code: 'sv-rö' });
+}
+
 export default class AppRenderer {
   private history: History;
   private reduxStore = configureStore();
