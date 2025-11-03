@@ -4,95 +4,95 @@
 # protobuf-java: Has potential Denial of Service issue
 [[IgnoredVulns]]
 id = "CVE-2024-7254" # GHSA-735f-pc8j-v9w8
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "Should not be applicable since client and server are always in sync and we are only communicating locally over UDS."
 
 # netty: HttpPostRequestDecoder can OOM
 [[IgnoredVulns]]
 id = "CVE-2024-29025" # GHSA-5jpm-x58v-624v
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "We do not use netty for http communication."
 
 # netty: Vulnerable to HTTP/2 Rapid Reset Attack
 [[IgnoredVulns]]
 id = "CVE-2023-44487" # GHSA-xpw8-rcwv-8f8p
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # Same as the vuln above, but it seems like osv scanner does not always make the connection.
 [[IgnoredVulns]]
 id = "GHSA-xpw8-rcwv-8f8p"
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # netty: SniHandler 16MB allocation
 [[IgnoredVulns]]
 id = "CVE-2023-34462" # GHSA-6mjq-h674-j845
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "We do not use netty for http communication."
 
 # apache Commons Compress: OutOfMemoryError unpacking broken Pack200 file
 [[IgnoredVulns]]
 id = "CVE-2024-26308" # GHSA-4265-ccf5-phj5
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "Apache commons compress is used by lint and not the app directly."
 
 # apache Commons Compress: Denial of service caused by an infinite loop for a corrupted DUMP file
 [[IgnoredVulns]]
 id = "CVE-2024-25710" # GHSA-4g9r-vxhx-9pgx
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "Apache commons compress is used by lint and not the app directly."
 
 # apache httpclient: Cross-site scripting
 [[IgnoredVulns]]
 id = "CVE-2020-13956" # GHSA-7r82-7xv7-xcpj
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "Apache http client is used by lint and not the app directly."
 
 # kotlin: Improper Locking
 [[IgnoredVulns]]
 id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "This CVE only affect Multiplatform Gradle Projects, which this project is not."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2024-47535" # GHSA-xq3w-v528-46rv
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "Only impacting Windows."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2025-25193" # GHSA-389x-839f-4rhx
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "Only impacting Windows."
 
 # netty: Crash when using native SSLEngine
 [[IgnoredVulns]]
 id = "CVE-2025-24970" # GHSA-4g8c-wm8x-jfhw
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "Netty is not used in conjunction with SSL."
 
 # netty: MadeYouReset HTTP/2 DDoS vulnerability
 [[IgnoredVulns]]
 id = "CVE-2025-55163" # GHSA-prj3-ccx8-p6x4
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # netty: Netty's decoders vulnerable to DoS via zip bomb style attack
 [[IgnoredVulns]]
 id = "CVE-2025-58057" # GHSA-3p8m-j85q-pgmj
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "We do not use netty decoders"
 
 # netty: Netty vulnerable to request smuggling due to incorrect parsing of chunk extensions
 [[IgnoredVulns]]
 id = "CVE-2025-58056" #  GHSA-fghv-69vj-qj49
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # XML External Entity (XXE) Injection in JDOM
 [[IgnoredVulns]]
 id = "CVE-2021-33813" #  GHSA-2363-cqg2-863c
-ignoreUntil = 2025-11-01
+ignoreUntil = 2025-02-01
 reason = "JDOM is used by AGP and not the app directly"
