@@ -300,7 +300,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
                 obfuscation: ObfuscationQuery::from(obfuscation_settings),
                 daita: Constraint::Only(daita),
                 daita_use_multihop_if_necessary: Constraint::Only(daita_use_multihop_if_necessary),
-                quantum_resistant,
+                quantum_resistant: Constraint::Only(quantum_resistant),
             }
         }
 

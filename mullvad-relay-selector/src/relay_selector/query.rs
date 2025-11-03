@@ -206,7 +206,7 @@ pub struct WireguardRelayQuery {
     pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
     pub daita_use_multihop_if_necessary: Constraint<bool>,
-    pub quantum_resistant: QuantumResistantState,
+    pub quantum_resistant: Constraint<QuantumResistantState>,
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
@@ -305,7 +305,7 @@ impl WireguardRelayQuery {
             obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
             daita_use_multihop_if_necessary: Constraint::Any,
-            quantum_resistant: QuantumResistantState::default(),
+            quantum_resistant: Constraint::Any,
         }
     }
 
@@ -573,7 +573,7 @@ pub mod builder {
         pub fn quantum_resistant(
             mut self,
         ) -> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, bool>> {
-            self.query.wireguard_constraints.quantum_resistant = QuantumResistantState::On;
+            self.query.wireguard_constraints.quantum_resistant = QuantumResistantState::On.into();
             // Update the type state
             RelayQueryBuilder {
                 query: self.query,
