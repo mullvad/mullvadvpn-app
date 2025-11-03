@@ -98,7 +98,7 @@ impl RolloutDebugCommands {
                 Ok(())
             }
             RolloutDebugCommands::Reroll => {
-                let Ok(threshold) = rpc.generate_new_rollout_threshould().await else {
+                let Ok(threshold) = rpc.generate_new_rollout_threshold().await else {
                     bail!("Failed to get rollout");
                 };
                 println!("{threshold}");

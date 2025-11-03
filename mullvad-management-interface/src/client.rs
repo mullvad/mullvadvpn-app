@@ -641,7 +641,7 @@ impl MullvadProxyClient {
         Ok(threshold)
     }
 
-    pub async fn generate_new_rollout_threshould(&mut self) -> Result<f32> {
+    pub async fn generate_new_rollout_threshold(&mut self) -> Result<f32> {
         let rollout = self.0.regenerate_rollout_threshold(()).await?;
         let threshold = rollout.into_inner().threshold;
         Ok(threshold)
