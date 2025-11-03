@@ -162,7 +162,6 @@ extension AppMessageHandlerTests {
     ) -> AppMessageHandler {
         return AppMessageHandler(
             packetTunnelActor: actor,
-            urlRequestProxy: urlRequestProxy,
             apiRequestProxy: apiRequestProxy
         )
     }
