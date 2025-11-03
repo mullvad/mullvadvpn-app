@@ -24,9 +24,10 @@ mod imp;
 
 /// Disables offline monitor
 static FORCE_DISABLE_OFFLINE_MONITOR: LazyLock<bool> = LazyLock::new(|| {
-    std::env::var("TALPID_DISABLE_OFFLINE_MONITOR")
-        .map(|v| v != "0")
-        .unwrap_or(false)
+    // HACK: It is fair to assume that a router has a stable connection and won't drop out very
+    // often. An offline monitor might induce unwarranted reconnects, which would be very annoying.
+    // TODO: Find a way to conditionally disable the offline monitor.
+    true
 });
 
 pub struct MonitorHandle(Option<imp::MonitorHandle>);
