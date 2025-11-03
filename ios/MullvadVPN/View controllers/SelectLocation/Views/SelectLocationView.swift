@@ -326,18 +326,6 @@ private struct ListHeader: View {
         .frame(minHeight: 24, alignment: .center)
     }
 }
-#Preview {
-    VStack {
-        Spacer()
-        HStack {
-            ListHeader(title: "tatata")
-            Text("dasdadsa")
-                .foregroundStyle(Color.white)
-        }
-        Spacer()
-    }
-    .background(Color.black)
-}
 
 #Preview {
     Text("")
