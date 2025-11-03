@@ -292,6 +292,19 @@ pub mod arbitrary {
         }
     }
 
+    prop_compose! {
+        /// Generate arbitrary [Version] with empty installers.
+        pub fn arb_version_empty_installer()
+               (app_version in arb_app_version(), changelog: String, installer in empty_installer())
+               -> Version {
+            Version {
+                version: app_version,
+                installer,
+                changelog,
+            }
+        }
+    }
+
     /// Generate an arbitrary [Installer].
     // TODO: This sucks.
     fn arb_installer() -> impl Strategy<Value = Installer> {
@@ -300,6 +313,15 @@ pub mod arbitrary {
             let size = 256; // TODO
             let sha256 = [0; 32]; // TODO
             Installer { urls, size, sha256 }
+        })
+    }
+
+    /// Generate an empty installer.
+    fn empty_installer() -> impl Strategy<Value = Installer> {
+        Just(Installer {
+            urls: vec![],
+            size: 0,
+            sha256: [0; 32],
         })
     }
 
@@ -321,7 +343,12 @@ mod test {
     const TEST_RESPONSE: &[u8] = include_bytes!("../../test-version-response.json");
 
     proptest! {
-        // TODO
+        #[test]
+        fn test_allow_empty_installers(params in arbitrary::arb_version_parameters(true)) {
+            let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE).unwrap();
+            let info = VersionInfo::try_from_response(&params, response.signed);
+            prop_assert!(info.is_ok());
+        }
     }
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
