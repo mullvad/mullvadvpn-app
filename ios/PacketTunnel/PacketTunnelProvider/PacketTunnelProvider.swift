@@ -64,11 +64,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         performSettingsMigration()
 
-        let transportProvider = setUpTransportProvider(
+        let accessMethodRepository = AccessMethodRepository()
+
+        setUpApiContextAndAccessMethodReceiver(
             appContainerURL: containerURL,
             ipOverrideWrapper: ipOverrideWrapper,
-            addressCache: addressCache
+            addressCache: addressCache,
+            accessMethodRepository: accessMethodRepository
         )
+        
+        setUpAccessMethodReceiver(
+            accessMethodRepository: accessMethodRepository
+        )
+
+        let urlSession = REST.makeURLSession(addressCache: addressCache)
+        encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)
 
         let apiTransportProvider = APITransportProvider(
             requestFactory: MullvadApiRequestFactory(
@@ -89,7 +99,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: transportProvider,
             apiTransportProvider: apiTransportProvider,
             addressCache: addressCache
         )
@@ -118,17 +127,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         // Since PacketTunnelActor depends on the path observer, start observing after actor has been initalized.
         startDefaultPathObserver()
 
-        let urlRequestProxy = URLRequestProxy(
-            dispatchQueue: internalQueue,
-            transportProvider: transportProvider
-        )
+//        let urlRequestProxy = URLRequestProxy(
+//            dispatchQueue: internalQueue,
+//            transportProvider: transportProvider
+//        )
         let apiRequestProxy = APIRequestProxy(
             dispatchQueue: internalQueue,
             transportProvider: apiTransportProvider
         )
         appMessageHandler = AppMessageHandler(
             packetTunnelActor: actor,
-            urlRequestProxy: urlRequestProxy,
+//            urlRequestProxy: urlRequestProxy,
             apiRequestProxy: apiRequestProxy
         )
 
@@ -240,56 +249,49 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         } while hasNotMigrated
     }
 
-    private func setUpTransportProvider(
+    private func setUpApiContextAndAccessMethodReceiver(
         appContainerURL: URL,
         ipOverrideWrapper: IPOverrideWrapper,
-        addressCache: REST.AddressCache
-    ) -> TransportProvider {
-        let urlSession = REST.makeURLSession(addressCache: addressCache)
-        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
+        addressCache: REST.AddressCache,
+        accessMethodRepository: AccessMethodRepository
+    )  {
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
-
+        
         let shadowsocksRelaySelector = ShadowsocksRelaySelector(
             relayCache: ipOverrideWrapper
         )
-
+        
         let shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
             settingsUpdater: tunnelSettingsUpdater
         )
-
-        let accessMethodRepository = AccessMethodRepository()
+        
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
-
-        let transportStrategy = TransportStrategy(
-            datasource: accessMethodRepository,
-            shadowsocksLoader: shadowsocksLoader
+        
+        let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
+            methods: accessMethodRepository.fetchAll()
         )
-
+        
         // swift-format-ignore: NeverUseForceTry
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
+            accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             addressCacheProvider: addressCache,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
-
+    }
+    
+    private func setUpAccessMethodReceiver(
+        accessMethodRepository: AccessMethodRepository
+    )  {
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
-        )
-
-        encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)
-        return TransportProvider(
-            urlSessionTransport: urlSessionTransport,
-            addressCache: addressCache,
-            transportStrategy: transportStrategy,
-            encryptedDNSTransport: encryptedDNSTransport
         )
     }
 }

@@ -16,7 +16,12 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
     public var configuration: REST.AuthProxyConfiguration
 
     public func createAPIProxy() -> any APIQuerying {
-        REST.APIProxy(configuration: configuration)
+        REST.MullvadAPIProxy(
+            transportProvider: configuration.apiTransportProvider,
+            dispatchQueue: DispatchQueue(label: "MullvadAPIProxy.dispatchQueue"),
+                             
+            responseDecoder: REST.Coding.makeJSONDecoder()
+        )
     }
 
     public func createAccountsProxy() -> any RESTAccountHandling {
@@ -28,12 +33,10 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
     }
 
     public static func makeProxyFactory(
-        transportProvider: any RESTTransportProvider,
         apiTransportProvider: any APITransportProviderProtocol,
         addressCache: REST.AddressCache
     ) -> any ProxyFactoryProtocol {
         let basicConfiguration = REST.ProxyConfiguration(
-            transportProvider: transportProvider,
             apiTransportProvider: apiTransportProvider,
             addressCacheStore: addressCache
         )

@@ -17,7 +17,6 @@ extension REST {
         private let responseHandler: any RESTResponseHandler<Success>
 
         private let logger: Logger
-        private let transportProvider: RESTTransportProvider
         private let addressCacheStore: AddressCache
 
         private var networkTask: Cancellable?
@@ -41,7 +40,6 @@ extension REST {
             completionHandler: CompletionHandler? = nil
         ) {
             addressCacheStore = configuration.addressCacheStore
-            transportProvider = configuration.transportProvider
             self.retryStrategy = retryStrategy
             retryDelayIterator = retryStrategy.makeDelayIterator()
             self.requestHandler = requestHandler
@@ -135,39 +133,8 @@ extension REST {
         }
 
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
-            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+            // code for the pre-Rust use case removed
 
-            guard let transport = transportProvider.makeTransport() else {
-                logger.error("Failed to obtain transport.")
-                finish(result: .failure(REST.Error.transport(InternalTransportError.noTransport)))
-                return
-            }
-
-            logger.debug(
-                """
-                Send request to \(restRequest.pathTemplate.templateString) via \(endpoint) \
-                using \(transport.name).
-                """
-            )
-
-            networkTask = transport.sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
-                guard let self else { return }
-                dispatchQueue.async {
-                    if let error {
-                        let restError: REST.Error = (error as? URLError).map { .network($0) } ?? .transport(error)
-
-                        self.didReceiveError(restError, transport: transport, endpoint: endpoint)
-                    } else if let httpResponse = response as? HTTPURLResponse {
-                        self.didReceiveURLResponse(httpResponse, data: data ?? Data(), endpoint: endpoint)
-                    } else {
-                        self.didReceiveError(
-                            .transport(InternalTransportError.invalidResponse(response)),
-                            transport: transport,
-                            endpoint: endpoint
-                        )
-                    }
-                }
-            }
         }
 
         private func didFailToCreateURLRequest(_ error: REST.Error) {
