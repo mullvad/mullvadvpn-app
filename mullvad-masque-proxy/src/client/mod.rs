@@ -4,7 +4,7 @@ use rustls::client::danger::ServerCertVerified;
 use std::{
     fs::{self},
     future, io,
-    net::{Ipv4Addr, SocketAddr},
+    net::SocketAddr,
     path::Path,
     str::FromStr as _,
     sync::{Arc, LazyLock},
@@ -13,7 +13,7 @@ use std::{
 use tokio::{
     net::UdpSocket,
     select,
-    sync::{broadcast, mpsc},
+    sync::{mpsc, oneshot, watch},
     task::JoinHandle,
 };
 use typed_builder::TypedBuilder;
@@ -348,7 +348,7 @@ impl Client {
 
         let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
-        let (return_addr_tx, return_addr_rx) = broadcast::channel(1);
+        let (return_addr_tx, return_addr_rx) = oneshot::channel();
 
         let client_socket_rx_task = tokio::task::spawn(client_socket_rx_task(
             self.client_socket.clone(),
@@ -426,10 +426,10 @@ async fn server_socket_task(
                 match datagram {
                     Ok(Some(response)) => {
                         if server_tx.send(response).await.is_err() {
-                            break;
+                            break; // channel closed, exit gracefully
                         }
                     }
-                    Ok(None) => break,
+                    Ok(None) => break, // quic conn closed, exit gracefully
                     Err(err) => return Err(Error::ProxyResponse(err)),
                 }
 
@@ -476,14 +476,13 @@ async fn server_socket_task(
 async fn client_socket_rx_task(
     client_socket: Arc<UdpSocket>,
     client_tx: mpsc::Sender<Bytes>,
-    return_addr_tx: broadcast::Sender<SocketAddr>,
+    return_addr_oneshot: oneshot::Sender<watch::Receiver<SocketAddr>>,
 ) -> Result<()> {
     const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
 
     let mut client_read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
-    let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
 
-    loop {
+    let mut recv = async || {
         if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
             // Allocate space for new packets
             client_read_buf.reserve(TOTAL_BUFFER_CAPACITY);
@@ -497,16 +496,32 @@ async fn client_socket_rx_task(
             .await
             .map_err(Error::ClientRead)?;
 
+        let packet = client_read_buf.split().freeze();
+        Result::Ok((packet, recv_addr))
+    };
+
+    // call recv once outside the loop to get the initial return address
+    let (packet, mut return_addr) = recv().await?;
+    let (return_addr_tx, return_addr_rx) = watch::channel(return_addr);
+    let _ = return_addr_oneshot.send(return_addr_rx);
+
+    if client_tx.send(packet).await.is_err() {
+        return Ok(()); // channel closed, exit gracefully
+    };
+
+    loop {
+        let (packet, recv_addr) = recv().await?;
+
+        // notify other tasks if the return address changes
         if recv_addr != return_addr {
             return_addr = recv_addr;
             if return_addr_tx.send(return_addr).is_err() {
-                break;
+                break; // channel closed, exit gracefully
             }
         }
-        let packet = client_read_buf.split().freeze();
 
         if client_tx.send(packet).await.is_err() {
-            break;
+            break; // channel closed, exit gracefully
         };
     }
 
@@ -555,7 +570,7 @@ async fn client_socket_gso_tx_task(
         // Fill up queue
         if queued_packets.is_empty() {
             let Some((dest, packet)) = send_rx.recv().await else {
-                break;
+                break; // channel closed, exit gracefully
             };
             queued_packets.push_back((dest, packet));
         }
@@ -655,30 +670,19 @@ async fn client_socket_non_gso_tx_task(
 async fn fragment_reassembly_task(
     stream_id: StreamId,
     mut server_rx: mpsc::Receiver<Datagram>,
-    mut return_addr_rx: broadcast::Receiver<SocketAddr>,
+    return_addr_rx: oneshot::Receiver<watch::Receiver<SocketAddr>>,
     send_tx: mpsc::Sender<(SocketAddr, Bytes)>,
     stats: Arc<Stats>,
 ) -> Result<()> {
     let mut fragments = Fragments::default();
 
-    let mut return_addr = loop {
-        match return_addr_rx.recv().await {
-            Ok(addr) => break addr,
-            Err(broadcast::error::RecvError::Lagged(..)) => continue,
-            Err(broadcast::error::RecvError::Closed) => return Ok(()),
-        }
+    // wait for the return address to be known
+    let Ok(return_addr) = return_addr_rx.await else {
+        return Ok(()); // channel closed, exit gracefully
     };
 
-    loop {
-        let Some(response) = server_rx.recv().await else {
-            break;
-        };
-
-        match return_addr_rx.try_recv() {
-            Ok(new_addr) => return_addr = new_addr,
-            Err(broadcast::error::TryRecvError::Empty) => {}
-            Err(..) => break,
-        }
+    while let Some(response) = server_rx.recv().await {
+        let return_addr = *return_addr.borrow();
 
         if response.stream_id() != stream_id {
             log::debug!("Received datagram with an unexpected stream ID");
@@ -691,7 +695,7 @@ async fn fragment_reassembly_task(
             Ok(DefragReceived::Nonfragmented(payload)) => {
                 stats.rx(payload.len(), false);
                 if send_tx.send((return_addr, payload)).await.is_err() {
-                    break;
+                    break; // channel closed, exit gracefully
                 }
             }
             Ok(DefragReceived::Reassembled(reassembled_payload)) => {
@@ -701,7 +705,7 @@ async fn fragment_reassembly_task(
                     .await
                     .is_err()
                 {
-                    break;
+                    break; // channel closed, exit gracefully
                 }
             }
             Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
@@ -713,7 +717,7 @@ async fn fragment_reassembly_task(
         }
     }
 
-    Result::Ok(())
+    Ok(())
 }
 
 fn new_connect_request(
