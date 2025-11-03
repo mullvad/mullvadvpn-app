@@ -121,12 +121,15 @@ impl VersionInfo {
     /// Convert signed response data to public version type
     /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
     //
-    // TODO: Decompose
+    // NOTE: It should be `get_version_info` doing the bulk of the work. This function is merely a
+    // wrapper around `get_version_info` with some added validation on top. For testing purposes,
+    // we don't really care about this extra validation.
     pub fn try_from_response(
         params: &VersionParameters,
         response: format::Response,
     ) -> anyhow::Result<Self> {
         // Check this before anything else so that it's rejected independently of `params`.
+        // a lil bit of defensive programming.. shotgun parsing style.
         Self::validate_releases(&response.releases)?;
 
         let version_info = get_version_info(
@@ -148,10 +151,11 @@ impl VersionInfo {
     }
 }
 
+/// TODO: Rename mee
 /// TODO: Document this function *very well*.
 /// Input: TODO
 /// Output: TODO
-fn get_version_info(
+pub fn get_version_info(
     releases: Vec<Release>,
     rollout: Rollout,
     allow_empty: bool,
@@ -338,11 +342,29 @@ mod test {
     use std::str::FromStr;
 
     use insta::assert_yaml_snapshot;
+    use prop::collection::vec;
     use proptest::prelude::*;
+
+    use format::arbitrary::arb_release;
 
     const TEST_RESPONSE: &[u8] = include_bytes!("../../test-version-response.json");
 
     proptest! {
+        #[test]
+        /// For any app version with 0 rollout, no client should _ever_ be prompted to update to this app version.
+        //
+        // `arb_version_parameters` get to represnt an arbitrary client, eagerly waiting for an update to be released.
+        //
+        // Generate a list of arbitrary releases!!
+        // These should all have a rollout rate of 0 / rollout::IGNORE.
+        fn no_rollout_no_update(client in arbitrary::arb_version_parameters(true), releases in vec(arb_release(rollout::IGNORE), 5)) { // TODO: 5 is arbitrary.
+            // This could be either a Linux or Windows/macOS client. The property generalizes well.
+            let suggested_update = super::get_version_info(releases, client.rollout, client.allow_empty, client.architecture);
+            // There should be no suggested update! I.e. `suggested_update` should be an error /
+            // empty.
+            prop_assert!(suggested_update.is_err())
+        }
+
         #[test]
         fn test_allow_empty_installers(params in arbitrary::arb_version_parameters(true)) {
             let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE).unwrap();

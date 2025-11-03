@@ -65,6 +65,8 @@ pub struct Response {
 }
 
 /// App release
+///
+/// TODO: I need to be able to generate arbitrary releases.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Release {
     /// Mullvad app version
@@ -163,6 +165,40 @@ pub enum ResponseSignature {
     },
     #[serde(untagged)]
     Other { keyid: String, sig: String },
+}
+
+#[cfg(test)]
+pub mod arbitrary {
+    use super::*;
+
+    use prop::collection::vec;
+    use proptest::prelude::*;
+
+    prop_compose! {
+    /// Generate an arbitrary [Release] with `rollout`.
+    pub fn arb_release(rollout: Rollout)
+        (version in mullvad_version::arbitrary::arb_version(),
+         installers in vec(arb_installer(), 5), // TODO: 5 is arbitrary
+         )
+        -> Release {
+        let changelog = String::new(); // TODO
+        Release { version, changelog, installers, rollout } }
+    }
+
+    /// Generate an arbitrary x86 insaller
+    //
+    // TODO
+    fn arb_installer() -> impl Strategy<Value = Installer> {
+        let urls = vec![];
+        let size = 0;
+        let sha256 = String::from_utf8_lossy(&[0; 32]).into_owned();
+        Just(Installer {
+            architecture: Architecture::X86,
+            urls,
+            size,
+            sha256,
+        })
+    }
 }
 
 #[cfg(test)]
