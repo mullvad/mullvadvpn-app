@@ -188,13 +188,11 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .context("Failed to start MASQUE client")?;
 
     tokio::spawn(async move {
-        let mut client = client.run();
-        tokio::select! {
-            _result = &mut client.send => log::trace!("QUIC client closed"),
-            _result = &mut client.recv => log::trace!("QUIC client closed"),
-            _result = &mut client.server => log::trace!("QUIC client closed"),
-            _result = &mut client.fragment => log::trace!("QUIC client closed"),
-        };
+        client
+            .run()
+            .until_closed()
+            .await
+            .expect("QUIC client errored");
     });
 
     // Connect to local UDP socket

@@ -14,7 +14,7 @@ use tokio::{
     net::UdpSocket,
     select,
     sync::{mpsc, oneshot, watch},
-    task::JoinHandle,
+    task::JoinSet,
 };
 use typed_builder::TypedBuilder;
 
@@ -110,6 +110,8 @@ pub enum Error {
     InvalidIdleTimeout(quinn::VarIntBoundsExceeded),
     #[error("The server returned an invalid HTTP redirect")]
     InvalidHttpRedirect(#[source] anyhow::Error),
+    #[error("A tokio task panicked")]
+    TaskPanicked(#[source] anyhow::Error),
 }
 
 #[derive(TypedBuilder, Debug)]
@@ -343,25 +345,41 @@ impl Client {
         }
     }
 
+    #[must_use]
     pub fn run(self) -> RunningClient {
         let stream_id: StreamId = self.request_stream.id();
 
+        // First task to exit will send its result here
+        let mut tasks = JoinSet::new();
+
+        /// Spawn a task on the `tasks` JoinSet, and log when it returns.
+        macro_rules! spawn {
+            ($fn_name:ident $args:tt) => {{
+                let future = $fn_name $args;
+                tasks.spawn(async move {
+                    let result = future.await;
+                    if let Err(err) = &result {
+                        log::trace!("{} exited with error {:?}", stringify!($fn_name), err);
+                    }
+                    result
+                })
+            }};
+        }
+
+        let (return_addr_tx, return_addr_rx) = oneshot::channel();
         let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
-        let (return_addr_tx, return_addr_rx) = oneshot::channel();
+        let (send_tx, send_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
 
-        let client_socket_rx_task = tokio::task::spawn(client_socket_rx_task(
+        spawn!(client_socket_rx_task(
             self.client_socket.clone(),
             client_tx,
             return_addr_tx,
         ));
 
-        let (send_tx, send_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
+        spawn!(client_socket_tx_task(self.client_socket.clone(), send_rx));
 
-        let client_socket_tx_task =
-            tokio::task::spawn(client_socket_tx_task(self.client_socket.clone(), send_rx));
-
-        let fragment_reassembly_task = tokio::task::spawn(fragment_reassembly_task(
+        spawn!(fragment_reassembly_task(
             stream_id,
             server_rx,
             return_addr_rx,
@@ -369,7 +387,7 @@ impl Client {
             Arc::clone(&self.stats),
         ));
 
-        let server_socket_task = tokio::task::spawn(server_socket_task(
+        spawn!(server_socket_task(
             stream_id,
             self.max_udp_payload_size,
             self.quinn_conn,
@@ -379,32 +397,48 @@ impl Client {
             Arc::clone(&self.stats),
         ));
 
-        RunningClient {
-            send: client_socket_tx_task,
-            recv: client_socket_rx_task,
-            server: server_socket_task,
-            fragment: fragment_reassembly_task,
-        }
+        RunningClient { tasks }
     }
 }
+
+/// Task stopped gracefully because the client was shutting down.
+struct Stopped;
 
 /// Drive execution by `await`ing a RunningClient.
 ///
 /// All inner tasks will be aborted upon drop.
 pub struct RunningClient {
-    pub send: JoinHandle<Result<()>>,
-    pub recv: JoinHandle<Result<()>>,
-    pub server: JoinHandle<Result<()>>,
-    pub fragment: JoinHandle<Result<()>>,
+    tasks: JoinSet<Result<Stopped>>,
 }
 
-impl Drop for RunningClient {
-    // Abort all running Ingress/Egress tasks.
-    fn drop(&mut self) {
-        self.send.abort();
-        self.recv.abort();
-        self.server.abort();
-        self.fragment.abort();
+impl RunningClient {
+    /// Wait until the connection is remotely closed, or an error occurs.
+    pub async fn until_closed(mut self) -> Result<()> {
+        let result = self.tasks.join_next().await.expect("JoinSet is not empty");
+        let mut results = vec![result];
+
+        self.tasks.abort_all();
+
+        // at this point all tasks are being aborted, so we won't have to wait long.
+        while let Some(result) = self.tasks.join_next().await {
+            results.push(result);
+        }
+
+        // check for errors and return the first one, if any.
+        // we do this because tasks might (in theory) race when returning,
+        // and one task crashing will cause others to exit with Ok(Stopped).
+        results
+            .into_iter()
+            .map(|result| match result {
+                Err(join_err) if join_err.is_panic() => {
+                    let err = anyhow!("{:?}", join_err.into_panic());
+                    Err(Error::TaskPanicked(err))
+                }
+                Ok(Err(e)) => Err(e),
+                Ok(Ok(Stopped)) => Ok(()),
+                Err(_cancelled) => Ok(()),
+            })
+            .collect()
     }
 }
 
@@ -416,7 +450,7 @@ async fn server_socket_task(
     server_tx: mpsc::Sender<Datagram>,
     mut client_rx: mpsc::Receiver<Bytes>,
     stats: Arc<Stats>,
-) -> Result<()> {
+) -> Result<Stopped> {
     let mut fragment_id = 0u16;
     let stream_id_size = VarInt::from(stream_id).size() as u16;
 
@@ -470,14 +504,14 @@ async fn server_socket_task(
         }
     }
 
-    Result::Ok(())
+    Ok(Stopped)
 }
 
 async fn client_socket_rx_task(
     client_socket: Arc<UdpSocket>,
     client_tx: mpsc::Sender<Bytes>,
     return_addr_oneshot: oneshot::Sender<watch::Receiver<SocketAddr>>,
-) -> Result<()> {
+) -> Result<Stopped> {
     const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
 
     let mut client_read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
@@ -506,7 +540,7 @@ async fn client_socket_rx_task(
     let _ = return_addr_oneshot.send(return_addr_rx);
 
     if client_tx.send(packet).await.is_err() {
-        return Ok(()); // channel closed, exit gracefully
+        return Ok(Stopped);
     };
 
     loop {
@@ -525,13 +559,13 @@ async fn client_socket_rx_task(
         };
     }
 
-    Ok(())
+    Ok(Stopped)
 }
 
 async fn client_socket_tx_task(
     client_socket: Arc<UdpSocket>,
     send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
-) -> Result<()> {
+) -> Result<Stopped> {
     #[cfg(target_os = "windows")]
     if *windows::MAX_GSO_SEGMENTS > 1 {
         log::debug!("UDP GSO enabled");
@@ -547,7 +581,7 @@ async fn client_socket_tx_task(
 async fn client_socket_gso_tx_task(
     client_socket: Arc<UdpSocket>,
     mut send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
-) -> Result<()> {
+) -> Result<Stopped> {
     use bytes::Buf;
     use std::{collections::VecDeque, mem};
     use tokio::io::Interest;
@@ -651,20 +685,20 @@ async fn client_socket_gso_tx_task(
             .map_err(Error::ClientWrite)?;
     }
 
-    Ok(())
+    Ok(Stopped)
 }
 
 async fn client_socket_non_gso_tx_task(
     client_socket: Arc<UdpSocket>,
     mut send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
-) -> Result<()> {
+) -> Result<Stopped> {
     while let Some((dest, buf)) = send_rx.recv().await {
         client_socket
             .send_to(&buf, dest)
             .await
             .map_err(Error::ClientWrite)?;
     }
-    Ok(())
+    Ok(Stopped)
 }
 
 async fn fragment_reassembly_task(
@@ -673,12 +707,12 @@ async fn fragment_reassembly_task(
     return_addr_rx: oneshot::Receiver<watch::Receiver<SocketAddr>>,
     send_tx: mpsc::Sender<(SocketAddr, Bytes)>,
     stats: Arc<Stats>,
-) -> Result<()> {
+) -> Result<Stopped> {
     let mut fragments = Fragments::default();
 
     // wait for the return address to be known
     let Ok(return_addr) = return_addr_rx.await else {
-        return Ok(()); // channel closed, exit gracefully
+        return Ok(Stopped); // channel closed, exit gracefully
     };
 
     while let Some(response) = server_rx.recv().await {
@@ -717,7 +751,7 @@ async fn fragment_reassembly_task(
         }
     }
 
-    Ok(())
+    Ok(Stopped)
 }
 
 fn new_connect_request(
