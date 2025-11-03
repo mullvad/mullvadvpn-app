@@ -31,7 +31,7 @@ pub enum RelayDebugCommands {
 pub enum RolloutDebugCommands {
     /// Print your rollout threshold.
     Get,
-    /// Generate a new rollout threshold (this change is permanent).
+    /// Generate a new rollout threshold (overwrites the current threshold value)
     Reroll,
     /// Set your rollout threshold seed to a known value.
     ///
