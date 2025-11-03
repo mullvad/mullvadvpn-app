@@ -24,12 +24,7 @@ fun clickableAnnotatedString(
         link =
             LinkAnnotation.Clickable(
                 tag = argument,
-                linkInteractionListener =
-                    object : LinkInteractionListener {
-                        override fun onClick(link: LinkAnnotation) {
-                            onClick(argument)
-                        }
-                    },
+                linkInteractionListener = LinkInteractionListener { onClick(argument) },
             ),
         block = { withStyle(style = linkStyle) { append(argument) } },
     )

@@ -321,7 +321,7 @@ async fn send_problem_report_inner(
 
     let message: String = match account_token {
         Some(account_token) => {
-            format!("{user_message}\nAccountToken: {account_token}")
+            format!("{user_message}\naccount-token: {account_token}")
         }
         None => user_message.to_string(),
     };
