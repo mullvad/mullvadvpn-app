@@ -47,6 +47,23 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
 
     private func updateRelayConstraint(list: CustomList, action: FinishAction) {
         var relayConstraints = tunnelManager.settings.relayConstraints
+
+        // only update relay constraints if custom list is currently selected
+        var isSelectionAffected = false
+        if let customListExitSelection = relayConstraints.exitLocations.value?.customListSelection {
+            if customListExitSelection.listId == list.id {
+                isSelectionAffected = true
+            }
+        }
+        if let customListEntrySelection = relayConstraints.entryLocations.value?.customListSelection {
+            if customListEntrySelection.listId == list.id {
+                isSelectionAffected = true
+            }
+        }
+        guard isSelectionAffected else {
+            return
+        }
+
         relayConstraints.entryLocations = self.updateRelayConstraint(
             relayConstraints.entryLocations,
             for: action,
