@@ -31,7 +31,6 @@ final class RequestExecutorTests: XCTestCase {
         }
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: transportProvider,
             apiTransportProvider: apiTransportProvider,
             addressCache: addressCache
         )
