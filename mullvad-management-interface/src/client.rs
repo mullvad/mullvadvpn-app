@@ -635,6 +635,25 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    pub async fn get_rollout_threshold(&mut self) -> Result<f32> {
+        let rollout = self.0.get_rollout_threshold(()).await?;
+        let threshold = rollout.into_inner().threshold;
+        Ok(threshold)
+    }
+
+    pub async fn generate_new_rollout_threshold(&mut self) -> Result<f32> {
+        let rollout = self.0.regenerate_rollout_threshold(()).await?;
+        let threshold = rollout.into_inner().threshold;
+        Ok(threshold)
+    }
+
+    pub async fn set_new_rollout_threshold_seed(&mut self, seed: u32) -> Result<()> {
+        self.0
+            .set_rollout_threshold_seed(types::Seed { seed })
+            .await?;
+        Ok(())
+    }
+
     pub async fn set_wireguard_allowed_ips(&mut self, allowed_ips: AllowedIps) -> Result<()> {
         self.0
             .set_wireguard_allowed_ips(types::AllowedIpsList {
