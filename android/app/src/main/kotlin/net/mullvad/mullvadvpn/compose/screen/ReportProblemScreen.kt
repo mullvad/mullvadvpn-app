@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,26 +13,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -38,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -55,24 +55,29 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
+import net.mullvad.mullvadvpn.compose.cell.CheckboxCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.extensions.createUriHook
 import net.mullvad.mullvadvpn.compose.preview.ReportProblemUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
+import net.mullvad.mullvadvpn.lib.theme.color.warning
+import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
+import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Default|Sending|Success|Error")
+@Preview("Default|IncludeAccountNumber|ShowWarning|Sending|Success|Error")
 @Composable
 private fun PreviewReportProblemScreen(
     @PreviewParameter(ReportProblemUiStatePreviewParameterProvider::class)
@@ -87,6 +92,7 @@ private fun PreviewReportProblemScreen(
             onEmailChanged = {},
             onDescriptionChanged = {},
             onIncludeAccountIdCheckChange = {},
+            toggleShowIncludeAccountInformationWarningMessage = {},
             onBackClick = {},
         )
     }
@@ -126,6 +132,8 @@ fun ReportProblem(
         onEmailChanged = vm::updateEmail,
         onDescriptionChanged = vm::updateDescription,
         onIncludeAccountIdCheckChange = vm::onIncludeAccountIdCheckChange,
+        toggleShowIncludeAccountInformationWarningMessage =
+            vm::showIncludeAccountInformationWarningMessage,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -139,6 +147,7 @@ private fun ReportProblemScreen(
     onEmailChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onIncludeAccountIdCheckChange: (Boolean) -> Unit,
+    toggleShowIncludeAccountInformationWarningMessage: (Boolean) -> Unit,
     onBackClick: () -> Unit,
 ) {
 
@@ -172,99 +181,207 @@ private fun ReportProblemScreen(
                             end = Dimens.sideMargin,
                             bottom = Dimens.screenBottomMargin,
                         )
-                        .height(IntrinsicSize.Max),
+                        .height(IntrinsicSize.Max)
+                        .animateContentSize(),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
             ) {
-                Description(
+                InputContent(
                     state = state,
-                    onIncludeAccountIdCheckChange = onIncludeAccountIdCheckChange,
-                )
-
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = state.email,
-                    onValueChange = onEmailChanged,
-                    maxLines = 1,
-                    singleLine = true,
-                    placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
-                    colors = mullvadWhiteTextFieldColors(),
-                    keyboardOptions =
-                        KeyboardOptions(
-                            autoCorrectEnabled = false,
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next,
-                        ),
-                )
-
-                ProblemMessageTextField(
-                    modifier = Modifier.weight(1f),
-                    value = state.description,
+                    onEmailChanged = onEmailChanged,
                     onDescriptionChanged = onDescriptionChanged,
+                    onIncludeAccountIdCheckChange = onIncludeAccountIdCheckChange,
+                    toggleShowIncludeAccountInformationWarningMessage =
+                        toggleShowIncludeAccountInformationWarningMessage,
+                    onNavigateToViewLogs = onNavigateToViewLogs,
+                    onSendReport = onSendReport,
                 )
-
-                Column {
-                    PrimaryButton(
-                        onClick = onNavigateToViewLogs,
-                        text = stringResource(id = R.string.view_logs),
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-                    VariantButton(
-                        onClick = onSendReport,
-                        isEnabled = state.description.isNotEmpty(),
-                        text = stringResource(id = R.string.send),
-                    )
-                }
             }
         }
     }
 }
 
 @Composable
-private fun Description(
+private fun InputContent(
     state: ReportProblemUiState,
+    onEmailChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
     onIncludeAccountIdCheckChange: (Boolean) -> Unit,
+    toggleShowIncludeAccountInformationWarningMessage: (Boolean) -> Unit,
+    onNavigateToViewLogs: () -> Unit,
+    onSendReport: () -> Unit,
 ) {
+    Description()
+
+    TextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = state.email,
+        onValueChange = onEmailChanged,
+        maxLines = 1,
+        singleLine = true,
+        placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
+        colors = mullvadWhiteTextFieldColors(),
+        keyboardOptions =
+            KeyboardOptions(
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next,
+            ),
+    )
+
+    ProblemMessageTextField(value = state.description, onDescriptionChanged = onDescriptionChanged)
+
+    if (state.showIncludeAccountId) {
+        IncludeAccountInformationCheckBox(
+            includeAccountInformation = state.includeAccountId,
+            onIncludeAccountInformationCheckChange = onIncludeAccountIdCheckChange,
+            toggleShowIncludeAccountInformationWarningMessage =
+                toggleShowIncludeAccountInformationWarningMessage,
+            showIncludeAccountInformationWarningMessage = state.showIncludeAccountWarningMessage,
+            isPlayBuild = state.isPlayBuild,
+        )
+    }
+
+    Column {
+        PrimaryButton(
+            onClick = onNavigateToViewLogs,
+            text = stringResource(id = R.string.view_logs),
+        )
+        Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+        VariantButton(
+            onClick = onSendReport,
+            isEnabled = state.description.isNotEmpty(),
+            text = stringResource(id = R.string.send),
+        )
+    }
+}
+
+@Composable
+private fun Description() {
     Column {
         Text(
             text = stringResource(id = R.string.problem_report_description),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge,
         )
-
-        if (state.showIncludeAccountId) {
-            IncludeAccountInformationCheckBox(
-                includeAccountInformation = state.includeAccountId,
-                onIncludeAccountInformationCheckChange = onIncludeAccountIdCheckChange,
-            )
-        }
     }
 }
 
 @Composable
 private fun IncludeAccountInformationCheckBox(
     includeAccountInformation: Boolean,
+    showIncludeAccountInformationWarningMessage: Boolean,
     onIncludeAccountInformationCheckChange: (Boolean) -> Unit,
+    toggleShowIncludeAccountInformationWarningMessage: (Boolean) -> Unit,
+    isPlayBuild: Boolean,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    val openPrivacyPolicy =
+        LocalUriHandler.current.createUriHook(
+            stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(isPlayBuild)
+        )
+    Column(
         modifier =
-            Modifier.clickable {
-                    onIncludeAccountInformationCheckChange(!includeAccountInformation)
-                }
-                .padding(vertical = Dimens.smallPadding)
-                .fillMaxWidth(),
+            Modifier.animateContentSize()
+                .border(width = Dp.Hairline, color = MaterialTheme.colorScheme.primary)
+                .padding(bottom = if (includeAccountInformation) Dimens.smallPadding else 0.dp)
     ) {
-        // To align the checkbox with the text
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-            Checkbox(
-                modifier = Modifier.padding(end = Dimens.smallPadding),
-                checked = includeAccountInformation,
-                onCheckedChange = onIncludeAccountInformationCheckChange,
+        CheckboxCell(
+            title = stringResource(R.string.include_account_token_checkbox_text),
+            checked = includeAccountInformation,
+            background = MaterialTheme.colorScheme.surface,
+            startPadding = 0.dp,
+            textStyle = MaterialTheme.typography.bodyMedium,
+            onCheckedChange = onIncludeAccountInformationCheckChange,
+        )
+        if (includeAccountInformation) {
+            AccountInformationWarning(
+                showIncludeAccountInformationWarningMessage =
+                    showIncludeAccountInformationWarningMessage,
+                toggleShowIncludeAccountInformationWarningMessage =
+                    toggleShowIncludeAccountInformationWarningMessage,
+                openPrivacyPolicy = openPrivacyPolicy,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AccountInformationWarning(
+    showIncludeAccountInformationWarningMessage: Boolean,
+    toggleShowIncludeAccountInformationWarningMessage: (Boolean) -> Unit,
+    openPrivacyPolicy: () -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier.padding(horizontal = Dimens.tinyPadding)
+                .background(MaterialTheme.colorScheme.surfaceDim)
+                .animateContentSize()
+    ) {
+        Row(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .clickable(
+                        onClick = {
+                            toggleShowIncludeAccountInformationWarningMessage(
+                                !showIncludeAccountInformationWarningMessage
+                            )
+                        }
+                    )
+                    .padding(
+                        top = Dimens.smallPadding,
+                        start = Dimens.smallPadding,
+                        end = Dimens.smallPadding,
+                        bottom =
+                            if (showIncludeAccountInformationWarningMessage) {
+                                Dimens.tinyPadding
+                            } else {
+                                Dimens.smallPadding
+                            },
+                    )
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.ErrorOutline,
+                contentDescription = stringResource(R.string.include_account_token_warning_title),
+                tint = MaterialTheme.colorScheme.warning,
             )
             Text(
-                text = stringResource(R.string.include_account_token_checkbox_text),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier =
+                    Modifier.padding(horizontal = Dimens.smallPadding)
+                        .weight(1f)
+                        .align(Alignment.CenterVertically),
                 style = MaterialTheme.typography.labelLarge,
+                text = stringResource(R.string.include_account_token_warning_title),
+            )
+            ExpandChevron(isExpanded = showIncludeAccountInformationWarningMessage)
+        }
+        if (showIncludeAccountInformationWarningMessage) {
+            Text(
+                modifier =
+                    Modifier.padding(horizontal = Dimens.smallPadding)
+                        .padding(bottom = Dimens.smallPadding),
+                style = MaterialTheme.typography.bodySmall,
+                text =
+                    clickableAnnotatedString(
+                        text =
+                            buildString {
+                                appendLine(
+                                    stringResource(
+                                        R.string.include_account_token_warning_message_first
+                                    )
+                                )
+                                append(
+                                    stringResource(
+                                        R.string.include_account_token_warning_message_second
+                                    )
+                                )
+                            },
+                        argument = stringResource(R.string.privacy_policy_lower_case),
+                        linkStyle =
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textDecoration = TextDecoration.Underline,
+                            ),
+                        onClick = { openPrivacyPolicy() },
+                    ),
             )
         }
     }
@@ -276,23 +393,12 @@ private fun ProblemMessageTextField(
     value: String,
     onDescriptionChanged: (String) -> Unit,
 ) {
-    // Stores the height of the text field after the initial onSizeChanged callback is called.
-    // This size will be calculated as a weight set from the parent composable.
-    var textFieldHeight by remember { mutableStateOf(0.dp) }
-
-    val localDensity = LocalDensity.current
 
     TextField(
         modifier =
             modifier
                 .fillMaxWidth()
-                // Prevents the text field from shrinking when the IME is shown.
-                .defaultMinSize(minHeight = if (textFieldHeight > 0.dp) textFieldHeight else 180.dp)
-                // Prevents the text field from growing to large when the message is long.
-                .heightIn(max = if (textFieldHeight > 0.dp) textFieldHeight else Dp.Unspecified)
-                .onSizeChanged { size ->
-                    textFieldHeight = with(localDensity) { size.height.toDp() }
-                },
+                .defaultMinSize(minHeight = Dimens.problemReportTextFieldMinHeight),
         value = value,
         onValueChange = onDescriptionChanged,
         placeholder = { Text(stringResource(R.string.user_message_hint)) },
@@ -356,7 +462,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
                 val emailStart = emailTemplate.indexOf('%')
 
                 buildAnnotatedString {
-                    append(emailTemplate.substring(0, emailStart))
+                    append(emailTemplate.take(emailStart))
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(sendingState.email)
                     }

@@ -11,6 +11,12 @@ class ReportProblemUiStatePreviewParameterProvider :
         get() =
             sequenceOf(
                 ReportProblemUiState(showIncludeAccountId = true),
+                ReportProblemUiState(showIncludeAccountId = true, includeAccountId = true),
+                ReportProblemUiState(
+                    showIncludeAccountId = true,
+                    includeAccountId = true,
+                    showIncludeAccountWarningMessage = true,
+                ),
                 ReportProblemUiState(sendingState = SendingReportUiState.Sending),
                 ReportProblemUiState(sendingState = SendingReportUiState.Success("email@mail.com")),
                 ReportProblemUiState(

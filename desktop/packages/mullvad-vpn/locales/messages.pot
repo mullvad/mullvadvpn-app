@@ -3022,6 +3022,9 @@ msgstr ""
 msgid "Blocking..."
 msgstr ""
 
+msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
+msgstr ""
+
 msgid "Can't connect?"
 msgstr ""
 
@@ -3172,6 +3175,9 @@ msgstr ""
 msgid "File"
 msgstr ""
 
+msgid "For details, please see our %s."
+msgstr ""
+
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr ""
 
@@ -3215,6 +3221,9 @@ msgid "In-app products unavailable, please make sure you have the latest version
 msgstr ""
 
 msgid "In-tunnel IPv6"
+msgstr ""
+
+msgid "Include my account token for faster help with payment or account related issues"
 msgstr ""
 
 msgid "Invalid or missing value \"%1$s\""
@@ -3439,7 +3448,7 @@ msgstr ""
 msgid "This field is required"
 msgstr ""
 
-msgid "This is a question about account or payments (include account information)"
+msgid "This impacts your anonymity"
 msgstr ""
 
 msgid "This is already set as current"
@@ -3575,6 +3584,9 @@ msgid "less than one day"
 msgstr ""
 
 msgid "login"
+msgstr ""
+
+msgid "privacy policy"
 msgstr ""
 
 msgid "read more here"
