@@ -140,6 +140,7 @@ val uiModule = module {
             apiEndpointFromIntentHolder = get(),
             kermitFileLogDirName = KERMIT_FILE_LOG_DIR_NAME,
             accountRepository = get(),
+            paymentUseCase = get(),
         )
     }
     single { RelayOverridesRepository(get()) }
