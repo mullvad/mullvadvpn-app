@@ -68,6 +68,7 @@ import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.clickableAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
@@ -281,7 +282,11 @@ private fun IncludeAccountInformationCheckBox(
     Column(
         modifier =
             Modifier.animateContentSize()
-                .border(width = Dp.Hairline, color = MaterialTheme.colorScheme.primary)
+                .border(
+                    width = Dp.Hairline,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = MaterialTheme.shapes.medium,
+                )
                 .padding(bottom = if (includeAccountInformation) Dimens.smallPadding else 0.dp)
     ) {
         CheckboxCell(
@@ -313,7 +318,10 @@ private fun AccountInformationWarning(
     Column(
         modifier =
             Modifier.padding(horizontal = Dimens.tinyPadding)
-                .background(MaterialTheme.colorScheme.surfaceDim)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = Alpha80),
+                    shape = MaterialTheme.shapes.medium,
+                )
                 .animateContentSize()
     ) {
         Row(
@@ -331,11 +339,8 @@ private fun AccountInformationWarning(
                         start = Dimens.smallPadding,
                         end = Dimens.smallPadding,
                         bottom =
-                            if (showIncludeAccountInformationWarningMessage) {
-                                Dimens.tinyPadding
-                            } else {
-                                Dimens.smallPadding
-                            },
+                            if (showIncludeAccountInformationWarningMessage) Dimens.tinyPadding
+                            else Dimens.smallPadding,
                     )
         ) {
             Icon(
