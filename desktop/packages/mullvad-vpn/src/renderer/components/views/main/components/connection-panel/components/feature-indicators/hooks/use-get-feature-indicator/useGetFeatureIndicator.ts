@@ -155,23 +155,23 @@ export const useGetFeatureIndicator = () => {
       onClick: gotoDaitaFeature,
     },
     [FeatureIndicator.udp2tcp]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      label: messages.pgettext('wireguard-settings-view', 'UDP-over-TCP'),
       onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.shadowsocks]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      label: messages.pgettext('wireguard-settings-view', 'Shadowsocks'),
       onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.quic]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      label: strings.quic,
       onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.lwo]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      label: strings.lwo,
       onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.port]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
+      label: sprintf(messages.gettext('%(wireguard)s port'), { wireguard: strings.wireguard }),
       onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.multihop]: {
