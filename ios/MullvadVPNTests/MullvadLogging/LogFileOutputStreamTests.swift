@@ -32,6 +32,21 @@ actor LogFileOutputStreamTests {
         try? fileManager.removeItem(at: directoryPath)
     }
 
+    @Test func logFileOutputStreamWritesHeader() throws {
+        let headerText = "This is a header"
+        let logMessage = "And this is a log message\n"
+        let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
+        let stream = LogFileOutputStream(fileURL: fileURL, header: headerText)
+        stream.write(logMessage)
+        stream.synchronize()
+
+        let contents = try #require(
+            try String(contentsOf: fileURL, encoding: .utf8)
+        )
+        let expectedContents = "\(headerText)\n\(logMessage)"
+        #expect(contents == expectedContents)
+    }
+
     @Test func logHeaderGetsWrittenAtFileStartAfterTruncation() async throws {
         let header = "header"
         let message = """

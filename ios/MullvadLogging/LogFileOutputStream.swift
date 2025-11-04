@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
-    private let queue = DispatchQueue(label: "LogFileOutputStreamQueue", qos: .utility)
+    private let queue = DispatchQueue(label: "LogFileOutputStreamQueue")
 
     private let baseFileURL: URL
     private var fileURL: URL
