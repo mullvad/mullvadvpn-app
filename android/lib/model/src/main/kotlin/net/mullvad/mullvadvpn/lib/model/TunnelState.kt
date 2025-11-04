@@ -19,33 +19,44 @@ sealed class TunnelState {
 
     data class Error(val errorState: ErrorState) : TunnelState()
 
-    fun location(): GeoIpLocation? {
-        return when (this) {
+    fun featureIndicators(): List<FeatureIndicator>? =
+        when (this) {
+            is Connected -> featureIndicators
+            is Connecting -> featureIndicators
+            else -> null
+        }
+
+    fun location(): GeoIpLocation? =
+        when (this) {
             is Connected -> location
             is Connecting -> location
             is Disconnecting -> null
             is Disconnected -> location
             is Error -> null
         }
-    }
 
-    fun isSecured(): Boolean {
-        return when (this) {
+    fun isConnectingOrConnected(): Boolean =
+        when (this) {
+            is Connected,
+            is Connecting -> true
+            else -> false
+        }
+
+    fun isSecured(): Boolean =
+        when (this) {
             is Connected,
             is Connecting,
             is Disconnecting -> true
             is Disconnected -> false
             is Error -> this.errorState.isBlocking
         }
-    }
 
-    fun isBlocked(): Boolean {
-        return when (this) {
+    fun isBlocked(): Boolean =
+        when (this) {
             is Connected,
             is Disconnected -> false
             is Connecting,
             is Disconnecting -> true
             is Error -> this.errorState.isBlocking
         }
-    }
 }
