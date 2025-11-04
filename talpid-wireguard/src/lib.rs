@@ -31,10 +31,10 @@ use talpid_types::{
 };
 use tokio::sync::Mutex as AsyncMutex;
 
-#[cfg(feature = "boringtun")]
+#[cfg(not(feature = "wireguard-go"))]
 mod boringtun;
 
-#[cfg(not(feature = "boringtun"))]
+#[cfg(feature = "wireguard-go")]
 mod wireguard_go;
 
 /// WireGuard config data-types
@@ -159,10 +159,10 @@ impl WireguardMonitor {
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test it
-        // TODO: Consider removing `cfg!(feature = "boringtun")`
+        // TODO: Consider removing `cfg!(not(feature = "wireguard-go"))`
         let userspace_wireguard =
-            *FORCE_USERSPACE_WIREGUARD || params.options.daita || cfg!(feature = "boringtun");
-        let userspace_multihop = userspace_wireguard && cfg!(feature = "boringtun");
+            *FORCE_USERSPACE_WIREGUARD || params.options.daita || cfg!(not(feature = "wireguard-go"));
+        let userspace_multihop = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
 
         let route_mtu = args
             .runtime
@@ -205,9 +205,9 @@ impl WireguardMonitor {
             &config,
             #[cfg(target_os = "windows")]
             args.resource_dir,
-            #[cfg(not(all(target_os = "windows", not(feature = "boringtun"))))]
+            #[cfg(not(all(target_os = "windows", feature = "wireguard-go")))]
             args.tun_provider.clone(),
-            #[cfg(all(windows, not(feature = "boringtun")))]
+            #[cfg(all(windows, feature = "wireguard-go"))]
             args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
@@ -248,7 +248,7 @@ impl WireguardMonitor {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
-            if cfg!(feature = "boringtun") && userspace_wireguard {
+            if cfg!(not(feature = "wireguard-go")) && userspace_wireguard {
                 // NOTE: For boringtun, we use the `tun` crate to create our tunnel interface.
                 // It will automatically configure the IP address and DNS servers using `netsh`.
                 // This is quite slow, so we need to wait for the interface to be created.
@@ -463,7 +463,7 @@ impl WireguardMonitor {
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
-        #[cfg(feature = "boringtun")]
+        #[cfg(not(feature = "wireguard-go"))]
         let tunnel = args
             .runtime
             .block_on(boringtun::open_boringtun_tunnel(
@@ -474,7 +474,7 @@ impl WireguardMonitor {
             ))
             .map(Box::new)? as Box<dyn Tunnel>;
 
-        #[cfg(not(feature = "boringtun"))]
+        #[cfg(feature = "wireguard-go")]
         let tunnel = args
             .runtime
             .block_on(wireguard_go::open_wireguard_go_tunnel(
@@ -514,7 +514,7 @@ impl WireguardMonitor {
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
-            #[cfg(feature = "boringtun")]
+            #[cfg(not(feature = "wireguard-go"))]
             {
                 let lock = tunnel.lock().await;
                 let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
@@ -698,10 +698,10 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         config: &Config,
         resource_dir: &Path,
-        #[cfg(feature = "boringtun")] tun_provider: Arc<
+        #[cfg(not(feature = "wireguard-go"))] tun_provider: Arc<
             std::sync::Mutex<tun_provider::TunProvider>,
         >,
-        #[cfg(not(feature = "boringtun"))] route_manager: talpid_routing::RouteManagerHandle,
+        #[cfg(feature = "wireguard-go")] route_manager: talpid_routing::RouteManagerHandle,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
@@ -711,12 +711,12 @@ impl WireguardMonitor {
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
 
-            #[cfg(feature = "boringtun")]
+            #[cfg(not(feature = "wireguard-go"))]
             let tunnel = runtime
                 .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
                 .map(Box::new)?;
 
-            #[cfg(not(feature = "boringtun"))]
+            #[cfg(feature = "wireguard-go")]
             let tunnel = runtime
                 .block_on(wireguard_go::open_wireguard_go_tunnel(
                     config,
@@ -747,7 +747,7 @@ impl WireguardMonitor {
 
         log::debug!("Using userspace WireGuard implementation");
 
-        #[cfg(not(feature = "boringtun"))]
+        #[cfg(feature = "wireguard-go")]
         let tunnel = runtime
             .block_on(wireguard_go::open_wireguard_go_tunnel(
                 config,
@@ -756,7 +756,7 @@ impl WireguardMonitor {
             ))
             .map(Box::new)?;
 
-        #[cfg(feature = "boringtun")]
+        #[cfg(not(feature = "wireguard-go"))]
         let tunnel = runtime
             .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
             .map(Box::new)?;
@@ -776,10 +776,10 @@ impl WireguardMonitor {
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
 
-            #[cfg(not(feature = "boringtun"))]
+            #[cfg(feature = "wireguard-go")]
             let f = wireguard_go::open_wireguard_go_tunnel(config, _log_path, tun_provider);
 
-            #[cfg(feature = "boringtun")]
+            #[cfg(not(feature = "wireguard-go"))]
             let f = boringtun::open_boringtun_tunnel(config, tun_provider);
 
             let tunnel = runtime.block_on(f).map(Box::new)?;
@@ -798,7 +798,7 @@ impl WireguardMonitor {
             res.or_else(|err| {
                     log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
 
-                    #[cfg(not(feature = "boringtun"))]
+                    #[cfg(feature = "wireguard-go")]
                     {
                         Ok(runtime
                             .block_on(wireguard_go::open_wireguard_go_tunnel(
@@ -808,7 +808,7 @@ impl WireguardMonitor {
                             ))
                             .map(Box::new)?)
                     }
-                    #[cfg(feature = "boringtun")]
+                    #[cfg(not(feature = "wireguard-go"))]
                     {
                         Ok(runtime
                             .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
@@ -989,7 +989,7 @@ impl WireguardMonitor {
         // TODO: surely this applies to all kinds of userspace multihop, not just gotatun?
         // For userspace multihop, per-route MTU is unnecessary. Packets are not sent back to
         // the tunnel interface, so we're not constrained by its MTU.
-        let using_boringtun = userspace_wireguard && cfg!(feature = "boringtun");
+        let using_boringtun = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
 
         if !config.is_multihop() || using_boringtun {
             route
@@ -1146,7 +1146,7 @@ pub enum TunnelError {
     InvalidAlias,
 
     /// Failure to set up logging
-    #[cfg(any(windows, not(feature = "boringtun")))]
+    #[cfg(any(windows, feature = "wireguard-go"))]
     #[error("Failed to set up logging")]
     LoggingError(#[source] logging::Error),
 
@@ -1161,12 +1161,12 @@ pub enum TunnelError {
     DaitaNotSupported,
 
     /// BoringTun device error
-    #[cfg(feature = "boringtun")]
+    #[cfg(not(feature = "wireguard-go"))]
     #[error("Boringtun: {0:?}")]
     BoringTunDevice(::boringtun::device::Error),
 
     /// Failed to configure GotaTun device.
-    #[cfg(feature = "boringtun")]
+    #[cfg(not(feature = "wireguard-go"))]
     #[error("Failed to configure the GotaTun device")]
     ConfigureGotaTunDevice(#[source] boringtun::ConfigureGotaTunDeviceError),
 }

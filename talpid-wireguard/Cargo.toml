@@ -11,7 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [features]
-boringtun = ["dep:boringtun", "dep:tun07", "talpid-tunnel/boringtun"]
+wireguard-go = ["dep:wireguard-go-rs", "talpid-tunnel/wireguard-go"]
 multihop-pcap = ["boringtun/pcap"]
 
 [dependencies]
@@ -33,17 +33,16 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = { workspace = true }
 surge-ping = "0.8.0"
-wireguard-go-rs = { path = "../wireguard-go-rs" }
+wireguard-go-rs = { path = "../wireguard-go-rs", optional = true }
 tun07 = { package = "tun", version = "0.7.11", features = [
   "async",
-], optional = true }
+] }
 byteorder = "1"
 internet-checksum = "0.2"
 socket2 = { workspace = true, features = ["all"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [dependencies.boringtun]
-optional = true
 features = ["device", "tun"]
 git = "https://github.com/mullvad/gotatun"
 rev = "d8ddd4232c9636aa98ab4bd14093e256f7d09abb"
