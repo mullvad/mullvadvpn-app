@@ -52,7 +52,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private(set) var relaySelector: RelaySelectorWrapper!
     private var launchArguments = LaunchArguments()
-    private var encryptedDNSTransport: EncryptedDNSTransport!
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
@@ -158,9 +157,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             transactionLog: .default
         )
-
-        let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
-        encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSessionTransport.urlSession)
 
         let apiRequestFactory = MullvadApiRequestFactory(
             apiContext: apiContext,
