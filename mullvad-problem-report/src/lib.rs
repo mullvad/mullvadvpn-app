@@ -165,13 +165,11 @@ pub fn collect_report<P: AsRef<Path>>(
         None => {}
     }
     #[cfg(target_os = "android")]
-    match write_logcat_to_file(android_log_dir) {
-        Ok(logcat_path) => problem_report.add_log(&logcat_path),
-        Err(error) => problem_report.add_error("Failed to collect logcat", &error),
-    }
-
-    #[cfg(target_os = "android")]
     {
+        match write_logcat_to_file(android_log_dir) {
+            Ok(logcat_path) => problem_report.add_log(&logcat_path),
+            Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+        }
         problem_report.add_metadata(
             "unverified-purchases".to_string(),
             unverified_purchases.to_string(),
@@ -397,6 +395,7 @@ impl ProblemReport {
 
     /// Add extra metadata to the problem report that is not possible to access from the daemon
     /// directly.
+    #[cfg(target_os = "android")]
     pub fn add_metadata(&mut self, key: String, value: String) {
         self.metadata.insert(key, value);
     }
