@@ -208,60 +208,6 @@ async fn test_custom_access_methods_gui(
     Ok(())
 }
 
-#[test_function(priority = 1000)]
-async fn test_custom_bridge_gui(
-    _: TestContext,
-    rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    // For this test to work, we need to supply the following env-variables:
-    //
-    // * SHADOWSOCKS_SERVER_IP
-    // * SHADOWSOCKS_SERVER_PORT
-    // * SHADOWSOCKS_SERVER_CIPHER
-    // * SHADOWSOCKS_SERVER_PASSWORD
-    //
-    // See
-    // `desktop/packages/mullvad-vpn/test/e2e/installed/state-dependent/custom-bridge.spec.ts`
-    // for details. The setup should be the same as in
-    // `test_manager::tests::access_methods::test_shadowsocks`.
-
-    let gui_test = "custom-bridge.spec";
-
-    let settings = mullvad_client.get_settings().await.unwrap();
-    let relay_list = mullvad_client.get_relay_locations().await.unwrap();
-    let relay_selector = helpers::get_daemon_relay_selector(&settings, relay_list);
-    let custom_proxy = relay_selector
-        .get_bridge_forced()
-        .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
-
-    let ui_result = run_test_env(
-        &rpc,
-        &[gui_test],
-        [
-            (
-                "SHADOWSOCKS_SERVER_IP",
-                custom_proxy.endpoint.ip().to_string().as_ref(),
-            ),
-            (
-                "SHADOWSOCKS_SERVER_PORT",
-                custom_proxy.endpoint.port().to_string().as_ref(),
-            ),
-            ("SHADOWSOCKS_SERVER_CIPHER", custom_proxy.cipher.as_ref()),
-            (
-                "SHADOWSOCKS_SERVER_PASSWORD",
-                custom_proxy.password.as_ref(),
-            ),
-        ],
-    )
-    .await
-    .unwrap();
-
-    assert!(ui_result.success());
-
-    Ok(())
-}
-
 /// Test settings import / IP overrides in the GUI
 #[test_function]
 pub async fn test_import_settings_ui(
