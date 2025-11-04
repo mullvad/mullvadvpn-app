@@ -126,7 +126,6 @@ jobs:
       - name: Fetch submodules
         run: |
           git submodule update --init android/rust-android-gradle-plugin
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Ensure correct container image is used
         run: echo "${{ needs.prepare.outputs.container_image }}" > ./building/android-container-image.txt
