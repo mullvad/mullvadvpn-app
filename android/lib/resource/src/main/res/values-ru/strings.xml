@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">Пользовательский DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Еще %1$s...</string>
-    <string name="feature_obfuscation">Обфускация</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>
     <string name="filter">Фильтр</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
@@ -397,11 +396,11 @@
     <string name="try_again">Повторить</string>
     <string name="type">Тип</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP через TCP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>
-    <string name="upd_over_tcp">UDP через TCP</string>
     <string name="update_dns_server_dialog_title">Обновить DNS-сервер</string>
     <string name="update_list_name">Обновление названия списка</string>
     <string name="updating_server_list_in_the_background">Фоновое обновление списка серверов...</string>

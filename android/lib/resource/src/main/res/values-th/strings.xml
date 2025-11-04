@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">DNS แบบกำหนดเอง</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
-    <string name="feature_obfuscation">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
     <string name="filter">ตัวกรอง</string>
     <string name="foreground_notification_channel_description">แสดงสถานะอุโมงค์ VPN ในปัจจุบัน</string>
@@ -397,11 +396,11 @@
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="type">ประเภท</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-ผ่าน-TCP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
     <string name="undo">เลิกทำ</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
     <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>
-    <string name="upd_over_tcp">UDP-ผ่าน-TCP</string>
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="update_list_name">อัปเดตชื่อรายการ</string>
     <string name="updating_server_list_in_the_background">กำลังอัปเดตรายชื่อเซิร์ฟเวอร์ในพื้นหลัง...</string>

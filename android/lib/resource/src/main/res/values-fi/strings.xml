@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
-    <string name="feature_obfuscation">Hämäysteknologia</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="filter">Suodatin</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
@@ -397,11 +396,11 @@
     <string name="try_again">Yritä uudelleen</string>
     <string name="type">Tyyppi</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP TCP:n kautta</string>
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
     <string name="undo">Kumoa</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
     <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>
-    <string name="upd_over_tcp">UDP TCP:n kautta</string>
     <string name="update_dns_server_dialog_title">Päivitä DNS-palvelin</string>
     <string name="update_list_name">Päivitä luettelon nimi</string>
     <string name="updating_server_list_in_the_background">Palvelinluetteloa päivitetään taustalla...</string>
