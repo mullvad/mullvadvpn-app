@@ -920,6 +920,7 @@
 		A9BFB0012BD00B7F00F2BCA1 /* CustomListPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */; };
 		A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9C342C32ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */; };
+		A9C7B62C2EB9F71D002CABB1 /* LoggerBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */; };
 		A9D4A4792C2DAB5F00F1E522 /* libmullvad_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */; };
 		A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67D28F83CA50033DD93 /* RESTTransport.swift */; };
 		A9D9A4B12C36D10E004088DD /* ShadowSocksProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */; };
@@ -2397,6 +2398,7 @@
 		A9C308392C19DDA7008715F1 /* MullvadPostQuantum+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadPostQuantum+Stubs.swift"; sourceTree = "<group>"; };
 		A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelayCacheTracker+Stubs.swift"; sourceTree = "<group>"; };
 		A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
+		A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerBuilderTests.swift; sourceTree = "<group>"; };
 		A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTests.swift; sourceTree = "<group>"; };
 		A9D96B192A8247C100A5C673 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 		A9D9A4C02C36D53C004088DD /* MullvadRustRuntimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadRustRuntimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2915,9 +2917,10 @@
 		440E9EFA2BDA976800B1FD11 /* MullvadLogging */ = {
 			isa = PBXGroup;
 			children = (
+				A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */,
+				A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */,
 				44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */,
 				7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */,
-				A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */,
 			);
 			path = MullvadLogging;
 			sourceTree = "<group>";
@@ -6217,6 +6220,7 @@
 				A9A5FA342ACB05160083449F /* StringTests.swift in Sources */,
 				F0F313A72E85321D00D55C43 /* RecentConnectionsRepositoryTests.swift in Sources */,
 				7A52F96C2C17450C00B133B9 /* RelaySelectorWrapperTests.swift in Sources */,
+				A9C7B62C2EB9F71D002CABB1 /* LoggerBuilderTests.swift in Sources */,
 				A9A5FA352ACB05160083449F /* WgKeyRotationTests.swift in Sources */,
 				F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */,
 				7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */,
