@@ -170,6 +170,11 @@
         <target state="new">Add time</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Adelaide" xml:space="preserve">
+        <source>Adelaide</source>
+        <target state="new">Adelaide</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Ads" xml:space="preserve">
         <source>Ads</source>
         <target state="new">Ads</target>
@@ -185,6 +190,11 @@
         <target state="new">Agree and continue</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Albania" xml:space="preserve">
+        <source>Albania</source>
+        <target state="new">Albania</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="All" xml:space="preserve">
         <source>All</source>
         <target state="new">All</target>
@@ -198,6 +208,11 @@
       <trans-unit id="All providers" xml:space="preserve">
         <source>All providers</source>
         <target state="new">All providers</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Amsterdam" xml:space="preserve">
+        <source>Amsterdam</source>
+        <target state="new">Amsterdam</target>
         <note/>
       </trans-unit>
       <trans-unit id="Any" xml:space="preserve">
@@ -220,9 +235,29 @@
         <target state="new">Are you sure you want to log %@ out?</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Argentina" xml:space="preserve">
+        <source>Argentina</source>
+        <target state="new">Argentina</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Ashburn, VA" xml:space="preserve">
+        <source>Ashburn, VA</source>
+        <target state="new">Ashburn, VA</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="At least one method needs to be enabled." xml:space="preserve">
         <source>At least one method needs to be enabled.</source>
         <target state="new">At least one method needs to be enabled.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Athens" xml:space="preserve">
+        <source>Athens</source>
+        <target state="new">Athens</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Atlanta, GA" xml:space="preserve">
+        <source>Atlanta, GA</source>
+        <target state="new">Atlanta, GA</target>
         <note/>
       </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
@@ -233,6 +268,21 @@
       <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
         <target state="new">Attention: toggling “Local network sharing” requires restarting the VPN connection.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Auckland" xml:space="preserve">
+        <source>Auckland</source>
+        <target state="new">Auckland</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Australia" xml:space="preserve">
+        <source>Australia</source>
+        <target state="new">Australia</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Austria" xml:space="preserve">
+        <source>Austria</source>
+        <target state="new">Austria</target>
         <note/>
       </trans-unit>
       <trans-unit id="Authentication" xml:space="preserve">
@@ -255,9 +305,89 @@
         <target state="new">BLOCKING INTERNET</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Bangkok" xml:space="preserve">
+        <source>Bangkok</source>
+        <target state="new">Bangkok</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Barcelona" xml:space="preserve">
+        <source>Barcelona</source>
+        <target state="new">Barcelona</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Belgium" xml:space="preserve">
+        <source>Belgium</source>
+        <target state="new">Belgium</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Belgrade" xml:space="preserve">
+        <source>Belgrade</source>
+        <target state="new">Belgrade</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Berlin" xml:space="preserve">
+        <source>Berlin</source>
+        <target state="new">Berlin</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
         <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
         <target state="new">Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Bogota" xml:space="preserve">
+        <source>Bogota</source>
+        <target state="new">Bogota</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Bordeaux" xml:space="preserve">
+        <source>Bordeaux</source>
+        <target state="new">Bordeaux</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Boston, MA" xml:space="preserve">
+        <source>Boston, MA</source>
+        <target state="new">Boston, MA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Bratislava" xml:space="preserve">
+        <source>Bratislava</source>
+        <target state="new">Bratislava</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Brazil" xml:space="preserve">
+        <source>Brazil</source>
+        <target state="new">Brazil</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Brisbane" xml:space="preserve">
+        <source>Brisbane</source>
+        <target state="new">Brisbane</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Brussels" xml:space="preserve">
+        <source>Brussels</source>
+        <target state="new">Brussels</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Bucharest" xml:space="preserve">
+        <source>Bucharest</source>
+        <target state="new">Bucharest</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Budapest" xml:space="preserve">
+        <source>Budapest</source>
+        <target state="new">Budapest</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Buenos Aires" xml:space="preserve">
+        <source>Buenos Aires</source>
+        <target state="new">Buenos Aires</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Bulgaria" xml:space="preserve">
+        <source>Bulgaria</source>
+        <target state="new">Bulgaria</target>
         <note/>
       </trans-unit>
       <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve">
@@ -278,6 +408,16 @@
       <trans-unit id="CONNECTING..." xml:space="preserve">
         <source>CONNECTING...</source>
         <target state="new">CONNECTING...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Calgary" xml:space="preserve">
+        <source>Calgary</source>
+        <target state="new">Calgary</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Canada" xml:space="preserve">
+        <source>Canada</source>
+        <target state="new">Canada</target>
         <note/>
       </trans-unit>
       <trans-unit id="Cancel" xml:space="preserve">
@@ -308,6 +448,16 @@
       <trans-unit id="Checking account number" xml:space="preserve">
         <source>Checking account number</source>
         <target state="new">Checking account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Chicago, IL" xml:space="preserve">
+        <source>Chicago, IL</source>
+        <target state="new">Chicago, IL</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Chile" xml:space="preserve">
+        <source>Chile</source>
+        <target state="new">Chile</target>
         <note/>
       </trans-unit>
       <trans-unit id="Cipher" xml:space="preserve">
@@ -350,6 +500,11 @@
         <target state="new">Collapses this location.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Colombia" xml:space="preserve">
+        <source>Colombia</source>
+        <target state="new">Colombia</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Congrats!" xml:space="preserve">
         <source>Congrats!</source>
         <target state="new">Congrats!</target>
@@ -378,6 +533,11 @@
       <trans-unit id="Continue with login" xml:space="preserve">
         <source>Continue with login</source>
         <target state="new">Continue with login</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Copenhagen" xml:space="preserve">
+        <source>Copenhagen</source>
+        <target state="new">Copenhagen</target>
         <note/>
       </trans-unit>
       <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
@@ -415,6 +575,11 @@
         <target state="new">Creating account...</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Croatia" xml:space="preserve">
+        <source>Croatia</source>
+        <target state="new">Croatia</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Current device" xml:space="preserve">
         <source>Current device</source>
         <target state="new">Current device</target>
@@ -433,6 +598,16 @@
       <trans-unit id="Custom lists" xml:space="preserve">
         <source>Custom lists</source>
         <target state="new">Custom lists</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cyprus" xml:space="preserve">
+        <source>Cyprus</source>
+        <target state="new">Cyprus</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Czech Republic" xml:space="preserve">
+        <source>Czech Republic</source>
+        <target state="new">Czech Republic</target>
         <note/>
       </trans-unit>
       <trans-unit id="DAITA" xml:space="preserve">
@@ -470,6 +645,11 @@
         <target state="new">DNS settings</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Dallas, TX" xml:space="preserve">
+        <source>Dallas, TX</source>
+        <target state="new">Dallas, TX</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Delete" xml:space="preserve">
         <source>Delete</source>
         <target state="new">Delete</target>
@@ -498,6 +678,21 @@
       <trans-unit id="Deleting account..." xml:space="preserve">
         <source>Deleting account...</source>
         <target state="new">Deleting account...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Denmark" xml:space="preserve">
+        <source>Denmark</source>
+        <target state="new">Denmark</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Denver, CO" xml:space="preserve">
+        <source>Denver, CO</source>
+        <target state="new">Denver, CO</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Detroit, MI" xml:space="preserve">
+        <source>Detroit, MI</source>
+        <target state="new">Detroit, MI</target>
         <note/>
       </trans-unit>
       <trans-unit id="Device is inactive" xml:space="preserve">
@@ -565,6 +760,16 @@
         <target state="new">Don’t have an account number?</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Dublin" xml:space="preserve">
+        <source>Dublin</source>
+        <target state="new">Dublin</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Dusseldorf" xml:space="preserve">
+        <source>Dusseldorf</source>
+        <target state="new">Dusseldorf</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Edit custom list" xml:space="preserve">
         <source>Edit custom list</source>
         <target state="new">Edit custom list</target>
@@ -628,6 +833,11 @@
       <trans-unit id="Entry" xml:space="preserve">
         <source>Entry</source>
         <target state="new">Entry</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Estonia" xml:space="preserve">
+        <source>Estonia</source>
+        <target state="new">Estonia</target>
         <note/>
       </trans-unit>
       <trans-unit id="Exit" xml:space="preserve">
@@ -700,9 +910,39 @@
         <target state="new">Filtered:</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Finland" xml:space="preserve">
+        <source>Finland</source>
+        <target state="new">Finland</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Fortaleza" xml:space="preserve">
+        <source>Fortaleza</source>
+        <target state="new">Fortaleza</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="France" xml:space="preserve">
+        <source>France</source>
+        <target state="new">France</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Frankfurt" xml:space="preserve">
+        <source>Frankfurt</source>
+        <target state="new">Frankfurt</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Gambling" xml:space="preserve">
         <source>Gambling</source>
         <target state="new">Gambling</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Germany" xml:space="preserve">
+        <source>Germany</source>
+        <target state="new">Germany</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Glasgow" xml:space="preserve">
+        <source>Glasgow</source>
+        <target state="new">Glasgow</target>
         <note/>
       </trans-unit>
       <trans-unit id="Go ahead and start using the app to begin reclaiming your online privacy." xml:space="preserve">
@@ -725,6 +965,21 @@
         <target state="new">Got it!</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Gothenburg" xml:space="preserve">
+        <source>Gothenburg</source>
+        <target state="new">Gothenburg</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Greece" xml:space="preserve">
+        <source>Greece</source>
+        <target state="new">Greece</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Helsinki" xml:space="preserve">
+        <source>Helsinki</source>
+        <target state="new">Helsinki</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Here’s your account number. Save it!" xml:space="preserve">
         <source>Here’s your account number. Save it!</source>
         <target state="new">Here’s your account number. Save it!</target>
@@ -733,6 +988,21 @@
       <trans-unit id="Hide account number" xml:space="preserve">
         <source>Hide account number</source>
         <target state="new">Hide account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Hong Kong" xml:space="preserve">
+        <source>Hong Kong</source>
+        <target state="new">Hong Kong</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Houston, TX" xml:space="preserve">
+        <source>Houston, TX</source>
+        <target state="new">Houston, TX</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Hungary" xml:space="preserve">
+        <source>Hungary</source>
+        <target state="new">Hungary</target>
         <note/>
       </trans-unit>
       <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve">
@@ -840,6 +1110,11 @@
         <target state="new">Include all networks</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Indonesia" xml:space="preserve">
+        <source>Indonesia</source>
+        <target state="new">Indonesia</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
         <target state="new">Internal error occurred. Settings will be reset to defaults and device logged out.</target>
@@ -870,6 +1145,21 @@
         <target state="new">Invalid purchase identifier.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Ireland" xml:space="preserve">
+        <source>Ireland</source>
+        <target state="new">Ireland</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Israel" xml:space="preserve">
+        <source>Israel</source>
+        <target state="new">Israel</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Istanbul" xml:space="preserve">
+        <source>Istanbul</source>
+        <target state="new">Istanbul</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve">
         <source>It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
         <target state="new">It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</target>
@@ -878,6 +1168,46 @@
       <trans-unit id="It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." xml:space="preserve">
         <source>It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.</source>
         <target state="new">It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Italy" xml:space="preserve">
+        <source>Italy</source>
+        <target state="new">Italy</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Jakarta" xml:space="preserve">
+        <source>Jakarta</source>
+        <target state="new">Jakarta</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Japan" xml:space="preserve">
+        <source>Japan</source>
+        <target state="new">Japan</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Johannesburg" xml:space="preserve">
+        <source>Johannesburg</source>
+        <target state="new">Johannesburg</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Kansas City, MO" xml:space="preserve">
+        <source>Kansas City, MO</source>
+        <target state="new">Kansas City, MO</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Kuala Lumpur" xml:space="preserve">
+        <source>Kuala Lumpur</source>
+        <target state="new">Kuala Lumpur</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Kyiv" xml:space="preserve">
+        <source>Kyiv</source>
+        <target state="new">Kyiv</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Lagos" xml:space="preserve">
+        <source>Lagos</source>
+        <target state="new">Lagos</target>
         <note/>
       </trans-unit>
       <trans-unit id="Language" xml:space="preserve">
@@ -903,6 +1233,21 @@
       <trans-unit id="Less than a day" xml:space="preserve">
         <source>Less than a day</source>
         <target state="new">Less than a day</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Lima" xml:space="preserve">
+        <source>Lima</source>
+        <target state="new">Lima</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Lisbon" xml:space="preserve">
+        <source>Lisbon</source>
+        <target state="new">Lisbon</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Ljubljana" xml:space="preserve">
+        <source>Ljubljana</source>
+        <target state="new">Ljubljana</target>
         <note/>
       </trans-unit>
       <trans-unit id="Local network sharing" xml:space="preserve">
@@ -945,9 +1290,34 @@
         <target state="new">Login failed</target>
         <note/>
       </trans-unit>
+      <trans-unit id="London" xml:space="preserve">
+        <source>London</source>
+        <target state="new">London</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Los Angeles, CA" xml:space="preserve">
+        <source>Los Angeles, CA</source>
+        <target state="new">Los Angeles, CA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Madrid" xml:space="preserve">
+        <source>Madrid</source>
+        <target state="new">Madrid</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
         <source>Make a purchase with StoreKit2</source>
         <target state="new">Make a purchase with StoreKit2</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Malaysia" xml:space="preserve">
+        <source>Malaysia</source>
+        <target state="new">Malaysia</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Malmö" xml:space="preserve">
+        <source>Malmö</source>
+        <target state="new">Malmö</target>
         <note/>
       </trans-unit>
       <trans-unit id="Malware" xml:space="preserve">
@@ -963,6 +1333,51 @@
       <trans-unit id="Manage devices" xml:space="preserve">
         <source>Manage devices</source>
         <target state="new">Manage devices</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Manchester" xml:space="preserve">
+        <source>Manchester</source>
+        <target state="new">Manchester</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Manila" xml:space="preserve">
+        <source>Manila</source>
+        <target state="new">Manila</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Marseille" xml:space="preserve">
+        <source>Marseille</source>
+        <target state="new">Marseille</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="McAllen, TX" xml:space="preserve">
+        <source>McAllen, TX</source>
+        <target state="new">McAllen, TX</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Melbourne" xml:space="preserve">
+        <source>Melbourne</source>
+        <target state="new">Melbourne</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Mexico" xml:space="preserve">
+        <source>Mexico</source>
+        <target state="new">Mexico</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Miami, FL" xml:space="preserve">
+        <source>Miami, FL</source>
+        <target state="new">Miami, FL</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Milan" xml:space="preserve">
+        <source>Milan</source>
+        <target state="new">Milan</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Montreal" xml:space="preserve">
+        <source>Montreal</source>
+        <target state="new">Montreal</target>
         <note/>
       </trans-unit>
       <trans-unit id="Mullvad owned only" xml:space="preserve">
@@ -1025,14 +1440,39 @@
         <target state="new">Name should be no longer than %i characters.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Netherlands" xml:space="preserve">
+        <source>Netherlands</source>
+        <target state="new">Netherlands</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Network error: %@" xml:space="preserve">
         <source>Network error: %@</source>
         <target state="new">Network error: %@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="New York, NY" xml:space="preserve">
+        <source>New York, NY</source>
+        <target state="new">New York, NY</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="New Zealand" xml:space="preserve">
+        <source>New Zealand</source>
+        <target state="new">New Zealand</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Next" xml:space="preserve">
         <source>Next</source>
         <target state="new">Next</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Nicosia" xml:space="preserve">
+        <source>Nicosia</source>
+        <target state="new">Nicosia</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Nigeria" xml:space="preserve">
+        <source>Nigeria</source>
+        <target state="new">Nigeria</target>
         <note/>
       </trans-unit>
       <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
@@ -1063,6 +1503,11 @@
       <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve">
         <source>No servers match your settings, try changing server or other settings.</source>
         <target state="new">No servers match your settings, try changing server or other settings.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Norway" xml:space="preserve">
+        <source>Norway</source>
+        <target state="new">Norway</target>
         <note/>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve">
@@ -1125,6 +1570,16 @@
         <target state="new">Optional</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Osaka" xml:space="preserve">
+        <source>Osaka</source>
+        <target state="new">Osaka</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Oslo" xml:space="preserve">
+        <source>Oslo</source>
+        <target state="new">Oslo</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Out IPv4" xml:space="preserve">
         <source>Out IPv4</source>
         <target state="new">Out IPv4</target>
@@ -1150,6 +1605,16 @@
         <target state="new">Paid until</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Palermo" xml:space="preserve">
+        <source>Palermo</source>
+        <target state="new">Palermo</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Paris" xml:space="preserve">
+        <source>Paris</source>
+        <target state="new">Paris</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Password" xml:space="preserve">
         <source>Password</source>
         <target state="new">Password</target>
@@ -1158,6 +1623,26 @@
       <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
         <source>Performs a connection test to a Mullvad API server via this access method.</source>
         <target state="new">Performs a connection test to a Mullvad API server via this access method.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Perth" xml:space="preserve">
+        <source>Perth</source>
+        <target state="new">Perth</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Peru" xml:space="preserve">
+        <source>Peru</source>
+        <target state="new">Peru</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Philippines" xml:space="preserve">
+        <source>Philippines</source>
+        <target state="new">Philippines</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Phoenix, AZ" xml:space="preserve">
+        <source>Phoenix, AZ</source>
+        <target state="new">Phoenix, AZ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve">
@@ -1180,6 +1665,11 @@
         <target state="new">Please retry by using the "Restore purchases" button.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Poland" xml:space="preserve">
+        <source>Poland</source>
+        <target state="new">Poland</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Port" xml:space="preserve">
         <source>Port</source>
         <target state="new">Port</target>
@@ -1188,6 +1678,16 @@
       <trans-unit id="Port: %@" xml:space="preserve">
         <source>Port: %@</source>
         <target state="new">Port: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Portugal" xml:space="preserve">
+        <source>Portugal</source>
+        <target state="new">Portugal</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Prague" xml:space="preserve">
+        <source>Prague</source>
+        <target state="new">Prague</target>
         <note/>
       </trans-unit>
       <trans-unit id="Previous" xml:space="preserve">
@@ -1220,9 +1720,19 @@
         <target state="new">Quantum-resistant tunnel</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Queretaro" xml:space="preserve">
+        <source>Queretaro</source>
+        <target state="new">Queretaro</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="RECONNECTING" xml:space="preserve">
         <source>RECONNECTING</source>
         <target state="new">RECONNECTING</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Raleigh, NC" xml:space="preserve">
+        <source>Raleigh, NC</source>
+        <target state="new">Raleigh, NC</target>
         <note/>
       </trans-unit>
       <trans-unit id="Reconnecting to %@" xml:space="preserve">
@@ -1292,6 +1802,31 @@ Do you want to remove the saved account number?</target>
         <target state="new">Restore purchases</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Romania" xml:space="preserve">
+        <source>Romania</source>
+        <target state="new">Romania</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Salt Lake City, UT" xml:space="preserve">
+        <source>Salt Lake City, UT</source>
+        <target state="new">Salt Lake City, UT</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="San Jose, CA" xml:space="preserve">
+        <source>San Jose, CA</source>
+        <target state="new">San Jose, CA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Santiago" xml:space="preserve">
+        <source>Santiago</source>
+        <target state="new">Santiago</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Sao Paulo" xml:space="preserve">
+        <source>Sao Paulo</source>
+        <target state="new">Sao Paulo</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Save" xml:space="preserve">
         <source>Save</source>
         <target state="new">Save</target>
@@ -1305,6 +1840,16 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="Search for..." xml:space="preserve">
         <source>Search for...</source>
         <target state="new">Search for...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Seattle, WA" xml:space="preserve">
+        <source>Seattle, WA</source>
+        <target state="new">Seattle, WA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Secaucus, NJ" xml:space="preserve">
+        <source>Secaucus, NJ</source>
+        <target state="new">Secaucus, NJ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Select location" xml:space="preserve">
@@ -1335,6 +1880,11 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="Sent" xml:space="preserve">
         <source>Sent</source>
         <target state="new">Sent</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Serbia" xml:space="preserve">
+        <source>Serbia</source>
+        <target state="new">Serbia</target>
         <note/>
       </trans-unit>
       <trans-unit id="Server" xml:space="preserve">
@@ -1377,6 +1927,21 @@ Do you want to remove the saved account number?</target>
         <target state="new">Show account number</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Singapore" xml:space="preserve">
+        <source>Singapore</source>
+        <target state="new">Singapore</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Slovakia" xml:space="preserve">
+        <source>Slovakia</source>
+        <target state="new">Slovakia</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Slovenia" xml:space="preserve">
+        <source>Slovenia</source>
+        <target state="new">Slovenia</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Social media" xml:space="preserve">
         <source>Social media</source>
         <target state="new">Social media</target>
@@ -1387,9 +1952,34 @@ Do you want to remove the saved account number?</target>
         <target state="new">Socks5</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Sofia" xml:space="preserve">
+        <source>Sofia</source>
+        <target state="new">Sofia</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="South Africa" xml:space="preserve">
+        <source>South Africa</source>
+        <target state="new">South Africa</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Spain" xml:space="preserve">
+        <source>Spain</source>
+        <target state="new">Spain</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Start using the app" xml:space="preserve">
         <source>Start using the app</source>
         <target state="new">Start using the app</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Stavanger" xml:space="preserve">
+        <source>Stavanger</source>
+        <target state="new">Stavanger</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Stockholm" xml:space="preserve">
+        <source>Stockholm</source>
+        <target state="new">Stockholm</target>
         <note/>
       </trans-unit>
       <trans-unit id="Super!" xml:space="preserve">
@@ -1397,9 +1987,24 @@ Do you want to remove the saved account number?</target>
         <target state="new">Super!</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Sweden" xml:space="preserve">
+        <source>Sweden</source>
+        <target state="new">Sweden</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Switch location" xml:space="preserve">
         <source>Switch location</source>
         <target state="new">Switch location</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Switzerland" xml:space="preserve">
+        <source>Switzerland</source>
+        <target state="new">Switzerland</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Sydney" xml:space="preserve">
+        <source>Sydney</source>
+        <target state="new">Sydney</target>
         <note/>
       </trans-unit>
       <trans-unit id="TCP" xml:space="preserve">
@@ -1412,9 +2017,19 @@ Do you want to remove the saved account number?</target>
         <target state="new">TUNNEL ERROR</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Tallinn" xml:space="preserve">
+        <source>Tallinn</source>
+        <target state="new">Tallinn</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve">
         <source>Tap **Edit** to add at least one DNS server.</source>
         <target state="new">Tap **Edit** to add at least one DNS server.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Tel Aviv" xml:space="preserve">
+        <source>Tel Aviv</source>
+        <target state="new">Tel Aviv</target>
         <note/>
       </trans-unit>
       <trans-unit id="Test method" xml:space="preserve">
@@ -1425,6 +2040,11 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="Testing..." xml:space="preserve">
         <source>Testing...</source>
         <target state="new">Testing...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Thailand" xml:space="preserve">
+        <source>Thailand</source>
+        <target state="new">Thailand</target>
         <note/>
       </trans-unit>
       <trans-unit id="Thanks for your purchase" xml:space="preserve">
@@ -1557,6 +2177,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Time left: %@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Tirana" xml:space="preserve">
+        <source>Tirana</source>
+        <target state="new">Tirana</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="To add more, you will need to disconnect and access the Internet with an unsecure connection." xml:space="preserve">
         <source>To add more, you will need to disconnect and access the Internet with an unsecure connection.</source>
         <target state="new">To add more, you will need to disconnect and access the Internet with an unsecure connection.</target>
@@ -1597,9 +2222,19 @@ Do you want to remove the saved account number?</target>
         <target state="new">To start using the app, you first need to add time to your account.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Tokyo" xml:space="preserve">
+        <source>Tokyo</source>
+        <target state="new">Tokyo</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Too many devices" xml:space="preserve">
         <source>Too many devices</source>
         <target state="new">Too many devices</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Toronto" xml:space="preserve">
+        <source>Toronto</source>
+        <target state="new">Toronto</target>
         <note/>
       </trans-unit>
       <trans-unit id="Trackers" xml:space="preserve">
@@ -1617,6 +2252,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Tunnel is unset.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Turkey" xml:space="preserve">
+        <source>Turkey</source>
+        <target state="new">Turkey</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Type" xml:space="preserve">
         <source>Type</source>
         <target state="new">Type</target>
@@ -1630,6 +2270,21 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="UDP-over-TCP" xml:space="preserve">
         <source>UDP-over-TCP</source>
         <target state="new">UDP-over-TCP</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="UK" xml:space="preserve">
+        <source>UK</source>
+        <target state="new">UK</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="USA" xml:space="preserve">
+        <source>USA</source>
+        <target state="new">USA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Ukraine" xml:space="preserve">
+        <source>Ukraine</source>
+        <target state="new">Ukraine</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve">
@@ -1677,6 +2332,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">VPN settings</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Valencia" xml:space="preserve">
+        <source>Valencia</source>
+        <target state="new">Valencia</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Valid account number" xml:space="preserve">
         <source>Valid account number</source>
         <target state="new">Valid account number</target>
@@ -1687,9 +2347,19 @@ Do you want to remove the saved account number?</target>
         <target state="new">Valid range: %1$d - %2$d</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Vancouver" xml:space="preserve">
+        <source>Vancouver</source>
+        <target state="new">Vancouver</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Verifying voucher..." xml:space="preserve">
         <source>Verifying voucher...</source>
         <target state="new">Verifying voucher...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Vienna" xml:space="preserve">
+        <source>Vienna</source>
+        <target state="new">Vienna</target>
         <note/>
       </trans-unit>
       <trans-unit id="View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." xml:space="preserve">
@@ -1720,6 +2390,16 @@ Do you want to remove the saved account number?</target>
       <trans-unit id="Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." xml:space="preserve">
         <source>Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</source>
         <target state="new">Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Warsaw" xml:space="preserve">
+        <source>Warsaw</source>
+        <target state="new">Warsaw</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Washington DC" xml:space="preserve">
+        <source>Washington DC</source>
+        <target state="new">Washington DC</target>
         <note/>
       </trans-unit>
       <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
@@ -1890,6 +2570,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="new">You’re all set!</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Zagreb" xml:space="preserve">
+        <source>Zagreb</source>
+        <target state="new">Zagreb</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Zurich" xml:space="preserve">
+        <source>Zurich</source>
+        <target state="new">Zurich</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="multihop" xml:space="preserve">
         <source>multihop</source>
         <target state="new">multihop</target>
@@ -1977,43 +2667,6 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-    </body>
-  </file>
-  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
-    </header>
-    <body>
-      <trans-unit id="%@ was added to your account." xml:space="preserve">
-        <source>%@ was added to your account.</source>
-        <target state="new">%@ was added to your account.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
-        <source>Cannot complete the purchase</source>
-        <target state="new">Cannot complete the purchase</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot restore purchases" xml:space="preserve">
-        <source>Cannot restore purchases</source>
-        <target state="new">Cannot restore purchases</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Restore purchases" xml:space="preserve">
-        <source>Restore purchases</source>
-        <target state="new">Restore purchases</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Thanks for your purchase" xml:space="preserve">
-        <source>Thanks for your purchase</source>
-        <target state="new">Thanks for your purchase</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
-        <source>Your previous purchases have already been added to this account.</source>
-        <target state="new">Your previous purchases have already been added to this account.</target>
-        <note/>
-      </trans-unit>
     </body>
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">

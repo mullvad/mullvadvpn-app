@@ -151,7 +151,6 @@
 		5838322B2AC3EF9600EA2071 /* EventChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838322A2AC3EF9600EA2071 /* EventChannel.swift */; };
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
-		583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */; };
 		58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
 		5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* StoreSubscription.swift */; };
@@ -1099,6 +1098,7 @@
 		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
 		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
+		F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */; };
 		F0F313A72E85321D00D55C43 /* RecentConnectionsRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */; };
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
 		F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */; };
@@ -2562,6 +2562,7 @@
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
 		F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequestTests.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
+		F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayLocationList.swift; sourceTree = "<group>"; };
 		F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepositoryTests.swift; sourceTree = "<group>"; };
 		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
 		F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoRelaysSatisfyingConstraintsError.swift; sourceTree = "<group>"; };
@@ -4225,6 +4226,7 @@
 				5859A55429CD9DD800F66591 /* changes.txt */,
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
 				F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */,
+				F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -6406,6 +6408,7 @@
 				7AD03E1F2E8EB49700270EAE /* RevokedDeviceViewModel.swift in Sources */,
 				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */,
+				F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */,
 				F97C38E32DEEDC28006DCB08 /* MullvadListActionItemView.swift in Sources */,
 				7A8A18F92CE34EA8000BCB5B /* SettingsMultihopView.swift in Sources */,
 				7AFBE3892D089163002335FC /* TunnelViewController.swift in Sources */,
@@ -6821,7 +6824,6 @@
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
-				583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				58FDF2D92A0BA11A00C2B061 /* DeviceCheckOperation.swift in Sources */,
