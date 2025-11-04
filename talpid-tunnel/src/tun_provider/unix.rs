@@ -1,8 +1,8 @@
-#[cfg(not(feature = "boringtun"))]
+#[cfg(feature = "wireguard-go")]
 pub use tun05_imp::{Error, UnixTun, UnixTunProvider};
-#[cfg(feature = "boringtun")]
+#[cfg(not(feature = "wireguard-go"))]
 pub use tun07_imp::{Error, UnixTun, UnixTunProvider};
-#[cfg(not(feature = "boringtun"))]
+#[cfg(feature = "wireguard-go")]
 mod tun05_imp {
     use std::{
         net::IpAddr,
@@ -218,7 +218,7 @@ mod tun05_imp {
     }
 }
 
-#[cfg(feature = "boringtun")]
+#[cfg(not(feature = "wireguard-go"))]
 mod tun07_imp {
     use std::net::IpAddr;
     use std::os::fd::{AsRawFd, RawFd};
