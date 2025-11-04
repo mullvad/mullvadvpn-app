@@ -305,8 +305,8 @@ cargo {
                     if (enableApiOverride) {
                         add("api-override")
                     }
-                    if (enableGotaTun) {
-                        add("boringtun")
+                    if (!enableGotaTun) {
+                        add("wireguard-go")
                     }
                 }
                 .toTypedArray()
