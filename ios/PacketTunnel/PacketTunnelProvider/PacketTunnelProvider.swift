@@ -29,7 +29,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
     private let tunnelSettingsUpdater: SettingsUpdater
     private let defaultPathObserver: PacketTunnelPathObserver
-    private var encryptedDNSTransport: EncryptedDNSTransport!
     private var migrationManager: MigrationManager
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
@@ -76,9 +75,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         setUpAccessMethodReceiver(
             accessMethodRepository: accessMethodRepository
         )
-
-        let urlSession = REST.makeURLSession(addressCache: addressCache)
-        encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)
 
         let apiTransportProvider = APITransportProvider(
             requestFactory: MullvadApiRequestFactory(
