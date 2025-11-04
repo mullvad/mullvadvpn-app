@@ -11,7 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [features]
-wireguard-go = []
+wireguard-go = ["dep:tun"]
 
 [dependencies]
 thiserror = { workspace = true }
@@ -23,7 +23,7 @@ futures = { workspace = true }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-tun = { workspace = true } # use tun 0.5.5 for wireguard-go
+tun = { workspace = true, optional = true } # use tun 0.5.5 for wireguard-go
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
