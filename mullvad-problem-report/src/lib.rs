@@ -110,6 +110,8 @@ pub fn collect_report<P: AsRef<Path>>(
     output_path: &Path,
     redact_custom_strings: Vec<String>,
     #[cfg(target_os = "android")] android_log_dir: &Path,
+    #[cfg(target_os = "android")] unverified_purchases: i32,
+    #[cfg(target_os = "android")] pending_purchases: i32,
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
@@ -166,6 +168,18 @@ pub fn collect_report<P: AsRef<Path>>(
     match write_logcat_to_file(android_log_dir) {
         Ok(logcat_path) => problem_report.add_log(&logcat_path),
         Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+    }
+
+    #[cfg(target_os = "android")]
+    {
+        problem_report.add_metadata(
+            "unverified-purchases".to_string(),
+            unverified_purchases.to_string(),
+        );
+        problem_report.add_metadata(
+            "pending-purchases".to_string(),
+            pending_purchases.to_string(),
+        );
     }
 
     problem_report.add_logs(extra_logs);
@@ -379,6 +393,12 @@ impl ProblemReport {
             log_paths: HashSet::new(),
             redact_custom_strings,
         }
+    }
+
+    /// Add extra metadata to the problem report that is not possible to access from the daemon
+    /// directly.
+    pub fn add_metadata(&mut self, key: String, value: String) {
+        self.metadata.insert(key, value);
     }
 
     /// Attach some file logs to this report. This method adds the error chain instead of the log

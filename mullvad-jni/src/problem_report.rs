@@ -3,7 +3,7 @@ use jnix::{
     jni::{
         JNIEnv,
         objects::{JObject, JString},
-        sys::{JNI_FALSE, JNI_TRUE, jboolean},
+        sys::{JNI_FALSE, JNI_TRUE, jboolean, jint},
     },
 };
 use mullvad_api::ApiEndpoint;
@@ -17,14 +17,25 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     _: JObject<'_>,
     logDirectory: JString<'_>,
     outputPath: JString<'_>,
+    unverifiedPurchases: jint,
+    pendingPurchases: jint,
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let log_dir_string = String::from_java(&env, logDirectory);
     let log_dir = Path::new(&log_dir_string);
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
+    let unverified_purchases = i32::from_java(&env, unverifiedPurchases);
+    let pending_purchases = i32::from_java(&env, pendingPurchases);
 
-    match mullvad_problem_report::collect_report::<&str>(&[], output_path, Vec::new(), log_dir) {
+    match mullvad_problem_report::collect_report::<&str>(
+        &[],
+        output_path,
+        Vec::new(),
+        log_dir,
+        unverified_purchases,
+        pending_purchases,
+    ) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(

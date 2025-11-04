@@ -139,6 +139,7 @@ val uiModule = module {
             apiEndpointOverride = getOrNull(),
             apiEndpointFromIntentHolder = get(),
             accountRepository = get(),
+            paymentUseCase = get(),
         )
     }
     single { RelayOverridesRepository(get()) }
