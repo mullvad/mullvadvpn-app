@@ -987,7 +987,7 @@
 		F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
-		F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTransport.swift */; };
+		F06045E62B231EB700B2D37A /* URLSessionTaskWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */; };
 		F06045EA2B23217E00B2D37A /* ShadowsocksTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */; };
 		F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045EB2B2322A500B2D37A /* Jittered.swift */; };
 		F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */; };
@@ -1085,7 +1085,6 @@
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
-		F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */; };
 		F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */; };
 		F0E61CAB2BF2911D000C4A95 /* MultihopSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */; };
 		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
@@ -2458,7 +2457,7 @@
 		F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiHopEphemeralPeerExchanger.swift; sourceTree = "<group>"; };
 		F059197E2C454CE000C301F3 /* EphemeralPeerExchangingProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangingProtocol.swift; sourceTree = "<group>"; };
 		F05AEE6D2E4A35DE004F266A /* my */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = my; path = my.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
+		F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTaskWrapper.swift; sourceTree = "<group>"; };
 		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
 		F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGSize+Helpers.swift"; sourceTree = "<group>"; };
@@ -2541,7 +2540,6 @@
 		F0DEA1FB2E4A326F002275F7 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
 		F0E576BB2E4A324A0079FA27 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedDNSTransport.swift; sourceTree = "<group>"; };
 		F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV5.swift; sourceTree = "<group>"; };
 		F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultihopSettings.swift; sourceTree = "<group>"; };
 		F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -4835,12 +4833,11 @@
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
 				7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */,
 				7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */,
-				F0DC77A32B2315800087F09D /* Direct */,
-				F0E5B2F62C9C689C0007F78C /* EncryptedDNS */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
 				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
 				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
 				A907639F2B2857D50045ADF0 /* Socks5 */,
+				F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -4867,14 +4864,6 @@
 			path = Shadowsocks;
 			sourceTree = "<group>";
 		};
-		F0DC77A32B2315800087F09D /* Direct */ = {
-			isa = PBXGroup;
-			children = (
-				F06045E52B231EB700B2D37A /* URLSessionTransport.swift */,
-			);
-			path = Direct;
-			sourceTree = "<group>";
-		};
 		F0E361892A4ADCF500AEEF2B /* Welcome */ = {
 			isa = PBXGroup;
 			children = (
@@ -4883,14 +4872,6 @@
 				F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */,
 			);
 			path = Welcome;
-			sourceTree = "<group>";
-		};
-		F0E5B2F62C9C689C0007F78C /* EncryptedDNS */ = {
-			isa = PBXGroup;
-			children = (
-				F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */,
-			);
-			path = EncryptedDNS;
 			sourceTree = "<group>";
 		};
 		F0E8CC082A4EE0DC007ED3B4 /* Completed */ = {
@@ -5965,7 +5946,6 @@
 				A90763B32B2857D50045ADF0 /* Socks5Authentication.swift in Sources */,
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
 				7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */,
-				F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */,
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
 				7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */,
@@ -5978,7 +5958,7 @@
 				A90763B62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift in Sources */,
 				7A964BB92E699A3F00C6A4EC /* ShadowsocksObfuscator.swift in Sources */,
 				7ACE19112C1C349200260BB6 /* MultihopDecisionFlow.swift in Sources */,
-				F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */,
+				F06045E62B231EB700B2D37A /* URLSessionTaskWrapper.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
 				F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */,
 				F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */,
