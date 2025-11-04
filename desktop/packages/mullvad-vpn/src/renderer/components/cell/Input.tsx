@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { IconButton } from '../../lib/components';
@@ -6,16 +6,7 @@ import { colors } from '../../lib/foundations';
 import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utility-hooks';
 import { normalText } from '../common-styles';
 import { BackAction } from '../KeyboardNavigation';
-import StandaloneSwitch from '../Switch';
 import { CellDisabledContext, Container } from './Container';
-
-export const Switch = React.forwardRef(function SwitchT(
-  props: StandaloneSwitch['props'],
-  ref: React.Ref<StandaloneSwitch>,
-) {
-  const disabled = useContext(CellDisabledContext);
-  return <StandaloneSwitch ref={ref} disabled={disabled} {...props} />;
-});
 
 const inputTextStyles: React.CSSProperties = {
   ...normalText,
