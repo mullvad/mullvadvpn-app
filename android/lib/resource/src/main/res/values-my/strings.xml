@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">စိတ်ကြိုက် DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">နောက်ထပ် %1$s ...</string>
-    <string name="feature_obfuscation">Obfuscation</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>
     <string name="filter">စစ်ထုတ်မှု</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
@@ -397,11 +396,11 @@
     <string name="try_again">ထပ်ကြိုးစားရန်</string>
     <string name="type">အမျိုးအစား</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
     <string name="undo">မလုပ်တော့ပါ</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
     <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS ဆာဗာကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="update_list_name">စာရင်း အမည်ကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="updating_server_list_in_the_background">နောက်ခံတွင် ဆာဗာစာရင်းကို အပ်ဒိတ်လုပ်နေသည်...</string>

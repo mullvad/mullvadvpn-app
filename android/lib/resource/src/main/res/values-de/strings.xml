@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">Eigenes DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s weitere …</string>
-    <string name="feature_obfuscation">Verschleierung</string>
     <string name="feature_quantum_resistant">Quantenresistenz</string>
     <string name="filter">Filter</string>
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN-Tunnels an</string>
@@ -397,11 +396,11 @@
     <string name="try_again">Erneut versuchen</string>
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP über TCP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
     <string name="undo">Rückgängig</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
     <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>
-    <string name="upd_over_tcp">UDP über TCP</string>
     <string name="update_dns_server_dialog_title">DNS-Server aktualisieren</string>
     <string name="update_list_name">Name der Liste ändern</string>
     <string name="updating_server_list_in_the_background">Serverliste wird im Hintergrund aktiviert …</string>

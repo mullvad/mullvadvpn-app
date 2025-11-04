@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">Brugerdefineret DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s mere ...</string>
-    <string name="feature_obfuscation">Tilsløring</string>
     <string name="feature_quantum_resistant">Kvantemodstand</string>
     <string name="filter">Filter</string>
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
@@ -397,11 +396,11 @@
     <string name="try_again">Prøv igen</string>
     <string name="type">Type</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren.</string>
     <string name="undo">Fortryd</string>
     <string name="unsupported_version">IKKE-UNDERSTØTTET VERSION</string>
     <string name="unsupported_version_description">Dit privatliv kan være i fare med denne ikke-understøttede appversion. Opdater den straks.</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Opdater DNS-server</string>
     <string name="update_list_name">Opdater listenavn</string>
     <string name="updating_server_list_in_the_background">Opdaterer serverlisten i baggrunden ...</string>

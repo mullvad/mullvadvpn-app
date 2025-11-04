@@ -72,7 +72,7 @@ fun Udp2TcpSettingsScreen(
     onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
-        appBarTitle = stringResource(id = R.string.upd_over_tcp),
+        appBarTitle = stringResource(id = R.string.udp_over_tcp),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
     ) { modifier, lazyListState ->
         LazyColumn(
