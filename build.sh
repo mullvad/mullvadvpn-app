@@ -31,8 +31,8 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
-# Use boringtun instead of wireguard-go
-BORINGTUN="false"
+# Use wireguard-go instead of boringtun
+WIREGUARD_GO="false"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -46,7 +46,7 @@ while [[ "$#" -gt 0 ]]; do
             fi
             UNIVERSAL="true"
             ;;
-        --boringtun) BORINGTUN="true";;
+        --wireguard-go) WIREGUARD_GO="true";;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -244,8 +244,8 @@ function build {
     fi
 
     local cargo_features=()
-    if [[ "$BORINGTUN" == "true" ]]; then
-        cargo_features+=(--features boringtun)
+    if [[ "$WIREGUARD_GO" == "true" ]]; then
+        cargo_features+=(--features wireguard-go)
     fi
 
     local cargo_crates_to_build=(
