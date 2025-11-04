@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -528,7 +529,8 @@ private fun ConnectionCard(
     onConnectClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
-    var expanded by rememberSaveable(state.tunnelState::class) { mutableStateOf(false) }
+    var expanded by
+        rememberSaveable(state.tunnelState is TunnelState.Disconnected) { mutableStateOf(false) }
     val containerColor =
         animateColorAsState(
             if (expanded) MaterialTheme.colorScheme.surfaceContainer
@@ -546,14 +548,14 @@ private fun ConnectionCard(
             ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
 
             AnimatedContent(
-                (state.tunnelState as? TunnelState.Connected)?.featureIndicators to expanded,
+                state.tunnelState.featureIndicators() to expanded,
                 modifier = Modifier.weight(1f, fill = false),
                 label = "connection_card_connection_details",
             ) { (featureIndicators, exp) ->
                 if (featureIndicators != null) {
                     ConnectionInfo(
                         featureIndicators,
-                        (state.tunnelState as? TunnelState.Connected)?.toConnectionsDetails(),
+                        state.tunnelState.toConnectionsDetails(),
                         exp,
                         onToggleExpand = { expanded = !exp },
                         onNavigateToFeature = onNavigateToFeature,
@@ -589,14 +591,14 @@ private fun ConnectionCardHeader(
         modifier =
             Modifier.fillMaxWidth()
                 .clickable(
-                    enabled = state.tunnelState is TunnelState.Connected,
+                    enabled = state.tunnelState.isConnectingOrConnected(),
                     onClick = onToggleExpand,
                 )
                 .testTag(CONNECT_CARD_HEADER_TEST_TAG)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ConnectionStatusText(state = state.tunnelState)
-            if (state.tunnelState is TunnelState.Connected) {
+            if (state.tunnelState.isConnectingOrConnected()) {
                 ExpandChevron(isExpanded = !expanded)
             }
         }
@@ -676,7 +678,7 @@ private fun ConnectionInfo(
         ) {
             FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
 
-            if (expanded && connectionDetails != null) {
+            AnimatedVisibility(expanded && connectionDetails != null) {
                 ConnectionDetailPanel(connectionDetails, enableSelectableText = !isTv())
             }
         }
@@ -690,12 +692,22 @@ data class ConnectionDetails(
 )
 
 @Composable
-fun TunnelState.Connected.toConnectionsDetails(): ConnectionDetails =
-    ConnectionDetails(
+fun TunnelState.toConnectionsDetails(): ConnectionDetails? {
+    val endpoint =
+        when (this) {
+            is TunnelState.Connected -> endpoint
+            is TunnelState.Connecting -> endpoint
+            else -> null
+        }
+
+    if (endpoint == null) return null
+
+    return ConnectionDetails(
         endpoint.toInAddress(),
         location()?.ipv4?.hostAddress,
         location()?.ipv6?.hostAddress,
     )
+}
 
 @Composable
 private fun ButtonPanel(

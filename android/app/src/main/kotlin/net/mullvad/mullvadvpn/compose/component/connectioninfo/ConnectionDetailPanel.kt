@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.component.connectioninfo
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -25,23 +26,25 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 
 @Composable
 fun ConnectionDetailPanel(
-    connectionDetails: ConnectionDetails,
+    connectionDetails: ConnectionDetails?,
     enableSelectableText: Boolean = true,
 ) {
 
-    ConnectionInfoHeader(
-        stringResource(R.string.connect_panel_connection_details),
-        Modifier.fillMaxWidth().padding(bottom = Dimens.smallPadding),
-    )
-
-    AnimatedContent(connectionDetails, label = "ConnectionDetails") {
-        ConnectionDetails(
-            it.inAddress,
-            it.outIpv4Address,
-            it.outIpv6Address,
-            modifier = Modifier.padding(bottom = Dimens.smallPadding),
-            enableSelectableText = enableSelectableText,
+    Column {
+        ConnectionInfoHeader(
+            stringResource(R.string.connect_panel_connection_details),
+            Modifier.fillMaxWidth().padding(bottom = Dimens.smallPadding),
         )
+
+        AnimatedContent(connectionDetails, label = "ConnectionDetails") {
+            ConnectionDetails(
+                it?.inAddress.orEmpty(),
+                it?.outIpv4Address,
+                it?.outIpv6Address,
+                modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                enableSelectableText = enableSelectableText,
+            )
+        }
     }
 }
 

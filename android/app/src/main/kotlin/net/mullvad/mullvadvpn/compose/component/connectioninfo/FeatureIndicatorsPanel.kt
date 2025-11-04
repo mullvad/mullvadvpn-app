@@ -90,26 +90,24 @@ fun FeatureIndicators(
                 text = featureIndicator.text(),
                 onClick = { onNavigateToFeature(featureIndicator) },
                 modifier =
-                    Modifier.let {
-                        if (this@with != null && animatedVisibilityScope != null) {
-                            it.sharedBounds(
-                                rememberSharedContentState(
-                                    key =
-                                        if (featureIndicator == FeatureIndicator.DAITA_MULTIHOP)
-                                            FeatureIndicator.DAITA
-                                        else featureIndicator
-                                ),
-                                animatedVisibilityScope = animatedVisibilityScope,
-                                // This flag should be set to `true` (default), this would allow the
-                                // element to animate above all other views. However, it causes the
-                                // expand/collapse animation to become janky.
-                                renderInOverlayDuringTransition = false,
-                                enter = fadeIn(tween(easing = EaseInQuart)),
-                                exit = fadeOut(tween(easing = EaseOutQuad)),
-                            )
-                        } else {
-                            it
-                        }
+                    if (this@with != null && animatedVisibilityScope != null) {
+                        Modifier.sharedBounds(
+                            rememberSharedContentState(
+                                key =
+                                    if (featureIndicator == FeatureIndicator.DAITA_MULTIHOP)
+                                        FeatureIndicator.DAITA
+                                    else featureIndicator
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            // This flag should be set to `true` (default), this would allow the
+                            // element to animate above all other views. However, it causes the
+                            // expand/collapse animation to become janky.
+                            renderInOverlayDuringTransition = false,
+                            enter = fadeIn(tween(easing = EaseInQuart)),
+                            exit = fadeOut(tween(easing = EaseOutQuad)),
+                        )
+                    } else {
+                        Modifier
                     },
             )
         }
@@ -123,6 +121,7 @@ fun FeatureIndicators(
     }
 }
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun FeatureIndicator.text(): String {
     val resource =
