@@ -345,12 +345,11 @@
     <string name="daita_info">By enabling “%1$s” you will have to manually select a server that is %2$s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.</string>
     <string name="setting_chip">Setting: %s</string>
     <string name="enable_anyway">Enable anyway</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="port_x">Port: %s</string>
     <string name="connect_panel_active_features">Active features</string>
     <string name="connect_panel_connection_details">Connection details</string>
     <string name="feature_quantum_resistant">Quantum resistance</string>
-    <string name="feature_obfuscation">Obfuscation</string>
     <string name="feature_custom_dns">Custom DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="dns_content_blockers">DNS content blockers</string>

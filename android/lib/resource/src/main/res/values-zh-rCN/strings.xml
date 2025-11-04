@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">自定义 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">其他 %1$s 个…</string>
-    <string name="feature_obfuscation">混淆</string>
     <string name="feature_quantum_resistant">量子阻力</string>
     <string name="filter">筛选</string>
     <string name="foreground_notification_channel_description">显示当前的 VPN 隧道状态</string>
@@ -397,11 +396,11 @@
     <string name="try_again">重试</string>
     <string name="type">类型</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
     <string name="undo">撤消</string>
     <string name="unsupported_version">不受支持的版本</string>
     <string name="unsupported_version_description">此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">更新 DNS 服务器</string>
     <string name="update_list_name">更新列表名称</string>
     <string name="updating_server_list_in_the_background">正在后台更新服务器列表…</string>

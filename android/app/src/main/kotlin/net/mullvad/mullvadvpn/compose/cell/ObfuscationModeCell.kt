@@ -120,7 +120,7 @@ private fun ObfuscationMode.toTitle() =
     when (this) {
         ObfuscationMode.Auto -> stringResource(id = R.string.automatic)
         ObfuscationMode.Off -> stringResource(id = R.string.off)
-        ObfuscationMode.Udp2Tcp -> stringResource(id = R.string.upd_over_tcp)
+        ObfuscationMode.Udp2Tcp -> stringResource(id = R.string.udp_over_tcp)
         ObfuscationMode.Shadowsocks -> stringResource(id = R.string.shadowsocks)
         ObfuscationMode.Quic -> stringResource(id = R.string.quic)
         ObfuscationMode.Lwo -> stringResource(id = R.string.lwo)

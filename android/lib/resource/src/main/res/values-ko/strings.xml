@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">사용자 지정 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s개 더 보기...</string>
-    <string name="feature_obfuscation">난독 처리</string>
     <string name="feature_quantum_resistant">양자 저항</string>
     <string name="filter">필터</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
@@ -397,11 +396,11 @@
     <string name="try_again">다시 시도</string>
     <string name="type">유형</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
     <string name="undo">실행 취소</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
     <string name="unsupported_version_description">지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요.</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS 서버 업데이트</string>
     <string name="update_list_name">목록 이름 업데이트</string>
     <string name="updating_server_list_in_the_background">백그라운드에서 서버 목록을 업데이트하는 중...</string>

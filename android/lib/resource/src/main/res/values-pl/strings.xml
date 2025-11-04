@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Jeszcze %1$s...</string>
-    <string name="feature_obfuscation">Zaciemnianie</string>
     <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
     <string name="filter">Filtruj</string>
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
@@ -397,11 +396,11 @@
     <string name="try_again">Spróbuj ponownie</string>
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-przez-TCP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
     <string name="undo">Cofnij</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
-    <string name="upd_over_tcp">UDP-przez-TCP</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="update_list_name">Zaktualizuj nazwę listy</string>
     <string name="updating_server_list_in_the_background">Aktualizowanie listy serwerów w tle...</string>

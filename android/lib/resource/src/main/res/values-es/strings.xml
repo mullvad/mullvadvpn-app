@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s más...</string>
-    <string name="feature_obfuscation">Ofuscación</string>
     <string name="feature_quantum_resistant">Resistencia cuántica</string>
     <string name="filter">Filtrar</string>
     <string name="foreground_notification_channel_description">Muestra el estado actual del túnel VPN</string>
@@ -397,11 +396,11 @@
     <string name="try_again">Volver a intentarlo</string>
     <string name="type">Tipo</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP sobre TCP</string>
     <string name="udp_over_tcp_port_info">El puerto TCP al que se conectará el protocolo de ofuscación de UDP sobre TCP en el servidor VPN.</string>
     <string name="undo">Deshacer</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>
     <string name="unsupported_version_description">Al usar esta versión obsoleta de la aplicación, es posible que su privacidad esté en riesgo. Actualice ahora.</string>
-    <string name="upd_over_tcp">UDP sobre TCP</string>
     <string name="update_dns_server_dialog_title">Actualizar servidor DNS</string>
     <string name="update_list_name">Actualizar nombre de la lista</string>
     <string name="updating_server_list_in_the_background">Actualizando lista de servidores en segundo plano...</string>
