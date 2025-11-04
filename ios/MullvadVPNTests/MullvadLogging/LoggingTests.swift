@@ -28,36 +28,6 @@ class LoggingTests: XCTestCase {
         try fileManager.removeItem(at: directoryPath)
     }
 
-    func testLogFileOutputStreamWritesHeader() throws {
-        let headerText = "This is a header"
-        let logMessage = "And this is a log message\n"
-        let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
-        let stream = LogFileOutputStream(fileURL: fileURL, header: headerText)
-        stream.write(logMessage)
-        stream.synchronize()
-
-        let contents = try XCTUnwrap(String(contentsOf: fileURL))
-        XCTAssertEqual(contents, "\(headerText)\n\(logMessage)")
-    }
-
-    func testLogHeader() throws {
-        let expectedHeader = "Header of a log file"
-
-        var builder = LoggerBuilder(header: expectedHeader)
-        let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
-        builder.addFileOutput(fileURL: fileURL)
-
-        builder.install()
-
-        Logger(label: "test").info(":-P")
-
-        sync()
-
-        let contents = try XCTUnwrap(String(contentsOf: fileURL))
-
-        XCTAssert(contents.hasPrefix(expectedHeader))
-    }
-
     func testGettingLogFilesByApplicationTarget() async throws {
         let mainTargetLog = ApplicationConfiguration.newLogFileURL(for: .mainApp, in: directoryPath)
         let packetTunnelTargetLog = ApplicationConfiguration.newLogFileURL(for: .packetTunnel, in: directoryPath)

@@ -296,14 +296,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
 extension PacketTunnelProvider {
     private static func configureLogging() {
-        var loggerBuilder = LoggerBuilder(header: "PacketTunnel version \(Bundle.main.productVersion)")
-        let pid = ProcessInfo.processInfo.processIdentifier
-        loggerBuilder.metadata["pid"] = .string("\(pid)")
+        let loggerBuilder = LoggerBuilder.shared
+        let header = "PacketTunnel version \(Bundle.main.productVersion)"
+
         loggerBuilder.addFileOutput(
             fileURL: ApplicationConfiguration.newLogFileURL(
                 for: .packetTunnel,
                 in: ApplicationConfiguration.containerURL
-            )
+            ),
+            header: header
         )
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
