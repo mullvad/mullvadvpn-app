@@ -75,6 +75,12 @@ class FormSheetPresentationController: UIPresentationController {
         self.options = options
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
         addKeyboardResponderIfNeeded()
+
+        registerForTraitChanges(
+            [UITraitUserInterfaceStyle.self],
+            handler: { (self: Self, previousTraitCollection: UITraitCollection) in
+                self.postFullscreenPresentationWillChangeIfNeeded()
+            })
     }
 
     override var frameOfPresentedViewInContainerView: CGRect {
@@ -150,12 +156,6 @@ class FormSheetPresentationController: UIPresentationController {
         if completed {
             dimmingView.removeFromSuperview()
         }
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        postFullscreenPresentationWillChangeIfNeeded()
     }
 
     private func postFullscreenPresentationWillChangeIfNeeded() {

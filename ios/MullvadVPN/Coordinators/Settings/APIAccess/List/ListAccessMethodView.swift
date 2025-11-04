@@ -87,11 +87,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 AccessibilityIdentifier.apiAccessListView.asString
             )
             .apply {
-                if #available(iOS 16.4, *) {
-                    $0.scrollBounceBehavior(.basedOnSize)
-                } else {
-                    $0
-                }
+                $0.scrollBounceBehavior(.basedOnSize)
             }
             Spacer()
         }

@@ -23,12 +23,25 @@ struct ExponentialBackoff: IteratorProtocol {
     mutating func next() -> Duration? {
         let next = _next
 
-        if next > maxDelay {
+        if next >= maxDelay {
             return maxDelay
         }
 
-        _next = next * Int(multiplier)
+        let nextNanoseconds = next.totalNanoseconds
+        let maxNanoseconds = maxDelay.totalNanoseconds
 
+        let multiplied = nextNanoseconds * Double(multiplier)
+        let value = min(multiplied, maxNanoseconds)
+
+        _next = .nanoseconds(Int64(value.rounded()))
         return next
+    }
+}
+
+extension Duration {
+    var totalNanoseconds: Double {
+        let c = components
+        return Double(c.seconds) * 1_000_000_000
+            + Double(c.attoseconds) / 1_000_000_000.0
     }
 }

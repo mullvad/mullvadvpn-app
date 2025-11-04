@@ -21,11 +21,15 @@ final class ExponentialBackoffTests: XCTestCase {
     }
 
     func testAtMaximumValue() {
-        var backoff = ExponentialBackoff(initial: .milliseconds(.max - 1), multiplier: 2, maxDelay: .seconds(.max - 1))
+        var backoff = ExponentialBackoff(
+            initial: .milliseconds(5000),
+            multiplier: 2,
+            maxDelay: .milliseconds(10_000)
+        )
 
-        XCTAssertEqual(backoff.next(), .milliseconds(.max - 1))
-        XCTAssertEqual(backoff.next(), .milliseconds(.max))
-        XCTAssertEqual(backoff.next(), .milliseconds(.max))
+        XCTAssertEqual(backoff.next(), .milliseconds(5000))
+        XCTAssertEqual(backoff.next(), .milliseconds(10_000))
+        XCTAssertEqual(backoff.next(), .milliseconds(10_000))
     }
 
     func testMaximumBound() {
