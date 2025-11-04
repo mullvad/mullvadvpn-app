@@ -7,8 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.service.BuildConfig
+import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 
 const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"
 
@@ -30,6 +32,7 @@ class MullvadProblemReport(
     private val apiEndpointOverride: ApiEndpointOverride?,
     private val apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder,
     private val accountRepository: AccountRepository,
+    private val paymentUseCase: PaymentUseCase,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
@@ -46,7 +49,17 @@ class MullvadProblemReport(
             // Delete any old report
             deleteLogs()
 
-            collectReport(logDirectory.absolutePath, logsPath.absolutePath)
+            val availableProducts = paymentUseCase.allAvailableProducts()
+
+            collectReport(
+                logDirectory = logDirectory.absolutePath,
+                logsPath = logsPath.absolutePath,
+                unverifiedPurchases =
+                    availableProducts?.count { it.status == PaymentStatus.VERIFICATION_IN_PROGRESS }
+                        ?: 0,
+                pendingPurchases =
+                    availableProducts?.count { it.status == PaymentStatus.PENDING } ?: 0,
+            )
         }
 
     suspend fun sendReport(
@@ -110,7 +123,12 @@ class MullvadProblemReport(
     }
 
     // TODO We should remove the external functions from this class and migrate it to the service
-    private external fun collectReport(logDirectory: String, logsPath: String): Boolean
+    private external fun collectReport(
+        logDirectory: String,
+        logsPath: String,
+        unverifiedPurchases: Int,
+        pendingPurchases: Int,
+    ): Boolean
 
     private external fun sendProblemReport(
         userEmail: String,
