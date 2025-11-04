@@ -129,10 +129,10 @@ private fun FeatureIndicator.text(): String {
         when (this) {
             FeatureIndicator.QUANTUM_RESISTANCE -> R.string.feature_quantum_resistant
             FeatureIndicator.SPLIT_TUNNELING -> R.string.split_tunneling
-            FeatureIndicator.SHADOWSOCKS,
-            FeatureIndicator.UDP_2_TCP,
-            FeatureIndicator.QUIC,
-            FeatureIndicator.LWO -> R.string.feature_obfuscation
+            FeatureIndicator.SHADOWSOCKS -> R.string.shadowsocks
+            FeatureIndicator.UDP_2_TCP -> R.string.udp_over_tcp
+            FeatureIndicator.QUIC -> R.string.quic
+            FeatureIndicator.LWO -> R.string.lwo
             FeatureIndicator.LAN_SHARING -> R.string.local_network_sharing
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
