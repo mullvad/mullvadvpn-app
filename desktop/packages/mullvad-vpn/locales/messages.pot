@@ -2653,10 +2653,6 @@ msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr ""
 
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation"
-msgstr ""
-
 #. The title for the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -3137,6 +3133,9 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Obfuscation"
 msgstr ""
 
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
