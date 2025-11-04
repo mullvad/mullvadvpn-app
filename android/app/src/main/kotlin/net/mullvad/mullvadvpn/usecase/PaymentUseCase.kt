@@ -89,6 +89,7 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
                 }
             }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun allAvailableProducts(): List<PaymentProduct>? =
         paymentRepository
             .queryPaymentAvailability()
@@ -127,5 +128,6 @@ class EmptyPaymentUseCase : PaymentUseCase {
     @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun verifyPurchases() = VerificationResult.NothingToVerify.right()
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun allAvailableProducts(): List<PaymentProduct>? = null
 }
