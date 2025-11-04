@@ -796,15 +796,15 @@ fun VpnSettingsContent(
                             onInfoClicked = navigateToObfuscationInfo,
                             onCellClicked = navigateToObfuscationInfo,
                             background =
-                                if (
-                                    initialScrollToFeature == FeatureIndicator.UDP_2_TCP ||
-                                        initialScrollToFeature == FeatureIndicator.SHADOWSOCKS
-                                ) {
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = highlightAnimation.value
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.primary
+                                when (initialScrollToFeature) {
+                                    FeatureIndicator.UDP_2_TCP,
+                                    FeatureIndicator.SHADOWSOCKS,
+                                    FeatureIndicator.QUIC,
+                                    FeatureIndicator.LWO ->
+                                        MaterialTheme.colorScheme.primary.copy(
+                                            alpha = highlightAnimation.value
+                                        )
+                                    else -> MaterialTheme.colorScheme.primary
                                 },
                             testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
                             modifier = Modifier.animateItem(),
