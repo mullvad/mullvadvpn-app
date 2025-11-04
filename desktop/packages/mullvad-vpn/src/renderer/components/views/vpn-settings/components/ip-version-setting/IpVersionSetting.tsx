@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from 'react';
-import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../../../../../shared/constants';
 import { IpVersion, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
+import InfoButton from '../../../../InfoButton';
+import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 
 export function IpVersionSetting() {
@@ -42,6 +42,30 @@ export function IpVersionSetting() {
               messages.pgettext('wireguard-settings-view', 'Device IP version')
             }
           </SettingsListbox.Label>
+          <SettingsListbox.Group $gap="medium">
+            <InfoButton>
+              <ModalMessage>
+                {
+                  // TRANSLATORS: A description for the setting Device IP version,
+                  // TRANSLATORS: explaining how the user can configure the setting.
+                  messages.pgettext(
+                    'vpn-settings-view',
+                    'This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.',
+                  )
+                }
+              </ModalMessage>
+              <ModalMessage>
+                {
+                  // TRANSLATORS: A complimentary description for the setting Device IP version,
+                  // TRANSLATORS: explaining why the user might want to configure the setting.
+                  messages.pgettext(
+                    'vpn-settings-view',
+                    'It can be useful when you are aware of problems caused by a certain IP version.',
+                  )
+                }
+              </ModalMessage>
+            </InfoButton>
+          </SettingsListbox.Group>
         </SettingsListbox.Content>
       </SettingsListbox.Item>
       <SettingsListbox.Options>
@@ -55,20 +79,6 @@ export function IpVersionSetting() {
           {messages.gettext('IPv6')}
         </SettingsListbox.BaseOption>
       </SettingsListbox.Options>
-      <SettingsListbox.Footer>
-        <SettingsListbox.Text>
-          {sprintf(
-            // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
-            // TRANSLATORS: Available placeholders:
-            // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-            messages.pgettext(
-              'wireguard-settings-view',
-              'This allows access to %(wireguard)s for devices that only support IPv6.',
-            ),
-            { wireguard: strings.wireguard },
-          )}
-        </SettingsListbox.Text>
-      </SettingsListbox.Footer>
     </SettingsListbox>
   );
 }
