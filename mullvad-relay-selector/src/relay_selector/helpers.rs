@@ -274,9 +274,10 @@ pub fn desired_or_random_port_from_range<R: RangeBounds<u16> + Iterator<Item = u
     port_ranges: &[R],
     desired_port: Constraint<u16>,
 ) -> Result<u16, Error> {
-    desired_port
-        .map(|port| port_if_in_range(port_ranges, port))
-        .unwrap_or_else(|| select_random_port(port_ranges))
+    match desired_port {
+        Constraint::Only(port) => port_if_in_range(port_ranges, port),
+        Constraint::Any => select_random_port(port_ranges),
+    }
 }
 
 /// Return `Ok(port)`, if and only if `port` is in `port_ranges`. Otherwise, return an error.
