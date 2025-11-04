@@ -244,8 +244,8 @@ function build {
     fi
 
     local cargo_features=()
-    if [[ "$BORINGTUN" == "true" ]]; then
-        cargo_features+=(--features boringtun)
+    if [[ "$BORINGTUN" == "false" ]]; then
+        cargo_features+=(--features wireguard-go)
     fi
 
     local cargo_crates_to_build=(
