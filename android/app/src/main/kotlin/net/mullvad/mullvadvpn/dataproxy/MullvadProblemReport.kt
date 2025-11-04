@@ -7,8 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.service.BuildConfig
+import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 
 const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"
 
@@ -31,6 +33,7 @@ class MullvadProblemReport(
     private val apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder,
     private val accountRepository: AccountRepository,
     kermitFileLogDirName: String,
+    private val paymentUseCase: PaymentUseCase,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
@@ -48,10 +51,17 @@ class MullvadProblemReport(
             // Delete any old report
             deleteLogs()
 
+            val availableProducts = paymentUseCase.allAvailableProducts()
+
             collectReport(
-                logDirectory.absolutePath,
-                kermitFileLogDirPath.absolutePath,
-                problemReportOutputPath.absolutePath,
+                logDirectory = logDirectory.absolutePath,
+                kermitFileLogDir = kermitFileLogDirPath.absolutePath,
+                problemReportOutputPath = problemReportOutputPath.absolutePath,
+                unverifiedPurchases =
+                    availableProducts?.count { it.status == PaymentStatus.VERIFICATION_IN_PROGRESS }
+                        ?: 0,
+                pendingPurchases =
+                    availableProducts?.count { it.status == PaymentStatus.PENDING } ?: 0,
             )
         }
 
@@ -120,6 +130,8 @@ class MullvadProblemReport(
         logDirectory: String,
         kermitFileLogDir: String,
         problemReportOutputPath: String,
+        unverifiedPurchases: Int,
+        pendingPurchases: Int,
     ): Boolean
 
     private external fun sendProblemReport(
