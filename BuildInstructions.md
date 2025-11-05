@@ -149,12 +149,6 @@ rustup target add aarch64-pc-windows-msvc
 
 In addition to the above requirements:
 
-- `x86_64-pc-windows-msvc` is required to build `talpid-openvpn-plugin`:
-
-  ```bash
-  rustup target add x86_64-pc-windows-msvc
-  ```
-
 - `clang` is required (can be found in the Visual Studio installer) in `PATH`.
 
   `INCLUDE` also needs to include the correct headers for clang. This can be found by running
@@ -272,23 +266,16 @@ This section is for building the system service individually.
     cargo build
     ```
 
-1. Copy the OpenVPN binaries, and our plugin for it, to the directory we will
-    use as a resource directory. If you want to use any other directory, you would need to copy
-    even more files.
-    ```bash
-    cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
-    cp target/debug/*talpid_openvpn_plugin* dist-assets/
-    cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/
-    ```
+<!-- TODO: Instruct cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/ for GotaTun? -->
 
-1. On Windows, the daemon must be run as the SYSTEM user. You can use
+2. On Windows, the daemon must be run as the SYSTEM user. You can use
     [PsExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) to launch
     an elevated bash instance before starting the daemon in it:
     ```
     psexec64 -i -s bash.exe
     ```
 
-1. Run the daemon with verbose logging (from the root directory of the project):
+3. Run the daemon with verbose logging (from the root directory of the project):
     ```bash
     sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
     ```

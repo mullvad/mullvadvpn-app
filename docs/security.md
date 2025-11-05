@@ -180,6 +180,7 @@ macOS: the packet needs to originate from a process running as `root`.
 This process/user check is important to not allow unprivileged programs
 to leak packets to this IP outside the tunnel, as those packets can be fingerprinted.
 
+// TODO: update
 Examples:
 1. No bridge is used and the tunnel protocol is OpenVPN trying to connect with UDP to a VPN
   server at IP `a.b.c.d` port `1301` - Allow traffic to `a.b.c.d:1301/UDP` for `openvpn.exe`

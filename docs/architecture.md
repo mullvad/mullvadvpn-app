@@ -268,8 +268,6 @@ is inferred if such a network exists.
 The iOS app uses WireGuard kit's offline detection, which in turn uses [`NWPathMonitor`] to listen
 for changes to the route table and assumes connectivity if a default route exists.
 
-### OpenVPN plugin and communication back to system service
-
 ### Split tunneling
 
 See the [split tunneling documentation](split-tunneling.md).
