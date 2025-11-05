@@ -275,24 +275,22 @@ fn assert_wireguard_retry_order() {
     use talpid_types::net::IpVersion;
     let expected_retry_order = vec![
         // 1 (wireguard)
-        RelayQueryBuilder::wireguard().build(),
+        RelayQueryBuilder::new().build(),
         // 2
-        RelayQueryBuilder::wireguard()
-            .ip_version(IpVersion::V6)
-            .build(),
+        RelayQueryBuilder::new().ip_version(IpVersion::V6).build(),
         // 3
-        RelayQueryBuilder::wireguard().shadowsocks().build(),
+        RelayQueryBuilder::new().shadowsocks().build(),
         // 4
-        RelayQueryBuilder::wireguard().quic().build(),
+        RelayQueryBuilder::new().quic().build(),
         // 5
-        RelayQueryBuilder::wireguard().udp2tcp().build(),
+        RelayQueryBuilder::new().udp2tcp().build(),
         // 6
-        RelayQueryBuilder::wireguard()
+        RelayQueryBuilder::new()
             .udp2tcp()
             .ip_version(IpVersion::V6)
             .build(),
         // 7
-        RelayQueryBuilder::wireguard().lwo().build(),
+        RelayQueryBuilder::new().lwo().build(),
     ];
 
     assert!(
@@ -431,7 +429,7 @@ fn test_wireguard_entry() {
     for _ in 0..100 {
         // Because the entry location constraint is more specific than the exit loation constraint,
         // the entry location should always become `specific_location`
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .location(general_location.clone())
             .multihop()
             .entry(specific_location.clone())
@@ -458,7 +456,7 @@ fn test_wireguard_entry() {
     for _ in 0..100 {
         // Because the exit location constraint is more specific than the entry loation constraint,
         // the exit location should always become `specific_location`
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .location(specific_location.clone())
             .multihop()
             .entry(general_location.clone())
@@ -493,7 +491,7 @@ fn test_wireguard_entry_hostname_collision() {
     let host1 = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
     let host2 = GeographicLocationConstraint::hostname("se", "got", "se10-wireguard");
 
-    let invalid_multihop_query = RelayQueryBuilder::wireguard()
+    let invalid_multihop_query = RelayQueryBuilder::new()
         // Here we set `host1` to be the exit relay
         .location(host1.clone())
         .multihop()
@@ -508,7 +506,7 @@ fn test_wireguard_entry_hostname_collision() {
             .is_err()
     );
 
-    let valid_multihop_query = RelayQueryBuilder::wireguard()
+    let valid_multihop_query = RelayQueryBuilder::new()
         .location(host1)
         .multihop()
         // We correct the erroneous query by setting `host2` as the entry relay
@@ -530,7 +528,7 @@ fn test_selecting_wireguard_location_will_consider_multihop() {
     let relay_selector = default_relay_selector();
 
     for _ in 0..100 {
-        let query = RelayQueryBuilder::wireguard().multihop().build();
+        let query = RelayQueryBuilder::new().multihop().build();
         let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
         assert!(matches!(
             relay,
@@ -548,7 +546,7 @@ fn test_selecting_wireguard_location_will_consider_multihop() {
 fn test_selecting_wireguard_over_shadowsocks() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-    let query = RelayQueryBuilder::wireguard().shadowsocks().build();
+    let query = RelayQueryBuilder::new().shadowsocks().build();
     assert!(!query.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -574,7 +572,7 @@ fn test_selecting_wireguard_over_shadowsocks() {
 fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .location(SHADOWSOCKS_RELAY_LOCATION.clone())
         .shadowsocks()
         .build();
@@ -609,7 +607,7 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
 fn test_selecting_wireguard_over_quic() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-    let query = RelayQueryBuilder::wireguard().quic().build();
+    let query = RelayQueryBuilder::new().quic().build();
     assert!(!query.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -635,7 +633,7 @@ fn test_selecting_wireguard_over_quic() {
 fn test_selecting_wireguard_over_lwo() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-    let query = RelayQueryBuilder::wireguard().lwo().build();
+    let query = RelayQueryBuilder::new().lwo().build();
     assert!(!query.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -675,7 +673,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
 
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
 
-    let query_v4 = RelayQueryBuilder::wireguard()
+    let query_v4 = RelayQueryBuilder::new()
         .location(SHADOWSOCKS_RELAY_LOCATION.clone())
         .ip_version(IpVersion::V4)
         .shadowsocks()
@@ -722,7 +720,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
 
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
 
-    let query_v6 = RelayQueryBuilder::wireguard()
+    let query_v6 = RelayQueryBuilder::new()
         .location(SHADOWSOCKS_RELAY_LOCATION.clone())
         .ip_version(IpVersion::V6)
         .shadowsocks()
@@ -756,7 +754,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
 #[test]
 fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
     let relay_selector = default_relay_selector();
-    let query = RelayQueryBuilder::wireguard().udp2tcp().build();
+    let query = RelayQueryBuilder::new().udp2tcp().build();
     assert!(!query.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -787,7 +785,7 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
 fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     let relay_selector = default_relay_selector();
 
-    let query = RelayQueryBuilder::wireguard().build();
+    let query = RelayQueryBuilder::new().build();
     assert_eq!(
         query.wireguard_constraints().obfuscation,
         ObfuscationQuery::Auto
@@ -813,7 +811,7 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
     const TCP2UDP_PORTS: [u16; 2] = [80, 5001];
     let relay_selector = default_relay_selector();
     // Note that we do *not* specify any port here!
-    let query = RelayQueryBuilder::wireguard().udp2tcp().build();
+    let query = RelayQueryBuilder::new().udp2tcp().build();
 
     for _ in 0..1000 {
         let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
@@ -845,7 +843,7 @@ fn test_ownership() {
 
     for _ in 0..100 {
         // Construct an arbitrary query for owned relays.
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .ownership(Ownership::MullvadOwned)
             .build();
         let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -855,7 +853,7 @@ fn test_ownership() {
 
     for _ in 0..100 {
         // Construct an arbitrary query for rented relays.
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .ownership(Ownership::Rented)
             .build();
         let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -872,7 +870,7 @@ fn test_multihop_ownership() {
 
     for _ in 0..100 {
         // Construct an arbitrary query for owned relays.
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .multihop()
             .ownership(Ownership::MullvadOwned)
             .entry_ownership(Ownership::Rented)
@@ -886,7 +884,7 @@ fn test_multihop_ownership() {
 
     for _ in 0..100 {
         // Construct an arbitrary query for rented relays.
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .multihop()
             .ownership(Ownership::Rented)
             .entry_ownership(Ownership::MullvadOwned)
@@ -905,9 +903,7 @@ fn test_load_balancing() {
     const ATTEMPTS: usize = 100;
     let relay_selector = default_relay_selector();
     let location = GeographicLocationConstraint::country("se");
-    let query = RelayQueryBuilder::wireguard()
-        .location(location.clone())
-        .build();
+    let query = RelayQueryBuilder::new().location(location.clone()).build();
     // Collect the range of unique relay ports and IP addresses over a large number of queries.
     let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat_n(query.clone(), ATTEMPTS)
         // Execute the query
@@ -932,7 +928,7 @@ fn test_providers() {
     let relay_selector = default_relay_selector();
 
     for _attempt in 0..100 {
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .providers(providers.clone())
             .build();
         let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -965,7 +961,7 @@ fn test_multihop_providers() {
     let relay_selector = default_relay_selector();
 
     for _attempt in 0..100 {
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .multihop()
             .providers(providers.clone())
             .entry_providers(entry_providers.clone())
@@ -1078,7 +1074,7 @@ fn test_include_in_country() {
 #[test]
 fn ignore_bridge_state_when_wireguard_is_used() {
     // A wireguard query should ignore the bridge state
-    let query = RelayQueryBuilder::wireguard().build();
+    let query = RelayQueryBuilder::new().build();
     let config = SelectorConfig::default();
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     for _ in 0..100 {
@@ -1093,7 +1089,7 @@ fn ignore_bridge_state_when_wireguard_is_used() {
 fn test_daita_smart_routing_overrides_multihop() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
     let query = RelayQueryBuilder::
-        wireguard()
+        new()
         .daita()
         .daita_use_multihop_if_necessary(true)
         .multihop()
@@ -1123,7 +1119,7 @@ fn test_daita_smart_routing_overrides_multihop() {
 
     // Assert that disabling smart routing for this query will fail to generate a valid multihop
     // config, thus blocking the user.
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .daita()
         .daita_use_multihop_if_necessary(false)
         .multihop()
@@ -1146,7 +1142,7 @@ fn test_daita() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
     // Only pick relays that support DAITA
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .daita()
         .daita_use_multihop_if_necessary(false)
         .build();
@@ -1157,7 +1153,7 @@ fn test_daita() {
     );
 
     // Fail when only non-DAITA relays match constraints
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .daita()
         .daita_use_multihop_if_necessary(false)
         .location(NON_DAITA_RELAY_LOCATION.clone())
@@ -1167,7 +1163,7 @@ fn test_daita() {
         .expect_err("Expected to find no matching relay");
 
     // Should be able to connect to non-DAITA relay with use_multihop_if_necessary
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .daita()
         .daita_use_multihop_if_necessary(true)
         .location(NON_DAITA_RELAY_LOCATION.clone())
@@ -1189,7 +1185,7 @@ fn test_daita() {
     }
 
     // Should be able to connect to DAITA relay with use_multihop_if_necessary
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .daita()
         .daita_use_multihop_if_necessary(true)
         .location(DAITA_RELAY_LOCATION.clone())
@@ -1210,7 +1206,7 @@ fn test_daita() {
     }
 
     // DAITA-supporting relays can be picked even when it is disabled
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .location(DAITA_RELAY_LOCATION.clone())
         .build();
     relay_selector
@@ -1218,7 +1214,7 @@ fn test_daita() {
         .expect("Expected DAITA-supporting relay to work without DAITA");
 
     // Non DAITA-supporting relays can be picked when it is disabled
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
     relay_selector
@@ -1226,7 +1222,7 @@ fn test_daita() {
         .expect("Expected DAITA-supporting relay to work without DAITA");
 
     // Entry relay must support daita
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .daita()
         .daita_use_multihop_if_necessary(false)
         .multihop()
@@ -1245,7 +1241,7 @@ fn test_daita() {
     }
 
     // Exit relay does not have to support daita
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .daita()
         .daita_use_multihop_if_necessary(false)
         .multihop()
@@ -1275,10 +1271,8 @@ fn test_daita() {
 fn valid_user_setting_should_yield_relay() {
     // Make a valid user relay constraint
     let location = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
-    let user_query = RelayQueryBuilder::wireguard()
-        .location(location.clone())
-        .build();
-    let (user_constraints, ..) = RelayQueryBuilder::wireguard()
+    let user_query = RelayQueryBuilder::new().location(location.clone()).build();
+    let (user_constraints, ..) = RelayQueryBuilder::new()
         .location(location.clone())
         .build()
         .into_settings();
@@ -1306,7 +1300,7 @@ fn valid_user_setting_should_yield_relay() {
 #[test]
 fn test_shadowsocks_runtime_ipv4_unavailable() {
     // Make a valid user relay constraint
-    let (relay_constraints, obfs_settings) = RelayQueryBuilder::wireguard()
+    let (relay_constraints, obfs_settings) = RelayQueryBuilder::new()
         .shadowsocks()
         .build()
         .into_settings();
@@ -1338,7 +1332,7 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
 #[test]
 fn test_runtime_ipv4_unavailable() {
     // Make a valid user relay constraint
-    let (relay_constraints, ..) = RelayQueryBuilder::wireguard().build().into_settings();
+    let (relay_constraints, ..) = RelayQueryBuilder::new().build().into_settings();
 
     let config = SelectorConfig {
         relay_settings: relay_constraints.into(),
@@ -1365,7 +1359,7 @@ fn test_runtime_ipv4_unavailable() {
 /// This test case prevents regressions to the `include_in_country` filtering logic.
 #[test]
 fn include_in_country_with_few_relays() -> Result<(), Error> {
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .multihop()
         .location(GeographicLocationConstraint::country("se"))
         .entry(GeographicLocationConstraint::country("se"))
