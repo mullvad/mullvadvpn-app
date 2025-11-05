@@ -7,6 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.delete
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -60,6 +61,11 @@ class PartnerApi(base64AuthCredentials: String) {
                     setBody(request)
                 }
                 .bodyAsText()
+        }
+
+    suspend fun deleteAccount(accountNumber: String) =
+        withContext(Dispatchers.IO) {
+            client.delete { url { path("$ACCOUNT_PATH/$accountNumber") } }
         }
 
     companion object {
