@@ -290,9 +290,13 @@ function build {
             mullvad-problem-report.exe
             talpid_openvpn_plugin.dll
             mullvad-setup.exe
-            libwg.dll
-            maybenot_ffi.dll
         )
+        if [[ "$BORINGTUN" == "false" ]]; then
+            BINARIES+=(
+                libwg.dll
+                maybenot_ffi.dll
+            )
+        fi
     fi
 
     if [[ -n $specified_target ]]; then
