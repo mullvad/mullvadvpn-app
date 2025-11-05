@@ -36,6 +36,7 @@
                  android:roundIcon="@mipmap/ic_launcher"
                  android:theme="@style/Theme.App.Starting"
                  android:localeConfig="@xml/locales_config"
+                 android:supportsRtl="true"
                  tools:ignore="CredManMissingDal,CredentialDependency,GoogleAppIndexingWarning">
 
         <!--
