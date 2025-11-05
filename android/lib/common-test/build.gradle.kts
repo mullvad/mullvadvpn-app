@@ -1,4 +1,4 @@
-plugins { id("mullvad.android-library") }
+plugins { alias(libs.plugins.mullvad.android.library) }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.common.test"

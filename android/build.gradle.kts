@@ -4,7 +4,7 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import utilities.isNonStableVersion
 
 plugins {
-    id("mullvad.utilities")
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.test) apply false

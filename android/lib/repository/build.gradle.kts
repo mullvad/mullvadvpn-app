@@ -1,5 +1,5 @@
 plugins {
-    id("mullvad.android-library")
+    alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.junit5.android)
     alias(libs.plugins.protobuf.core)

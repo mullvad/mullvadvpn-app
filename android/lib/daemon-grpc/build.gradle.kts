@@ -1,7 +1,7 @@
 import com.google.protobuf.gradle.proto
 
 plugins {
-    id("mullvad.android-library")
+    alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.protobuf.core)
     alias(libs.plugins.junit5.android)

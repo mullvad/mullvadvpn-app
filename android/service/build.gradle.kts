@@ -5,11 +5,11 @@ import utilities.isDevBuild
 import utilities.isReleaseBuild
 
 plugins {
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.junit5.android)
-    id("mullvad.utilities")
 }
 
 android {

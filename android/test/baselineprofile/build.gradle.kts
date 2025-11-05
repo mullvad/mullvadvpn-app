@@ -6,10 +6,10 @@ import utilities.baselineFilter
 import utilities.matches
 
 plugins {
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.baselineprofile)
-    id("mullvad.utilities")
 }
 
 android {

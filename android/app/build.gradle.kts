@@ -25,6 +25,7 @@ import utilities.ossProdAnyBuildType
 import utilities.playImplementation
 
 plugins {
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.application)
     alias(libs.plugins.play.publisher)
     alias(libs.plugins.kotlin.android)
@@ -33,7 +34,6 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.junit5.android)
     alias(libs.plugins.baselineprofile)
-    id("mullvad.utilities")
     id("me.sigptr.rust-android")
 }
 

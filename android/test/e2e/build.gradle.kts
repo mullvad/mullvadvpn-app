@@ -7,11 +7,11 @@ import utilities.ossProdDebug
 import utilities.playStagemoleDebug
 
 plugins {
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.junit5.android)
-    id("mullvad.utilities")
 }
 
 android {
