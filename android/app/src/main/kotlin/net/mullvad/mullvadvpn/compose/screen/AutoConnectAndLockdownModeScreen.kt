@@ -22,9 +22,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -139,7 +139,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != 0 },
-                        imageVector = Icons.Default.ChevronLeft,
+                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
                     )
 
                     // Go to next page
@@ -156,7 +156,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != pagerState.pageCount - 1 },
-                        imageVector = Icons.Default.ChevronRight,
+                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                     )
 
                     PageIndicator(
