@@ -12,7 +12,7 @@ use crate::{
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
-use talpid_types::net::{GenericTunnelOptions, openvpn};
+use talpid_types::net::GenericTunnelOptions;
 
 mod dns;
 
@@ -363,10 +363,10 @@ impl Settings {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct TunnelOptions {
-    /// openvpn holds OpenVPN specific tunnel options.
-    pub openvpn: openvpn::TunnelOptions,
     /// Contains wireguard tunnel options.
     pub wireguard: wireguard::TunnelOptions,
+
+    // TODO: should this still exist?
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     pub generic: GenericTunnelOptions,
     /// DNS options.
@@ -378,7 +378,6 @@ pub use dns::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState};
 impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
-            openvpn: openvpn::TunnelOptions::default(),
             wireguard: wireguard::TunnelOptions::default(),
             generic: GenericTunnelOptions {
                 // Enable IPv6 by default on Android and macOS

@@ -159,10 +159,6 @@ fn connection_information(
         .and_then(|endpoint| endpoint.proxy)
         .map(|bridge| bridge.proxy_type.to_string());
     info.insert("Bridge type", bridge_type_fmt);
-    let tunnel_type_fmt = endpoint
-        .filter(|_| verbose)
-        .map(|endpoint| endpoint.tunnel_type.to_string());
-    info.insert("Tunnel type", tunnel_type_fmt);
 
     info.insert("Visible location", location.map(format_location));
     let features_fmt = feature_indicators

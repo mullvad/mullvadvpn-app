@@ -19,7 +19,7 @@ use mullvad_types::{
     states::TunnelState,
 };
 use std::{net::SocketAddr, time::Duration};
-use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
+use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
@@ -183,7 +183,7 @@ pub async fn test_connecting_state(
         &mut mullvad_client,
         CustomTunnelEndpoint {
             host: "1.3.3.7".to_owned(),
-            config: mullvad_types::ConnectionConfig::Wireguard(unreachable_wireguard_tunnel()),
+            config: unreachable_wireguard_tunnel(),
         },
     )
     .await
@@ -352,8 +352,6 @@ pub async fn test_connected_state(
                             address: SocketAddr::V4(addr),
                             protocol: TransportProtocol::Udp,
                         },
-                    // TODO: Consider the type of `relay` / `relay_filter` instead
-                    tunnel_type: TunnelType::Wireguard,
                     quantum_resistant: _,
                     proxy: None,
                     obfuscation: _,

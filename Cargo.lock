@@ -5506,7 +5506,6 @@ dependencies = [
  "test-log",
  "thiserror 2.0.9",
  "tokio",
- "tonic-build",
  "triggered",
  "tun 0.5.5",
  "typed-builder 0.20.1",
@@ -6186,9 +6185,9 @@ dependencies = [
 
 [[package]]
 name = "triggered"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce148eae0d1a376c1b94ae651fc3261d9cb8294788b962b7382066376503a2d1"
+checksum = "593eddbc8a11f3e099e942c8c065fe376b9d1776741430888f2796682e08ab43"
 
 [[package]]
 name = "try-lock"

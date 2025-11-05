@@ -780,7 +780,7 @@ async fn get_single_relay_location_contraint(
         selected_relay: GetRelay,
     ) -> anyhow::Result<(Relay, RelayConstraints)> {
         match selected_relay {
-            GetRelay::Wireguard {
+            GetRelay::Mullvad {
                 inner: WireguardConfig::Singlehop { exit },
                 ..
             } => {

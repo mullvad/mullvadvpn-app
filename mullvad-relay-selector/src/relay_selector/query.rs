@@ -62,7 +62,7 @@ use talpid_types::net::{IpVersion, proxy::CustomProxy};
 /// use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 /// use mullvad_relay_selector::query::builder::{Ownership, GeographicLocationConstraint};
 ///
-/// let query: RelayQuery = RelayQueryBuilder::wireguard()      // Specify the tunnel protocol
+/// let query: RelayQuery = RelayQueryBuilder::new()            // Specify the tunnel protocol
 ///     .location(GeographicLocationConstraint::country("no"))  // Specify the country as Norway
 ///     .ownership(Ownership::MullvadOwned)                     // Specify that the relay must be owned by Mullvad
 ///     .port(443)                                              // Specify the port to use when connecting to the relay
@@ -406,7 +406,6 @@ pub mod builder {
         },
         wireguard::QuantumResistantState,
     };
-    use talpid_types::net::TunnelType;
 
     use super::{BridgeQuery, ObfuscationQuery, RelayQuery};
 

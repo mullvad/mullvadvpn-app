@@ -3,7 +3,7 @@ use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    ConnectionConfig, CustomTunnelEndpoint,
+    CustomTunnelEndpoint,
     constraints::{Constraint, Match},
     location::CountryCode,
     relay_constraints::{
@@ -454,7 +454,7 @@ impl Relay {
 
         Ok(CustomTunnelEndpoint {
             host,
-            config: ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
+            config: wireguard::ConnectionConfig {
                 tunnel: wireguard::TunnelConfig {
                     private_key,
                     addresses: tunnel_ip,
@@ -472,7 +472,7 @@ impl Relay {
                 // NOTE: Ignored in gRPC
                 #[cfg(target_os = "linux")]
                 fwmark: None,
-            }),
+            },
         })
     }
 

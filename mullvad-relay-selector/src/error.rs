@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 
 use crate::{detailer, query::RelayQuery, relay_selector::relays::WireguardConfig};
-use mullvad_types::{relay_constraints::MissingCustomBridgeSettings, relay_list::Relay};
+use mullvad_types::relay_constraints::MissingCustomBridgeSettings;
 use talpid_types::net::IpVersion;
 
 #[derive(thiserror::Error, Debug)]
@@ -48,32 +48,18 @@ pub enum Error {
 }
 
 /// Special type which only shows up in [`Error`]. This error variant signals that no valid
-/// endpoint could be constructed from the selected relay.
+/// endpoint could be constructed from this [`WireguardConfig`].
+///
+/// # Note
+/// The inner value is boxed to not bloat the size of [`Error`] due to the size of
+/// [`WireguardConfig`].
 #[derive(Debug)]
-pub enum EndpointErrorDetails {
-    /// No valid Wireguard endpoint could be constructed from this [`WireguardConfig`].
-    ///
-    /// # Note
-    /// The inner value is boxed to not bloat the size of [`Error`] due to the size of
-    /// [`WireguardConfig`].
-    Wireguard(Box<WireguardConfig>),
-    /// No valid OpenVPN endpoint could be constructed from this [`Relay`]
-    ///
-    /// # Note
-    /// The inner value is boxed to not bloat the size of [`Error`] due to the size of [`Relay`].
-    OpenVpn(Box<Relay>),
-}
+pub struct EndpointErrorDetails(Box<WireguardConfig>);
 
 impl EndpointErrorDetails {
     /// Helper function for constructing an [`Error::NoEndpoint`] from `relay`.
     /// Takes care of boxing the [`WireguardConfig`] for you!
-    pub(crate) fn from_wireguard(relay: WireguardConfig) -> Self {
-        EndpointErrorDetails::Wireguard(Box::new(relay))
-    }
-
-    /// Helper function for constructing an [`Error::NoEndpoint`] from `relay`.
-    /// Takes care of boxing the [`Relay`] for you!
-    pub(crate) fn from_openvpn(relay: Relay) -> Self {
-        EndpointErrorDetails::OpenVpn(Box::new(relay))
+    pub(crate) fn from_wireguard(config: WireguardConfig) -> Self {
+        EndpointErrorDetails(Box::new(config))
     }
 }
