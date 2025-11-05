@@ -470,7 +470,8 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
             shadowsocks,
             port: settings
                 .port
-                .and_then(|p| u16::try_from(p.port).ok())
+                .and_then(|port_msg| port_msg.port)
+                .and_then(|port| u16::try_from(port).ok())
                 .unwrap_or_default(),
         })
     }
