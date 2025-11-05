@@ -71,7 +71,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             addressCache: addressCache,
             accessMethodRepository: accessMethodRepository
         )
-        
+
         setUpAccessMethodReceiver(
             accessMethodRepository: accessMethodRepository
         )
@@ -123,17 +123,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         // Since PacketTunnelActor depends on the path observer, start observing after actor has been initalized.
         startDefaultPathObserver()
 
-//        let urlRequestProxy = URLRequestProxy(
-//            dispatchQueue: internalQueue,
-//            transportProvider: transportProvider
-//        )
         let apiRequestProxy = APIRequestProxy(
             dispatchQueue: internalQueue,
             transportProvider: apiTransportProvider
         )
         appMessageHandler = AppMessageHandler(
             packetTunnelActor: actor,
-//            urlRequestProxy: urlRequestProxy,
             apiRequestProxy: apiRequestProxy
         )
 
@@ -250,25 +245,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         ipOverrideWrapper: IPOverrideWrapper,
         addressCache: REST.AddressCache,
         accessMethodRepository: AccessMethodRepository
-    )  {
+    ) {
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
-        
+
         let shadowsocksRelaySelector = ShadowsocksRelaySelector(
             relayCache: ipOverrideWrapper
         )
-        
+
         let shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
             settingsUpdater: tunnelSettingsUpdater
         )
-        
+
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
-        
+
         let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
             methods: accessMethodRepository.fetchAll()
         )
-        
+
         // swift-format-ignore: NeverUseForceTry
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
@@ -280,10 +275,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
     }
-    
+
     private func setUpAccessMethodReceiver(
         accessMethodRepository: AccessMethodRepository
-    )  {
+    ) {
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
