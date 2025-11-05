@@ -59,24 +59,22 @@ pub static RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
     use query::builder::{IpVersion, RelayQueryBuilder};
     vec![
         // 1 This works with any wireguard relay
-        RelayQueryBuilder::wireguard().build(),
+        RelayQueryBuilder::new().build(),
         // 2
-        RelayQueryBuilder::wireguard()
-            .ip_version(IpVersion::V6)
-            .build(),
+        RelayQueryBuilder::new().ip_version(IpVersion::V6).build(),
         // 3
-        RelayQueryBuilder::wireguard().shadowsocks().build(),
+        RelayQueryBuilder::new().shadowsocks().build(),
         // 4
-        RelayQueryBuilder::wireguard().quic().build(),
+        RelayQueryBuilder::new().quic().build(),
         // 5
-        RelayQueryBuilder::wireguard().udp2tcp().build(),
+        RelayQueryBuilder::new().udp2tcp().build(),
         // 6
-        RelayQueryBuilder::wireguard()
+        RelayQueryBuilder::new()
             .udp2tcp()
             .ip_version(IpVersion::V6)
             .build(),
         // 7
-        RelayQueryBuilder::wireguard().lwo().build(),
+        RelayQueryBuilder::new().lwo().build(),
     ]
 });
 
