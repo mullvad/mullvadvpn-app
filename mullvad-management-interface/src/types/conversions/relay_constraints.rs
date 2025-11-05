@@ -148,7 +148,7 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
                 &settings.shadowsocks,
             )),
             port: Some(proto::obfuscation_settings::Port {
-                port: settings.port.into(),
+                port: Some(u32::from(settings.port)),
             }),
         }
     }
