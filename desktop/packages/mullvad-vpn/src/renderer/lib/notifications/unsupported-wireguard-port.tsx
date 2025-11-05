@@ -1,18 +1,18 @@
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../shared/constants';
+import { liftConstraint, ObfuscationSettings } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
 import { isInRanges } from '../../../shared/utils';
 import { InternalLink } from '../../components/InternalLink';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
-import { RelaySettingsRedux } from '../../redux/settings/reducers';
 import { formatHtml } from '../html-formatter';
 
 interface UnsupportedWireGuardPortNotificationContext {
   connection: IConnectionReduxState;
-  relaySettings: RelaySettingsRedux;
+  obfuscationSettings: ObfuscationSettings;
   allowedPortRanges: [number, number][];
 }
 
@@ -41,13 +41,12 @@ export class UnsupportedWireGuardPortNotificationProvider implements InAppNotifi
   public constructor(private context: UnsupportedWireGuardPortNotificationContext) {}
 
   public mayDisplay = () => {
-    const { connection, relaySettings, allowedPortRanges } = this.context;
+    const { connection, obfuscationSettings, allowedPortRanges } = this.context;
     if (connection.status.state === 'error') {
-      if ('normal' in relaySettings) {
-        const { port } = relaySettings.normal.wireguard;
-        if (port !== 'any' && !isInRanges(port, allowedPortRanges)) return true;
-      }
+      const port = liftConstraint(obfuscationSettings.wireGuardPortSettings.port);
+      if (port !== 'any' && !isInRanges(port, allowedPortRanges)) return true;
     }
+
     return false;
   };
 
