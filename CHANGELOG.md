@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
   in the disconnected state.
 
+#### Linux
+- Harden systemd unit files.
+
 
 ## [2025.13-beta2] - 2025-10-28
 ### Fixed
