@@ -182,6 +182,9 @@ const initialState: ISettingsReduxState = {
     shadowsocksSettings: {
       port: 'any',
     },
+    wireGuardPortSettings: {
+      port: 'any',
+    },
   },
   customLists: [],
   apiAccessMethods: getDefaultApiAccessMethods(),
