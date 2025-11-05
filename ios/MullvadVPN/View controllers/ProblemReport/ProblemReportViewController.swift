@@ -35,7 +35,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     lazy var containerView: UIView = { makeContainerView() }()
     /// Subheading label displayed below navigation bar
     lazy var subheaderLabel: UILabel = { makeSubheaderLabel() }()
-    lazy var includeDeviceTokenCheckbox: UIStackView = { makeCheckboxStackView() }()
+    lazy var includeAccountTokenCheckbox: UIStackView = { makeCheckboxStackView() }()
     lazy var emailTextField: CustomTextField = { makeEmailTextField() }()
     lazy var messageTextView: CustomTextView = { makeMessageTextView() }()
     /// Container view for text input fields

@@ -205,7 +205,7 @@ extension ProblemReportViewController {
         scrollView.addSubview(containerView)
         containerView.addSubview(subheaderLabel)
         if interactor.isUserLoggedIn() {
-            containerView.addSubview(includeDeviceTokenCheckbox)
+            containerView.addSubview(includeAccountTokenCheckbox)
         }
         containerView.addSubview(textFieldsHolder)
         containerView.addSubview(buttonsStackView)
@@ -219,11 +219,11 @@ extension ProblemReportViewController {
             textFieldsHolder.topAnchor.constraint(equalTo: subheaderLabel.bottomAnchor, constant: 24)
 
             if interactor.isUserLoggedIn() {
-                includeDeviceTokenCheckbox.pinEdges(
+                includeAccountTokenCheckbox.pinEdges(
                     PinnableEdges([.leading(0), .trailing(0)]), to: containerView.layoutMarginsGuide)
-                includeDeviceTokenCheckbox.topAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor, constant: 24)
+                includeAccountTokenCheckbox.topAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor, constant: 24)
                 buttonsStackView.pinEdges(.all().excluding(.top), to: containerView.layoutMarginsGuide)
-                buttonsStackView.topAnchor.constraint(equalTo: includeDeviceTokenCheckbox.bottomAnchor, constant: 18)
+                buttonsStackView.topAnchor.constraint(equalTo: includeAccountTokenCheckbox.bottomAnchor, constant: 18)
             } else {
                 buttonsStackView.pinEdges(.all().excluding(.top), to: containerView.layoutMarginsGuide)
                 buttonsStackView.topAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor, constant: 18)
