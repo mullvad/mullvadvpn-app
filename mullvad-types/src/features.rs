@@ -5,7 +5,7 @@ use std::{
 
 use crate::settings::{DnsState, Settings};
 use serde::{Deserialize, Serialize};
-use talpid_types::net::{ObfuscationInfo, ObfuscationType, TunnelEndpoint, TunnelType};
+use talpid_types::net::{ObfuscationInfo, ObfuscationType, TunnelEndpoint};
 
 /// Feature indicators are active settings that should be shown to the user to make them aware of
 /// what is affecting their connection at any given time.
@@ -80,7 +80,6 @@ pub enum FeatureIndicator {
     CustomDns,
     ServerIpOverride,
     CustomMtu,
-
     /// Whether DAITA (without multihop) is in use.
     /// Mutually exclusive with [FeatureIndicator::DaitaMultihop].
     Daita,
@@ -147,7 +146,47 @@ pub fn compute_feature_indicators(
         .any_blockers_enabled();
     let custom_dns = settings.tunnel_options.dns_options.state == DnsState::Custom;
 
-    let generic_features = [
+    let quantum_resistant = endpoint.quantum_resistant;
+
+    let has_obfuscation = |obfs| match &endpoint.obfuscation {
+        Some(ObfuscationInfo::Single(endpoint)) => endpoint.obfuscation_type == obfs,
+        Some(ObfuscationInfo::Multiplexer { obfuscators, .. }) => obfuscators
+            .iter()
+            .any(|single| single.obfuscation_type == obfs),
+        None => false,
+    };
+    let port = matches!(
+        settings.obfuscation_settings.selected_obfuscation,
+        crate::relay_constraints::SelectedObfuscation::Port
+    );
+    let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
+    let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
+    let quic = has_obfuscation(ObfuscationType::Quic);
+    let lwo = has_obfuscation(ObfuscationType::Lwo);
+
+    let mtu = settings.tunnel_options.wireguard.mtu.is_some();
+
+    let mut daita_multihop = false;
+    let mut multihop = false;
+
+    if let crate::relay_constraints::RelaySettings::Normal(constraints) = &settings.relay_settings {
+        multihop =
+            endpoint.entry_endpoint.is_some() && constraints.wireguard_constraints.use_multihop;
+
+        #[cfg(daita)]
+        {
+            // Detect whether we're using multihop, but it is not explicitly enabled.
+            daita_multihop = endpoint.daita
+                && endpoint.entry_endpoint.is_some()
+                && !constraints.wireguard_constraints.use_multihop
+        }
+    };
+
+    // Daita is mutually exclusive with DaitaMultihop
+    #[cfg(daita)]
+    let daita = endpoint.daita && !daita_multihop;
+
+    let protocol_features = vec![
         (split_tunneling, FeatureIndicator::SplitTunneling),
         (lan_sharing, FeatureIndicator::LanSharing),
         (dns_content_blockers, FeatureIndicator::DnsContentBlockers),
@@ -155,74 +194,22 @@ pub fn compute_feature_indicators(
         (server_ip_override, FeatureIndicator::ServerIpOverride),
         #[cfg(not(target_os = "android"))]
         (lockdown_mode, FeatureIndicator::LockdownMode),
+        (quantum_resistant, FeatureIndicator::QuantumResistance),
+        (multihop, FeatureIndicator::Multihop),
+        (port, FeatureIndicator::Port),
+        (udp_tcp, FeatureIndicator::Udp2Tcp),
+        (shadowsocks, FeatureIndicator::Shadowsocks),
+        (quic, FeatureIndicator::Quic),
+        (lwo, FeatureIndicator::Lwo),
+        (mtu, FeatureIndicator::CustomMtu),
+        #[cfg(daita)]
+        (daita, FeatureIndicator::Daita),
+        (daita_multihop, FeatureIndicator::DaitaMultihop),
     ];
 
-    // Pick protocol-specific features and whether they are currently enabled.
-    let protocol_features = match endpoint.tunnel_type {
-        TunnelType::OpenVpn => vec![],
-        TunnelType::Wireguard => {
-            let quantum_resistant = endpoint.quantum_resistant;
-
-            let has_obfuscation = |obfs| match &endpoint.obfuscation {
-                Some(ObfuscationInfo::Single(endpoint)) => endpoint.obfuscation_type == obfs,
-                Some(ObfuscationInfo::Multiplexer { obfuscators, .. }) => obfuscators
-                    .iter()
-                    .any(|single| single.obfuscation_type == obfs),
-                None => false,
-            };
-            let port = matches!(
-                settings.obfuscation_settings.selected_obfuscation,
-                crate::relay_constraints::SelectedObfuscation::Port
-            );
-            let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
-            let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
-            let quic = has_obfuscation(ObfuscationType::Quic);
-            let lwo = has_obfuscation(ObfuscationType::Lwo);
-
-            let mtu = settings.tunnel_options.wireguard.mtu.is_some();
-
-            let mut daita_multihop = false;
-            let mut multihop = false;
-
-            if let crate::relay_constraints::RelaySettings::Normal(constraints) =
-                &settings.relay_settings
-            {
-                multihop = endpoint.entry_endpoint.is_some()
-                    && constraints.wireguard_constraints.use_multihop;
-
-                #[cfg(daita)]
-                {
-                    // Detect whether we're using multihop, but it is not explicitly enabled.
-                    daita_multihop = endpoint.daita
-                        && endpoint.entry_endpoint.is_some()
-                        && !constraints.wireguard_constraints.use_multihop
-                }
-            };
-
-            // Daita is mutually exclusive with DaitaMultihop
-            #[cfg(daita)]
-            let daita = endpoint.daita && !daita_multihop;
-
-            vec![
-                (quantum_resistant, FeatureIndicator::QuantumResistance),
-                (multihop, FeatureIndicator::Multihop),
-                (port, FeatureIndicator::Port),
-                (udp_tcp, FeatureIndicator::Udp2Tcp),
-                (shadowsocks, FeatureIndicator::Shadowsocks),
-                (quic, FeatureIndicator::Quic),
-                (lwo, FeatureIndicator::Lwo),
-                (mtu, FeatureIndicator::CustomMtu),
-                #[cfg(daita)]
-                (daita, FeatureIndicator::Daita),
-                (daita_multihop, FeatureIndicator::DaitaMultihop),
-            ]
-        }
-    };
-
     // use the booleans to filter into a list of only the active features
-    generic_features
+    protocol_features
         .into_iter()
-        .chain(protocol_features)
         .filter_map(|(active, feature)| active.then_some(feature))
         .collect()
 }
@@ -248,7 +235,6 @@ mod tests {
                 address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080),
                 protocol: TransportProtocol::Udp,
             },
-            tunnel_type: TunnelType::Wireguard,
             quantum_resistant: Default::default(),
             proxy: Default::default(),
             obfuscation: Default::default(),
@@ -298,8 +284,6 @@ mod tests {
             expected_indicators
         );
 
-        endpoint.tunnel_type = TunnelType::OpenVpn;
-
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
@@ -313,12 +297,6 @@ mod tests {
             proxy_type: ProxyType::Shadowsocks,
         });
 
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
-
-        endpoint.tunnel_type = TunnelType::Wireguard;
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
@@ -368,7 +346,6 @@ mod tests {
             compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
-
         // Check that custom Port triggers a feature indicator.
         {
             // Stash the currently selected obfuscation method and reset it after checking for the

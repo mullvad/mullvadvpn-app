@@ -26,7 +26,7 @@ use mullvad_types::{
     CustomTunnelEndpoint, Intersection,
     constraints::Constraint,
     custom_list::CustomListsSettings,
-    endpoint::MullvadWireguardEndpoint,
+    endpoint::MullvadEndpoint,
     location::{Coordinates, Location},
     relay_constraints::{
         BridgeSettings, InternalBridgeConstraints, ObfuscationSettings, RelayConstraints,
@@ -95,7 +95,7 @@ pub struct SelectorConfig {
     pub relay_overrides: Vec<RelayOverride>,
     // Wireguard specific data
     pub obfuscation_settings: ObfuscationSettings,
-    // OpenVPN specific data
+    // Bridge specific data
     pub bridge_settings: BridgeSettings,
 }
 
@@ -194,7 +194,7 @@ struct NormalSelectorConfig<'a> {
 #[derive(Clone, Debug)]
 pub enum GetRelay {
     Wireguard {
-        endpoint: MullvadWireguardEndpoint,
+        endpoint: MullvadEndpoint,
         obfuscator: Option<SelectedObfuscator>,
         inner: WireguardConfig,
     },
@@ -794,7 +794,7 @@ impl RelaySelector {
         query: &RelayQuery,
         parsed_relays: &RelayList,
         relay: &WireguardConfig,
-    ) -> Result<MullvadWireguardEndpoint, Error> {
+    ) -> Result<MullvadEndpoint, Error> {
         wireguard_endpoint(
             query.wireguard_constraints(),
             &parsed_relays.wireguard,
@@ -809,7 +809,7 @@ impl RelaySelector {
     fn get_wireguard_obfuscator(
         query: &RelayQuery,
         relay: WireguardConfig,
-        endpoint: &MullvadWireguardEndpoint,
+        endpoint: &MullvadEndpoint,
         parsed_relays: &RelayList,
     ) -> Result<Option<SelectedObfuscator>, Error> {
         let obfuscator_relay = match relay {

@@ -2,9 +2,9 @@ use crate::settings::TunnelOptions;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
-    net::{IpAddr, SocketAddr, ToSocketAddrs},
+    net::{IpAddr, ToSocketAddrs},
 };
-use talpid_types::net::{Endpoint, TunnelParameters, openvpn, proxy::CustomProxy, wireguard};
+use talpid_types::net::{Endpoint, wireguard::ConnectionConfig, wireguard::TunnelParameters};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -27,44 +27,28 @@ impl CustomTunnelEndpoint {
     }
 
     pub fn endpoint(&self) -> Endpoint {
-        match &self.config {
-            ConnectionConfig::OpenVpn(config) => config.endpoint,
-            ConnectionConfig::Wireguard(config) => config.get_endpoint(),
-        }
+        self.config.get_endpoint()
     }
 
     pub fn to_tunnel_parameters(
         &self,
         tunnel_options: TunnelOptions,
-        proxy: Option<CustomProxy>,
     ) -> Result<TunnelParameters, Error> {
         let ip = resolve_to_ip(&self.host)?;
         let mut config = self.config.clone();
         config.set_ip(ip);
 
-        let parameters = match config {
-            ConnectionConfig::OpenVpn(config) => openvpn::TunnelParameters {
-                config,
-                options: tunnel_options.openvpn,
-                generic_options: tunnel_options.generic,
-                proxy,
-                #[cfg(target_os = "linux")]
-                fwmark: crate::TUNNEL_FWMARK,
+        let parameters = {
+            let mut options = tunnel_options.wireguard.into_talpid_tunnel_options();
+            if options.quantum_resistant {
+                options.quantum_resistant = false;
+                log::info!("Ignoring quantum resistant option for custom tunnel");
             }
-            .into(),
-            ConnectionConfig::Wireguard(connection) => {
-                let mut options = tunnel_options.wireguard.into_talpid_tunnel_options();
-                if options.quantum_resistant {
-                    options.quantum_resistant = false;
-                    log::info!("Ignoring quantum resistant option for custom tunnel");
-                }
-                wireguard::TunnelParameters {
-                    connection,
-                    options,
-                    generic_options: tunnel_options.generic,
-                    obfuscation: None,
-                }
-                .into()
+            TunnelParameters {
+                connection: config,
+                options,
+                generic_options: tunnel_options.generic,
+                obfuscation: None,
             }
         };
         Ok(parameters)
@@ -73,22 +57,13 @@ impl CustomTunnelEndpoint {
 
 impl fmt::Display for CustomTunnelEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.config {
-            ConnectionConfig::OpenVpn(config) => write!(
-                f,
-                "OpenVPN relay - {}:{} {}",
-                self.host,
-                config.endpoint.address.port(),
-                config.endpoint.protocol
-            ),
-            ConnectionConfig::Wireguard(connection) => write!(
-                f,
-                "WireGuard relay - {}:{} with public key {}",
-                self.host,
-                connection.peer.endpoint.port(),
-                connection.peer.public_key
-            ),
-        }
+        write!(
+            f,
+            "WireGuard relay - {}:{} with public key {}",
+            self.host,
+            self.endpoint().address.port(),
+            self.config.peer.public_key
+        )
     }
 }
 
@@ -109,26 +84,4 @@ fn resolve_to_ip(host: &str) -> Result<IpAddr, Error> {
             ipv6.pop()
         })
         .ok_or_else(|| Error::HostHasNoIpv4(host.to_owned()))
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-#[serde(rename = "connection_config")]
-pub enum ConnectionConfig {
-    #[serde(rename = "openvpn")]
-    OpenVpn(openvpn::ConnectionConfig),
-    #[serde(rename = "wireguard")]
-    Wireguard(wireguard::ConnectionConfig),
-}
-
-impl ConnectionConfig {
-    fn set_ip(&mut self, ip: IpAddr) {
-        match self {
-            ConnectionConfig::OpenVpn(config) => {
-                config.endpoint.address = SocketAddr::new(ip, config.endpoint.address.port());
-            }
-            ConnectionConfig::Wireguard(config) => {
-                config.peer.endpoint = SocketAddr::new(ip, config.peer.endpoint.port())
-            }
-        }
-    }
 }

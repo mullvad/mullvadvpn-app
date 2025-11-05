@@ -2,7 +2,7 @@ use futures::StreamExt;
 use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
 
-use talpid_types::net::{AllowedClients, AllowedEndpoint, TunnelParameters};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, wireguard::TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
@@ -10,8 +10,7 @@ use crate::dns::ResolvedDnsConfig;
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
-#[cfg(windows)]
-use crate::tunnel::TunnelMonitor;
+
 use crate::tunnel::{TunnelEvent, TunnelMetadata};
 
 use super::connecting_state::TunnelCloseEvent;
@@ -107,22 +106,11 @@ impl ConnectedState {
         let endpoints = self.tunnel_parameters.get_next_hop_endpoints();
 
         #[cfg(target_os = "windows")]
-        let clients = AllowedClients::from(
-            TunnelMonitor::get_relay_client(&shared_values.resource_dir, &self.tunnel_parameters)
-                .into_iter()
-                .collect::<Vec<_>>(),
-        );
+        let clients = AllowedClients::from(vec![std::env::current_exe().unwrap()]);
 
         #[cfg(not(target_os = "windows"))]
-        let clients = if self
-            .tunnel_parameters
-            .get_openvpn_local_proxy_settings()
-            .is_some()
-        {
-            AllowedClients::All
-        } else {
-            AllowedClients::Root
-        };
+        let clients = AllowedClients::Root; // TODO: check that this change did not break bridge
+        // api access method
 
         #[cfg(target_os = "windows")]
         let exit_endpoint_ip = self

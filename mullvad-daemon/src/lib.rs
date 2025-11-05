@@ -103,7 +103,7 @@ use talpid_types::android::AndroidContext;
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
     ErrorExt,
-    net::{IpVersion, TunnelType},
+    net::IpVersion,
     tunnel::{ErrorStateCause, TunnelStateTransition},
 };
 use tokio::io;
@@ -278,7 +278,7 @@ pub enum DaemonCommand {
     SetLockdownMode(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
-    /// Set proxy details for OpenVPN
+    /// Set proxy details for Bridges
     SetBridgeSettings(ResponseTx<(), Error>, BridgeSettings),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
@@ -1634,9 +1634,7 @@ impl Daemon {
                 }
             }
             AccountEvent::Device(PrivateDeviceEvent::RotatedKey(_)) => {
-                if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
-                    self.schedule_reconnect(WG_RECONNECT_DELAY);
-                }
+                self.schedule_reconnect(WG_RECONNECT_DELAY);
             }
             AccountEvent::Expiry(expiry) if *self.target_state == TargetState::Secured => {
                 if expiry >= &chrono::Utc::now() {
@@ -1646,7 +1644,7 @@ impl Daemon {
                         log::debug!("Reconnecting since the account has time on it");
                         self.connect_tunnel();
                     }
-                } else if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
+                } else {
                     log::debug!("Entering blocking state since the account is out of time");
                     self.send_tunnel_command(TunnelCommand::Block(ErrorStateCause::AuthFailed(
                         Some(AuthFailed::ExpiredAccount.as_str().to_string()),
@@ -2681,8 +2679,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_quantum_resistant_tunnel response");
-                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::Wireguard)
-                {
+                if settings_changed {
                     log::info!("Reconnecting because the PQ safety setting changed");
                     self.reconnect_tunnel();
                 }
@@ -2871,9 +2868,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
-                if settings_changed
-                    && let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type()
-                {
+                if settings_changed {
                     log::info!(
                         "Initiating tunnel restart because the WireGuard MTU setting changed"
                     );
@@ -2934,9 +2929,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_allowed_ips response");
-                if settings_changed
-                    && let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type()
-                {
+                if settings_changed {
                     log::info!(
                         "Initiating tunnel restart because the WireGuard allowed IPs setting changed"
                     );
@@ -3525,17 +3518,6 @@ impl Daemon {
         if *self.target_state == TargetState::Secured {
             self.connect_tunnel();
         }
-    }
-
-    const fn get_connected_tunnel_type(&self) -> Option<TunnelType> {
-        match self.tunnel_state.get_tunnel_type() {
-            Some(tunnel_type) if self.tunnel_state.is_connected() => Some(tunnel_type),
-            Some(_) | None => None,
-        }
-    }
-
-    const fn get_target_tunnel_type(&self) -> Option<TunnelType> {
-        self.tunnel_state.get_tunnel_type()
     }
 
     fn send_tunnel_command(&self, command: TunnelCommand) {

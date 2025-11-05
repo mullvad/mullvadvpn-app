@@ -22,9 +22,8 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{GeographicLocationConstraint, Ownership, Providers, RelayOverride},
     relay_list::{
-        BridgeEndpointData, Quic, Relay, RelayEndpointData, RelayList, RelayListCity,
-        RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
-        WireguardRelayEndpointData,
+        BridgeEndpointData, EndpointData, Quic, Relay, RelayEndpointData, RelayList, RelayListCity,
+        RelayListCountry, ShadowsocksEndpointData, WireguardRelayEndpointData,
     },
 };
 use vec1::vec1;
@@ -156,7 +155,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
             },
         ],
     },
-    wireguard: WireguardEndpointData {
+    wireguard: EndpointData {
         port_ranges: vec![
             53..=53,
             443..=443,
@@ -247,7 +246,7 @@ fn unwrap_multihop_entry_exit_relays(get_result: GetRelay) -> (Relay, Relay) {
 
 fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     match get_result {
-        GetRelay::Wireguard { endpoint, .. } => MullvadEndpoint::Wireguard(endpoint),
+        GetRelay::Wireguard { endpoint, .. } => endpoint,
         GetRelay::Custom(custom) => {
             panic!("Can not extract Mullvad endpoint from custom relay: {custom}")
         }
@@ -407,7 +406,7 @@ fn test_wireguard_entry() {
         bridge: BridgeEndpointData {
             shadowsocks: vec![],
         },
-        wireguard: WireguardEndpointData {
+        wireguard: EndpointData {
             port_ranges: vec![
                 53..=53,
                 443..=443,
@@ -1042,7 +1041,7 @@ fn test_include_in_country() {
         bridge: BridgeEndpointData {
             shadowsocks: vec![],
         },
-        wireguard: WireguardEndpointData {
+        wireguard: EndpointData {
             port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
@@ -1384,7 +1383,7 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
             latitude: 59.3289,
             longitude: 18.0649,
         };
-        let wireguard = WireguardEndpointData {
+        let wireguard = EndpointData {
             port_ranges: vec![443..=443],
             ..Default::default()
         };
