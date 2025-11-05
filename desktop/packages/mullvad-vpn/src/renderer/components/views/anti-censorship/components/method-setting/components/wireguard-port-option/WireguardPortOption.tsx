@@ -6,13 +6,13 @@ import { messages } from '../../../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../../../shared/routes';
 import { Text } from '../../../../../../../lib/components';
 import { FlexColumn } from '../../../../../../../lib/components/flex-column';
-import { useNormalRelaySettings } from '../../../../../../../lib/relay-settings-hooks';
+import { useSelector } from '../../../../../../../redux/store';
 import { SettingsListbox } from '../../../../../../settings-listbox';
-import { formatRelayPort } from '../../../../utils';
+import { formatObfuscationPort } from '../../../../utils';
 
 export function WireguardPortOption() {
-  const normalRelaySettings = useNormalRelaySettings();
-  const port = normalRelaySettings?.wireguard?.port;
+  const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
+  const port = obfuscationSettings.wireGuardPortSettings.port;
 
   // TRANSLATORS: Text showing currently selected port.
   // TRANSLATORS: Available placeholders:
@@ -39,7 +39,7 @@ export function WireguardPortOption() {
           {port && (
             <Text variant="labelTinySemiBold" color="whiteAlpha60">
               {sprintf(subLabelTemplate, {
-                port: formatRelayPort(port),
+                port: formatObfuscationPort(port),
               })}
             </Text>
           )}
