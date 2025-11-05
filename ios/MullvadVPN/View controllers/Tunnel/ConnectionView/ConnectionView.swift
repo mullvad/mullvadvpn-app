@@ -84,11 +84,7 @@ struct ConnectionView: View {
                     }
                     .frame(maxHeight: scrollViewHeight)
                     .apply {
-                        if #available(iOS 16.4, *) {
-                            $0.scrollBounceBehavior(.basedOnSize)
-                        } else {
-                            $0
-                        }
+                        $0.scrollBounceBehavior(.basedOnSize)
                     }
                 }
                 .transformEffect(.identity)
@@ -99,13 +95,13 @@ struct ConnectionView: View {
             .background(BlurView(style: .dark))
             .cornerRadius(12)
             .padding(EdgeInsets(top: 16, leading: 16, bottom: 24, trailing: 16))
-            .onChange(of: connectionViewModel.showsConnectionDetails) { showsConnectionDetails in
-                if !showsConnectionDetails {
+            .onChange(
+                of: connectionViewModel.showsConnectionDetails,
+                {
                     withAnimation {
                         isExpanded = false
                     }
-                }
-            }
+                })
         }
     }
 }

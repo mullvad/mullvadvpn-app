@@ -41,11 +41,7 @@ struct RevokedDeviceView: View {
                 .padding(.top, 24)
             }
             .apply {
-                if #available(iOS 16.4, *) {
-                    $0.scrollBounceBehavior(.automatic)
-                } else {
-                    $0
-                }
+                $0.scrollBounceBehavior(.automatic)
             }
 
             MainButton(text: "Go to login", style: viewModel.tunnelState.isSecured ? .danger : .default) {
