@@ -253,7 +253,6 @@ function build {
         -p mullvad-cli --bin mullvad
         -p mullvad-setup --bin mullvad-setup
         -p mullvad-problem-report --bin mullvad-problem-report
-        -p talpid-openvpn-plugin --lib
     )
     if [[ ("$(uname -s)" == "Linux") ]]; then
         cargo_crates_to_build+=(-p mullvad-exclude --bin mullvad-exclude)
@@ -271,7 +270,6 @@ function build {
             mullvad-daemon
             mullvad
             mullvad-problem-report
-            libtalpid_openvpn_plugin.dylib
             mullvad-setup
         )
     elif [[ ("$(uname -s)" == "Linux") ]]; then
@@ -279,7 +277,6 @@ function build {
             mullvad-daemon
             mullvad
             mullvad-problem-report
-            libtalpid_openvpn_plugin.so
             mullvad-setup
             mullvad-exclude
         )
@@ -288,7 +285,6 @@ function build {
             mullvad-daemon.exe
             mullvad.exe
             mullvad-problem-report.exe
-            talpid_openvpn_plugin.dll
             mullvad-setup.exe
             libwg.dll
             maybenot_ffi.dll
@@ -317,25 +313,6 @@ function build {
             sign_win "$destination"
         fi
     done
-
-    if [[ "$current_target" == "aarch64-pc-windows-msvc" ]]; then
-        # We ship x64 OpenVPN with ARM64, so we need an x64 talpid-openvpn-plugin
-        # to include in the package.
-        local source="$CARGO_TARGET_DIR/x86_64-pc-windows-msvc/$RUST_BUILD_MODE/talpid_openvpn_plugin.dll"
-        local destination
-        if [[ -n "$specified_target" ]]; then
-            destination="dist-assets/$specified_target/talpid_openvpn_plugin.dll"
-        else
-            destination="dist-assets/talpid_openvpn_plugin.dll"
-        fi
-
-        log_info "Workaround: building x64 talpid-openvpn-plugin"
-        cargo build --target x86_64-pc-windows-msvc "${CARGO_ARGS[@]}" -p talpid-openvpn-plugin --lib
-        cp "$source" "$destination"
-        if [[ "$SIGN" == "true" ]]; then
-            sign_win "$destination"
-        fi
-    fi
 }
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
