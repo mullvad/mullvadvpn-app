@@ -8,25 +8,46 @@ import net.mullvad.mullvadvpn.test.e2e.constant.getInvalidAccountNumber
 import net.mullvad.mullvadvpn.test.e2e.constant.getPartnerAuth
 import net.mullvad.mullvadvpn.test.e2e.constant.getValidAccountNumber
 
-object AccountProvider {
-    private val mullvadClient = MullvadApi()
-    private val partnerAuth: String? = InstrumentationRegistry.getArguments().getPartnerAuth()
-    private val partnerClient: PartnerApi by lazy { PartnerApi(partnerAuth!!) }
-
-    suspend fun getValidAccountNumber(withTime: Boolean = true) =
-        // If partner auth is provided, create a new account using the partner API. Otherwise we
-        // expect and account with time to be provided.
-        if (partnerAuth != null) {
-            val accountNumber = partnerClient.createAccount()
-            if (withTime) {
-                partnerClient.addTime(accountNumber = accountNumber, daysToAdd = 1)
-            }
-            accountNumber
-        } else {
-            val validAccountNumber = InstrumentationRegistry.getArguments().getValidAccountNumber()
-            mullvadClient.removeAllDevices(validAccountNumber)
-            validAccountNumber
-        }
+interface AccountProvider {
+    suspend fun getValidAccountNumber(withTime: Boolean = true): String
 
     fun getInvalidAccountNumber() = InstrumentationRegistry.getArguments().getInvalidAccountNumber()
+
+    suspend fun cleanup(accountNumber: String)
+
+    companion object {
+        fun createAccountProvider(): AccountProvider {
+            val partnerAuth: String? = InstrumentationRegistry.getArguments().getPartnerAuth()
+            return if (partnerAuth != null) {
+                PartnerProvider(partnerAuth)
+            } else {
+                StaticProvider()
+            }
+        }
+    }
+}
+
+data class StaticProvider(private val mullvadApi: MullvadApi = MullvadApi()) : AccountProvider {
+
+    override suspend fun getValidAccountNumber(withTime: Boolean): String =
+        InstrumentationRegistry.getArguments().getValidAccountNumber().also {
+            mullvadApi.removeAllDevices(it)
+        }
+
+    override suspend fun cleanup(accountNumber: String) = Unit // No-op
+}
+
+data class PartnerProvider(val partnerApi: PartnerApi) : AccountProvider {
+    constructor(partnerAuth: String) : this(partnerApi = PartnerApi(partnerAuth))
+
+    override suspend fun getValidAccountNumber(withTime: Boolean): String =
+        partnerApi.createAccount().also {
+            if (withTime) {
+                partnerApi.addTime(accountNumber = it, daysToAdd = 1)
+            }
+        }
+
+    override suspend fun cleanup(accountNumber: String) {
+        partnerApi.deleteAccount(accountNumber)
+    }
 }
