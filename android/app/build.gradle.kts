@@ -121,6 +121,7 @@ android {
                 "proguard-rules.pro",
             )
         }
+        getByName(BuildTypes.DEBUG) { isPseudoLocalesEnabled = true }
         create(BuildTypes.FDROID) {
             initWith(buildTypes.getByName(BuildTypes.RELEASE))
             signingConfig = null
