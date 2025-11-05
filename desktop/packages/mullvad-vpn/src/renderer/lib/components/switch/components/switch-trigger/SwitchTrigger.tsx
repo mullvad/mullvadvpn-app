@@ -15,6 +15,7 @@ export const StyledSwitchTrigger = styled.button<{ $checked?: boolean }>`
 
       background-color: transparent;
       width: fit-content;
+      border-radius: 100px;
 
       ${StyledSwitchThumbIndicator} {
         transform-origin: center;
@@ -31,7 +32,7 @@ export const StyledSwitchTrigger = styled.button<{ $checked?: boolean }>`
 
       &&:focus-visible {
         outline: 2px solid ${colors.white};
-        outline-offset: -1px;
+        outline-offset: 2px;
       }
     `;
   }}
