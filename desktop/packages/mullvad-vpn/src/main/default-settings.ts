@@ -78,6 +78,9 @@ export function getDefaultSettings(): ISettings {
       shadowsocksSettings: {
         port: 'any',
       },
+      wireGuardPortSettings: {
+        port: 'any',
+      },
     },
     customLists: [],
     apiAccessMethods: getDefaultApiAccessMethods(),
