@@ -16,6 +16,9 @@ RestartSec=1
 ExecStart=/usr/bin/mullvad-daemon -v --disable-stdout-timestamps
 Environment="MULLVAD_RESOURCE_DIR=/opt/Mullvad VPN/resources/"
 
+# capabilities
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
+
 # files
 ProtectSystem=true
 ProtectHome=true
