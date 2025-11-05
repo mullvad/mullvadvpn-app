@@ -53,7 +53,6 @@ the current state of the latest code in git, not necessarily any existing releas
 
 |                                         | Windows | Linux | macOS | Android | iOS |
 |-----------------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
-| OpenVPN                                 |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                               |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Quantum-resistant tunnels               |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | [DAITA]                                 |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
@@ -62,7 +61,6 @@ the current state of the latest code in git, not necessarily any existing releas
 | WireGuard over Shadowsocks              |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | WireGuard over QUIC                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Lightweight WireGuard Obfuscation (LWO) |    ✓    |   ✓   |   ✓   |    ✓    |     |
-| OpenVPN over Shadowsocks                |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling                         |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | Custom DNS server                       |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Content blockers (Ads etc)              |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
@@ -86,8 +84,8 @@ on what the app blocks and allows, as well as how it does it.
 
 This repository contains submodules needed for building the app. However, some of those submodules
 also have further submodules that are quite large and not needed to build the app. So unless
-you want the source code for OpenSSL, OpenVPN and a few other projects you should avoid a recursive
-clone of the repository. Instead clone the repository normally and then get one level of submodules:
+you want the source code for all submodules you should avoid a recursive clone of the repository.
+Instead clone the repository normally and then get one level of submodules:
 ```bash
 git clone https://github.com/mullvad/mullvadvpn-app.git
 cd mullvadvpn-app
@@ -106,8 +104,7 @@ your checkout, you can find our developer keys on [Mullvad's Open Source page].
 ### Binaries submodule
 
 This repository has a git submodule at `dist-assets/binaries`. This submodule contains binaries and
-build scripts for third party code we need to bundle with the app. Such as OpenVPN, Wintun
-etc.
+build scripts for third party code we need to bundle with the app, such as Wintun.
 
 This submodule conforms to the same integrity/security standards as this repository. Every merge
 commit should be signed. And this main repository should only ever point to a signed merge commit
@@ -298,12 +295,10 @@ If you're using GNOME, try installing one of these GNOME Shell extensions:
   - **test/** - Electron GUI tests
 - **dist-assets/** - Icons, binaries and other files used when creating the distributables
   - **binaries/** - Git submodule containing binaries bundled with the app. For example the
-    statically linked OpenVPN binary. See the README in the submodule for details
+    statically linked split tunneling binary. See the README in the submodule for details
   - **linux/** - Scripts and configuration files for the deb and rpm artifacts
   - **pkg-scripts/** - Scripts bundled with and executed by the macOS pkg installer
   - **windows/** - Windows NSIS installer configuration and assets
-  - **ca.crt** - The Mullvad relay server root CA. Bundled with the app and only OpenVPN relays
-    signed by this CA are trusted
 
 
 ### Building, testing and misc
