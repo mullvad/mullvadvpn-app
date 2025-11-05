@@ -422,9 +422,9 @@ pub mod builder {
     /// - The type parameter `VpnProtocol` keeps track of which VPN protocol that is being
     ///   configured. Different instantiations of `VpnProtocol` will expose different functions for
     ///   configuring a [`RelayQueryBuilder`] further.
-    pub struct RelayQueryBuilder<VpnProtocol = Any> {
+    pub struct RelayQueryBuilder<Multihop, Obfuscation, Daita, QuantumResistant> {
         query: RelayQuery,
-        protocol: VpnProtocol,
+        settings: Settings<Multihop, Obfuscation, Daita, QuantumResistant>,
     }
 
     ///  The `Any` type is equivalent to the `Constraint::Any` value. If a
@@ -434,7 +434,9 @@ pub mod builder {
 
     // This impl-block is quantified over all configurations, e.g. [`Any`],
     // or [`WireguardRelayQuery`]
-    impl<VpnProtocol> RelayQueryBuilder<VpnProtocol> {
+    impl<Multihop, Obfuscation, Daita, QuantumResistant>
+        RelayQueryBuilder<Multihop, Obfuscation, Daita, QuantumResistant>
+    {
         /// Configure the [`LocationConstraint`] to use.
         pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
             self.query.location = Constraint::Only(location.into());
@@ -460,24 +462,24 @@ pub mod builder {
         }
     }
 
-    impl RelayQueryBuilder<Any> {
-        /// Create a new [`RelayQueryBuilder`] for Wireguard.
+    impl RelayQueryBuilder<Any, Any, Any, Any> {
+        /// Create a new [`RelayQueryBuilder`].
         ///
         /// Call [`Self::build`] to convert the builder into a [`RelayQuery`],
         /// which is used to guide the [`RelaySelector`]
         ///
         /// [`RelaySelector`]: crate::RelaySelector
-        // TODO: remove protocol parameter?
-        pub fn wireguard() -> RelayQueryBuilder<Wireguard<Any, Any, Any, Any>> {
-            let protocol = Wireguard {
-                multihop: Any,
-                obfuscation: Any,
-                daita: Any,
-                quantum_resistant: Any,
-            };
-            let query = RelayQuery::default();
-            // Update the type state
-            RelayQueryBuilder { query, protocol }
+        pub fn new() -> RelayQueryBuilder<Any, Any, Any, Any> {
+            RelayQueryBuilder {
+                query: RelayQuery::default(),
+                settings: Settings::default(),
+            }
+        }
+    }
+
+    impl Default for RelayQueryBuilder<Any, Any, Any, Any> {
+        fn default() -> Self {
+            Self::new()
         }
     }
 
@@ -489,11 +491,22 @@ pub mod builder {
     ///   enabled, the builder should expose an option to select entry point.
     ///
     /// [`WireguardRelayQuery`]: super::WireguardRelayQuery
-    pub struct Wireguard<Multihop, Obfuscation, Daita, QuantumResistant> {
+    struct Settings<Multihop, Obfuscation, Daita, QuantumResistant> {
         multihop: Multihop,
         obfuscation: Obfuscation,
         daita: Daita,
         quantum_resistant: QuantumResistant,
+    }
+
+    impl Default for Settings<Any, Any, Any, Any> {
+        fn default() -> Self {
+            Self {
+                multihop: Any,
+                obfuscation: Any,
+                daita: Any,
+                quantum_resistant: Any,
+            }
+        }
     }
 
     /// Quic obfuscation.
@@ -510,7 +523,7 @@ pub mod builder {
 
     // This impl-block is quantified over all configurations
     impl<Multihop, Obfuscation, Daita, QuantumResistant>
-        RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, QuantumResistant>>
+        RelayQueryBuilder<Multihop, Obfuscation, Daita, QuantumResistant>
     {
         /// Set the [`IpVersion`] to use when connecting to the selected
         /// Wireguard relay.
@@ -521,21 +534,19 @@ pub mod builder {
     }
 
     impl<Multihop, Obfuscation, QuantumResistant>
-        RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Any, QuantumResistant>>
+        RelayQueryBuilder<Multihop, Obfuscation, Any, QuantumResistant>
     {
         /// Enable DAITA support.
-        pub fn daita(
-            mut self,
-        ) -> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, bool, QuantumResistant>> {
+        pub fn daita(mut self) -> RelayQueryBuilder<Multihop, Obfuscation, bool, QuantumResistant> {
             self.query.wireguard_constraints.daita = Constraint::Only(true);
             // Update the type state
             RelayQueryBuilder {
                 query: self.query,
-                protocol: Wireguard {
-                    multihop: self.protocol.multihop,
-                    obfuscation: self.protocol.obfuscation,
+                settings: Settings {
+                    multihop: self.settings.multihop,
+                    obfuscation: self.settings.obfuscation,
                     daita: true,
-                    quantum_resistant: self.protocol.quantum_resistant,
+                    quantum_resistant: self.settings.quantum_resistant,
                 },
             }
         }
@@ -543,7 +554,7 @@ pub mod builder {
 
     // impl-block for after DAITA is set
     impl<Multihop, Obfuscation, QuantumResistant>
-        RelayQueryBuilder<Wireguard<Multihop, Obfuscation, bool, QuantumResistant>>
+        RelayQueryBuilder<Multihop, Obfuscation, bool, QuantumResistant>
     {
         /// Enable DAITA 'use_multihop_if_necessary'.
         pub fn daita_use_multihop_if_necessary(
@@ -557,19 +568,19 @@ pub mod builder {
         }
     }
 
-    impl<Multihop, Obfuscation, Daita> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, Any>> {
+    impl<Multihop, Obfuscation, Daita> RelayQueryBuilder<Multihop, Obfuscation, Daita, Any> {
         /// Enable PQ support.
         pub fn quantum_resistant(
             mut self,
-        ) -> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, bool>> {
+        ) -> RelayQueryBuilder<Multihop, Obfuscation, Daita, bool> {
             self.query.wireguard_constraints.quantum_resistant = QuantumResistantState::On.into();
             // Update the type state
             RelayQueryBuilder {
                 query: self.query,
-                protocol: Wireguard {
-                    multihop: self.protocol.multihop,
-                    obfuscation: self.protocol.obfuscation,
-                    daita: self.protocol.daita,
+                settings: Settings {
+                    multihop: self.settings.multihop,
+                    obfuscation: self.settings.obfuscation,
+                    daita: self.settings.daita,
                     quantum_resistant: true,
                 },
             }
@@ -577,30 +588,28 @@ pub mod builder {
     }
 
     impl<Obfuscation, Daita, QuantumResistant>
-        RelayQueryBuilder<Wireguard<Any, Obfuscation, Daita, QuantumResistant>>
+        RelayQueryBuilder<Any, Obfuscation, Daita, QuantumResistant>
     {
         /// Enable multihop.
         ///
         /// To configure the entry relay, see [`RelayQueryBuilder::entry`].
-        pub fn multihop(
-            mut self,
-        ) -> RelayQueryBuilder<Wireguard<bool, Obfuscation, Daita, QuantumResistant>> {
+        pub fn multihop(mut self) -> RelayQueryBuilder<bool, Obfuscation, Daita, QuantumResistant> {
             self.query.wireguard_constraints.use_multihop = Constraint::Only(true);
             // Update the type state
             RelayQueryBuilder {
                 query: self.query,
-                protocol: Wireguard {
+                settings: Settings {
                     multihop: true,
-                    obfuscation: self.protocol.obfuscation,
-                    daita: self.protocol.daita,
-                    quantum_resistant: self.protocol.quantum_resistant,
+                    obfuscation: self.settings.obfuscation,
+                    daita: self.settings.daita,
+                    quantum_resistant: self.settings.quantum_resistant,
                 },
             }
         }
     }
 
     impl<Obfuscation, Daita, QuantumResistant>
-        RelayQueryBuilder<Wireguard<bool, Obfuscation, Daita, QuantumResistant>>
+        RelayQueryBuilder<bool, Obfuscation, Daita, QuantumResistant>
     {
         /// Set the entry location in a multihop configuration. This requires
         /// multihop to be enabled.
@@ -624,26 +633,23 @@ pub mod builder {
         }
     }
 
-    impl<Multihop, Daita, QuantumResistant>
-        RelayQueryBuilder<Wireguard<Multihop, Any, Daita, QuantumResistant>>
-    {
+    impl<Multihop, Daita, QuantumResistant> RelayQueryBuilder<Multihop, Any, Daita, QuantumResistant> {
         /// Set a custom port for the WireGuard connection.
         pub fn port(
             mut self,
             port: u16,
-        ) -> RelayQueryBuilder<Wireguard<Multihop, WireguardPortSettings, Daita, QuantumResistant>>
-        {
+        ) -> RelayQueryBuilder<Multihop, WireguardPortSettings, Daita, QuantumResistant> {
             let port = WireguardPortSettings::from(port);
-            let protocol = Wireguard {
-                multihop: self.protocol.multihop,
+            let protocol = Settings {
+                multihop: self.settings.multihop,
                 obfuscation: port,
-                daita: self.protocol.daita,
-                quantum_resistant: self.protocol.quantum_resistant,
+                daita: self.settings.daita,
+                quantum_resistant: self.settings.quantum_resistant,
             };
             self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Port(port);
             RelayQueryBuilder {
                 query: self.query,
-                protocol,
+                settings: protocol,
             }
         }
 
@@ -651,22 +657,21 @@ pub mod builder {
         /// `UDP2TCP` port.
         pub fn udp2tcp(
             mut self,
-        ) -> RelayQueryBuilder<
-            Wireguard<Multihop, Udp2TcpObfuscationSettings, Daita, QuantumResistant>,
-        > {
+        ) -> RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings, Daita, QuantumResistant>
+        {
             let obfuscation = Udp2TcpObfuscationSettings {
                 port: Constraint::Any,
             };
-            let protocol = Wireguard {
-                multihop: self.protocol.multihop,
+            let protocol = Settings {
+                multihop: self.settings.multihop,
                 obfuscation: obfuscation.clone(),
-                daita: self.protocol.daita,
-                quantum_resistant: self.protocol.quantum_resistant,
+                daita: self.settings.daita,
+                quantum_resistant: self.settings.quantum_resistant,
             };
             self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Udp2tcp(obfuscation);
             RelayQueryBuilder {
                 query: self.query,
-                protocol,
+                settings: protocol,
             }
         }
 
@@ -674,67 +679,62 @@ pub mod builder {
         /// port.
         pub fn shadowsocks(
             mut self,
-        ) -> RelayQueryBuilder<Wireguard<Multihop, ShadowsocksSettings, Daita, QuantumResistant>>
-        {
+        ) -> RelayQueryBuilder<Multihop, ShadowsocksSettings, Daita, QuantumResistant> {
             let obfuscation = ShadowsocksSettings {
                 port: Constraint::Any,
             };
-            let protocol = Wireguard {
-                multihop: self.protocol.multihop,
+            let protocol = Settings {
+                multihop: self.settings.multihop,
                 obfuscation: obfuscation.clone(),
-                daita: self.protocol.daita,
-                quantum_resistant: self.protocol.quantum_resistant,
+                daita: self.settings.daita,
+                quantum_resistant: self.settings.quantum_resistant,
             };
             self.query.wireguard_constraints.obfuscation =
                 ObfuscationQuery::Shadowsocks(obfuscation);
             RelayQueryBuilder {
                 query: self.query,
-                protocol,
+                settings: protocol,
             }
         }
 
         /// Enable QUIC obfuscation.
-        pub fn quic(
-            mut self,
-        ) -> RelayQueryBuilder<Wireguard<Multihop, Quic, Daita, QuantumResistant>> {
+        pub fn quic(mut self) -> RelayQueryBuilder<Multihop, Quic, Daita, QuantumResistant> {
             self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Quic;
             RelayQueryBuilder {
                 query: self.query,
-                protocol: Wireguard {
-                    multihop: self.protocol.multihop,
+                settings: Settings {
+                    multihop: self.settings.multihop,
                     obfuscation: Quic,
-                    daita: self.protocol.daita,
-                    quantum_resistant: self.protocol.quantum_resistant,
+                    daita: self.settings.daita,
+                    quantum_resistant: self.settings.quantum_resistant,
                 },
             }
         }
 
         /// Enable LWO obfuscation.
-        pub fn lwo(
-            mut self,
-        ) -> RelayQueryBuilder<Wireguard<Multihop, Lwo, Daita, QuantumResistant>> {
+        pub fn lwo(mut self) -> RelayQueryBuilder<Multihop, Lwo, Daita, QuantumResistant> {
             self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Lwo;
             RelayQueryBuilder {
                 query: self.query,
-                protocol: Wireguard {
-                    multihop: self.protocol.multihop,
+                settings: Settings {
+                    multihop: self.settings.multihop,
                     obfuscation: Lwo,
-                    daita: self.protocol.daita,
-                    quantum_resistant: self.protocol.quantum_resistant,
+                    daita: self.settings.daita,
+                    quantum_resistant: self.settings.quantum_resistant,
                 },
             }
         }
     }
 
     impl<Multihop, Daita, QuantumResistant>
-        RelayQueryBuilder<Wireguard<Multihop, Udp2TcpObfuscationSettings, Daita, QuantumResistant>>
+        RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings, Daita, QuantumResistant>
     {
         /// Set the `UDP2TCP` port. This is the TCP port which the `UDP2TCP` obfuscation
         /// protocol should use to connect to a relay.
         pub fn udp2tcp_port(mut self, port: u16) -> Self {
-            self.protocol.obfuscation.port = Constraint::Only(port);
+            self.settings.obfuscation.port = Constraint::Only(port);
             self.query.wireguard_constraints.obfuscation =
-                ObfuscationQuery::Udp2tcp(self.protocol.obfuscation.clone());
+                ObfuscationQuery::Udp2tcp(self.settings.obfuscation.clone());
             self
         }
     }
