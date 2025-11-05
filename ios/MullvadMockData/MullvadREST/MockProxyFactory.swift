@@ -19,7 +19,6 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
         REST.MullvadAPIProxy(
             transportProvider: configuration.apiTransportProvider,
             dispatchQueue: DispatchQueue(label: "MullvadAPIProxy.dispatchQueue"),
-                             
             responseDecoder: REST.Coding.makeJSONDecoder()
         )
     }

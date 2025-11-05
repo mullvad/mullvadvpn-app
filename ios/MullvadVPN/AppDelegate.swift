@@ -97,8 +97,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
-        
-        let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(methods: accessMethodRepository.fetchAll())
+
+        let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
+            methods: accessMethodRepository.fetchAll()
+        )
 
         // swift-format-ignore: NeverUseForceTry
         apiContext = try! MullvadApiContext(
