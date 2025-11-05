@@ -296,6 +296,7 @@ function build {
                 libwg.dll
                 maybenot_ffi.dll
             )
+            NPM_PACK_ARGS+=(--wggo)
         fi
     fi
 
