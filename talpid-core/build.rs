@@ -1,11 +1,6 @@
 fn main() {
-    generate_grpc_code();
     #[cfg(windows)]
     win::main();
-}
-
-fn generate_grpc_code() {
-    tonic_build::compile_protos("../talpid-openvpn-plugin/proto/openvpn_plugin.proto").unwrap();
 }
 
 #[cfg(windows)]
