@@ -52,8 +52,8 @@ class TunnelManagerTests: XCTestCase {
             canWriteToCache: false,
             fileCache: MockFileCache(initialState: .fileNotFound)
         )
-        
-        let opaqueAccessMethodSettingsWrapper =  initAccessMethodSettingsWrapper(
+
+        let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
             methods: AccessMethodRepositoryStub.stub.fetchAll())
 
         apiContext = try MullvadApiContext(
