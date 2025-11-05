@@ -477,6 +477,10 @@ export type SplitTunnelSettings = {
   appsList: string[];
 };
 
+export type WireGuardPortObfuscationSettings = {
+  port: Constraint<number>;
+};
+
 export type Udp2TcpObfuscationSettings = {
   port: Constraint<number>;
 };
@@ -499,6 +503,7 @@ export type ObfuscationSettings = {
   selectedObfuscation: ObfuscationType;
   udp2tcpSettings: Udp2TcpObfuscationSettings;
   shadowsocksSettings: ShadowsocksSettings;
+  wireGuardPortSettings: WireGuardPortObfuscationSettings;
 };
 
 export interface IBridgeConstraints {
