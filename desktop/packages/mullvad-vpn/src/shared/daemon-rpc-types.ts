@@ -281,7 +281,6 @@ export type RelayLocationGeographical =
 export type RelayLocation = RelayLocationGeographical | RelayLocationCustomList;
 
 export interface IWireguardConstraints {
-  port: Constraint<number>;
   ipVersion: Constraint<IpVersion>;
   useMultihop: boolean;
   entryLocation: Constraint<RelayLocation>;
