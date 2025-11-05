@@ -29,7 +29,6 @@ export type NormalRelaySettingsRedux = {
   providers: string[];
   ownership: Ownership;
   wireguard: {
-    port: LiftedConstraint<number>;
     ipVersion: LiftedConstraint<IpVersion>;
     useMultihop: boolean;
     entryLocation: LiftedConstraint<RelayLocation>;
@@ -136,7 +135,7 @@ const initialState: ISettingsReduxState = {
       location: 'any',
       providers: [],
       ownership: Ownership.any,
-      wireguard: { port: 'any', ipVersion: 'any', useMultihop: false, entryLocation: 'any' },
+      wireguard: { ipVersion: 'any', useMultihop: false, entryLocation: 'any' },
     },
   },
   relayLocations: [],
