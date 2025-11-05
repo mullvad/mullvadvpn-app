@@ -42,21 +42,13 @@ test.describe('WireGuard port settings', () => {
 
   const setPort = async (port: Constraint<number>) => {
     const defaultSettings = getDefaultSettings();
-    if (!('normal' in defaultSettings.relaySettings)) {
-      throw new Error('Normal relay settings not found in default settings');
-    }
-    const normalRelaySettings = defaultSettings.relaySettings.normal;
 
     await util.ipc.settings[''].notify({
       ...defaultSettings,
-      relaySettings: {
-        ...defaultSettings.relaySettings,
-        normal: {
-          ...normalRelaySettings,
-          wireguardConstraints: {
-            ...normalRelaySettings?.wireguardConstraints,
-            port,
-          },
+      obfuscationSettings: {
+        ...defaultSettings.obfuscationSettings,
+        wireGuardPortSettings: {
+          port,
         },
       },
     });
