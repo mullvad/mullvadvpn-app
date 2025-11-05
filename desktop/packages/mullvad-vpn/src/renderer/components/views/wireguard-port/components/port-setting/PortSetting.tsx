@@ -1,12 +1,11 @@
 import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
+import { liftConstraint, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import log from '../../../../../../shared/logging';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
 import { isInRanges } from '../../../../../../shared/utils';
-import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
+import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
 import InfoButton from '../../../../InfoButton';
@@ -19,8 +18,9 @@ function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
 export function PortSetting() {
-  const relaySettings = useSelector((state) => state.settings.relaySettings);
-  const relaySettingsUpdater = useRelaySettingsUpdater();
+  const { setObfuscationSettings } = useAppContext();
+
+  const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
 
   const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
@@ -29,8 +29,9 @@ export function PortSetting() {
   );
 
   const selectedOption = useMemo(() => {
-    const port = 'normal' in relaySettings ? relaySettings.normal.wireguard.port : 'any';
-    if (port === 'any')
+    const port = liftConstraint(obfuscationSettings.wireGuardPortSettings.port);
+
+    if (port === 'any') {
       return {
         port: 'any',
         value: null,
@@ -42,27 +43,25 @@ export function PortSetting() {
         port,
         value: 'custom',
       };
+    }
+
     return {
       port,
       value: port,
     };
-  }, [relaySettings]);
+  }, [obfuscationSettings]);
 
   const setWireguardPort = useCallback(
     async (port: number | string | null) => {
-      try {
-        await relaySettingsUpdater((settings) => {
-          settings.wireguardConstraints.port = wrapConstraint(
-            typeof port === 'string' ? parseInt(port) : port,
-          );
-          return settings;
-        });
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to update relay settings', error.message);
-      }
+      await setObfuscationSettings({
+        ...obfuscationSettings,
+        wireGuardPortSettings: {
+          ...obfuscationSettings.wireGuardPortSettings,
+          port: wrapConstraint(typeof port === 'string' ? parseInt(port) : port),
+        },
+      });
     },
-    [relaySettingsUpdater],
+    [setObfuscationSettings, obfuscationSettings],
   );
 
   const validateValue = useCallback(
