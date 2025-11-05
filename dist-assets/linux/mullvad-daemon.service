@@ -33,8 +33,6 @@ ProtectKernelModules=true
 SystemCallFilter=@system-service
 SystemCallFilter=~@privileged
 RestrictRealtime=true
-
-# architecture
 SystemCallArchitectures=native
 LockPersonality=true
 
