@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -196,7 +196,7 @@ private fun ApiAccessMethodItem(
             ),
         bodyView = {
             Icon(
-                Icons.Default.ChevronRight,
+                Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = apiAccessMethodSetting.name.value,
                 tint = MaterialTheme.colorScheme.onPrimary,
             )
