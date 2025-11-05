@@ -835,16 +835,10 @@ function convertFromWireguardConstraints(
   constraints: grpcTypes.WireguardConstraints,
 ): IWireguardConstraints {
   const result: IWireguardConstraints = {
-    port: 'any',
     ipVersion: 'any',
     useMultihop: constraints.getUseMultihop(),
     entryLocation: 'any',
   };
-
-  const port = constraints.getPort();
-  if (port) {
-    result.port = { only: port };
-  }
 
   // `getIpVersion()` is not falsy if type is 'any'
   if (constraints.hasIpVersion()) {
@@ -937,11 +931,6 @@ function convertToWireguardConstraints(
 ): grpcTypes.WireguardConstraints | undefined {
   if (constraint) {
     const wireguardConstraints = new grpcTypes.WireguardConstraints();
-
-    const port = unwrapConstraint(constraint.port);
-    if (port) {
-      wireguardConstraints.setPort(port);
-    }
 
     const ipVersion = unwrapConstraint(constraint.ipVersion);
     if (ipVersion) {
