@@ -437,7 +437,7 @@ message ObfuscationSettings {
   }
   message Udp2TcpObfuscation { optional uint32 port = 1; }
   message Shadowsocks { optional uint32 port = 1; }
-  message Port { uint32 port = 1; }
+  message Port { optional uint32 port = 1; }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscation udp2tcp = 2;
   Shadowsocks shadowsocks = 3;
