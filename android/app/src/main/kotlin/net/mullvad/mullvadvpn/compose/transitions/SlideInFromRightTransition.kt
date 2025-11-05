@@ -18,9 +18,10 @@ object SlideInFromRightTransition : DestinationStyle.Animated() {
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
             fadeIn(spring()) +
-                slideInHorizontally(
-                    initialOffsetX = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() }
-                )
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                initialOffset = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() }
+            )
         }
 
     override val exitTransition:
@@ -38,7 +39,9 @@ object SlideInFromRightTransition : DestinationStyle.Animated() {
     override val popExitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
-            slideOutHorizontally(targetOffsetX = { (it * EXIT_TRANSITION_SLIDE_FACTOR).toInt() }) +
-                fadeOut(spring())
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                targetOffset = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() }
+            ) + fadeOut(spring())
         }
 }
