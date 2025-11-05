@@ -158,12 +158,8 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test it
-        // TODO: Consider removing `cfg!(not(feature = "wireguard-go"))`
-        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD
-            || params.options.daita
-            || cfg!(not(feature = "wireguard-go"));
-        let userspace_multihop = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
+        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || params.options.daita;
+        let userspace_multihop = userspace_wireguard;
 
         let route_mtu = args
             .runtime
