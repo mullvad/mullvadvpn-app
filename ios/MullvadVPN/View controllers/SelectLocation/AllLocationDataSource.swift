@@ -72,7 +72,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
         switch location {
         case let .country(countryCode):
             let countryNode = LocationNode(
-                name: serverLocation.country,
+                name: NSLocalizedString(serverLocation.country, comment: ""),
                 code: LocationNode.combineNodeCodes([countryCode]),
                 locations: [location],
                 isActive: true,  // Defaults to true, updated when children are populated.
@@ -86,7 +86,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
 
         case let .city(countryCode, cityCode):
             let cityNode = LocationNode(
-                name: serverLocation.city,
+                name: NSLocalizedString(serverLocation.city, comment: ""),
                 code: LocationNode.combineNodeCodes([countryCode, cityCode]),
                 locations: [location],
                 isActive: true,  // Defaults to true, updated when children are populated.
