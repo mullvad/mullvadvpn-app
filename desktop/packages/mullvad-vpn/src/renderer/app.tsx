@@ -769,7 +769,6 @@ export default class AppRenderer {
           providers,
           ownership,
           wireguard: {
-            port: liftConstraint(wireguardConstraints.port),
             ipVersion: liftConstraint(wireguardConstraints.ipVersion),
             useMultihop: wireguardConstraints.useMultihop,
             entryLocation: liftConstraint(wireguardConstraints.entryLocation),
