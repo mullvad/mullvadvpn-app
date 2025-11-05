@@ -31,17 +31,16 @@ SystemCallFilter=~@privileged
 RestrictRealtime=true
 SystemCallArchitectures=native
 LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_NETLINK AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=true
 
 # devices
 DeviceAllow=/dev/net/tun rw
 DevicePolicy=closed
 
 # misc
-MemoryDenyWriteExecute=true
 NoNewPrivileges=true
-ProtectHostname=true
-RestrictAddressFamilies=AF_NETLINK AF_UNIX AF_INET AF_INET6
-RestrictNamespaces=true
 RestrictSUIDSGID=true
 
 [Install]
