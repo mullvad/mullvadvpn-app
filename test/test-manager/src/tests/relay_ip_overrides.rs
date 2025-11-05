@@ -48,7 +48,7 @@ pub async fn test_wireguard_ip_override(
     };
 
     // pick any wireguard_constraints relay to use with the test
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .port(TUNNEL_PORT)
         .ip_version(IpVersion::V4)
         .build();
