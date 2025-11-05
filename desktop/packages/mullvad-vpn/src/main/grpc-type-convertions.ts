@@ -684,6 +684,9 @@ function convertFromObfuscationSettings(
     shadowsocksSettings: obfuscationSettings?.shadowsocks
       ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
       : { port: 'any' },
+    wireGuardPortSettings: obfuscationSettings?.port
+      ? { port: convertFromConstraint(obfuscationSettings.port.port) }
+      : { port: 'any' },
   };
 }
 
