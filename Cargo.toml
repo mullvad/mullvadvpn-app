@@ -116,6 +116,8 @@ netlink-packet-route = "0.25"
 netlink-proto = "0.12"
 netlink-sys = "0.8.3"
 
+zerocopy = "0.8.27"
+
 # Hickory & DNS
 hickory-proto = "0.24.3"
 hickory-resolver = "0.24.3"

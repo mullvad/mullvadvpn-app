@@ -1,13 +1,13 @@
 use byteorder::{ByteOrder, NativeEndian};
+use netlink_packet_core::DecodeError;
 use nix::sys::socket::{SockaddrIn, SockaddrIn6};
 use std::{
     ffi::{CStr, CString},
     mem::{self, transmute},
     net::{IpAddr, SocketAddr},
-    time::{Duration, SystemTime},
 };
 
-use netlink_packet_core::DecodeError;
+use super::timespec::KernelTimespec;
 
 pub fn parse_ip_addr(bytes: &[u8]) -> Result<IpAddr, DecodeError> {
     if bytes.len() == 4 {
@@ -81,23 +81,14 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<SocketAddr, DecodeError> {
 
 /// Parse the last WireGuard handshake timestamp.
 /// The resulting [SystemTime] is a timestamp relative to [SystemTime::UNIX_EPOCH].
-pub fn parse_last_handshake_time(buffer: &[u8]) -> Result<SystemTime, DecodeError> {
-    // Note: The 64-bit UAPI time type (__kernel_timespec) is used for the WireGuard handshake timestamp,
-    // Which is to say, 8 (time64_t) + 8 (long long) bytes.
-    //
-    // Source: Linux kernel source code
-    // - drivers/net/wireguard/netlink.c
-    // - include/uapi/linux/time_types.h
-    if buffer.len() != 16 {
+pub fn parse_last_handshake_time(buffer: &[u8]) -> Result<KernelTimespec, DecodeError> {
+    use zerocopy::FromBytes;
+    if buffer.len() != size_of::<KernelTimespec>() {
         return Err(format!("Unexpected size for timespec: {}", buffer.len()).into());
     }
-    let (tv_sec, tv_nsec) = (
-        Duration::from_secs(NativeEndian::read_u64(&buffer[..8])),
-        Duration::from_nanos(NativeEndian::read_u64(&buffer[8..16])),
-    );
-    // handshake_{sec,nsec} are relative to UNIX_EPOCH
-    // https://www.wireguard.com/xplatform/
-    Ok(SystemTime::UNIX_EPOCH + tv_sec + tv_nsec)
+    KernelTimespec::read_from_bytes(buffer).map_err(|err| {
+        format!("Failed to decode netlink message into KernelTimespec: {err}").into()
+    })
 }
 
 pub fn parse_cstring(buffer: &[u8]) -> Result<CString, DecodeError> {

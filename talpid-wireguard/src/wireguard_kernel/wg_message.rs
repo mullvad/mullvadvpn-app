@@ -1,5 +1,6 @@
 use crate::wireguard_kernel::parsers::{parse_cstring, parse_inet_sockaddr, parse_ip_addr};
 
+use super::timespec::KernelTimespec;
 use super::{super::config::Config, Error, parsers};
 use byteorder::{ByteOrder, NativeEndian};
 use ipnetwork::IpNetwork;
@@ -12,13 +13,13 @@ use netlink_packet_core::{
     NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
 };
 use nix::sys::socket::{SockaddrIn, SockaddrIn6};
-use std::time::SystemTime;
 use std::{
     ffi::CString,
     io::Write,
     mem,
     net::{IpAddr, SocketAddr},
 };
+use zerocopy::IntoBytes;
 
 /// WireGuard netlink constants
 mod constants {
@@ -342,7 +343,7 @@ pub enum PeerNla {
     Flags(u32),
     Endpoint(SocketAddr),
     PersistentKeepaliveInterval(u16),
-    LastHandshakeTime(SystemTime),
+    LastHandshakeTime(KernelTimespec),
     RxBytes(u64),
     TxBytes(u64),
     AllowedIps(Vec<AllowedIpMessage>),
@@ -359,7 +360,7 @@ impl Nla for PeerNla {
                 SocketAddr::V6(_) => mem::size_of::<libc::sockaddr_in6>(),
             },
             PersistentKeepaliveInterval(_) => 2,
-            LastHandshakeTime(_) => 16, // size_of(__kernel_timespec)
+            LastHandshakeTime(_) => size_of::<KernelTimespec>(),
             RxBytes(_) | TxBytes(_) => 8,
             AllowedIps(ips) => ips.as_slice().buffer_len(),
             Flags(_) | ProtocolVersion(_) => 4,
@@ -413,16 +414,9 @@ impl Nla for PeerNla {
                 NativeEndian::write_u16(buffer, *interval);
             }
             LastHandshakeTime(last_handshake) => {
-                let timestamp = last_handshake
-                    .duration_since(SystemTime::UNIX_EPOCH)
-                    .expect("last handshake was made after UNIX_EPOCH");
-                NativeEndian::write_u64(buffer, timestamp.as_secs());
-                // Nanos may be safely used as a 32 bit integer, but the handshake timestamp from
-                // kernel space is 64 bits in both seconds and nanos.
-                NativeEndian::write_u64(
-                    &mut buffer[size_of::<u64>()..],
-                    timestamp.subsec_nanos().into(),
-                );
+                buffer
+                    .write_all(last_handshake.as_bytes())
+                    .expect("Buffer too small for __kernel_timespec");
             }
             RxBytes(num_bytes) | TxBytes(num_bytes) => NativeEndian::write_u64(buffer, *num_bytes),
             AllowedIps(ips) => ips.as_slice().emit(buffer),
@@ -604,6 +598,8 @@ fn ip_addr_to_bytes(addr: &IpAddr) -> Vec<u8> {
 
 #[cfg(test)]
 mod test {
+    use zerocopy::FromZeros;
+
     use super::*;
     use std::{net::Ipv4Addr, str::FromStr};
 
@@ -731,7 +727,7 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0,
             ]),
-            LastHandshakeTime(SystemTime::UNIX_EPOCH),
+            LastHandshakeTime(KernelTimespec::new_zeroed()),
             PersistentKeepaliveInterval(0),
             TxBytes(0),
             RxBytes(0),
@@ -753,7 +749,7 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0,
             ]),
-            LastHandshakeTime(SystemTime::UNIX_EPOCH),
+            LastHandshakeTime(KernelTimespec::new_zeroed()),
             PersistentKeepaliveInterval(0),
             TxBytes(0),
             RxBytes(0),

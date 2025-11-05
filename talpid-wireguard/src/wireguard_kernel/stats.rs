@@ -17,7 +17,9 @@ impl Stats {
                         match nla {
                             PeerNla::TxBytes(bytes) => tx_bytes = *bytes,
                             PeerNla::RxBytes(bytes) => rx_bytes = *bytes,
-                            PeerNla::LastHandshakeTime(time) => last_handshake_time = Some(*time),
+                            PeerNla::LastHandshakeTime(time) => {
+                                last_handshake_time = Some(time.as_systemtime())
+                            }
                             PeerNla::PublicKey(key) => pub_key = Some(*key),
                             _ => continue,
                         }
