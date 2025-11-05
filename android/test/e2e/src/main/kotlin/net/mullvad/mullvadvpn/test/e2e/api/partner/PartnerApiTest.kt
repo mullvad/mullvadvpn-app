@@ -23,4 +23,10 @@ class PartnerApiTest {
         val accessToken = assertDoesNotThrow { partnerApi.createAccount() }
         assertDoesNotThrow { partnerApi.addTime(accessToken, 1) }
     }
+
+    @Test
+    fun testDeleteAccount() = runTest {
+        val accessToken = assertDoesNotThrow { partnerApi.createAccount() }
+        assertDoesNotThrow { partnerApi.deleteAccount(accessToken) }
+    }
 }

@@ -29,4 +29,11 @@ object AccountProvider {
         }
 
     fun getInvalidAccountNumber() = InstrumentationRegistry.getArguments().getInvalidAccountNumber()
+
+    suspend fun tryDeletePartnerAccount(accountNumber: String) =
+        if (partnerAuth != null) {
+            partnerClient.deleteAccount(accountNumber)
+        } else {
+            // If we did not create a partner account we should do nothing
+        }
 }
