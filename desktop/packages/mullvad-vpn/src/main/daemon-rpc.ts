@@ -364,7 +364,7 @@ export class DaemonRpc extends GrpcClient {
     }
 
     if (obfuscationSettings.udp2tcpSettings) {
-      const grpcUdp2tcpSettings = new grpcTypes.Udp2TcpObfuscationSettings();
+      const grpcUdp2tcpSettings = new grpcTypes.ObfuscationSettings.Udp2TcpObfuscation();
       if (obfuscationSettings.udp2tcpSettings.port !== 'any') {
         grpcUdp2tcpSettings.setPort(obfuscationSettings.udp2tcpSettings.port.only);
       }
@@ -372,7 +372,7 @@ export class DaemonRpc extends GrpcClient {
     }
 
     if (obfuscationSettings.shadowsocksSettings) {
-      const shadowsocksSettings = new grpcTypes.ShadowsocksSettings();
+      const shadowsocksSettings = new grpcTypes.ObfuscationSettings.Shadowsocks();
       if (obfuscationSettings.shadowsocksSettings.port !== 'any') {
         shadowsocksSettings.setPort(obfuscationSettings.shadowsocksSettings.port.only);
       }
