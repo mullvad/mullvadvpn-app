@@ -16,5 +16,36 @@ RestartSec=1
 ExecStart=/usr/bin/mullvad-daemon -v --disable-stdout-timestamps
 Environment="MULLVAD_RESOURCE_DIR=/opt/Mullvad VPN/resources/"
 
+# files
+ProtectSystem=true
+ProtectHome=true
+ProtectControlGroups=strict
+PrivateTmp=true
+
+# kernel
+ProtectKernelLogs=true
+ProtectKernelModules=true
+
+# sys calls
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+RestrictRealtime=true
+
+# architecture
+SystemCallArchitectures=native
+LockPersonality=true
+
+# devices
+DeviceAllow=/dev/net/tun rw
+DevicePolicy=closed
+
+# misc
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+ProtectHostname=true
+RestrictAddressFamilies=AF_NETLINK AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=cgroup
+RestrictSUIDSGID=true
+
 [Install]
 WantedBy=multi-user.target
