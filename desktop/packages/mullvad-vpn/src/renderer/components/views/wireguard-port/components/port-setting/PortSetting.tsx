@@ -13,7 +13,7 @@ import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 
-const WIREUGARD_UDP_PORTS = [51820, 53];
+const WIREGUARD_UDP_PORTS = [51820, 53];
 
 function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
@@ -24,7 +24,7 @@ export function PortSetting() {
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
 
   const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
-    () => WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
+    () => WIREGUARD_UDP_PORTS.map(mapPortToSelectorItem),
     [],
   );
 
@@ -35,7 +35,9 @@ export function PortSetting() {
         port: 'any',
         value: null,
       };
-    if (port && !WIREUGARD_UDP_PORTS.includes(port))
+    }
+
+    if (port && !WIREGUARD_UDP_PORTS.includes(port)) {
       return {
         port,
         value: 'custom',
