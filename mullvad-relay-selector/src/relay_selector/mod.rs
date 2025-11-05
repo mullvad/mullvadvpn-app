@@ -26,7 +26,7 @@ use mullvad_types::{
     CustomTunnelEndpoint, Intersection,
     constraints::Constraint,
     custom_list::CustomListsSettings,
-    endpoint::MullvadWireguardEndpoint,
+    endpoint::MullvadEndpoint,
     location::{Coordinates, Location},
     relay_constraints::{
         BridgeSettings, InternalBridgeConstraints, ObfuscationSettings, RelayConstraints,
@@ -50,12 +50,12 @@ use talpid_types::{
     },
 };
 
-/// [`WIREGUARD_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector
+/// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector
 /// should prioritize on successive connection attempts. Note that these will *never* override user
 /// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
-pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
+pub static RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
     use query::builder::{IpVersion, RelayQueryBuilder};
     vec![
         // 1 This works with any wireguard relay
@@ -95,7 +95,7 @@ pub struct SelectorConfig {
     pub relay_overrides: Vec<RelayOverride>,
     // Wireguard specific data
     pub obfuscation_settings: ObfuscationSettings,
-    // OpenVPN specific data
+    // Bridge specific data
     pub bridge_settings: BridgeSettings,
 }
 
@@ -193,8 +193,8 @@ struct NormalSelectorConfig<'a> {
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug)]
 pub enum GetRelay {
-    Wireguard {
-        endpoint: MullvadWireguardEndpoint,
+    Mullvad {
+        endpoint: MullvadEndpoint,
         obfuscator: Option<SelectedObfuscator>,
         inner: WireguardConfig,
     },
@@ -467,7 +467,7 @@ impl RelaySelector {
                 drop(config_guard);
                 self.get_relay_with_custom_params(
                     retry_attempt,
-                    &WIREGUARD_RETRY_ORDER,
+                    &RETRY_ORDER,
                     runtime_ip_availability,
                 )
             }
@@ -568,7 +568,7 @@ impl RelaySelector {
         let obfuscator =
             Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays)?;
 
-        Ok(GetRelay::Wireguard {
+        Ok(GetRelay::Mullvad {
             endpoint,
             obfuscator,
             inner,
@@ -796,7 +796,7 @@ impl RelaySelector {
         query: &RelayQuery,
         parsed_relays: &RelayList,
         relay: &WireguardConfig,
-    ) -> Result<MullvadWireguardEndpoint, Error> {
+    ) -> Result<MullvadEndpoint, Error> {
         wireguard_endpoint(
             query.wireguard_constraints(),
             &parsed_relays.wireguard,
@@ -811,7 +811,7 @@ impl RelaySelector {
     fn get_wireguard_obfuscator(
         query: &RelayQuery,
         relay: WireguardConfig,
-        endpoint: &MullvadWireguardEndpoint,
+        endpoint: &MullvadEndpoint,
         parsed_relays: &RelayList,
     ) -> Result<Option<SelectedObfuscator>, Error> {
         let obfuscator_relay = match relay {

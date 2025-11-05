@@ -15,7 +15,7 @@ pub struct RelayList {
     pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
     pub bridge: BridgeEndpointData,
-    pub wireguard: WireguardEndpointData,
+    pub wireguard: EndpointData,
 }
 
 impl RelayList {
@@ -295,23 +295,10 @@ pub enum RelayEndpointData {
     Wireguard(WireguardRelayEndpointData),
 }
 
-/// Data needed to connect to OpenVPN endpoints.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct OpenVpnEndpointData {
-    pub ports: Vec<OpenVpnEndpoint>,
-}
-
-/// Data needed to connect to OpenVPN endpoints.
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct OpenVpnEndpoint {
-    pub port: u16,
-    pub protocol: TransportProtocol,
-}
-
 /// Contains data about all WireGuard endpoints, such as valid port ranges.
 #[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
 #[serde(rename_all = "snake_case")]
-pub struct WireguardEndpointData {
+pub struct EndpointData {
     /// Port to connect to
     pub port_ranges: Vec<RangeInclusive<u16>>,
     /// Gateways to be used with the tunnel
@@ -322,7 +309,7 @@ pub struct WireguardEndpointData {
     pub udp2tcp_ports: Vec<u16>,
 }
 
-impl Default for WireguardEndpointData {
+impl Default for EndpointData {
     fn default() -> Self {
         Self {
             port_ranges: vec![],

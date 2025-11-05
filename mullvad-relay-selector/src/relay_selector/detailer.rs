@@ -12,9 +12,9 @@ use std::net::{IpAddr, SocketAddr};
 use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
-    endpoint::MullvadWireguardEndpoint,
+    endpoint::MullvadEndpoint,
     relay_constraints::allowed_ip::resolve_from_constraint,
-    relay_list::{BridgeEndpointData, Relay, RelayEndpointData, WireguardEndpointData},
+    relay_list::{BridgeEndpointData, EndpointData, Relay, RelayEndpointData},
 };
 use rand::seq::IndexedRandom;
 use talpid_types::net::{
@@ -23,10 +23,9 @@ use talpid_types::net::{
     wireguard::{PeerConfig, PublicKey},
 };
 
-use super::{
-    WireguardConfig,
-    query::{ObfuscationQuery, WireguardRelayQuery},
-};
+use crate::query::ObfuscationQuery;
+
+use super::{WireguardConfig, query::WireguardRelayQuery};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -49,9 +48,9 @@ pub enum Error {
 ///   [`WireguardRelayQuery::port`]) or relay addresses cannot be resolved.
 pub fn wireguard_endpoint(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
     relay: &WireguardConfig,
-) -> Result<MullvadWireguardEndpoint, Error> {
+) -> Result<MullvadEndpoint, Error> {
     match relay {
         WireguardConfig::Singlehop { exit } => wireguard_singlehop_endpoint(query, data, exit),
         WireguardConfig::Multihop { exit, entry } => {
@@ -63,9 +62,9 @@ pub fn wireguard_endpoint(
 /// Configure a single-hop connection using the exit relay data.
 fn wireguard_singlehop_endpoint(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
     exit: &Relay,
-) -> Result<MullvadWireguardEndpoint, Error> {
+) -> Result<MullvadEndpoint, Error> {
     let endpoint = {
         let host = get_address_for_wireguard_relay(query, exit)?;
         let port = get_port_for_wireguard_relay(query, data)?;
@@ -87,7 +86,7 @@ fn wireguard_singlehop_endpoint(
         #[cfg(daita)]
         constant_packet_size: false,
     };
-    Ok(MullvadWireguardEndpoint {
+    Ok(MullvadEndpoint {
         peer: peer_config,
         exit_peer: None,
         ipv4_gateway: data.ipv4_gateway,
@@ -102,10 +101,10 @@ fn wireguard_singlehop_endpoint(
 /// peer configuration.
 fn wireguard_multihop_endpoint(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
     exit: &Relay,
     entry: &Relay,
-) -> Result<MullvadWireguardEndpoint, Error> {
+) -> Result<MullvadEndpoint, Error> {
     /// The standard port on which an exit relay accepts connections from an entry relay in a
     /// multihop circuit.
     const WIREGUARD_EXIT_PORT: u16 = 51820;
@@ -151,7 +150,7 @@ fn wireguard_multihop_endpoint(
         constant_packet_size: false,
     };
 
-    Ok(MullvadWireguardEndpoint {
+    Ok(MullvadEndpoint {
         peer: entry,
         exit_peer: Some(exit),
         ipv4_gateway: data.ipv4_gateway,
@@ -183,7 +182,7 @@ pub fn resolve_ip_version(ip_version: Constraint<IpVersion>) -> IpVersion {
 /// Try to pick a valid Wireguard port.
 fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
 ) -> Result<u16, Error> {
     // Only respect the port option if the Port method is used. Otherwise, we may pick any port.
     //

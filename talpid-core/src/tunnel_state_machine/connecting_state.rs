@@ -10,7 +10,9 @@ use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_types::ErrorExt;
-use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
+use talpid_types::net::{
+    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, wireguard::TunnelParameters,
+};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 
 use super::connected_state::TunnelEventsReceiver;
@@ -170,18 +172,10 @@ impl ConnectingState {
         let endpoints = params.get_next_hop_endpoints();
 
         #[cfg(target_os = "windows")]
-        let clients = AllowedClients::from(
-            TunnelMonitor::get_relay_client(&shared_values.resource_dir, params)
-                .into_iter()
-                .collect::<Vec<_>>(),
-        );
+        let clients = AllowedClients::from(vec![std::env::current_exe().unwrap()]);
 
         #[cfg(not(target_os = "windows"))]
-        let clients = if params.get_openvpn_local_proxy_settings().is_some() {
-            AllowedClients::All
-        } else {
-            AllowedClients::Root
-        };
+        let clients = AllowedClients::Root;
 
         #[cfg(target_os = "windows")]
         let exit_endpoint_ip = params.get_exit_hop_endpoint().map(|ep| ep.address.ip());

@@ -8,7 +8,7 @@ use mullvad_types::{
     },
 };
 use std::str::FromStr;
-use talpid_types::net::proxy::CustomProxy;
+use talpid_types::net::{proxy::CustomProxy, wireguard::ConnectionConfig};
 
 impl TryFrom<&proto::WireguardConstraints>
     for mullvad_types::relay_constraints::WireguardConstraints
@@ -78,7 +78,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                     .ok_or(FromProtobufTypeError::InvalidArgument(
                         "missing relay connection config",
                     ))?;
-                let config = mullvad_types::ConnectionConfig::try_from(config)?;
+                let config = ConnectionConfig::try_from(config)?;
                 Ok(mullvad_constraints::RelaySettings::CustomTunnelEndpoint(
                     CustomTunnelEndpoint {
                         host: settings.host,
