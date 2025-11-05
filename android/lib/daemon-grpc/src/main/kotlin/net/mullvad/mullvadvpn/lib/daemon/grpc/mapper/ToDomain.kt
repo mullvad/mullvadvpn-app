@@ -391,12 +391,6 @@ internal fun List<String>.toDomain(): Constraint<Providers> =
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
-        port =
-            if (hasPort()) {
-                Constraint.Only(Port(port))
-            } else {
-                Constraint.Any
-            },
         isMultihopEnabled = useMultihop,
         entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
@@ -421,6 +415,7 @@ internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSett
         selectedObfuscationMode = selectedObfuscation.toDomain(),
         udp2tcp = udp2Tcp.toDomain(),
         shadowsocks = shadowsocks.toDomain(),
+        port = port.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -440,18 +435,26 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
 
-internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpObfuscationSettings =
+internal fun ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.toDomain():
+    Udp2TcpObfuscationSettings =
     if (hasPort()) {
         Udp2TcpObfuscationSettings(Constraint.Only(Port(port)))
     } else {
         Udp2TcpObfuscationSettings(Constraint.Any)
     }
 
-internal fun ManagementInterface.ShadowsocksSettings.toDomain(): ShadowsocksSettings =
+internal fun ManagementInterface.ObfuscationSettings.Shadowsocks.toDomain(): ShadowsocksSettings =
     if (hasPort()) {
         ShadowsocksSettings(Constraint.Only(Port(port)))
     } else {
         ShadowsocksSettings(Constraint.Any)
+    }
+
+internal fun ManagementInterface.ObfuscationSettings.Port.toDomain(): Constraint<Port> =
+    if (hasPort()) {
+        Constraint.Only(Port(port))
+    } else {
+        Constraint.Any
     }
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
