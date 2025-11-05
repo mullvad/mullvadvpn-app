@@ -22,6 +22,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,9 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -154,22 +157,25 @@ private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
             )
         } else {
             val listState = rememberLazyListState()
-            LazyColumn(
-                state = listState,
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .drawVerticalScrollbar(
-                            listState,
-                            MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar),
+            // Logs are always in English and should be Ltr
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                LazyColumn(
+                    state = listState,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .drawVerticalScrollbar(
+                                listState,
+                                MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar),
+                            )
+                            .padding(horizontal = Dimens.smallPadding),
+                ) {
+                    items(state.allLines) { text ->
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
                         )
-                        .padding(horizontal = Dimens.smallPadding),
-            ) {
-                items(state.allLines) { text ->
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    }
                 }
             }
         }
