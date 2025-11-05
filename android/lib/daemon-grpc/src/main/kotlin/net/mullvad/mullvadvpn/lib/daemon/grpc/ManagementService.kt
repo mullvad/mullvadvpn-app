@@ -834,13 +834,9 @@ class ManagementService(
         port: Constraint<Port>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings = getSettings().relaySettings
-                val updated =
-                    RelaySettings.relayConstraints.wireguardConstraints.port.set(
-                        relaySettings,
-                        port,
-                    )
-                grpc.setRelaySettings(updated.fromDomain())
+                val obfuscationSettings = getSettings().obfuscationSettings
+                val updated = ObfuscationSettings.port.set(obfuscationSettings, port)
+                grpc.setObfuscationSettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set wireguard port error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
