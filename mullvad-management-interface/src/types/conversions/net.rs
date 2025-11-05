@@ -148,7 +148,6 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 address: arg_from_str(&endpoint.address, "invalid endpoint address")?,
                 protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
             },
-            tunnel_type: talpid_net::TunnelType::Wireguard,
             quantum_resistant: endpoint.quantum_resistant,
             proxy: endpoint
                 .proxy

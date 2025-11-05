@@ -225,7 +225,7 @@ struct Wireguard {
     relays: Vec<WireGuardRelay>,
 }
 
-impl From<&Wireguard> for relay_list::WireguardEndpointData {
+impl From<&Wireguard> for relay_list::EndpointData {
     fn from(wg: &Wireguard) -> Self {
         Self {
             port_ranges: inclusive_range_from_pair_set(wg.port_ranges.clone()).collect(),
@@ -255,8 +255,8 @@ impl Wireguard {
     fn extract_relays(
         self,
         countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> relay_list::WireguardEndpointData {
-        let endpoint_data = relay_list::WireguardEndpointData::from(&self);
+    ) -> relay_list::EndpointData {
+        let endpoint_data = relay_list::EndpointData::from(&self);
         let relays = self.relays;
 
         for mut wireguard_relay in relays {

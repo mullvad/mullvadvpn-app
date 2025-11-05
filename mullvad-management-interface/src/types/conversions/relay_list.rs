@@ -44,8 +44,8 @@ impl From<mullvad_types::relay_list::BridgeEndpointData> for proto::BridgeEndpoi
     }
 }
 
-impl From<mullvad_types::relay_list::WireguardEndpointData> for proto::WireguardEndpointData {
-    fn from(wireguard: mullvad_types::relay_list::WireguardEndpointData) -> Self {
+impl From<mullvad_types::relay_list::EndpointData> for proto::WireguardEndpointData {
+    fn from(wireguard: mullvad_types::relay_list::EndpointData) -> Self {
         proto::WireguardEndpointData {
             port_ranges: wireguard
                 .port_ranges
@@ -201,7 +201,7 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
             etag: None,
             countries,
             bridge: mullvad_types::relay_list::BridgeEndpointData::try_from(bridge)?,
-            wireguard: mullvad_types::relay_list::WireguardEndpointData::try_from(wireguard)?,
+            wireguard: mullvad_types::relay_list::EndpointData::try_from(wireguard)?,
         })
     }
 }
@@ -366,7 +366,7 @@ impl TryFrom<proto::ShadowsocksEndpointData>
     }
 }
 
-impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::WireguardEndpointData {
+impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::EndpointData {
     type Error = FromProtobufTypeError;
 
     fn try_from(wireguard: proto::WireguardEndpointData) -> Result<Self, FromProtobufTypeError> {
@@ -396,7 +396,7 @@ impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::Wiregu
             })
             .collect::<Result<Vec<u16>, FromProtobufTypeError>>()?;
 
-        Ok(mullvad_types::relay_list::WireguardEndpointData {
+        Ok(mullvad_types::relay_list::EndpointData {
             port_ranges,
             ipv4_gateway,
             ipv6_gateway,

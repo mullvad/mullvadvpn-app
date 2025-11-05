@@ -5,12 +5,12 @@ use crate::types::{
 };
 use talpid_types::net::wireguard;
 
-impl TryFrom<proto::WireguardConfig> for mullvad_types::ConnectionConfig {
+impl TryFrom<proto::WireguardConfig> for wireguard::ConnectionConfig {
     type Error = FromProtobufTypeError;
 
     fn try_from(
         config: proto::WireguardConfig,
-    ) -> Result<mullvad_types::ConnectionConfig, Self::Error> {
+    ) -> Result<wireguard::ConnectionConfig, Self::Error> {
         let tunnel = config.tunnel.ok_or(FromProtobufTypeError::InvalidArgument(
             "missing tunnel config",
         ))?;
@@ -56,63 +56,55 @@ impl TryFrom<proto::WireguardConfig> for mullvad_types::ConnectionConfig {
             allowed_ips.push(address);
         }
 
-        Ok(mullvad_types::ConnectionConfig::Wireguard(
-            wireguard::ConnectionConfig {
-                tunnel: wireguard::TunnelConfig {
-                    private_key,
-                    addresses: tunnel_addresses,
-                },
-                peer: wireguard::PeerConfig {
-                    public_key,
-                    allowed_ips,
-                    endpoint,
-                    psk: None,
-                    #[cfg(daita)]
-                    constant_packet_size: false,
-                },
-                exit_peer: None,
-                ipv4_gateway,
-                ipv6_gateway,
-                #[cfg(target_os = "linux")]
-                fwmark: Some(mullvad_types::TUNNEL_FWMARK),
+        Ok(wireguard::ConnectionConfig {
+            tunnel: wireguard::TunnelConfig {
+                private_key,
+                addresses: tunnel_addresses,
             },
-        ))
+            peer: wireguard::PeerConfig {
+                public_key,
+                allowed_ips,
+                endpoint,
+                psk: None,
+                #[cfg(daita)]
+                constant_packet_size: false,
+            },
+            exit_peer: None,
+            ipv4_gateway,
+            ipv6_gateway,
+            #[cfg(target_os = "linux")]
+            fwmark: Some(mullvad_types::TUNNEL_FWMARK),
+        })
     }
 }
 
-impl From<mullvad_types::ConnectionConfig> for proto::WireguardConfig {
-    fn from(config: mullvad_types::ConnectionConfig) -> Self {
-        match config {
-            mullvad_types::ConnectionConfig::OpenVpn(_config) => {
-                // FIXME: Remove OpenVPN config
-                Default::default()
-            }
-            mullvad_types::ConnectionConfig::Wireguard(config) => proto::WireguardConfig {
-                tunnel: Some(proto::wireguard_config::TunnelConfig {
-                    private_key: config.tunnel.private_key.to_bytes().to_vec(),
-                    addresses: config
-                        .tunnel
-                        .addresses
-                        .iter()
-                        .map(|address| address.to_string())
-                        .collect(),
-                }),
-                peer: Some(proto::wireguard_config::PeerConfig {
-                    public_key: config.peer.public_key.as_bytes().to_vec(),
-                    allowed_ips: config
-                        .peer
-                        .allowed_ips
-                        .iter()
-                        .map(|address| address.to_string())
-                        .collect(),
-                    endpoint: config.peer.endpoint.to_string(),
-                }),
-                ipv4_gateway: config.ipv4_gateway.to_string(),
-                ipv6_gateway: config
-                    .ipv6_gateway
-                    .as_ref()
-                    .map(|address| address.to_string()),
-            },
+impl From<wireguard::ConnectionConfig> for proto::WireguardConfig {
+    fn from(config: wireguard::ConnectionConfig) -> Self {
+        proto::WireguardConfig {
+            tunnel: Some(proto::wireguard_config::TunnelConfig {
+                private_key: config.tunnel.private_key.to_bytes().to_vec(),
+                addresses: config
+                    .tunnel
+                    .addresses
+                    .iter()
+                    .map(|address| address.to_string())
+                    .collect(),
+            }),
+            peer: Some(proto::wireguard_config::PeerConfig {
+                public_key: config.peer.public_key.as_bytes().to_vec(),
+                allowed_ips: config
+                    .peer
+                    .allowed_ips
+                    .iter()
+                    .map(|address| address.to_string())
+                    .collect(),
+                endpoint: config.peer.endpoint.to_string(),
+            }),
+            ipv4_gateway: config.ipv4_gateway.to_string(),
+            ipv6_gateway: config
+                .ipv6_gateway
+                .as_ref()
+                .map(|address| address.to_string()),
         }
     }
 }
