@@ -43,10 +43,10 @@ socket2 = { workspace = true, features = ["all"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [dependencies.boringtun]
+package = "gotatun"
 optional = true
 features = ["device", "tun"]
-git = "https://github.com/mullvad/gotatun"
-rev = "d8ddd4232c9636aa98ab4bd14093e256f7d09abb"
+version = "0.1.0"
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["fs"] }

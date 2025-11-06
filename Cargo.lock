@@ -438,50 +438,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "boringtun"
-version = "0.6.0"
-source = "git+https://github.com/mullvad/gotatun?rev=d8ddd4232c9636aa98ab4bd14093e256f7d09abb#d8ddd4232c9636aa98ab4bd14093e256f7d09abb"
-dependencies = [
- "aead",
- "async-trait",
- "base64 0.13.1",
- "bitfield-struct",
- "blake2",
- "bytes",
- "chacha20poly1305",
- "constant_time_eq 0.4.2",
- "duplicate",
- "either",
- "eyre",
- "futures",
- "hex",
- "hmac",
- "ip_network",
- "ip_network_table",
- "libc",
- "log",
- "maybenot",
- "nix 0.30.1",
- "parking_lot",
- "pcap-file",
- "pnet_packet 0.35.0",
- "rand 0.9.2",
- "rand_chacha 0.9.0",
- "rand_core 0.6.4",
- "ring",
- "socket2 0.6.0",
- "thiserror 1.0.59",
- "tokio",
- "tracing",
- "tun 0.7.13",
- "typed-builder 0.21.0",
- "untrusted",
- "windows-sys 0.61.1",
- "x25519-dalek",
- "zerocopy",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1727,6 +1683,51 @@ name = "glob"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
+
+[[package]]
+name = "gotatun"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "632bfb5da9f7fb306871b5faef3d8b5b0a1917c55f4ac6c34da6d02e92c8a032"
+dependencies = [
+ "aead",
+ "async-trait",
+ "base64 0.13.1",
+ "bitfield-struct",
+ "blake2",
+ "bytes",
+ "chacha20poly1305",
+ "constant_time_eq 0.4.2",
+ "duplicate",
+ "either",
+ "eyre",
+ "futures",
+ "hex",
+ "hmac",
+ "ip_network",
+ "ip_network_table",
+ "libc",
+ "log",
+ "maybenot",
+ "nix 0.30.1",
+ "parking_lot",
+ "pcap-file",
+ "pnet_packet 0.35.0",
+ "rand 0.9.2",
+ "rand_chacha 0.9.0",
+ "rand_core 0.6.4",
+ "ring",
+ "socket2 0.6.0",
+ "thiserror 1.0.59",
+ "tokio",
+ "tracing",
+ "tun 0.7.13",
+ "typed-builder 0.21.0",
+ "untrusted",
+ "windows-sys 0.61.1",
+ "x25519-dalek",
+ "zerocopy",
+]
 
 [[package]]
 name = "group"
@@ -5756,10 +5757,10 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "bitflags 1.3.2",
- "boringtun",
  "byteorder",
  "chrono",
  "futures",
+ "gotatun",
  "hex",
  "insta",
  "internet-checksum",
