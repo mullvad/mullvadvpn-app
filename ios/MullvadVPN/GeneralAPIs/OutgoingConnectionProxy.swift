@@ -57,6 +57,8 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
                     let mills = UInt64(max(0, delay.milliseconds))
                     let nanos = mills.saturatingMultiplication(1_000_000)
                     try await Task.sleep(nanoseconds: nanos)
+
+                    guard !Task.isCancelled else { continue }
                 }
             }
         }
