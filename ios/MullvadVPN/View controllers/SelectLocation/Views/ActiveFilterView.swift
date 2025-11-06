@@ -10,7 +10,7 @@ struct ActiveFilterView: View {
     private var sortedFilters: [SelectLocationFilter] {
         activeFilter
             .sorted {
-                !$0.canBeRemoved && $1.canBeRemoved
+                !$0.isRemovable && $1.isRemovable
             }
     }
     var body: some View {
@@ -24,7 +24,7 @@ struct ActiveFilterView: View {
                             Text(filter.title)
                                 .font(.mullvadMiniSemiBold)
                                 .foregroundStyle(Color.mullvadTextPrimary)
-                            if filter.canBeRemoved {
+                            if filter.isRemovable {
                                 Button {
                                     onRemove(filter)
                                 } label: {
@@ -58,7 +58,7 @@ struct ActiveFilterView: View {
 }
 
 #Preview {
-    Text("da")
+    Text("")
         .sheet(isPresented: .constant(true)) {
             NavigationView {
                 ScrollView {

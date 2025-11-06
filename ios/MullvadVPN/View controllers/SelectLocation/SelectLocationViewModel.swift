@@ -58,11 +58,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     private var tunnelObserver: TunnelBlockObserver?
 
-    let delegate: SelectLocationDelegate
+    private let delegate: SelectLocationDelegate
 
     private var cancellables: [Combine.AnyCancellable] = []
 
-    var allLocations: [LocationNode] {
+    private var allLocations: [LocationNode] {
         exitContext.locations + exitContext.customLists + entryContext.locations + entryContext.customLists
     }
 
@@ -240,8 +240,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         if let relaysCandidates {
             exitLocationsDataSource
                 .reload(relaysCandidates.exitRelays.toLocationRelays())
-
             exitContext.locations = exitLocationsDataSource.nodes
+
             if let entryRelays = relaysCandidates.entryRelays {
                 entryLocationsDataSource
                     .reload(entryRelays.toLocationRelays())
