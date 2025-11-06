@@ -158,7 +158,7 @@ strip = true
 
 # Selectively optimize packages where we know it makes a difference
 [profile.release.package]
-boringtun.opt-level = 3
+gotatun.opt-level = 3
 pqcrypto-hqc.opt-level = 3
 quinn-proto.opt-level = 3
 quinn-udp.opt-level = 3
