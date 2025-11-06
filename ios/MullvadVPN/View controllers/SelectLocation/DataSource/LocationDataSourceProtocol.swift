@@ -15,12 +15,8 @@ protocol LocationDataSourceProtocol {
 }
 
 extension LocationDataSourceProtocol {
-    private func match(name: String, searchText: String) -> Bool {
-        name.lowercased().hasPrefix(searchText.lowercased())
-    }
-
     private func hideInSearch(node: LocationNode, searchText: String) -> Bool {
-        let matchesSelf = match(name: node.name, searchText: searchText)
+        let matchesSelf = node.name.fuzzyMatch(searchText)
         var childMatches = false
         for child in node.children where !hideInSearch(node: child, searchText: searchText) {
             childMatches = true
