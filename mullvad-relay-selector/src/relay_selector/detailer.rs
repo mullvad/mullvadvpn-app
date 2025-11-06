@@ -185,7 +185,7 @@ fn get_port_for_wireguard_relay(
     data: &EndpointData,
 ) -> Result<u16, Error> {
     let port = if let ObfuscationQuery::Port(port) = query.obfuscation {
-        Constraint::Only(port)
+        port.get()
     } else {
         Constraint::Any
     };
