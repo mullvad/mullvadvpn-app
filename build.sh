@@ -31,7 +31,7 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
-# Use boringtun instead of wireguard-go
+# Use boringtun instead of wireguard-go. The current desktop default is wireguard-go.
 BORINGTUN="false"
 
 while [[ "$#" -gt 0 ]]; do
