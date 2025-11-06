@@ -91,15 +91,22 @@ impl Obfuscation {
             SetCommands::Port { port } => {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let wireguard = rpc.get_relay_locations().await?.wireguard;
-                let is_valid_port = wireguard
-                    .port_ranges
-                    .into_iter()
-                    .any(|range| range.contains(&port));
+                let port = WireguardPortSetting::from(port);
+
+                let is_valid_port = if let Some(port) = port.number() {
+                    wireguard
+                        .port_ranges
+                        .into_iter()
+                        .any(|range| range.contains(&port))
+                } else {
+                    true
+                };
+
                 if !is_valid_port {
                     return Err(anyhow::anyhow!("The specified port is invalid"));
                 }
                 rpc.set_obfuscation_settings(ObfuscationSettings {
-                    port: WireguardPortSetting::from(port),
+                    port,
                     ..current_settings
                 })
                 .await?;
