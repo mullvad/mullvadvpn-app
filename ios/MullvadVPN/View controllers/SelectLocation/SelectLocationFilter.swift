@@ -7,7 +7,7 @@ enum SelectLocationFilter: Hashable {
     case rented
     case provider(Int)
 
-    var canBeRemoved: Bool {
+    var isRemovable: Bool {
         switch self {
         case .daita, .obfuscation:
             return false

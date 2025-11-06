@@ -16,6 +16,11 @@ protocol CustomListInteractorProtocol {
 }
 
 class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
+
+    private enum FinishAction {
+        case save, delete
+    }
+
     private let tunnelManager: TunnelManager
     private let repository: CustomListRepositoryProtocol
 
@@ -39,10 +44,6 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
     func delete(customList: CustomList) {
         repository.delete(id: customList.id)
         updateRelayConstraint(list: customList, action: .delete)
-    }
-
-    private enum FinishAction {
-        case save, delete
     }
 
     private func updateRelayConstraint(list: CustomList, action: FinishAction) {
