@@ -24,11 +24,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var selectLocationViewModel: (any SelectLocationViewModel)? {
-        (navigationController.viewControllers.first {
-            $0 is UIHostingController<SelectLocationView<SelectLocationViewModelImpl>>
-        } as? UIHostingController<SelectLocationView<SelectLocationViewModelImpl>>)?.rootView.viewModel
-    }
+    var selectLocationViewModel: (any SelectLocationViewModel)!
 
     var didFinish: ((LocationCoordinator) -> Void)?
 
@@ -45,57 +41,53 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        let hostingController = UIHostingController(
-            rootView: SelectLocationView(
-                viewModel: SelectLocationViewModelImpl(
-                    tunnelManager: tunnelManager,
-                    relaySelectorWrapper: relaySelectorWrapper,
-                    customListRepository: customListRepository,
-                    delegate: .init(
-                        showDaitaSettings: { [weak self] in
-                            guard let self else { return }
-                            self.navigateToDaitaSettings()
-                        },
-                        showObfuscationSettings: { [weak self] in
-                            guard let self else { return }
-                            self.navigateToObfuscationSettings()
-                        },
-                        showFilterView: { [weak self] in
-                            guard let self else { return }
-                            self.navigateToFilter()
-                        },
-                        showEditCustomListView: { [weak self] locations, customList in
-                            guard let self else { return }
-                            if let customList {
-                                self.showEditCustomList(
-                                    list: customList,
-                                    nodes: locations
-                                )
-                            } else {
-                                self.showEditCustomLists(nodes: locations)
-                            }
-                        },
-                        showAddCustomListView: { [weak self] locations in
-                            guard let self else { return }
-                            self.showAddCustomList(nodes: locations)
-                        },
-                        didSelectExitRelayLocations: { [weak self] relays in
-                            guard let self else { return }
-                            self.didSelectExitRelays(relays)
-                            self.didFinish?(self)
-                        },
-                        didSelectEntryRelayLocations: { [weak self] relays in
-                            guard let self else { return }
-                            self.didSelectEntryRelays(relays)
-                        },
-                        didFinish: { [weak self] in
-                            guard let self else { return }
-                            self.didFinish?(self)
-                        }
-                    )
-                )
+        let selectLocationViewModelImpl = SelectLocationViewModelImpl(
+            tunnelManager: tunnelManager,
+            relaySelectorWrapper: relaySelectorWrapper,
+            customListRepository: customListRepository,
+            delegate: .init(
+                showDaitaSettings: { [weak self] in
+                    self?.navigateToDaitaSettings()
+                },
+                showObfuscationSettings: { [weak self] in
+                    self?.navigateToObfuscationSettings()
+                },
+                showFilterView: { [weak self] in
+                    self?.navigateToFilter()
+                },
+                showEditCustomListView: { [weak self] locations, customList in
+                    if let customList {
+                        self?.showEditCustomList(
+                            list: customList,
+                            nodes: locations
+                        )
+                    } else {
+                        self?.showEditCustomLists(nodes: locations)
+                    }
+                },
+                showAddCustomListView: { [weak self] locations in
+                    self?.showAddCustomList(nodes: locations)
+                },
+                didSelectExitRelayLocations: { [weak self] relays in
+                    guard let self else { return }
+                    self.didSelectExitRelays(relays)
+                    self.didFinish?(self)
+                },
+                didSelectEntryRelayLocations: { [weak self] relays in
+                    self?.didSelectEntryRelays(relays)
+                },
+                didFinish: { [weak self] in
+                    guard let self else { return }
+                    self.didFinish?(self)
+                }
             )
         )
+        selectLocationViewModel = selectLocationViewModelImpl
+        let hostingController = UIHostingController(
+            rootView: SelectLocationView(
+                viewModel: selectLocationViewModelImpl)
+        )
+
         navigationController.pushViewController(hostingController, animated: false)
     }
 
