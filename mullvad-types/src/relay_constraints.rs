@@ -657,18 +657,24 @@ impl fmt::Display for ShadowsocksSettings {
 #[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize, Intersection)]
 #[serde(rename_all = "snake_case")]
 pub struct WireguardPortSetting {
-    pub port: Constraint<u16>,
+    port: Constraint<u16>,
 }
 
 impl WireguardPortSetting {
-    pub fn number(&self) -> Option<u16> {
-        self.port.option()
+    pub const fn get(&self) -> Constraint<u16> {
+        self.port
     }
 }
 
 impl From<Constraint<u16>> for WireguardPortSetting {
     fn from(port: Constraint<u16>) -> Self {
         Self { port }
+    }
+}
+
+impl From<Option<u16>> for WireguardPortSetting {
+    fn from(port: Option<u16>) -> Self {
+        Self::from(Constraint::from(port))
     }
 }
 

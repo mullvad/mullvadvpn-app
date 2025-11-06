@@ -92,14 +92,12 @@ impl Obfuscation {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let wireguard = rpc.get_relay_locations().await?.wireguard;
                 let port = WireguardPortSetting::from(port);
-
-                let is_valid_port = if let Some(port) = port.number() {
-                    wireguard
+                let is_valid_port = match port.get() {
+                    Constraint::Any => true,
+                    Constraint::Only(port) => wireguard
                         .port_ranges
                         .into_iter()
-                        .any(|range| range.contains(&port))
-                } else {
-                    true
+                        .any(|range| range.contains(&port)),
                 };
 
                 if !is_valid_port {

@@ -181,9 +181,9 @@ impl From<&mullvad_types::relay_constraints::ShadowsocksSettings>
 impl From<&mullvad_types::relay_constraints::WireguardPortSetting>
     for proto::obfuscation_settings::Port
 {
-    fn from(settings: &mullvad_types::relay_constraints::WireguardPortSetting) -> Self {
+    fn from(port: &mullvad_types::relay_constraints::WireguardPortSetting) -> Self {
         Self {
-            port: settings.port.map(u32::from).option(),
+            port: port.get().map(u32::from).option(),
         }
     }
 }
@@ -524,9 +524,8 @@ impl TryFrom<&proto::obfuscation_settings::Port>
     type Error = FromProtobufTypeError;
 
     fn try_from(settings: &proto::obfuscation_settings::Port) -> Result<Self, Self::Error> {
-        Ok(Self {
-            port: Constraint::from(settings.port.map(|port| port as u16)),
-        })
+        let port = settings.port.map(|port| port as u16);
+        Ok(Self::from(port))
     }
 }
 
