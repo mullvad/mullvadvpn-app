@@ -39,7 +39,7 @@ export const StyledSwitchTrigger = styled.button<{ $checked?: boolean }>`
 `;
 
 export function SwitchTrigger(props: SwitchTriggerProps) {
-  const { labelId, checked, disabled, onCheckedChange } = useSwitchContext();
+  const { labelId, descriptionId, checked, disabled, onCheckedChange } = useSwitchContext();
   const handleClick = React.useCallback(() => {
     if (onCheckedChange) {
       onCheckedChange(!checked);
@@ -54,6 +54,7 @@ export function SwitchTrigger(props: SwitchTriggerProps) {
       $checked={checked}
       aria-checked={checked ? 'true' : 'false'}
       aria-labelledby={labelId}
+      aria-describedby={descriptionId}
       {...props}
     />
   );
