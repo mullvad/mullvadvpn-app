@@ -145,17 +145,6 @@ extension REST {
             finish(result: .failure(error))
         }
 
-        private func didReceiveError(_ error: REST.Error, transport: RESTTransport, endpoint: AnyIPEndpoint) {
-            dispatchPrecondition(condition: .onQueue(dispatchQueue))
-
-            if case .network(URLError.cancelled) = error {
-                finish(result: .failure(OperationError.cancelled))
-            } else {
-                logger.error(error: error, message: "Failed to perform request to \(endpoint) using \(transport.name).")
-                retryRequest(with: error)
-            }
-        }
-
         private func didReceiveURLResponse(_ response: HTTPURLResponse, data: Data, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
