@@ -28,4 +28,27 @@ extension View {
             }
         }
     }
+
+    func capturePosition(in coordinateSpace: CoordinateSpace, onChange: @escaping (CGRect) -> Void) -> some View {
+        background {
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(
+                        key: FrameKey.self,
+                        value: proxy.frame(in: coordinateSpace)
+                    )
+                    .onPreferenceChange(FrameKey.self) { rect in
+                        onChange(rect)
+
+                    }
+            }
+        }
+    }
+}
+
+private struct FrameKey: PreferenceKey {
+    static let defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
+    }
 }
