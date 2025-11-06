@@ -10,7 +10,7 @@ const shouldNotarize = process.argv.includes('--notarize');
 const universal = process.argv.includes('--universal');
 const release = process.argv.includes('--release');
 
-// If wireguard-go dependenceies should be bundled (Windows).
+// If wireguard-go dependencies should be bundled (Windows).
 const wggo = process.argv.includes('--wggo');
 
 const targets = getOptionValue('--targets');
