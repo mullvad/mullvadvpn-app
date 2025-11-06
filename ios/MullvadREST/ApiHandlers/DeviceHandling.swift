@@ -1,5 +1,5 @@
 //
-//  RESTDevicesProxy.swift
+//  DeviceHandling.swift
 //  MullvadREST
 //
 //  Created by pronebird on 20/04/2022.
