@@ -259,6 +259,11 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Clean report dir
+        id: clean-report-dir
+        run: rm -rf ${{ steps.prepare-report-dir.outputs.report_dir }}
+        shell: bash
+
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
     runs-on: [self-hosted, android-device]
@@ -326,6 +331,11 @@ jobs:
         with:
           name: e2e-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
+
+      - name: Clean report dir
+        id: clean-report-dir
+        run: rm -rf ${{ steps.prepare-report-dir.outputs.report_dir }}
+        shell: bash
 
   firebase-tests:
     name: Run firebase tests
