@@ -5,6 +5,7 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings, Udp2TcpObfuscationSettings,
+        WireguardPortSetting,
     },
 };
 
@@ -98,7 +99,7 @@ impl Obfuscation {
                     return Err(anyhow::anyhow!("The specified port is invalid"));
                 }
                 rpc.set_obfuscation_settings(ObfuscationSettings {
-                    port,
+                    port: WireguardPortSetting::from(port),
                     ..current_settings
                 })
                 .await?;

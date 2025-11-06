@@ -654,6 +654,39 @@ impl fmt::Display for ShadowsocksSettings {
     }
 }
 
+#[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize, Intersection)]
+#[serde(rename_all = "snake_case")]
+pub struct WireguardPortSetting {
+    pub port: Constraint<u16>,
+}
+
+impl WireguardPortSetting {
+    pub fn number(&self) -> Option<u16> {
+        self.port.option()
+    }
+}
+
+impl From<Constraint<u16>> for WireguardPortSetting {
+    fn from(port: Constraint<u16>) -> Self {
+        Self { port }
+    }
+}
+
+impl From<u16> for WireguardPortSetting {
+    fn from(port: u16) -> Self {
+        Self::from(Constraint::Only(port))
+    }
+}
+
+impl fmt::Display for WireguardPortSetting {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.port {
+            Constraint::Any => write!(f, "any port"),
+            Constraint::Only(port) => write!(f, "port {port}"),
+        }
+    }
+}
+
 /// Contains obfuscation settings
 #[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -662,7 +695,7 @@ pub struct ObfuscationSettings {
     pub selected_obfuscation: SelectedObfuscation,
     pub udp2tcp: Udp2TcpObfuscationSettings,
     pub shadowsocks: ShadowsocksSettings,
-    pub port: u16,
+    pub port: WireguardPortSetting,
 }
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.
