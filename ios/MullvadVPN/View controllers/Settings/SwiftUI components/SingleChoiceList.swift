@@ -275,7 +275,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                     )
             )
             .focused($customValueIsFocused)
-            .onChange(of: customValueInput) { _ in
+            .onChange(of: customValueInput) {
                 if let maxInputLength {
                     if customValueInput.count > maxInputLength {
                         customValueInput = String(customValueInput.prefix(maxInputLength))

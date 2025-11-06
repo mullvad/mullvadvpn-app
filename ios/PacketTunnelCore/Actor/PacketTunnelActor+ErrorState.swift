@@ -152,7 +152,9 @@ extension PacketTunnelActor {
             while !Task.isCancelled {
                 guard let self else { return }
 
-                try await Task.sleepUsingContinuousClock(for: timings.bootRecoveryPeriodicity)
+                try await Task.sleep(for: timings.bootRecoveryPeriodicity)
+
+                guard !Task.isCancelled else { return }
 
                 // Schedule task to reconnect.
                 eventChannel.send(.reconnect(.random))
