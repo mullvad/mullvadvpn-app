@@ -150,10 +150,6 @@
                     self?.setInternalStateConnected(with: self?.selectedRelays)
                 }
 
-            case let .sendURLRequest(proxyRequest):
-                // this no longer does anything. This case should be removed.
-                break
-
             case let .sendAPIRequest(proxyRequest):
                 apiRequestProxy.sendRequest(proxyRequest) { response in
                     var reply: Data?
@@ -167,9 +163,6 @@
                     }
                     handler?(reply)
                 }
-
-            case let .cancelURLRequest(listId):
-                break
 
             case let .cancelAPIRequest(listId):
                 apiRequestProxy.cancelRequest(identifier: listId)
