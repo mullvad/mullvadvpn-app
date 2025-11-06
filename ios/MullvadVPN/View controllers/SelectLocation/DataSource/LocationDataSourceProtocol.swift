@@ -34,7 +34,7 @@ extension LocationDataSourceProtocol {
     }
 
     private func resetChildren(node: LocationNode) {
-        node.children.forEach { child in
+        node.forEachDescendant { child in
             child.isHiddenFromSearch = false
             child.showsChildren = false
             resetChildren(node: child)
