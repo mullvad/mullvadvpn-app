@@ -21,7 +21,7 @@ cfg_if! {
 
         pub type Tun = UnixTun;
         pub type TunProvider = UnixTunProvider;
-    } else if #[cfg(all(windows, feature = "boringtun"))] {
+    } else if #[cfg(all(windows, not(feature = "wireguard-go")))] {
         #[path = "windows.rs"]
         mod imp;
         use self::imp::{WindowsTun, WindowsTunProvider};
