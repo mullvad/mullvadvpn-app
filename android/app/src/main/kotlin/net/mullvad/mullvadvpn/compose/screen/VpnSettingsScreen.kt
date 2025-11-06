@@ -748,8 +748,9 @@ fun VpnSettingsContent(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
-                                        focusRequester =
-                                            focusRequesters[FeatureIndicator.DNS_CONTENT_BLOCKERS]!!
+                                        focusRequesters.getValue(
+                                            FeatureIndicator.DNS_CONTENT_BLOCKERS
+                                        )
                                     ),
                             title = stringResource(R.string.dns_content_blockers),
                             background = highlightBackground(FeatureIndicator.DNS_CONTENT_BLOCKERS),
@@ -787,8 +788,7 @@ fun VpnSettingsContent(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
-                                        focusRequester =
-                                            focusRequesters.getValue(FeatureIndicator.LAN_SHARING)
+                                        focusRequesters.getValue(FeatureIndicator.LAN_SHARING)
                                     ),
                             onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
                             onInfoClicked = navigateToLocalNetworkSharingInfo,
@@ -803,8 +803,7 @@ fun VpnSettingsContent(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
-                                        focusRequester =
-                                            focusRequesters.getValue(FeatureIndicator.CUSTOM_MTU)
+                                        focusRequesters.getValue(FeatureIndicator.CUSTOM_MTU)
                                     ),
                             background = highlightBackground(FeatureIndicator.CUSTOM_MTU),
                         )
@@ -938,7 +937,9 @@ fun VpnSettingsContent(
                             modifier =
                                 Modifier.animateItem()
                                     .then(
-                                        if (it.quantumResistantState == QuantumResistantState.Auto) {
+                                        if (
+                                            it.quantumResistantState == QuantumResistantState.Auto
+                                        ) {
                                             Modifier.focusRequester(
                                                 focusRequesters.getValue(
                                                     FeatureIndicator.QUANTUM_RESISTANCE
