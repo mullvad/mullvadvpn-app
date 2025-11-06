@@ -24,6 +24,17 @@ RAAS_TRAFFIC_GENERATOR_TARGET_HOST="${RAAS_TRAFFIC_GENERATOR_TARGET_HOST:-}"
 RAAS_TRAFFIC_GENERATOR_TARGET_PORT="${RAAS_TRAFFIC_GENERATOR_TARGET_PORT:-}"
 REPORT_DIR="${REPORT_DIR:-}"
 
+cleanup () {
+    if [[ -n ${TEMP_DOWNLOAD_DIR-} ]]; then
+        echo "Cleaning up temp dir..."
+        rm -rf "$TEMP_DOWNLOAD_DIR"
+    else
+        echo "No temp dir found"
+    fi
+}
+
+trap cleanup EXIT ERR INT TERM
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --test-type)
@@ -268,8 +279,4 @@ else
     adb pull "$DEVICE_SCREENSHOT_PATH" "$LOCAL_SCREENSHOT_PATH" || echo "No screenshots"
     adb pull "$DEVICE_TEST_ATTACHMENTS_PATH" "$LOCAL_TEST_ATTACHMENTS_PATH" || echo "No test attachments"
     exit 1
-fi
-
-if [[ -n ${TEMP_DOWNLOAD_DIR-} ]]; then
-    rm -rf "$TEMP_DOWNLOAD_DIR"
 fi
