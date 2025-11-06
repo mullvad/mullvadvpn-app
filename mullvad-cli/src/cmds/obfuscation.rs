@@ -40,7 +40,7 @@ pub enum SetCommands {
     Port {
         /// Port to use
         #[arg(long, short = 'p')]
-        port: u16,
+        port: Constraint<u16>,
     },
 }
 
