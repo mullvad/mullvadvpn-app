@@ -24,6 +24,17 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Option to show server location in the connection notification.
+- Option to include account token in problem reports.
+
+### Changed
+- Switch from wireguard-go to GotaTun as default wireguard library.
+- Improve login and create account error messages.
+- Show feature indicators while connecting.
+- Show the exact obfuscation method used instead of "Obfuscation" in feature indicators.
+- Remember the expanded state of the connection panel between connections.
+
+### Fixed
+- Recents will now always show the selected location.
 
 
 ## [android/2025.9] - 2025-10-20
