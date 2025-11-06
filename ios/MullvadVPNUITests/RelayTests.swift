@@ -622,6 +622,73 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
     }
 
+    func testMultihopSelection() throws {
+        // Undo enabling Multihop in teardown
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapMultihopCell()
+
+            MultihopPage(self.app)
+                .tapEnableSwitchIfOn()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .verifyMultihopOff()
+            .tapMultihopCell()
+
+        MultihopPage(app)
+            .verifyOnePage()
+            .tapEnableSwitch()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .verifyMultihopOn()
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapEntryLocationButton()
+            .tapLocationCellExpandButton(
+                withName: BaseUITestCase.testsDefaultCountryName
+            )
+            .tapLocationCellExpandButton(
+                withName: BaseUITestCase.testsDefaultCityName
+            )
+            .tapLocationCell(
+                withName: BaseUITestCase.testsDefaultRelayName
+            )
+
+        allowAddVPNConfigurationsIfAsked()
+
+        SelectLocationPage(app)
+            .tapLocationCellExpandButton(
+                withName: BaseUITestCase.testsDefaultQuicCountryName
+            )
+            .tapLocationCellExpandButton(
+                withName: BaseUITestCase.testsDefaultQuicCityName
+            )
+            .tapLocationCell(
+                withName: BaseUITestCase.testsDefaultQuicRelayName
+            )
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+            .verifyConnectingOverMultihop()
+            .verifyConnectedRelays(
+                entry: BaseUITestCase.testsDefaultRelayName,
+                exit: BaseUITestCase.testsDefaultQuicRelayName
+            )
+            .tapDisconnectButton()
+    }
+
     func testCustomDNS() throws {
         let dnsServerIPAddress = "8.8.8.8"
         let dnsServerProviderName = "GOOGLE"

@@ -717,7 +717,6 @@
 		85F1E17E2C0A256200DB8F55 /* LeakTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85F1E17D2C0A256200DB8F55 /* LeakTests.swift */; };
 		85FB5A0C2B6903990015DCED /* WelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0B2B6903990015DCED /* WelcomePage.swift */; };
 		85FB5A102B6960A30015DCED /* AccountDeletionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0F2B6960A30015DCED /* AccountDeletionPage.swift */; };
-		A9019ED72E6878CD0002ACA9 /* SegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */; };
 		A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */; };
 		A90C48672C36BC2600DCB94C /* EphemeralPeerReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */; };
 		A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48682C36BF3900DCB94C /* TunnelProvider.swift */; };
@@ -1077,9 +1076,16 @@
 		F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
 		F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */; };
 		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
+		F947D9FE2ED5A9C000C9D728 /* MultihopSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F947D9FD2ED5A9C000C9D728 /* MultihopSelectionView.swift */; };
+		F947DA002ED5AC9200C9D728 /* CGRect+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */; };
 		F95A28312E8A8FC300C3F75D /* LocationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28302E8A8FC300C3F75D /* LocationContext.swift */; };
 		F95A28332E8BBB7400C3F75D /* SelectLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */; };
 		F95AC9EA2E5DFB0600A55B52 /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */; };
+		F95CDD9E2EE02A6F000E9D97 /* Hop.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDD9D2EE02A6F000E9D97 /* Hop.swift */; };
+		F95CDDA02EE02B39000E9D97 /* CoordinateSpace+Names.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDD9F2EE02B2F000E9D97 /* CoordinateSpace+Names.swift */; };
+		F95CDDA22EE03052000E9D97 /* MultihopLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDDA12EE03052000E9D97 /* MultihopLabel.swift */; };
+		F95CDDA42EE03072000E9D97 /* LineOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDDA32EE03072000E9D97 /* LineOverlayView.swift */; };
+		F95CDDA62EE030BA000E9D97 /* HopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDDA52EE030BA000E9D97 /* HopView.swift */; };
 		F96D04E72EC3174D004A4D48 /* LocationContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96D04E62EC31743004A4D48 /* LocationContextMenu.swift */; };
 		F96D04E92EC317B9004A4D48 /* ExitLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96D04E82EC317B9004A4D48 /* ExitLocationView.swift */; };
 		F96D04EB2EC317EC004A4D48 /* MullvadListSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */; };
@@ -2247,7 +2253,6 @@
 		A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTRequestExecutor+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "APIProxy+Stubs.swift"; sourceTree = "<group>"; };
-		A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControl.swift; sourceTree = "<group>"; };
 		A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileOutputStreamTests.swift; sourceTree = "<group>"; };
 		A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerReceiver.swift; sourceTree = "<group>"; };
 		A90C48682C36BF3900DCB94C /* TunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProvider.swift; sourceTree = "<group>"; };
@@ -2496,9 +2501,16 @@
 		F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Mullvad.swift"; sourceTree = "<group>"; };
 		F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListNavigationItemView.swift; sourceTree = "<group>"; };
 		F9394EF22DC21D8C009595EA /* MullvadList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadList.swift; sourceTree = "<group>"; };
+		F947D9FD2ED5A9C000C9D728 /* MultihopSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopSelectionView.swift; sourceTree = "<group>"; };
+		F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Properties.swift"; sourceTree = "<group>"; };
 		F95A28302E8A8FC300C3F75D /* LocationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationContext.swift; sourceTree = "<group>"; };
 		F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationFilter.swift; sourceTree = "<group>"; };
 		F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsListView.swift; sourceTree = "<group>"; };
+		F95CDD9D2EE02A6F000E9D97 /* Hop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hop.swift; sourceTree = "<group>"; };
+		F95CDD9F2EE02B2F000E9D97 /* CoordinateSpace+Names.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoordinateSpace+Names.swift"; sourceTree = "<group>"; };
+		F95CDDA12EE03052000E9D97 /* MultihopLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopLabel.swift; sourceTree = "<group>"; };
+		F95CDDA32EE03072000E9D97 /* LineOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineOverlayView.swift; sourceTree = "<group>"; };
+		F95CDDA52EE030BA000E9D97 /* HopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopView.swift; sourceTree = "<group>"; };
 		F96D04E62EC31743004A4D48 /* LocationContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationContextMenu.swift; sourceTree = "<group>"; };
 		F96D04E82EC317B9004A4D48 /* ExitLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExitLocationView.swift; sourceTree = "<group>"; };
 		F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListSectionHeader.swift; sourceTree = "<group>"; };
@@ -3303,7 +3315,6 @@
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
 				F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */,
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
-				A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */,
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
@@ -3352,6 +3363,8 @@
 		583FE02329C1AC9F006E85F9 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				F95CDD9F2EE02B2F000E9D97 /* CoordinateSpace+Names.swift */,
+				F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
@@ -4801,6 +4814,7 @@
 		F900524C2E6B04470085C80E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F95CDD9C2EE02A65000E9D97 /* MultihopSelection */,
 				F92C65892E7A922F00B8E107 /* ActiveFilterView.swift */,
 				F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */,
 				F96D04EC2EC318D8004A4D48 /* EntryLocationView.swift */,
@@ -4831,6 +4845,18 @@
 				F9394EF22DC21D8C009595EA /* MullvadList.swift */,
 			);
 			path = List;
+			sourceTree = "<group>";
+		};
+		F95CDD9C2EE02A65000E9D97 /* MultihopSelection */ = {
+			isa = PBXGroup;
+			children = (
+				F95CDDA52EE030BA000E9D97 /* HopView.swift */,
+				F95CDDA32EE03072000E9D97 /* LineOverlayView.swift */,
+				F95CDDA12EE03052000E9D97 /* MultihopLabel.swift */,
+				F95CDD9D2EE02A6F000E9D97 /* Hop.swift */,
+				F947D9FD2ED5A9C000C9D728 /* MultihopSelectionView.swift */,
+			);
+			path = MultihopSelection;
 			sourceTree = "<group>";
 		};
 		F9C579C02E8FB4A800C90C50 /* DataSource */ = {
@@ -6193,6 +6219,7 @@
 				7A95B67D2D5F7C5B00687524 /* DAITASettingsCoordinator.swift in Sources */,
 				7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */,
 				5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */,
+				F95CDD9E2EE02A6F000E9D97 /* Hop.swift in Sources */,
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,
 				7A5468AC2C6A55B100590086 /* LocationRelays.swift in Sources */,
 				58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
@@ -6339,6 +6366,7 @@
 				F9C579C62E8FE0D000C90C50 /* LocationDisclosureGroup.swift in Sources */,
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				586C0D872B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift in Sources */,
+				F95CDDA22EE03052000E9D97 /* MultihopLabel.swift in Sources */,
 				7A9CCCBD2A96302800DD6A34 /* LoginCoordinator.swift in Sources */,
 				7A7B3AB62C6DE4DA00D4BCCE /* RestorePurchasesView.swift in Sources */,
 				7A0EAE9E2D01BCBF00D3EB8B /* View+Size.swift in Sources */,
@@ -6431,9 +6459,12 @@
 				7A6389E72B7E42BE008E77E1 /* CustomListViewController.swift in Sources */,
 				586C0D7C2B03BDD100E7CDD7 /* AccessMethodViewModel.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
+				F95CDDA02EE02B39000E9D97 /* CoordinateSpace+Names.swift in Sources */,
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
+				F95CDDA42EE03072000E9D97 /* LineOverlayView.swift in Sources */,
 				7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */,
+				F947DA002ED5AC9200C9D728 /* CGRect+Properties.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
 				5888AD83227B11080051EB06 /* LocationCell.swift in Sources */,
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
@@ -6456,7 +6487,6 @@
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
-				A9019ED72E6878CD0002ACA9 /* SegmentedControl.swift in Sources */,
 				F96D04EB2EC317EC004A4D48 /* MullvadListSectionHeader.swift in Sources */,
 				F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */,
 				F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */,
@@ -6506,6 +6536,7 @@
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				7A27E3D12CC299F90088BCFF /* VPNSettingsDetailsButtonItem.swift in Sources */,
 				A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */,
+				F947D9FE2ED5A9C000C9D728 /* MultihopSelectionView.swift in Sources */,
 				58CEB2E92AFBBA4A00E6E088 /* AddAccessMethodCoordinator.swift in Sources */,
 				58DFF7D02B02560400F864E0 /* NSAttributedString+Extensions.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
@@ -6535,6 +6566,7 @@
 				7A83C4022A57FAA800DFB83A /* SettingsDNSInfoCell.swift in Sources */,
 				7A6389DF2B7E3BD6008E77E1 /* AddCustomListCoordinator.swift in Sources */,
 				586C0D952B03D92100E7CDD7 /* SocksItemIdentifier.swift in Sources */,
+				F95CDDA62EE030BA000E9D97 /* HopView.swift in Sources */,
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,

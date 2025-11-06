@@ -17,6 +17,12 @@ class SelectLocationPage: Page {
         waitForPageToBeShown()
     }
 
+    @discardableResult func tapEntryLocationButton() -> Self {
+        app.buttons[AccessibilityIdentifier.entryLocationButton]
+            .tap()
+        return self
+    }
+
     @discardableResult func tapLocationCell(withName name: String) -> Self {
         app.buttons[AccessibilityIdentifier.locationListItem(name)]
             .tap()
@@ -25,7 +31,9 @@ class SelectLocationPage: Page {
 
     @discardableResult func tapLocationCellExpandButton(withName name: String) -> Self {
         let cell = app.buttons[AccessibilityIdentifier.locationListItem(name)]
+        cell.wait()
         let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
+        expandButton.wait()
         expandButton.tap()
 
         return self
