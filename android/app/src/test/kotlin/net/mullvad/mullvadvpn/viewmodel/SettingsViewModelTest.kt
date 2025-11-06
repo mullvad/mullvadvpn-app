@@ -116,7 +116,6 @@ class SettingsViewModelTest {
                 WireguardConstraints(
                     isMultihopEnabled = true,
                     entryLocation = Constraint.Any,
-                    port = Constraint.Any,
                     ipVersion = Constraint.Any,
                 )
 
