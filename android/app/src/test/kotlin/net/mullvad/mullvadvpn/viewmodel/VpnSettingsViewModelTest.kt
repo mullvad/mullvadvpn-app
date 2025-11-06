@@ -152,8 +152,7 @@ class VpnSettingsViewModelTest {
                 )
 
             every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
-            every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.port } returns
-                Constraint.Any
+            every { mockSettings.obfuscationSettings.port } returns Constraint.Any
 
             viewModel.uiState.test {
                 assertInstanceOf<Lc.Loading<Boolean>>(awaitItem())
@@ -176,15 +175,8 @@ class VpnSettingsViewModelTest {
             // Arrange
             val expectedPort = Constraint.Only(Port(99))
             val mockSettings: Settings = mockk(relaxed = true)
-            val mockRelaySettings: RelaySettings = mockk()
-            val mockRelayConstraints: RelayConstraints = mockk()
-            val mockWireguardConstraints: WireguardConstraints = mockk()
 
-            every { mockSettings.relaySettings } returns mockRelaySettings
-            every { mockRelaySettings.relayConstraints } returns mockRelayConstraints
-            every { mockRelayConstraints.wireguardConstraints } returns mockWireguardConstraints
-            every { mockWireguardConstraints.port } returns expectedPort
-            every { mockWireguardConstraints.ipVersion } returns Constraint.Any
+            every { mockSettings.obfuscationSettings.port } returns expectedPort
             every { mockSettings.tunnelOptions } returns
                 TunnelOptions(
                     mtu = null,
@@ -221,23 +213,13 @@ class VpnSettingsViewModelTest {
         runTest {
             // Arrange
             val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
-            val wireguardConstraints =
-                WireguardConstraints(
-                    port = wireguardPort,
-                    isMultihopEnabled = false,
-                    entryLocation = Constraint.Any,
-                    ipVersion = Constraint.Any,
-                )
-            coEvery { mockWireguardConstraintsRepository.setWireguardPort(any()) } returns
-                Unit.right()
+            coEvery { mockSettingsRepository.setWireguardPort(any()) } returns Unit.right()
 
             // Act
             viewModel.onWireguardPortSelected(wireguardPort)
 
             // Assert
-            coVerify(exactly = 1) {
-                mockWireguardConstraintsRepository.setWireguardPort(wireguardConstraints.port)
-            }
+            coVerify(exactly = 1) { mockSettingsRepository.setWireguardPort(wireguardPort) }
         }
 
     @Test
@@ -313,8 +295,7 @@ class VpnSettingsViewModelTest {
                 dnsOptions = mockk(relaxed = true),
                 enableIpv6 = true,
             )
-        every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.port } returns
-            Constraint.Any
+        every { mockSettings.obfuscationSettings.port } returns Constraint.Any
 
         // Act, Assert
         viewModel.uiState.test {
@@ -355,7 +336,6 @@ class VpnSettingsViewModelTest {
                             RelayConstraints(
                                 wireguardConstraints =
                                     WireguardConstraints(
-                                        port = Constraint.Any,
                                         isMultihopEnabled = false,
                                         entryLocation = Constraint.Any,
                                         ipVersion = Constraint.Any,
@@ -370,6 +350,7 @@ class VpnSettingsViewModelTest {
                         selectedObfuscationMode = ObfuscationMode.Auto,
                         udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any),
                         shadowsocks = ShadowsocksSettings(Constraint.Any),
+                        port = Constraint.Any,
                     ),
                 customLists = emptyList(),
                 allowLan = false,

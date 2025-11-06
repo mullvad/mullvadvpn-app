@@ -225,7 +225,7 @@ class VpnSettingsViewModel(
             customPort.update { Some(port.value) }
         }
         viewModelScope.launch {
-            wireguardConstraintsRepository.setWireguardPort(port = port).onLeft {
+            settingsRepository.setWireguardPort(port = port).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
@@ -233,9 +233,7 @@ class VpnSettingsViewModel(
 
     fun resetCustomPort() {
         customPort.update { Some(null) }
-        viewModelScope.launch {
-            wireguardConstraintsRepository.setWireguardPort(port = Constraint.Any)
-        }
+        viewModelScope.launch { settingsRepository.setWireguardPort(port = Constraint.Any) }
     }
 
     fun onToggleAutoStartAndConnectOnBoot(autoStartAndConnect: Boolean) =
