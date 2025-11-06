@@ -5,7 +5,9 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
+    let onShowsTopOfTheListChange: (Bool) -> Void
 
+    @State private var isShowingTopOfTheList: Bool = false
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
             || (!viewModel.searchText.isEmpty
@@ -52,8 +54,15 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     }
                     .zIndex(3)  // prevent wrong overlapping during animations
                 }
+                .capturePosition(in: .exitLocationScroll) { frame in
+                    isShowingTopOfTheList = frame.minY >= 0
+                }
+                .onChange(of: isShowingTopOfTheList) {
+                    onShowsTopOfTheListChange(isShowingTopOfTheList)
+                }
             }
-            .onAppear {
+            .coordinateSpace(.exitLocationScroll)
+            .task {
                 guard viewModel.searchText.isEmpty else { return }
                 let selectedLocation = (context.locations + context.customLists)
                     .flatMap { $0.flattened + [$0] }
@@ -143,7 +152,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         viewModel: viewModel,
         context: $viewModel.exitContext,
         newCustomListAlert: nil,
-        alert: nil
+        alert: nil,
+        onShowsTopOfTheListChange: { _ in }
     )
     .background(Color.mullvadBackground)
 }
@@ -154,7 +164,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         viewModel: viewModel,
         context: $viewModel.entryContext,
         newCustomListAlert: nil,
-        alert: nil
+        alert: nil,
+        onShowsTopOfTheListChange: { _ in }
     )
     .background(Color.mullvadBackground)
 }

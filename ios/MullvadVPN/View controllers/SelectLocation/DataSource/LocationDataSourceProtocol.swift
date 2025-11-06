@@ -103,11 +103,11 @@ extension LocationDataSourceProtocol {
     func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
         let rootNode = RootLocationNode(children: nodes)
 
-        guard let location = selectedRelays.locations.first else {
-            return nil
-        }
         let descendantNodeFor: ([String]) -> LocationNode? = { codes in
-            switch location {
+            guard let location = selectedRelays.locations.first else {
+                return nil
+            }
+            return switch location {
             case let .country(countryCode):
                 rootNode.descendantNodeFor(codes: codes + [countryCode])
             case let .city(countryCode, cityCode):
