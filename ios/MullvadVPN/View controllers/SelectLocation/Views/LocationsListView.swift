@@ -25,14 +25,9 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
                 LocationListItem(
                     location: location,
                     multihopContext: multihopContext,
-                    position: ItemPosition(
-                        index: index,
-                        count: filteredLocationIndices.count
-                    ),
                     onSelect: onSelectLocation,
                     contextMenu: { location in contextMenu(location) }
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
     }

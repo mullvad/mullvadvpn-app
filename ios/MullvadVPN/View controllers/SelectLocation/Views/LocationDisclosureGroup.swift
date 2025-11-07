@@ -3,7 +3,6 @@ import SwiftUI
 struct LocationDisclosureGroup<Label: View, Content: View>: View {
     @Binding private var isExpanded: Bool
 
-    let position: ItemPosition
     let level: Int
     let isActive: Bool
     let label: () -> Label
@@ -13,7 +12,6 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
 
     init(
         level: Int,
-        position: ItemPosition = .only,
         isActive: Bool = true,
         isExpanded: Binding<Bool>,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
@@ -21,7 +19,6 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
         @ViewBuilder label: @escaping () -> Label,
         onSelect: (() -> Void)? = nil,
     ) {
-        self.position = position
         self.level = level
         self.isActive = isActive
         self._isExpanded = isExpanded
@@ -44,23 +41,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                     }
                     .frame(maxHeight: .infinity)
                     .background {
-                        let corners: UIRectCorner =
-                            if level == 0 {
-                                if isExpanded {
-                                    [.topLeft]
-                                } else {
-                                    [.topLeft, .bottomLeft]
-                                }
-                            } else {
-                                switch position {
-                                case .only: [.topLeft, .bottomLeft]
-                                case .first: [.topLeft]
-                                case .middle: []
-                                case .last: isExpanded ? [] : [.bottomLeft]
-                                }
-                            }
-                        MullvadRoundedCorner(cornerRadius: 16, corners: corners)
-                            .foregroundStyle(Color.colorForLevel(level))
+                        Color.colorForLevel(level)
                     }
                 }
                 .disabled(!isActive)
@@ -74,26 +55,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
                         .padding(16)
                         .frame(maxHeight: .infinity)
                         .background {
-                            let corners: UIRectCorner =
-                                if level == 0 {
-                                    if isExpanded {
-                                        [.topRight]
-                                    } else {
-                                        [.topRight, .bottomRight]
-                                    }
-                                } else {
-                                    switch position {
-                                    case .only: [.topRight, .bottomRight]
-                                    case .first: [.topRight]
-                                    case .middle: []
-                                    case .last: isExpanded ? [] : [.bottomRight]
-                                    }
-                                }
-                            MullvadRoundedCorner(
-                                cornerRadius: 16,
-                                corners: corners
-                            )
-                            .foregroundStyle(Color.colorForLevel(level))
+                            Color.colorForLevel(level)
                         }
                 }
                 .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
