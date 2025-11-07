@@ -1,4 +1,5 @@
 import { messages } from '../../../../shared/gettext';
+import { BetaSetting } from '../../../features/version/components';
 import { Flex } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
@@ -8,7 +9,6 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { ChangelogListItem, UpdateAvailableListItem, VersionListItem } from './components';
-import { BetaSetting } from './components/beta-setting';
 import { useShowUpdateAvailable } from './hooks';
 
 export function AppInfoView() {
