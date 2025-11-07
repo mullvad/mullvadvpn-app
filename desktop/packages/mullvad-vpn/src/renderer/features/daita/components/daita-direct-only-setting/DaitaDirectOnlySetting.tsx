@@ -1,12 +1,12 @@
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../../../../../shared/constants';
-import { messages } from '../../../../../../shared/gettext';
-import { useDaitaEnabled } from '../../../../../features/daita/hooks';
-import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
-import { SettingsListItem } from '../../../../settings-list-item';
+import { strings } from '../../../../../shared/constants';
+import { messages } from '../../../../../shared/gettext';
+import InfoButton from '../../../../components/InfoButton';
+import { ModalMessage } from '../../../../components/Modal';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
+import { useDaitaEnabled } from '../../hooks';
 import { DaitaDirectOnlySwitch } from '../daita-direct-only-switch';
 
 export function DaitaDirectOnlySetting() {

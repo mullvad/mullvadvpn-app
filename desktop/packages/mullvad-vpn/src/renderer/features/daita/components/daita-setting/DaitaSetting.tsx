@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
-import { SettingsListItem } from '../../../../settings-list-item';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import { DaitaSwitch } from '../daita-switch';
 
 export function DaitaSetting() {

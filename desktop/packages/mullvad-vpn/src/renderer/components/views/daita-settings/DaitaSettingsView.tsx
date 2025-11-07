@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
+import { DaitaDirectOnlySetting, DaitaSetting } from '../../../features/daita/components';
 import { Flex, Icon, Image, LabelTiny, LabelTinySemiBold, Text } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
@@ -14,7 +15,6 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import PageSlider from '../../PageSlider';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { DaitaDirectOnlySetting, DaitaSetting } from './components';
 import { useShowDaitaMultihopInfo } from './hooks';
 
 const StyledLabelTinySemiBold = styled(LabelTinySemiBold).attrs({ color: 'whiteAlpha60' })`
