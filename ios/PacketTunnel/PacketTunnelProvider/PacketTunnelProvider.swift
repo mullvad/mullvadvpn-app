@@ -360,15 +360,12 @@ extension PacketTunnelProvider {
             var lastConnectionAttempt: UInt = 0
 
             for await newState in stateStream {
-                // Tell packet tunnel when reconnection begins.
-                // Packet tunnel moves to `NEVPNStatus.reasserting` state once `reasserting` flag is set to `true`.
-                if case .reconnecting = newState, !self.reasserting {
-                    self.reasserting = true
-                }
-
-                // Tell packet tunnel when reconnection ends.
-                // Packet tunnel moves to `NEVPNStatus.connected` state once `reasserting` flag is set to `false`.
+                // Tell the packet tunnel when the reconnection is finished by toggling the `reasserting` flag. When the
+                // flag is set to `false`, traffic is not routed through the tunnel. When it is transitions from `false`
+                // to `true`, sockets are reset, thus it is vital to toggole it. Packet tunnel moves to `NEVPNStatus.connected` state once `reasserting`
+                // flag is set to `false`.
                 if case .connected = newState, self.reasserting {
+                    self.reasserting = true
                     self.reasserting = false
                 }
 
