@@ -4,7 +4,6 @@ struct ActiveFilterView: View {
     let activeFilter: [SelectLocationFilter]
     let onSelect: (SelectLocationFilter) -> Void
     let onRemove: (SelectLocationFilter) -> Void
-    @State private var maxItemHeight: CGFloat = 0
 
     // Show filters that can't be removed to the left
     private var sortedFilters: [SelectLocationFilter] {
@@ -22,22 +21,18 @@ struct ActiveFilterView: View {
                     } label: {
                         HStack {
                             Text(filter.title)
-                                .font(.mullvadMiniSemiBold)
-                                .foregroundStyle(Color.mullvadTextPrimary)
                             if filter.isRemovable {
                                 Button {
                                     onRemove(filter)
                                 } label: {
-                                    Image.mullvadIconCross
+                                    Image(systemName: "xmark")
                                 }
                                 .accessibilityIdentifier(.relayFilterChipCloseButton)
                             }
                         }
+                        .foregroundStyle(Color.mullvadTextPrimary)
+                        .font(.mullvadMiniSemiBold)
                         .padding(8)
-                        .sizeOfView { size in
-                            maxItemHeight = max(maxItemHeight, size.height)
-                        }
-                        .frame(height: maxItemHeight)
                         .background {
                             RoundedRectangle(cornerRadius: 8)
                                 .foregroundStyle(Color.MullvadButton.primary)
