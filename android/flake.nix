@@ -45,14 +45,6 @@
         ];
       };
 
-      patchedGo_1_21_3 =
-        (import (fetchTarball {
-          url = "https://github.com/NixOS/nixpkgs/archive/b392079f5fd051926a834c878d27ceec4f139dce.tar.gz";
-          sha256 = "16dkk98fs9pw2amz0vpjsc7ks85cw3hc5rlpbp27llq6x7lwpjaz";
-        }) {inherit system;}).go_1_21.overrideAttrs (oldAttrs: {
-          patches = (oldAttrs.patches or []) ++ [./docker/goruntime-boottime-over-monotonic.diff];
-        });
-
       versions =
         (builtins.fromTOML (
           builtins.concatStringsSep "\n" (
@@ -89,7 +81,6 @@
           [
             android-sdk
             rust-toolchain
-            patchedGo_1_21_3
             pkgs.protoc-gen-grpc-java
             pkgs.gcc
             pkgs.gnumake
