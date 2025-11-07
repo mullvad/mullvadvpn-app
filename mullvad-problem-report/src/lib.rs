@@ -110,6 +110,7 @@ pub fn collect_report<P: AsRef<Path>>(
     output_path: &Path,
     redact_custom_strings: Vec<String>,
     #[cfg(target_os = "android")] android_log_dir: &Path,
+    #[cfg(target_os = "android")] extra_logs_dir: &Path,
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
@@ -163,9 +164,25 @@ pub fn collect_report<P: AsRef<Path>>(
         None => {}
     }
     #[cfg(target_os = "android")]
-    match write_logcat_to_file(android_log_dir) {
-        Ok(logcat_path) => problem_report.add_log(&logcat_path),
-        Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+    {
+        match write_logcat_to_file(android_log_dir) {
+            Ok(logcat_path) => problem_report.add_log(&logcat_path),
+            Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+        }
+
+        match list_logs(extra_logs_dir.to_owned()) {
+            Ok(android_app_logs) => {
+                for log in android_app_logs {
+                    match log {
+                        Ok(path) => problem_report.add_log(&path),
+                        Err(error) => problem_report.add_error("Unable to get log path", &error),
+                    }
+                }
+            }
+            Err(error) => {
+                problem_report.add_error("Failed to list logs in android app log directory", &error)
+            }
+        }
     }
 
     problem_report.add_logs(extra_logs);
