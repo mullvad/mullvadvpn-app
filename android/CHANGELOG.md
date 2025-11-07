@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2025.10-beta1] - 2025-11-10
 ### Added
 - Option to show server location in the connection notification.
 - Option to include account token in problem reports.
