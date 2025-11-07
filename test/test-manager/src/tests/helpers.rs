@@ -1,20 +1,20 @@
-use super::{config::TEST_CONFIG, Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
+use super::{Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT, config::TEST_CONFIG};
 use crate::{
     mullvad_daemon::RpcClientProvider,
     network_monitor::{
-        self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+        self, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor, start_packet_monitor,
     },
     tests::{
         account::{clear_devices, new_device_client},
         helpers,
     },
 };
-use anyhow::{anyhow, bail, ensure, Context};
+use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
-use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
+use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
-    query::{RelayQuery, WireguardRelayQuery},
     GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
+    query::{RelayQuery, WireguardRelayQuery},
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -34,7 +34,7 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
-use test_rpc::{meta::Os, package::Package, AmIMullvad, ServiceClient, SpawnOpts};
+use test_rpc::{AmIMullvad, ServiceClient, SpawnOpts, meta::Os, package::Package};
 use tokio::time::sleep;
 
 pub const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
@@ -470,7 +470,7 @@ pub async fn wait_for_tunnel_state(
 
 pub async fn find_next_tunnel_state(
     stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
-        + Unpin,
+    + Unpin,
     accept_state_fn: impl Fn(&mullvad_types::states::TunnelState) -> bool,
 ) -> Result<mullvad_types::states::TunnelState, Error> {
     tokio::time::timeout(
@@ -485,8 +485,9 @@ pub async fn find_next_tunnel_state(
 }
 
 pub async fn find_daemon_event<Accept, AcceptedEvent>(
-    mut event_stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
-        + Unpin,
+    mut event_stream: impl futures::Stream<
+        Item = Result<DaemonEvent, mullvad_management_interface::Error>,
+    > + Unpin,
     accept_event: Accept,
 ) -> Result<AcceptedEvent, Error>
 where
