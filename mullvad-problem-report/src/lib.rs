@@ -110,13 +110,14 @@ pub fn collect_report<P: AsRef<Path>>(
     output_path: &Path,
     redact_custom_strings: Vec<String>,
     #[cfg(target_os = "android")] android_log_dir: &Path,
+    #[cfg(target_os = "android")] extra_logs_dir: &Path,
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
     let daemon_logs_dir = {
         #[cfg(target_os = "android")]
         {
-            Ok(android_log_dir.to_owned())
+            Ok(android_log_dir)
         }
         #[cfg(not(target_os = "android"))]
         {
@@ -163,9 +164,25 @@ pub fn collect_report<P: AsRef<Path>>(
         None => {}
     }
     #[cfg(target_os = "android")]
-    match write_logcat_to_file(android_log_dir) {
-        Ok(logcat_path) => problem_report.add_log(&logcat_path),
-        Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+    {
+        match write_logcat_to_file(android_log_dir) {
+            Ok(logcat_path) => problem_report.add_log(&logcat_path),
+            Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+        }
+
+        match list_logs(extra_logs_dir) {
+            Ok(android_app_logs) => {
+                for log in android_app_logs {
+                    match log {
+                        Ok(path) => problem_report.add_log(&path),
+                        Err(error) => problem_report.add_error("Unable to get log path", &error),
+                    }
+                }
+            }
+            Err(error) => {
+                problem_report.add_error("Failed to list logs in android app log directory", &error)
+            }
+        }
     }
 
     problem_report.add_logs(extra_logs);
@@ -178,11 +195,11 @@ pub fn collect_report<P: AsRef<Path>>(
 
 /// Returns an iterator over all files in the given directory that has the `.log` extension.
 fn list_logs(
-    log_dir: PathBuf,
+    log_dir: impl AsRef<Path>,
 ) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    fs::read_dir(&log_dir)
+    fs::read_dir(log_dir.as_ref())
         .map_err(|source| LogError::ListLogDir {
-            path: log_dir.display().to_string(),
+            path: log_dir.as_ref().display().to_string(),
             source,
         })
         .map(|dir_entries| {
@@ -199,7 +216,7 @@ fn list_logs(
                     }
                 }
                 Err(source) => Some(Err(LogError::ListLogDir {
-                    path: log_dir.display().to_string(),
+                    path: log_dir.as_ref().display().to_string(),
                     source,
                 })),
             })

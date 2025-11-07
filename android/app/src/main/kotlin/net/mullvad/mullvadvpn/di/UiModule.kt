@@ -138,6 +138,7 @@ val uiModule = module {
             context = androidContext(),
             apiEndpointOverride = getOrNull(),
             apiEndpointFromIntentHolder = get(),
+            kermitFileLogDirName = KERMIT_FILE_LOG_DIR_NAME,
             accountRepository = get(),
         )
     }
@@ -353,3 +354,4 @@ val uiModule = module {
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
+const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
