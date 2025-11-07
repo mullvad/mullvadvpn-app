@@ -1123,7 +1123,6 @@
 		F91CCBF82DFABB75007F1925 /* DeviceManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBF72DFABB70007F1925 /* DeviceManagementView.swift */; };
 		F91CCBFA2DFAC8ED007F1925 /* DeviceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBF92DFAC8ED007F1925 /* DeviceListView.swift */; };
 		F91CCBFC2DFAF5E6007F1925 /* MullvadProgressViewStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */; };
-		F91E0CF32E6853D60056BD7C /* MullvadRoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91E0CF12E6853770056BD7C /* MullvadRoundedCorner.swift */; };
 		F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C4522D706929001F4660 /* MullvadApiTests.swift */; };
 		F924C5A42DA65F28001F4660 /* Storekit2.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C5A32DA65F28001F4660 /* Storekit2.swift */; };
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
@@ -2590,7 +2589,6 @@
 		F91CCBF72DFABB70007F1925 /* DeviceManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagementView.swift; sourceTree = "<group>"; };
 		F91CCBF92DFAC8ED007F1925 /* DeviceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceListView.swift; sourceTree = "<group>"; };
 		F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadProgressViewStyle.swift; sourceTree = "<group>"; };
-		F91E0CF12E6853770056BD7C /* MullvadRoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadRoundedCorner.swift; sourceTree = "<group>"; };
 		F924C4522D706929001F4660 /* MullvadApiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiTests.swift; sourceTree = "<group>"; };
 		F924C5A32DA65F28001F4660 /* Storekit2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storekit2.swift; sourceTree = "<group>"; };
 		F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerRelayTests.swift; sourceTree = "<group>"; };
@@ -3405,7 +3403,6 @@
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
 				7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */,
-				F91E0CF12E6853770056BD7C /* MullvadRoundedCorner.swift */,
 				A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */,
 			);
 			path = Views;
@@ -6772,7 +6769,6 @@
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				7A5869BF2B57D0A100640D27 /* IPOverrideStatus.swift in Sources */,
-				F91E0CF32E6853D60056BD7C /* MullvadRoundedCorner.swift in Sources */,
 				44E1F7582D3EA83A003A60FF /* DestinationDescriber.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */,
