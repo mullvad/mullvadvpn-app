@@ -9,5 +9,4 @@ export * from './kill-switch-setting';
 export * from './lockdown-mode-setting';
 export * from './anti-censorship-list-item';
 export * from './mtu-setting';
-export * from './quantum-resistant-setting';
 export * from './ip-version-setting';

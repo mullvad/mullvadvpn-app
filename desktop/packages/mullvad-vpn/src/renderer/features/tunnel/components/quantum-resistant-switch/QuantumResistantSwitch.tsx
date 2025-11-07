@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useQuantumResistant } from '../../../../../features/tunnel/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useQuantumResistant } from '../../hooks';
 
 export type QuantumResistantSwitchProp = SwitchProps;
 
