@@ -30,7 +30,7 @@ function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
     [setLockdownModeImpl],
   );
 
-  const setLockDownMode = React.useCallback(
+  const handleOnCheckedChange = React.useCallback(
     async (newValue: boolean) => {
       if (newValue) {
         showConfirmationDialog();
@@ -48,7 +48,7 @@ function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
 
   return (
     <>
-      <Switch checked={lockdownMode} onCheckedChange={setLockDownMode} {...props}>
+      <Switch checked={lockdownMode} onCheckedChange={handleOnCheckedChange} {...props}>
         {children}
       </Switch>
       <ModalAlert
