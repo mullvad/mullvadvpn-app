@@ -298,7 +298,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     .padding(.bottom)
                 }
                 .onAppear {
-                    if let selectedLocation = context.locations.flattened.first(where: { $0.isSelected }) {
+                    let selectedLocation = (context.locations + context.customLists)
+                        .flatMap { $0.flattened + [$0] }
+                        .first { $0.isSelected }
+                    if let selectedLocation {
                         proxy.scrollTo(selectedLocation.code, anchor: .center)
                     }
                 }

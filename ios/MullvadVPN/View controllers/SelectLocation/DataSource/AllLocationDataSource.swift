@@ -45,19 +45,6 @@ class AllLocationDataSource: LocationDataSourceProtocol {
         nodes = rootNode.children
     }
 
-    func node(by location: RelayLocation) -> LocationNode? {
-        let rootNode = RootLocationNode(children: nodes)
-
-        return switch location {
-        case let .country(countryCode):
-            rootNode.descendantNodeFor(codes: [countryCode])
-        case let .city(countryCode, cityCode):
-            rootNode.descendantNodeFor(codes: [countryCode, cityCode])
-        case let .hostname(_, _, hostCode):
-            rootNode.descendantNodeFor(codes: [hostCode])
-        }
-    }
-
     private func addLocation(
         _ location: RelayLocation,
         rootNode: LocationNode,
