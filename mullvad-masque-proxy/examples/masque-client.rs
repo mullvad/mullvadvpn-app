@@ -106,9 +106,13 @@ async fn main() {
             log::error!("ERROR: {}", err);
         }
     }
-    client
-        .expect("Failed to connect client")
-        .run()
-        .await
-        .unwrap();
+
+    let client = client.expect("Failed to connect client").run();
+    let result = client.until_closed().await;
+
+    if let Err(e) = result {
+        log::error!("QUIC client exited with error: {e}");
+    } else {
+        log::debug!("QUIC client closed");
+    }
 }
