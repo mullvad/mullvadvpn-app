@@ -6,7 +6,6 @@ export * from './dns-blocker-settings';
 export * from './enable-ipv6-setting';
 export * from './ip-override-settings';
 export * from './kill-switch-setting';
-export * from './lockdown-mode-setting';
 export * from './anti-censorship-list-item';
 export * from './mtu-setting';
 export * from './ip-version-setting';

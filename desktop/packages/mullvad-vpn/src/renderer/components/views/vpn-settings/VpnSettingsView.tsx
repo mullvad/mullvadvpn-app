@@ -1,5 +1,5 @@
 import { messages } from '../../../../shared/gettext';
-import { QuantumResistantSetting } from '../../../features/tunnel/components';
+import { LockdownModeSetting, QuantumResistantSetting } from '../../../features/tunnel/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
@@ -24,7 +24,6 @@ import {
   IpOverrideSettings,
   IpVersionSetting,
   KillSwitchSetting,
-  LockdownModeSetting,
   MtuSetting,
 } from './components';
 
