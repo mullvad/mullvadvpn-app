@@ -1,8 +1,8 @@
-import { messages } from '../../../../../../shared/gettext';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { LockdownModeSwitch } from './LockdownModeSwitch';
+import { messages } from '../../../../../shared/gettext';
+import InfoButton from '../../../../components/InfoButton';
+import { ModalMessage } from '../../../../components/Modal';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { LockdownModeSwitch } from '../lockdown-mode-switch';
 
 export function LockdownModeSetting() {
   return (
