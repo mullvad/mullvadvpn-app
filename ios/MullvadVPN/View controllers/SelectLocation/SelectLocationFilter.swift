@@ -10,24 +10,24 @@ enum SelectLocationFilter: Hashable {
     var isRemovable: Bool {
         switch self {
         case .daita, .obfuscation:
-            return false
+            false
         case .provider, .owned, .rented:
-            return true
+            true
         }
     }
 
     var title: LocalizedStringKey {
         switch self {
         case .daita:
-            return "Setting: \("DAITA")"
+            "Setting: \("DAITA")"
         case .obfuscation:
-            return "Setting: \("Obfuscation")"
+            "Setting: \("Obfuscation")"
         case .owned:
-            return "Owned"
+            "Owned"
         case .rented:
-            return "Rented"
+            "Rented"
         case .provider(let count):
-            return "Providers: \(count)"
+            "Providers: \(count)"
         }
     }
 
