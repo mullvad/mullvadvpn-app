@@ -95,7 +95,7 @@ class FileLogWriter(
             if (allLogs.size == 1) {
                 // We only have one log file but it is too big, so we need to truncate it
                 val tmpFile = logDir.resolve("${log.logFilePath.fileName}.tmp")
-                tmpFile.createFileIfNotExists()
+                createFileIfNotExists(tmpFile)
 
                 log.writer.close()
                 val bytesToKeep = (maxTotalSizeBytes * truncateKeepPercentage).toLong()
@@ -129,6 +129,13 @@ class FileLogWriter(
         }
     }
 
+    private fun Path.logFile(components: DateComponents): Path {
+        val year = components.year
+        val month = components.month.toString().padStart(2, '0')
+        val day = components.day.toString().padStart(2, '0')
+        return resolve("app_log_$year-$month-$day.log")
+    }
+
     companion object {
         private const val MAX_FILE_COUNT = 7
         private const val MAX_TOTAL_SIZE_BYTES = 1024L * 1024L * 2L // 2 MB
@@ -143,7 +150,7 @@ class FileLogWriter(
 private data class FileAndWriter(val logFilePath: Path, val writer: BufferedWriter) {
     companion object {
         fun create(logFile: Path): FileAndWriter {
-            logFile.createFileIfNotExists()
+            createFileIfNotExists(logFile)
             return FileAndWriter(
                 logFile,
                 Files.newBufferedWriter(logFile, StandardOpenOption.APPEND),
@@ -161,16 +168,9 @@ private data class DateComponents(val year: Int, val month: Int, val day: Int) {
     }
 }
 
-private fun Path.logFile(components: DateComponents): Path {
-    val year = components.year
-    val month = components.month.toString().padStart(2, '0')
-    val day = components.day.toString().padStart(2, '0')
-    return resolve("app_log_$year-$month-$day.log")
-}
-
-private fun Path.createFileIfNotExists() {
-    if (!exists()) {
-        createFile()
+private fun createFileIfNotExists(path: Path) {
+    if (!path.exists()) {
+        path.createFile()
     }
 }
 
