@@ -3,7 +3,6 @@ import SwiftUI
 struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     @Binding var location: LocationNode
     let multihopContext: MultihopContext
-    let position: ItemPosition
     let onSelect: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
     var level = 0
@@ -21,7 +20,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 RelayItemView(
                     location: location,
                     multihopContext: multihopContext,
-                    position: position,
                     level: level,
                     onSelect: { onSelect(location) }
                 )
@@ -29,7 +27,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             } else {
                 LocationDisclosureGroup(
                     level: level,
-                    position: position,
                     isActive: location.isActive && !location.isExcluded,
                     isExpanded: $location.showsChildren,
                     accessibilityIdentifier: .locationListItem(location.name)
@@ -42,12 +39,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         LocationListItem(
                             location: location,
                             multihopContext: multihopContext,
-                            position: level > 0 && position != .last
-                                ? .middle
-                                : ItemPosition(
-                                    index: index + 1,
-                                    count: filteredChildrenIndices.count + 1
-                                ),
                             onSelect: onSelect,
                             contextMenu: { location in contextMenu(location) },
                             level: level + 1,
@@ -82,36 +73,22 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         }
         .id(location.code)  // to be able to scroll to this item programmatically
         .transformEffect(.identity)
+        .apply {
+            if level == 0 {
+                $0.clipShape(RoundedRectangle(cornerRadius: 16))
+            } else {
+                $0
+            }
+        }
         .contextMenu {
             contextMenu(location)
         }
     }
 }
 
-enum ItemPosition: String {
-    case first
-    case middle
-    case last
-    case only
-
-    init(index: Int, count: Int) {
-        if index == 0 {
-            if count == 1 {
-                self = .only
-            } else {
-                self = .first
-            }
-        } else if index == count - 1 {
-            self = .last
-        } else {
-            self = .middle
-        }
-    }
-}
-
 @available(iOS 17, *)
 #Preview {
-    @Previewable @State var disabled: Bool = false
+    let viewModel = MockSelectLocationViewModel()
     Text("")
         .sheet(isPresented: .constant(true)) {
             ScrollView {
@@ -121,16 +98,17 @@ enum ItemPosition: String {
                             .init(name: "test", code: "test")
                         ),
                     multihopContext: .exit,
-                    position: .only,
                     onSelect: { _ in },
                     contextMenu: { _ in EmptyView() },
                     level: 0
                 )
-                .disabled(disabled)
+                LocationListItem(
+                    location: .constant(viewModel.exitContext.locations.first!),
+                    multihopContext: .exit,
+                    onSelect: { _ in },
+                    contextMenu: { _ in EmptyView() },
+                    level: 0
+                )
             }
-            .gesture(
-                DragGesture().onChanged({ _ in disabled.toggle() }),
-                including: .none
-            )
         }
 }

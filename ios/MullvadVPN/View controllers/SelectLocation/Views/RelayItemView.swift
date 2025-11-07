@@ -3,7 +3,6 @@ import SwiftUI
 struct RelayItemView: View {
     let location: LocationNode
     let multihopContext: MultihopContext
-    let position: ItemPosition
     let level: Int
     let onSelect: () -> Void
 
@@ -70,23 +69,7 @@ struct RelayItemView: View {
             .padding(.vertical, subtitle != nil ? 8 : 16)
             .padding(.horizontal, CGFloat(16 * (level + 1)))
             .background {
-                let backgroundColor = Color.colorForLevel(level)
-                let corners: UIRectCorner =
-                    if level == 0 {
-                        .allCorners
-                    } else {
-                        switch position {
-                        case .only: .allCorners
-                        case .first: []
-                        case .middle: []
-                        case .last: [.bottomLeft, .bottomRight]
-                        }
-                    }
-                MullvadRoundedCorner(
-                    cornerRadius: 16,
-                    corners: corners
-                )
-                .foregroundStyle(backgroundColor)
+                Color.colorForLevel(level)
             }
         }
         .disabled(disabled)
@@ -100,7 +83,6 @@ struct RelayItemView: View {
             code: "a-great-location"
         ),
         multihopContext: .exit,
-        position: .only,
         level: 0,
         onSelect: {}
     )
