@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { useVersionIsBeta } from '../../../../../redux/hooks';
-import { SettingsListItem } from '../../../../settings-list-item';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { useVersionIsBeta } from '../../../../redux/hooks';
 import { BetaSwitch } from '../beta-switch';
 
 export function BetaSetting() {

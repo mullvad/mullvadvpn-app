@@ -1,5 +1,5 @@
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
-import { useSettingsShowBetaReleases, useVersionIsBeta } from '../../../../../redux/hooks';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useSettingsShowBetaReleases, useVersionIsBeta } from '../../../../redux/hooks';
 
 export type BetaSwitchProps = SwitchProps;
 
