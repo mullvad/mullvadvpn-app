@@ -1,0 +1,18 @@
+---
+source: mullvad-daemon/src/migrations/v13.rs
+expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
+---
+{
+  "obfuscation_settings": {
+    "port": {
+      "port": {
+        "only": 53
+      }
+    }
+  },
+  "relay_settings": {
+    "normal": {
+      "wireguard_constraints": {}
+    }
+  }
+}
