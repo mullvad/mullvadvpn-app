@@ -127,12 +127,8 @@ impl TunnelMonitor {
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_parameters: &TunnelParameters) -> Result<()> {
         let options = &tunnel_parameters.generic_options;
-        if options.enable_ipv6 {
-            if is_ipv6_enabled_in_os() {
-                Ok(())
-            } else {
-                Err(Error::EnableIpv6Error)
-            }
+        if options.enable_ipv6 && !is_ipv6_enabled_in_os() {
+            Err(Error::EnableIpv6Error)
         } else {
             Ok(())
         }
