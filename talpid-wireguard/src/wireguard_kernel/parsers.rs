@@ -1,15 +1,14 @@
 use byteorder::{ByteOrder, NativeEndian};
-use nix::sys::{
-    socket::{SockaddrIn, SockaddrIn6},
-    time::TimeSpec,
-};
+use netlink_packet_core::DecodeError;
+use nix::sys::socket::{SockaddrIn, SockaddrIn6};
 use std::{
     ffi::{CStr, CString},
     mem::{self, transmute},
     net::{IpAddr, SocketAddr},
 };
+use zerocopy::FromBytes;
 
-use netlink_packet_core::DecodeError;
+use super::timespec::KernelTimespec;
 
 pub fn parse_ip_addr(bytes: &[u8]) -> Result<IpAddr, DecodeError> {
     if bytes.len() == 4 {
@@ -81,16 +80,11 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<SocketAddr, DecodeError> {
     }
 }
 
-pub fn parse_timespec(buffer: &[u8]) -> Result<TimeSpec, DecodeError> {
-    if buffer.len() != mem::size_of::<libc::timespec>() {
-        return Err(format!("Unexpected size for timespec: {}", buffer.len()).into());
-    }
-
-    Ok(TimeSpec::from(libc::timespec {
-        tv_sec: NativeEndian::read_i64(buffer),
-        // TODO: become compatible with 32-bit systems maybe?
-        tv_nsec: NativeEndian::read_i64(buffer),
-    }))
+/// Parse the last WireGuard handshake timestamp.
+/// The resulting [SystemTime] is a timestamp relative to [SystemTime::UNIX_EPOCH].
+pub fn parse_last_handshake_time(buffer: &[u8]) -> Result<KernelTimespec, DecodeError> {
+    KernelTimespec::read_from_bytes(buffer)
+        .map_err(|_err| format!("Unexpected size for timespec: {}", buffer.len()).into())
 }
 
 pub fn parse_cstring(buffer: &[u8]) -> Result<CString, DecodeError> {

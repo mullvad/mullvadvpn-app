@@ -25,6 +25,7 @@ use tokio_stream::StreamExt;
 
 mod parsers;
 mod stats;
+mod timespec;
 
 pub mod wg_message;
 use wg_message::{DeviceMessage, DeviceNla};
