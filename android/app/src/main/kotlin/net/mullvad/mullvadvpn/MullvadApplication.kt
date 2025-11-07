@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composer
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
+import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.di.ApplicationScope
@@ -15,6 +16,7 @@ import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryN
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.usecase.NotificationAction
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
+import net.mullvad.mullvadvpn.util.FileLogWriter
 import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.loadKoinModules
@@ -38,6 +40,7 @@ class MullvadApplication : Application() {
         with(getKoin()) {
             get<NotificationChannelFactory>()
             get<NotificationManager>()
+            initFileLogger(get<ApplicationScope>())
 
             handleAccountExpiry(
                 scope = get<ApplicationScope>(),
@@ -45,6 +48,16 @@ class MullvadApplication : Application() {
                 scheduleNotificationAlarmUseCase = get<ScheduleNotificationAlarmUseCase>(),
                 accountExpiryNotificationProvider = get<AccountExpiryNotificationProvider>(),
             )
+        }
+    }
+
+    private fun initFileLogger(scope: CoroutineScope) {
+        try {
+            val fileLogWriter =
+                FileLogWriter(logDir = this.filesDir.toPath().resolve("app_logs"), scope = scope)
+            Logger.addLogWriter(fileLogWriter)
+        } catch (e: IOException) { // This shouldn't happen but just in case catch here.
+            Logger.e("Failed to initialize file log writer", e)
         }
     }
 

@@ -30,12 +30,14 @@ class MullvadProblemReport(
     private val apiEndpointOverride: ApiEndpointOverride?,
     private val apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder,
     private val accountRepository: AccountRepository,
+    kermitFileLogDirName: String,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
     private val cacheDirectory = File(context.cacheDir.toURI())
     private val logDirectory = File(context.filesDir.toURI())
-    private val logsPath = File(logDirectory, PROBLEM_REPORT_LOGS_FILE)
+    private val problemReportOutputPath = File(logDirectory, PROBLEM_REPORT_LOGS_FILE)
+    private val kermitFileLogDirPath = File(logDirectory, kermitFileLogDirName)
 
     init {
         System.loadLibrary("mullvad_jni")
@@ -46,7 +48,11 @@ class MullvadProblemReport(
             // Delete any old report
             deleteLogs()
 
-            collectReport(logDirectory.absolutePath, logsPath.absolutePath)
+            collectReport(
+                logDirectory.absolutePath,
+                kermitFileLogDirPath.absolutePath,
+                problemReportOutputPath.absolutePath,
+            )
         }
 
     suspend fun sendReport(
@@ -77,7 +83,7 @@ class MullvadProblemReport(
                         } else {
                             null
                         },
-                    reportPath = logsPath.absolutePath,
+                    reportPath = problemReportOutputPath.absolutePath,
                     cacheDirectory = cacheDirectory.absolutePath,
                     apiEndpointOverride = apiOverride,
                 )
@@ -97,20 +103,24 @@ class MullvadProblemReport(
         }
 
         return if (logsExists()) {
-            logsPath.readLines()
+            problemReportOutputPath.readLines()
         } else {
             listOf("Failed to collect logs for problem report")
         }
     }
 
-    private fun logsExists() = logsPath.exists()
+    private fun logsExists() = problemReportOutputPath.exists()
 
     fun deleteLogs() {
-        logsPath.delete()
+        problemReportOutputPath.delete()
     }
 
     // TODO We should remove the external functions from this class and migrate it to the service
-    private external fun collectReport(logDirectory: String, logsPath: String): Boolean
+    private external fun collectReport(
+        logDirectory: String,
+        kermitFileLogDir: String,
+        problemReportOutputPath: String,
+    ): Boolean
 
     private external fun sendProblemReport(
         userEmail: String,
