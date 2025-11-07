@@ -1,15 +1,15 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../../../../../shared/constants';
-import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
-import { useDaitaDirectOnly, useDaitaEnabled } from '../../../../../features/daita/hooks';
-import { Button } from '../../../../../lib/components';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
-import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
-import { useBoolean } from '../../../../../lib/utility-hooks';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../Modal';
+import { strings } from '../../../../../shared/constants';
+import { messages } from '../../../../../shared/gettext';
+import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../components/Modal';
+import { useAppContext } from '../../../../context';
+import { Button } from '../../../../lib/components';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
+import { useBoolean } from '../../../../lib/utility-hooks';
+import { useDaitaDirectOnly, useDaitaEnabled } from '../../hooks';
 
 export type DaitaDirectOnlySwitchProps = SwitchProps;
 
