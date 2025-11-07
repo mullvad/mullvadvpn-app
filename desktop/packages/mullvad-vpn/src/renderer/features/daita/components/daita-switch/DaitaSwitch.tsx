@@ -1,7 +1,7 @@
-import { useAppContext } from '../../../../../context';
-import { useDaitaEnabled } from '../../../../../features/daita/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
-import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
+import { useDaitaEnabled } from '../../hooks';
 
 export type DaitaSwitchProps = SwitchProps;
 
