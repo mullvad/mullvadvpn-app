@@ -1,8 +1,8 @@
-import { messages } from '../../../../../../shared/gettext';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { QuantumResistantSwitch } from './QuantumResistantSwitch';
+import { messages } from '../../../../../shared/gettext';
+import InfoButton from '../../../../components/InfoButton';
+import { ModalMessage } from '../../../../components/Modal';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { QuantumResistantSwitch } from '../quantum-resistant-switch';
 
 export function QuantumResistantSetting() {
   return (
