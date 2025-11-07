@@ -45,6 +45,7 @@ jobs:
     outputs:
       COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
 
+  # Considered our source of truth.
   build-using-container:
     name: Build fdroid variant using container
     runs-on: ubuntu-latest
@@ -149,6 +150,7 @@ jobs:
       matrix:
         include:
           - runs-on: ubuntu-latest
+          # Kept for nix build verification. Not reproducible.
           - runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -182,21 +184,35 @@ jobs:
     name: Check builds
     runs-on: ubuntu-latest
     needs: [build-using-container, build-using-fdroidserver, build-using-nix]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: apk-fdroidserver
+          - artifact: apk-nix-ubuntu-latest
+          - artifact: apk-nix-macos-latest
     steps:
-      - name: Download artifacts
+      - name: Download container artifact
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-          pattern: apk-*
+          pattern: apk-container
+          merge-multiple: false
+
+      - name: Download artifact (${{ matrix.artifact }})
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: ${{ matrix.artifact }}
           merge-multiple: false
 
       - name: Print checksums
         working-directory: ./artifacts
         run: sha256sum */*
 
-      - name: Compare files
+      - name: Compare against source or truth (container apk)
         working-directory: ./artifacts
-        run: diff apk-container/app-oss-prod-fdroid-unsigned.apk apk-fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        run: diff apk-container/app-oss-prod-fdroid-unsigned.apk ${{ matrix.artifact}}/app-oss-prod-fdroid-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.
