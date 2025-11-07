@@ -127,21 +127,11 @@ pub fn collect_report<P: AsRef<Path>>(
     let daemon_logs = daemon_logs_dir.and_then(list_logs);
     match daemon_logs {
         Ok(daemon_logs) => {
-            let mut other_logs = Vec::new();
             for log in daemon_logs {
                 match log {
-                    Ok(path) => {
-                        if is_tunnel_log(&path) {
-                            problem_report.add_log(&path);
-                        } else {
-                            other_logs.push(path);
-                        }
-                    }
+                    Ok(path) => problem_report.add_log(&path),
                     Err(error) => problem_report.add_error("Unable to get log path", &error),
                 }
-            }
-            for other_log in other_logs {
-                problem_report.add_log(&other_log);
             }
         }
         Err(error) => {
@@ -235,13 +225,6 @@ fn frontend_log_dir() -> Option<Result<PathBuf, LogError>> {
     #[cfg(target_os = "android")]
     {
         None
-    }
-}
-
-fn is_tunnel_log(path: &Path) -> bool {
-    match path.file_name() {
-        Some(file_name) => file_name.to_string_lossy().contains("openvpn"),
-        None => false,
     }
 }
 
