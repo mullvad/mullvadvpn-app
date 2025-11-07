@@ -111,7 +111,7 @@ impl TunnelMonitor {
         args: TunnelArgs<'_>,
     ) -> Result<Self> {
         Self::ensure_ipv6_can_be_used_if_enabled(tunnel_parameters)?;
-        let log_file = Self::prepare_tunnel_log_file(log_dir)?;
+        let log_file = Self::prepare_tunnel_log_file(log_dir.as_ref())?;
 
         Self::start_wireguard_tunnel(tunnel_parameters, log_file, args)
     }
@@ -139,16 +139,12 @@ impl TunnelMonitor {
     }
 
     #[cfg(not(target_os = "windows"))]
-    fn prepare_tunnel_log_file(log_dir: &Option<path::PathBuf>) -> Result<Option<path::PathBuf>> {
-        if let Some(log_dir) = log_dir {
-            Ok(Some(log_dir.join(WIREGUARD_LOG_FILENAME)))
-        } else {
-            Ok(None)
-        }
+    fn prepare_tunnel_log_file(log_dir: Option<&path::PathBuf>) -> Result<Option<path::PathBuf>> {
+        Ok(log_dir.map(|dir| dir.join(WIREGUARD_LOG_FILENAME)))
     }
 
     #[cfg(target_os = "windows")]
-    fn prepare_tunnel_log_file(log_dir: &Option<path::PathBuf>) -> Result<Option<path::PathBuf>> {
+    fn prepare_tunnel_log_file(log_dir: Option<&path::PathBuf>) -> Result<Option<path::PathBuf>> {
         if let Some(log_dir) = log_dir {
             let filename = WIREGUARD_LOG_FILENAME;
             let tunnel_log = log_dir.join(filename);
