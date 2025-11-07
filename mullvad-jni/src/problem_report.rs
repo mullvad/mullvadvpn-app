@@ -16,15 +16,24 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     env: JNIEnv<'_>,
     _: JObject<'_>,
     logDirectory: JString<'_>,
+    extraAppLogsDirectory: JString<'_>,
     outputPath: JString<'_>,
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let log_dir_string = String::from_java(&env, logDirectory);
     let log_dir = Path::new(&log_dir_string);
+    let extra_logs_dir_string = String::from_java(&env, extraAppLogsDirectory);
+    let extra_logs_dir = Path::new(&extra_logs_dir_string);
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
 
-    match mullvad_problem_report::collect_report::<&str>(&[], output_path, Vec::new(), log_dir) {
+    match mullvad_problem_report::collect_report::<&str>(
+        &[],
+        output_path,
+        Vec::new(),
+        log_dir,
+        extra_logs_dir,
+    ) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
