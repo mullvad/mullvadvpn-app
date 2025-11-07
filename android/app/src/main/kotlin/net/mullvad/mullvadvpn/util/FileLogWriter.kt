@@ -95,7 +95,7 @@ class FileLogWriter(
             if (allLogs.size == 1) {
                 // We only have one log file but it is too big, so we need to truncate it
                 val tmpFile = logDir.resolve("${log.logFilePath.fileName}.tmp")
-                createFileIfNotExists(tmpFile)
+                if (!tmpFile.exists()) tmpFile.createFile()
 
                 log.writer.close()
                 val bytesToKeep = (maxTotalSizeBytes * truncateKeepPercentage).toLong()
@@ -136,6 +136,21 @@ class FileLogWriter(
         return resolve("app_log_$year-$month-$day.log")
     }
 
+    private fun copyNBytesFromEnd(source: Path, dest: Path, n: Long) {
+        FileChannel.open(source, StandardOpenOption.READ).use { inChannel ->
+            FileChannel.open(
+                    dest,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                )
+                .use { outChannel ->
+                    val start = inChannel.size() - n
+                    inChannel.transferTo(start, n, outChannel)
+                }
+        }
+    }
+
     companion object {
         private const val MAX_FILE_COUNT = 7
         private const val MAX_TOTAL_SIZE_BYTES = 1024L * 1024L * 2L // 2 MB
@@ -150,7 +165,8 @@ class FileLogWriter(
 private data class FileAndWriter(val logFilePath: Path, val writer: BufferedWriter) {
     companion object {
         fun create(logFile: Path): FileAndWriter {
-            createFileIfNotExists(logFile)
+            if (!logFile.exists()) logFile.createFile()
+
             return FileAndWriter(
                 logFile,
                 Files.newBufferedWriter(logFile, StandardOpenOption.APPEND),
@@ -165,26 +181,5 @@ private data class DateComponents(val year: Int, val month: Int, val day: Int) {
             val now = OffsetDateTime.now(ZoneOffset.UTC)
             return DateComponents(now.year, now.monthValue, now.dayOfMonth)
         }
-    }
-}
-
-private fun createFileIfNotExists(path: Path) {
-    if (!path.exists()) {
-        path.createFile()
-    }
-}
-
-private fun copyNBytesFromEnd(source: Path, dest: Path, n: Long) {
-    FileChannel.open(source, StandardOpenOption.READ).use { inChannel ->
-        FileChannel.open(
-                dest,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING,
-            )
-            .use { outChannel ->
-                val start = inChannel.size() - n
-                inChannel.transferTo(start, n, outChannel)
-            }
     }
 }
