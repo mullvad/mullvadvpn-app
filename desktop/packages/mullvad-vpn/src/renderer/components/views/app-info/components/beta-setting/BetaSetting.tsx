@@ -5,7 +5,7 @@ import { useVersionIsBeta } from '../../../../../redux/hooks';
 import { SettingsListItem } from '../../../../settings-list-item';
 import { BetaSwitch } from '../beta-switch';
 
-export function BetaListItem() {
+export function BetaSetting() {
   const { isBeta } = useVersionIsBeta();
 
   const labelId = React.useId();
