@@ -96,7 +96,7 @@ impl Error {
     }
 }
 
-/// Abstraction for monitoring a generic VPN tunnel.
+/// Abstraction for monitoring a VPN tunnel.
 pub struct TunnelMonitor {
     monitor: WireguardMonitor,
 }

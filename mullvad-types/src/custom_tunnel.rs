@@ -35,8 +35,8 @@ impl CustomTunnelEndpoint {
         tunnel_options: TunnelOptions,
     ) -> Result<TunnelParameters, Error> {
         let ip = resolve_to_ip(&self.host)?;
-        let mut config = self.config.clone();
-        config.set_ip(ip);
+        let mut connection = self.config.clone();
+        connection.set_ip(ip);
 
         let parameters = {
             let mut options = tunnel_options.wireguard.into_talpid_tunnel_options();
@@ -45,7 +45,7 @@ impl CustomTunnelEndpoint {
                 log::info!("Ignoring quantum resistant option for custom tunnel");
             }
             TunnelParameters {
-                connection: config,
+                connection,
                 options,
                 generic_options: tunnel_options.generic,
                 obfuscation: None,

@@ -113,7 +113,7 @@ impl InnerParametersGenerator {
             .get_relay(retry_attempt as usize, ip_availability)?;
 
         match selected_relay {
-            GetRelay::Wireguard {
+            GetRelay::Mullvad {
                 endpoint,
                 obfuscator,
                 inner,
@@ -123,19 +123,19 @@ impl InnerParametersGenerator {
                     None => (None, None),
                 };
 
-                let (wg_entry, wg_exit) = match inner {
+                let (entry, exit) = match inner {
                     WireguardConfig::Singlehop { exit } => (None, exit),
                     WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
                 };
                 let server_override = {
-                    let first_relay = wg_entry.as_ref().unwrap_or(&wg_exit);
+                    let first_relay = entry.as_ref().unwrap_or(&exit);
                     (first_relay.overridden_ipv4 && endpoint.peer.endpoint.is_ipv4())
                         || (first_relay.overridden_ipv6 && endpoint.peer.endpoint.is_ipv6())
                 };
 
                 self.last_generated_relays = Some(LastSelectedRelays {
-                    entry: wg_entry,
-                    exit: wg_exit,
+                    entry,
+                    exit,
                     obfuscator: obfuscator_relay,
                     server_override,
                 });
