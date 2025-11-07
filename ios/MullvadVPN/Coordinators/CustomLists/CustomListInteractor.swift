@@ -10,6 +10,7 @@ import MullvadSettings
 import MullvadTypes
 
 protocol CustomListInteractorProtocol {
+    func fetch(by id: UUID) -> CustomList?
     func fetchAll() -> [CustomList]
     func save(list: CustomList) throws
     func delete(customList: CustomList)
@@ -30,6 +31,10 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
     ) {
         self.tunnelManager = tunnelManager
         self.repository = repository
+    }
+
+    func fetch(by id: UUID) -> CustomList? {
+        repository.fetch(by: id)
     }
 
     func fetchAll() -> [CustomList] {
