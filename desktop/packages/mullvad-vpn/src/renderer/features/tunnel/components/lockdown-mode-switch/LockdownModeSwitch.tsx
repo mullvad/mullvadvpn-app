@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import log from '../../../../../../shared/logging';
-import { useAppContext } from '../../../../../context';
-import { useLockdownMode } from '../../../../../features/tunnel/hooks';
-import { Button } from '../../../../../lib/components';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
-import { useBoolean } from '../../../../../lib/utility-hooks';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../Modal';
+import { messages } from '../../../../../shared/gettext';
+import log from '../../../../../shared/logging';
+import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../components/Modal';
+import { useAppContext } from '../../../../context';
+import { Button } from '../../../../lib/components';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useBoolean } from '../../../../lib/utility-hooks';
+import { useLockdownMode } from '../../hooks';
 
 export type LockdownModeSwitchProp = SwitchProps;
 
