@@ -1,4 +1,5 @@
 import { messages } from '../../../../shared/gettext';
+import { QuantumResistantSetting } from '../../../features/tunnel/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
@@ -25,7 +26,6 @@ import {
   KillSwitchSetting,
   LockdownModeSetting,
   MtuSetting,
-  QuantumResistantSetting,
 } from './components';
 
 export function VpnSettingsView() {
