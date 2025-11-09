@@ -60,7 +60,7 @@ cp "$CARGO_TARGET_DIR"/release/{mullvad,mullvad-daemon} "$IPK_FILES/data/usr/bin
 
 # Optional: If `--minify` is used, invoke `upx` to compress binaries before packaging.
 case $3 in
-    --minify) upx "$IPK_FILES"/data/usr/bin/* || true ;; # Disregard failure, minify on a best-effort basis.
+    --minify) upx --best --lzma "$IPK_FILES"/data/usr/bin/* || true ;; # Disregard failure, minify on a best-effort basis.
     *) ;;
 esac
 
