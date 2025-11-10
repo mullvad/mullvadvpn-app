@@ -1442,8 +1442,6 @@
         }
       }
     },
-    },
-
     "Add" : {
       "localizations" : {
         "da" : {
@@ -1561,7 +1559,9 @@
           }
         }
       }
+    },
     "Add %@ to list" : {
+
     },
     "Add 30 days time (%@)" : {
       "localizations" : {
@@ -13182,6 +13182,9 @@
         }
       }
     },
+    "Edit" : {
+
+    },
     "Edit custom list" : {
 
     },
@@ -14607,6 +14610,9 @@
         }
       }
     },
+    "Expand" : {
+
+    },
     "Expand %@" : {
 
     },
@@ -15106,6 +15112,9 @@
         }
       }
     },
+    "Filters" : {
+
+    },
     "Finland" : {
       "localizations" : {
         "da" : {
@@ -15577,9 +15586,6 @@
           }
         }
       }
-    },
-    "Filters" : {
-
     },
     "Gambling" : {
       "localizations" : {
@@ -21487,6 +21493,9 @@
         }
       }
     },
+    "List name" : {
+
+    },
     "Ljubljana" : {
       "localizations" : {
         "da" : {
@@ -24679,8 +24688,6 @@
         }
       }
     },
-    "Copied Mullvad account number to pasteboard" : {
-
     "Multihop" : {
       "localizations" : {
         "da" : {
@@ -25392,8 +25399,6 @@
     "NETWORK ISSUES" : {
 
     },
-    },
-
     "NEW DEVICE CREATED" : {
       "localizations" : {
         "da" : {
@@ -25511,7 +25516,9 @@
           }
         }
       }
+    },
     "New list" : {
+
     },
     "NEW VERSION INSTALLED" : {
       "localizations" : {
@@ -26348,8 +26355,6 @@
     "NO NETWORK" : {
 
     },
-    },
-
     "NO OVERRIDES IMPORTED" : {
       "localizations" : {
         "da" : {
@@ -26467,7 +26472,9 @@
           }
         }
       }
+    },
     "No result for \"%@\", please try a different search term." : {
+
     },
     "No servers match your location filter. Try changing filter settings." : {
 
@@ -28260,8 +28267,6 @@
         }
       }
     },
-    },
-
     "OVERRIDES ACTIVE" : {
       "localizations" : {
         "da" : {
@@ -28379,7 +28384,9 @@
           }
         }
       }
+    },
     "Owned" : {
+
     },
     "Ownership" : {
       "localizations" : {
@@ -30508,8 +30515,8 @@
     "Providers: %d" : {
 
     },
-
     "Providers: %lld" : {
+
     },
     "Quantum resistance" : {
       "localizations" : {
@@ -31591,8 +31598,8 @@
     "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
 
     },
-
     "Rented" : {
+
     },
     "Rented only" : {
       "localizations" : {
@@ -32662,6 +32669,9 @@
     "Save locations by adding them to a custom list." : {
 
     },
+    "Saving changes..." : {
+
+    },
     "Search for..." : {
       "localizations" : {
         "da" : {
@@ -32780,8 +32790,6 @@
         }
       }
     },
-    "Invalid device state." : {
-
     "Seattle, WA" : {
       "localizations" : {
         "da" : {
@@ -32900,7 +32908,6 @@
         }
       }
     },
-    "Invalid purchase identifier." : {
     "Secaucus, NJ" : {
       "localizations" : {
         "da" : {
@@ -38513,6 +38520,9 @@
           }
         }
       }
+    },
+    "To add locations to a list, press the pen or long press on a country, city, or server." : {
+
     },
     "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
       "localizations" : {
