@@ -1,27 +1,28 @@
 import { messages } from '../../../../../../../../shared/gettext';
 import { FlexRow } from '../../../../../../../lib/components/flex-row';
-import { SettingsToggleListItem } from '../../../../../../settings-toggle-list-item';
-import { useDns } from '../../hooks';
+import { ListItem } from '../../../../../../../lib/components/list-item';
+import { BlockAdultContentSwitch } from './BlockAdultContentSwitch';
 
 export function BlockAdultContentSetting() {
-  const [dns, setBlockAdultContent] = useDns('blockAdultContent');
-
   return (
-    <SettingsToggleListItem
-      level={1}
-      animation={false}
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockAdultContent}
-      onCheckedChange={setBlockAdultContent}>
-      <FlexRow $padding={{ left: 'medium' }}>
-        <SettingsToggleListItem.Label variant="bodySmall">
-          {
-            // TRANSLATORS: Label for settings that enables block of adult content.
-            messages.pgettext('vpn-settings-view', 'Adult content')
-          }
-        </SettingsToggleListItem.Label>
-      </FlexRow>
-      <SettingsToggleListItem.Switch />
-    </SettingsToggleListItem>
+    <ListItem level={1}>
+      <ListItem.Item>
+        <ListItem.Content>
+          <BlockAdultContentSwitch>
+            <FlexRow $padding={{ left: 'medium' }}>
+              <BlockAdultContentSwitch.Label variant="bodySmall">
+                {
+                  // TRANSLATORS: Label for settings that enables block of adult content.
+                  messages.pgettext('vpn-settings-view', 'Adult content')
+                }
+              </BlockAdultContentSwitch.Label>
+            </FlexRow>
+            <BlockAdultContentSwitch.Trigger>
+              <BlockAdultContentSwitch.Thumb />
+            </BlockAdultContentSwitch.Trigger>
+          </BlockAdultContentSwitch>
+        </ListItem.Content>
+      </ListItem.Item>
+    </ListItem>
   );
 }

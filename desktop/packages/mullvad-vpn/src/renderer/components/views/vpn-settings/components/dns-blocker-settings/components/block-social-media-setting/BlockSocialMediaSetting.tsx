@@ -1,27 +1,28 @@
 import { messages } from '../../../../../../../../shared/gettext';
 import { FlexRow } from '../../../../../../../lib/components/flex-row';
-import { SettingsToggleListItem } from '../../../../../../settings-toggle-list-item';
-import { useDns } from '../../hooks';
+import { ListItem } from '../../../../../../../lib/components/list-item';
+import { BlockSocialMediaSwitch } from './BlockSocialMediaSwitch';
 
 export function BlockSocialMediaSetting() {
-  const [dns, setBlockSocialMedia] = useDns('blockSocialMedia');
-
   return (
-    <SettingsToggleListItem
-      level={1}
-      animation={false}
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockSocialMedia}
-      onCheckedChange={setBlockSocialMedia}>
-      <FlexRow $padding={{ left: 'medium' }}>
-        <SettingsToggleListItem.Label variant="bodySmall">
-          {
-            // TRANSLATORS: Label for settings that enables block of social media.
-            messages.pgettext('vpn-settings-view', 'Social media')
-          }
-        </SettingsToggleListItem.Label>
-      </FlexRow>
-      <SettingsToggleListItem.Switch />
-    </SettingsToggleListItem>
+    <ListItem level={1}>
+      <ListItem.Item>
+        <ListItem.Content>
+          <BlockSocialMediaSwitch>
+            <FlexRow $padding={{ left: 'medium' }}>
+              <BlockSocialMediaSwitch.Label variant="bodySmall">
+                {
+                  // TRANSLATORS: Label for settings that enables block of social media.
+                  messages.pgettext('vpn-settings-view', 'Social media')
+                }
+              </BlockSocialMediaSwitch.Label>
+            </FlexRow>
+            <BlockSocialMediaSwitch.Trigger>
+              <BlockSocialMediaSwitch.Thumb />
+            </BlockSocialMediaSwitch.Trigger>
+          </BlockSocialMediaSwitch>
+        </ListItem.Content>
+      </ListItem.Item>
+    </ListItem>
   );
 }
