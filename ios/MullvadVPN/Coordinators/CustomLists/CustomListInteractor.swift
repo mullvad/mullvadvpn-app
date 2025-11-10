@@ -120,18 +120,25 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
             return
         }
 
-        relayConstraints.entryLocations = self.updateRelayConstraint(
+        let newEntryLocations = self.updateRelayConstraint(
             relayConstraints.entryLocations,
             for: action,
             in: list
         )
-        relayConstraints.exitLocations = self.updateRelayConstraint(
+
+        let newExitLocations = self.updateRelayConstraint(
             relayConstraints.exitLocations,
             for: action,
             in: list
         )
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        if newExitLocations.value != relayConstraints.exitLocations.value
+            || newEntryLocations.value != relayConstraints.entryLocations.value
+        {
+            relayConstraints.exitLocations = newExitLocations
+            relayConstraints.entryLocations = newEntryLocations
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        }
     }
 
     private func updateRelayConstraint(
@@ -154,9 +161,11 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
                 )
                 relayConstraint = .only(selectedRelays)
             } else {
-                let selectedConstraintIsRemovedFromList = list.locations.filter {
-                    relayConstraint.value?.locations.contains($0) ?? false
-                }.isEmpty
+                let selectedConstraintIsRemovedFromList = list.locations.allSatisfy { listLocation in
+                    !(relayConstraint.value?.locations
+                        .flatMap { [$0] + $0.ancestors }
+                        .contains(listLocation) ?? false)
+                }
 
                 if selectedConstraintIsRemovedFromList {
                     relayConstraint = .only(UserSelectedRelays(locations: []))
