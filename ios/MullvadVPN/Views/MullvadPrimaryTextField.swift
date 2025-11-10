@@ -194,7 +194,6 @@ struct MullvadPrimaryTextField: View {
     }
 }
 
-// TODO: Replace with UnevenRoundedRectangle
 private struct RoundedCorner: Shape {
     var cornerRadius: CGFloat = .infinity
     var corners: UIRectCorner = .allCorners

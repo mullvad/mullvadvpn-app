@@ -36,18 +36,13 @@ struct RelayItemView: View {
         }
         return "\(location.name)"
     }
-
+    
     var body: some View {
         Button {
             onSelect()
         } label: {
             HStack {
-                if !location.isActive {
-                    Image.mullvadRedDot
-                } else if location.isSelected {
-                    Image.mullvadIconTick
-                        .foregroundStyle(Color.mullvadSuccessColor)
-                }
+                locationStatusIndicator()
                 VStack(alignment: .leading) {
                     Text(title)
                         .font(.mullvadSmallSemiBold)
@@ -73,6 +68,16 @@ struct RelayItemView: View {
             }
         }
         .disabled(disabled)
+    }
+
+    @ViewBuilder
+    func locationStatusIndicator() -> some View {
+        if !location.isActive {
+            Image.mullvadRedDot
+        } else if location.isSelected {
+            Image.mullvadIconTick
+                .foregroundStyle(Color.mullvadSuccessColor)
+        }
     }
 }
 
