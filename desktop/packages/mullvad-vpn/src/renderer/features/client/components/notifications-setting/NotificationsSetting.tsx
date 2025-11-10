@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { NotificationsSwitch } from './NotificationsSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { NotificationsSwitch } from '../notifications-switch/NotificationsSwitch';
 
 export function NotificationsSetting() {
   const descriptionId = React.useId();
