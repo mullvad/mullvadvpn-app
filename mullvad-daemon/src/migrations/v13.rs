@@ -23,37 +23,6 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 }
 
 fn migrate_wireguard_port(settings: &mut serde_json::Value) -> Result<()> {
-    match settings
-        .get_mut("relay_settings")
-        .and_then(|relay_settings| relay_settings.get_mut("normal"))
-    {
-        Some(_) => migrate_wireguard_port_relay_settings_normal(settings),
-        // Insert wireguard_port as "any" as fallback if the custom relay settings
-        // are used (i.e. not "normal").
-        None => {
-            migrate_wireguard_port_insert_obfuscation_value(settings, json!("any"));
-
-            Ok(())
-        }
-    }
-}
-
-fn migrate_wireguard_port_insert_obfuscation_value(
-    settings: &mut serde_json::Value,
-    port: serde_json::Value,
-) {
-    if let Some(obfuscation_settings) = settings
-        .get_mut("obfuscation_settings")
-        .and_then(|obfuscation_settings| obfuscation_settings.as_object_mut())
-    {
-        obfuscation_settings.insert(WIREGUARD_PORT_NEW_KEY.to_string(), json!({"port": port}));
-    }
-}
-
-/// Move the port setting from wireguard_constraints into obfuscation:
-/// - Insert port setting value into obfuscation
-/// - Remove old value in wireguard_constraints
-fn migrate_wireguard_port_relay_settings_normal(settings: &mut serde_json::Value) -> Result<()> {
     if let Some(wireguard_constraints) = settings
         .get_mut("relay_settings")
         .and_then(|relay_settings| relay_settings.get_mut("normal"))
@@ -64,7 +33,15 @@ fn migrate_wireguard_port_relay_settings_normal(settings: &mut serde_json::Value
             let wireguard_port = port.clone();
             wireguard_constraints.remove(WIREGUARD_PORT_OLD_KEY);
 
-            migrate_wireguard_port_insert_obfuscation_value(settings, wireguard_port);
+            if let Some(obfuscation_settings) = settings
+                .get_mut("obfuscation_settings")
+                .and_then(|obfuscation_settings| obfuscation_settings.as_object_mut())
+            {
+                obfuscation_settings.insert(
+                    WIREGUARD_PORT_NEW_KEY.to_string(),
+                    json!({"port": wireguard_port}),
+                );
+            }
         }
     }
 
