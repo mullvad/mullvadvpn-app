@@ -85,5 +85,6 @@ class TunnelStateNotificationUseCase(
     private fun Constraint<Port>.invalidPortOrNull(availablePortRanges: List<PortRange>): Port? =
         getOrNull()?.takeIf { !it.inAnyOf(availablePortRanges) }
 
-    private fun Settings?.wireguardPort() = this?.obfuscationSettings?.port ?: Constraint.Any
+    private fun Settings?.wireguardPort() =
+        this?.obfuscationSettings?.wireguardPort ?: Constraint.Any
 }
