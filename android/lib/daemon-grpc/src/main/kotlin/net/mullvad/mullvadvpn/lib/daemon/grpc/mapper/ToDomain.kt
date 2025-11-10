@@ -450,7 +450,7 @@ internal fun ManagementInterface.ObfuscationSettings.Shadowsocks.toDomain(): Sha
         ShadowsocksSettings(Constraint.Any)
     }
 
-internal fun ManagementInterface.ObfuscationSettings.Port.toDomain(): Constraint<Port> =
+internal fun ManagementInterface.ObfuscationSettings.WireguardPort.toDomain(): Constraint<Port> =
     if (hasPort()) {
         Constraint.Only(Port(port))
     } else {
