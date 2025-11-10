@@ -404,8 +404,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.quic;
     case grpcTypes.FeatureIndicator.LWO:
       return FeatureIndicator.lwo;
-    case grpcTypes.FeatureIndicator.PORT:
-      return FeatureIndicator.port;
+    case grpcTypes.FeatureIndicator.WIREGUARD_PORT:
+      return FeatureIndicator.wireGuardPort;
   }
 }
 
@@ -684,8 +684,8 @@ function convertFromObfuscationSettings(
     shadowsocksSettings: obfuscationSettings?.shadowsocks
       ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
       : { port: 'any' },
-    wireGuardPortSettings: obfuscationSettings?.port
-      ? { port: convertFromConstraint(obfuscationSettings.port.port) }
+    wireGuardPortSettings: obfuscationSettings?.wireguardPort
+      ? { port: convertFromConstraint(obfuscationSettings.wireguardPort.port) }
       : { port: 'any' },
   };
 }
