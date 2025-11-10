@@ -276,7 +276,6 @@
 		58B2FDE92AA71D5C003EB5C6 /* SettingsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E03292D0F7100AFC18C /* SettingsParser.swift */; };
 		58B2FDEE2AA72098003EB5C6 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		58B2FDEF2AA720C4003EB5C6 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
-		58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B4656F2A98C53300467203 /* RequestExecutorTests.swift */; };
 		58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B93A1226C3F13600A55733 /* TunnelState.swift */; };
 		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
 		58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* RESTError+Display.swift */; };
@@ -1880,7 +1879,6 @@
 		58B26E292943545A00D5980C /* NotificationManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerDelegate.swift; sourceTree = "<group>"; };
 		58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadSettings.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B2FDD52AA71D2A003EB5C6 /* MullvadSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadSettings.h; sourceTree = "<group>"; };
-		58B4656F2A98C53300467203 /* RequestExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestExecutorTests.swift; sourceTree = "<group>"; };
 		58B93A1226C3F13600A55733 /* TunnelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelState.swift; sourceTree = "<group>"; };
 		58B993B02608A34500BA7811 /* LoginContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContentView.swift; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
@@ -4176,7 +4174,6 @@
 				7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
 				F924C4522D706929001F4660 /* MullvadApiTests.swift */,
-				58B4656F2A98C53300467203 /* RequestExecutorTests.swift */,
 				A91EBED92C1337040004A84D /* RetryStrategyTests.swift */,
 				F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */,
 				A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */,
@@ -6764,7 +6761,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */,
 				7AA5C3752E9FCD9300B35530 /* DefaultLocationServiceTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
 				F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */,
