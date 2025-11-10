@@ -1,7 +1,7 @@
-import { messages } from '../../../../../../../../shared/gettext';
-import { FlexRow } from '../../../../../../../lib/components/flex-row';
-import { ListItem } from '../../../../../../../lib/components/list-item';
-import { BlockSocialMediaSwitch } from './BlockSocialMediaSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { FlexRow } from '../../../../lib/components/flex-row';
+import { ListItem } from '../../../../lib/components/list-item';
+import { BlockSocialMediaSwitch } from '../block-social-media-switch/BlockSocialMediaSwitch';
 
 export function BlockSocialMediaSetting() {
   return (
