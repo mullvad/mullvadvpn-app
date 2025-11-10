@@ -18,7 +18,7 @@ export function getObfuscationLabel(obfuscationType: ObfuscationType): string {
       return messages.pgettext('wireguard-settings-view', 'UDP-over-TCP');
     case ObfuscationType.off:
       return messages.gettext('Off');
-    case ObfuscationType.wireguardport:
+    case ObfuscationType.wireGuardPort:
       return sprintf(messages.pgettext('wireguard-settings-view', '%(wireguard)s port'), {
         wireguard: strings.wireguard,
       });

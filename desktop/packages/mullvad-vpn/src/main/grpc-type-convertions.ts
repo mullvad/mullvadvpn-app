@@ -672,7 +672,7 @@ function convertFromObfuscationSettings(
       selectedObfuscationType = ObfuscationType.lwo;
       break;
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT:
-      selectedObfuscationType = ObfuscationType.wireguardport;
+      selectedObfuscationType = ObfuscationType.wireGuardPort;
       break;
   }
 

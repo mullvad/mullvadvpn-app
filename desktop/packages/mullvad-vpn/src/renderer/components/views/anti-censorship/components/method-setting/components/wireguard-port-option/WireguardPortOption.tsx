@@ -20,7 +20,7 @@ export function WireguardPortOption() {
   const subLabelTemplate = messages.pgettext('wireguard-settings-view', 'Port: %(port)s');
 
   return (
-    <SettingsListbox.SplitOption value={ObfuscationType.wireguardport}>
+    <SettingsListbox.SplitOption value={ObfuscationType.wireGuardPort}>
       <SettingsListbox.SplitOption.Item
         aria-description={messages.pgettext(
           'accessibility',
