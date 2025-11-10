@@ -356,9 +356,9 @@ export class DaemonRpc extends GrpcClient {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO,
         );
         break;
-      case ObfuscationType.port:
+      case ObfuscationType.wireGuardPort:
         grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.PORT,
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT,
         );
         break;
     }
@@ -380,11 +380,11 @@ export class DaemonRpc extends GrpcClient {
     }
 
     if (obfuscationSettings.wireGuardPortSettings) {
-      const wireGuardPortSettings = new grpcTypes.ObfuscationSettings.Port();
+      const wireGuardPortSettings = new grpcTypes.ObfuscationSettings.WireguardPort();
       if (obfuscationSettings.wireGuardPortSettings.port !== 'any') {
         wireGuardPortSettings.setPort(obfuscationSettings.wireGuardPortSettings.port.only);
       }
-      grpcObfuscationSettings.setPort(wireGuardPortSettings);
+      grpcObfuscationSettings.setWireguardPort(wireGuardPortSettings);
     }
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
