@@ -1,4 +1,5 @@
 import { messages } from '../../../../shared/gettext';
+import { AutoConnectSetting } from '../../../features/client/components';
 import { AllowLanSetting } from '../../../features/lan-sharing/components';
 import {
   EnableIpv6Setting,
@@ -20,7 +21,6 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
   AntiCensorshipListItem,
-  AutoConnectSetting,
   AutoStartSetting,
   CustomDnsSettings,
   DnsBlockerSettings,
