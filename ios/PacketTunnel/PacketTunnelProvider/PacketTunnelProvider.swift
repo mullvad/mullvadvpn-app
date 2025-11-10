@@ -95,8 +95,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            apiTransportProvider: apiTransportProvider,
-            addressCache: addressCache
+            apiTransportProvider: apiTransportProvider
         )
         let accountsProxy = proxyFactory.createAccountsProxy()
         let devicesProxy = proxyFactory.createDevicesProxy()

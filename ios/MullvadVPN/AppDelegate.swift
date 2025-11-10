@@ -207,13 +207,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             proxyFactory = MockProxyFactory.makeProxyFactory(
                 apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
                     self?.apiTransportMonitor.makeTransport()
-                }, addressCache: addressCache
+                }
             )
         } else {
             proxyFactory = REST.ProxyFactory.makeProxyFactory(
                 apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
                     self?.apiTransportMonitor.makeTransport()
-                }, addressCache: addressCache
+                }
             )
         }
         apiProxy = proxyFactory.createAPIProxy()
