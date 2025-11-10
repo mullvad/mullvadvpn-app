@@ -74,9 +74,21 @@ android {
     }
 
     playConfigs {
-        register("playDevmoleRelease") { enabled = true }
-        register("playStagemoleRelease") { enabled = true }
-        register("playProdRelease") { enabled = true }
+        register("playDevmoleRelease") { enabled = !appVersion.isDev }
+        register("playStagemoleRelease") { enabled = !appVersion.isDev }
+        register("playProdRelease") {
+            enabled = !appVersion.isDev
+            track.set(
+                when {
+                    appVersion.isStable -> "production"
+                    appVersion.isBeta -> "beta"
+                    else -> "internal"
+                }
+            )
+            if (appVersion.isStable) {
+                releaseStatus.set(ReleaseStatus.DRAFT)
+            }
+        }
     }
 
     androidResources {
