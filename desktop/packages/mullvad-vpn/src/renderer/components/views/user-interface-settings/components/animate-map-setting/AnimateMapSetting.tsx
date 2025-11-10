@@ -1,21 +1,30 @@
+import React from 'react';
+
 import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
-import { useSelector } from '../../../../../redux/store';
-import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
+import { ListItem } from '../../../../../lib/components/list-item';
+import { AnimateMapSwitch } from './AnimateMapSwitch';
 
 export function AnimateMapSetting() {
-  const animateMap = useSelector((state) => state.settings.guiSettings.animateMap);
-  const { setAnimateMap } = useAppContext();
-
+  const descriptionId = React.useId();
   return (
-    <SettingsToggleListItem
-      checked={animateMap}
-      onCheckedChange={setAnimateMap}
-      description={messages.pgettext('user-interface-settings-view', 'Animate map movements.')}>
-      <SettingsToggleListItem.Label>
-        {messages.pgettext('user-interface-settings-view', 'Animate map')}
-      </SettingsToggleListItem.Label>
-      <SettingsToggleListItem.Switch />
-    </SettingsToggleListItem>
+    <ListItem>
+      <ListItem.Item>
+        <ListItem.Content>
+          <AnimateMapSwitch>
+            <AnimateMapSwitch.Label variant="titleMedium">
+              {messages.pgettext('user-interface-settings-view', 'Animate map')}
+            </AnimateMapSwitch.Label>
+            <AnimateMapSwitch.Trigger aria-describedby={descriptionId}>
+              <AnimateMapSwitch.Thumb />
+            </AnimateMapSwitch.Trigger>
+          </AnimateMapSwitch>
+        </ListItem.Content>
+      </ListItem.Item>
+      <ListItem.Footer>
+        <ListItem.Text id={descriptionId}>
+          {messages.pgettext('user-interface-settings-view', 'Animate map movements.')}
+        </ListItem.Text>
+      </ListItem.Footer>
+    </ListItem>
   );
 }
