@@ -7,7 +7,7 @@ data class ObfuscationSettings(
     val selectedObfuscationMode: ObfuscationMode,
     val udp2tcp: Udp2TcpObfuscationSettings,
     val shadowsocks: ShadowsocksSettings,
-    val port: Constraint<Port>,
+    val wireguardPort: Constraint<Port>,
 ) {
     companion object
 }
