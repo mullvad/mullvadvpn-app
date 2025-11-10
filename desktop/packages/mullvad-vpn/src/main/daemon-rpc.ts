@@ -356,9 +356,9 @@ export class DaemonRpc extends GrpcClient {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO,
         );
         break;
-      case ObfuscationType.port:
+      case ObfuscationType.wireguardport:
         grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.PORT,
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT,
         );
         break;
     }

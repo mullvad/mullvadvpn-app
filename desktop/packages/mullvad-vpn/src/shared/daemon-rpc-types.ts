@@ -495,7 +495,7 @@ export enum ObfuscationType {
   shadowsocks,
   quic,
   lwo,
-  port,
+  wireguardport,
 }
 
 export type ObfuscationSettings = {

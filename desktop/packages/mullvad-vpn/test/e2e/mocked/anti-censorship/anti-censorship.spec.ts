@@ -55,7 +55,7 @@ test.describe('Anti censorship settings', () => {
     const option = routes.antiCensorship.selectors.wireguardPortOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
-    await setObfuscation(ObfuscationType.port);
+    await setObfuscation(ObfuscationType.wireguardport);
     await expect(option).toHaveAttribute('aria-selected', 'true');
   });
 
