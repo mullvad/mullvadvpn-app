@@ -70,7 +70,7 @@ pub enum FeatureIndicator {
     Multihop,
     SplitTunneling,
     LockdownMode,
-    Port,
+    WireguardPort,
     Udp2Tcp,
     Shadowsocks,
     Quic,
@@ -96,7 +96,7 @@ impl FeatureIndicator {
             FeatureIndicator::Multihop => "Multihop",
             FeatureIndicator::SplitTunneling => "Split Tunneling",
             FeatureIndicator::LockdownMode => "Lockdown Mode",
-            FeatureIndicator::Port => "WireGuard Port",
+            FeatureIndicator::WireguardPort => "WireGuard Port",
             FeatureIndicator::Udp2Tcp => "Udp2Tcp",
             FeatureIndicator::Shadowsocks => "Shadowsocks",
             FeatureIndicator::Quic => "Quic",
@@ -157,7 +157,7 @@ pub fn compute_feature_indicators(
     };
     let port = matches!(
         settings.obfuscation_settings.selected_obfuscation,
-        crate::relay_constraints::SelectedObfuscation::Port
+        crate::relay_constraints::SelectedObfuscation::WireguardPort
     );
     let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
     let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
@@ -353,14 +353,18 @@ mod tests {
             let prev = settings.obfuscation_settings.selected_obfuscation;
             settings.obfuscation_settings.selected_obfuscation = SelectedObfuscation::WireguardPort;
 
-            expected_indicators.0.insert(FeatureIndicator::Port);
+            expected_indicators
+                .0
+                .insert(FeatureIndicator::WireguardPort);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators
             );
 
             settings.obfuscation_settings.selected_obfuscation = prev;
-            expected_indicators.0.remove(&FeatureIndicator::Port);
+            expected_indicators
+                .0
+                .remove(&FeatureIndicator::WireguardPort);
         }
 
         settings.tunnel_options.wireguard.mtu = Some(1300);
@@ -435,7 +439,7 @@ mod tests {
             FeatureIndicator::Multihop => {}
             FeatureIndicator::SplitTunneling => {}
             FeatureIndicator::LockdownMode => {}
-            FeatureIndicator::Port => {}
+            FeatureIndicator::WireguardPort => {}
             FeatureIndicator::Udp2Tcp => {}
             FeatureIndicator::Shadowsocks => {}
             FeatureIndicator::Quic => {}
