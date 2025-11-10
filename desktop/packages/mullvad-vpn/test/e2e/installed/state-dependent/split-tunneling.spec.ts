@@ -7,10 +7,13 @@ import { RoutesObjectModel } from '../../route-object-models';
 import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
-// macOS only. This test expects the daemon to be logged in and for split tunneling to be off and
-// have no split applications.
+// Windows and macOS only. This test expects the daemon to be logged in and for split tunneling to
+// be off and have no split applications.
 
-const applications = process.platform === 'win32' ? ['todo', 'todo'] : ['launchpad', 'clock'];
+const applications =
+  process.platform === 'win32'
+    ? ['microsoft edge', 'windows media player legacy']
+    : ['launchpad', 'clock'];
 
 let page: Page;
 let util: TestUtils;
