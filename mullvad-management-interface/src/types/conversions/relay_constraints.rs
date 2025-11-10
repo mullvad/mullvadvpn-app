@@ -137,7 +137,9 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
             }
             SelectedObfuscation::Quic => proto::obfuscation_settings::SelectedObfuscation::Quic,
             SelectedObfuscation::Lwo => proto::obfuscation_settings::SelectedObfuscation::Lwo,
-            SelectedObfuscation::Port => proto::obfuscation_settings::SelectedObfuscation::Port,
+            SelectedObfuscation::WireguardPort => {
+                proto::obfuscation_settings::SelectedObfuscation::WireguardPort
+            }
         });
         Self {
             selected_obfuscation,
@@ -147,7 +149,9 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
             shadowsocks: Some(proto::obfuscation_settings::Shadowsocks::from(
                 &settings.shadowsocks,
             )),
-            port: Some(proto::obfuscation_settings::Port::from(&settings.port)),
+            wireguard_port: Some(proto::obfuscation_settings::WireguardPort::from(
+                &settings.wireguard_port,
+            )),
         }
     }
 }
@@ -178,10 +182,10 @@ impl From<&mullvad_types::relay_constraints::ShadowsocksSettings>
     }
 }
 
-impl From<&mullvad_types::relay_constraints::WireguardPortSetting>
-    for proto::obfuscation_settings::Port
+impl From<&mullvad_types::relay_constraints::WireguardPortSettings>
+    for proto::obfuscation_settings::WireguardPort
 {
-    fn from(port: &mullvad_types::relay_constraints::WireguardPortSetting) -> Self {
+    fn from(port: &mullvad_types::relay_constraints::WireguardPortSettings) -> Self {
         Self {
             port: port.get().map(u32::from).option(),
         }
@@ -443,7 +447,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 Ok(IpcSelectedObfuscation::Shadowsocks) => SelectedObfuscation::Shadowsocks,
                 Ok(IpcSelectedObfuscation::Quic) => SelectedObfuscation::Quic,
                 Ok(IpcSelectedObfuscation::Lwo) => SelectedObfuscation::Lwo,
-                Ok(IpcSelectedObfuscation::Port) => SelectedObfuscation::Port,
+                Ok(IpcSelectedObfuscation::WireguardPort) => SelectedObfuscation::WireguardPort,
                 Err(_) => {
                     return Err(FromProtobufTypeError::InvalidArgument(
                         "invalid obfuscation settings",
@@ -472,9 +476,9 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
             }
         };
 
-        let port = match settings.port {
+        let wireguard_port = match settings.wireguard_port {
             Some(settings) => {
-                mullvad_types::relay_constraints::WireguardPortSetting::try_from(&settings)?
+                mullvad_types::relay_constraints::WireguardPortSettings::try_from(&settings)?
             }
             None => {
                 return Err(FromProtobufTypeError::InvalidArgument(
@@ -487,7 +491,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
             selected_obfuscation,
             udp2tcp,
             shadowsocks,
-            port,
+            wireguard_port,
         })
     }
 }
@@ -518,12 +522,14 @@ impl TryFrom<&proto::obfuscation_settings::Shadowsocks>
     }
 }
 
-impl TryFrom<&proto::obfuscation_settings::Port>
-    for mullvad_types::relay_constraints::WireguardPortSetting
+impl TryFrom<&proto::obfuscation_settings::WireguardPort>
+    for mullvad_types::relay_constraints::WireguardPortSettings
 {
     type Error = FromProtobufTypeError;
 
-    fn try_from(settings: &proto::obfuscation_settings::Port) -> Result<Self, Self::Error> {
+    fn try_from(
+        settings: &proto::obfuscation_settings::WireguardPort,
+    ) -> Result<Self, Self::Error> {
         let port = settings.port.map(|port| port as u16);
         Ok(Self::from(port))
     }
