@@ -429,7 +429,7 @@ message ObfuscationSettings {
   enum SelectedObfuscation {
     AUTO = 0;
     OFF = 1;
-    PORT = 2;
+    WIREGUARD_PORT = 2;
     UDP2TCP = 3;
     SHADOWSOCKS = 4;
     QUIC = 5;
@@ -437,11 +437,11 @@ message ObfuscationSettings {
   }
   message Udp2TcpObfuscation { optional uint32 port = 1; }
   message Shadowsocks { optional uint32 port = 1; }
-  message Port { optional uint32 port = 1; }
+  message WireguardPort { optional uint32 port = 1; }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscation udp2tcp = 2;
   Shadowsocks shadowsocks = 3;
-  Port port = 4;
+  WireguardPort wireguard_port = 4;
 }
 
 message CustomList {
