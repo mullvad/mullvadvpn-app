@@ -1,9 +1,9 @@
 import React from 'react';
 
-import log from '../../../../../../shared/logging';
-import { useAppContext } from '../../../../../context';
-import { useEnableIpv6 } from '../../../../../features/tunnel/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import log from '../../../../../shared/logging';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useEnableIpv6 } from '../../hooks';
 
 export type EnableIpv6SwitchProps = SwitchProps;
 

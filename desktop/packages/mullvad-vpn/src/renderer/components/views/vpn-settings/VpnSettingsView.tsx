@@ -1,5 +1,9 @@
 import { messages } from '../../../../shared/gettext';
-import { LockdownModeSetting, QuantumResistantSetting } from '../../../features/tunnel/components';
+import {
+  EnableIpv6Setting,
+  LockdownModeSetting,
+  QuantumResistantSetting,
+} from '../../../features/tunnel/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
@@ -20,7 +24,6 @@ import {
   AutoStartSetting,
   CustomDnsSettings,
   DnsBlockerSettings,
-  EnableIpv6Setting,
   IpOverrideSettings,
   IpVersionSetting,
   KillSwitchSetting,

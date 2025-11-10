@@ -3,7 +3,6 @@ export * from './custom-dns-settings';
 export * from './auto-connect-setting';
 export * from './auto-start-setting';
 export * from './dns-blocker-settings';
-export * from './enable-ipv6-setting';
 export * from './ip-override-settings';
 export * from './kill-switch-setting';
 export * from './anti-censorship-list-item';
