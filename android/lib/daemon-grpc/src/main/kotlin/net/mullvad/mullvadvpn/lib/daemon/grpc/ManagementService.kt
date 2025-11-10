@@ -829,7 +829,7 @@ class ManagementService(
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val obfuscationSettings = getSettings().obfuscationSettings
-                val updated = ObfuscationSettings.port.set(obfuscationSettings, port)
+                val updated = ObfuscationSettings.wireguardPort.set(obfuscationSettings, port)
                 grpc.setObfuscationSettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set wireguard port error") }
