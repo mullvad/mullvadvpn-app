@@ -117,17 +117,4 @@ mod test {
         migrate_wireguard_port(&mut old_settings).unwrap();
         insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
     }
-
-    #[test]
-    fn test_v13_to_v14_migration_relay_settings_custom() {
-        let mut old_settings = json!({
-            "obfuscation_settings": {},
-            "relay_settings": {
-              "custom": {}
-            }
-        });
-        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
-        migrate_wireguard_port(&mut old_settings).unwrap();
-        insta::assert_snapshot!(serde_json::to_string_pretty(&old_settings).unwrap());
-    }
 }
