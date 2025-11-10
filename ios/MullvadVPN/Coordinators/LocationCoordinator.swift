@@ -103,7 +103,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] addCustomListCoordinator in
             addCustomListCoordinator.dismiss(animated: true)
-            self?.selectLocationViewModel?.refreshCustomLists()
+            self?.selectLocationViewModel?.customListsChanged()
         }
 
         coordinator.start()
@@ -123,7 +123,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
             listCustomListCoordinator.dismiss(animated: true)
-            self?.selectLocationViewModel?.refreshCustomLists()
+            self?.selectLocationViewModel?.customListsChanged()
         }
 
         coordinator.start()
@@ -145,7 +145,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
             editCustomListCoordinator.dismiss(animated: true)
-            self?.selectLocationViewModel?.refreshCustomLists()
+            self?.selectLocationViewModel?.customListsChanged()
         }
 
         coordinator.start()
@@ -160,7 +160,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 // See showEditCustomLists() above.
 extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        selectLocationViewModel?.refreshCustomLists()
+        selectLocationViewModel?.customListsChanged()
     }
 }
 
