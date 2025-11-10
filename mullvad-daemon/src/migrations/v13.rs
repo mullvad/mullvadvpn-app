@@ -15,37 +15,28 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
     log::info!("Migrating settings format to V14");
 
-    migrate_wireguard_port(settings)?;
+    migrate_wireguard_port(settings);
 
     settings["settings_version"] = serde_json::json!(SettingsVersion::V14);
 
     Ok(())
 }
 
-fn migrate_wireguard_port(settings: &mut serde_json::Value) -> Result<()> {
-    if let Some(wireguard_constraints) = settings
+fn migrate_wireguard_port(settings: &mut serde_json::Value) -> Option<()> {
+    let wireguard_constraints = settings
         .get_mut("relay_settings")
         .and_then(|relay_settings| relay_settings.get_mut("normal"))
         .and_then(|normal_relay_settings| normal_relay_settings.get_mut("wireguard_constraints"))
-        .and_then(|wireguard_constraints| wireguard_constraints.as_object_mut())
-    {
-        if let Some(port) = wireguard_constraints.get(WIREGUARD_PORT_OLD_KEY) {
-            let wireguard_port = port.clone();
-            wireguard_constraints.remove(WIREGUARD_PORT_OLD_KEY);
+        .and_then(|wireguard_constraints| wireguard_constraints.as_object_mut())?;
 
-            if let Some(obfuscation_settings) = settings
-                .get_mut("obfuscation_settings")
-                .and_then(|obfuscation_settings| obfuscation_settings.as_object_mut())
-            {
-                obfuscation_settings.insert(
-                    WIREGUARD_PORT_NEW_KEY.to_string(),
-                    json!({"port": wireguard_port}),
-                );
-            }
-        }
-    }
+    let port = wireguard_constraints.remove(WIREGUARD_PORT_OLD_KEY)?;
 
-    Ok(())
+    let obfuscation_settings = settings
+        .get_mut("obfuscation_settings")
+        .and_then(|obfuscation_settings| obfuscation_settings.as_object_mut())?;
+    obfuscation_settings.insert(WIREGUARD_PORT_NEW_KEY.to_string(), json!({"port": port}));
+
+    Some(())
 }
 
 fn version_matches(settings: &serde_json::Value) -> bool {
