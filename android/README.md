@@ -25,7 +25,7 @@ The easiest and recommended way to build the Android project including the `mull
 ```
 ../building/containerized-build.sh android --dev-build
 ```
-See the [build instructions](BuildInstructions.md) for further information.
+See the [build instructions](./docs/BuildInstructions.md) for further information.
 
 ## Linting and formatting
 

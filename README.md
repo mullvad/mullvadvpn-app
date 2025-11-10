@@ -120,7 +120,7 @@ details about that repository.
 
 See the [build instructions](BuildInstructions.md) for help building the app on desktop platforms.
 
-For building the Android app, see the [instructions](./android/BuildInstructions.md) for Android.
+For building the Android app, see the [instructions](./android/docs/BuildInstructions.md) for Android.
 
 For building the iOS app, see the [instructions](./ios/BuildInstructions.md) for iOS.
 
