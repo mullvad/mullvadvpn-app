@@ -13,7 +13,7 @@ protocol SelectLocationViewModel: ObservableObject {
     var isMultihopEnabled: Bool { get }
     func onFilterTapped(_ filter: SelectLocationFilter)
     func onFilterRemoved(_ filter: SelectLocationFilter)
-    func refreshCustomLists()
+    func customListsChanged()
     func addLocationToCustomList(location: LocationNode, customListName: String)
     func removeLocationFromCustomList(location: LocationNode, customListName: String)
     func deleteCustomList(name: String)
@@ -121,19 +121,24 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 didUpdateTunnelSettings: { [weak self] _, settings in
                     guard let self else { return }
                     fetchLocations()
+                    refreshCustomLists()
+                    updateSelections(
+                        selectedExitRelays: settings.relayConstraints.exitLocations.value,
+                        selectedEntryRelays: settings.relayConstraints.entryLocations.value
+                    )
+                    updateConnectedLocations(tunnelManager.tunnelStatus)
+                    if !searchText.isEmpty {
+                        search(searchText: searchText)
+                    }
+
                     showDAITAInfo = tunnelManager.settings.daita.isAutomaticRouting
 
                     let (activeEntryFilter, activeExitFilter) = SelectLocationFilter.getActiveFilters(
                         settings
                     )
-                    search(searchText: searchText)
                     entryContext.filter = activeEntryFilter
                     exitContext.filter = activeExitFilter
-                    updateSelections(
-                        selectedExitRelays: settings.relayConstraints.exitLocations.value,
-                        selectedEntryRelays: settings.relayConstraints.entryLocations.value
-                    )
-                    self.updateConnectedLocations(tunnelManager.tunnelStatus)
+
                 }
             )
 
@@ -153,11 +158,13 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         self.tunnelObserver = tunnelObserver
 
         fetchLocations()
+        refreshCustomLists()
         updateSelections(
             selectedExitRelays: tunnelManager.settings.relayConstraints.exitLocations.value,
             selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
         )
         updateConnectedLocations(tunnelManager.tunnelStatus)
+        expandSelectedLocation()
     }
 
     deinit {
@@ -200,7 +207,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             return
         }
         customListInteractor.delete(customList: customList)
-        refreshCustomLists()
+        customListsChanged()
     }
 
     func showEditCustomList(name: String) {
@@ -218,27 +225,36 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func addLocationToCustomList(location: LocationNode, customListName: String) {
-        customListInteractor
+        try? customListInteractor
             .addLocationToCustomList(
                 relayLocations: location.locations,
                 customListName: customListName
             )
-        refreshCustomLists()
+        customListsChanged()
     }
 
     func removeLocationFromCustomList(
         location: LocationNode,
         customListName: String
     ) {
-        customListInteractor
+        try? customListInteractor
             .removeLocationFromCustomList(
                 relayLocations: location.locations,
                 customListName: customListName
             )
-        refreshCustomLists()
+        customListsChanged()
     }
 
-    func refreshCustomLists() {
+    func customListsChanged() {
+        refreshCustomLists()
+        updateSelections(
+            selectedExitRelays: tunnelManager.settings.relayConstraints.exitLocations.value,
+            selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
+        )
+        updateConnectedLocations(tunnelManager.tunnelStatus)
+    }
+
+    private func refreshCustomLists() {
         exitCustomListsDataSource.reload(allLocationNodes: exitContext.locations)
         entryCustomListsDataSource.reload(allLocationNodes: entryContext.locations)
 
@@ -265,7 +281,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             entryContext.locations = []
             exitContext.locations = []
         }
-        refreshCustomLists()
     }
 
     private func updateConnectedLocations(_ status: TunnelStatus) {
@@ -319,7 +334,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             entryCustomListsDataSource
                 .setExcludedNode(excludedRelays: selectedExitRelays)
         }
-        expandSelectedLocation()
     }
 
     private func expandSelectedLocation() {
