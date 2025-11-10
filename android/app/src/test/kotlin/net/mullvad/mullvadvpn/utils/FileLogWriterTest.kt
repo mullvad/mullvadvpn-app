@@ -142,7 +142,7 @@ class FileLogWriterTest {
                 scope = this,
                 dispatcher = Dispatchers.Main,
             )
-        val logFile = tempDir.listDirectoryEntries().first()
+        val logFile = tempDir.listDirectoryEntries().find { it != log1 && it != log2 }!!
 
         // Exceed the size limit
         val writeTo = (maxBytes * 0.6).toInt()

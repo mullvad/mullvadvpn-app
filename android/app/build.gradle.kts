@@ -159,6 +159,7 @@ android {
                 events("passed", "skipped", "failed", "standardOut", "standardError")
                 showCauses = true
                 showExceptions = true
+                showStandardStreams = true
             }
         }
     }
