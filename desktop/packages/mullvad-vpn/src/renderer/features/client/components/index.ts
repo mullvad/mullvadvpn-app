@@ -1,3 +1,5 @@
+export * from './animate-map-setting';
+export * from './animate-map-switch';
 export * from './auto-connect-setting';
 export * from './auto-connect-switch';
 export * from './auto-start-setting';

@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useAnimateMap } from '../../../../../features/client/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useAnimateMap } from '../../hooks';
 
 export type AnimateMapSwitchProps = SwitchProps;
 
