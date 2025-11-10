@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useMonochromaticTrayIcon } from '../../../../../features/client/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useMonochromaticTrayIcon } from '../../hooks';
 
 export type MonochromaticTrayIconSwitchProps = SwitchProps;
 

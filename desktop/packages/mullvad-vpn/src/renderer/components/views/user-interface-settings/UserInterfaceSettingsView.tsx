@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import {
+  MonochromaticTrayIconSetting,
   NotificationsSetting,
   StartMinimizedSetting,
   UnpinnedWindowSetting,
@@ -20,7 +21,7 @@ import {
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { AnimateMapSetting, LanguageListItem, MonochromaticTrayIconSetting } from './components';
+import { AnimateMapSetting, LanguageListItem } from './components';
 
 const StyledAnimateMapCellGroup = styled(SettingsGroup)({
   '@media (prefers-reduced-motion: reduce)': {
