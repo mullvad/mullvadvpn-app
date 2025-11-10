@@ -22,7 +22,6 @@ class TunnelManagerTests: XCTestCase {
     var application: BackgroundTaskProviding!
     var relayCacheTracker: RelayCacheTrackerStub!
     var accountProxy: AccountsProxyStub!
-    var accessTokenManager: AccessTokenManagerStub!
     var devicesProxy: DevicesProxyStub!
     var apiProxy: APIProxyStub!
     var addressCache: REST.AddressCache!
@@ -40,7 +39,6 @@ class TunnelManagerTests: XCTestCase {
         application = UIApplicationStub()
         relayCacheTracker = RelayCacheTrackerStub()
         accountProxy = AccountsProxyStub()
-        accessTokenManager = AccessTokenManagerStub()
         devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         apiProxy = APIProxyStub()
         let shadowsocksLoader = ShadowsocksLoader(
@@ -73,7 +71,6 @@ class TunnelManagerTests: XCTestCase {
         application = nil
         relayCacheTracker = nil
         accountProxy = nil
-        accessTokenManager = nil
         devicesProxy = nil
         apiProxy = nil
         tunnelObserver = nil
