@@ -4,10 +4,10 @@ expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
 ---
 {
   "obfuscation_settings": {
-    "port": {
+    "selected_obfuscation": "shadowsocks",
+    "wireguard_port": {
       "port": "any"
-    },
-    "selected_obfuscation": "shadowsocks"
+    }
   },
   "relay_settings": {
     "normal": {
