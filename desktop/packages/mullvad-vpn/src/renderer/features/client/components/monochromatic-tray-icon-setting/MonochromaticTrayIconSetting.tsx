@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { MonochromaticTrayIconSwitch } from './MonochromaticTrayIconSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { MonochromaticTrayIconSwitch } from '../monochromatic-tray-icon-switch/MonochromaticTrayIconSwitch';
 
 export function MonochromaticTrayIconSetting() {
   const descriptionId = React.useId();

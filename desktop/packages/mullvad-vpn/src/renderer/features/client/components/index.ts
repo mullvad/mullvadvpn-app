@@ -2,6 +2,8 @@ export * from './auto-connect-setting';
 export * from './auto-connect-switch';
 export * from './auto-start-setting';
 export * from './auto-start-switch';
+export * from './monochromatic-tray-icon-setting';
+export * from './monochromatic-tray-icon-switch';
 export * from './notifications-setting';
 export * from './notifications-switch';
 export * from './start-minimized-setting';
