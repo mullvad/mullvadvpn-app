@@ -1,4 +1,5 @@
 import { messages } from '../../../../shared/gettext';
+import { AllowLanSetting } from '../../../features/lan-sharing/components';
 import {
   EnableIpv6Setting,
   LockdownModeSetting,
@@ -18,7 +19,6 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
-  AllowLanSetting,
   AntiCensorshipListItem,
   AutoConnectSetting,
   AutoStartSetting,

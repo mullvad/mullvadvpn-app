@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-import { messages } from '../../../../../../shared/gettext';
-import { spacings } from '../../../../../lib/foundations';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { AllowLanSwitch } from './AllowLanSwitch';
+import { messages } from '../../../../../shared/gettext';
+import InfoButton from '../../../../components/InfoButton';
+import { ModalMessage } from '../../../../components/Modal';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { spacings } from '../../../../lib/foundations';
+import { AllowLanSwitch } from '../allow-lan-switch/AllowLanSwitch';
 
 const LanIpRanges = styled.ul({
   listStyle: 'disc outside',

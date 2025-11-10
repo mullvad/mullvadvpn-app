@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useAllowLan } from '../../../../../features/lan-sharing/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useAllowLan } from '../../hooks';
 
 export type AllowLanSwitch = SwitchProps;
 
