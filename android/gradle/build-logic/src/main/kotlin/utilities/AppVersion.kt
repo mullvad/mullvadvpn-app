@@ -7,8 +7,17 @@ import org.gradle.api.provider.Provider
 private const val MAX_ALLOWED_VERSION_CODE = 30000000
 
 data class AppVersion(val code: Int, val name: String) {
-    val isAlpha: Boolean get() = name.contains("alpha")
-    val isDev: Boolean get() = name.contains("-dev-")
+    val isAlpha: Boolean
+        get() = name.contains("-alpha")
+
+    val isBeta: Boolean
+        get() = name.contains("-beta")
+
+    val isDev: Boolean
+        get() = name.contains("-dev-")
+
+    val isStable: Boolean
+        get() = !isAlpha && !isBeta && !isDev
 
     init {
         // This is a safety net to avoid generating too big version codes, since that could
