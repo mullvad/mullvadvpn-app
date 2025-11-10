@@ -11,12 +11,24 @@ import MullvadREST
 import MullvadTypes
 import WireGuardKitTypes
 
+struct APIProxyStubError: Error {}
+
 struct APIProxyStub: APIQuerying {
+    var getAddressListResult: Result<[AnyIPEndpoint], Error> = .failure(APIProxyStubError())
+    var getRelaysResult: Result<REST.ServerRelaysCacheResponse, Error> = .failure(APIProxyStubError())
+    var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
+    var submitVoucherResult: Result<REST.SubmitVoucherResponse, Error> = .failure(APIProxyStubError())
+    var legacyStorekitPaymentResult: Result<REST.CreateApplePaymentResponse, Error> = .failure(APIProxyStubError())
+    var initStorekitPaymentResult: Result<String, Error> = .failure(APIProxyStubError())
+    var checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError())
+    var checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
+
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable {
-        AnyCancellable()
+        completionHandler(getAddressListResult)
+        return AnyCancellable()
     }
 
     func getRelays(
@@ -24,7 +36,8 @@ struct APIProxyStub: APIQuerying {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable {
-        AnyCancellable()
+        completionHandler(getRelaysResult)
+        return AnyCancellable()
     }
 
     func createApplePayment(
@@ -41,7 +54,8 @@ struct APIProxyStub: APIQuerying {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable {
-        AnyCancellable()
+        completionHandler(sendProblemReportResult)
+        return AnyCancellable()
     }
 
     func submitVoucher(
@@ -50,7 +64,8 @@ struct APIProxyStub: APIQuerying {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
     ) -> Cancellable {
-        AnyCancellable()
+        completionHandler(submitVoucherResult)
+        return AnyCancellable()
     }
 
     func legacyStorekitPayment(
@@ -59,7 +74,8 @@ struct APIProxyStub: APIQuerying {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
     ) -> any Cancellable {
-        AnyCancellable()
+        completionHandler(legacyStorekitPaymentResult)
+        return AnyCancellable()
     }
 
     func initStorekitPayment(
@@ -67,7 +83,8 @@ struct APIProxyStub: APIQuerying {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<String>
     ) -> any MullvadTypes.Cancellable {
-        AnyCancellable()
+        completionHandler(initStorekitPaymentResult)
+        return AnyCancellable()
     }
 
     func checkStorekitPayment(
@@ -76,7 +93,8 @@ struct APIProxyStub: APIQuerying {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> any MullvadTypes.Cancellable {
-        AnyCancellable()
+        completionHandler(checkStorekitPaymentResult)
+        return AnyCancellable()
     }
 
     func checkApiAvailability(
@@ -84,6 +102,7 @@ struct APIProxyStub: APIQuerying {
         accessMethod: PersistentAccessMethod,
         completion: @escaping ProxyCompletionHandler<Bool>
     ) -> any MullvadTypes.Cancellable {
-        AnyCancellable()
+        completion(checkApiAvailabilityResult)
+        return AnyCancellable()
     }
 }
