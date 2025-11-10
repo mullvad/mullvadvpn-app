@@ -1,27 +1,28 @@
 import { messages } from '../../../../../../../../shared/gettext';
 import { FlexRow } from '../../../../../../../lib/components/flex-row';
-import { SettingsToggleListItem } from '../../../../../../settings-toggle-list-item';
-import { useDns } from '../../hooks';
+import { ListItem } from '../../../../../../../lib/components/list-item';
+import { BlockAdsSwitch } from './BlockAdsSwitch';
 
 export function BlockAdsSetting() {
-  const [dns, setBlockAds] = useDns('blockAds');
-
   return (
-    <SettingsToggleListItem
-      level={1}
-      animation={undefined}
-      disabled={dns.state === 'custom'}
-      checked={dns.state === 'default' && dns.defaultOptions.blockAds}
-      onCheckedChange={setBlockAds}>
-      <FlexRow $padding={{ left: 'medium' }}>
-        <SettingsToggleListItem.Label variant="bodySmall">
-          {
-            // TRANSLATORS: Label for settings that enables ad blocking.
-            messages.pgettext('vpn-settings-view', 'Ads')
-          }
-        </SettingsToggleListItem.Label>
-      </FlexRow>
-      <SettingsToggleListItem.Switch />
-    </SettingsToggleListItem>
+    <ListItem level={1}>
+      <ListItem.Item>
+        <ListItem.Content>
+          <BlockAdsSwitch>
+            <FlexRow $padding={{ left: 'medium' }}>
+              <BlockAdsSwitch.Label variant="bodySmall">
+                {
+                  // TRANSLATORS: Label for settings that enables ad blocking.
+                  messages.pgettext('vpn-settings-view', 'Ads')
+                }
+              </BlockAdsSwitch.Label>
+            </FlexRow>
+            <BlockAdsSwitch.Trigger>
+              <BlockAdsSwitch.Thumb />
+            </BlockAdsSwitch.Trigger>
+          </BlockAdsSwitch>
+        </ListItem.Content>
+      </ListItem.Item>
+    </ListItem>
   );
 }
