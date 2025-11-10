@@ -934,7 +934,7 @@ fun VpnSettingsContent(
                                 Modifier.animateItem()
                                     .then(
                                         if (
-                                            it.quantumResistantState == QuantumResistantState.Auto
+                                            it.quantumResistantState == QuantumResistantState.On
                                         ) {
                                             Modifier.focusRequester(
                                                 focusRequesters.getValue(
