@@ -1,24 +1,30 @@
 import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
-import { useSelector } from '../../../../../redux/store';
-import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
+import { SettingsListItem } from '../../../../settings-list-item';
+import { StartMinimizedSwitch } from './StartMinimizedSwitch';
 
 export function StartMinimizedSetting() {
-  const startMinimized = useSelector((state) => state.settings.guiSettings.startMinimized);
-  const { setStartMinimized } = useAppContext();
-
   return (
-    <SettingsToggleListItem
-      checked={startMinimized}
-      onCheckedChange={setStartMinimized}
-      description={messages.pgettext(
-        'user-interface-settings-view',
-        'Show only the tray icon when the app starts.',
-      )}>
-      <SettingsToggleListItem.Label>
-        {messages.pgettext('user-interface-settings-view', 'Start minimized')}
-      </SettingsToggleListItem.Label>
-      <SettingsToggleListItem.Switch />
-    </SettingsToggleListItem>
+    <SettingsListItem>
+      <SettingsListItem.Item>
+        <SettingsListItem.Content>
+          <StartMinimizedSwitch>
+            <StartMinimizedSwitch.Label variant="titleMedium">
+              {messages.pgettext('user-interface-settings-view', 'Start minimized')}
+            </StartMinimizedSwitch.Label>
+            <StartMinimizedSwitch.Trigger>
+              <StartMinimizedSwitch.Thumb />
+            </StartMinimizedSwitch.Trigger>
+          </StartMinimizedSwitch>
+        </SettingsListItem.Content>
+      </SettingsListItem.Item>
+      <SettingsListItem.Footer>
+        <SettingsListItem.Text>
+          {messages.pgettext(
+            'user-interface-settings-view',
+            'Show only the tray icon when the app starts.',
+          )}
+        </SettingsListItem.Text>
+      </SettingsListItem.Footer>
+    </SettingsListItem>
   );
 }
