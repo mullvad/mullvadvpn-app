@@ -1,10 +1,10 @@
 import React from 'react';
 
-import log from '../../../../../../shared/logging';
-import { useMultihop } from '../../../../../features/multihop/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
-import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
-import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
+import log from '../../../../../shared/logging';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useRelaySettingsUpdater } from '../../../../lib/constraint-updater';
+import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
+import { useMultihop } from '../../hooks';
 
 export type MultihopSwitchProps = SwitchProps;
 
