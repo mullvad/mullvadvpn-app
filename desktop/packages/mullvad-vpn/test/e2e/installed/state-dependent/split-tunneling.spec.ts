@@ -12,130 +12,132 @@ import { startInstalledApp } from '../installed-utils';
 let page: Page;
 let util: TestUtils;
 
-test.beforeAll(async () => {
-  ({ page, util } = await startInstalledApp());
-  await util.expectRoute(RoutePath.main);
-});
+test.describe('Split tunneling', () => {
+  test.beforeAll(async () => {
+    ({ page, util } = await startInstalledApp());
+    await util.expectRoute(RoutePath.main);
+  });
 
-test.afterAll(async () => {
-  await util?.closePage();
-});
+  test.afterAll(async () => {
+    await util?.closePage();
+  });
 
-async function navigateToSplitTunneling() {
-  await page.click('button[aria-label="Settings"]');
-  await util.expectRoute(RoutePath.settings);
+  async function navigateToSplitTunneling() {
+    await page.click('button[aria-label="Settings"]');
+    await util.expectRoute(RoutePath.settings);
 
-  await page.getByText('Split tunneling').click();
-  await util.expectRoute(RoutePath.splitTunneling);
+    await page.getByText('Split tunneling').click();
+    await util.expectRoute(RoutePath.splitTunneling);
 
-  const title = page.locator('h1');
-  await expect(title).toHaveText('Split tunneling');
-}
+    const title = page.locator('h1');
+    await expect(title).toHaveText('Split tunneling');
+  }
 
-test('App should enable split tunneling', async () => {
-  await navigateToSplitTunneling();
+  test('App should enable split tunneling', async () => {
+    await navigateToSplitTunneling();
 
-  const toggle = page.getByRole('switch');
-  await expect(toggle).not.toBeChecked();
+    const toggle = page.getByRole('switch');
+    await expect(toggle).not.toBeChecked();
 
-  const splitList = page.getByTestId('split-applications');
-  const nonSplitList = page.getByTestId('non-split-applications');
+    const splitList = page.getByTestId('split-applications');
+    const nonSplitList = page.getByTestId('non-split-applications');
 
-  await expect(splitList).not.toBeVisible();
-  await expect(nonSplitList).not.toBeVisible();
+    await expect(splitList).not.toBeVisible();
+    await expect(nonSplitList).not.toBeVisible();
 
-  const launchPadApp = page.getByText('launchpad');
-  await expect(launchPadApp).not.toBeVisible();
+    const launchPadApp = page.getByText('launchpad');
+    await expect(launchPadApp).not.toBeVisible();
 
-  await toggle.click();
-  await expect(toggle).toBeChecked();
-  await expect(splitList).not.toBeVisible();
-  await expect(nonSplitList).toBeVisible();
-  await expect(launchPadApp).toBeVisible();
-  expect(await numberOfApplicationsInList('split-applications')).toBe(0);
-  expect(getDaemonSplitTunnelingApplications()).toHaveLength(0);
-});
+    await toggle.click();
+    await expect(toggle).toBeChecked();
+    await expect(splitList).not.toBeVisible();
+    await expect(nonSplitList).toBeVisible();
+    await expect(launchPadApp).toBeVisible();
+    expect(await numberOfApplicationsInList('split-applications')).toBe(0);
+    expect(getDaemonSplitTunnelingApplications()).toHaveLength(0);
+  });
 
-test('App should split launchpad', async () => {
-  const splitList = page.getByTestId('split-applications');
-  const nonSplitList = page.getByTestId('non-split-applications');
+  test('App should split launchpad', async () => {
+    const splitList = page.getByTestId('split-applications');
+    const nonSplitList = page.getByTestId('non-split-applications');
 
-  const splitLaunchPadApp = splitList.getByText('launchpad');
-  const nonSplitLaunchPadApp = nonSplitList.getByText('launchpad');
+    const splitLaunchPadApp = splitList.getByText('launchpad');
+    const nonSplitLaunchPadApp = nonSplitList.getByText('launchpad');
 
-  await expect(splitLaunchPadApp).not.toBeVisible();
-  await expect(nonSplitLaunchPadApp).toBeVisible();
+    await expect(splitLaunchPadApp).not.toBeVisible();
+    await expect(nonSplitLaunchPadApp).toBeVisible();
 
-  await toggleApplication(nonSplitLaunchPadApp);
+    await toggleApplication(nonSplitLaunchPadApp);
 
-  await expect(splitLaunchPadApp).toBeVisible();
-  await expect(nonSplitLaunchPadApp).not.toBeVisible();
-  expect(await numberOfApplicationsInList('split-applications')).toBe(1);
+    await expect(splitLaunchPadApp).toBeVisible();
+    await expect(nonSplitLaunchPadApp).not.toBeVisible();
+    expect(await numberOfApplicationsInList('split-applications')).toBe(1);
 
-  const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
-  expect(daemonSplitTunnelingApplications).toHaveLength(1);
-  expect(isSplitInDaemon('launchpad')).toBeTruthy();
-});
+    const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
+    expect(daemonSplitTunnelingApplications).toHaveLength(1);
+    expect(isSplitInDaemon('launchpad')).toBeTruthy();
+  });
 
-test('App should split clock', async () => {
-  const splitList = page.getByTestId('split-applications');
-  const nonSplitList = page.getByTestId('non-split-applications');
+  test('App should split clock', async () => {
+    const splitList = page.getByTestId('split-applications');
+    const nonSplitList = page.getByTestId('non-split-applications');
 
-  const splitClockApp = splitList.getByText('clock');
-  const nonSplitClockApp = nonSplitList.getByText('clock');
+    const splitClockApp = splitList.getByText('clock');
+    const nonSplitClockApp = nonSplitList.getByText('clock');
 
-  await expect(splitClockApp).not.toBeVisible();
-  await expect(nonSplitClockApp).toBeVisible();
+    await expect(splitClockApp).not.toBeVisible();
+    await expect(nonSplitClockApp).toBeVisible();
 
-  await toggleApplication(nonSplitClockApp);
+    await toggleApplication(nonSplitClockApp);
 
-  await expect(splitClockApp).toBeVisible();
-  await expect(nonSplitClockApp).not.toBeVisible();
-  expect(await numberOfApplicationsInList('split-applications')).toBe(2);
+    await expect(splitClockApp).toBeVisible();
+    await expect(nonSplitClockApp).not.toBeVisible();
+    expect(await numberOfApplicationsInList('split-applications')).toBe(2);
 
-  const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
-  expect(daemonSplitTunnelingApplications).toHaveLength(2);
-  expect(isSplitInDaemon('launchpad')).toBeTruthy();
-  expect(isSplitInDaemon('clock')).toBeTruthy();
-});
+    const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
+    expect(daemonSplitTunnelingApplications).toHaveLength(2);
+    expect(isSplitInDaemon('launchpad')).toBeTruthy();
+    expect(isSplitInDaemon('clock')).toBeTruthy();
+  });
 
-test('App should unsplit launchpad', async () => {
-  const splitList = page.getByTestId('split-applications');
-  const nonSplitList = page.getByTestId('non-split-applications');
+  test('App should unsplit launchpad', async () => {
+    const splitList = page.getByTestId('split-applications');
+    const nonSplitList = page.getByTestId('non-split-applications');
 
-  const splitLaunchPadApp = splitList.getByText('launchpad');
-  const nonSplitLaunchPadApp = nonSplitList.getByText('launchpad');
+    const splitLaunchPadApp = splitList.getByText('launchpad');
+    const nonSplitLaunchPadApp = nonSplitList.getByText('launchpad');
 
-  await expect(splitLaunchPadApp).toBeVisible();
-  await expect(nonSplitLaunchPadApp).not.toBeVisible();
+    await expect(splitLaunchPadApp).toBeVisible();
+    await expect(nonSplitLaunchPadApp).not.toBeVisible();
 
-  await toggleApplication(splitLaunchPadApp);
+    await toggleApplication(splitLaunchPadApp);
 
-  await expect(splitLaunchPadApp).not.toBeVisible();
-  await expect(nonSplitLaunchPadApp).toBeVisible();
-  expect(await numberOfApplicationsInList('split-applications')).toBe(1);
+    await expect(splitLaunchPadApp).not.toBeVisible();
+    await expect(nonSplitLaunchPadApp).toBeVisible();
+    expect(await numberOfApplicationsInList('split-applications')).toBe(1);
 
-  const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
-  expect(daemonSplitTunnelingApplications).toHaveLength(1);
-  expect(isSplitInDaemon('launchpad')).toBeFalsy();
-  expect(isSplitInDaemon('clock')).toBeTruthy();
-});
+    const daemonSplitTunnelingApplications = getDaemonSplitTunnelingApplications();
+    expect(daemonSplitTunnelingApplications).toHaveLength(1);
+    expect(isSplitInDaemon('launchpad')).toBeFalsy();
+    expect(isSplitInDaemon('clock')).toBeTruthy();
+  });
 
-test('App should disable split tunneling', async () => {
-  const toggle = page.getByRole('switch');
-  await expect(toggle).toBeChecked();
+  test('App should disable split tunneling', async () => {
+    const toggle = page.getByRole('switch');
+    await expect(toggle).toBeChecked();
 
-  const splitList = page.getByTestId('split-applications');
-  const nonSplitList = page.getByTestId('non-split-applications');
+    const splitList = page.getByTestId('split-applications');
+    const nonSplitList = page.getByTestId('non-split-applications');
 
-  await expect(splitList).toBeVisible();
-  await expect(nonSplitList).toBeVisible();
+    await expect(splitList).toBeVisible();
+    await expect(nonSplitList).toBeVisible();
 
-  const launchPadApp = page.getByText('launchpad');
-  await expect(launchPadApp).toBeVisible();
+    const launchPadApp = page.getByText('launchpad');
+    await expect(launchPadApp).toBeVisible();
 
-  await toggle.click();
-  await expect(toggle).not.toBeChecked();
+    await toggle.click();
+    await expect(toggle).not.toBeChecked();
+  });
 });
 
 async function toggleApplication(applicationLocator: Locator) {
