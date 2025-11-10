@@ -1,9 +1,9 @@
 import React from 'react';
 
-import log from '../../../../../../shared/logging';
-import { useAppContext } from '../../../../../context';
-import { useAutoStart } from '../../../../../features/client/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import log from '../../../../../shared/logging';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useAutoStart } from '../../hooks';
 
 export type AutoStartSwitch = SwitchProps;
 

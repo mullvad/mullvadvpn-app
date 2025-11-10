@@ -1,6 +1,6 @@
-import { messages } from '../../../../../../shared/gettext';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { AutoStartSwitch } from './AutoStartSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { AutoStartSwitch } from '../auto-start-switch';
 
 export function AutoStartSetting() {
   return (
