@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { ListItem } from '../../../../../lib/components/list-item';
-import { AnimateMapSwitch } from './AnimateMapSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { ListItem } from '../../../../lib/components/list-item';
+import { AnimateMapSwitch } from '../animate-map-switch/AnimateMapSwitch';
 
 export function AnimateMapSetting() {
   const descriptionId = React.useId();
