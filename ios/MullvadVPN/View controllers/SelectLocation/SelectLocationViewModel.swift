@@ -126,11 +126,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     let (activeEntryFilter, activeExitFilter) = SelectLocationFilter.getActiveFilters(
                         settings
                     )
-                    if entryContext.filter != activeEntryFilter || exitContext.filter != activeExitFilter,
-                        !searchText.isEmpty
-                    {
-                        search(searchText: searchText)
-                    }
+                    search(searchText: searchText)
                     entryContext.filter = activeEntryFilter
                     exitContext.filter = activeExitFilter
                     updateSelections(
@@ -162,7 +158,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             selectedEntryRelays: tunnelManager.settings.relayConstraints.entryLocations.value
         )
         updateConnectedLocations(tunnelManager.tunnelStatus)
-        expandSelectedLocation()
     }
 
     deinit {
