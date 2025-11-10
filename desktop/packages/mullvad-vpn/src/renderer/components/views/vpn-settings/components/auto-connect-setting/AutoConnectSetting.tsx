@@ -1,26 +1,33 @@
+import React from 'react';
+
 import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
-import { useSelector } from '../../../../../redux/store';
-import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
+import { SettingsListItem } from '../../../../settings-list-item';
+import { AutoConnectSwitch } from './AutoConnectSwitch';
 
 export function AutoConnectSetting() {
-  const autoConnect = useSelector((state) => state.settings.guiSettings.autoConnect);
-  const { setAutoConnect } = useAppContext();
-
-  const footer = messages.pgettext(
-    'vpn-settings-view',
-    'Automatically connect to a server when the app launches.',
-  );
-
+  const descriptionId = React.useId();
   return (
-    <SettingsToggleListItem
-      checked={autoConnect}
-      onCheckedChange={setAutoConnect}
-      description={footer}>
-      <SettingsToggleListItem.Label>
-        {messages.pgettext('vpn-settings-view', 'Auto-connect')}
-      </SettingsToggleListItem.Label>
-      <SettingsToggleListItem.Switch />
-    </SettingsToggleListItem>
+    <SettingsListItem>
+      <SettingsListItem.Item>
+        <SettingsListItem.Content>
+          <AutoConnectSwitch>
+            <AutoConnectSwitch.Label variant="titleMedium">
+              {messages.pgettext('vpn-settings-view', 'Auto-connect')}
+            </AutoConnectSwitch.Label>
+            <AutoConnectSwitch.Trigger aria-describedby={descriptionId}>
+              <AutoConnectSwitch.Thumb />
+            </AutoConnectSwitch.Trigger>
+          </AutoConnectSwitch>
+        </SettingsListItem.Content>
+      </SettingsListItem.Item>
+      <SettingsListItem.Footer>
+        <SettingsListItem.Text id={descriptionId}>
+          {messages.pgettext(
+            'vpn-settings-view',
+            'Automatically connect to a server when the app launches.',
+          )}
+        </SettingsListItem.Text>
+      </SettingsListItem.Footer>
+    </SettingsListItem>
   );
 }
