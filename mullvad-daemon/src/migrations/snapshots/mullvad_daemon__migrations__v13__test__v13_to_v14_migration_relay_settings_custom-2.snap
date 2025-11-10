@@ -4,7 +4,9 @@ expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
 ---
 {
   "obfuscation_settings": {
-    "port": "any"
+    "wireguard_port": {
+      "port": "any"
+    }
   },
   "relay_settings": {
     "custom": {}

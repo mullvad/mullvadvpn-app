@@ -3,7 +3,7 @@ use mullvad_types::settings::SettingsVersion;
 use serde_json::json;
 
 const WIREGUARD_PORT_OLD_KEY: &str = "port";
-const WIREGUARD_PORT_NEW_KEY: &str = "port";
+const WIREGUARD_PORT_NEW_KEY: &str = "wireguard_port";
 
 /// This migration handles:
 /// - Migrates the WireGuard port from WireGuard constraints in relay settings
@@ -31,39 +31,27 @@ fn migrate_wireguard_port(settings: &mut serde_json::Value) -> Result<()> {
         // Insert wireguard_port as "any" as fallback if the custom relay settings
         // are used (i.e. not "normal").
         None => {
-            if let Some(obfuscation_settings) = settings
-                .get_mut("obfuscation_settings")
-                .and_then(|obfuscation_settings| obfuscation_settings.as_object_mut())
-            {
-                obfuscation_settings.insert(WIREGUARD_PORT_NEW_KEY.to_string(), json!("any"));
-            }
+            migrate_wireguard_port_to_obfuscation(settings, json!("any"));
 
             Ok(())
         }
     }
 }
 
-fn migrate_wireguard_port_value_to_obfuscation(
+fn obfuscation_settings_map(
     settings: &mut serde_json::Value,
-    wireguard_port: serde_json::Value,
-) {
-    if let Some(obfuscation_settings) = settings
+) -> Option<&mut serde_json::Map<String, serde_json::Value>> {
+    settings
         .get_mut("obfuscation_settings")
         .and_then(|obfuscation_settings| obfuscation_settings.as_object_mut())
-    {
-        obfuscation_settings.insert(
-            WIREGUARD_PORT_NEW_KEY.to_string(),
-            json!({"port": wireguard_port}),
-        );
+}
 
-        // Check if we should use wireguard_port as the selected obfuscation
-        if let Some(selected_obfuscation) = obfuscation_settings.get_mut("selected_obfuscation") {
-            // If value is auto we can update it to use wireguard_port instead
-            // to ensure we respect the user's settings.
-            if selected_obfuscation == "auto" {
-                *selected_obfuscation = WIREGUARD_PORT_NEW_KEY.into();
-            }
-        }
+fn migrate_wireguard_port_to_obfuscation(
+    settings: &mut serde_json::Value,
+    port: serde_json::Value,
+) {
+    if let Some(obfuscation_settings) = obfuscation_settings_map(settings) {
+        obfuscation_settings.insert(WIREGUARD_PORT_NEW_KEY.to_string(), json!({"port": port}));
     }
 }
 
@@ -82,7 +70,7 @@ fn migrate_wireguard_port_relay_settings_normal(settings: &mut serde_json::Value
             let wireguard_port = port.clone();
             wireguard_constraints.remove(WIREGUARD_PORT_OLD_KEY);
 
-            migrate_wireguard_port_value_to_obfuscation(settings, wireguard_port);
+            migrate_wireguard_port_to_obfuscation(settings, wireguard_port);
         }
     }
 
