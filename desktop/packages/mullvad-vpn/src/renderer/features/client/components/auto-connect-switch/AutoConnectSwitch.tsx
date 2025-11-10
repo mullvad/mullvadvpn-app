@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useAutoConnect } from '../../../../../features/client/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useAutoConnect } from '../../hooks';
 
 export type AutoConnectSwitch = SwitchProps;
 

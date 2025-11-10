@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { AutoConnectSwitch } from './AutoConnectSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { AutoConnectSwitch } from '../auto-connect-switch/AutoConnectSwitch';
 
 export function AutoConnectSetting() {
   const descriptionId = React.useId();
