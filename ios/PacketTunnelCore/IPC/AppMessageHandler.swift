@@ -28,11 +28,9 @@ public struct AppMessageHandler {
 
     /**
      Handle app message received via packet tunnel IPC.
-
      - Message data is expected to be a serialized `TunnelProviderMessage`.
      - Reply is expected to be wrapped in `TunnelProviderReply`.
      - Return `nil` in the event of error or when the call site does not expect any reply.
-
      Calls to reconnect and notify actor when private key is changed are meant to run in parallel because those tasks are serialized in `TunnelManager` and await
      the acknowledgment from IPC before starting next operation, hence it's critical to return as soon as possible.
      (See `TunnelManager.reconnectTunnel()`, `SendTunnelProviderMessageOperation`)
