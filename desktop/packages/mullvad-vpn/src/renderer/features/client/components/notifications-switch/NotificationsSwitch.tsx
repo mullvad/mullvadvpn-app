@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useEnableSystemNotifications } from '../../../../../features/client/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useEnableSystemNotifications } from '../../hooks';
 
 export type NotificationSwitchProps = SwitchProps;
 
