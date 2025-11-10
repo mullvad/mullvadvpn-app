@@ -117,7 +117,7 @@ pub fn collect_report<P: AsRef<Path>>(
     let daemon_logs_dir = {
         #[cfg(target_os = "android")]
         {
-            Ok(android_log_dir.to_owned())
+            Ok(android_log_dir)
         }
         #[cfg(not(target_os = "android"))]
         {
@@ -170,7 +170,7 @@ pub fn collect_report<P: AsRef<Path>>(
             Err(error) => problem_report.add_error("Failed to collect logcat", &error),
         }
 
-        match list_logs(extra_logs_dir.to_owned()) {
+        match list_logs(extra_logs_dir) {
             Ok(android_app_logs) => {
                 for log in android_app_logs {
                     match log {
@@ -195,11 +195,11 @@ pub fn collect_report<P: AsRef<Path>>(
 
 /// Returns an iterator over all files in the given directory that has the `.log` extension.
 fn list_logs(
-    log_dir: PathBuf,
+    log_dir: impl AsRef<Path>,
 ) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    fs::read_dir(&log_dir)
+    fs::read_dir(log_dir.as_ref())
         .map_err(|source| LogError::ListLogDir {
-            path: log_dir.display().to_string(),
+            path: log_dir.as_ref().display().to_string(),
             source,
         })
         .map(|dir_entries| {
@@ -216,7 +216,7 @@ fn list_logs(
                     }
                 }
                 Err(source) => Some(Err(LogError::ListLogDir {
-                    path: log_dir.display().to_string(),
+                    path: log_dir.as_ref().display().to_string(),
                     source,
                 })),
             })
