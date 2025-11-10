@@ -1405,7 +1405,7 @@ msgstr ""
 #. Available placeholders:
 #. - %(deviceName)s: Name of created device.
 msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app beta update is
