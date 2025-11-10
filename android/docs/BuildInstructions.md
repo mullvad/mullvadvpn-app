@@ -6,10 +6,10 @@ environment.
 
 ## Build process
 
-The build process consist of two main steps. First building the native libraries (`mullvad-daemon`
-and `wireguard-go`) and then building the Android app/project which will bundle the previously built
-native libraries. Building the native libraries requires some specific toolchains and packages to be
-installed, so it's recommended to build using the provided build script and container image.
+The build process consist of two main steps. First building the native libraries (`mullvad-daemon`)
+and then building the Android app/project which will bundle the previously built native libraries.
+Building the native libraries requires some specific toolchains and packages to be installed, so
+it's recommended to build using the provided build script and container image.
 
 The native libraries doesn't have to be rebuilt very often, only when including daemon changes or
 after cleaning the project, so apart from that it's possible to build the Android app/project using
@@ -57,7 +57,7 @@ directory configured in step 1:
 ../building/containerized-build.sh android --app-bundle
 ```
 
-## Build without* the provided container
+## Build without the provided container
 
 > __*NOTE:*__ This guide is only supported on Linux and may not work on other platforms, if you are
 > using macOS please refer to [macOS build instructions](./docs/BuildInstructions.macos.md)
@@ -65,27 +65,19 @@ directory configured in step 1:
 Building without the provided container requires installing multiple Sdk:s and toolchains, and is
 therefore more complex.
 
-> __*\*:*__ A container is still used to build `wireguard-go` for Android since it requires a
-> patched version of `go`. See [this patch](https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go/goruntime-boottime-over-monotonic.diff)
-> for more information.
-
 ### Setup build environment
 These steps explain how to manually setup the build environment on a Linux system.
 
-#### 1. Install `podman`
-Podman is required to build `wireguard-go`. Follow the installation [instructions](https://podman.io/getting-started/installation.html)
-for your distribution.
-
-#### 2. Install `protobuf-compiler`
+#### 1. Install `protobuf-compiler`
 Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros via
 the package name `protobuf-compiler`. An additional package might also be required depending on
 Linux distro:
 - `protobuf-devel` on Fedora.
 - `libprotobuf-dev` on Debian/Ubuntu.
 
-#### 3. Install `gcc`
+#### 2. Install `gcc`
 
-#### 4. Install Android toolchain
+#### 3. Install Android toolchain
 
 - Install the JDK
 
@@ -112,7 +104,7 @@ Linux distro:
   ./cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" "ndk;27.3.13750724"
   ```
 
-#### 5. Install and configure Rust toolchain
+#### 4. Install and configure Rust toolchain
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
@@ -148,11 +140,9 @@ environment variables:
   .scripts/setup-rust install-hook
   ```
 
-#### 6. Download the wireguard-go-rs and rust-android-gradle-plugin submodules
-Run the following command to download the required submodules:
-
+#### 5. Checkout required submodules
 ```bash
-git submodule update --init wireguard-go-rs/libwg/wireguard-go android/rust-android-gradle-plugin
+git submodule update --init android/rust-android-gradle-plugin
 ```
 
 ### Debug build
@@ -286,7 +276,8 @@ When building without the container on Linux systems, reproducibility depends on
 To maximize reproducibility when building without the container:
 
 - Build the app on a **Linux system or virtual machine**.
-- Use the exact same versions of all build dependencies as specified in the [root Dockerfile](../building/Dockerfile) and [Android Dockerfile](docker/Dockerfile). This includes for example the Go version and Android SDK and NDK versions.
+- Use the exact same versions of all build dependencies as specified in the [root Dockerfile](../building/Dockerfile)
+  and [Android Dockerfile](docker/Dockerfile). This includes for example Android SDK and NDK versions.
 
 ### How to verify reproducible builds across environments
 
