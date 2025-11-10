@@ -1,24 +1,33 @@
+import React from 'react';
+
 import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
-import { useSelector } from '../../../../../redux/store';
-import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
+import { SettingsListItem } from '../../../../settings-list-item';
+import { UnpinnedWindowSwitch } from './UnpinnedWindowSwitch';
 
 export function UnpinnedWindowSetting() {
-  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
-  const { setUnpinnedWindow } = useAppContext();
-
+  const descriptionId = React.useId();
   return (
-    <SettingsToggleListItem
-      checked={unpinnedWindow}
-      onCheckedChange={setUnpinnedWindow}
-      description={messages.pgettext(
-        'user-interface-settings-view',
-        'Enable to move the app around as a free-standing window.',
-      )}>
-      <SettingsToggleListItem.Label>
-        {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
-      </SettingsToggleListItem.Label>
-      <SettingsToggleListItem.Switch />
-    </SettingsToggleListItem>
+    <SettingsListItem>
+      <SettingsListItem.Item>
+        <SettingsListItem.Content>
+          <UnpinnedWindowSwitch>
+            <UnpinnedWindowSwitch.Label variant="titleMedium">
+              {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
+            </UnpinnedWindowSwitch.Label>
+            <UnpinnedWindowSwitch.Trigger aria-describedby={descriptionId}>
+              <UnpinnedWindowSwitch.Thumb />
+            </UnpinnedWindowSwitch.Trigger>
+          </UnpinnedWindowSwitch>
+        </SettingsListItem.Content>
+      </SettingsListItem.Item>
+      <SettingsListItem.Footer>
+        <SettingsListItem.Text id={descriptionId}>
+          {messages.pgettext(
+            'user-interface-settings-view',
+            'Enable to move the app around as a free-standing window.',
+          )}
+        </SettingsListItem.Text>
+      </SettingsListItem.Footer>
+    </SettingsListItem>
   );
 }
