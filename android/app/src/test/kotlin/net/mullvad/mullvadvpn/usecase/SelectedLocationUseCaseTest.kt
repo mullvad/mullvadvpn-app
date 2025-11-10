@@ -49,8 +49,6 @@ class SelectedLocationUseCaseTest {
                 entryLocation = entryLocation,
                 port = Constraint.Any,
                 ipVersion = Constraint.Any,
-                entryOwnership = Constraint.Any,
-                entryProviders = Constraint.Any,
             )
         selectedLocation.value = exitLocation
 

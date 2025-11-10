@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.model
+package net.mullvad.mullvadvpn.compose.state
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -13,6 +13,3 @@ sealed interface RelayListType : Parcelable {
 
     @Parcelize data object Single : RelayListType
 }
-
-fun RelayListType.isMultihopEntry(): Boolean =
-    this is RelayListType.Multihop && this.multihopRelayListType == MultihopRelayListType.ENTRY

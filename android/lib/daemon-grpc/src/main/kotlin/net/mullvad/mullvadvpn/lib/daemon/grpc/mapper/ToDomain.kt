@@ -399,8 +399,6 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
             },
         isMultihopEnabled = useMultihop,
         entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
-        entryOwnership = entryOwnership.toDomain(),
-        entryProviders = entryProvidersList.toDomain(),
         ipVersion =
             if (hasIpVersion()) {
                 Constraint.Only(ipVersion.toDomain())

@@ -4,29 +4,28 @@ import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class FilterChipUseCaseTest {
 
-    private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk()
+    private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private val mockProviderToOwnershipsUseCase: ProviderToOwnershipsUseCase = mockk()
     private val mockSettingRepository: SettingsRepository = mockk()
 
     private val selectedOwnership = MutableStateFlow<Constraint<Ownership>>(Constraint.Any)
     private val selectedProviders = MutableStateFlow<Constraint<Providers>>(Constraint.Any)
-    private val selectedFilters = combine(selectedOwnership, selectedProviders) { a, b -> a to b }
     private val providerToOwnerships = MutableStateFlow<Map<ProviderId, Set<Ownership>>>(emptyMap())
     private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
 
@@ -34,13 +33,14 @@ class FilterChipUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        every { mockRelayListFilterUseCase(relayListType = any()) } returns selectedFilters
+        every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedProviders } returns selectedProviders
         every { mockProviderToOwnershipsUseCase() } returns providerToOwnerships
         every { mockSettingRepository.settingsUpdates } returns settings
 
         filterChipUseCase =
             FilterChipUseCase(
-                relayListFilterUseCase = mockRelayListFilterUseCase,
+                relayListFilterRepository = mockRelayListFilterRepository,
                 providerToOwnershipsUseCase = mockProviderToOwnershipsUseCase,
                 settingsRepository = mockSettingRepository,
             )

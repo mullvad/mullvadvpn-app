@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.FilterDestination
 import kotlin.collections.plus
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,16 +22,11 @@ import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 
 class FilterViewModel(
     providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val relayListFilterRepository: RelayListFilterRepository,
-    private val relayListFilterUseCase: RelayListFilterUseCase,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val relayListType = FilterDestination.argsFrom(savedStateHandle).relayListType
-
     private val _uiSideEffect = Channel<FilterScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
@@ -42,10 +35,8 @@ class FilterViewModel(
 
     init {
         viewModelScope.launch {
-            val (initialSelectedOwnership, initialSelectedProviders) =
-                relayListFilterUseCase.invoke(relayListType).first()
-            selectedProviders.value = initialSelectedProviders
-            selectedOwnership.value = initialSelectedOwnership
+            selectedProviders.value = relayListFilterRepository.selectedProviders.first()
+            selectedOwnership.value = relayListFilterRepository.selectedOwnership.first()
         }
     }
 
@@ -126,9 +117,8 @@ class FilterViewModel(
 
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
-                relayListType = relayListType,
-                ownership = newSelectedOwnership,
-                providers = newSelectedProviders,
+                newSelectedOwnership,
+                newSelectedProviders,
             )
             _uiSideEffect.send(FilterScreenSideEffect.CloseScreen)
         }

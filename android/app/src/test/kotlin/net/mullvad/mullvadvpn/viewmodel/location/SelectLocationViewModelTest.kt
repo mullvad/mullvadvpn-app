@@ -18,6 +18,8 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -26,10 +28,9 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -175,49 +176,31 @@ class SelectLocationViewModelTest {
     @Test
     fun `removeOwnerFilter should invoke use case with Constraint Any Ownership`() = runTest {
         // Arrange
-        coEvery {
-            mockRelayListFilterRepository.updateSelectedOwnership(
-                Constraint.Any,
-                RelayListType.Single,
-            )
-        } returns Unit.right()
+        val mockSelectedProviders: Constraint<Providers> = mockk()
+        every { mockRelayListFilterRepository.selectedProviders } returns
+            MutableStateFlow(mockSelectedProviders)
+        coEvery { mockRelayListFilterRepository.updateSelectedOwnership(Constraint.Any) } returns
+            Unit.right()
 
-        viewModel.uiState.test {
-            awaitItem()
-            // Act
-            viewModel.removeOwnerFilter(RelayListType.Single)
-            // Assert
-            coVerify {
-                mockRelayListFilterRepository.updateSelectedOwnership(
-                    Constraint.Any,
-                    RelayListType.Single,
-                )
-            }
-        }
+        // Act
+        viewModel.removeOwnerFilter()
+        // Assert
+        coVerify { mockRelayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
     }
 
     @Test
     fun `removeProviderFilter should invoke use case with Constraint Any Provider`() = runTest {
         // Arrange
-        coEvery {
-            mockRelayListFilterRepository.updateSelectedProviders(
-                Constraint.Any,
-                RelayListType.Single,
-            )
-        } returns Unit.right()
+        val mockSelectedOwnership: Constraint<Ownership> = mockk()
+        every { mockRelayListFilterRepository.selectedOwnership } returns
+            MutableStateFlow(mockSelectedOwnership)
+        coEvery { mockRelayListFilterRepository.updateSelectedProviders(Constraint.Any) } returns
+            Unit.right()
 
-        viewModel.uiState.test {
-            awaitItem()
-            // Act
-            viewModel.removeProviderFilter(RelayListType.Single)
-            // Assert
-            coVerify {
-                mockRelayListFilterRepository.updateSelectedProviders(
-                    Constraint.Any,
-                    RelayListType.Single,
-                )
-            }
-        }
+        // Act
+        viewModel.removeProviderFilter()
+        // Assert
+        coVerify { mockRelayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
 
     @Test

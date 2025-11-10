@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
@@ -81,6 +80,8 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -89,10 +90,8 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.Hop
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
@@ -284,10 +283,7 @@ fun SelectLocation(
                 navigator.navigate(SearchLocationDestination(relayListType))
             },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
-        onFilterClick =
-            dropUnlessResumed { relayListType ->
-                navigator.navigate(FilterDestination(relayListType))
-            },
+        onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
                 navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
@@ -341,12 +337,12 @@ fun SelectLocationScreen(
     onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
-    onFilterClick: (RelayListType) -> Unit,
+    onFilterClick: () -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
-    removeOwnershipFilter: (RelayListType) -> Unit,
-    removeProviderFilter: (RelayListType) -> Unit,
+    removeOwnershipFilter: () -> Unit,
+    removeProviderFilter: () -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
@@ -637,9 +633,9 @@ private fun SelectionContainer(
     error: ErrorStateCause?,
     filterChips: Map<RelayListType, List<FilterChip>>,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
-    onFilterClick: (RelayListType) -> Unit,
-    removeOwnershipFilter: (RelayListType) -> Unit,
-    removeProviderFilter: (RelayListType) -> Unit,
+    onFilterClick: () -> Unit,
+    removeOwnershipFilter: () -> Unit,
+    removeProviderFilter: () -> Unit,
 ) {
     Column {
         AnimatedContent(
@@ -651,7 +647,7 @@ private fun SelectionContainer(
                     exitLocation = exitSelection ?: stringResource(R.string.any),
                     errorText = error.errorText(RelayListType.Single),
                     filters = filterChips[RelayListType.Single]?.size ?: 0,
-                    onFilterClick = { onFilterClick(RelayListType.Single) },
+                    onFilterClick = { onFilterClick() },
                     expandProgress = progress,
                 )
             } else {
@@ -665,18 +661,14 @@ private fun SelectionContainer(
                     exitFilters =
                         filterChips[RelayListType.Multihop(MultihopRelayListType.EXIT)]?.size ?: 0,
                     onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
-                    onExitFilterClick = {
-                        onFilterClick(RelayListType.Multihop(MultihopRelayListType.EXIT))
-                    },
+                    onExitFilterClick = { onFilterClick() },
                     entryLocation = entrySelection ?: stringResource(R.string.any),
                     entryErrorText =
                         error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
                     entryFilters =
                         filterChips[RelayListType.Multihop(MultihopRelayListType.ENTRY)]?.size ?: 0,
                     onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
-                    onEntryFilterClick = {
-                        onFilterClick(RelayListType.Multihop(MultihopRelayListType.ENTRY))
-                    },
+                    onEntryFilterClick = { onFilterClick() },
                     expandProgress = progress,
                 )
             }
@@ -721,8 +713,8 @@ private fun SelectionContainer(
             ) {
                 FilterRow(
                     filters = filterChips[it] ?: emptyList(),
-                    onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
-                    onRemoveProviderFilter = { removeProviderFilter(relayListType) },
+                    onRemoveOwnershipFilter = { removeOwnershipFilter() },
+                    onRemoveProviderFilter = { removeProviderFilter() },
                 )
             }
         }

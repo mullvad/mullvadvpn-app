@@ -16,15 +16,15 @@ import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.data.createSimpleRelayListItemList
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
@@ -69,11 +69,11 @@ class SelectLocationScreenTest {
         onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
-        onFilterClick: (RelayListType) -> Unit = {},
+        onFilterClick: () -> Unit = {},
         onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
         onEditCustomLists: () -> Unit = {},
-        removeOwnershipFilter: (RelayListType) -> Unit = {},
-        removeProviderFilter: (RelayListType) -> Unit = {},
+        removeOwnershipFilter: () -> Unit = {},
+        removeProviderFilter: () -> Unit = {},
         onAddLocationToList:
             (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
             { _, _ ->

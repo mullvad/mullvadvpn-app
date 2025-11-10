@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -13,9 +12,7 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.screen.FilterNavArgs
 import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -24,10 +21,8 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class FilterViewModelTest {
     private val mockProvidersOwnershipUseCase: ProviderToOwnershipsUseCase = mockk(relaxed = true)
-    private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk()
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private lateinit var viewModel: FilterViewModel
     private val selectedOwnership =
@@ -63,20 +57,17 @@ class FilterViewModelTest {
         )
     private val mockSelectedProviders: Providers =
         setOf(ProviderId("31173"), ProviderId("Blix"), ProviderId("Creanova"))
-    private val selectedFilters =
-        selectedOwnership.map { it to Constraint.Only(mockSelectedProviders) }
 
     @BeforeEach
     fun setup() {
-        every { mockRelayListFilterUseCase(any()) } returns selectedFilters
         every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
+        every { mockRelayListFilterRepository.selectedProviders } returns
+            MutableStateFlow(Constraint.Only(mockSelectedProviders))
+        every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
         viewModel =
             FilterViewModel(
                 providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
                 relayListFilterRepository = mockRelayListFilterRepository,
-                relayListFilterUseCase = mockRelayListFilterUseCase,
-                savedStateHandle =
-                    FilterNavArgs(relayListType = RelayListType.Single).toSavedStateHandle(),
             )
     }
 
@@ -138,7 +129,6 @@ class FilterViewModelTest {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
                     mockSelectedProviders,
-                    RelayListType.Single,
                 )
             } returns Unit.right()
 
@@ -150,7 +140,6 @@ class FilterViewModelTest {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
                     mockSelectedProviders,
-                    RelayListType.Single,
                 )
             }
         }

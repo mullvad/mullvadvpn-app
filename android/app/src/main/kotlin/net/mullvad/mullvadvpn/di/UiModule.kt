@@ -7,10 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
@@ -43,7 +43,6 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
@@ -179,10 +178,10 @@ val uiModule = module {
     single { CustomListActionUseCase(get(), get()) }
     single { SelectedLocationTitleUseCase(get(), get()) }
     single { ProviderToOwnershipsUseCase(get()) }
-    single { FilterCustomListsRelayItemUseCase(get(), get(), get(), get()) }
+    single { FilterCustomListsRelayItemUseCase(get(), get(), get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }
-    single { FilteredRelayListUseCase(get(), get(), get(), get()) }
+    single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
     single { SelectedLocationUseCase(get(), get()) }
     single { FilterChipUseCase(get(), get(), get()) }
@@ -204,7 +203,6 @@ val uiModule = module {
             buildVersion = get(),
         )
     }
-    single { RelayListFilterUseCase(relayListFilterRepository = get()) }
     single {
         SelectedLocationRelayItemUseCase(
             customListRelayItemUseCase = get(),
@@ -303,7 +301,7 @@ val uiModule = module {
     }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { FilterViewModel(get(), get(), get(), get()) }
+    viewModel { FilterViewModel(get(), get()) }
     viewModel { CreateCustomListDialogViewModel(get(), get()) }
     viewModel { CustomListLocationsViewModel(get(), get(), get(), get()) }
     viewModel { EditCustomListViewModel(get(), get()) }
