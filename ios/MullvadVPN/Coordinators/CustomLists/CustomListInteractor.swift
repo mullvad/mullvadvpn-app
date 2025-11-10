@@ -14,6 +14,8 @@ protocol CustomListInteractorProtocol {
     func fetchAll() -> [CustomList]
     func save(list: CustomList) throws
     func delete(customList: CustomList)
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws
+    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws
 }
 
 class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
@@ -49,6 +51,54 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
     func delete(customList: CustomList) {
         repository.delete(id: customList.id)
         updateRelayConstraint(list: customList, action: .delete)
+    }
+
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+        let customList =
+            fetchAll().first { $0.name == customListName }
+            ?? CustomList(
+                name: customListName,
+                locations: []
+            )
+
+        let allLocations = (customList.locations + relayLocations)
+        let locations: [RelayLocation] =
+            allLocations
+            .filter { $0.ancestors.allSatisfy { !allLocations.contains($0) } }
+            .reduce(
+                [],
+                { partialResult, location in
+                    if !partialResult.contains(location) {
+                        return partialResult + [location]
+                    } else {
+                        return partialResult
+                    }
+                })
+        let newCustomList = CustomList(
+            id: customList.id,
+            name: customList.name,
+            locations: locations
+        )
+        try save(list: newCustomList)
+    }
+
+    func removeLocationFromCustomList(
+        relayLocations: [RelayLocation],
+        customListName: String
+    ) throws {
+        let customList = fetchAll().first { $0.name == customListName }
+        guard let customList else {
+            return
+        }
+        let allLocations = customList.locations.filter {
+            !relayLocations.contains($0)
+        }
+        let newCustomList = CustomList(
+            id: customList.id,
+            name: customList.name,
+            locations: allLocations
+        )
+        try save(list: newCustomList)
     }
 
     private func updateRelayConstraint(list: CustomList, action: FinishAction) {
