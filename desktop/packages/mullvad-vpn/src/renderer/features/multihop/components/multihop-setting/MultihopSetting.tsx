@@ -1,7 +1,7 @@
-import { messages } from '../../../../../../shared/gettext';
-import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { MultihopSwitch } from './MultihopSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
+import { MultihopSwitch } from '../multihop-switch/MultihopSwitch';
 
 export function MultihopSetting() {
   const relaySettings = useNormalRelaySettings();
