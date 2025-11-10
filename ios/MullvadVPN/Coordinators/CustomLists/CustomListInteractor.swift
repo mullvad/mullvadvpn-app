@@ -18,9 +18,9 @@ protocol CustomListInteractorProtocol {
     func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws
 }
 
-class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
+struct CustomListInteractor: CustomListInteractorProtocol {
 
-    private enum FinishAction {
+    private enum CustomListAction {
         case save, delete
     }
 
@@ -101,7 +101,7 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
         try save(list: newCustomList)
     }
 
-    private func updateRelayConstraint(list: CustomList, action: FinishAction) {
+    private func updateRelayConstraint(list: CustomList, action: CustomListAction) {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
         // only update relay constraints if custom list is currently selected
@@ -143,7 +143,7 @@ class CustomListInteractor: CustomListInteractorProtocol, @unchecked Sendable {
 
     private func updateRelayConstraint(
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
-        for action: FinishAction,
+        for action: CustomListAction,
         in list: CustomList
     ) -> RelayConstraint<UserSelectedRelays> {
         var relayConstraint = relayConstraint
