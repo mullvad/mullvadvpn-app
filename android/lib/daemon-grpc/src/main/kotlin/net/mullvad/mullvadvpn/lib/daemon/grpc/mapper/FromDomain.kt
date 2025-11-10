@@ -82,7 +82,7 @@ internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSe
         .setSelectedObfuscation(selectedObfuscationMode.fromDomain())
         .setUdp2Tcp(udp2tcp.fromDomain())
         .setShadowsocks(shadowsocks.fromDomain())
-        .setPort(port.fromDomain())
+        .setWireguardPort(port.fromDomain())
         .build()
 
 internal fun ObfuscationMode.fromDomain():

@@ -429,7 +429,7 @@ message ObfuscationSettings {
   enum SelectedObfuscation {
     AUTO = 0;
     OFF = 1;
-    PORT = 2;
+    WIREGUARD_PORT = 2;
     UDP2TCP = 3;
     SHADOWSOCKS = 4;
     QUIC = 5;

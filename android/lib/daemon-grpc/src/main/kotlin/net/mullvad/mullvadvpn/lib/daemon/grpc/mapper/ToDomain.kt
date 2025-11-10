@@ -415,7 +415,7 @@ internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSett
         selectedObfuscationMode = selectedObfuscation.toDomain(),
         udp2tcp = udp2Tcp.toDomain(),
         shadowsocks = shadowsocks.toDomain(),
-        port = port.toDomain(),
+        wireguardPort = port.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -429,8 +429,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
-        ManagementInterface.ObfuscationSettings.SelectedObfuscation.PORT ->
-            throw IllegalArgumentException("PORT is not a support obfuscation")
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT ->
+            throw IllegalArgumentException("WIREGUARD_PORT is not a support obfuscation")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }

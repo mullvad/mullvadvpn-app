@@ -587,7 +587,7 @@ pub enum SelectedObfuscation {
     #[default]
     Auto,
     Off,
-    Port,
+    WireguardPort,
     #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,
     Shadowsocks,
@@ -619,7 +619,7 @@ impl fmt::Display for SelectedObfuscation {
             SelectedObfuscation::Shadowsocks => "shadowsocks".fmt(f),
             SelectedObfuscation::Quic => "quic".fmt(f),
             SelectedObfuscation::Lwo => "lwo".fmt(f),
-            SelectedObfuscation::Port => "port".fmt(f),
+            SelectedObfuscation::WireguardPort => "wireguard port".fmt(f),
         }
     }
 }

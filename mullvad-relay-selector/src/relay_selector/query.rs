@@ -226,7 +226,7 @@ impl ObfuscationQuery {
         let selected_obfuscation = match self {
             ObfuscationQuery::Off => SelectedObfuscation::Off,
             ObfuscationQuery::Auto => SelectedObfuscation::Auto,
-            ObfuscationQuery::Port(_) => SelectedObfuscation::Port,
+            ObfuscationQuery::Port(_) => SelectedObfuscation::WireguardPort,
             ObfuscationQuery::Quic => SelectedObfuscation::Quic,
             ObfuscationQuery::Lwo => SelectedObfuscation::Lwo,
             ObfuscationQuery::Udp2tcp(settings) => {
@@ -261,7 +261,7 @@ impl From<ObfuscationSettings> for ObfuscationQuery {
         match obfuscation.selected_obfuscation {
             Off => ObfuscationQuery::Off,
             Auto => ObfuscationQuery::Auto,
-            Port => ObfuscationQuery::Port(obfuscation.wireguard_port),
+            WireguardPort => ObfuscationQuery::Port(obfuscation.wireguard_port),
             Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
             Shadowsocks => ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks),
             Quic => ObfuscationQuery::Quic,

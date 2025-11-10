@@ -137,7 +137,9 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
             }
             SelectedObfuscation::Quic => proto::obfuscation_settings::SelectedObfuscation::Quic,
             SelectedObfuscation::Lwo => proto::obfuscation_settings::SelectedObfuscation::Lwo,
-            SelectedObfuscation::Port => proto::obfuscation_settings::SelectedObfuscation::Port,
+            SelectedObfuscation::WireguardPort => {
+                proto::obfuscation_settings::SelectedObfuscation::WireguardPort
+            }
         });
         Self {
             selected_obfuscation,
@@ -445,7 +447,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 Ok(IpcSelectedObfuscation::Shadowsocks) => SelectedObfuscation::Shadowsocks,
                 Ok(IpcSelectedObfuscation::Quic) => SelectedObfuscation::Quic,
                 Ok(IpcSelectedObfuscation::Lwo) => SelectedObfuscation::Lwo,
-                Ok(IpcSelectedObfuscation::Port) => SelectedObfuscation::Port,
+                Ok(IpcSelectedObfuscation::WireguardPort) => SelectedObfuscation::WireguardPort,
                 Err(_) => {
                     return Err(FromProtobufTypeError::InvalidArgument(
                         "invalid obfuscation settings",
