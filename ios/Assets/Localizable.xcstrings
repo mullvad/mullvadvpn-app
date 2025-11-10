@@ -5,6 +5,7 @@
 
     },
     "**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -226,6 +227,7 @@
 
     },
     "%@ does this by carefully adding network noise and making all network packets the same size." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -5805,9 +5807,6 @@
         }
       }
     },
-    "Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." : {
-
-    },
     "Bogota" : {
       "localizations" : {
         "da" : {
@@ -6994,17 +6993,8 @@
     "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " : {
 
     },
-    "By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server."
-          }
-        }
-      }
-    },
     "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -13530,9 +13520,6 @@
         }
       }
     },
-    "Either buy credit on our website or make an in-app purchase via the **Add time** button below." : {
-
-    },
     "Either buy credit on our website or redeem a voucher." : {
       "localizations" : {
         "da" : {
@@ -17340,6 +17327,7 @@
       }
     },
     "If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -17815,6 +17803,7 @@
 
     },
     "If you exit the form and try again later, the information you already entered will still be here." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -17936,6 +17925,7 @@
 
     },
     "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -19815,6 +19805,7 @@
       }
     },
     "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -19933,6 +19924,7 @@
       }
     },
     "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -26692,6 +26684,7 @@
       }
     },
     "Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -26934,6 +26927,7 @@
       }
     },
     "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -27409,6 +27403,7 @@
       }
     },
     "On some networks, where various types of censorship are being used, the API servers might not be directly reachable." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -37027,6 +37022,7 @@
 
     },
     "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -37504,16 +37500,6 @@
     "The entry and exit servers cannot be the same. Try changing one to a new server or location." : {
 
     },
-    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings."
-          }
-        }
-      }
-    },
     "The payment request was cancelled." : {
 
     },
@@ -37884,6 +37870,7 @@
       }
     },
     "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -38123,6 +38110,7 @@
 
     },
     "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -38483,6 +38471,7 @@
       }
     },
     "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -38719,6 +38708,7 @@
       }
     },
     "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -38837,6 +38827,7 @@
       }
     },
     "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -38961,6 +38952,7 @@
 
     },
     "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -42522,6 +42514,7 @@
       }
     },
     "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -43115,6 +43108,7 @@
       }
     },
     "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -43590,6 +43584,7 @@
       }
     },
     "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -43708,6 +43703,7 @@
       }
     },
     "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -43826,6 +43822,7 @@
       }
     },
     "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -44065,6 +44062,7 @@
       }
     },
     "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -44183,6 +44181,7 @@
       }
     },
     "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {

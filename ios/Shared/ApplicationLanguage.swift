@@ -107,29 +107,18 @@ enum ApplicationLanguage: String, CaseIterable, Identifiable {
         let defaultCode = ApplicationLanguage.english.rawValue
         let fullCode = Locale.preferredLanguages.first ?? defaultCode
 
-        if #available(iOS 16, *) {
-            let locale = Locale(identifier: fullCode)
-            if let script = locale.language.script?.identifier {
-                switch script {
-                case "Hans":
-                    return .chineseSimplified
-                case "Hant":
-                    return .chineseTraditional
-                default:
-                    break
-                }
-            }
-        } else {
-            if fullCode.contains("Hans") {
+        let locale = Locale(identifier: fullCode)
+        if let script = locale.language.script?.identifier {
+            switch script {
+            case "Hans":
                 return .chineseSimplified
-            } else if fullCode.contains("Hant") {
+            case "Hant":
                 return .chineseTraditional
+            default:
+                break
             }
         }
-
-        // Otherwise, try to get languageCode (e.g., "en", "fr")
-        let locale = Locale(identifier: fullCode)
-        let langCode = locale.languageCode ?? defaultCode
+        let langCode = locale.language.languageCode?.identifier ?? defaultCode
 
         return ApplicationLanguage(rawValue: langCode) ?? .english
     }

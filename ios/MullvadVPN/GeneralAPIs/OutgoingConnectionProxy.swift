@@ -45,18 +45,20 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
     private func perform<T: Decodable>(retryStrategy: REST.RetryStrategy, version: ExitIPVersion) async throws -> T {
         let delayIterator = retryStrategy.makeDelayIterator()
         for _ in 0..<retryStrategy.maxRetryCount {
-            do {
-                return try await perform(host: version.host(hostname: hostname))
-            } catch {
-                // ignore if request is cancelled
-                if case URLError.cancelled = error {
-                    throw error
-                } else {
-                    // retry with the delay
-                    guard let delay = delayIterator.next() else { throw error }
-                    let mills = UInt64(max(0, delay.milliseconds))
-                    let nanos = mills.saturatingMultiplication(1_000_000)
-                    try await Task.sleep(nanoseconds: nanos)
+            if !Task.isCancelled {
+                do {
+                    return try await perform(host: version.host(hostname: hostname))
+                } catch {
+                    // ignore if request is cancelled
+                    if case URLError.cancelled = error {
+                        throw error
+                    } else {
+                        // retry with the delay
+                        guard let delay = delayIterator.next() else { throw error }
+                        let mills = UInt64(max(0, delay.milliseconds))
+                        let nanos = mills.saturatingMultiplication(1_000_000)
+                        try await Task.sleep(nanoseconds: nanos)
+                    }
                 }
             }
         }
