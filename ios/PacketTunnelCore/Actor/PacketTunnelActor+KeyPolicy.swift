@@ -51,7 +51,9 @@ extension PacketTunnelActor {
             guard let self else { return }
 
             // Wait for key to propagate across relays.
-            try await Task.sleepUsingContinuousClock(for: timings.wgKeyPropagationDelay)
+            try await Task.sleep(for: timings.wgKeyPropagationDelay)
+
+            guard !Task.isCancelled else { return }
 
             // Enqueue task to change key policy.
             eventChannel.send(.switchKey)
