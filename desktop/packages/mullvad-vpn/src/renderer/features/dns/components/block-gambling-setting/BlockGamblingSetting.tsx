@@ -1,7 +1,7 @@
-import { messages } from '../../../../../../../../shared/gettext';
-import { FlexRow } from '../../../../../../../lib/components/flex-row';
-import { ListItem } from '../../../../../../../lib/components/list-item';
-import { BlockGamblingSwitch } from './BlockGamblingSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { FlexRow } from '../../../../lib/components/flex-row';
+import { ListItem } from '../../../../lib/components/list-item';
+import { BlockGamblingSwitch } from '../block-gambling-switch/BlockGamblingSwitch';
 
 export function BlockGamblingSetting() {
   return (

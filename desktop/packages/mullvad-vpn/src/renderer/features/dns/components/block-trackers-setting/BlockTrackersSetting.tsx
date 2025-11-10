@@ -1,7 +1,7 @@
-import { messages } from '../../../../../../../../shared/gettext';
-import { FlexRow } from '../../../../../../../lib/components/flex-row';
-import { ListItem } from '../../../../../../../lib/components/list-item';
-import { BlockTrackersSwitch } from './BlockTrackersSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { FlexRow } from '../../../../lib/components/flex-row';
+import { ListItem } from '../../../../lib/components/list-item';
+import { BlockTrackersSwitch } from '../block-trackers-switch/BlockTrackersSwitch';
 
 export function BlockTrackersSetting() {
   return (

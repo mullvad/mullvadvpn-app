@@ -1,12 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
-import { FlexRow } from '../../../../../lib/components/flex-row';
-import { formatHtml } from '../../../../../lib/html-formatter';
-import { useSelector } from '../../../../../redux/store';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
-import { SettingsAccordion } from '../../../../settings-accordion';
 import {
   BlockAdsSetting,
   BlockAdultContentSetting,
@@ -14,8 +8,14 @@ import {
   BlockMalwareSetting,
   BlockSocialMediaSetting,
   BlockTrackersSetting,
-  CustomDnsEnabledFooter,
-} from './components';
+} from '../../../../../features/dns/components';
+import { FlexRow } from '../../../../../lib/components/flex-row';
+import { formatHtml } from '../../../../../lib/html-formatter';
+import { useSelector } from '../../../../../redux/store';
+import InfoButton from '../../../../InfoButton';
+import { ModalMessage } from '../../../../Modal';
+import { SettingsAccordion } from '../../../../settings-accordion';
+import { CustomDnsEnabledFooter } from './components';
 
 export function DnsBlockerSettings() {
   const dns = useSelector((state) => state.settings.dns);

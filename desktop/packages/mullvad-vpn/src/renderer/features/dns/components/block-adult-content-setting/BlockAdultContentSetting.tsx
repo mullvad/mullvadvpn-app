@@ -1,7 +1,7 @@
-import { messages } from '../../../../../../../../shared/gettext';
-import { FlexRow } from '../../../../../../../lib/components/flex-row';
-import { ListItem } from '../../../../../../../lib/components/list-item';
-import { BlockAdultContentSwitch } from './BlockAdultContentSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { FlexRow } from '../../../../lib/components/flex-row';
+import { ListItem } from '../../../../lib/components/list-item';
+import { BlockAdultContentSwitch } from '../block-adult-content-switch/BlockAdultContentSwitch';
 
 export function BlockAdultContentSetting() {
   return (

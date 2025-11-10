@@ -1,5 +1,5 @@
-import { useDns } from '../../../../../../../features/dns/hooks';
-import { Switch, SwitchProps } from '../../../../../../../lib/components/switch';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useDns } from '../../hooks';
 
 export type BlockAdsSwitchProps = SwitchProps;
 
