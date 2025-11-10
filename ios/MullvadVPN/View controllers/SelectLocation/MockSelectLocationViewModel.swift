@@ -143,7 +143,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
 
     var searchText: String = ""
 
-    func refreshCustomLists() {}
+    func customListsChanged() {}
 
     func addLocationToCustomList(
         location: LocationNode,
