@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { EnableIpv6Switch } from './EnableIpv6Switch';
+import { messages } from '../../../../../shared/gettext';
+import InfoButton from '../../../../components/InfoButton';
+import { ModalMessage } from '../../../../components/Modal';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { EnableIpv6Switch } from '../enable-ipv6-switch/EnableIpv6Switch';
 
 export function EnableIpv6Setting() {
   const descriptionId = React.useId();
