@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useUnpinnedWindow } from '../../../../../features/client/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useUnpinnedWindow } from '../../hooks';
 
 export type UnpinnedWindowSwitchProps = SwitchProps;
 
