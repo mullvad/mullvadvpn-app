@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { UnpinnedWindowSwitch } from './UnpinnedWindowSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { UnpinnedWindowSwitch } from '../unpinned-window-switch/UnpinnedWindowSwitch';
 
 export function UnpinnedWindowSetting() {
   const descriptionId = React.useId();
