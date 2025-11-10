@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## UNRELEASED
 
 ### Changed
+- Bump minimum version to iOS 17.0
 - Quantum-resistant tunnel setting is now on by default through the "Automatic" setting.
 - Add a checkbox that lets users include their account token in problem reports.
 
