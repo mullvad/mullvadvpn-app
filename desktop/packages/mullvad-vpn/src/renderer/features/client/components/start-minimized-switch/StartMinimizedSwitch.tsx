@@ -1,6 +1,6 @@
-import { useAppContext } from '../../../../../context';
-import { useStartMinimized } from '../../../../../features/client/hooks';
-import { Switch, SwitchProps } from '../../../../../lib/components/switch';
+import { useAppContext } from '../../../../context';
+import { Switch, SwitchProps } from '../../../../lib/components/switch';
+import { useStartMinimized } from '../../hooks';
 
 export type StartMinimizedSwitchProps = SwitchProps;
 

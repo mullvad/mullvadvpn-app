@@ -1,6 +1,6 @@
-import { messages } from '../../../../../../shared/gettext';
-import { SettingsListItem } from '../../../../settings-list-item';
-import { StartMinimizedSwitch } from './StartMinimizedSwitch';
+import { messages } from '../../../../../shared/gettext';
+import { SettingsListItem } from '../../../../components/settings-list-item';
+import { StartMinimizedSwitch } from '../start-minimized-switch/StartMinimizedSwitch';
 
 export function StartMinimizedSetting() {
   return (
