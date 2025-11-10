@@ -318,7 +318,7 @@ enum FeatureIndicator {
   MULTIHOP = 1;
   SPLIT_TUNNELING = 2;
   LOCKDOWN_MODE = 3;
-  PORT = 4;
+  WIREGUARD_PORT = 4;
   UDP_2_TCP = 5;
   SHADOWSOCKS = 6;
   QUIC = 7;
