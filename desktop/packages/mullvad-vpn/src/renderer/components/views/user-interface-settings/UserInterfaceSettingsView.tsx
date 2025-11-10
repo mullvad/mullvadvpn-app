@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
-import { UnpinnedWindowSetting } from '../../../features/client/components';
+import { StartMinimizedSetting, UnpinnedWindowSetting } from '../../../features/client/components';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
@@ -21,7 +21,6 @@ import {
   LanguageListItem,
   MonochromaticTrayIconSetting,
   NotificationsSetting,
-  StartMinimizedSetting,
 } from './components';
 
 const StyledAnimateMapCellGroup = styled(SettingsGroup)({
