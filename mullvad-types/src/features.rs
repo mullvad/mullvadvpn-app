@@ -351,7 +351,7 @@ mod tests {
             // Stash the currently selected obfuscation method and reset it after checking for the
             // feature indicator.
             let prev = settings.obfuscation_settings.selected_obfuscation;
-            settings.obfuscation_settings.selected_obfuscation = SelectedObfuscation::Port;
+            settings.obfuscation_settings.selected_obfuscation = SelectedObfuscation::WireguardPort;
 
             expected_indicators.0.insert(FeatureIndicator::Port);
             assert_eq!(

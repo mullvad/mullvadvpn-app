@@ -108,7 +108,8 @@ class TunnelStateNotificationUseCaseTest {
                 every { errorState.cause } returns
                     TunnelParameterError(ParameterGenerationError.NoMatchingRelay)
                 val settings: Settings = mockk()
-                every { settings.obfuscationSettings.port } returns Constraint.Only(Port(1))
+                every { settings.obfuscationSettings.wireguardPort } returns
+                    Constraint.Only(Port(1))
                 val portRange = PortRange(2..3)
                 settingsFlow.emit(settings)
                 portRanges.emit(listOf(portRange))
@@ -134,7 +135,8 @@ class TunnelStateNotificationUseCaseTest {
                 every { errorState.cause } returns
                     TunnelParameterError(ParameterGenerationError.NoMatchingRelay)
                 val settings: Settings = mockk()
-                every { settings.obfuscationSettings.port } returns Constraint.Only(Port(2))
+                every { settings.obfuscationSettings.wireguardPort } returns
+                    Constraint.Only(Port(2))
                 val portRange = PortRange(2..3)
                 settingsFlow.emit(settings)
                 portRanges.emit(listOf(portRange))
