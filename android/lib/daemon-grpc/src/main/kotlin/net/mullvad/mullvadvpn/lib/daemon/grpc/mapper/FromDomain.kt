@@ -82,7 +82,7 @@ internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSe
         .setSelectedObfuscation(selectedObfuscationMode.fromDomain())
         .setUdp2Tcp(udp2tcp.fromDomain())
         .setShadowsocks(shadowsocks.fromDomain())
-        .setPort(port.fromDomain())
+        .setWireguardPort(wireguardPort.fromDomain())
         .build()
 
 internal fun ObfuscationMode.fromDomain():
@@ -111,11 +111,13 @@ internal fun Udp2TcpObfuscationSettings.fromDomain():
                 .build()
     }
 
-internal fun Constraint<Port>.fromDomain(): ManagementInterface.ObfuscationSettings.Port =
+internal fun Constraint<Port>.fromDomain(): ManagementInterface.ObfuscationSettings.WireguardPort =
     when (this) {
-        is Constraint.Any -> ManagementInterface.ObfuscationSettings.Port.newBuilder().clearPort()
+        is Constraint.Any ->
+            ManagementInterface.ObfuscationSettings.WireguardPort.newBuilder().clearPort()
         is Constraint.Only ->
-            ManagementInterface.ObfuscationSettings.Port.newBuilder().setPort(this.value.value)
+            ManagementInterface.ObfuscationSettings.WireguardPort.newBuilder()
+                .setPort(this.value.value)
     }.build()
 
 internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationConstraint =

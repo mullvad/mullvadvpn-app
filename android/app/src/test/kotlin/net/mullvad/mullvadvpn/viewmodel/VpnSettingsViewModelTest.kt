@@ -151,7 +151,7 @@ class VpnSettingsViewModelTest {
                 )
 
             every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
-            every { mockSettings.obfuscationSettings.port } returns Constraint.Any
+            every { mockSettings.obfuscationSettings.wireguardPort } returns Constraint.Any
 
             viewModel.uiState.test {
                 assertInstanceOf<Lc.Loading<Boolean>>(awaitItem())
@@ -174,7 +174,7 @@ class VpnSettingsViewModelTest {
             val expectedPort = Constraint.Only(Port(99))
             val mockSettings: Settings = mockk(relaxed = true)
 
-            every { mockSettings.obfuscationSettings.port } returns expectedPort
+            every { mockSettings.obfuscationSettings.wireguardPort } returns expectedPort
             every { mockSettings.tunnelOptions } returns
                 TunnelOptions(
                     mtu = null,
@@ -293,7 +293,7 @@ class VpnSettingsViewModelTest {
                 dnsOptions = mockk(relaxed = true),
                 enableIpv6 = true,
             )
-        every { mockSettings.obfuscationSettings.port } returns Constraint.Any
+        every { mockSettings.obfuscationSettings.wireguardPort } returns Constraint.Any
 
         // Act, Assert
         viewModel.uiState.test {
@@ -348,7 +348,7 @@ class VpnSettingsViewModelTest {
                         selectedObfuscationMode = ObfuscationMode.Auto,
                         udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any),
                         shadowsocks = ShadowsocksSettings(Constraint.Any),
-                        port = Constraint.Any,
+                        wireguardPort = Constraint.Any,
                     ),
                 customLists = emptyList(),
                 allowLan = false,
