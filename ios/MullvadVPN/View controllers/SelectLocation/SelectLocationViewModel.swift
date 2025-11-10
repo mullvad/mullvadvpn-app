@@ -218,32 +218,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func addLocationToCustomList(location: LocationNode, customListName: String) {
-        let customList =
-            customListInteractor.fetchAll().first { $0.name == customListName }
-            ?? CustomList(
-                name: customListName,
-                locations: []
+        customListInteractor
+            .addLocationToCustomList(
+                relayLocations: location.locations,
+                customListName: customListName
             )
-
-        let allLocations = (customList.locations + location.locations)
-        let locations: [RelayLocation] =
-            allLocations
-            .filter { $0.ancestors.allSatisfy { !allLocations.contains($0) } }
-            .reduce(
-                [],
-                { partialResult, location in
-                    if !partialResult.contains(location) {
-                        return partialResult + [location]
-                    } else {
-                        return partialResult
-                    }
-                })
-        let newCustomList = CustomList(
-            id: customList.id,
-            name: customList.name,
-            locations: locations
-        )
-        try? customListInteractor.save(list: newCustomList)
         refreshCustomLists()
     }
 
@@ -251,17 +230,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         location: LocationNode,
         customListName: String
     ) {
-        let customList = customListInteractor.fetchAll().first { $0.name == customListName }
-        guard let customList else {
-            return
-        }
-        let allLocations = customList.locations.filter { !location.locations.contains($0) }
-        let newCustomList = CustomList(
-            id: customList.id,
-            name: customList.name,
-            locations: allLocations
-        )
-        try? customListInteractor.save(list: newCustomList)
+        customListInteractor
+            .removeLocationFromCustomList(
+                relayLocations: location.locations,
+                customListName: customListName
+            )
         refreshCustomLists()
     }
 
