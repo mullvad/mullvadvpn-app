@@ -415,7 +415,7 @@ internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSett
         selectedObfuscationMode = selectedObfuscation.toDomain(),
         udp2tcp = udp2Tcp.toDomain(),
         shadowsocks = shadowsocks.toDomain(),
-        wireguardPort = port.toDomain(),
+        wireguardPort = wireguardPort.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -726,7 +726,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
-        ManagementInterface.FeatureIndicator.PORT,
+        ManagementInterface.FeatureIndicator.WIREGUARD_PORT,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
     }
