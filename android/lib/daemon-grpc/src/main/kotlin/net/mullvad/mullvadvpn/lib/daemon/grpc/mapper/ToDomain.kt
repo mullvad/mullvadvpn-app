@@ -415,7 +415,7 @@ internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSett
         selectedObfuscationMode = selectedObfuscation.toDomain(),
         udp2tcp = udp2Tcp.toDomain(),
         shadowsocks = shadowsocks.toDomain(),
-        port = port.toDomain(),
+        wireguardPort = wireguardPort.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -429,8 +429,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.QUIC -> ObfuscationMode.Quic
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.LWO -> ObfuscationMode.Lwo
-        ManagementInterface.ObfuscationSettings.SelectedObfuscation.PORT ->
-            throw IllegalArgumentException("PORT is not a support obfuscation")
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT ->
+            throw IllegalArgumentException("WIREGUARD_PORT is not a support obfuscation")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -450,7 +450,7 @@ internal fun ManagementInterface.ObfuscationSettings.Shadowsocks.toDomain(): Sha
         ShadowsocksSettings(Constraint.Any)
     }
 
-internal fun ManagementInterface.ObfuscationSettings.Port.toDomain(): Constraint<Port> =
+internal fun ManagementInterface.ObfuscationSettings.WireguardPort.toDomain(): Constraint<Port> =
     if (hasPort()) {
         Constraint.Only(Port(port))
     } else {
@@ -726,7 +726,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
-        ManagementInterface.FeatureIndicator.PORT,
+        ManagementInterface.FeatureIndicator.WIREGUARD_PORT,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
     }

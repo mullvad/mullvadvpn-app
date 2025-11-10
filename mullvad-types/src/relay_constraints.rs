@@ -587,7 +587,7 @@ pub enum SelectedObfuscation {
     #[default]
     Auto,
     Off,
-    Port,
+    WireguardPort,
     #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,
     Shadowsocks,
@@ -619,7 +619,7 @@ impl fmt::Display for SelectedObfuscation {
             SelectedObfuscation::Shadowsocks => "shadowsocks".fmt(f),
             SelectedObfuscation::Quic => "quic".fmt(f),
             SelectedObfuscation::Lwo => "lwo".fmt(f),
-            SelectedObfuscation::Port => "port".fmt(f),
+            SelectedObfuscation::WireguardPort => "wireguard port".fmt(f),
         }
     }
 }
@@ -656,35 +656,35 @@ impl fmt::Display for ShadowsocksSettings {
 
 #[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize, Intersection)]
 #[serde(rename_all = "snake_case")]
-pub struct WireguardPortSetting {
+pub struct WireguardPortSettings {
     port: Constraint<u16>,
 }
 
-impl WireguardPortSetting {
+impl WireguardPortSettings {
     pub const fn get(&self) -> Constraint<u16> {
         self.port
     }
 }
 
-impl From<Constraint<u16>> for WireguardPortSetting {
+impl From<Constraint<u16>> for WireguardPortSettings {
     fn from(port: Constraint<u16>) -> Self {
         Self { port }
     }
 }
 
-impl From<Option<u16>> for WireguardPortSetting {
+impl From<Option<u16>> for WireguardPortSettings {
     fn from(port: Option<u16>) -> Self {
         Self::from(Constraint::from(port))
     }
 }
 
-impl From<u16> for WireguardPortSetting {
+impl From<u16> for WireguardPortSettings {
     fn from(port: u16) -> Self {
         Self::from(Constraint::Only(port))
     }
 }
 
-impl fmt::Display for WireguardPortSetting {
+impl fmt::Display for WireguardPortSettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.port {
             Constraint::Any => write!(f, "any port"),
@@ -701,7 +701,7 @@ pub struct ObfuscationSettings {
     pub selected_obfuscation: SelectedObfuscation,
     pub udp2tcp: Udp2TcpObfuscationSettings,
     pub shadowsocks: ShadowsocksSettings,
-    pub port: WireguardPortSetting,
+    pub wireguard_port: WireguardPortSettings,
 }
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.
