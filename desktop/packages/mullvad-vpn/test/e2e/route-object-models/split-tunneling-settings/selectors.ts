@@ -1,6 +1,15 @@
-import { type Page } from 'playwright';
+import { Locator, type Page } from 'playwright';
 
 export const createSelectors = (page: Page) => ({
+  heading: () => page.getByRole('heading', { level: 1, name: 'Split tunneling' }),
+  splitTunnelingSwitch: () => page.getByRole('switch'),
+  splitApplicationsList: () => page.getByTestId('split-applications'),
+  nonSplitApplicationsList: () => page.getByTestId('non-split-applications'),
+  application: (applicationName: string) => page.getByText(applicationName),
+  applicationToggle: (application: Locator) => application.locator('~ div'),
+  applicationInList: (list: Locator, applicationName: string) => list.getByText(applicationName),
+  applicationButtonsInList: (list: Locator) => list.locator('button'),
+
   applicationWarningLaunchesElsewhereDialogText: (applicationName: string) =>
     page.getByText(`${applicationName} is problematic and can’t be excluded from the VPN tunnel.`),
   applicationWarningLaunchesInExistingProcessDialogText: (applicationName: string) =>
