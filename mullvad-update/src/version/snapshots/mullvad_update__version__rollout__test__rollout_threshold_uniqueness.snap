@@ -1,0 +1,5 @@
+---
+source: mullvad-update/src/version/rollout.rs
+expression: "Rollout::threshold(seed, v20254)"
+---
+0.98061204
