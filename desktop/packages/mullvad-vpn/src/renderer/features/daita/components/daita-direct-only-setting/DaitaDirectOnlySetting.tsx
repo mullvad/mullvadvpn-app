@@ -10,7 +10,7 @@ import { useDaitaEnabled } from '../../hooks';
 import { DaitaDirectOnlySwitch } from '../daita-direct-only-switch';
 
 export function DaitaDirectOnlySetting() {
-  const daitaEnabled = useDaitaEnabled();
+  const { daitaEnabled } = useDaitaEnabled();
   const relaySettings = useNormalRelaySettings();
 
   const unavailable = relaySettings === undefined;

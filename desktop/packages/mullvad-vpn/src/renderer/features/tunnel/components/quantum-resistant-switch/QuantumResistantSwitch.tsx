@@ -1,12 +1,10 @@
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useQuantumResistant } from '../../hooks';
 
 export type QuantumResistantSwitchProp = SwitchProps;
 
 function QuantumResistantSwitch({ children, ...props }: QuantumResistantSwitchProp) {
-  const { setWireguardQuantumResistant } = useAppContext();
-  const quantumResistant = useQuantumResistant();
+  const { quantumResistant, setWireguardQuantumResistant } = useQuantumResistant();
 
   return (
     <Switch checked={quantumResistant} onCheckedChange={setWireguardQuantumResistant} {...props}>

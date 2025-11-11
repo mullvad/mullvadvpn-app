@@ -1,12 +1,11 @@
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useEnableSystemNotifications } from '../../hooks';
 
 export type NotificationSwitchProps = SwitchProps;
 
 function NotificationsSwitch({ children, ...props }: NotificationSwitchProps) {
-  const enableSystemNotifications = useEnableSystemNotifications();
-  const { setEnableSystemNotifications } = useAppContext();
+  const { enableSystemNotifications, setEnableSystemNotifications } =
+    useEnableSystemNotifications();
 
   return (
     <Switch

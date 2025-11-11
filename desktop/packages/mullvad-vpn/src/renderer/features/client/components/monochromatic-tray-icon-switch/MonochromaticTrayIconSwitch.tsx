@@ -1,12 +1,10 @@
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useMonochromaticTrayIcon } from '../../hooks';
 
 export type MonochromaticTrayIconSwitchProps = SwitchProps;
 
 function MonochromaticTrayIconSwitch({ children, ...props }: MonochromaticTrayIconSwitchProps) {
-  const monochromaticIcon = useMonochromaticTrayIcon();
-  const { setMonochromaticIcon } = useAppContext();
+  const { monochromaticIcon, setMonochromaticIcon } = useMonochromaticTrayIcon();
 
   return (
     <Switch checked={monochromaticIcon} onCheckedChange={setMonochromaticIcon} {...props}>

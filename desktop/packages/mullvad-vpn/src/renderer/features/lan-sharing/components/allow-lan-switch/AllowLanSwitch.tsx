@@ -1,19 +1,15 @@
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useAllowLan } from '../../hooks';
 
 export type AllowLanSwitch = SwitchProps;
 
 function AllowLanSwitch({ children, ...props }: AllowLanSwitch) {
-  const allowLan = useAllowLan();
-  const { setAllowLan } = useAppContext();
+  const { allowLan, setAllowLan } = useAllowLan();
 
   return (
-    <>
-      <Switch checked={allowLan} onCheckedChange={setAllowLan} {...props}>
-        {children}
-      </Switch>
-    </>
+    <Switch checked={allowLan} onCheckedChange={setAllowLan} {...props}>
+      {children}
+    </Switch>
   );
 }
 
