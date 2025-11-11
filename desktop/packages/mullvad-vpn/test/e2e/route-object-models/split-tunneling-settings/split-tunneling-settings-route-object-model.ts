@@ -23,17 +23,6 @@ export class SplitTunnelingSettingsRouteObjectModel {
     await this.selectors.applicationToogle(application).click();
   }
 
-  async numberOfSplitApplications() {
-    const list = this.selectors.splitApplicationsList();
-
-    const listHidden = await list.isHidden();
-    if (listHidden) {
-      return 0;
-    }
-
-    return this.selectors.applicationButtonsInList(list).count();
-  }
-
   getLinuxApplication(applicationName: string) {
     return this.selectors.linuxApplication(applicationName);
   }
