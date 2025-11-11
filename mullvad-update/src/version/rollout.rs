@@ -122,11 +122,71 @@ impl Serialize for Rollout {
     }
 }
 
+#[cfg(feature = "arbitrary")]
+/// Generators for [Rollout].
+pub mod arbitrary {
+    use super::*;
+
+    use proptest::prelude::*;
+
+    /// Generate *any* arbitrary [Rollout] values.
+    ///
+    /// This generator assume that [VALID_ROLLOUT] represent all valid rollouts.
+    #[allow(dead_code)]
+    pub fn arb_any_rollout() -> impl Strategy<Value = Rollout> {
+        VALID_ROLLOUT.prop_map(Rollout)
+    }
+
+    /// Generate an arbitrary [Rollout] values.
+    ///
+    /// This generator is heavily biased towards edge cases such as zero rollout, full rollout etc.
+    #[allow(dead_code)]
+    pub fn arb_rollout() -> impl Strategy<Value = Rollout> {
+        let any = arb_any_rollout();
+        let edge_cases = prop_oneof![
+            Just(IGNORE),            // = 0
+            Just(SUPPORTED_VERSION), // > 0
+            Just(FULLY_ROLLED_OUT)   // = 1
+        ];
+        // Let's say that any of the edge-cases should be generated with a 1/5 probabilty.
+        prop_oneof![
+            80 => any,
+            20 => edge_cases
+        ]
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use insta::{assert_snapshot, assert_yaml_snapshot};
-
+    use super::arbitrary::*;
     use super::*;
+
+    use insta::{assert_snapshot, assert_yaml_snapshot};
+    use proptest::prelude::*;
+
+    proptest! {
+         /// Assert that all rollout values from 0 up to 1 are valid rollouts.
+         #[test]
+         fn valid_rollout(r in arb_rollout()) {
+             Rollout::from_str(&r.to_string()).unwrap();
+         }
+
+         /// Test that inequality works as expected (i.e. as for floating point numbers).
+         #[test]
+         fn rollout_inequality(r1 in arb_rollout(), r2 in arb_rollout()) {
+            if r1.0 < r2.0 {
+                assert!(r1 < r2)
+            } else if r1.0 > r2.0 {
+                assert!(r1 > r2)
+            }
+         }
+
+         /// Test that eqaulity works as expected (i.e. as for floating point numbers).
+         #[test]
+         fn rollout_identity(rollout in arb_rollout()) {
+             assert_eq!(rollout, rollout)
+         }
+    }
 
     const GOOD_ROLLOUT_EXAMPLES: &[f32] = &[
         -0.0,                // 0%
