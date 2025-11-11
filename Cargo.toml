@@ -4,7 +4,7 @@ repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0-only"
 edition = "2024"
 # Must be less than or equal to `channel` in `rust-toolchain.toml`
-rust-version = "1.88.0"
+rust-version = "1.91.0"
 
 [workspace]
 resolver = "2"
