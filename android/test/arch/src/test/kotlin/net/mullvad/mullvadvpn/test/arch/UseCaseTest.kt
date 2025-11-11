@@ -29,5 +29,4 @@ class UseCaseTest {
             .classes()
             .filter { it.resideInPackage("..usecase..") }
             .filter { !it.hasPrivateModifier }
-            .filter { it.parentInterfaces().none { parent -> parent.name == "PaymentUseCase" } }
 }
