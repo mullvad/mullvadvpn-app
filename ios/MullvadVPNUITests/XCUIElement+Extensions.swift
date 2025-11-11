@@ -142,8 +142,8 @@ extension XCUIElement {
     }
 
     private struct PredicatePollerDefaults {
-        static let pollInterval: TimeInterval = 0.2
-        static let maxIterations: Int = 100
+        static let pollInterval = 0.2
+        static let maxIterations = 100
     }
 
     // This function actively polls the hierarchy on a set interval. This speeds up the waiting process
