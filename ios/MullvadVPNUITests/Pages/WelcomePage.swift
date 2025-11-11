@@ -9,17 +9,12 @@
 import Foundation
 import XCTest
 
-class WelcomePage: Page {
+class WelcomePage: PaymentPage {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
         self.pageElement = app.otherElements[.welcomeView]
         waitForPageToBeShown()
-    }
-
-    @discardableResult func tapAddTimeButton() -> Self {
-        app.buttons[AccessibilityIdentifier.purchaseButton].tap()
-        return self
     }
 
     @discardableResult func tapRedeemButton() -> Self {
