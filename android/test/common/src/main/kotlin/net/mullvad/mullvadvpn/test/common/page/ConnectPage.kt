@@ -58,12 +58,12 @@ class ConnectPage internal constructor() : Page() {
         uiDevice.findObjectWithTimeout(connectingSelector)
     }
 
-    /**
-     * Extracts the in IPv4 address from the connection card. It is a prerequisite that the
-     * connection card is in collapsed state.
-     */
-    fun extractInIpv4Address(): String {
+    private fun expandConnectionCard() {
         uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG)).click()
+    }
+
+    /** Extracts the ip address, port and protocol from the connection card. */
+    private fun extractInIpv4Information(): Triple<String, String, String> {
         val inString =
             uiDevice
                 .findObjectWithTimeout(
@@ -72,8 +72,27 @@ class ConnectPage internal constructor() : Page() {
                 )
                 .text
 
-        val extractedIpAddress = inString.split(" ")[0].split(":")[0]
-        return extractedIpAddress
+        val splitString = inString.split(" ")
+        val ipString = splitString[0].split(":")
+        return Triple(ipString[0], ipString[1], splitString[1])
+    }
+
+    /**
+     * Extracts the in IPv4 address from the connection card. It is a prerequisite that the
+     * connection card is in collapsed state.
+     */
+    fun extractInIpv4Address(): String {
+        expandConnectionCard()
+        return extractInIpv4Information().first
+    }
+
+    /**
+     * Extracts the in IPv4 port from the connection card. It is a prerequisite that the connection
+     * card is in collapsed state.
+     */
+    fun extractInIpv4Port(): String {
+        expandConnectionCard()
+        return extractInIpv4Information().second
     }
 
     /**
