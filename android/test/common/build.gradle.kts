@@ -52,11 +52,8 @@ android {
     flavorDimensions += FlavorDimensions.INFRASTRUCTURE
 
     productFlavors {
-        create(Flavors.OSS) { dimension = FlavorDimensions.BILLING }
         create(Flavors.PLAY) { dimension = FlavorDimensions.BILLING }
         create(Flavors.PROD) { dimension = FlavorDimensions.INFRASTRUCTURE }
-        create(Flavors.DEVMOLE) { dimension = FlavorDimensions.INFRASTRUCTURE }
-        create(Flavors.STAGEMOLE) { dimension = FlavorDimensions.INFRASTRUCTURE }
     }
 }
 
