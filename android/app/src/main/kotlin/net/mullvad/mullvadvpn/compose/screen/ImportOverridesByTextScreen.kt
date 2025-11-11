@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -85,6 +86,8 @@ fun ImportOverridesByTextScreen(onNavigateBack: () -> Unit, onImportClicked: (St
                     Text(text = stringResource(R.string.import_override_textfield_placeholder))
                 },
                 colors = mullvadWhiteTextFieldColors(),
+                textStyle =
+                    MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
             )
         }
     }

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -219,6 +220,7 @@ private fun InputContent(
         onValueChange = onEmailChanged,
         maxLines = 1,
         singleLine = true,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
         placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
         colors = mullvadWhiteTextFieldColors(),
         keyboardOptions =

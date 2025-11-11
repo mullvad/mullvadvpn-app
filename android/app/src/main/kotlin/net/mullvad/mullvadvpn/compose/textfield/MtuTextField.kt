@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDirection
 
 @Composable
 fun MtuTextField(
@@ -27,6 +28,6 @@ fun MtuTextField(
         maxCharLength = maxCharLength,
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = true,
-        textStyle = MaterialTheme.typography.titleMedium,
+        textStyle = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
     )
 }
