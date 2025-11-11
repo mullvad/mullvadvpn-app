@@ -36,6 +36,10 @@ Line wrap the file at 100 chars.                                              Th
 - Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 
+## [2025.13] - 2025-11-06
+This release is identical to 2025.13-beta2.
+
+
 ## [2025.13-beta2] - 2025-10-28
 ### Fixed
 - Fix bug introduced in 2025.13-beta1 with translations sometimes not being formatted
