@@ -9,23 +9,17 @@
 import UIKit
 
 class AccountContentView: UIView {
+    let debugOptionsButton: AppButton = {
+        let button = AppButton(style: .default)
+        button.setAccessibilityIdentifier(.debugOptionsButton)
+        button.setTitle(NSLocalizedString("Debug options", comment: ""), for: .normal)
+        return button
+    }()
+
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.setAccessibilityIdentifier(.purchaseButton)
         button.setTitle(NSLocalizedString("Add time", comment: ""), for: .normal)
-        return button
-    }()
-
-    let storeKit2RefundButton: AppButton = {
-        let button = AppButton(style: .success)
-        button.setTitle(NSLocalizedString("Refund last purchase with StoreKit2", comment: ""), for: .normal)
-        return button
-    }()
-
-    let redeemVoucherButton: AppButton = {
-        let button = AppButton(style: .success)
-        button.setAccessibilityIdentifier(.redeemVoucherButton)
-        button.setTitle(NSLocalizedString("Redeem voucher", comment: ""), for: .normal)
         return button
     }()
 
@@ -76,8 +70,7 @@ class AccountContentView: UIView {
     lazy var buttonStackView: UIStackView = {
         var arrangedSubviews = [UIView]()
         #if DEBUG
-            arrangedSubviews.append(redeemVoucherButton)
-            arrangedSubviews.append(storeKit2RefundButton)
+            arrangedSubviews.append(debugOptionsButton)
         #endif
         arrangedSubviews.append(contentsOf: [
             purchaseButton,

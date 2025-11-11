@@ -1,19 +1,19 @@
 //
-//  OutOfTimePage.swift
-//  MullvadVPNUITests
+//  SetUpAccountCompletedPage.swift
+//  MullvadVPN
 //
-//  Created by Niklas Berglund on 2024-02-20.
+//  Created by Jon Petersson on 2025-11-28.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import XCTest
 
-class OutOfTimePage: PaymentPage {
+class SetUpAccountCompletedPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.outOfTimeView]
+        self.pageElement = app.otherElements[.setUpAccountCompletedView]
         waitForPageToBeShown()
     }
 }
