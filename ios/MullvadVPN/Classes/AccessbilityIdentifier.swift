@@ -155,6 +155,7 @@ public enum AccessibilityIdentifier: Equatable {
     case problemReportSubmittedView
     case revokedDeviceView
     case welcomeView
+    case setUpAccountCompletedView
     case deleteAccountView
     case settingsContainerView
     case newCustomListView
