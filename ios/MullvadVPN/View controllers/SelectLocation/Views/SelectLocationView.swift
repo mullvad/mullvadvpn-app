@@ -33,25 +33,13 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 .transition(
                     .move(edge: .trailing).combined(with: .opacity)
                 )
-                .apply {
-                    if #available(iOS 17.0, *) {
-                        $0.geometryGroup()
-                    } else {
-                        $0
-                    }
-                }
+                .geometryGroup()
             case .entry:
                 EntryLocationView(viewModel: viewModel)
                     .transition(
                         .move(edge: .leading).combined(with: .opacity)
                     )
-                    .apply {
-                        if #available(iOS 17.0, *) {
-                            $0.geometryGroup()
-                        } else {
-                            $0
-                        }
-                    }
+                    .geometryGroup()
             }
         }
         .animation(.default, value: viewModel.multihopContext)
