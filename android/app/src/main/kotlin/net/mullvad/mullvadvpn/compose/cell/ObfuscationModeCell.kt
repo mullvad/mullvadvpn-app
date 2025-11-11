@@ -75,7 +75,9 @@ fun ObfuscationModeCell(
             titleStyle = MaterialTheme.typography.bodyLarge,
             titleColor = MaterialTheme.colorScheme.onSurface,
             subtitleStyle = MaterialTheme.typography.labelLarge,
-            subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            subtitleColor =
+                if (isSelected) MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.onSurfaceVariant,
             titleText = obfuscationMode.toTitle(),
             subtitleText = stringResource(id = R.string.port_x, port.toSubTitle()),
             onCellClicked = { onSelected(obfuscationMode) },
