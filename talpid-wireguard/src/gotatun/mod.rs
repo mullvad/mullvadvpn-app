@@ -6,8 +6,8 @@ use crate::{
     stats::{DaitaStats, Stats, StatsMap},
 };
 #[cfg(target_os = "android")]
-use boringtun::udp::UdpTransportFactory;
-use boringtun::{
+use gotatun::udp::UdpTransportFactory;
+use gotatun::{
     device::{
         DeviceConfig, DeviceHandle,
         api::{ApiClient, ApiServer, command::*},
@@ -40,7 +40,7 @@ use talpid_tunnel_config_client::DaitaSettings;
 use tun07::{AbstractDevice, AsyncDevice};
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
-use boringtun::tun::{
+use gotatun::tun::{
     IpSend,
     pcap::{PcapSniffer, PcapStream},
 };
@@ -65,7 +65,7 @@ type EntryDevice = DeviceHandle<(
 
 const PACKET_CHANNEL_CAPACITY: usize = 100;
 
-pub struct BoringTun {
+pub struct GotaTun {
     /// Device handles
     // TODO: Can we not store this in an option?
     devices: Option<Devices>,
@@ -82,7 +82,7 @@ pub struct BoringTun {
     interface_name: String,
 }
 
-impl BoringTun {
+impl GotaTun {
     async fn new(
         tun_dev: AsyncDevice,
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
@@ -167,7 +167,7 @@ impl UdpTransportFactory for AndroidUdpSocketFactory {
 
     async fn bind(
         &mut self,
-        params: &boringtun::udp::UdpTransportFactoryParams,
+        params: &gotatun::udp::UdpTransportFactoryParams,
     ) -> std::io::Result<((Self::Send, Self::RecvV4), (Self::Send, Self::RecvV6))> {
         let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) =
             UdpSocketFactory.bind(params).await?;
@@ -179,14 +179,14 @@ impl UdpTransportFactory for AndroidUdpSocketFactory {
     }
 }
 
-/// Configure and start a boringtun tunnel.
-pub async fn open_boringtun_tunnel(
+/// Configure and start a gotatun tunnel.
+pub async fn open_gotatun_tunnel(
     config: &Config,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
     #[cfg(target_os = "android")] gateway_only: bool,
-) -> super::Result<BoringTun> {
-    log::info!("BoringTun::start_tunnel");
+) -> super::Result<GotaTun> {
+    log::info!("GotaTun::start_tunnel");
     let routes = config.get_tunnel_destinations();
 
     log::trace!("calling get_tunnel_for_userspace");
@@ -249,8 +249,8 @@ pub async fn open_boringtun_tunnel(
         false => config,
     };
 
-    log::trace!("passing tunnel dev to boringtun");
-    let boringtun = BoringTun::new(
+    log::trace!("passing tunnel dev to gotatun");
+    let gotatun = GotaTun::new(
         async_tun,
         #[cfg(target_os = "android")]
         tun.clone(),
@@ -258,7 +258,7 @@ pub async fn open_boringtun_tunnel(
         interface_name,
     )
     .await
-    .inspect_err(|e| log::error!("Failed to open BoringTun: {e:?}"))?;
+    .inspect_err(|e| log::error!("Failed to open GotaTun: {e:?}"))?;
 
     log::info!(
         r#"This tunnel was brought to you by...
@@ -269,10 +269,10 @@ pub async fn open_boringtun_tunnel(
         \____/\____/\__/\__,_//_/  \__,_/_/ /_/"#
     );
 
-    Ok(boringtun)
+    Ok(gotatun)
 }
 
-/// Create and configure boringtun devices.
+/// Create and configure gotatun devices.
 ///
 /// Will create an [EntryDevice] and an [ExitDevice] if `config` is a multihop config,
 /// and a [SinglehopDevice] otherwise.
@@ -283,7 +283,7 @@ async fn create_devices(
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
 ) -> Result<Devices, TunnelError> {
     let (entry_api, entry_api_server) = ApiServer::new();
-    let boringtun_entry_config = DeviceConfig {
+    let gotatun_entry_config = DeviceConfig {
         api: Some(entry_api_server),
     };
 
@@ -348,7 +348,7 @@ async fn create_devices(
             udp_factory,
             tun_channel_tx,
             tun_channel_rx,
-            boringtun_entry_config,
+            gotatun_entry_config,
         )
         .await;
 
@@ -361,13 +361,8 @@ async fn create_devices(
     } else {
         // Singlehop setup
 
-        let device = SinglehopDevice::new(
-            udp_factory,
-            tun_dev.clone(),
-            tun_dev,
-            boringtun_entry_config,
-        )
-        .await;
+        let device =
+            SinglehopDevice::new(udp_factory, tun_dev.clone(), tun_dev, gotatun_entry_config).await;
 
         Devices::Singlehop {
             device,
@@ -380,7 +375,7 @@ async fn create_devices(
     Ok(devices)
 }
 
-/// (Re)Configure boringtun devices.
+/// (Re)Configure gotatun devices.
 async fn configure_devices(
     devices: &mut Devices,
     config: &Config,
@@ -388,7 +383,7 @@ async fn configure_devices(
 ) -> Result<(), TunnelError> {
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
-            "configuring boringtun multihop device (daita={})",
+            "configuring gotatun multihop device (daita={})",
             daita.is_some()
         );
 
@@ -413,7 +408,7 @@ async fn configure_devices(
             daita,
         );
         entry_api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set boringtun config: {err:#}");
+            log::error!("Failed to set gotatun config: {err:#}");
             TunnelError::SetConfigError
         })?;
 
@@ -425,12 +420,12 @@ async fn configure_devices(
             None, // exit peer never has daita
         );
         exit_api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set boringtun config: {err:#}");
+            log::error!("Failed to set gotatun config: {err:#}");
             TunnelError::SetConfigError
         })?;
     } else {
         log::trace!(
-            "configuring boringtun singlehop device (daita={})",
+            "configuring gotatun singlehop device (daita={})",
             daita.is_some()
         );
 
@@ -450,7 +445,7 @@ async fn configure_devices(
             daita,
         );
         api.send(set_cmd).await.map_err(|err| {
-            log::error!("Failed to set boringtun config: {err:#}");
+            log::error!("Failed to set gotatun config: {err:#}");
             TunnelError::SetConfigError
         })?;
     }
@@ -459,14 +454,14 @@ async fn configure_devices(
 }
 
 #[async_trait::async_trait]
-impl Tunnel for BoringTun {
+impl Tunnel for GotaTun {
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
     }
 
     fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
         tokio::runtime::Handle::current().block_on(async {
-            // TODO: devices should never be None while this BoringTun instance is running.
+            // TODO: devices should never be None while this GotaTun instance is running.
             debug_assert!(self.devices.is_some());
             if let Some(devices) = self.devices.take() {
                 devices.stop().await;
@@ -498,7 +493,7 @@ impl Tunnel for BoringTun {
                 let last_handshake = || -> Option<SystemTime> {
                     let handshake_sec = peer.last_handshake_time_sec?;
                     let handshake_nsec = peer.last_handshake_time_nsec?;
-                    // TODO: Boringtun should probably return a Unix timestamp (like wg-go)
+                    // TODO: Gotatun should probably return a Unix timestamp (like wg-go)
                     Some(SystemTime::now() - Duration::new(handshake_sec, handshake_nsec))
                 };
 
@@ -543,7 +538,7 @@ impl Tunnel for BoringTun {
             let recreate_devices = true;
 
             if recreate_devices {
-                // TODO: devices should never be None while this BoringTun instance is running.
+                // TODO: devices should never be None while this GotaTun instance is running.
                 debug_assert!(self.devices.is_some());
                 if let Some(devices) = self.devices.take() {
                     devices.stop().await;
@@ -590,7 +585,7 @@ fn create_set_command(
         set_cmd.fwmark = fwmark;
     }
 
-    let mut boring_peer = Peer::builder()
+    let mut gota_peer = Peer::builder()
         .public_key(*peer.public_key.as_bytes())
         .endpoint(peer.endpoint)
         .allowed_ip(
@@ -605,13 +600,13 @@ fn create_set_command(
         .build();
 
     if let Some(psk) = &peer.psk {
-        boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
+        gota_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
     }
 
-    let mut set_peer = SetPeer::builder().peer(boring_peer).build();
+    let mut set_peer = SetPeer::builder().peer(gota_peer).build();
 
     if let Some(daita) = daita {
-        set_peer.daita_settings = Some(boringtun::device::daita::api::DaitaSettings {
+        set_peer.daita_settings = Some(gotatun::device::daita::api::DaitaSettings {
             maybenot_machines: daita.client_machines.clone(),
             max_padding_frac: daita.max_padding_frac,
             max_blocking_frac: daita.max_blocking_frac,
