@@ -10,14 +10,11 @@ import utilities.Flavors
 import utilities.SigningConfigs
 import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
+import utilities.appVersionProvider
 import utilities.baselineFilter
 import utilities.generateRemapArguments
-import utilities.generateVersionCode
-import utilities.generateVersionName
 import utilities.getBooleanProperty
 import utilities.getStringListProperty
-import utilities.isAlphaBuild
-import utilities.isDevBuild
 import utilities.isReleaseBuild
 import utilities.leakCanaryImplementation
 import utilities.matchesAny
@@ -50,6 +47,8 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val appVersion = appVersionProvider.get()
+
 android {
     namespace = "net.mullvad.mullvadvpn"
     compileSdk = libs.versions.compile.sdk.get().toInt()
@@ -60,8 +59,8 @@ android {
         applicationId = "net.mullvad.mullvadvpn"
         minSdk = libs.versions.min.sdk.get().toInt()
         targetSdk = libs.versions.target.sdk.get().toInt()
-        versionCode = generateVersionCode()
-        versionName = generateVersionName()
+        versionCode = appVersion.code
+        versionName = appVersion.name
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         lint {
@@ -75,9 +74,21 @@ android {
     }
 
     playConfigs {
-        register("playDevmoleRelease") { enabled = true }
-        register("playStagemoleRelease") { enabled = true }
-        register("playProdRelease") { enabled = true }
+        register("playDevmoleRelease") { enabled = !appVersion.isDev }
+        register("playStagemoleRelease") { enabled = !appVersion.isDev }
+        register("playProdRelease") {
+            enabled = !appVersion.isDev
+            track.set(
+                when {
+                    appVersion.isStable -> "production"
+                    appVersion.isBeta -> "beta"
+                    else -> "internal"
+                }
+            )
+            if (appVersion.isStable) {
+                releaseStatus.set(ReleaseStatus.DRAFT)
+            }
+        }
     }
 
     androidResources {
@@ -274,7 +285,7 @@ cargo {
     val generateDebugSymbolsForReleaseBuilds =
         getBooleanProperty("mullvad.app.build.cargo.generateDebugSymbolsForReleaseBuilds")
     val enableGotaTun = getBooleanProperty("mullvad.app.build.gotatun.enable")
-    val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
+    val enableApiOverride = !isReleaseBuild || appVersion.isDev || appVersion.isAlpha
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:

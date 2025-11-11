@@ -54,13 +54,21 @@ echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
 echo ""
 
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
-    if [[ "$PRODUCT_VERSION" == *"-dev-"* ]]; then
-        GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
-        BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
-    elif [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
-        GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
-        BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
-        PLAY_PUBLISH_TASKS=(publishPlayDevmoleReleaseBundle publishPlayStagemoleReleaseBundle publishPlayProdReleaseBundle)
+    GRADLE_TASKS+=(
+        createPlayDevmoleReleaseDistApk
+        createPlayStagemoleReleaseDistApk
+    )
+    BUNDLE_TASKS+=(
+        createPlayDevmoleReleaseDistBundle
+        createPlayStagemoleReleaseDistBundle
+    )
+
+    if [[ "$PRODUCT_VERSION" != *"-dev-"* ]]; then
+        PLAY_PUBLISH_TASKS=(
+            publishPlayDevmoleReleaseBundle
+            publishPlayStagemoleReleaseBundle
+            publishPlayProdReleaseBundle
+        )
     fi
 fi
 

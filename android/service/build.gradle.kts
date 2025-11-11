@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import utilities.FlavorDimensions
 import utilities.Flavors
-import utilities.isDevBuild
+import utilities.appVersionProvider
 import utilities.isReleaseBuild
 
 plugins {
@@ -12,6 +12,8 @@ plugins {
     alias(libs.plugins.junit5.android)
 }
 
+val appVersion = appVersionProvider.get()
+
 android {
     namespace = "net.mullvad.mullvadvpn.service"
     compileSdk = libs.versions.compile.sdk.get().toInt()
@@ -19,7 +21,7 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.min.sdk.get().toInt()
-        val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild()
+        val shouldRequireBundleRelayFile = isReleaseBuild() && !appVersion.isDev
         buildConfigField(
             "Boolean",
             "REQUIRE_BUNDLED_RELAY_FILE",

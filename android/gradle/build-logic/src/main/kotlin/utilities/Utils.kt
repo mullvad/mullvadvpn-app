@@ -9,53 +9,10 @@ fun Project.isReleaseBuild() =
         it.contains("release", ignoreCase = true) || it.contains("fdroid", ignoreCase = true)
     }
 
-fun Project.isAlphaBuild(): Boolean {
-    val versionName = generateVersionName()
-    return versionName.contains("alpha")
-}
-
-fun Project.isDevBuild(): Boolean {
-    val versionName = generateVersionName()
-    return versionName.contains("-dev-")
-}
-
-fun Project.generateVersionCode(): Int {
-    val versionCode =
-        getIntPropertyOrNull("mullvad.app.config.override.versionCode")
-            ?: execVersionCodeCargoCommand()
-    // This is a safety net to avoid generating too big version codes, since that could potentially
-    // be hard and inconvenient to recover from.
-    require(versionCode <= MAX_ALLOWED_VERSION_CODE) {
-        "versionCode ($versionCode) must be <= $MAX_ALLOWED_VERSION_CODE"
-    }
-    return versionCode
-}
-
-fun Project.generateVersionName(): String =
-    getStringPropertyOrNull("mullvad.app.config.override.versionName")
-        ?: execVersionNameCargoCommand()
-
 fun Project.generateRemapArguments(): String {
     val script = "${projectDir.parent}/../building/rustc-remap-path-prefix.sh"
     return providers.exec { commandLine(script) }.standardOutput.asText.get().trim()
 }
-
-private fun Project.execVersionCodeCargoCommand() =
-    providers
-        .exec { commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionCode") }
-        .standardOutput
-        .asText
-        .get()
-        .trim()
-        .toInt()
-
-private fun Project.execVersionNameCargoCommand() =
-    providers
-        .exec { commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionName") }
-        .standardOutput
-        .asText
-        .get()
-        .trim()
 
 fun Project.getStringPropertyOrNull(name: String): String? = findProperty(name)?.toString()
 
