@@ -42,13 +42,7 @@ struct ActiveFilterView: View {
                 }
             }
         }
-        .apply {
-            if #available(iOS 16.0, *) {
-                $0.scrollIndicators(.never)
-            } else {
-                $0
-            }
-        }
+        .scrollIndicators(.never)
     }
 }
 
