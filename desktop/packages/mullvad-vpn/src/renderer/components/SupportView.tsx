@@ -7,7 +7,7 @@ import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
+import { AppNavigationHeader } from '.';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
@@ -24,7 +24,7 @@ const StyledContent = styled.div({
   marginBottom: '2px',
 });
 
-export default function Support() {
+export function SupportView() {
   const { pop } = useHistory();
 
   return (

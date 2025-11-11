@@ -22,7 +22,7 @@ import ProblemReport from './ProblemReport';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
-import Support from './Support';
+import { SupportView } from './SupportView';
 import {
   Account,
   AntiCensorshipView,
@@ -87,7 +87,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.settingsImport} component={SettingsImport} />
           <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImport} />
           <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
-          <Route exact path={RoutePath.support} component={Support} />
+          <Route exact path={RoutePath.support} component={SupportView} />
           <Route exact path={RoutePath.problemReport} component={ProblemReport} />
           <Route exact path={RoutePath.debug} component={Debug} />
           <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
