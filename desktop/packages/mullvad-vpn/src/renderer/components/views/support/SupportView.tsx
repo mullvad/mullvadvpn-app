@@ -1,21 +1,21 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { urls } from '../../shared/constants';
-import { messages } from '../../shared/gettext';
-import { RoutePath } from '../../shared/routes';
-import { useAppContext } from '../context';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from '.';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
-import * as Cell from './cell';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import { SettingsNavigationListItem } from './settings-navigation-list-item';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { urls } from '../../../../shared/constants';
+import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
+import { useAppContext } from '../../../context';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import { SettingsNavigationListItem } from '../../settings-navigation-list-item';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const StyledContent = styled.div({
   display: 'flex',

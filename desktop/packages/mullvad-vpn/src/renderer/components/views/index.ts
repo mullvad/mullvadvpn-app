@@ -12,6 +12,7 @@ export * from './settings';
 export * from './select-language';
 export * from './shadowsocks-settings';
 export * from './split-tunneling';
+export * from './support';
 export * from './too-many-devices';
 export * from './udp-over-tcp-settings';
 export * from './vpn-settings';

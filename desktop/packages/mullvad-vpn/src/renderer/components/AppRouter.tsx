@@ -22,7 +22,6 @@ import ProblemReport from './ProblemReport';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
-import { SupportView } from './SupportView';
 import {
   Account,
   AntiCensorshipView,
@@ -45,6 +44,7 @@ import {
   VpnSettingsView,
   WireguardPortView,
 } from './views';
+import { SupportView } from './views/support/SupportView';
 
 export default function AppRouter() {
   const focusRef = useRef<IFocusHandle>(null);
