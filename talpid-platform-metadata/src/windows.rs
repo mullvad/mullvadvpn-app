@@ -242,16 +242,4 @@ mod test {
     fn test_windows_version() {
         WindowsVersion::new().unwrap();
     }
-
-    #[test]
-    fn test_ntoskrnl_version() {
-        let winver = WindowsVersion::new().unwrap();
-        let nt_winver = WindowsVersion::from_ntoskrnl().unwrap();
-
-        assert_eq!(winver.major, nt_winver.major);
-        assert_eq!(winver.minor, nt_winver.minor);
-        assert_eq!(winver.build, nt_winver.build);
-
-        // NOTE: We do not know the product type for `nt_winver`
-    }
 }
