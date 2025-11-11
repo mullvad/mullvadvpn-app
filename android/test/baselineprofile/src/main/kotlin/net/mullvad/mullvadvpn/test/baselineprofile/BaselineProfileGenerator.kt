@@ -1,11 +1,15 @@
 package net.mullvad.mullvadvpn.test.baselineprofile
 
+import android.app.Application
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObjectNotFoundException
+import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
+import net.mullvad.mullvadvpn.test.common.page.LoginPage
+import net.mullvad.mullvadvpn.test.common.page.PrivacyPage
+import net.mullvad.mullvadvpn.test.common.page.on
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,14 +41,23 @@ class BaselineProfileGenerator {
         ) {
             pressHome()
             startActivityAndWait()
-            device.acceptPrivacy()
+
+            val targetApplication =
+                InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                    as Application
+
+            val app = AppInteractor(device, targetApplication)
+
+            ignoreNotFound { on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() }  }
+            ignoreNotFound { app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove() }
+            on<LoginPage>()
         }
     }
 
-    // This should use PrivacyPage from common but it is currently not possible to access the files
-    // in that module from here. A fix for this is tracked in: DROID-2165
-    private fun UiDevice.acceptPrivacy() {
-        val agreeSelector = By.text("Agree and continue")
-        findObject(agreeSelector)?.click()
-    }
+    fun ignoreNotFound(block: () -> Unit) {
+        try {
+            block()
+        } catch (_: UiObjectNotFoundException) {
+    }}
 }
+
