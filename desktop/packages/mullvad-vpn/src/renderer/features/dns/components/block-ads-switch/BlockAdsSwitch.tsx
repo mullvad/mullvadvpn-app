@@ -1,10 +1,11 @@
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
-import { useDns } from '../../hooks';
+import { useDns, useSetDnsOption } from '../../hooks';
 
 export type BlockAdsSwitchProps = SwitchProps;
 
 function BlockAdsSwitch({ children, ...props }: BlockAdsSwitchProps) {
-  const [dns, setBlockAds] = useDns('blockAds');
+  const { dns } = useDns();
+  const setBlockAds = useSetDnsOption('blockAds');
 
   return (
     <Switch
