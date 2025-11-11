@@ -29,8 +29,11 @@ fun UiDevice.findObjectWithTimeout(
 
     wait(Until.hasObject(selector), timeout)
 
-    val foundObject = findObject(selector)
-        ?: throw UiObjectNotFoundException("No matches for selector within timeout ($timeout ms): $selector")
+    val foundObject =
+        findObject(selector)
+            ?: throw UiObjectNotFoundException(
+                "No matches for selector within timeout ($timeout ms): $selector"
+            )
 
     return foundObject
 }

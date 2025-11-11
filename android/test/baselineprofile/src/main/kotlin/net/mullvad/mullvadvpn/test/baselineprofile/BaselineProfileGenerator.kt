@@ -48,7 +48,7 @@ class BaselineProfileGenerator {
 
             val app = AppInteractor(device, targetApplication)
 
-            ignoreNotFound { on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() }  }
+            ignoreNotFound { on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() } }
             ignoreNotFound { app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove() }
             on<LoginPage>()
         }
@@ -57,7 +57,6 @@ class BaselineProfileGenerator {
     fun ignoreNotFound(block: () -> Unit) {
         try {
             block()
-        } catch (_: UiObjectNotFoundException) {
-    }}
+        } catch (_: UiObjectNotFoundException) {}
+    }
 }
-
