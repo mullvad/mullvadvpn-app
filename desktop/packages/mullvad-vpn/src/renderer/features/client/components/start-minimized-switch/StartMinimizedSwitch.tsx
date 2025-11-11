@@ -1,12 +1,10 @@
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useStartMinimized } from '../../hooks';
 
 export type StartMinimizedSwitchProps = SwitchProps;
 
 function StartMinimizedSwitch({ children, ...props }: StartMinimizedSwitchProps) {
-  const startMinimized = useStartMinimized();
-  const { setStartMinimized } = useAppContext();
+  const { startMinimized, setStartMinimized } = useStartMinimized();
 
   return (
     <Switch checked={startMinimized} onCheckedChange={setStartMinimized} {...props}>

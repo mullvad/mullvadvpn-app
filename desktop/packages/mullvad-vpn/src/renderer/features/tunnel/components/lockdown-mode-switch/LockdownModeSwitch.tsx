@@ -3,7 +3,6 @@ import React from 'react';
 import { messages } from '../../../../../shared/gettext';
 import log from '../../../../../shared/logging';
 import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../components/Modal';
-import { useAppContext } from '../../../../context';
 import { Button } from '../../../../lib/components';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useBoolean } from '../../../../lib/utility-hooks';
@@ -12,8 +11,7 @@ import { useLockdownMode } from '../../hooks';
 export type LockdownModeSwitchProp = SwitchProps;
 
 function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
-  const lockdownMode = useLockdownMode();
-  const { setLockdownMode: setLockdownModeImpl } = useAppContext();
+  const { lockdownMode, setLockdownMode: setLockdownModeImpl } = useLockdownMode();
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
     useBoolean(false);

@@ -3,7 +3,7 @@ import { useSplitTunnelingSettingsContext } from '../../../../../SplitTunnelingS
 
 export function useDisabled() {
   const { loadingDiskPermissions, splitTunnelingAvailable } = useSplitTunnelingSettingsContext();
-  const splitTunnelingEnabled = useSplitTunneling();
+  const { splitTunnelingEnabled } = useSplitTunneling();
 
   const disabled = !splitTunnelingEnabled && (!splitTunnelingAvailable || loadingDiskPermissions);
 

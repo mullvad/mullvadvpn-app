@@ -4,7 +4,6 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../../../shared/constants';
 import { messages } from '../../../../../shared/gettext';
 import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../components/Modal';
-import { useAppContext } from '../../../../context';
 import { Button } from '../../../../lib/components';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
@@ -14,14 +13,13 @@ import { useDaitaDirectOnly, useDaitaEnabled } from '../../hooks';
 export type DaitaDirectOnlySwitchProps = SwitchProps;
 
 function DaitaDirectOnlySwitch({ children, ...props }: DaitaDirectOnlySwitchProps) {
-  const { setDaitaDirectOnly } = useAppContext();
-  const daitaEnabled = useDaitaEnabled();
-  const directOnly = useDaitaDirectOnly();
+  const { daitaEnabled } = useDaitaEnabled();
+  const { daitaDirectOnly, setDaitaDirectOnly } = useDaitaDirectOnly();
 
   const relaySettings = useNormalRelaySettings();
   const unavailable = relaySettings === undefined;
   const disabled = !daitaEnabled || unavailable;
-  const checked = directOnly && !unavailable;
+  const checked = daitaDirectOnly && !unavailable;
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 

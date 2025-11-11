@@ -1,15 +1,13 @@
 import React from 'react';
 
 import log from '../../../../../shared/logging';
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useEnableIpv6 } from '../../hooks';
 
 export type EnableIpv6SwitchProps = SwitchProps;
 
 function EnableIpv6Switch({ children, ...props }: EnableIpv6SwitchProps) {
-  const enableIpv6 = useEnableIpv6();
-  const { setEnableIpv6: setEnableIpv6Impl } = useAppContext();
+  const { enableIpv6, setEnableIpv6: setEnableIpv6Impl } = useEnableIpv6();
 
   const setEnableIpv6 = React.useCallback(
     async (enableIpv6: boolean) => {
