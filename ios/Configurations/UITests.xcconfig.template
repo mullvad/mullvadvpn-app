@@ -21,6 +21,12 @@ HAS_TIME_ACCOUNT_NUMBER =
 // while UI tests use config=Staging (which uses Stagemole).
 // the Debug configuration is provided for developer convenience, and uses real accounts.
 
+// Username for account to use when making an in-app purchase.
+IOS_IN_APP_PURCHASE_USERNAME =
+
+// Password for account to use when making an in-app purchase.
+IOS_IN_APP_PURCHASE_PASSWORD =
+
 // Ad serving domain used when testing ad blocking. Note that we are assuming there's an HTTP server running on the host.
 AD_SERVING_DOMAIN = analytics.google.com
 
