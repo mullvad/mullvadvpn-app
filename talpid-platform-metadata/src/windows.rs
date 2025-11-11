@@ -23,16 +23,25 @@ use windows_sys::Win32::{
 type RTL_OSVERSIONINFOEXW = OSVERSIONINFOEXW;
 
 pub fn version() -> String {
-    let (major, build) = WindowsVersion::new()
-        .map(|version_info| {
-            (
-                version_info.windows_version_string(),
-                version_info.build_number().to_string(),
+    let version =
+        WindowsVersion::new().map(|v| (v.windows_version_string(), v.build_number().to_string()));
+    let version_ntoskrnl = WindowsVersion::from_ntoskrnl()
+        .map(|v| (v.windows_version_string(), v.build_number().to_string()));
+    match (version, version_ntoskrnl) {
+        (Ok(version), Ok(version_ntoskrnl)) if version == version_ntoskrnl => {
+            format!("Windows {} Build {}", version.0, version.1)
+        }
+        // The Windows version given by ntdll and ntoskrnl are different.
+        (Ok((major, build)), Ok((major_krnl, build_krnl))) => {
+            format!(
+                "Windows {major} Build {build}. Kernel version: Windows {major_krnl} Build {build_krnl}",
             )
-        })
-        .unwrap_or_else(|_| ("N/A".to_owned(), "N/A".to_owned()));
-
-    format!("Windows {major} Build {build}")
+        }
+        (Ok((major, build)), _) | (_, Ok((major, build))) => {
+            format!("Windows {major} Build {build}")
+        }
+        (Err(_), Err(_)) => format!("Windows N/A Build N/A"),
+    }
 }
 
 pub fn short_version() -> String {
