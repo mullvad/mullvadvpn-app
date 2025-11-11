@@ -4,6 +4,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { Button, IconButton } from '../../../../../lib/components';
 import { Accordion } from '../../../../../lib/components/accordion';
+import { Switch } from '../../../../../lib/components/switch';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../../../../../lib/utility-hooks';
@@ -12,7 +13,7 @@ import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../.
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
 import { ModalAlert, ModalAlertType } from '../../../../Modal';
-import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
+import { SettingsListItem } from '../../../../settings-list-item';
 import {
   AddServerContainer,
   StyledAddCustomDnsLabel,
@@ -188,16 +189,23 @@ export function CustomDnsSettings() {
 
   return (
     <>
-      <SettingsToggleListItem
-        anchorId="custom-dns-settings"
-        checked={dns.state === 'custom' || inputVisible}
-        onCheckedChange={setCustomDnsEnabled}
-        disabled={!featureAvailable}>
-        <SettingsToggleListItem.Label>
-          {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
-        </SettingsToggleListItem.Label>
-        <SettingsToggleListItem.Switch ref={switchRef} aria-describedby={descriptionId} />
-      </SettingsToggleListItem>
+      <SettingsListItem anchorId="custom-dns-settings" disabled={!featureAvailable}>
+        <SettingsListItem.Item>
+          <SettingsListItem.Content>
+            <Switch
+              checked={dns.state === 'custom' || inputVisible}
+              onCheckedChange={setCustomDnsEnabled}
+              disabled={!featureAvailable}>
+              <Switch.Label variant="titleMedium">
+                {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
+              </Switch.Label>
+              <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
+                <Switch.Thumb />
+              </Switch.Trigger>
+            </Switch>
+          </SettingsListItem.Content>
+        </SettingsListItem.Item>
+      </SettingsListItem>
       <Accordion expanded={listExpanded} disabled={!featureAvailable}>
         <Accordion.Content>
           <Cell.Section role="listbox">
