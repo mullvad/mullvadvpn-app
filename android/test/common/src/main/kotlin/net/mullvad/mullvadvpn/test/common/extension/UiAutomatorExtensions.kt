@@ -6,6 +6,7 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiObject2Condition
+import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.waitForAppToBeVisible
 import co.touchlab.kermit.Logger
@@ -28,11 +29,11 @@ fun UiDevice.findObjectWithTimeout(
 
     wait(Until.hasObject(selector), timeout)
 
-    val foundObject = findObject(selector)
-
-    require(foundObject != null) {
-        "No matches for selector within timeout ($timeout ms): $selector"
-    }
+    val foundObject =
+        findObject(selector)
+            ?: throw UiObjectNotFoundException(
+                "No matches for selector within timeout ($timeout ms): $selector"
+            )
 
     return foundObject
 }
@@ -99,8 +100,8 @@ fun UiObject2.findObjectWithTimeout(
 
     return try {
         findObject(selector)
-    } catch (e: NullPointerException) {
-        throw IllegalArgumentException(
+    } catch (_: NullPointerException) {
+        throw UiObjectNotFoundException(
             "No matches for selector within timeout ($timeout ms): $selector"
         )
     }
