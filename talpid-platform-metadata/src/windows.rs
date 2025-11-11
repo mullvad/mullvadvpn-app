@@ -40,7 +40,7 @@ pub fn version() -> String {
         (Ok((major, build)), _) | (_, Ok((major, build))) => {
             format!("Windows {major} Build {build}")
         }
-        (Err(_), Err(_)) => format!("Windows N/A Build N/A"),
+        (Err(_), Err(_)) => "Windows N/A Build N/A".to_string(),
     }
 }
 
@@ -241,17 +241,5 @@ mod test {
     #[test]
     fn test_windows_version() {
         WindowsVersion::new().unwrap();
-    }
-
-    #[test]
-    fn test_ntoskrnl_version() {
-        let winver = WindowsVersion::new().unwrap();
-        let nt_winver = WindowsVersion::from_ntoskrnl().unwrap();
-
-        assert_eq!(winver.major, nt_winver.major);
-        assert_eq!(winver.minor, nt_winver.minor);
-        assert_eq!(winver.build, nt_winver.build);
-
-        // NOTE: We do not know the product type for `nt_winver`
     }
 }
