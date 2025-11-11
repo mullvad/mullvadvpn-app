@@ -10,6 +10,9 @@ const shouldNotarize = process.argv.includes('--notarize');
 const universal = process.argv.includes('--universal');
 const release = process.argv.includes('--release');
 
+// If wireguard-go dependencies should be bundled (Windows).
+const wggo = process.argv.includes('--wggo');
+
 const targets = getOptionValue('--targets');
 const hostTargetTriple = getOptionValue('--host-target-triple');
 
@@ -173,8 +176,12 @@ function newConfig() {
           ),
           to: '.',
         },
-        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'libwg.dll')), to: '.' },
-        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'maybenot_ffi.dll')), to: '.' },
+        ...(wggo
+          ? [
+              { from: distAssets(path.join('${env.DIST_SUBDIR}', 'libwg.dll')), to: '.' },
+              { from: distAssets(path.join('${env.DIST_SUBDIR}', 'maybenot_ffi.dll')), to: '.' },
+            ]
+          : []),
       ],
     },
 

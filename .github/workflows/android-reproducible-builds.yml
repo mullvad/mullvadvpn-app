@@ -56,9 +56,8 @@ jobs:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           submodules: true
 
-      - name: Fetch submodules and tags
+      - name: Fetch tags
         run: |
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - name: Build app
@@ -157,9 +156,8 @@ jobs:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           submodules: true
 
-      - name: Fetch submodules and tags
+      - name: Fetch tags
         run: |
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - uses: cachix/install-nix-action@v31

@@ -31,7 +31,7 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
-# Use boringtun instead of wireguard-go
+# Use boringtun instead of wireguard-go. The current desktop default is wireguard-go.
 BORINGTUN="false"
 
 while [[ "$#" -gt 0 ]]; do
@@ -244,8 +244,8 @@ function build {
     fi
 
     local cargo_features=()
-    if [[ "$BORINGTUN" == "true" ]]; then
-        cargo_features+=(--features boringtun)
+    if [[ "$BORINGTUN" == "false" ]]; then
+        cargo_features+=(--features wireguard-go)
     fi
 
     local cargo_crates_to_build=(
@@ -290,9 +290,14 @@ function build {
             mullvad-problem-report.exe
             talpid_openvpn_plugin.dll
             mullvad-setup.exe
-            libwg.dll
-            maybenot_ffi.dll
         )
+        if [[ "$BORINGTUN" == "false" ]]; then
+            BINARIES+=(
+                libwg.dll
+                maybenot_ffi.dll
+            )
+            NPM_PACK_ARGS+=(--wggo)
+        fi
     fi
 
     if [[ -n $specified_target ]]; then
