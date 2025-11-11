@@ -1,12 +1,10 @@
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useUnpinnedWindow } from '../../hooks';
 
 export type UnpinnedWindowSwitchProps = SwitchProps;
 
 function UnpinnedWindowSwitch({ children, ...props }: UnpinnedWindowSwitchProps) {
-  const unpinnedWindow = useUnpinnedWindow();
-  const { setUnpinnedWindow } = useAppContext();
+  const { unpinnedWindow, setUnpinnedWindow } = useUnpinnedWindow();
   return (
     <Switch checked={unpinnedWindow} onCheckedChange={setUnpinnedWindow} {...props}>
       {children}

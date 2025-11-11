@@ -1,15 +1,13 @@
 import React from 'react';
 
 import log from '../../../../../shared/logging';
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useAutoStart } from '../../hooks';
 
 export type AutoStartSwitch = SwitchProps;
 
 function AutoStartSwitch({ children, ...props }: AutoStartSwitch) {
-  const autoStart = useAutoStart();
-  const { setAutoStart: setAutoStartImpl } = useAppContext();
+  const { autoStart, setAutoStart: setAutoStartImpl } = useAutoStart();
 
   const setAutoStart = React.useCallback(
     async (autoStart: boolean) => {

@@ -1,6 +1,8 @@
+import { useAppContext } from '../../../context';
 import { useSelector } from '../../../redux/store';
 
 export function useLockdownMode() {
   const lockdownMode = useSelector((state) => state.settings.lockdownMode);
-  return lockdownMode;
+  const { setLockdownMode } = useAppContext();
+  return { lockdownMode, setLockdownMode };
 }

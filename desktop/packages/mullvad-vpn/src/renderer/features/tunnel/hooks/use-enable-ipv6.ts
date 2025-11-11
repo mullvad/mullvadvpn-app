@@ -1,6 +1,8 @@
+import { useAppContext } from '../../../context';
 import { useSelector } from '../../../redux/store';
 
 export function useEnableIpv6() {
-  const ipv6 = useSelector((state) => state.settings.enableIpv6);
-  return ipv6;
+  const enableIpv6 = useSelector((state) => state.settings.enableIpv6);
+  const { setEnableIpv6 } = useAppContext();
+  return { enableIpv6, setEnableIpv6 };
 }

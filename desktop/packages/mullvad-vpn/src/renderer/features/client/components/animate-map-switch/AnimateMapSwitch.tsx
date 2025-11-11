@@ -1,12 +1,10 @@
-import { useAppContext } from '../../../../context';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
 import { useAnimateMap } from '../../hooks';
 
 export type AnimateMapSwitchProps = SwitchProps;
 
 function AnimateMapSwitch({ children, ...props }: AnimateMapSwitchProps) {
-  const animateMap = useAnimateMap();
-  const { setAnimateMap } = useAppContext();
+  const { animateMap, setAnimateMap } = useAnimateMap();
 
   return (
     <Switch checked={animateMap} onCheckedChange={setAnimateMap} {...props}>
