@@ -6,7 +6,6 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import XCTest
 
 class AccountPage: Page {
@@ -19,11 +18,6 @@ class AccountPage: Page {
 
     @discardableResult func tapRedeemVoucherButton() -> Self {
         app.buttons[AccessibilityIdentifier.redeemVoucherButton.asString].tap()
-        return self
-    }
-
-    @discardableResult func tapAdd30DaysTimeButton() -> Self {
-        app.buttons[AccessibilityIdentifier.purchaseButton.asString].tap()
         return self
     }
 
@@ -80,5 +74,78 @@ class AccountPage: Page {
         let spinnerDisappeared = app.otherElements[.logOutSpinnerAlertView]
             .waitForNonExistence(timeout: BaseUITestCase.extremelyLongTimeout)
         XCTAssertTrue(spinnerDisappeared, "Log out spinner disappeared")
+    }
+}
+
+extension AccountPage {
+    @discardableResult func tapAdd30DaysTimeButton() -> Self {
+        app.buttons[AccessibilityIdentifier.purchaseButton].tap()
+        return self
+    }
+
+    @discardableResult func tapAdd30DaysTimeSheetButton(timeout: TimeInterval = 0) -> Self {
+        // Adding accessibility identifier to the button inside the product sheet would to duplicate
+        // button entries, which in turn led to tapping here not working. Using the title as a
+        // workaround.
+        app.buttons.element(matching: NSPredicate(format: "label BEGINSWITH 'Add 30 days'"))
+            .wait(timeout: timeout)
+            .tap()
+        return self
+    }
+
+    @discardableResult func typeUsernameInPurchaseAlert(_ username: String) -> Self {
+//        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        app.alerts.textFields.firstMatch.tap()
+        app.typeText(username)
+        return self
+    }
+
+    @discardableResult func typePasswordInPurchaseAlert(_ password: String) -> Self {
+//        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        app.alerts.secureTextFields.firstMatch.tap()
+        app.typeText(password)
+        return self
+    }
+
+    @discardableResult func submitPurchaseAlert(timeout: TimeInterval) -> Self {
+//        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        app.buttons.element(matching: NSPredicate(format: "label = 'OK'"))
+            .wait(timeout: timeout)
+            .tap()
+        return self
+    }
+
+    @discardableResult func submitSubscribeSheet(timeout: TimeInterval = 0) -> Self {
+        let app = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        app.buttons.element(matching: NSPredicate(format: "label = 'Subscribe'"))
+            .wait(timeout: timeout)
+            .tap()
+        return self
+    }
+
+    @discardableResult func typePasswordInConfirmSheet(password: String, timeout: TimeInterval = 0) -> Self {
+//        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        app.secureTextFields.firstMatch.wait(timeout: timeout).tap()
+        app.typeText(password)
+        return self
+    }
+
+    @discardableResult func submitConfirmSheet(timeout: TimeInterval = 0) -> Self {
+//        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        app.buttons["Confirm"].wait(timeout: timeout).tap()
+        return self
+    }
+
+    @discardableResult func submitRenewSheet(timeout: TimeInterval = 0) -> Self {
+//        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        app.buttons["Buy"].wait(timeout: timeout).tap()
+        return self
+    }
+}
+
+extension XCUIElement {
+    func wait(timeout: TimeInterval) -> Self {
+        XCTAssertTrue(waitForExistence(timeout: timeout))
+        return self
     }
 }
