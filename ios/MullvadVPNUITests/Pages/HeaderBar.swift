@@ -33,7 +33,7 @@ class HeaderBar: Page {
     @discardableResult public func verifyDeviceLabelShown() -> Self {
         XCTAssertTrue(
             app.staticTexts[AccessibilityIdentifier.headerDeviceNameLabel]
-                .waitForExistence(timeout: BaseUITestCase.defaultTimeout), "Device name displayed in header"
+                .wait(timeout: .medium).exists, "Device name displayed in header"
         )
 
         return self

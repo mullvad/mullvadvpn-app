@@ -116,6 +116,8 @@ jobs:
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+          ios_in_app_purchase_username: ${{ secrets.IOS_IN_APP_PURCHASE_USERNAME }}
+          ios_in_app_purchase_password: ${{ secrets.IOS_IN_APP_PURCHASE_PASSWORD }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
 
       - name: Debug print job output directory

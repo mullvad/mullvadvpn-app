@@ -16,4 +16,9 @@ class OutOfTimePage: Page {
         self.pageElement = app.otherElements[.outOfTimeView]
         waitForPageToBeShown()
     }
+
+    @discardableResult func tapAddTimeButton() -> Self {
+        app.buttons[AccessibilityIdentifier.purchaseButton].tap()
+        return self
+    }
 }

@@ -10,6 +10,8 @@ import Foundation
 import XCTest
 
 class WelcomePage: Page {
+    let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 

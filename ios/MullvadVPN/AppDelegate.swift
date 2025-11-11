@@ -40,7 +40,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var addressCacheTracker: AddressCacheTracker!
     nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
     nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
-    nonisolated(unsafe) private var transportMonitor: TransportMonitor!
     nonisolated(unsafe) private var apiTransportMonitor: APITransportMonitor!
     private var settingsObserver: TunnelBlockObserver!
     private var migrationManager: MigrationManager!
