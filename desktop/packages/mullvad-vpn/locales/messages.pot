@@ -2549,10 +2549,6 @@ msgid "Trackers"
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr ""
-
-msgctxt "vpn-settings-view"
 msgid "Use custom DNS server"
 msgstr ""
 
@@ -2691,10 +2687,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "Shadowsocks"
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
