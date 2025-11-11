@@ -116,24 +116,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     }
 
     private func addActions() {
-        contentView.redeemVoucherButton.addTarget(
-            self,
-            action: #selector(redeemVoucher),
-            for: .touchUpInside
-        )
-
-        contentView.purchaseButton.addTarget(
-            self,
-            action: #selector(requestStoreProducts),
-            for: .touchUpInside
-        )
-
+        contentView.purchaseButton.addTarget(self, action: #selector(requestStoreProducts), for: .touchUpInside)
         contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
         contentView.deleteButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
-        contentView.storeKit2RefundButton.addTarget(
-            self, action: #selector(handleStoreKit2Refund),
-            for: .touchUpInside
-        )
+        contentView.debugOptionsButton.addTarget(self, action: #selector(showDebugOptions), for: .touchUpInside)
     }
 
     @MainActor
@@ -170,9 +156,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
         contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)
         contentView.logoutButton.isEnabled = isInteractionEnabled
-        contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
         contentView.deleteButton.isEnabled = isInteractionEnabled
-        contentView.storeKit2RefundButton.isEnabled = isInteractionEnabled
+        contentView.debugOptionsButton.isEnabled = isInteractionEnabled
         navigationItem.rightBarButtonItem?.isEnabled = isInteractionEnabled
 
         view.isUserInteractionEnabled = isInteractionEnabled
@@ -249,5 +234,58 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
             setPaymentState(.none, animated: true)
         }
+    }
+
+    @objc func showDebugOptions() {
+        let localizedString = NSLocalizedString("Debug options", comment: "")
+
+        let sheetController = UIAlertController(
+            title: localizedString,
+            message: nil,
+            preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
+        )
+        sheetController.overrideUserInterfaceStyle = .dark
+        sheetController.view.tintColor = .AlertController.tintColor
+
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Redeem voucher",
+                style: .default,
+                handler: { _ in
+                    self.redeemVoucher()
+                }
+            )
+        )
+
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Refund last purchase",
+                style: .default,
+                handler: { _ in
+                    self.handleStoreKit2Refund()
+                }
+            )
+        )
+
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Finish unfinished sandbox purchases",
+                style: .default,
+                handler: { _ in
+                    Task {
+                        await StorePaymentManager.finishOutstandingSandboxTransactions()
+                    }
+                }
+            )
+        )
+
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Cancel",
+                style: .cancel
+            )
+        )
+
+        present(sheetController, animated: true)
     }
 }

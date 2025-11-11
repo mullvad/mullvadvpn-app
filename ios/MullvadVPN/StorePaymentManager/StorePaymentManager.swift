@@ -155,6 +155,18 @@ final actor StorePaymentManager: @unchecked Sendable {
         }
     }
 
+    static func finishOutstandingSandboxTransactions() async {
+        for await verification in Transaction.unfinished {
+            guard let payload = try? verification.payloadValue else {
+                continue
+            }
+
+            if payload.environment != .production {
+                await payload.finish()
+            }
+        }
+    }
+
     // MARK: - Private methods
 
     private func getPaymentToken() async throws -> UUID {
