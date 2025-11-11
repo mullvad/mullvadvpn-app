@@ -120,18 +120,19 @@ class FileLogWriterTest {
         }
 
     @Test
-    fun `multiple log files that are larger than the max size should remove the oldest log`(
+    fun `multiple log files that are larger than the max size should truncate the oldest log if big enough`(
         @TempDir tempDir: Path
     ) = runTest {
         val maxBytes = 1024L * 10
         val log1 =
             tempDir.resolve("app_log_2025-10-26.txt").createFile().also {
-                it.writeText("a".repeat(maxBytes.toInt() / 3))
+                it.writeText("a".repeat((maxBytes * 0.4).toInt()))
             }
+        val log1OrigSize = log1.fileSize()
         Thread.sleep(10)
         val log2 =
             tempDir.resolve("app_log_2025-10-27.txt").createFile().also {
-                it.writeText("b".repeat(maxBytes.toInt() / 3))
+                it.writeText("b".repeat((maxBytes * 0.4).toInt()))
             }
 
         val writer =
@@ -144,8 +145,48 @@ class FileLogWriterTest {
             )
         val logFile = tempDir.listDirectoryEntries().find { it != log1 && it != log2 }!!
 
-        // Exceed the size limit
-        val writeTo = (maxBytes * 0.6).toInt()
+        // Exceed the size limit.
+        // The oldest log's size is greater than the amount we need to truncate.
+        val writeTo = (maxBytes * 0.3).toInt()
+        while (logFile.fileSize() < writeTo) {
+            writer.log(Severity.Debug, "x", "x")
+        }
+
+        val logFiles = tempDir.listDirectoryEntries()
+
+        assertEquals(3, logFiles.size)
+        assertTrue(log1OrigSize > log1.fileSize())
+    }
+
+    @Test
+    fun `multiple log files that are larger than the max size should remove the oldest log if small enough`(
+        @TempDir tempDir: Path
+    ) = runTest {
+        val maxBytes = 1024L * 10
+        val log1 =
+            tempDir.resolve("app_log_2025-10-26.txt").createFile().also {
+                it.writeText("a".repeat((maxBytes * 0.1).toInt()))
+            }
+        Thread.sleep(10)
+        val log2 =
+            tempDir.resolve("app_log_2025-10-27.txt").createFile().also {
+                it.writeText("b".repeat((maxBytes * 0.7).toInt()))
+            }
+        val log2OrigSize = log2.fileSize()
+
+        val writer =
+            FileLogWriter(
+                tempDir,
+                maxTotalSizeBytes = maxBytes,
+                checkSizeLimitAfter = 20,
+                scope = this,
+                dispatcher = Dispatchers.Main,
+            )
+        val logFile = tempDir.listDirectoryEntries().find { it != log1 && it != log2 }!!
+
+        // Exceed the size limit.
+        // The oldest log's size is smaller than the amount we need to truncate.
+        val writeTo = (maxBytes * 0.3).toInt()
         while (logFile.fileSize() < writeTo) {
             writer.log(Severity.Debug, "x", "x")
         }
@@ -155,5 +196,7 @@ class FileLogWriterTest {
         assertEquals(2, logFiles.size)
         assertTrue(logFiles.contains(log2))
         assertFalse(logFiles.contains(log1))
+        // Also check that the second oldest log was truncated.
+        assertTrue(log2OrigSize > log2.fileSize())
     }
 }

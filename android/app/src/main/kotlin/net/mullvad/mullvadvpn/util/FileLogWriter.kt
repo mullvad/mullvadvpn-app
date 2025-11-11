@@ -90,22 +90,39 @@ class FileLogWriter(
 
         fun rotateLogSizeLimitIfNeeded() {
             val allLogs = logDir.listDirectoryEntries()
-            val totalSizeBytes = allLogs.fold(0L) { acc, path -> acc + path.fileSize() }
+            val totalSizeBytes = allLogs.sumOf { path -> path.fileSize() }
             if (totalSizeBytes <= maxTotalSizeBytes) return
 
-            if (allLogs.size == 1) {
-                // We only have one log file but it is too big, so we need to truncate it
-                val tmpFile = logDir.resolve("${log.logFilePath.fileName}.tmp")
-                if (!tmpFile.exists()) tmpFile.createFile()
+            // The number of bytes we should truncate.
+            var needToTruncate =
+                totalSizeBytes - (maxTotalSizeBytes * truncateKeepPercentage).toLong()
 
-                log.writer.close()
-                val bytesToKeep = (maxTotalSizeBytes * truncateKeepPercentage).toLong()
-                copyNBytesFromEnd(log.logFilePath, tmpFile, bytesToKeep)
-                Files.move(tmpFile, log.logFilePath, StandardCopyOption.REPLACE_EXISTING)
-                log = FileAndWriter.create(log.logFilePath)
-            } else {
-                val oldest = allLogs.minBy { it.getLastModifiedTime() }
-                oldest.deleteExisting()
+            val oldestFirst = allLogs.sortedBy { it.getLastModifiedTime() }
+
+            for (oldest in oldestFirst) {
+                if (needToTruncate <= 0) break
+
+                val size = oldest.fileSize()
+                if (size <= needToTruncate) {
+                    // Size of the the oldest log is less than what we need to truncate so
+                    // we can just delete the file. Note that this can never be the current log.
+                    oldest.deleteExisting()
+                    needToTruncate -= size
+                } else {
+                    // Size of the oldest log is greater than what we need to truncate so we
+                    // have to truncate the file.
+                    val tmpFile = logDir.resolve("${oldest.fileName}.tmp")
+                    if (!tmpFile.exists()) tmpFile.createFile()
+
+                    val isCurrentLog = oldest == log.logFilePath
+                    if (isCurrentLog) log.writer.close()
+
+                    copyNBytesFromEnd(oldest, tmpFile, needToTruncate)
+                    Files.move(tmpFile, oldest, StandardCopyOption.REPLACE_EXISTING)
+
+                    if (isCurrentLog) log = FileAndWriter.create(log.logFilePath)
+                    needToTruncate = 0
+                }
             }
         }
 

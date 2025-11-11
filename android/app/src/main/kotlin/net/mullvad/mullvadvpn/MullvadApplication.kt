@@ -9,6 +9,7 @@ import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.di.ApplicationScope
+import net.mullvad.mullvadvpn.di.KERMIT_FILE_LOG_DIR_NAME
 import net.mullvad.mullvadvpn.di.appModule
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
@@ -54,7 +55,10 @@ class MullvadApplication : Application() {
     private fun initFileLogger(scope: CoroutineScope) {
         try {
             val fileLogWriter =
-                FileLogWriter(logDir = this.filesDir.toPath().resolve("app_logs"), scope = scope)
+                FileLogWriter(
+                    logDir = this.filesDir.toPath().resolve(KERMIT_FILE_LOG_DIR_NAME),
+                    scope = scope,
+                )
             Logger.addLogWriter(fileLogWriter)
         } catch (e: IOException) { // This shouldn't happen but just in case catch here.
             Logger.e("Failed to initialize file log writer", e)
