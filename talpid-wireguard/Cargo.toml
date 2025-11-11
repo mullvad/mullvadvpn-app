@@ -12,7 +12,7 @@ workspace = true
 
 [features]
 wireguard-go = ["dep:wireguard-go-rs", "talpid-tunnel/wireguard-go", "dep:chrono"]
-multihop-pcap = ["boringtun/pcap"]
+multihop-pcap = ["gotatun/pcap"]
 
 [dependencies]
 async-trait = "0.1"
@@ -41,11 +41,7 @@ byteorder = "1"
 internet-checksum = "0.2"
 socket2 = { workspace = true, features = ["all"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
-
-[dependencies.boringtun]
-package = "gotatun"
-features = ["device", "tun"]
-version = "0.1.0"
+gotatun = { version = "0.1.0", features = ["device", "tun"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["fs"] }

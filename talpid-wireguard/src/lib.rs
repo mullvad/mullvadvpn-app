@@ -14,25 +14,25 @@ use std::{
     net::IpAddr,
     path::Path,
     pin::Pin,
-    sync::{Arc, mpsc as sync_mpsc},
+    sync::{mpsc as sync_mpsc, Arc},
 };
 #[cfg(not(target_os = "android"))]
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
+use talpid_tunnel::{tun_provider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 
 #[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
+    net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
     BoxedError, ErrorExt,
-    net::{AllowedTunnelTraffic, Endpoint, TransportProtocol, wireguard::TunnelParameters},
 };
 use tokio::sync::Mutex as AsyncMutex;
 
 #[cfg(not(feature = "wireguard-go"))]
-mod boringtun;
+mod gotatun;
 
 #[cfg(feature = "wireguard-go")]
 mod wireguard_go;
@@ -246,7 +246,7 @@ impl WireguardMonitor {
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
             if cfg!(not(feature = "wireguard-go")) && userspace_wireguard {
-                // NOTE: For boringtun, we use the `tun` crate to create our tunnel interface.
+                // NOTE: For gotatun, we use the `tun` crate to create our tunnel interface.
                 // It will automatically configure the IP address and DNS servers using `netsh`.
                 // This is quite slow, so we need to wait for the interface to be created.
                 Self::wait_for_ip_addresses(&config, &iface_name).await?;
@@ -463,7 +463,7 @@ impl WireguardMonitor {
         #[cfg(not(feature = "wireguard-go"))]
         let tunnel = args
             .runtime
-            .block_on(boringtun::open_boringtun_tunnel(
+            .block_on(gotatun::open_boringtun_tunnel(
                 &config,
                 args.tun_provider.clone(),
                 args.route_manager,

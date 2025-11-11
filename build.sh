@@ -31,8 +31,8 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
-# Use boringtun instead of wireguard-go. The current desktop default is wireguard-go.
-BORINGTUN="false"
+# Use gotatun instead of wireguard-go. The current desktop default is wireguard-go.
+GOTATUN="false"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -46,7 +46,7 @@ while [[ "$#" -gt 0 ]]; do
             fi
             UNIVERSAL="true"
             ;;
-        --boringtun) BORINGTUN="true";;
+        --gotatun) GOTATUN="true";;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -244,7 +244,7 @@ function build {
     fi
 
     local cargo_features=()
-    if [[ "$BORINGTUN" == "false" ]]; then
+    if [[ "$GOTATUN" == "false" ]]; then
         cargo_features+=(--features wireguard-go)
     fi
 
@@ -291,7 +291,7 @@ function build {
             talpid_openvpn_plugin.dll
             mullvad-setup.exe
         )
-        if [[ "$BORINGTUN" == "false" ]]; then
+        if [[ "$GOTATUN" == "false" ]]; then
             BINARIES+=(
                 libwg.dll
                 maybenot_ffi.dll
