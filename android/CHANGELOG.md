@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Recents will now always show the selected location.
 
+### Removed
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
+
 
 ## [android/2025.9] - 2025-10-20
 Identical to `android/2025.9-beta1` except for updated translations.

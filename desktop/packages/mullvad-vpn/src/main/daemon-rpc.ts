@@ -384,7 +384,7 @@ export class DaemonRpc extends GrpcClient {
     await this.callNumber(this.client.setWireguardMtu, mtu);
   }
 
-  public async setWireguardQuantumResistant(quantumResistant?: boolean): Promise<void> {
+  public async setWireguardQuantumResistant(quantumResistant: boolean): Promise<void> {
     const quantumResistantState = new grpcTypes.QuantumResistantState();
     switch (quantumResistant) {
       case true:
@@ -392,9 +392,6 @@ export class DaemonRpc extends GrpcClient {
         break;
       case false:
         quantumResistantState.setState(grpcTypes.QuantumResistantState.State.OFF);
-        break;
-      case undefined:
-        quantumResistantState.setState(grpcTypes.QuantumResistantState.State.AUTO);
         break;
     }
     await this.call<grpcTypes.QuantumResistantState, Empty>(
