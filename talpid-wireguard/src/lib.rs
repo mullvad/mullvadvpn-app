@@ -32,7 +32,7 @@ use talpid_types::{
 use tokio::sync::Mutex as AsyncMutex;
 
 #[cfg(not(feature = "wireguard-go"))]
-mod boringtun;
+mod gotatun;
 
 #[cfg(feature = "wireguard-go")]
 mod wireguard_go;
@@ -246,7 +246,7 @@ impl WireguardMonitor {
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
             if cfg!(not(feature = "wireguard-go")) && userspace_wireguard {
-                // NOTE: For boringtun, we use the `tun` crate to create our tunnel interface.
+                // NOTE: For gotatun, we use the `tun` crate to create our tunnel interface.
                 // It will automatically configure the IP address and DNS servers using `netsh`.
                 // This is quite slow, so we need to wait for the interface to be created.
                 Self::wait_for_ip_addresses(&config, &iface_name).await?;
@@ -463,7 +463,7 @@ impl WireguardMonitor {
         #[cfg(not(feature = "wireguard-go"))]
         let tunnel = args
             .runtime
-            .block_on(boringtun::open_boringtun_tunnel(
+            .block_on(gotatun::open_gotatun_tunnel(
                 &config,
                 args.tun_provider.clone(),
                 args.route_manager,
@@ -710,7 +710,7 @@ impl WireguardMonitor {
 
             #[cfg(not(feature = "wireguard-go"))]
             let tunnel = runtime
-                .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
+                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
                 .map(Box::new)?;
 
             #[cfg(feature = "wireguard-go")]
@@ -755,7 +755,7 @@ impl WireguardMonitor {
 
         #[cfg(not(feature = "wireguard-go"))]
         let tunnel = runtime
-            .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
+            .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
             .map(Box::new)?;
         Ok(tunnel)
     }
@@ -777,7 +777,7 @@ impl WireguardMonitor {
             let f = wireguard_go::open_wireguard_go_tunnel(config, _log_path, tun_provider);
 
             #[cfg(not(feature = "wireguard-go"))]
-            let f = boringtun::open_boringtun_tunnel(config, tun_provider);
+            let f = gotatun::open_gotatun_tunnel(config, tun_provider);
 
             let tunnel = runtime.block_on(f).map(Box::new)?;
             Ok(tunnel)
@@ -808,7 +808,7 @@ impl WireguardMonitor {
                     #[cfg(not(feature = "wireguard-go"))]
                     {
                         Ok(runtime
-                            .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
+                            .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
                             .map(Box::new)?)
                     }
                 })
@@ -986,9 +986,9 @@ impl WireguardMonitor {
         // TODO: surely this applies to all kinds of userspace multihop, not just gotatun?
         // For userspace multihop, per-route MTU is unnecessary. Packets are not sent back to
         // the tunnel interface, so we're not constrained by its MTU.
-        let using_boringtun = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
+        let using_gotatun = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
 
-        if !config.is_multihop() || using_boringtun {
+        if !config.is_multihop() || using_gotatun {
             route
         } else {
             // FIXME: this presumably refers to the fact that wireguard can pad data packet
@@ -1157,15 +1157,15 @@ pub enum TunnelError {
     #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
     DaitaNotSupported,
 
-    /// BoringTun device error
+    /// GotaTun device error
     #[cfg(not(feature = "wireguard-go"))]
-    #[error("Boringtun: {0:?}")]
-    BoringTunDevice(::boringtun::device::Error),
+    #[error("GotaTun: {0:?}")]
+    GotaTunDevice(::gotatun::device::Error),
 
     /// Failed to configure GotaTun device.
     #[cfg(not(feature = "wireguard-go"))]
     #[error("Failed to configure the GotaTun device")]
-    ConfigureGotaTunDevice(#[source] boringtun::ConfigureGotaTunDeviceError),
+    ConfigureGotaTunDevice(#[source] gotatun::ConfigureGotaTunDeviceError),
 }
 
 #[cfg(target_os = "linux")]
