@@ -36,7 +36,7 @@ struct RelayItemView: View {
         }
         return "\(location.name)"
     }
-    
+
     var body: some View {
         Button {
             onSelect()
