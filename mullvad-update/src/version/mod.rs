@@ -273,12 +273,12 @@ mod test {
     // then most likely the snapshots need to be updated. The most convenient way to review
     // changes to, and update, snapshots is by running `cargo insta review`.
 
+    const TEST_RESPONSE: &[u8] = include_bytes!("../../test-version-response.json");
+
     /// Test version info response handler (rollout 1, x86)
     #[test]
     fn test_version_info_parser_x86() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
-            "../test-version-response.json"
-        ))?;
+        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
@@ -298,9 +298,7 @@ mod test {
     /// Test version info response handler (rollout 0.01, arm64)
     #[test]
     fn test_version_info_parser_arm64() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
-            "../test-version-response.json"
-        ))?;
+        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::Arm64,
@@ -320,9 +318,7 @@ mod test {
     /// Versions without installers should be returned if `allow_empty` is set
     #[test]
     fn test_version_info_empty() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
-            "../test-version-response.json"
-        ))?;
+        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
@@ -342,9 +338,7 @@ mod test {
     /// Test whether [SUPPORTED_VERSION] ignores unsupported versions (where rollout = 0.0)
     #[test]
     fn test_version_unsupported_filtering() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
-            "../test-version-response.json"
-        ))?;
+        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
@@ -375,9 +369,7 @@ mod test {
 
     #[test]
     fn test_is_version_supported() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
-            "../test-version-response.json"
-        ))?;
+        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let supported_version = mullvad_version::Version::from_str("2025.3").unwrap();
         let supported_rollout_zero_version = mullvad_version::Version::from_str("2030.3").unwrap();
