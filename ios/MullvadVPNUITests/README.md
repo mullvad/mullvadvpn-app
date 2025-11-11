@@ -64,8 +64,10 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
   - `IOS_DEVICE_PIN_CODE` - Device passcode for the device you want to run tests on, otherwise leave blank. Devices used with CI should not require passcode.
   - `IOS_HAS_TIME_ACCOUNT_NUMBER` - Production server account with time added to it.
   - `IOS_NO_TIME_ACCOUNT_NUMBER` - Production server account with no time. Make sure that the account has not been deleted if left unused for too long.
-  - `TEST_DEVICE_IDENTIFIER_UUID` - unique identifier for the test device. Create new identifier with `uuidgen`.
-  - `PARTNER_API_TOKEN` - secret token for partner API. Optional and only intended to be used in CI when running tests against staging environment.
+  - `TEST_DEVICE_IDENTIFIER_UUID` - Unique identifier for the test device. Create new identifier with `uuidgen`.
+  - `PARTNER_API_TOKEN` - Secret token for partner API. Optional and only intended to be used in CI when running tests against staging environment.
+  - `IOS_IN_APP_PURCHASE_USERNAME` - Secret account username for making in-app purchases. Only intended to be used in CI when running tests against staging environment.
+  - `IOS_IN_APP_PURCHASE_PASSWORD` - Secret account password for making in-app purchases. Only intended to be used in CI when running tests against staging environment.
 
 ### Specifying which tests run when in CI
 Which tests run when is specified in `tests.json`(See _Adding more tests_).

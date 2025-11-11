@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-class OutOfTimePage: Page {
+class OutOfTimePage: PaymentPage {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
