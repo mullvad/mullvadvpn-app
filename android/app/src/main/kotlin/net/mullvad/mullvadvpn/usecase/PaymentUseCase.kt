@@ -47,6 +47,7 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     override val paymentAvailability = _paymentAvailability.asStateFlow()
     override val purchaseResult = _purchaseResult.asStateFlow()
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun purchaseProduct(productId: ProductId, activityProvider: () -> Activity) {
         paymentRepository
             .purchaseProduct(productId, activityProvider)
@@ -60,6 +61,7 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
             .collect(_purchaseResult)
     }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun queryPaymentAvailability() {
         paymentRepository
             .queryPaymentAvailability()
@@ -67,10 +69,12 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
             .collect(_paymentAvailability)
     }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun resetPurchaseResult() {
         _purchaseResult.emit(null)
     }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun verifyPurchases() =
         Schedule.exponential<VerificationError>(
                 VERIFICATION_INITIAL_BACK_OFF_DURATION,
@@ -85,6 +89,7 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
                 }
             }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun allAvailableProducts(): List<PaymentProduct>? =
         paymentRepository
             .queryPaymentAvailability()
@@ -105,19 +110,24 @@ class EmptyPaymentUseCase : PaymentUseCase {
     override val paymentAvailability = MutableStateFlow(PaymentAvailability.ProductsUnavailable)
     override val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun purchaseProduct(productId: ProductId, activityProvider: () -> Activity) {
         // No op
     }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun queryPaymentAvailability() {
         // No op
     }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun resetPurchaseResult() {
         // No op
     }
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun verifyPurchases() = VerificationResult.NothingToVerify.right()
 
+    @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun allAvailableProducts(): List<PaymentProduct>? = null
 }
