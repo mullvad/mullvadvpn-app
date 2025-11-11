@@ -43,7 +43,7 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
   const { value } = useListboxOptionContext();
   const {
     inputRef,
-    inputState: { value: inputValue },
+    inputState: { value: inputValue, invalid },
   } = useInputOptionContext();
 
   const { value: selectedValue, onValueChange } = useListboxContext();
@@ -51,10 +51,10 @@ export const InputOptionTrigger = ({ children, ...props }: InputOptionTriggerPro
 
   const handleClick = React.useCallback(async () => {
     inputRef.current?.focus();
-    if (!selected) {
+    if (!selected && !invalid) {
       await onValueChange?.(inputValue);
     }
-  }, [inputRef, inputValue, onValueChange, selected]);
+  }, [inputRef, inputValue, invalid, onValueChange, selected]);
 
   const handleFocus = React.useCallback(() => {
     inputRef.current?.focus();

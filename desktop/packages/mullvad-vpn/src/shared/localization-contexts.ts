@@ -38,4 +38,5 @@ export type LocalizationContexts =
   | 'troubleshoot'
   | 'app-info-view'
   | 'changelog-view'
-  | 'app-upgrade-view';
+  | 'app-upgrade-view'
+  | 'anti-censorship-view';

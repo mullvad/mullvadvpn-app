@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
   in the disconnected state.
+- Move settings in `WireGuard settings` view into the `VPN settings` view.
+  - Rename `Enable IpV6` setting to `In-tunnel IPv6`.
+  - Rename `IP version` setting to `Device IP version`.
+  - Merge `Obfuscation` settings and `WireGuard port` setting into new `Anti-censorship` view.
 
 ### Removed
 - Remove OpenVPN support from the app.

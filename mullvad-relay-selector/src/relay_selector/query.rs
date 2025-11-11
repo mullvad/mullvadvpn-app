@@ -214,6 +214,7 @@ pub enum ObfuscationQuery {
     Off,
     #[default]
     Auto,
+    Port, // If this is enabled, we should respect the port contstraint.
     Udp2tcp(Udp2TcpObfuscationSettings),
     Shadowsocks(ShadowsocksSettings),
     Quic,
@@ -222,33 +223,30 @@ pub enum ObfuscationQuery {
 
 impl ObfuscationQuery {
     fn into_settings(self) -> ObfuscationSettings {
-        match self {
-            ObfuscationQuery::Auto => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Auto,
-                ..Default::default()
-            },
-            ObfuscationQuery::Off => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Off,
-                ..Default::default()
-            },
-            ObfuscationQuery::Udp2tcp(settings) => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-                udp2tcp: settings,
-                ..Default::default()
-            },
-            ObfuscationQuery::Shadowsocks(settings) => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Shadowsocks,
-                shadowsocks: settings,
-                ..Default::default()
-            },
-            ObfuscationQuery::Quic => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Quic,
-                ..Default::default()
-            },
-            ObfuscationQuery::Lwo => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Lwo,
-                ..Default::default()
-            },
+        let selected_obfuscation = match self {
+            ObfuscationQuery::Off => SelectedObfuscation::Off,
+            ObfuscationQuery::Auto => SelectedObfuscation::Auto,
+            ObfuscationQuery::Port => SelectedObfuscation::Port,
+            ObfuscationQuery::Quic => SelectedObfuscation::Quic,
+            ObfuscationQuery::Lwo => SelectedObfuscation::Lwo,
+            ObfuscationQuery::Udp2tcp(settings) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+                    udp2tcp: settings,
+                    ..Default::default()
+                };
+            }
+            ObfuscationQuery::Shadowsocks(settings) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                    shadowsocks: settings,
+                    ..Default::default()
+                };
+            }
+        };
+        ObfuscationSettings {
+            selected_obfuscation,
+            ..Default::default()
         }
     }
 }
@@ -259,15 +257,15 @@ impl From<ObfuscationSettings> for ObfuscationQuery {
     /// Note that this drops obfuscation protocol specific constraints from [`ObfuscationSettings`]
     /// when the selected obfuscation type is auto.
     fn from(obfuscation: ObfuscationSettings) -> Self {
+        use SelectedObfuscation::*;
         match obfuscation.selected_obfuscation {
-            SelectedObfuscation::Off => ObfuscationQuery::Off,
-            SelectedObfuscation::Auto => ObfuscationQuery::Auto,
-            SelectedObfuscation::Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
-            SelectedObfuscation::Shadowsocks => {
-                ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks)
-            }
-            SelectedObfuscation::Quic => ObfuscationQuery::Quic,
-            SelectedObfuscation::Lwo => ObfuscationQuery::Lwo,
+            Off => ObfuscationQuery::Off,
+            Auto => ObfuscationQuery::Auto,
+            Port => ObfuscationQuery::Port,
+            Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
+            Shadowsocks => ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks),
+            Quic => ObfuscationQuery::Quic,
+            Lwo => ObfuscationQuery::Lwo,
         }
     }
 }

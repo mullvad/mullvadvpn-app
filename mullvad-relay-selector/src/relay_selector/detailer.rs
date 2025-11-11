@@ -23,7 +23,10 @@ use talpid_types::net::{
     wireguard::{PeerConfig, PublicKey},
 };
 
-use super::{WireguardConfig, query::WireguardRelayQuery};
+use super::{
+    WireguardConfig,
+    query::{ObfuscationQuery, WireguardRelayQuery},
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -33,8 +36,8 @@ pub enum Error {
     MissingPublicKey,
     #[error("The selected relay does not support IPv6")]
     NoIPv6(Box<Relay>),
-    #[error("Failed to select port")]
-    PortSelectionError,
+    #[error("Failed to select port ({port})")]
+    PortSelectionError { port: Constraint<u16> },
 }
 
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
@@ -182,8 +185,20 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
 ) -> Result<u16, Error> {
-    super::helpers::desired_or_random_port_from_range(&data.port_ranges, query.port)
-        .map_err(|_err| Error::PortSelectionError)
+    // Only respect the port option if the Port method is used. Otherwise, we may pick any port.
+    //
+    // TODO: Enable the same behaviour on Android sometime later. For now, keep the old behaviour.
+    // If only || was supported in if-let-chains ..
+    let port = if cfg!(target_os = "android") {
+        query.port
+    } else if let ObfuscationQuery::Port = query.obfuscation {
+        query.port
+    } else {
+        Constraint::Any
+    };
+
+    super::helpers::desired_or_random_port_from_range(&data.port_ranges, port)
+        .map_err(|_err| Error::PortSelectionError { port })
 }
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a

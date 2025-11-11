@@ -14,15 +14,18 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
   AllowLanSetting,
+  AntiCensorshipListItem,
   AutoConnectSetting,
   AutoStartSetting,
   CustomDnsSettings,
   DnsBlockerSettings,
   EnableIpv6Setting,
   IpOverrideSettings,
+  IpVersionSetting,
   KillSwitchSetting,
   LockdownModeSetting,
-  WireguardSettings,
+  MtuSetting,
+  QuantumResistantSetting,
 } from './components';
 
 export function VpnSettingsView() {
@@ -58,6 +61,7 @@ export function VpnSettingsView() {
 
                   <SettingsGroup>
                     <DnsBlockerSettings />
+                    <CustomDnsSettings />
                   </SettingsGroup>
 
                   <SettingsGroup>
@@ -70,11 +74,19 @@ export function VpnSettingsView() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <WireguardSettings />
+                    <AntiCensorshipListItem />
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <CustomDnsSettings />
+                    <QuantumResistantSetting />
+                  </SettingsGroup>
+
+                  <SettingsGroup>
+                    <IpVersionSetting />
+                  </SettingsGroup>
+
+                  <SettingsGroup>
+                    <MtuSetting />
                   </SettingsGroup>
 
                   <SettingsGroup>

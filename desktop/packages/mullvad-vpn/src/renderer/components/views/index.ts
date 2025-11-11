@@ -16,4 +16,5 @@ export * from './too-many-devices';
 export * from './udp-over-tcp-settings';
 export * from './vpn-settings';
 export * from './user-interface-settings';
-export * from './wireguard-settings';
+export * from './anti-censorship';
+export * from './wireguard-port';

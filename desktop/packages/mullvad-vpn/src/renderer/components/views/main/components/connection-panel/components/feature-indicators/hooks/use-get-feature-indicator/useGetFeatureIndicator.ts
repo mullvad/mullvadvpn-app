@@ -104,7 +104,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoMtuFeature = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+    history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
       options: [
         {
@@ -116,7 +116,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoQuantumResistantFeature = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+    history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
       options: [
         {
@@ -127,8 +127,8 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
-  const gotoObfuscation = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+  const gotoAntiCensorship = React.useCallback(() => {
+    history.push(RoutePath.antiCensorship, {
       transition: TransitionType.show,
       options: [
         {
@@ -155,20 +155,24 @@ export const useGetFeatureIndicator = () => {
       onClick: gotoDaitaFeature,
     },
     [FeatureIndicator.udp2tcp]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: messages.pgettext('wireguard-settings-view', 'UDP-over-TCP'),
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.shadowsocks]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: messages.pgettext('wireguard-settings-view', 'Shadowsocks'),
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.quic]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: strings.quic,
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.lwo]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: strings.lwo,
+      onClick: gotoAntiCensorship,
+    },
+    [FeatureIndicator.port]: {
+      label: sprintf(messages.gettext('%(wireguard)s port'), { wireguard: strings.wireguard }),
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.multihop]: {
       label:
