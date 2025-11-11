@@ -46,6 +46,7 @@ public enum AccessibilityIdentifier: Equatable {
     case loginTextFieldButton
     case logoutButton
     case purchaseButton
+    case debugOptionsButton
     case redeemVoucherButton
     case restorePurchasesButton
     case connectButton
@@ -157,6 +158,7 @@ public enum AccessibilityIdentifier: Equatable {
     case problemReportSubmittedView
     case revokedDeviceView
     case welcomeView
+    case setUpAccountCompletedView
     case deleteAccountView
     case settingsContainerView
     case newCustomListView

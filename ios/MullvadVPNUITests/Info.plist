@@ -10,16 +10,20 @@
 	<string>$(API_ENDPOINT)</string>
 	<key>ApiHostName</key>
 	<string>$(API_HOST_NAME)</string>
-	<key>EncryptedDnsHostName</key>
-	<string>$(ENCRYPTED_DNS_HOST_NAME)</string>
 	<key>AttachAppLogsOnFailure</key>
 	<string>$(ATTACH_APP_LOGS_ON_FAILURE)</string>
 	<key>DisplayName</key>
 	<string>$(DISPLAY_NAME)</string>
+	<key>EncryptedDnsHostName</key>
+	<string>$(ENCRYPTED_DNS_HOST_NAME)</string>
 	<key>FirewallApiBaseURL</key>
 	<string>$(FIREWALL_API_BASE_URL)</string>
 	<key>HasTimeAccountNumber</key>
 	<string>$(HAS_TIME_ACCOUNT_NUMBER)</string>
+	<key>IOSInAppPurchasePassword</key>
+	<string>$(IOS_IN_APP_PURCHASE_PASSWORD)</string>
+	<key>IOSInAppPurchaseUsername</key>
+	<string>$(IOS_IN_APP_PURCHASE_USERNAME)</string>
 	<key>IOSDevicePinCode</key>
 	<string>$(IOS_DEVICE_PIN_CODE)</string>
 	<key>NoTimeAccountNumber</key>

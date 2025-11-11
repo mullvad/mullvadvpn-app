@@ -90,6 +90,8 @@ class SetupAccountCompletedContentView: UIView {
         backgroundColor = .primaryColor
         backgroundColor = .secondaryColor
 
+        setAccessibilityIdentifier(.setUpAccountCompletedView)
+
         configureUI()
         addActions()
     }

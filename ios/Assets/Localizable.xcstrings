@@ -15148,6 +15148,9 @@
         }
       }
     },
+    "Debug options" : {
+
+    },
     "Delete" : {
       "localizations" : {
         "da" : {
@@ -41742,6 +41745,7 @@
       }
     },
     "Refund last purchase with StoreKit2" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
