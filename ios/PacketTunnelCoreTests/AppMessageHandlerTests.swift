@@ -123,7 +123,6 @@ final class AppMessageHandlerTests: XCTestCase {
 extension AppMessageHandlerTests {
     func createAppMessageHandler(
         actor: PacketTunnelActorProtocol = PacketTunnelActorStub(),
-        urlRequestProxy: URLRequestProxyProtocol = URLRequestProxyStub(),
         apiRequestProxy: APIRequestProxyProtocol = APIRequestProxyStub()
     ) -> AppMessageHandler {
         return AppMessageHandler(
