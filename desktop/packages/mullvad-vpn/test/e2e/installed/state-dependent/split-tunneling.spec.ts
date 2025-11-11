@@ -144,6 +144,34 @@ test.describe('Split tunneling', () => {
 
     await routes.splitTunnelingSettings.toggleSplitTunneling();
     await expect(toggle).not.toBeChecked();
+
+    await expect(application).not.toBeVisible();
+    await expect(splitList).not.toBeVisible();
+    await expect(nonSplitList).not.toBeVisible();
+  });
+
+  test('App should reenable split tunneling', async () => {
+    const toggle = routes.splitTunnelingSettings.selectors.splitTunnelingSwitch();
+    await expect(toggle).not.toBeChecked();
+
+    const splitList = routes.splitTunnelingSettings.selectors.splitApplicationsList();
+    const nonSplitList = routes.splitTunnelingSettings.selectors.nonSplitApplicationsList();
+    const application = routes.splitTunnelingSettings.selectors.applicationInList(
+      splitList,
+      applications[1],
+    );
+
+    await expect(splitList).not.toBeVisible();
+    await expect(nonSplitList).not.toBeVisible();
+    await expect(application).not.toBeVisible();
+
+    await routes.splitTunnelingSettings.toggleSplitTunneling();
+    await expect(toggle).toBeChecked();
+
+    await expect(splitList).toBeVisible();
+    await expect(nonSplitList).toBeVisible();
+    await expect(application).toBeVisible();
+    expect(await routes.splitTunnelingSettings.numberOfSplitApplications()).toBe(1);
   });
 });
 
