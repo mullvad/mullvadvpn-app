@@ -1,10 +1,11 @@
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
-import { useDns } from '../../hooks';
+import { useDns, useSetDnsOption } from '../../hooks';
 
 export type BlockAdultContentSwitchProps = SwitchProps;
 
 function BlockAdultContentSwitch({ children, ...props }: BlockAdultContentSwitchProps) {
-  const [dns, setBlockAdultContent] = useDns('blockAdultContent');
+  const { dns } = useDns();
+  const setBlockAdultContent = useSetDnsOption('blockAdultContent');
 
   return (
     <Switch

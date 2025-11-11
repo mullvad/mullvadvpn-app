@@ -1,10 +1,11 @@
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
-import { useDns } from '../../hooks';
+import { useDns, useSetDnsOption } from '../../hooks';
 
 export type BlockTrackersSwitchProps = SwitchProps;
 
 function BlockTrackersSwitch({ children, ...props }: BlockTrackersSwitchProps) {
-  const [dns, setBlockTrackers] = useDns('blockTrackers');
+  const { dns } = useDns();
+  const setBlockTrackers = useSetDnsOption('blockTrackers');
 
   return (
     <Switch

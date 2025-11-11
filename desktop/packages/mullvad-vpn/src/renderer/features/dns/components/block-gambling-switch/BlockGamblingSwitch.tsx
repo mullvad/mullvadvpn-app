@@ -1,10 +1,11 @@
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
-import { useDns } from '../../hooks';
+import { useDns, useSetDnsOption } from '../../hooks';
 
 export type BlockGamblingSwitchProps = SwitchProps;
 
 function BlockGamblingSwitch({ children, ...props }: BlockGamblingSwitchProps) {
-  const [dns, setBlockGambling] = useDns('blockGambling');
+  const { dns } = useDns();
+  const setBlockGambling = useSetDnsOption('blockGambling');
 
   return (
     <Switch
