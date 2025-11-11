@@ -30,7 +30,7 @@ class AllLocationsDataSourceTests: XCTestCase {
         XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se2-wireguard"]))
     }
 
-    func testSearch() throws {
+    func testSearchCity() throws {
         dataSource.search(by: "got")
         let rootNode = RootLocationNode(children: dataSource.nodes)
 
@@ -38,41 +38,41 @@ class AllLocationsDataSourceTests: XCTestCase {
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "sto"])?.isHiddenFromSearch == true)
     }
 
-    func testSearch2() throws {
-        dataSource.search(by: "s")
+    func testSearchShowsParentsAndChildrenIfBothMatch() throws {
+        dataSource.search(by: "se")
         let rootNode = RootLocationNode(children: dataSource.nodes)
 
+        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se"])?.isHiddenFromSearch == false)
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "got"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(
-            rootNode
-                .descendantNodeFor(codes: ["se", "got"])?.showsChildren == true
-        )
+        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se10-wireguard"])?.isHiddenFromSearch == false)
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "sto"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(
-            rootNode
-                .descendantNodeFor(codes: ["se", "sto"])?.showsChildren == true
-        )
-        XCTAssertTrue(
-            rootNode.descendantNodeFor(codes: ["se"])?.showsChildren == true
-        )
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["es"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(
-            rootNode.descendantNodeFor(codes: ["es"])?.showsChildren == true
-        )
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["es", "mad"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(
-            rootNode
-                .descendantNodeFor(codes: ["es", "mad"])?.showsChildren == true
-        )
+        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se2-wireguard"])?.isHiddenFromSearch == false)
     }
 
-    func testSearch3() throws {
+    func testSearchCityExpandsParents() throws {
         dataSource.search(by: "Sweden")
         let rootNode = RootLocationNode(children: dataSource.nodes)
+        let node = rootNode.descendantNodeFor(codes: ["se"])!
 
-        rootNode.countryFor(code: "se")?.forEachAncestor { location in
+        node.forEachAncestor { location in
             XCTAssertFalse(location.isHiddenFromSearch)
+            XCTAssertTrue(location.showsChildren)
         }
+        XCTAssertFalse(node.isHiddenFromSearch)
+        XCTAssertFalse(node.showsChildren)
+    }
+
+    func testSearchCityIncludesChildren() throws {
+        dataSource.search(by: "Sweden")
+        let rootNode = RootLocationNode(children: dataSource.nodes)
+        let node = rootNode.descendantNodeFor(codes: ["se"])!
+
+        node.forEachDescendant { child in
+            XCTAssertFalse(child.isHiddenFromSearch)
+            XCTAssertFalse(child.showsChildren)
+        }
+        XCTAssertFalse(node.isHiddenFromSearch)
+        XCTAssertFalse(node.showsChildren)
     }
 
     func testSearchWithEmptyText() throws {
