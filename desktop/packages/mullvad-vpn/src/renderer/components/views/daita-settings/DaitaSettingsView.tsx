@@ -173,8 +173,7 @@ function DaitaToggle() {
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
-  const unavailable =
-    'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
+  const unavailable = !('normal' in relaySettings);
 
   const setDaita = useCallback(
     (value: boolean) => {

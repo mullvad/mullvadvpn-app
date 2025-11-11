@@ -4,10 +4,9 @@ use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     constraints::Constraint,
     custom_list::{CustomList, Id},
-    relay_constraints::{BridgeState, LocationConstraint, RelaySettings, ResolvedBridgeSettings},
+    relay_constraints::{LocationConstraint, RelaySettings},
 };
 use std::collections::BTreeSet;
-use talpid_types::net::TunnelType;
 
 impl Daemon {
     /// Create a new custom list.
@@ -126,30 +125,12 @@ impl Daemon {
             need_to_reconnect |= custom_list_id.map(|id| &id == list_id).unwrap_or(true);
         }
 
-        if let Some(endpoint) = self.tunnel_state.endpoint() {
-            match endpoint.tunnel_type {
-                TunnelType::Wireguard => {
-                    if relay_settings.wireguard_constraints.multihop()
-                        && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
-                            &relay_settings.wireguard_constraints.entry_location
-                    {
-                        need_to_reconnect |=
-                            custom_list_id.map(|id| &id == list_id).unwrap_or(true);
-                    }
-                }
-
-                TunnelType::OpenVpn => {
-                    if !matches!(self.settings.bridge_state, BridgeState::Off)
-                        && let Ok(ResolvedBridgeSettings::Normal(bridge_settings)) =
-                            self.settings.bridge_settings.resolve()
-                        && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
-                            &bridge_settings.location
-                    {
-                        need_to_reconnect |=
-                            custom_list_id.map(|id| &id == list_id).unwrap_or(true);
-                    }
-                }
-            }
+        if self.tunnel_state.endpoint().is_some()
+            && relay_settings.wireguard_constraints.multihop()
+            && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                &relay_settings.wireguard_constraints.entry_location
+        {
+            need_to_reconnect |= custom_list_id.map(|id| &id == list_id).unwrap_or(true);
         }
 
         need_to_reconnect

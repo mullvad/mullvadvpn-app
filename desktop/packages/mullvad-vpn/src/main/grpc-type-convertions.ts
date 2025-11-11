@@ -8,7 +8,6 @@ import {
   AuthFailedError,
   BridgeSettings,
   BridgesMethod,
-  BridgeState,
   BridgeType,
   ConnectionConfig,
   Constraint,
@@ -32,7 +31,6 @@ import {
   ICustomList,
   IDevice,
   IObfuscationEndpoint,
-  IOpenVpnConstraints,
   IProxyEndpoint,
   IRelayListCity,
   IRelayListCountry,
@@ -59,9 +57,7 @@ import {
   RelaySettings,
   SocksAuth,
   TunnelParameterError,
-  TunnelProtocol,
   TunnelState,
-  TunnelType,
   wrapConstraint,
 } from '../shared/daemon-rpc-types';
 import { parseChangelog } from './changelog';
@@ -120,16 +116,13 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
 
   // The relay type is determined by the variant of the extra endpoint data
   const wireguard = relayObject.endpointData?.wireguard;
-  const openvpn = relayObject.endpointData?.openvpn;
   const bridge = relayObject.endpointData?.bridge;
 
   const endpointType = wireguard
     ? 'wireguard'
-    : openvpn
-      ? 'openvpn'
-      : bridge
-        ? 'bridge'
-        : /*This case should never happen ..*/ 'bridge';
+    : bridge
+      ? 'bridge'
+      : /*This case should never happen ..*/ 'bridge';
 
   const daita = wireguard ? wireguard.daita : false;
   const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
@@ -351,7 +344,6 @@ function convertFromTunnelStateRelayInfo(
       ...state,
       endpoint: {
         ...state.tunnelEndpoint,
-        tunnelType: convertFromTunnelType(state.tunnelEndpoint.tunnelType),
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
         proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
         obfuscationEndpoint:
@@ -386,8 +378,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.quantumResistance;
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
-    case grpcTypes.FeatureIndicator.BRIDGE_MODE:
-      return FeatureIndicator.bridgeMode;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
       return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
@@ -404,8 +394,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.serverIpOverride;
     case grpcTypes.FeatureIndicator.CUSTOM_MTU:
       return FeatureIndicator.customMtu;
-    case grpcTypes.FeatureIndicator.CUSTOM_MSS_FIX:
-      return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
     case grpcTypes.FeatureIndicator.DAITA_MULTIHOP:
@@ -417,15 +405,6 @@ function convertFromFeatureIndicator(
     case grpcTypes.FeatureIndicator.LWO:
       return FeatureIndicator.lwo;
   }
-}
-
-function convertFromTunnelType(tunnelType: grpcTypes.TunnelType): TunnelType {
-  const tunnelTypeMap: Record<grpcTypes.TunnelType, TunnelType> = {
-    [grpcTypes.TunnelType.WIREGUARD]: 'wireguard',
-    [grpcTypes.TunnelType.OPENVPN]: 'openvpn',
-  };
-
-  return tunnelTypeMap[tunnelType];
 }
 
 function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObject): IProxyEndpoint {
@@ -479,7 +458,8 @@ function convertFromEntryEndpoint(entryEndpoint: grpcTypes.Endpoint.AsObject) {
 
 export function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefined {
   const settingsObject = settings.toObject();
-  const bridgeState = convertFromBridgeState(settingsObject.bridgeState!.state!);
+  // TODO: remove
+  const bridgeState = 'off';
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
   const bridgeSettings = convertFromBridgeSettings(settings.getBridgeSettings()!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
@@ -500,16 +480,6 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
     apiAccessMethods,
     relayOverrides,
   };
-}
-
-function convertFromBridgeState(bridgeState: grpcTypes.BridgeState.State): BridgeState {
-  const bridgeStateMap: Record<grpcTypes.BridgeState.State, BridgeState> = {
-    [grpcTypes.BridgeState.State.AUTO]: 'auto',
-    [grpcTypes.BridgeState.State.ON]: 'on',
-    [grpcTypes.BridgeState.State.OFF]: 'off',
-  };
-
-  return bridgeStateMap[bridgeState];
 }
 
 function convertFromRelaySettings(
@@ -537,10 +507,8 @@ function convertFromRelaySettings(
         const normal = relaySettings.getNormal()!;
         const locationConstraint = convertFromLocationConstraint(normal.getLocation());
         const location = wrapConstraint(locationConstraint);
-        const tunnelProtocol = convertFromTunnelType(normal.getTunnelType());
         const providers = normal.getProvidersList();
         const ownership = convertFromOwnership(normal.getOwnership());
-        const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
         const wireguardConstraints = convertFromWireguardConstraints(
           normal.getWireguardConstraints()!,
         );
@@ -548,11 +516,9 @@ function convertFromRelaySettings(
         return {
           normal: {
             location,
-            tunnelProtocol,
             providers,
             ownership,
             wireguardConstraints,
-            openvpnConstraints,
           },
         };
       }
@@ -592,47 +558,26 @@ function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): Br
 }
 
 function convertFromConnectionConfig(
-  connectionConfig: grpcTypes.ConnectionConfig,
+  connectionConfig: grpcTypes.WireguardConfig,
 ): ConnectionConfig | undefined {
   const connectionConfigObject = connectionConfig.toObject();
-  switch (connectionConfig.getConfigCase()) {
-    case grpcTypes.ConnectionConfig.ConfigCase.CONFIG_NOT_SET:
-      return undefined;
-    case grpcTypes.ConnectionConfig.ConfigCase.WIREGUARD:
-      return (
-        connectionConfigObject.wireguard &&
-        connectionConfigObject.wireguard.tunnel &&
-        connectionConfigObject.wireguard.peer && {
-          wireguard: {
-            ...connectionConfigObject.wireguard,
-            tunnel: {
-              privateKey: convertFromWireguardKey(
-                connectionConfigObject.wireguard.tunnel.privateKey,
-              ),
-              addresses: connectionConfigObject.wireguard.tunnel.addressesList,
-            },
-            peer: {
-              ...connectionConfigObject.wireguard.peer,
-              addresses: connectionConfigObject.wireguard.peer.allowedIpsList,
-              publicKey: convertFromWireguardKey(connectionConfigObject.wireguard.peer.publicKey),
-            },
-          },
-        }
-      );
-    case grpcTypes.ConnectionConfig.ConfigCase.OPENVPN: {
-      const [ip, port] = connectionConfigObject.openvpn!.address.split(':');
-      return {
-        openvpn: {
-          ...connectionConfigObject.openvpn!,
-          endpoint: {
-            ip,
-            port: parseInt(port, 10),
-            protocol: convertFromTransportProtocol(connectionConfigObject.openvpn!.protocol),
-          },
+  return (
+    connectionConfigObject.tunnel &&
+    connectionConfigObject.peer && {
+      wireguard: {
+        ...connectionConfigObject,
+        tunnel: {
+          privateKey: convertFromWireguardKey(connectionConfigObject.tunnel.privateKey),
+          addresses: connectionConfigObject.tunnel.addressesList,
         },
-      };
+        peer: {
+          ...connectionConfigObject.peer,
+          addresses: connectionConfigObject.peer.allowedIpsList,
+          publicKey: convertFromWireguardKey(connectionConfigObject.peer.publicKey),
+        },
+      },
     }
-  }
+  );
 }
 
 function convertFromLocationConstraint(
@@ -667,18 +612,13 @@ function convertFromGeographicConstraint(
 
 function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {
   return {
-    openvpn: {
-      mssfix: tunnelOptions.openvpn!.mssfix,
-    },
     wireguard: {
-      mtu: tunnelOptions.wireguard!.mtu,
-      quantumResistant: convertFromQuantumResistantState(
-        tunnelOptions.wireguard?.quantumResistant?.state,
-      ),
-      daita: tunnelOptions.wireguard!.daita,
+      mtu: tunnelOptions.mtu,
+      quantumResistant: convertFromQuantumResistantState(tunnelOptions.quantumResistant?.state),
+      daita: tunnelOptions.daita,
     },
     generic: {
-      enableIpv6: tunnelOptions.generic!.enableIpv6,
+      enableIpv6: tunnelOptions.enableIpv6,
     },
     dns: {
       state:
@@ -886,26 +826,6 @@ function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
   }
 }
 
-function convertFromOpenVpnConstraints(
-  constraints: grpcTypes.OpenvpnConstraints,
-): IOpenVpnConstraints {
-  const transportPort = convertFromConstraint(constraints.getPort());
-  if (transportPort !== 'any' && 'only' in transportPort) {
-    const port = convertFromConstraint(transportPort.only.getPort());
-    let protocol: Constraint<RelayProtocol> = 'any';
-    switch (transportPort.only.getProtocol()) {
-      case grpcTypes.TransportProtocol.TCP:
-        protocol = { only: 'tcp' };
-        break;
-      case grpcTypes.TransportProtocol.UDP:
-        protocol = { only: 'udp' };
-        break;
-    }
-    return { port, protocol };
-  }
-  return { port: 'any', protocol: 'any' };
-}
-
 function convertFromWireguardConstraints(
   constraints: grpcTypes.WireguardConstraints,
 ): IWireguardConstraints {
@@ -951,17 +871,13 @@ function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
 }
 
 export function convertToRelayConstraints(
-  constraints: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>,
+  constraints: IRelaySettingsNormal,
 ): grpcTypes.NormalRelaySettings {
   const relayConstraints = new grpcTypes.NormalRelaySettings();
 
-  relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol));
   relayConstraints.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
   relayConstraints.setWireguardConstraints(
     convertToWireguardConstraints(constraints.wireguardConstraints),
-  );
-  relayConstraints.setOpenvpnConstraints(
-    convertToOpenVpnConstraints(constraints.openvpnConstraints),
   );
   relayConstraints.setProvidersList(constraints.providers);
   relayConstraints.setOwnership(convertToOwnership(constraints.ownership));
@@ -1009,36 +925,6 @@ function convertToGeographicConstraint(
   }
 
   return relayLocation;
-}
-
-function convertToTunnelType(tunnelProtocol: TunnelProtocol): grpcTypes.TunnelType {
-  switch (tunnelProtocol) {
-    case 'wireguard':
-      return grpcTypes.TunnelType.WIREGUARD;
-    case 'openvpn':
-      return grpcTypes.TunnelType.OPENVPN;
-  }
-}
-
-function convertToOpenVpnConstraints(
-  constraints: Partial<IOpenVpnConstraints> | undefined,
-): grpcTypes.OpenvpnConstraints | undefined {
-  const openvpnConstraints = new grpcTypes.OpenvpnConstraints();
-  if (constraints) {
-    const protocol = unwrapConstraint(constraints.protocol);
-    if (protocol) {
-      const portConstraints = new grpcTypes.TransportPort();
-      const port = unwrapConstraint(constraints.port);
-      if (port) {
-        portConstraints.setPort(port);
-      }
-      portConstraints.setProtocol(convertToTransportProtocol(protocol));
-      openvpnConstraints.setPort(portConstraints);
-    }
-    return openvpnConstraints;
-  }
-
-  return undefined;
 }
 
 function convertToWireguardConstraints(

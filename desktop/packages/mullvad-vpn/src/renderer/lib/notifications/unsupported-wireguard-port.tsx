@@ -1,7 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../shared/constants';
-import { TunnelProtocol } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
@@ -13,7 +12,6 @@ import { formatHtml } from '../html-formatter';
 
 interface UnsupportedWireGuardPortNotificationContext {
   connection: IConnectionReduxState;
-  tunnelProtocol: TunnelProtocol;
   relaySettings: RelaySettingsRedux;
   allowedPortRanges: [number, number][];
 }
@@ -40,8 +38,8 @@ export class UnsupportedWireGuardPortNotificationProvider implements InAppNotifi
   public constructor(private context: UnsupportedWireGuardPortNotificationContext) {}
 
   public mayDisplay = () => {
-    const { connection, tunnelProtocol, relaySettings, allowedPortRanges } = this.context;
-    if (tunnelProtocol === 'wireguard' && connection.status.state === 'error') {
+    const { connection, relaySettings, allowedPortRanges } = this.context;
+    if (connection.status.state === 'error') {
       if ('normal' in relaySettings) {
         const { port } = relaySettings.normal.wireguard;
         if (port !== 'any' && !isInRanges(port, allowedPortRanges)) return true;

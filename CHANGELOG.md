@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 - Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
   in the disconnected state.
 
+### Removed
+- Remove OpenVPN support from the app.
+  - See blog post for more info: https://mullvad.net/en/blog/removing-openvpn-15th-january-2026
+
 
 ## [2025.13-beta2] - 2025-10-28
 ### Fixed

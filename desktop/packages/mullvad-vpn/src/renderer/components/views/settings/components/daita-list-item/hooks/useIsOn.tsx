@@ -3,7 +3,6 @@ import { useSettingsDaitaEnabled, useSettingsRelaySettings } from '../../../../.
 export const useIsOn = () => {
   const { daitaEnabled } = useSettingsDaitaEnabled();
   const { relaySettings } = useSettingsRelaySettings();
-  const unavailable =
-    'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
+  const unavailable = !('normal' in relaySettings);
   return daitaEnabled && !unavailable;
 };

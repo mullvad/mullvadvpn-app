@@ -102,16 +102,6 @@ export type ErrorStateDetails =
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
-export type TunnelType = 'wireguard' | 'openvpn';
-export function tunnelTypeToString(tunnel: TunnelType): string {
-  switch (tunnel) {
-    case 'wireguard':
-      return 'WireGuard';
-    case 'openvpn':
-      return 'OpenVPN';
-  }
-}
-
 export type RelayProtocol = 'tcp' | 'udp';
 export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic' | 'lwo';
 
@@ -141,7 +131,6 @@ export enum Ownership {
 export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
-  tunnelType: TunnelType;
   quantumResistant: boolean;
   proxy?: IProxyEndpoint;
   obfuscationEndpoint?: IObfuscationEndpoint;
@@ -225,7 +214,6 @@ export enum FeatureIndicator {
   daitaMultihop,
   quantumResistance,
   multihop,
-  bridgeMode,
   splitTunneling,
   lockdownMode,
   udp2tcp,
@@ -237,7 +225,6 @@ export enum FeatureIndicator {
   customDns,
   serverIpOverride,
   customMtu,
-  customMssFix,
 }
 
 export type DisconnectedState = {
@@ -292,11 +279,6 @@ export type RelayLocationGeographical =
 
 export type RelayLocation = RelayLocationGeographical | RelayLocationCustomList;
 
-export interface IOpenVpnConstraints {
-  port: Constraint<number>;
-  protocol: Constraint<RelayProtocol>;
-}
-
 export interface IWireguardConstraints {
   port: Constraint<number>;
   ipVersion: Constraint<IpVersion>;
@@ -304,46 +286,30 @@ export interface IWireguardConstraints {
   entryLocation: Constraint<RelayLocation>;
 }
 
-export type TunnelProtocol = 'wireguard' | 'openvpn';
-
 export type IpVersion = 'ipv4' | 'ipv6';
 
-export interface IRelaySettingsNormal<OpenVpn, Wireguard> {
+export interface IRelaySettingsNormal {
   location: Constraint<RelayLocation>;
-  tunnelProtocol: TunnelProtocol;
   providers: string[];
   ownership: Ownership;
-  openvpnConstraints: OpenVpn;
-  wireguardConstraints: Wireguard;
+  wireguardConstraints: IWireguardConstraints;
 }
 
-export type ConnectionConfig =
-  | {
-      openvpn: {
-        endpoint: {
-          ip: string;
-          port: number;
-          protocol: RelayProtocol;
-        };
-        username: string;
-      };
-    }
-  | {
-      wireguard: {
-        tunnel: {
-          privateKey: string;
-          addresses: string[];
-        };
-        peer: {
-          publicKey: string;
-          addresses: string[];
-          endpoint: string;
-        };
-
-        ipv4Gateway: string;
-        ipv6Gateway?: string;
-      };
+export type ConnectionConfig = {
+  wireguard: {
+    tunnel: {
+      privateKey: string;
+      addresses: string[];
     };
+    peer: {
+      publicKey: string;
+      addresses: string[];
+      endpoint: string;
+    };
+    ipv4Gateway: string;
+    ipv6Gateway?: string;
+  };
+};
 
 // types describing the structure of RelaySettings
 export interface IRelaySettingsCustom {
@@ -352,7 +318,7 @@ export interface IRelaySettingsCustom {
 }
 export type RelaySettings =
   | {
-      normal: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
+      normal: IRelaySettingsNormal;
     }
   | {
       customTunnelEndpoint: IRelaySettingsCustom;
@@ -410,9 +376,6 @@ export type Quic = {
 export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 
 export interface ITunnelOptions {
-  openvpn: {
-    mssfix?: number;
-  };
   wireguard: {
     mtu?: number;
     quantumResistant?: boolean;
