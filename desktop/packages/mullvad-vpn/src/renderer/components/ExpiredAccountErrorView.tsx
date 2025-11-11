@@ -7,6 +7,7 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
+import { LockdownModeSwitch } from '../features/tunnel/components';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
 import { spacings } from '../lib/foundations';
@@ -30,7 +31,7 @@ import {
 } from './ExpiredAccountErrorViewStyles';
 import { Footer, Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import { SettingsToggleListItem } from './settings-toggle-list-item';
+import { SettingsListItem } from './settings-list-item';
 
 enum RecoveryAction {
   openBrowser,
@@ -38,7 +39,7 @@ enum RecoveryAction {
   disableLockdownMode,
 }
 
-const StyledSettingsToggleListItem = styled(SettingsToggleListItem)`
+const StyledSettingsToggleListItem = styled(SettingsListItem)`
   margin-top: ${spacings.medium};
 `;
 
@@ -222,24 +223,10 @@ function ExternalPaymentButton() {
 
 function LockdownModeAlert() {
   const { showLockdownModeAlert, setShowLockdownModeAlert } = useExpiredAccountContext();
-  const { setLockdownMode } = useAppContext();
-  const lockdownMode = useSelector((state) => state.settings.lockdownMode);
 
   const onCloseLockdownModeInstructions = useCallback(() => {
     setShowLockdownModeAlert(false);
   }, [setShowLockdownModeAlert]);
-
-  const onChange = useCallback(
-    async (lockdownMode: boolean) => {
-      try {
-        await setLockdownMode(lockdownMode);
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to update lockdown mode', error.message);
-      }
-    },
-    [setLockdownMode],
-  );
 
   return (
     <ModalAlert
@@ -263,11 +250,19 @@ function LockdownModeAlert() {
           'Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings.',
         )}
       </ModalMessage>
-      <StyledSettingsToggleListItem checked={lockdownMode} onCheckedChange={onChange}>
-        <SettingsToggleListItem.Label>
-          {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
-        </SettingsToggleListItem.Label>
-        <SettingsToggleListItem.Switch />
+      <StyledSettingsToggleListItem>
+        <SettingsListItem.Item>
+          <SettingsListItem.Content>
+            <LockdownModeSwitch>
+              <LockdownModeSwitch.Label variant="titleMedium">
+                {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
+              </LockdownModeSwitch.Label>
+              <LockdownModeSwitch.Trigger>
+                <LockdownModeSwitch.Thumb />
+              </LockdownModeSwitch.Trigger>
+            </LockdownModeSwitch>
+          </SettingsListItem.Content>
+        </SettingsListItem.Item>
       </StyledSettingsToggleListItem>
     </ModalAlert>
   );
