@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDirection
 
 @Composable
 fun DnsTextField(
@@ -27,7 +28,7 @@ fun DnsTextField(
         maxCharLength = Int.MAX_VALUE,
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = false,
-        textStyle = MaterialTheme.typography.titleMedium,
+        textStyle = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
         supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
     )
 }

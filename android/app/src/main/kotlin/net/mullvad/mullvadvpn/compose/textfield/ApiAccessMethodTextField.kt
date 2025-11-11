@@ -3,9 +3,11 @@ package net.mullvad.mullvadvpn.compose.textfield
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -24,6 +26,7 @@ fun ApiAccessMethodTextField(
     errorText: String?,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     imeAction: ImeAction = ImeAction.Next,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
 ) {
     val focusManager = LocalFocusManager.current
     CustomTextField(
@@ -61,5 +64,6 @@ fun ApiAccessMethodTextField(
                     )
                 }
             },
+        textStyle = textStyle,
     )
 }
