@@ -47,7 +47,9 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapFilterButton() -> Self {
-        app.buttons[AccessibilityIdentifier.selectLocationFilterButton].tap()
+        app.buttons[AccessibilityIdentifier.selectLocationFilterButton]
+            .firstMatch
+            .tap()
         return self
     }
 

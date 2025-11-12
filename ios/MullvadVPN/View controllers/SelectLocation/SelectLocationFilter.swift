@@ -38,7 +38,8 @@ enum SelectLocationFilter: Hashable {
             .daitaFilterPill
         case .obfuscation:
             .obfuscationFilterPill
-        default: nil
+        case .owned, .rented, .provider:
+            .selectLocationFilterButton
         }
     }
 
