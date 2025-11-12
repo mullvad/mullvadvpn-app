@@ -75,14 +75,14 @@ impl RoutingTable {
 
     /// Add route to the routing table
     pub async fn add_route(&mut self, message: &RouteMessage) -> Result<AddResult> {
-        if let Ok(Some(destination)) = message.destination_ip() {
-            if Some(destination.ip()) == message.gateway_ip() {
-                // Workaround that allows us to reach a wg peer on our router.
-                // If we don't do this, adding the route fails due to errno 49
-                // ("Can't assign requested address").
-                log::warn!("Ignoring route because the destination equals its gateway");
-                return Ok(AddResult::AlreadyExists);
-            }
+        if let Ok(Some(destination)) = message.destination_ip()
+            && Some(destination.ip()) == message.gateway_ip()
+        {
+            // Workaround that allows us to reach a wg peer on our router.
+            // If we don't do this, adding the route fails due to errno 49
+            // ("Can't assign requested address").
+            log::warn!("Ignoring route because the destination equals its gateway");
+            return Ok(AddResult::AlreadyExists);
         }
 
         log::trace!("Add route: {message:?}");
@@ -167,10 +167,10 @@ impl RoutingTable {
         let response = match response {
             Ok(response) => response,
             Err(routing_socket::Error::Write(err)) => {
-                if let Some(err) = err.raw_os_error() {
-                    if [libc::ENETUNREACH, libc::ESRCH].contains(&err) {
-                        return Ok(None);
-                    }
+                if let Some(err) = err.raw_os_error()
+                    && [libc::ENETUNREACH, libc::ESRCH].contains(&err)
+                {
+                    return Ok(None);
                 }
                 return Err(Error::RoutingSocket(routing_socket::Error::Write(err)));
             }
