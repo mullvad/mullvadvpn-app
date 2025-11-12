@@ -175,14 +175,7 @@ pub fn collect_report<P: AsRef<Path>>(
                 problem_report.add_error("Failed to list logs in android app log directory", &error)
             }
         }
-    }
 
-    #[cfg(target_os = "android")]
-    {
-        match write_logcat_to_file(android_log_dir) {
-            Ok(logcat_path) => problem_report.add_log(&logcat_path),
-            Err(error) => problem_report.add_error("Failed to collect logcat", &error),
-        }
         problem_report.add_metadata(
             "unverified-purchases".to_string(),
             unverified_purchases.to_string(),
