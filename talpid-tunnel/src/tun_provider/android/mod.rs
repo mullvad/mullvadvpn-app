@@ -112,16 +112,16 @@ impl AndroidTunProvider {
 
         // If we are recreating the same tunnel we return the same file descriptor to avoid calling
         // open_tun in android since it may cause leaks.
-        if let Some((vpn_service_config, raw_fd)) = &self.current_tunnel {
-            if vpn_service_config == &config {
-                return Ok(VpnServiceTun {
-                    tunnel: *raw_fd,
-                    is_new: false,
-                    jvm,
-                    class: self.class.clone(),
-                    object: self.object.clone(),
-                });
-            }
+        if let Some((vpn_service_config, raw_fd)) = &self.current_tunnel
+            && vpn_service_config == &config
+        {
+            return Ok(VpnServiceTun {
+                tunnel: *raw_fd,
+                is_new: false,
+                jvm,
+                class: self.class.clone(),
+                object: self.object.clone(),
+            });
         }
 
         self.open_tun_forced()
