@@ -287,7 +287,7 @@ impl Tunnel {
 
     /// Get the file descriptor of the tunnel IPv4 socket.
     #[cfg(target_os = "android")]
-    pub fn get_socket_v4(&self) -> BorrowedFd {
+    pub fn get_socket_v4(&self) -> BorrowedFd<'_> {
         // SAFETY:
         // - self.handle is a valid pointer to an active wireguard-go tunnel.
         // - file descriptor won't be closed until wgTurnOff is called,
@@ -297,7 +297,7 @@ impl Tunnel {
 
     /// Get the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
-    pub fn get_socket_v6(&self) -> BorrowedFd {
+    pub fn get_socket_v6(&self) -> BorrowedFd<'_> {
         // SAFETY:
         // - self.handle is a valid pointer to an active wireguard-go tunnel.
         // - file descriptor won't be closed until wgTurnOff is called,
