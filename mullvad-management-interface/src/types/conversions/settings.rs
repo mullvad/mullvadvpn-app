@@ -225,8 +225,6 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
             ))?;
 
         Ok(Self {
-            // TODO: Remove from mullvad type
-            openvpn: Default::default(),
             wireguard: mullvad_types::wireguard::TunnelOptions {
                 mtu: options.mtu.map(|mtu| mtu as u16),
                 rotation_interval: options

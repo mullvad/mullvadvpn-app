@@ -8,7 +8,7 @@ use std::{
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    ConnectionConfig, CustomTunnelEndpoint, settings,
+    CustomTunnelEndpoint, settings,
     wireguard::{DaitaSettings, QuantumResistantState},
 };
 use talpid_types::net::wireguard;
@@ -658,7 +658,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
 
     let custom_tunnel_endpoint = CustomTunnelEndpoint {
         host: peer_addr.ip().to_string(),
-        config: ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
+        config: wireguard::ConnectionConfig {
             tunnel: wireguard::TunnelConfig {
                 addresses: vec![IpAddr::V4(CUSTOM_TUN_LOCAL_TUN_ADDR)],
                 private_key: wireguard::PrivateKey::from(CUSTOM_TUN_LOCAL_PRIVKEY),
@@ -675,7 +675,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
             #[cfg(target_os = "linux")]
             fwmark: None,
             ipv6_gateway: None,
-        }),
+        },
     };
     set_custom_endpoint(mullvad_client, custom_tunnel_endpoint)
         .await

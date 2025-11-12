@@ -1,14 +1,14 @@
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 
+use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex;
 
 use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
-    endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
-    settings::TunnelOptions,
+    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay, settings::TunnelOptions,
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
-use talpid_types::net::{TunnelParameters, obfuscation::Obfuscators, wireguard};
+use talpid_types::net::{obfuscation::Obfuscators, wireguard};
 
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
@@ -67,11 +67,7 @@ impl ParametersGenerator {
         let Some(relays) = inner.last_generated_relays.as_ref() else {
             return false;
         };
-        match relays {
-            LastSelectedRelays::WireGuard {
-                server_override, ..
-            } => *server_override,
-        }
+        relays.server_override
     }
 
     /// Gets the location associated with the last generated tunnel parameters.
@@ -80,28 +76,14 @@ impl ParametersGenerator {
 
         let relays = inner.last_generated_relays.as_ref()?;
 
-        let hostname;
-        let bridge_hostname;
-        let entry_hostname;
-        let obfuscator_hostname;
-        let location;
         let take_hostname =
             |relay: &Option<Relay>| relay.as_ref().map(|relay| relay.hostname.clone());
 
-        match relays {
-            LastSelectedRelays::WireGuard {
-                wg_entry: entry,
-                wg_exit: exit,
-                obfuscator,
-                ..
-            } => {
-                entry_hostname = take_hostname(entry);
-                hostname = exit.hostname.clone();
-                obfuscator_hostname = take_hostname(obfuscator);
-                bridge_hostname = None;
-                location = exit.location.clone();
-            }
-        };
+        let entry_hostname = take_hostname(&relays.entry);
+        let hostname = relays.exit.hostname.clone();
+        let obfuscator_hostname = take_hostname(&relays.obfuscator);
+        let bridge_hostname = None;
+        let location = relays.exit.location.clone();
 
         Some(GeoIpLocation {
             ipv4: None,
@@ -131,7 +113,7 @@ impl InnerParametersGenerator {
             .get_relay(retry_attempt as usize, ip_availability)?;
 
         match selected_relay {
-            GetRelay::Wireguard {
+            GetRelay::Mullvad {
                 endpoint,
                 obfuscator,
                 inner,
@@ -141,19 +123,19 @@ impl InnerParametersGenerator {
                     None => (None, None),
                 };
 
-                let (wg_entry, wg_exit) = match inner {
+                let (entry, exit) = match inner {
                     WireguardConfig::Singlehop { exit } => (None, exit),
                     WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
                 };
                 let server_override = {
-                    let first_relay = wg_entry.as_ref().unwrap_or(&wg_exit);
+                    let first_relay = entry.as_ref().unwrap_or(&exit);
                     (first_relay.overridden_ipv4 && endpoint.peer.endpoint.is_ipv4())
                         || (first_relay.overridden_ipv6 && endpoint.peer.endpoint.is_ipv6())
                 };
 
-                self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
-                    wg_entry,
-                    wg_exit,
+                self.last_generated_relays = Some(LastSelectedRelays {
+                    entry,
+                    exit,
                     obfuscator: obfuscator_relay,
                     server_override,
                 });
@@ -164,7 +146,7 @@ impl InnerParametersGenerator {
                 self.last_generated_relays = None;
                 custom_relay
                     // TODO: generate proxy settings for custom tunnels
-                    .to_tunnel_parameters(self.tunnel_options.clone(), None)
+                    .to_tunnel_parameters(self.tunnel_options.clone())
                     .map_err(|e| {
                         log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
                         Error::ResolveCustomHostname
@@ -175,7 +157,7 @@ impl InnerParametersGenerator {
 
     fn create_wireguard_tunnel_parameters(
         &self,
-        endpoint: MullvadWireguardEndpoint,
+        endpoint: MullvadEndpoint,
         data: PrivateAccountAndDevice,
         obfuscator_config: Option<Obfuscators>,
     ) -> TunnelParameters {
@@ -204,7 +186,6 @@ impl InnerParametersGenerator {
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
         }
-        .into()
     }
 
     async fn device(&self) -> Result<PrivateAccountAndDevice, Error> {
@@ -262,17 +243,15 @@ impl From<Error> for ParameterGenerationError {
 }
 
 /// Contains all relays that were selected last time when tunnel parameters were generated.
-// TODO: flatten
-enum LastSelectedRelays {
-    /// Represents all relays generated for a WireGuard tunnel.
-    /// The traffic flow can look like this:
-    ///     client -> obfuscator -> entry -> exit -> internet
-    /// But for most users, it will look like this:
-    ///     client -> entry -> internet
-    WireGuard {
-        wg_entry: Option<Relay>,
-        wg_exit: Relay,
-        obfuscator: Option<Relay>,
-        server_override: bool,
-    },
+///
+/// Represents all relays generated for a WireGuard tunnel.
+/// The traffic flow can look like this:
+///     client -> obfuscator -> entry -> exit -> internet
+/// But for most users, it will look like this:
+///     client -> entry -> internet
+struct LastSelectedRelays {
+    entry: Option<Relay>,
+    exit: Relay,
+    obfuscator: Option<Relay>,
+    server_override: bool,
 }

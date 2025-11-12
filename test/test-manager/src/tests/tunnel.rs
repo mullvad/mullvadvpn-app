@@ -45,7 +45,7 @@ pub async fn test_wireguard_tunnel_ipvx(
     for (port, should_succeed) in PORTS {
         log::info!("Connect to WireGuard endpoint on port {port}");
 
-        let query = RelayQueryBuilder::wireguard()
+        let query = RelayQueryBuilder::new()
             .port(port)
             .ip_version(ip_version)
             .build();
@@ -117,9 +117,7 @@ pub async fn test_wireguard_ipv6_in_ipvx(
 
     log::info!("Connect to WireGuard endpoint");
 
-    let query = RelayQueryBuilder::wireguard()
-        .ip_version(ip_version)
-        .build();
+    let query = RelayQueryBuilder::new().ip_version(ip_version).build();
     apply_settings_from_relay_query(&mut mullvad_client, query)
         .await
         .unwrap();
@@ -151,7 +149,7 @@ pub async fn test_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let query = RelayQueryBuilder::wireguard().udp2tcp().build();
+    let query = RelayQueryBuilder::new().udp2tcp().build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
@@ -201,7 +199,7 @@ pub async fn test_wireguard_over_shadowsocks(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    let query = RelayQueryBuilder::wireguard().shadowsocks().build();
+    let query = RelayQueryBuilder::new().shadowsocks().build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
@@ -237,7 +235,7 @@ pub async fn test_wireguard_over_quic_ipvx(
     let ip_version = IpVersion::VX;
 
     log::info!("Enable QUIC as obfuscation method");
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .ip_version(ip_version)
         .quic()
         .build();
@@ -276,7 +274,7 @@ pub async fn test_wireguard_over_lwo_ipvx(
     let ip_version = IpVersion::VX;
 
     log::info!("Enable LWO as obfuscation method");
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .ip_version(ip_version)
         .lwo()
         .build();
@@ -308,7 +306,7 @@ pub async fn test_multihop(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let query = RelayQueryBuilder::wireguard().multihop().build();
+    let query = RelayQueryBuilder::new().multihop().build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
@@ -418,7 +416,7 @@ pub async fn test_quantum_resistant_tunnel(
     connect_and_wait(&mut mullvad_client).await?;
     check_tunnel_psk(&rpc, &mullvad_client, false).await;
 
-    let query = RelayQueryBuilder::wireguard().build();
+    let query = RelayQueryBuilder::new().build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
@@ -484,7 +482,7 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .await
         .expect("Failed to enable PQ tunnels");
 
-    let query = RelayQueryBuilder::wireguard().multihop().udp2tcp().build();
+    let query = RelayQueryBuilder::new().multihop().udp2tcp().build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
@@ -522,7 +520,7 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel_ipvx(
         .await
         .context("Failed to enable PQ tunnels")?;
 
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .ip_version(ip_version)
         .multihop()
         .shadowsocks()
@@ -565,7 +563,7 @@ pub async fn test_quantum_resistant_multihop_quic_tunnel_ipvx(
         .await
         .context("Failed to enable PQ tunnels")?;
 
-    let query = RelayQueryBuilder::wireguard()
+    let query = RelayQueryBuilder::new()
         .ip_version(ip_version)
         .quantum_resistant()
         .multihop()

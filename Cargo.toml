@@ -39,8 +39,6 @@ members = [
   "talpid-future",
   "talpid-macos",
   "talpid-net",
-  "talpid-openvpn",
-  "talpid-openvpn-plugin",
   "talpid-platform-metadata",
   "talpid-routing",
   "talpid-time",

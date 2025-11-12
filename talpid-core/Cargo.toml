@@ -29,10 +29,8 @@ talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 talpid-wireguard = { path = "../talpid-wireguard" }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
-either = { version = "1.15.0", features = ["serde"] }
 
-[target.'cfg(not(target_os="android"))'.dependencies]
-talpid-openvpn = { path = "../talpid-openvpn" }
+[target.'cfg(target_os="linux")'.dependencies]
 triggered = "0.1.1"
 
 [target.'cfg(target_os = "android")'.dependencies]
@@ -64,6 +62,7 @@ serde_json = { workspace = true }
 socket2 = { workspace = true }
 talpid-macos = { path = "../talpid-macos" }
 talpid-net = { path = "../talpid-net" }
+either = { version = "1.15.0", features = ["serde"] }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "2.6"
@@ -109,9 +108,6 @@ features = [
 
 [target.'cfg(target_os = "macos")'.dev-dependencies]
 typed-builder = "0.20.0"
-
-[build-dependencies]
-tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 [dev-dependencies]
 test-log = "0.2.17"
