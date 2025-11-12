@@ -14,15 +14,14 @@ import {
   LabelTinySemiBold,
   Text,
 } from '../../../lib/components';
+import { Dialog } from '../../../lib/components/dialog';
 import { useHistory } from '../../../lib/history';
-import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import * as Cell from '../../cell';
 import InfoButton from '../../InfoButton';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import PageSlider from '../../PageSlider';
@@ -168,7 +167,7 @@ function DaitaToggle() {
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
-  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
+  const [confirmDialogVisible, setConfirmDialogVisible] = React.useState(false);
 
   const unavailable = !('normal' in relaySettings);
 
@@ -179,15 +178,19 @@ function DaitaToggle() {
     [setEnableDaita],
   );
 
+  const hideConfirmationDialog = useCallback(() => {
+    setConfirmDialogVisible(false);
+  }, [setConfirmDialogVisible]);
+
   const setDirectOnly = useCallback(
     (value: boolean) => {
       if (value) {
-        showConfirmationDialog();
+        setConfirmDialogVisible(true);
       } else {
         void setDaitaDirectOnly(value);
       }
     },
-    [setDaitaDirectOnly, showConfirmationDialog],
+    [setDaitaDirectOnly, setConfirmDialogVisible],
   );
 
   const confirmEnableDirectOnly = useCallback(() => {
@@ -220,34 +223,34 @@ function DaitaToggle() {
           <SettingsToggleListItem.Switch />
         </SettingsToggleListItem.Group>
       </SettingsToggleListItem>
-      <ModalAlert
-        isOpen={confirmationDialogVisible}
-        type={ModalAlertType.caution}
-        gridButtons={[
-          <Button key="cancel" onClick={hideConfirmationDialog}>
-            <Button.Text>{messages.pgettext('wireguard-settings-view', 'Cancel')}</Button.Text>
-          </Button>,
-          <Button key="confirm" onClick={confirmEnableDirectOnly}>
-            <Button.Text>
-              {
-                // TRANSLATORS: A toggle that refers to the setting "Direct only".
-                messages.gettext('Enable direct only')
-              }
-            </Button.Text>
-          </Button>,
-        ]}
-        close={hideConfirmationDialog}>
-        <ModalMessage>
-          {sprintf(
-            // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
-            messages.pgettext(
-              'wireguard-settings-view',
-              'Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling.',
-            ),
-            { daita: strings.daita },
-          )}
-        </ModalMessage>
-      </ModalAlert>
+      <Dialog open={confirmDialogVisible} onOpenChange={setConfirmDialogVisible}>
+        <Dialog.Container>
+          <Dialog.Icon icon="info-circle" />
+          <Dialog.Text>
+            {sprintf(
+              // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
+              messages.pgettext(
+                'wireguard-settings-view',
+                'Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling.',
+              ),
+              { daita: strings.daita },
+            )}
+          </Dialog.Text>
+          <Dialog.ButtonGroup>
+            <Button key="confirm" onClick={confirmEnableDirectOnly}>
+              <Button.Text>
+                {
+                  // TRANSLATORS: A toggle that refers to the setting "Direct only".
+                  messages.gettext('Enable direct only')
+                }
+              </Button.Text>
+            </Button>
+            <Dialog.Button key="cancel" onClick={hideConfirmationDialog}>
+              <Button.Text>{messages.pgettext('wireguard-settings-view', 'Cancel')}</Button.Text>
+            </Dialog.Button>
+          </Dialog.ButtonGroup>
+        </Dialog.Container>
+      </Dialog>
     </>
   );
 }
@@ -256,7 +259,7 @@ function DirectOnlyModalMessage() {
   const directOnlyString = messages.gettext('Direct only');
 
   return (
-    <ModalMessage>
+    <Dialog.Text>
       {sprintf(
         messages.pgettext(
           'wireguard-settings-view',
@@ -267,7 +270,7 @@ function DirectOnlyModalMessage() {
           directOnly: directOnlyString,
         },
       )}
-    </ModalMessage>
+    </Dialog.Text>
   );
 }
 
