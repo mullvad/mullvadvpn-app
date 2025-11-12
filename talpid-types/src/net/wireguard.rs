@@ -58,7 +58,6 @@ impl TunnelParameters {
 
 /// Connection-specific configuration in [`TunnelParameters`].
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename = "connection_config")]
 pub struct ConnectionConfig {
     pub tunnel: TunnelConfig,
     pub peer: PeerConfig,
