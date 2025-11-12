@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.S
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -40,6 +41,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     customLists: List<RelayItem.CustomList>,
+    selection: RelayItemSelection,
     onSelectRelayItem: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
@@ -60,6 +62,7 @@ fun LazyListScope.relayListContent(
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            selection = selection,
                         )
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
@@ -67,6 +70,7 @@ fun LazyListScope.relayListContent(
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            selection = selection,
                         )
                     is RelayListItem.CustomListFooter -> CustomListFooter(listItem)
                     RelayListItem.LocationHeader -> locationHeader()
@@ -77,6 +81,7 @@ fun LazyListScope.relayListContent(
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                             customLists = customLists,
+                            selection = selection,
                         )
 
                     RelayListItem.RecentsListHeader -> RecentsListHeader()
@@ -86,6 +91,7 @@ fun LazyListScope.relayListContent(
                             onSelect = onSelectRelayItem,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                             customLists = customLists,
+                            selection = selection,
                         )
                     RelayListItem.RecentsListFooter -> RecentsListFooter()
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
@@ -113,13 +119,18 @@ private fun GeoLocationItem(
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customLists: List<RelayItem.CustomList>,
+    selection: RelayItemSelection,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
         onClick = { onSelect(listItem.item) },
         onLongClick = {
             onUpdateBottomSheetState(
-                ShowLocationBottomSheet(customLists = customLists, item = listItem.item)
+                ShowLocationBottomSheet(
+                    customLists = customLists,
+                    selection = selection,
+                    item = listItem.item,
+                )
             )
         },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
@@ -133,6 +144,7 @@ private fun RecentListItem(
     onSelect: (RelayItem) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customLists: List<RelayItem.CustomList>,
+    selection: RelayItemSelection,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
@@ -140,10 +152,16 @@ private fun RecentListItem(
         onLongClick = {
             when (val entry = listItem.item) {
                 is RelayItem.CustomList ->
-                    onUpdateBottomSheetState(ShowEditCustomListBottomSheet(entry))
+                    onUpdateBottomSheetState(
+                        ShowEditCustomListBottomSheet(customList = entry, selection = selection)
+                    )
                 is RelayItem.Location ->
                     onUpdateBottomSheetState(
-                        ShowLocationBottomSheet(customLists = customLists, item = entry)
+                        ShowLocationBottomSheet(
+                            customLists = customLists,
+                            item = entry,
+                            selection = selection,
+                        )
                     )
             }
         },
@@ -156,13 +174,18 @@ private fun RecentListItem(
 private fun CustomListItem(
     listItem: RelayListItem.CustomListItem,
     onSelect: (RelayItem) -> Unit,
+    selection: RelayItemSelection,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
         onClick = { onSelect(listItem.item) },
-        onLongClick = { onUpdateBottomSheetState(ShowEditCustomListBottomSheet(listItem.item)) },
+        onLongClick = {
+            onUpdateBottomSheetState(
+                ShowEditCustomListBottomSheet(customList = listItem.item, selection = selection)
+            )
+        },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
         modifier = Modifier.positionalPadding(listItem.itemPosition),
     )
@@ -172,6 +195,7 @@ private fun CustomListItem(
 private fun CustomListEntryItem(
     listItem: RelayListItem.CustomListEntryItem,
     onSelect: (RelayItem) -> Unit,
+    selection: RelayItemSelection,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
@@ -187,6 +211,7 @@ private fun CustomListEntryItem(
                             customListId = listItem.parentId,
                             customListName = listItem.parentName,
                             item = listItem.item,
+                            selection = selection,
                         )
                     )
                 }
