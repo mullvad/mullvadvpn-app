@@ -139,7 +139,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
@@ -180,7 +180,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
@@ -218,7 +218,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
@@ -260,7 +260,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
@@ -302,7 +302,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
@@ -350,7 +350,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
@@ -397,7 +397,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
@@ -445,7 +445,7 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            filterChips = emptyMap(),
+                            filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,

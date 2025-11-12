@@ -327,10 +327,7 @@ class SelectLocationViewModelTest {
             viewModel.selectRelayList(MultihopRelayListType.ENTRY)
             val state = awaitItem()
             assertIs<Lc.Content<SelectLocationUiState>>(state)
-            assert(
-                state.value.filterChips[RelayListType.Multihop(MultihopRelayListType.ENTRY)]!!
-                    .isEmpty()
-            )
+            assert(state.value.filterChips.isEmpty())
         }
     }
 
@@ -353,10 +350,7 @@ class SelectLocationViewModelTest {
             viewModel.selectRelayList(MultihopRelayListType.EXIT)
             val state = awaitItem()
             assertIs<Lc.Content<SelectLocationUiState>>(state)
-            assertLists(
-                expectedFilters,
-                state.value.filterChips[RelayListType.Multihop(MultihopRelayListType.EXIT)]!!,
-            )
+            assertLists(expectedFilters, state.value.filterChips)
         }
     }
 

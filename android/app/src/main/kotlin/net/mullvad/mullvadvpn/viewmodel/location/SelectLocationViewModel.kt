@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -88,12 +89,7 @@ class SelectLocationViewModel(
                         filterChips =
                             // Hide filter chips when entry and blocked
                             if (relayListSelection.isEntryAndBlocked(settings)) {
-                                filterChips.let {
-                                    val ret = it.toMutableMap()
-                                    ret[RelayListType.Multihop(MultihopRelayListType.ENTRY)] =
-                                        emptyList()
-                                    ret
-                                }
+                                emptyList()
                             } else {
                                 filterChips
                             },
@@ -124,17 +120,7 @@ class SelectLocationViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun filterChips() =
-        combine(
-            filterChipUseCase(RelayListType.Single),
-            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
-            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
-        ) { single, entry, exit ->
-            mapOf(
-                RelayListType.Single to single,
-                RelayListType.Multihop(MultihopRelayListType.ENTRY) to entry,
-                RelayListType.Multihop(MultihopRelayListType.EXIT) to exit,
-            )
-        }
+        _relayListType.filterNotNull().flatMapLatest { filterChipUseCase(it) }
 
     private fun searchButtonEnabled(
         relayList: List<RelayItem.Location.Country>,
