@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,12 +25,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -217,15 +220,21 @@ private fun DeviceNameRow(deviceName: String, onManageDevicesClick: () -> Unit) 
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            InformationView(content = deviceName, whenMissing = MissingPolicy.SHOW_SPINNER)
-            Spacer(modifier = Modifier.weight(1f))
-            PrimaryTextButton(
-                modifier = Modifier.testTag(MANAGE_DEVICES_BUTTON_TEST_TAG),
-                onClick = onManageDevicesClick,
-                text = stringResource(R.string.manage_devices),
-                textDecoration = TextDecoration.Underline,
-            )
+        // Device name is english so always provide LtR direction
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                InformationView(content = deviceName, whenMissing = MissingPolicy.SHOW_SPINNER)
+                Spacer(modifier = Modifier.weight(1f))
+                PrimaryTextButton(
+                    modifier = Modifier.testTag(MANAGE_DEVICES_BUTTON_TEST_TAG),
+                    onClick = onManageDevicesClick,
+                    text = stringResource(R.string.manage_devices),
+                    textDecoration = TextDecoration.Underline,
+                )
+            }
         }
     }
 }
@@ -238,11 +247,14 @@ private fun AccountNumberRow(accountNumber: String, onCopyAccountNumber: (String
             text = stringResource(id = R.string.account_number),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        CopyableObfuscationView(
-            content = accountNumber,
-            onCopyClicked = { onCopyAccountNumber(accountNumber) },
-            modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight).fillMaxWidth(),
-        )
+        // Always provide LtR direction since it is a number
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            CopyableObfuscationView(
+                content = accountNumber,
+                onCopyClicked = { onCopyAccountNumber(accountNumber) },
+                modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight).fillMaxWidth(),
+            )
+        }
     }
 }
 

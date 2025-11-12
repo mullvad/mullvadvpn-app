@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -231,7 +231,7 @@ private fun AppInfo(navigateToAppInfo: () -> Unit, state: SettingsUiState) {
                     )
                 }
                 Icon(
-                    Icons.Default.ChevronRight,
+                    Icons.AutoMirrored.Default.KeyboardArrowRight,
                     contentDescription = stringResource(R.string.app_info),
                     tint = MaterialTheme.colorScheme.onPrimary,
                 )
@@ -304,7 +304,7 @@ private fun DaitaCell(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
         onCellClicked = onDaitaClick,
         bodyView = {
             Icon(
-                imageVector = Icons.Default.ChevronRight,
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = title,
                 tint = MaterialTheme.colorScheme.onPrimary,
             )
@@ -329,7 +329,7 @@ private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit
         onCellClicked = onMultihopClick,
         bodyView = {
             Icon(
-                imageVector = Icons.Default.ChevronRight,
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = title,
                 tint = MaterialTheme.colorScheme.onPrimary,
             )

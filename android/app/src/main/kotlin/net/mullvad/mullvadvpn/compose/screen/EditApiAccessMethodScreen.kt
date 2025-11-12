@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp.Companion.Hairline
@@ -414,7 +415,7 @@ private fun ServerIpInput(
 ) {
     ApiAccessMethodTextField(
         value = serverIp,
-        keyboardType = KeyboardType.Text,
+        keyboardType = KeyboardType.Ascii,
         onValueChanged = onIpChanged,
         labelText = stringResource(id = R.string.server),
         isValidValue = serverIpError == null,
@@ -432,6 +433,7 @@ private fun ServerIpInput(
                 )
             },
         modifier = Modifier.animateContentSize(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
     )
 }
 
@@ -460,6 +462,7 @@ private fun PortInput(
                 )
             },
         modifier = Modifier.animateContentSize(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
     )
 }
 
@@ -494,6 +497,7 @@ private fun PasswordInput(
             },
         errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
         modifier = Modifier.animateContentSize(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
     )
 }
 
@@ -601,6 +605,7 @@ private fun UsernameInput(
         isDigitsOnlyAllowed = false,
         errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
         modifier = Modifier.animateContentSize(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
     )
 }
 
