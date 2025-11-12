@@ -91,6 +91,7 @@ class SelectLocationViewModel(
                         isRecentsEnabled = settings.recents is Recents.Enabled,
                         hopSelection = selectedHop,
                         tunnelErrorStateCause = errorStateCause,
+                        entrySelectionAllowed = !settings.entryBlocked(),
                     )
                 )
             }
@@ -145,7 +146,7 @@ class SelectLocationViewModel(
                 MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
             }
 
-        viewModelScope.launch { modifyMultihop(change) }
+        viewModelScope.launch { modifyMultihop(change = change) }
     }
 
     private suspend fun modifyMultihop(change: MultihopChange) {
@@ -233,6 +234,51 @@ class SelectLocationViewModel(
         relayListScrollConnection.scrollEvents.trySend(event)
     }
 
+    fun onModifyMultihopError(
+        modifyMultihopError: ModifyMultihopError,
+        multihopChange: MultihopChange,
+    ) {
+        viewModelScope.launch {
+            _uiSideEffect.send(modifyMultihopError.toSideEffect(multihopChange))
+        }
+    }
+
+    fun onSelectRelayItemError(selectRelayItemError: SelectRelayItemError) {
+        viewModelScope.launch { _uiSideEffect.send(selectRelayItemError.toSideEffect()) }
+    }
+
+    fun onMultihopChanged(undoChangeMultihopAction: UndoChangeMultihopAction) {
+        viewModelScope.launch {
+            _uiSideEffect.send(SelectLocationSideEffect.MultihopChanged(undoChangeMultihopAction))
+        }
+    }
+
+    fun undoMultihopAction(undoChangeMultihopAction: UndoChangeMultihopAction) {
+        viewModelScope.launch {
+            when (undoChangeMultihopAction) {
+                UndoChangeMultihopAction.Enable ->
+                    wireguardConstraintsRepository.setMultihop(true).onLeft {
+                        _uiSideEffect.send(SelectLocationSideEffect.GenericError)
+                    }
+                UndoChangeMultihopAction.Disable ->
+                    wireguardConstraintsRepository.setMultihop(false).onLeft {
+                        _uiSideEffect.send(SelectLocationSideEffect.GenericError)
+                    }
+                is UndoChangeMultihopAction.DisableAndSetEntry ->
+                    wireguardConstraintsRepository
+                        .setMultihopAndEntryLocation(false, undoChangeMultihopAction.relayItemId)
+                        .onLeft { _uiSideEffect.send(SelectLocationSideEffect.GenericError) }
+                is UndoChangeMultihopAction.DisableAndSetExit ->
+                    relayListRepository
+                        .updateExitRelayLocationMultihop(
+                            false,
+                            undoChangeMultihopAction.relayItemId,
+                        )
+                        .onLeft { _uiSideEffect.send(SelectLocationSideEffect.GenericError) }
+            }
+        }
+    }
+
     private fun ModifyMultihopError.toSideEffect(
         multihopChange: MultihopChange
     ): SelectLocationSideEffect =
@@ -275,4 +321,7 @@ sealed interface SelectLocationSideEffect {
     data object EntryAndExitAreSame : SelectLocationSideEffect
 
     data object RelayListUpdating : SelectLocationSideEffect
+
+    data class MultihopChanged(val undoChangeMultihopAction: UndoChangeMultihopAction) :
+        SelectLocationSideEffect
 }

@@ -22,6 +22,8 @@ fun Settings.deviceIpVersion() = relaySettings.relayConstraints.wireguardConstra
 
 fun Settings.isDaitaAndDirectOnly() = isDaitaEnabled() && isDaitaDirectOnly()
 
+fun Settings.isDaitaAndNotDirectOnly() = isDaitaEnabled() && !isDaitaDirectOnly()
+
 fun Settings.isQuicEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
 
 fun Settings.isLwoEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Lwo
@@ -36,5 +38,7 @@ fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 
 fun Settings.isMultihopEnabled() =
     relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
+
+fun Settings.location() = relaySettings.relayConstraints.location
 
 private fun Settings.daitaSettings() = tunnelOptions.daitaSettings

@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -113,9 +114,13 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.UndoChangeMultihopAction
 import org.koin.androidx.compose.koinViewModel
 
 val SCROLL_COLLAPSE_DISTANCE = 150.dp
@@ -149,8 +154,11 @@ private fun PreviewSelectLocationScreen(
             onSelectRelayList = {},
             openDaitaSettings = {},
             onRefreshRelayList = {},
-            toggleMultihop = {},
             scrollToItem = {},
+            toggleMultihop = {},
+            onMultihopChanged = {},
+            onRelayItemError = {},
+            onModifyMultihopError = { _, _ -> },
         )
     }
 }
@@ -236,6 +244,25 @@ fun SelectLocation(
                         message = context.getString(R.string.updating_server_list_in_the_background)
                     )
                 }
+            is SelectLocationSideEffect.MultihopChanged -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                when (it.undoChangeMultihopAction) {
+                                    UndoChangeMultihopAction.Disable,
+                                    is UndoChangeMultihopAction.DisableAndSetExit,
+                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
+                                        R.string.multihop_is_enabled
+                                    else -> R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        onAction = { vm.undoMultihopAction(it.undoChangeMultihopAction) },
+                        duration = SnackbarDuration.Long,
+                    )
+                }
+            }
         }
     }
 
@@ -318,6 +345,9 @@ fun SelectLocation(
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
         scrollToItem = vm::scrollToItem,
+        onModifyMultihopError = vm::onModifyMultihopError,
+        onRelayItemError = vm::onSelectRelayItemError,
+        onMultihopChanged = vm::onMultihopChanged,
     )
 }
 
@@ -345,7 +375,10 @@ fun SelectLocationScreen(
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
-    toggleMultihop: (enable: Boolean) -> Unit,
+    toggleMultihop: (Boolean) -> Unit,
+    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
+    onRelayItemError: (SelectRelayItemError) -> Unit,
+    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -433,6 +466,9 @@ fun SelectLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
+            onModifyMultihopError = onModifyMultihopError,
+            onRelayItemError = onRelayItemError,
+            onMultihopChanged = onMultihopChanged,
             onHideBottomSheet = { locationBottomSheetState = null },
         )
 

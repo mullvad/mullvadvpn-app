@@ -30,4 +30,9 @@ class WireguardConstraintsRepository(
 
     suspend fun setDeviceIpVersion(ipVersion: Constraint<IpVersion>) =
         managementService.setDeviceIpVersion(ipVersion)
+
+    suspend fun setMultihopAndEntryLocation(
+        multihopEnabled: Boolean,
+        entryRelayItemId: RelayItemId,
+    ) = managementService.setMultihopAndEntryLocation(multihopEnabled, entryRelayItemId)
 }

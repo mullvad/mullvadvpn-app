@@ -11,7 +11,6 @@
     <string name="add_90_days_time_x">Legg til 90 dager (%1$s)</string>
     <string name="add_a_server">Legg til en server</string>
     <string name="add_dns_server_dialog_title">Legg til DNS-server</string>
-    <string name="add_location_to_list">Legg %1$s til i listen</string>
     <string name="add_locations">Legg til plasseringer</string>
     <string name="add_method">Legg til metode</string>
     <string name="add_time">Legg til tid</string>

@@ -642,12 +642,12 @@ private fun GeoIpLocation?.asString(): String {
 
 @Composable
 private fun GeoIpLocation?.hostnameText(): String? {
-    val entryHostName = this?.entryHostname
-    val exitHostName = this?.hostname
+    val entryHostname = this?.entryHostname
+    val exitHostname = this?.hostname
     return when {
-        entryHostName != null && exitHostName != null ->
-            stringResource(R.string.x_via_x, exitHostName, entryHostName)
-        else -> exitHostName
+        entryHostname != null && exitHostname != null ->
+            stringResource(R.string.x_via_x, exitHostname, entryHostname)
+        else -> exitHostname
     }
 }
 
