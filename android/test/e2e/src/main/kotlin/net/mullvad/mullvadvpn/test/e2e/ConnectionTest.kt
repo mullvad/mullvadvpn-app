@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
 import net.mullvad.mullvadvpn.test.common.page.enablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
+import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPort
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
@@ -409,6 +410,30 @@ class ConnectionTest : EndToEndTest() {
             clickDisconnect()
             waitForDisconnectedLabel()
         }
+    }
+
+    @Test
+    fun testConnectUsingWireguardCustomPort() = runTest {
+        // Given
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+
+        // Set wireguard custom port
+        on<ConnectPage> { enableWireGuardCustomPort(53) }
+
+        // Connect
+        on<ConnectPage> { clickConnect() }
+
+        device.acceptVpnPermissionDialog()
+
+        var inIpv4Port = ""
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            inIpv4Port = extractInIpv4Port()
+        }
+
+        // Verify correct port used
+        assertEquals("53", inIpv4Port)
     }
 
     companion object {
