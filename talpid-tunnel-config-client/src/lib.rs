@@ -291,6 +291,7 @@ async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService,
     Ok(RelayConfigService::new(connection))
 }
 
+#[cfg(not(target_os = "ios"))]
 mod socket_sniffer {
     pub struct SocketSniffer<S> {
         pub s: S,
