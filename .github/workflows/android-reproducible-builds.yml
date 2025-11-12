@@ -20,7 +20,9 @@ on:
       - 'dist-assets/android-version*'
       - 'android/src/main/play/release-notes/en-US/default.txt'
       - 'android/gradle/**'
-      - 'android/flake*'
+      - 'flake*'
+      - 'nix/android-*.nix'
+      - 'nix/common-toolchain.nix'
   push:
     tags:
       - 'android/**'
@@ -167,8 +169,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Build app
-        working-directory: android
-        run: nix develop -c ./gradlew assembleOssProdFdroid
+        run: nix develop .#android -c build
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
