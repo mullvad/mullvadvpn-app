@@ -1,7 +1,8 @@
+import React, { useState } from 'react';
+
 import { messages } from '../../shared/gettext';
 import { Button, IconButton, IconButtonProps } from '../lib/components';
-import { useBoolean } from '../lib/utility-hooks';
-import { ModalAlert, ModalAlertType } from './Modal';
+import { Dialog } from '../lib/components/dialog';
 
 export interface InfoButtonProps extends Omit<IconButtonProps, 'icon'> {
   title?: string;
@@ -10,7 +11,9 @@ export interface InfoButtonProps extends Omit<IconButtonProps, 'icon'> {
 }
 
 export default function InfoButton({ title, message, children, ...props }: InfoButtonProps) {
-  const [isOpen, show, hide] = useBoolean(false);
+  const [open, setOpen] = useState(false);
+  const show = React.useCallback(() => setOpen(true), []);
+  const hide = React.useCallback(() => setOpen(false), []);
 
   return (
     <>
@@ -20,19 +23,15 @@ export default function InfoButton({ title, message, children, ...props }: InfoB
         {...props}>
         <IconButton.Icon icon="info-circle" />
       </IconButton>
-      <ModalAlert
-        isOpen={isOpen}
-        title={title}
-        message={message}
-        type={ModalAlertType.info}
-        buttons={[
+      <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog.Container>
+          <Dialog.Icon icon="info-circle" />
+          {children}
           <Button key="back" onClick={hide}>
             <Button.Text>{messages.gettext('Got it!')}</Button.Text>
-          </Button>,
-        ]}
-        close={hide}>
-        {children}
-      </ModalAlert>
+          </Button>
+        </Dialog.Container>
+      </Dialog>
     </>
   );
 }
