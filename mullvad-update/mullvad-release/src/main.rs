@@ -5,6 +5,8 @@
 
 use anyhow::{Context, bail};
 use clap::Parser;
+use mullvad_update::format::key::SecretKey;
+use mullvad_update::format::response::{Response, SignedResponse};
 use std::{path::PathBuf, str::FromStr};
 use tokio::fs;
 
@@ -12,11 +14,8 @@ use config::Config;
 use io_util::create_dir_and_write;
 use platform::Platform;
 
-use mullvad_update::{
-    api::HttpVersionInfoProvider,
-    format::{self, SignedResponse, key},
-    version::{FULLY_ROLLED_OUT, Rollout},
-};
+use mullvad_update::api::HttpVersionInfoProvider;
+use mullvad_update::version::rollout::{FULLY_ROLLED_OUT, Rollout, SUPPORTED_VERSION};
 
 use crate::io_util::wait_for_confirm;
 
@@ -129,7 +128,7 @@ pub enum Opt {
         /// By default, any non-zero rollout is accepted.
         /// Setting the value to zero will also show supported versions that have
         /// been released but are currently not being rolled out.
-        #[arg(long, default_value_t = mullvad_update::version::SUPPORTED_VERSION)]
+        #[arg(long, default_value_t = SUPPORTED_VERSION)]
         rollout: Rollout,
     },
 }
@@ -141,7 +140,7 @@ async fn main() -> anyhow::Result<()> {
 
     match opt {
         Opt::GenerateKey => {
-            let secret = key::SecretKey::generate();
+            let secret = SecretKey::generate();
             println!("Secret key: {secret}");
             println!("Public key: {}", secret.pubkey());
             Ok(())
@@ -149,7 +148,7 @@ async fn main() -> anyhow::Result<()> {
         Opt::CreateMetadataFile { platforms } => {
             let json = serde_json::to_string_pretty(&SignedResponse {
                 signatures: vec![],
-                signed: format::Response::default(),
+                signed: Response::default(),
             })
             .expect("Failed to serialize empty response");
             for platform in all_platforms_if_empty(platforms) {
@@ -205,7 +204,7 @@ async fn main() -> anyhow::Result<()> {
             let key_str = io_util::wait_for_input("Enter ed25519 secret: ")
                 .await
                 .context("Failed to read secret from stdin")?;
-            let secret = key::SecretKey::from_str(&key_str).context("Invalid secret")?;
+            let secret = SecretKey::from_str(&key_str).context("Invalid secret")?;
 
             for platform in all_platforms_if_empty(platforms) {
                 platform

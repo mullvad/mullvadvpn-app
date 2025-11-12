@@ -4,18 +4,20 @@ use anyhow::Context;
 use std::path::Path;
 use tokio::{fs, io::BufReader};
 
-use mullvad_update::{format, hash};
+use mullvad_update::format::Architecture;
+use mullvad_update::format::installer::Installer;
+use mullvad_update::hash;
 
 /// Generate `format::Installer` for a given `artifact`.
 ///
 /// The presence of the files relative to `base_urls` is not verified.
 /// See [crate::config::Config::base_urls] for the assumptions made.
 pub async fn generate_installer_details(
-    architecture: format::Architecture,
+    architecture: Architecture,
     version: &mullvad_version::Version,
     base_urls: &[String],
     artifact: &Path,
-) -> anyhow::Result<format::Installer> {
+) -> anyhow::Result<Installer> {
     let file = fs::File::open(artifact)
         .await
         .with_context(|| format!("Failed to open file at {}", artifact.display()))?;
@@ -39,7 +41,7 @@ pub async fn generate_installer_details(
         .context("Unexpected filename")?;
     let urls = derive_urls(base_urls, version, filename);
 
-    Ok(format::Installer {
+    Ok(Installer {
         architecture,
         urls,
         size: file_size.try_into().context("Invalid file size")?,

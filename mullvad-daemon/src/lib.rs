@@ -72,7 +72,7 @@ use mullvad_types::{
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
 #[cfg(not(target_os = "android"))]
-use mullvad_update::version::generate_rollout_seed;
+use mullvad_update::version::rollout::{Rollout, generate_rollout_seed};
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
@@ -963,7 +963,7 @@ impl Daemon {
             let version = mullvad_version::VERSION
                 .parse()
                 .expect("App version to be parsable");
-            mullvad_update::version::Rollout::threshold(seed, version)
+            Rollout::threshold(seed, version)
         };
         #[cfg(target_os = "android")]
         let rollout = mullvad_update::version::SUPPORTED_VERSION;
@@ -3232,7 +3232,7 @@ impl Daemon {
         let version = mullvad_version::VERSION
             .parse::<mullvad_version::Version>()
             .expect("Failed to parse version");
-        let threshold = mullvad_update::version::Rollout::threshold(seed, version);
+        let threshold = Rollout::threshold(seed, version);
         // a tiny bit hacky way to map Rollout -> f32, but it works.
         threshold
             .to_string()

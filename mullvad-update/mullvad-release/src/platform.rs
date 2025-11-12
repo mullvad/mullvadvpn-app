@@ -1,12 +1,14 @@
 //! Types for handling per-platform metadata
 
 use anyhow::{Context, anyhow, bail};
-use mullvad_update::{
-    api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
-    format::{self, key},
-    version::{
-        MIN_VERIFY_METADATA_VERSION, Rollout, VersionArchitecture, VersionInfo, VersionParameters,
-    },
+use mullvad_update::api::{HttpVersionInfoProvider, MetaRepositoryPlatform};
+use mullvad_update::format::installer::Installer;
+use mullvad_update::format::release::Release;
+use mullvad_update::format::response::{Response, SignedResponse};
+use mullvad_update::format::{self, Architecture, key};
+use mullvad_update::version::rollout::Rollout;
+use mullvad_update::version::{
+    MIN_VERIFY_METADATA_VERSION, VersionArchitecture, VersionInfo, VersionParameters,
 };
 use std::{cmp::Ordering, fmt, path::PathBuf, str::FromStr};
 use strum::IntoEnumIterator;
@@ -176,7 +178,7 @@ impl Platform {
 
         // Read unsigned JSON data
         let data = fs::read(work_path).await?;
-        let mut response = format::SignedResponse::deserialize_insecure(&data)?;
+        let mut response = SignedResponse::deserialize_insecure(&data)?;
 
         // Update the expiration date
         response.signed.metadata_expiry = chrono::Utc::now()
@@ -196,7 +198,7 @@ impl Platform {
         response.signed.metadata_version = new_version;
 
         // Sign it
-        let signed_response = format::SignedResponse::sign(secret, response.signed)?;
+        let signed_response = SignedResponse::sign(secret, response.signed)?;
 
         // Update signed data
         let signed_bytes = serde_json::to_string_pretty(&signed_response)
@@ -243,7 +245,7 @@ impl Platform {
         }
 
         // Make release
-        let new_release = format::Release {
+        let new_release = Release {
             changelog: changes.to_owned(),
             version: version.clone(),
             installers,
@@ -268,13 +270,13 @@ impl Platform {
         &self,
         version: &mullvad_version::Version,
         base_urls: &[String],
-    ) -> anyhow::Result<Vec<format::Installer>> {
+    ) -> anyhow::Result<Vec<Installer>> {
         let mut installers = vec![];
         let artifacts = self.artifact_filenames(version);
         for artifact in artifacts.arm64_artifacts {
             installers.push(
                 artifacts::generate_installer_details(
-                    format::Architecture::Arm64,
+                    Architecture::Arm64,
                     version,
                     base_urls,
                     &artifact,
@@ -285,7 +287,7 @@ impl Platform {
         for artifact in artifacts.x86_artifacts {
             installers.push(
                 artifacts::generate_installer_details(
-                    format::Architecture::X86,
+                    Architecture::X86,
                     version,
                     base_urls,
                     &artifact,
@@ -421,29 +423,29 @@ impl Platform {
 
     /// Reads the metadata for `platform` in the work directory.
     /// If the file doesn't exist, this returns a new, empty response.
-    async fn read_work(&self) -> anyhow::Result<format::SignedResponse> {
+    async fn read_work(&self) -> anyhow::Result<SignedResponse> {
         let work_path = self.work_path();
         let bytes = match fs::read(&work_path).await {
             Ok(bytes) => bytes,
             Err(error) if error.kind() == io::ErrorKind::NotFound => {
                 // Return empty response
-                return Ok(format::SignedResponse {
+                return Ok(SignedResponse {
                     signatures: vec![],
-                    signed: format::Response::default(),
+                    signed: Response::default(),
                 });
             }
             Err(error) => bail!("Failed to read {}: {error}", work_path.display()),
         };
         // Note: We don't need to verify the signature here
-        format::SignedResponse::deserialize_insecure(&bytes)
+        SignedResponse::deserialize_insecure(&bytes)
     }
 
     /// Read and verify the metadata for `platform` in the signed directory.
-    async fn read_signed(&self) -> anyhow::Result<format::SignedResponse> {
+    async fn read_signed(&self) -> anyhow::Result<SignedResponse> {
         let signed_path = self.signed_path();
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
 
-        format::SignedResponse::deserialize_and_verify(
+        SignedResponse::deserialize_and_verify(
             &bytes,
             mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
         )
@@ -464,7 +466,7 @@ impl From<Platform> for MetaRepositoryPlatform {
 /// Print release info:
 /// Version: 2025.3 (arm, x86) (50%)
 /// <Changelog>
-fn print_release_info(release: &format::Release) {
+fn print_release_info(release: &Release) {
     let mut architectures: Vec<_> = release
         .installers
         .iter()
