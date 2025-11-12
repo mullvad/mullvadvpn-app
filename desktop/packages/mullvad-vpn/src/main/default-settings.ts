@@ -12,7 +12,6 @@ export function getDefaultRelaySettingsNormal(): IRelaySettingsNormal {
     providers: [],
     ownership: Ownership.any,
     wireguardConstraints: {
-      port: 'any',
       ipVersion: 'any',
       useMultihop: false,
       entryLocation: 'any',
@@ -76,6 +75,9 @@ export function getDefaultSettings(): ISettings {
         port: 'any',
       },
       shadowsocksSettings: {
+        port: 'any',
+      },
+      wireGuardPortSettings: {
         port: 'any',
       },
     },

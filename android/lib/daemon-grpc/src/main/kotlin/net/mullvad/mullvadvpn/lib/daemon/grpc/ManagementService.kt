@@ -137,7 +137,6 @@ import net.mullvad.mullvadvpn.lib.model.ipVersion
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
-import net.mullvad.mullvadvpn.lib.model.port
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
 import net.mullvad.mullvadvpn.lib.model.selectedObfuscationMode
@@ -145,6 +144,7 @@ import net.mullvad.mullvadvpn.lib.model.shadowsocks
 import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.wireguardPort
 
 @Suppress("TooManyFunctions", "LargeClass")
 class ManagementService(
@@ -828,13 +828,9 @@ class ManagementService(
         port: Constraint<Port>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings = getSettings().relaySettings
-                val updated =
-                    RelaySettings.relayConstraints.wireguardConstraints.port.set(
-                        relaySettings,
-                        port,
-                    )
-                grpc.setRelaySettings(updated.fromDomain())
+                val obfuscationSettings = getSettings().obfuscationSettings
+                val updated = ObfuscationSettings.wireguardPort.set(obfuscationSettings, port)
+                grpc.setObfuscationSettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set wireguard port error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
