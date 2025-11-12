@@ -53,7 +53,6 @@ class SelectLocationListViewModel(
                             relayListType = relayListType,
                             relayListItems = relayListItems,
                             customLists = customLists,
-                            selection = selectedItem,
                         )
                     )
                 }

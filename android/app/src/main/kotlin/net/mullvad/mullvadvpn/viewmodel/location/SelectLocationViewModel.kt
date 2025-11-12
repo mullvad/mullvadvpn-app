@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -58,7 +57,7 @@ class SelectLocationViewModel(
     private val settingsRepository: SettingsRepository,
     private val selectHopUseCase: SelectHopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
-    private val selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
+    selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     connectionProxy: ConnectionProxy,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType?> = MutableStateFlow(null)
@@ -91,10 +90,8 @@ class SelectLocationViewModel(
                             if (relayListSelection.isEntryAndBlocked(settings)) {
                                 filterChips.let {
                                     val ret = it.toMutableMap()
-                                    ret.put(
-                                        RelayListType.Multihop(MultihopRelayListType.ENTRY),
-                                        emptyList(),
-                                    )
+                                    ret[RelayListType.Multihop(MultihopRelayListType.ENTRY)] =
+                                        emptyList()
                                     ret
                                 }
                             } else {
@@ -251,45 +248,7 @@ class SelectLocationViewModel(
         }
     }
 
-    fun setAsEntry(item: RelayItem) {
-        viewModelScope.launch {
-            modifyMultihop(MultihopChange.Entry(item)) {
-                // If we were successful we should set multihop to true if required
-                if (
-                    wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
-                        false
-                ) {
-                    setMultihop(enable = true, showSnackbar = true)
-                    _uiSideEffect.send(SelectLocationSideEffect.MultihopChanged(true))
-                }
-            }
-        }
-    }
-
-    fun setAsExit(item: RelayItem) {
-        viewModelScope.launch {
-            if (
-                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
-                    false
-            ) {
-                // If we are in singlehop mode we want to set a new multihop were the previous exit
-                // is set as an entry, and the new exit is set as exit
-                // After that we turn on multihop
-                val previousSelection = selectedLocationRelayItemUseCase().first().second
-                if (previousSelection != null) {
-                    selectHop(Hop.Multi(entry = previousSelection, exit = item)) {
-                        setMultihop(enable = true, showSnackbar = true)
-                    }
-                } else {
-                    setMultihop(enable = true, showSnackbar = true)
-                }
-            } else {
-                modifyMultihop(MultihopChange.Exit(item))
-            }
-        }
-    }
-
-    fun setMultihop(enable: Boolean, showSnackbar: Boolean = false) {
+    fun setMultihop(enable: Boolean) {
         viewModelScope.launch {
             wireguardConstraintsRepository
                 .setMultihop(enable)
@@ -303,9 +262,6 @@ class SelectLocationViewModel(
                                 RelayListType.Single
                             }
                         )
-                        if (showSnackbar) {
-                            _uiSideEffect.send(SelectLocationSideEffect.MultihopChanged(enable))
-                        }
                     },
                 )
         }
@@ -353,6 +309,4 @@ sealed interface SelectLocationSideEffect {
     data object EntryAndExitAreSame : SelectLocationSideEffect
 
     data object RelayListUpdating : SelectLocationSideEffect
-
-    data class MultihopChanged(val enabled: Boolean) : SelectLocationSideEffect
 }

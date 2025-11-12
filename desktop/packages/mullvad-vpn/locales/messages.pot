@@ -2812,9 +2812,6 @@ msgstr ""
 msgid "Add time"
 msgstr ""
 
-msgid "Add to list"
-msgstr ""
-
 msgid "Adding method..."
 msgstr ""
 
@@ -3103,12 +3100,6 @@ msgstr ""
 msgid "Mullvad services unavailable"
 msgstr ""
 
-msgid "Multihop is disabled"
-msgstr ""
-
-msgid "Multihop is enabled"
-msgstr ""
-
 msgid "Name was changed to %s"
 msgstr ""
 
@@ -3211,9 +3202,6 @@ msgstr ""
 msgid "Remove %s?"
 msgstr ""
 
-msgid "Remove as multihop entry"
-msgstr ""
-
 msgid "Remove custom port"
 msgstr ""
 
@@ -3242,12 +3230,6 @@ msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this set
 msgstr ""
 
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
-msgstr ""
-
-msgid "Set as multihop entry"
-msgstr ""
-
-msgid "Set as multihop exit"
 msgstr ""
 
 msgid "Set port"

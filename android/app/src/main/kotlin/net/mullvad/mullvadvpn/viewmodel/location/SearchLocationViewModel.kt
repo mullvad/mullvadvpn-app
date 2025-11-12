@@ -119,8 +119,6 @@ class SearchLocationViewModel(
                             ),
                         customLists = customLists,
                         filterChips = filterChips,
-                        selection = selectedItem,
-                        entrySelectionAllowed = settings?.entryBlocked() == false,
                     )
                 )
             }
@@ -255,31 +253,6 @@ class SearchLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun setAsEntry(item: RelayItem) {
-        viewModelScope.launch {
-            modifyMultihop(MultihopChange.Entry(item))
-            // If multihop is not turned on, turn it on and show a snackbar to the user
-            if (
-                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ==
-                    false
-            ) {
-                wireguardConstraintsRepository.setMultihop(true)
-                _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(true))
-            }
-        }
-    }
-
-    fun setAsExit(item: RelayItem) {
-        viewModelScope.launch { modifyMultihop(MultihopChange.Exit(item)) }
-    }
-
-    fun setMultihop(enable: Boolean) {
-        viewModelScope.launch {
-            wireguardConstraintsRepository.setMultihop(enable)
-            _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(enable))
-        }
-    }
-
     fun removeOwnerFilter() {
         viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
     }
@@ -306,8 +279,6 @@ sealed interface SearchLocationSideEffect {
 
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect
-
-    data class MultihopChanged(val enabled: Boolean) : SearchLocationSideEffect
 
     data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 
