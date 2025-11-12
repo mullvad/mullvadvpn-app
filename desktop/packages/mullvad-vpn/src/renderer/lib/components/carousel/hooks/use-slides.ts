@@ -14,8 +14,19 @@ export function useSlides() {
   const hasNext = slideIndex < slides.length - 1;
   const hasPrev = slideIndex > 0;
 
-  const next = React.useCallback(() => goToSlide(getSlideIndex() + 1), [goToSlide, getSlideIndex]);
-  const prev = React.useCallback(() => goToSlide(getSlideIndex() - 1), [goToSlide, getSlideIndex]);
+  const next = React.useCallback(() => {
+    if (!hasNext) {
+      return;
+    }
+    return goToSlide(getSlideIndex() + 1);
+  }, [hasNext, goToSlide, getSlideIndex]);
+
+  const prev = React.useCallback(() => {
+    if (!hasPrev) {
+      return;
+    }
+    return goToSlide(getSlideIndex() - 1);
+  }, [hasPrev, goToSlide, getSlideIndex]);
 
   return {
     goToSlide,
