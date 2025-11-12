@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -148,7 +149,9 @@ private fun PreviewSelectLocationScreen(
             onSelectRelayList = {},
             openDaitaSettings = {},
             onRefreshRelayList = {},
-            toggleMultihop = {},
+            onSetAsExit = {},
+            onSetAsEntry = {},
+            toggleMultihop = { _, _ -> },
         )
     }
 }
@@ -234,6 +237,23 @@ fun SelectLocation(
                         message = context.getString(R.string.updating_server_list_in_the_background)
                     )
                 }
+            is SelectLocationSideEffect.MultihopChanged -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                if (it.enabled) {
+                                    R.string.multihop_is_enabled
+                                } else {
+                                    R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        onAction = { vm.setMultihop(!it.enabled) },
+                        duration = SnackbarDuration.Long,
+                    )
+                }
+            }
         }
     }
 
@@ -315,6 +335,8 @@ fun SelectLocation(
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
+        onSetAsEntry = vm::setAsEntry,
+        onSetAsExit = vm::setAsExit,
     )
 }
 
@@ -341,7 +363,9 @@ fun SelectLocationScreen(
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
-    toggleMultihop: (enable: Boolean) -> Unit,
+    onSetAsEntry: (RelayItem) -> Unit,
+    onSetAsExit: (RelayItem) -> Unit,
+    toggleMultihop: (enable: Boolean, showSnackbar: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -423,6 +447,7 @@ fun SelectLocationScreen(
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
+            enableEntryOption = state.contentOrNull()?.entrySelectionAllowed == true,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
@@ -430,6 +455,9 @@ fun SelectLocationScreen(
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
             onHideBottomSheet = { locationBottomSheetState = null },
+            onSetAsEntry = onSetAsEntry,
+            onSetAsExit = onSetAsExit,
+            onDisableMultihop = { setMultihop(false, true) },
         )
 
         val expandProgress = remember { Animatable(1f) }
