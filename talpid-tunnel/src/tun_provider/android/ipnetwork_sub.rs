@@ -18,7 +18,6 @@ pub trait AbstractIpNetwork: Clone + Copy + 'static {
         + Shl<u8, Output = Self::Representation>
         + Sub<Output = Self::Representation>;
 
-    const ZERO: Self::Representation;
     const ONE: Self::Representation;
     const MAX_PREFIX: u8;
 
@@ -31,7 +30,6 @@ pub trait AbstractIpNetwork: Clone + Copy + 'static {
 impl AbstractIpNetwork for Ipv4Network {
     type Representation = u32;
 
-    const ZERO: Self::Representation = 0;
     const ONE: Self::Representation = 1;
     const MAX_PREFIX: u8 = 32;
 
@@ -55,7 +53,6 @@ impl AbstractIpNetwork for Ipv4Network {
 impl AbstractIpNetwork for Ipv6Network {
     type Representation = u128;
 
-    const ZERO: Self::Representation = 0;
     const ONE: Self::Representation = 1;
     const MAX_PREFIX: u8 = 128;
 
