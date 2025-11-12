@@ -34,8 +34,11 @@
         ];
       };
 
-      rust-toolchain = (pkgs.buildPackages.rust-bin.fromRustupToolchainFile
-        ./rust-toolchain.toml).override {
+      common = import ./nix/common.nix {
+        inherit pkgs rust-overlay;
+      };
+
+      rust-toolchain = common.rust-toolchain-base.override {
         extensions = ["rust-analyzer"];
         targets = [
           "aarch64-linux-android"
@@ -73,18 +76,12 @@
 
       devShells.default = pkgs.devshell.mkShell {
         name = "mullvad-android-devshell";
-        packages =
-          [
-            android-sdk
-            rust-toolchain
-            pkgs.protoc-gen-grpc-java
-            pkgs.gcc
-            pkgs.gnumake
-            pkgs.protobuf
-            pkgs.jdk17
-            pkgs.python314
-          ]
-          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [pkgs.libiconv];
+        packages = common.commonPackages ++ [
+          android-sdk
+          rust-toolchain
+          pkgs.protoc-gen-grpc-java
+          pkgs.jdk17
+        ];
 
         env = import ./nix/android-env.nix {
           inherit pkgs android-sdk buildToolsVersion ndkVersion minSdkVersion;
