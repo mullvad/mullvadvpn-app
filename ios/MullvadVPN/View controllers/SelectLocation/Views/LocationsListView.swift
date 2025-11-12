@@ -14,7 +14,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     }
 
     var body: some View {
-        VStack(spacing: 4) {
+        LazyVStack(spacing: 4) {
             ForEach(
                 Array(filteredLocationIndices.enumerated()),
                 id: \.element
