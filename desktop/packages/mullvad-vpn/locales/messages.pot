@@ -326,6 +326,12 @@ msgctxt "accessibility"
 msgid "Copy account number"
 msgstr ""
 
+#. Accessibility label for a carousel that explains
+#. the DAITA feature to the user.
+msgctxt "accessibility"
+msgid "DAITA information carousel"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "Edit custom bridge"
 msgstr ""
@@ -354,10 +360,24 @@ msgctxt "accessibility"
 msgid "Go to app update page"
 msgstr ""
 
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr ""
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
+msgstr ""
+
+#. Alt text for an illustration showing VPN traffic with DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr ""
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
 msgstr ""
 
 msgctxt "accessibility"
@@ -393,9 +413,21 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr ""
 
+#. Accessibility label for a button that
+#. navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr ""
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
+msgstr ""
+
+#. Accessibility label for a button that
+#. navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
 msgstr ""
 
 #. Button action description provided to accessibility tools such as screen
