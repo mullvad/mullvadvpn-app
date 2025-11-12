@@ -56,7 +56,7 @@ pub enum Error {
     GetFunction(#[source] io::Error),
 }
 
-type SetInterfaceDnsSettingsFn = unsafe extern "stdcall" fn(
+type SetInterfaceDnsSettingsFn = unsafe extern "system" fn(
     interface: GUID,
     settings: *const DNS_INTERFACE_SETTINGS,
 ) -> WIN32_ERROR;
