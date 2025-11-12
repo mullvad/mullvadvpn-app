@@ -27,11 +27,11 @@ impl ExchangeCancelToken {
 
     /// Blocks until the associated ephemeral peer exchange task is finished.
     pub fn cancel(&self) {
-        if let Ok(mut inner) = self.inner.lock() {
-            if let Some(task) = inner.task.take() {
-                task.abort();
-                let _ = inner.tokio_handle.block_on(task);
-            }
+        if let Ok(mut inner) = self.inner.lock()
+            && let Some(task) = inner.task.take()
+        {
+            task.abort();
+            let _ = inner.tokio_handle.block_on(task);
         }
     }
 }
