@@ -109,8 +109,7 @@ impl ConnectedState {
         let clients = AllowedClients::from(vec![std::env::current_exe().unwrap()]);
 
         #[cfg(not(target_os = "windows"))]
-        let clients = AllowedClients::Root; // TODO: check that this change did not break bridge
-        // api access method
+        let clients = AllowedClients::Root;
 
         #[cfg(target_os = "windows")]
         let exit_endpoint_ip = self
