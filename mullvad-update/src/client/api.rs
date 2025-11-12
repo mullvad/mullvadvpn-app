@@ -270,7 +270,7 @@ mod test {
 
         // Construct query and provider
         let info_provider = HttpVersionInfoProvider {
-            url: url.to_string(),
+            url,
             pinned_certificate: None,
             resolve: Some(resolve),
             dump_to_path: Some(temp_dump.clone()),
