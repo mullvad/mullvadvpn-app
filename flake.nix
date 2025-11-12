@@ -1,5 +1,5 @@
 {
-  description = "Mullvad Android app build flake";
+  description = "Mullvad VPN development environments";
 
   inputs = {
     # Unstable is currently needed for protoc-gen-grpc-java.
@@ -35,7 +35,7 @@
       };
 
       rust-toolchain = (pkgs.buildPackages.rust-bin.fromRustupToolchainFile
-        ../rust-toolchain.toml).override {
+        ./rust-toolchain.toml).override {
         extensions = ["rust-analyzer"];
         targets = [
           "aarch64-linux-android"
@@ -49,7 +49,7 @@
         (builtins.fromTOML (
           builtins.concatStringsSep "\n" (
             builtins.filter (line: !(builtins.match "^[[:space:]]*#" line != null))
-            (nixpkgs.lib.splitString "\n" (builtins.readFile ./gradle/libs.versions.toml))
+            (nixpkgs.lib.splitString "\n" (builtins.readFile ./android/gradle/libs.versions.toml))
           )
         )).versions;
 
@@ -67,10 +67,6 @@
           platform-tools
         ]);
     in {
-      overlay = final: prev: {
-        inherit (self.packages.${system}) android-sdk;
-      };
-
       packages = {
         inherit android-sdk;
       };
@@ -90,7 +86,7 @@
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [pkgs.libiconv];
 
-        env = import ./nix/env-vars.nix {
+        env = import ./nix/android-env.nix {
           inherit pkgs android-sdk buildToolsVersion ndkVersion minSdkVersion;
         };
         # Unfortunately rich menus with package, description and category
@@ -100,11 +96,11 @@
         commands = [
           {
             name = "tasks";
-            command = "./gradlew tasks";
+            command = "cd android && ./gradlew tasks";
           }
           {
             name = "build";
-            command = "./gradlew assembleOssProdDebug";
+            command = "cd android && ./gradlew assembleOssProdDebug";
           }
         ];
       };
