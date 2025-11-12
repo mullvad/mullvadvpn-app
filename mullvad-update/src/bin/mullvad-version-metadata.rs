@@ -5,7 +5,8 @@ use clap::Parser;
 use std::io::Read;
 use tokio::{fs, io};
 
-use mullvad_update::format::{self, key};
+use mullvad_update::format::key;
+use mullvad_update::format::response::{Response, SignedResponse};
 
 #[allow(dead_code)]
 const DEFAULT_EXPIRY_MONTHS: u32 = 6;
@@ -51,11 +52,11 @@ async fn sign(file: String, secret: key::SecretKey) -> anyhow::Result<()> {
     };
 
     // Deserialize version data
-    let response: format::Response =
+    let response: Response =
         serde_json::from_slice(&data).context("Failed to deserialize version metadata")?;
 
     // Sign it
-    let signed_response = format::SignedResponse::sign(secret, response)?;
+    let signed_response = SignedResponse::sign(secret, response)?;
 
     // Print it
     println!(

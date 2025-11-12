@@ -52,6 +52,17 @@ impl Rollout {
         let threshold = rng.random_range(SUPPORTED_VERSION.0..=FULLY_ROLLED_OUT.0);
         Self::try_from(threshold).expect("threshold is within the Rollout domain")
     }
+
+    /// A full rollout includes all users
+    pub const fn complete() -> Self {
+        FULLY_ROLLED_OUT
+    }
+}
+
+pub fn is_complete_rollout(b: impl std::borrow::Borrow<Rollout>) -> bool {
+    // TODO: do we actually need this? if so, should we bake it into Rollout::eq?
+    //(b.borrow() - complete_rollout()).abs() < f32::EPSILON
+    b.borrow() == &FULLY_ROLLED_OUT
 }
 
 impl TryFrom<f32> for Rollout {

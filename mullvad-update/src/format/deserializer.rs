@@ -3,9 +3,8 @@
 use anyhow::Context;
 use vec1::Vec1;
 
-use super::Response;
 use super::key::*;
-use super::{PartialSignedResponse, ResponseSignature, SignedResponse};
+use super::response::{PartialSignedResponse, Response, ResponseSignature, SignedResponse};
 
 impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
