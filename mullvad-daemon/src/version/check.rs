@@ -146,16 +146,16 @@ impl VersionUpdaterInner {
 
     #[cfg(not(target_os = "android"))]
     fn ignore_cache_if_same_version(&self, mut new_version_info: VersionCache) -> VersionCache {
-        if let Some(current_cache) = self.last_app_version_info.as_ref() {
-            if current_cache.metadata_version == new_version_info.metadata_version {
-                log::trace!("Ignoring version info with same metadata version");
-                // Ignore everything except etag and platform timestamp
-                new_version_info = VersionCache {
-                    last_platform_header_check: new_version_info.last_platform_header_check,
-                    etag: new_version_info.etag,
-                    ..current_cache.clone()
-                };
-            }
+        if let Some(current_cache) = self.last_app_version_info.as_ref()
+            && current_cache.metadata_version == new_version_info.metadata_version
+        {
+            log::trace!("Ignoring version info with same metadata version");
+            // Ignore everything except etag and platform timestamp
+            new_version_info = VersionCache {
+                last_platform_header_check: new_version_info.last_platform_header_check,
+                etag: new_version_info.etag,
+                ..current_cache.clone()
+            };
         }
         new_version_info
     }

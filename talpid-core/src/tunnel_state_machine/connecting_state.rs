@@ -126,15 +126,15 @@ impl ConnectingState {
                     #[cfg(target_os = "android")]
                     {
                         shared_values.prepare_tun_config(false);
-                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
-                            if let Err(error) =
-                                { shared_values.tun_provider.lock().unwrap().open_tun_forced() }
-                            {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to recreate tun device")
-                                );
-                            }
+                        if retry_attempt > 0
+                            && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0
+                            && let Err(error) =
+                                shared_values.tun_provider.lock().unwrap().open_tun_forced()
+                        {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to recreate tun device")
+                            );
                         }
                     }
 
