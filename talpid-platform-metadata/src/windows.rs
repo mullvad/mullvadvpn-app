@@ -88,7 +88,7 @@ impl WindowsVersion {
         let rtl_get_version = unsafe {
             mem::transmute::<
                 unsafe extern "system" fn() -> isize,
-                unsafe extern "stdcall" fn(*mut RTL_OSVERSIONINFOEXW) -> NTSTATUS,
+                unsafe extern "system" fn(*mut RTL_OSVERSIONINFOEXW) -> NTSTATUS,
             >(function_address)
         };
 

@@ -53,26 +53,26 @@ const ADAPTER_GUID: GUID = GUID {
     data4: [0x8b, 0x05, 0x31, 0xda, 0x25, 0xa0, 0x44, 0xa9],
 };
 
-type WireGuardCreateAdapterFn = unsafe extern "stdcall" fn(
+type WireGuardCreateAdapterFn = unsafe extern "system" fn(
     name: *const u16,
     tunnel_type: *const u16,
     requested_guid: *const GUID,
 ) -> RawHandle;
-type WireGuardCloseAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
+type WireGuardCloseAdapterFn = unsafe extern "system" fn(adapter: RawHandle);
 type WireGuardGetAdapterLuidFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID_LH);
-type WireGuardSetConfigurationFn = unsafe extern "stdcall" fn(
+    unsafe extern "system" fn(adapter: RawHandle, luid: *mut NET_LUID_LH);
+type WireGuardSetConfigurationFn = unsafe extern "system" fn(
     adapter: RawHandle,
     config: *const MaybeUninit<u8>,
     bytes: u32,
 ) -> bool;
-type WireGuardGetConfigurationFn = unsafe extern "stdcall" fn(
+type WireGuardGetConfigurationFn = unsafe extern "system" fn(
     adapter: RawHandle,
     config: *const MaybeUninit<u8>,
     bytes: *mut u32,
 ) -> bool;
 type WireGuardSetStateFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> bool;
+    unsafe extern "system" fn(adapter: RawHandle, state: WgAdapterState) -> bool;
 
 #[repr(C)]
 #[allow(dead_code)]
@@ -92,8 +92,8 @@ impl From<LogLevel> for logging::LogLevel {
     }
 }
 
-type WireGuardLoggerCb = extern "stdcall" fn(LogLevel, timestamp: u64, *const u16);
-type WireGuardSetLoggerFn = extern "stdcall" fn(Option<WireGuardLoggerCb>);
+type WireGuardLoggerCb = extern "system" fn(LogLevel, timestamp: u64, *const u16);
+type WireGuardSetLoggerFn = extern "system" fn(Option<WireGuardLoggerCb>);
 
 #[repr(C)]
 #[allow(dead_code)]
@@ -104,7 +104,7 @@ enum WireGuardAdapterLogState {
 }
 
 type WireGuardSetAdapterLoggingFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, state: WireGuardAdapterLogState) -> bool;
+    unsafe extern "system" fn(adapter: RawHandle, state: WireGuardAdapterLogState) -> bool;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -524,7 +524,7 @@ impl LoggerHandle {
         Ok(Self { dll, context })
     }
 
-    extern "stdcall" fn logging_callback(level: LogLevel, _timestamp: u64, message: *const u16) {
+    extern "system" fn logging_callback(level: LogLevel, _timestamp: u64, message: *const u16) {
         if message.is_null() {
             return;
         }
