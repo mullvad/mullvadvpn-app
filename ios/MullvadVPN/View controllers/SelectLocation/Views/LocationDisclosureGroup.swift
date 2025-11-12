@@ -66,7 +66,7 @@ struct LocationDisclosureGroup<Label: View, Content: View>: View {
             .accessibilityIdentifier(accessibilityIdentifier)
 
             if isExpanded {
-                VStack(spacing: 1) {
+                LazyVStack(spacing: 1) {
                     content()
                 }
                 .padding(.top, 1)
