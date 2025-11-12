@@ -6,7 +6,7 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
-use mullvad_update::version::{Rollout, VersionInfo};
+use mullvad_update::version::{VersionInfo, rollout::Rollout};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{

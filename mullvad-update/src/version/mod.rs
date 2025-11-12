@@ -3,16 +3,19 @@
 //! deserialized response.
 //!
 //! The main input here is [VersionParameters], and the main output is [VersionInfo].
+pub mod rollout;
+
 use std::cmp::Ordering;
 
-use crate::format::{self, Installer, Response};
 use anyhow::Context;
 use itertools::Itertools;
 use mullvad_version::PreStableType;
+use rollout::Rollout;
 
-mod rollout;
-
-pub use rollout::{FULLY_ROLLED_OUT, IGNORE, Rollout, SUPPORTED_VERSION, generate_rollout_seed};
+use crate::format::Architecture;
+use crate::format::installer::Installer;
+use crate::format::release::Release;
+use crate::format::response::Response;
 
 /// Lowest version to accept using 'verify'
 pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
@@ -32,7 +35,7 @@ pub struct VersionParameters {
 }
 
 /// Installer architecture
-pub type VersionArchitecture = format::Architecture;
+pub type VersionArchitecture = Architecture;
 
 /// Version update information derived from querying a [format::Response] and filtering with [VersionParameters]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
@@ -64,7 +67,7 @@ impl VersionInfo {
     /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
     pub fn try_from_response(
         params: &VersionParameters,
-        response: format::Response,
+        response: Response,
     ) -> anyhow::Result<Self> {
         // Fail if there are duplicate versions.
         // Check this before anything else so that it's rejected independently of `params`.
@@ -79,7 +82,7 @@ impl VersionInfo {
         .filter(|release| release.rollout >= params.rollout)
         // Filter out dev versions
         .filter(|release| !release.version.is_dev())
-        .flat_map(|format::Release { version, changelog, installers, .. }| {
+        .flat_map(|Release { version, changelog, installers, .. }| {
             if installers.is_empty() && params.allow_empty {
                 // HACK: If there are no installers (e.g. on Linux), return the version anyway
                 return Some(anyhow::Ok(Version {
@@ -148,6 +151,8 @@ mod test {
 
     use insta::assert_yaml_snapshot;
 
+    use crate::format::response::SignedResponse;
+
     use super::rollout::*;
     use super::*;
 
@@ -160,7 +165,7 @@ mod test {
     /// Test version info response handler (rollout 1, x86)
     #[test]
     fn test_version_info_parser_x86() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
+        let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
@@ -180,7 +185,7 @@ mod test {
     /// Test version info response handler (rollout 0.01, arm64)
     #[test]
     fn test_version_info_parser_arm64() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
+        let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::Arm64,
@@ -200,7 +205,7 @@ mod test {
     /// Versions without installers should be returned if `allow_empty` is set
     #[test]
     fn test_version_info_empty() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
+        let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
@@ -220,7 +225,7 @@ mod test {
     /// Test whether [SUPPORTED_VERSION] ignores unsupported versions (where rollout = 0.0)
     #[test]
     fn test_version_unsupported_filtering() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
+        let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
@@ -251,7 +256,7 @@ mod test {
 
     #[test]
     fn test_is_version_supported() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
+        let response = SignedResponse::deserialize_insecure(TEST_RESPONSE)?;
 
         let supported_version = mullvad_version::Version::from_str("2025.3").unwrap();
         let supported_rollout_zero_version = mullvad_version::Version::from_str("2030.3").unwrap();

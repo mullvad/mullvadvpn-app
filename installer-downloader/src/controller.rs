@@ -12,6 +12,7 @@ use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     app::{self, AppCache, AppDownloader, DownloadedInstaller, HttpAppDownloader},
     local::METADATA_FILENAME,
+    version::rollout::SUPPORTED_VERSION,
     version::{Version, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
 };
@@ -214,7 +215,7 @@ where
         let version_params = VersionParameters {
             architecture,
             // For the downloader, the rollout version is always preferred
-            rollout: mullvad_update::version::SUPPORTED_VERSION,
+            rollout: SUPPORTED_VERSION,
             allow_empty: false,
             // The downloader allows any version
             lowest_metadata_version: mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
