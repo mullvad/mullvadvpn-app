@@ -24,22 +24,21 @@ use winreg::{
 /// Shared `WintunDll` instance
 static WINTUN_DLL: OnceCell<WintunDll> = OnceCell::new();
 
-type WintunCreateAdapterFn = unsafe extern "stdcall" fn(
+type WintunCreateAdapterFn = unsafe extern "system" fn(
     name: *const u16,
     tunnel_type: *const u16,
     requested_guid: *const GUID,
 ) -> RawHandle;
 
-type WintunOpenAdapterFn = unsafe extern "stdcall" fn(name: *const u16) -> RawHandle;
+type WintunOpenAdapterFn = unsafe extern "system" fn(name: *const u16) -> RawHandle;
 
-type WintunCloseAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
+type WintunCloseAdapterFn = unsafe extern "system" fn(adapter: RawHandle);
 
-type WintunGetAdapterLuidFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID_LH);
+type WintunGetAdapterLuidFn = unsafe extern "system" fn(adapter: RawHandle, luid: *mut NET_LUID_LH);
 
-type WintunLoggerCbFn = extern "stdcall" fn(WintunLoggerLevel, u64, *const u16);
+type WintunLoggerCbFn = extern "system" fn(WintunLoggerLevel, u64, *const u16);
 
-type WintunSetLoggerFn = unsafe extern "stdcall" fn(Option<WintunLoggerCbFn>);
+type WintunSetLoggerFn = unsafe extern "system" fn(Option<WintunLoggerCbFn>);
 
 #[repr(C)]
 #[allow(dead_code)]
@@ -295,7 +294,7 @@ impl WintunLoggerHandle {
         Self { dll_handle }
     }
 
-    extern "stdcall" fn callback(level: WintunLoggerLevel, _timestamp: u64, message: *const u16) {
+    extern "system" fn callback(level: WintunLoggerLevel, _timestamp: u64, message: *const u16) {
         if message.is_null() {
             return;
         }
