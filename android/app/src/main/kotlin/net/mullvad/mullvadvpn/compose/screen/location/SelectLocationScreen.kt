@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +41,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
@@ -123,6 +123,9 @@ private fun PreviewSelectLocationScreen(
             onSelectRelayList = {},
             openDaitaSettings = {},
             onRefreshRelayList = {},
+            onSetAsExit = {},
+            onSetAsEntry = {},
+            setMultihop = { _, _ -> },
         )
     }
 }
@@ -212,18 +215,23 @@ fun SelectLocation(
                         message = context.getString(R.string.updating_server_list_in_the_background)
                     )
                 }
-            is SelectLocationSideEffect.FocusExitList ->
+            is SelectLocationSideEffect.MultihopChanged -> {
                 launch {
-                    // If multihop is enabled and the user selects a location or custom list in the
-                    // entry list
-                    // the app will switch to the exit list. Normally in this case the focus will
-                    // stay in the
-                    // entry list, but in this case we want move the focus to the exit list.
-                    focusManager.moveFocus(FocusDirection.Right)
-                    if (it.relayItem.hasChildren) {
-                        focusManager.moveFocus(FocusDirection.Right)
-                    }
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                if (it.enabled) {
+                                    R.string.multihop_is_enabled
+                                } else {
+                                    R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        onAction = { vm.setMultihop(!it.enabled) },
+                        duration = SnackbarDuration.Long,
+                    )
                 }
+            }
         }
     }
 
@@ -301,6 +309,9 @@ fun SelectLocation(
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
+        onSetAsEntry = vm::setAsEntry,
+        onSetAsExit = vm::setAsExit,
+        setMultihop = vm::setMultihop,
     )
 }
 
@@ -327,6 +338,9 @@ fun SelectLocationScreen(
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
+    onSetAsEntry: (RelayItem) -> Unit,
+    onSetAsExit: (RelayItem) -> Unit,
+    setMultihop: (enable: Boolean, showSnackbar: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
 
@@ -381,6 +395,7 @@ fun SelectLocationScreen(
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
+            enableEntryOption = state.contentOrNull()?.entrySelectionAllowed == true,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
@@ -388,6 +403,9 @@ fun SelectLocationScreen(
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
             onHideBottomSheet = { locationBottomSheetState = null },
+            onSetAsEntry = onSetAsEntry,
+            onSetAsExit = onSetAsExit,
+            onDisableMultihop = { setMultihop(false, true) },
         )
 
         Column(

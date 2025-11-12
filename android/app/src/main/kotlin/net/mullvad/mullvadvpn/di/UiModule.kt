@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.SupportEmailUseCase
@@ -202,6 +203,13 @@ val uiModule = module {
             buildVersion = get(),
         )
     }
+    single {
+        SelectedLocationRelayItemUseCase(
+            customListRelayItemUseCase = get(),
+            relayListRepository = get(),
+            wireguardConstraintsRepository = get(),
+        )
+    }
 
     single { InAppNotificationController(getAll(), MainScope()) }
 
@@ -264,7 +272,18 @@ val uiModule = module {
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
-        SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())
+        SelectLocationViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+        )
     }
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }

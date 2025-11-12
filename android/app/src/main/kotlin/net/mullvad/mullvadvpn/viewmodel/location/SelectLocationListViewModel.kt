@@ -44,7 +44,7 @@ class SelectLocationListViewModel(
                 relayListItems(),
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
-            ) { relayListItems, customLists, settings ->
+            ) { (relayListItems, selectedItem), customLists, settings ->
                 if (relayListType.isEntryAndBlocked(settings)) {
                     Lce.Error(Unit)
                 } else {
@@ -53,6 +53,7 @@ class SelectLocationListViewModel(
                             relayListType = relayListType,
                             relayListItems = relayListItems,
                             customLists = customLists,
+                            selection = selectedItem,
                         )
                     )
                 }
@@ -106,7 +107,7 @@ class SelectLocationListViewModel(
                     expandedItems = expandedItems,
                     isEntryBlocked = settings?.entryBlocked() == true,
                 )
-            }
+            } to selectedItem
         }
 
     private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {

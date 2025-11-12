@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
@@ -64,6 +65,7 @@ class SelectLocationViewModelTest {
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockSelectHopUseCase: SelectHopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
+    private val mockSelectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
@@ -97,6 +99,7 @@ class SelectLocationViewModelTest {
                 settingsRepository = mockSettingsRepository,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
                 selectHopUseCase = mockSelectHopUseCase,
+                selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
             )
     }
 

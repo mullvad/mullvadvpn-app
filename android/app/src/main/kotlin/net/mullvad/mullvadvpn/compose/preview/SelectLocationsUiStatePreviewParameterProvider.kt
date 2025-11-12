@@ -21,6 +21,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -34,6 +35,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -43,6 +45,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -56,6 +59,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
+                    entrySelectionAllowed = true,
                 )
                 .toLc(),
         )

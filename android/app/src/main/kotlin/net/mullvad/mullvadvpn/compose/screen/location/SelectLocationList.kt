@@ -176,6 +176,7 @@ private fun SelectLocationListContent(
                             if (state.value.customLists.isNotEmpty()) onEditCustomLists else null,
                         )
                     },
+                    selection = state.value.selection,
                 )
 
                 if (shouldScrollToTop) {

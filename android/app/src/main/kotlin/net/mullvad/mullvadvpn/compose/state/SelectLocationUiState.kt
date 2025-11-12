@@ -9,4 +9,5 @@ data class SelectLocationUiState(
     val isSearchButtonEnabled: Boolean,
     val isFilterButtonEnabled: Boolean,
     val isRecentsEnabled: Boolean,
+    val entrySelectionAllowed: Boolean,
 )

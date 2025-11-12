@@ -20,12 +20,13 @@ import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
@@ -87,6 +88,9 @@ class SelectLocationScreenTest {
         openDaitaSettings: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
+        onSetAsEntry: (RelayItem) -> Unit = {},
+        onSetAsExit: (RelayItem) -> Unit = {},
+        setMultihop: (Boolean, Boolean) -> Unit = { _, _ -> },
     ) {
 
         setContentWithTheme {
@@ -110,6 +114,9 @@ class SelectLocationScreenTest {
                 openDaitaSettings = openDaitaSettings,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
+                onSetAsEntry = onSetAsEntry,
+                onSetAsExit = onSetAsExit,
+                setMultihop = setMultihop,
             )
         }
     }
@@ -131,6 +138,7 @@ class SelectLocationScreenTest {
                                     )
                                 },
                             customLists = emptyList(),
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -144,6 +152,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -168,6 +177,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.CustomListFooter(false)),
                             customLists = emptyList(),
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -181,6 +191,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -201,6 +212,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.CustomListItem(customList)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -215,6 +227,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -239,6 +252,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.RecentListItem(recent)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -253,6 +267,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -277,6 +292,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.CustomListItem(hop = customList)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -291,6 +307,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -321,6 +338,7 @@ class SelectLocationScreenTest {
                                 ),
                             customLists = emptyList(),
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -335,6 +353,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -365,6 +384,7 @@ class SelectLocationScreenTest {
                                 ),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -378,6 +398,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -409,6 +430,7 @@ class SelectLocationScreenTest {
                                 ),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
+                            selection = RelayItemSelection.Single(Constraint.Any),
                         )
                     )
                 )
@@ -422,6 +444,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = false,
+                            entrySelectionAllowed = true,
                         )
                     )
             )
