@@ -267,20 +267,20 @@ impl PrimaryInterfaceMonitor {
         let index = u16::try_from(index).unwrap();
 
         let mut router_ip = service.router_ip;
-        if let IpAddr::V6(addr) = &mut router_ip {
-            if is_link_local_v6(addr) {
-                // The second pair of octets should be set to the scope id
-                // See getaddr() in route.c:
-                // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
+        if let IpAddr::V6(addr) = &mut router_ip
+            && is_link_local_v6(addr)
+        {
+            // The second pair of octets should be set to the scope id
+            // See getaddr() in route.c:
+            // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
 
-                let second_octet = index.to_be_bytes();
+            let second_octet = index.to_be_bytes();
 
-                let mut octets = addr.octets();
-                octets[2] = second_octet[0];
-                octets[3] = second_octet[1];
+            let mut octets = addr.octets();
+            octets[2] = second_octet[0];
+            octets[3] = second_octet[1];
 
-                *addr = Ipv6Addr::from(octets);
-            }
+            *addr = Ipv6Addr::from(octets);
         }
 
         Some(DefaultRoute {
