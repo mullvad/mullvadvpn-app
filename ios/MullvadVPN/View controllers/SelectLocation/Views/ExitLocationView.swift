@@ -14,10 +14,14 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     }.isEmpty)
     }
 
+    @State private var topOfTheListId = UUID()
+
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading) {
+                    EmptyView()
+                        .id(topOfTheListId)
                     if !context.filter.isEmpty {
                         ActiveFilterView(
                             activeFilter: context.filter
@@ -98,12 +102,28 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 .padding(.horizontal)
                 .padding(.bottom)
             }
+            .onChange(of: viewModel.searchText) {
+                proxy.scrollTo(topOfTheListId, anchor: .top)
+            }
             .onAppear {
+                guard viewModel.searchText.isEmpty else { return }
                 let selectedLocation = (context.locations + context.customLists)
                     .flatMap { $0.flattened + [$0] }
                     .first { $0.isSelected }
                 if let selectedLocation {
-                    proxy.scrollTo(selectedLocation.code, anchor: .center)
+                    var rootParent = selectedLocation
+                    while let parent = rootParent.parent {
+                        rootParent = parent
+                    }
+                    Task {
+                        // Due to the use of LazyVStack the view can not scroll to child nodes that are outside the viewport
+                        // Therefor the view must scroll to the root parent first
+                        if rootParent != selectedLocation {
+                            proxy.scrollTo(rootParent.code, anchor: .center)
+                        }
+                        try? await Task.sleep(for: .milliseconds(50))
+                        proxy.scrollTo(selectedLocation.code, anchor: .center)
+                    }
                 }
             }
         }
