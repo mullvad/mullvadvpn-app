@@ -48,6 +48,10 @@
         ];
       };
 
+      desktop-rust-toolchain = common.rust-toolchain-base.override {
+        extensions = ["rust-analyzer"];
+      };
+
       versions =
         (builtins.fromTOML (
           builtins.concatStringsSep "\n" (
@@ -74,32 +78,54 @@
         inherit android-sdk;
       };
 
-      devShells.default = pkgs.devshell.mkShell {
-        name = "mullvad-android-devshell";
-        packages = common.commonPackages ++ [
-          android-sdk
-          rust-toolchain
-          pkgs.protoc-gen-grpc-java
-          pkgs.jdk17
-        ];
+      devShells = {
+        android = pkgs.devshell.mkShell {
+          name = "mullvad-android-devshell";
+          packages = common.commonPackages ++ [
+            android-sdk
+            rust-toolchain
+            pkgs.protoc-gen-grpc-java
+            pkgs.jdk17
+          ];
 
-        env = import ./nix/android-env.nix {
-          inherit pkgs android-sdk buildToolsVersion ndkVersion minSdkVersion;
+          env = import ./nix/android-env.nix {
+            inherit pkgs android-sdk buildToolsVersion ndkVersion minSdkVersion;
+          };
+          # Unfortunately rich menus with package, description and category
+          # is only supported using the TOML format and not when using mkShell.
+          # The two cannot be combined and TOML format by itself doesn't support
+          # the way we dynamically configure the devshell.
+          commands = [
+            {
+              name = "tasks";
+              command = "cd android && ./gradlew tasks";
+            }
+            {
+              name = "build";
+              command = "cd android && ./gradlew assembleOssProdDebug";
+            }
+          ];
         };
-        # Unfortunately rich menus with package, description and category
-        # is only supported using the TOML format and not when using mkShell.
-        # The two cannot be combined and TOML format by itself doesn't support
-        # the way we dynamically configure the devshell.
-        commands = [
-          {
-            name = "tasks";
-            command = "cd android && ./gradlew tasks";
-          }
-          {
-            name = "build";
-            command = "cd android && ./gradlew assembleOssProdDebug";
-          }
-        ];
+
+        desktop = pkgs.devshell.mkShell {
+          name = "mullvad-desktop-devshell";
+          packages = common.commonPackages ++ [
+            desktop-rust-toolchain
+          ];
+
+          env = import ./nix/desktop-env.nix {
+            inherit pkgs;
+          };
+
+          commands = [
+            {
+              name = "build";
+              command = "cargo build";
+            }
+          ];
+        };
+
+        default = self.devShells.${system}.desktop;
       };
     });
 }
