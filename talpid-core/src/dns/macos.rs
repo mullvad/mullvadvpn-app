@@ -344,7 +344,7 @@ impl InterfaceSettings {
         // remove the "DNS" part of the path
         let path = match dns_path.strip_prefix("State") {
             Some(service_path) => "Setup".to_owned() + service_path,
-            None => dns_path.to_string(),
+            None => dns_path.clone(),
         };
         let interface_path = path.replace("/DNS", "/Interface");
 
