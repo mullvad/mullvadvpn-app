@@ -364,18 +364,22 @@ impl<'a> PolicyBatch<'a> {
         // If the packet has the classid set then the packet will have two new marks applied to it.
         // The `split_tunnel::MARK` as a connection tracking mark and the `fwmark` as packet
         // metadata.
-        let mut rule = Rule::new(&self.mangle_chain);
-        rule.add_expr(&nft_expr!(meta cgroup));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
-        // Loads `split_tunnel::MARK` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
-        // Sets `split_tunnel::MARK` as connection tracker mark
-        rule.add_expr(&nft_expr!(ct mark set));
-        // Loads `fwmark` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data fwmark));
-        // Sets `fwmark` as metadata mark for packet
-        rule.add_expr(&nft_expr!(meta mark set));
-        self.batch.add(&rule, nftnl::MsgType::Add);
+        #[cfg(not(feature = "linux-netns"))]
+        {
+            let mut rule = Rule::new(&self.mangle_chain);
+
+            rule.add_expr(&nft_expr!(meta cgroup));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+            // Loads `split_tunnel::MARK` into first nftnl register
+            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+            // Sets `split_tunnel::MARK` as connection tracker mark
+            rule.add_expr(&nft_expr!(ct mark set));
+            // Loads `fwmark` into first nftnl register
+            rule.add_expr(&nft_expr!(immediate data fwmark));
+            // Sets `fwmark` as metadata mark for packet
+            rule.add_expr(&nft_expr!(meta mark set));
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
 
         for chain in &[&self.in_chain, &self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);

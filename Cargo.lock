@@ -5698,6 +5698,7 @@ dependencies = [
  "mnl",
  "nftnl 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "nix 0.30.1",
+ "nullvad",
  "once_cell",
  "parking_lot",
  "pcap",

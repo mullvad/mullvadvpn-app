@@ -13,6 +13,8 @@ workspace = true
 [features]
 wireguard-go = ["talpid-wireguard/wireguard-go"]
 multihop-pcap = ["talpid-wireguard/multihop-pcap"]
+linux-netns = ["dep:nullvad"] # use a network namespace for split-tunneling
+default = ["linux-netns"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -30,6 +32,8 @@ talpid-types = { path = "../talpid-types" }
 talpid-wireguard = { path = "../talpid-wireguard" }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 either = { version = "1.15.0", features = ["serde"] }
+
+nullvad = { path = "../nullvad", optional = true }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-openvpn = { path = "../talpid-openvpn" }

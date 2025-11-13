@@ -1,5 +1,9 @@
-#[cfg(target_os = "linux")]
-#[path = "linux.rs"]
+#[cfg(all(target_os = "linux", not(feature = "linux-netns")))]
+#[path = "linux_croups_v1.rs"]
+mod imp;
+
+#[cfg(all(target_os = "linux", feature = "linux-netns"))]
+#[path = "linux_netns.rs"]
 mod imp;
 
 #[cfg(windows)]

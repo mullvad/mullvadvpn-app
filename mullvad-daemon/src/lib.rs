@@ -1008,8 +1008,13 @@ impl Daemon {
                 locked_down: settings.lockdown_mode,
             },
             target_state,
-            #[cfg(target_os = "linux")]
+
+            #[cfg(all(target_os = "linux", not(feature = "linux-netns")))]
             exclude_pids: split_tunnel::PidManager::default(),
+
+            #[cfg(all(target_os = "linux", feature = "linux-netns"))]
+            exclude_pids: split_tunnel::PidManager::new().await,
+
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,
