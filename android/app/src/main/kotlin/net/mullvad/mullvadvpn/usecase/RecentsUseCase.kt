@@ -23,10 +23,9 @@ class RecentsUseCase(
 ) {
 
     operator fun invoke(relayListType: RelayListType): Flow<List<Hop.Single<RelayItem>>?> =
-        if (relayListType is RelayListType.Multihop) {
-            multihopRecents(relayListType.multihopRelayListType)
-        } else {
-            singlehopRecents()
+        when(relayListType) {
+            is RelayListType.Multihop -> multihopRecents(relayListType.multihopRelayListType)
+            RelayListType.Single -> singlehopRecents()
         }
 
     private fun singlehopRecents(): Flow<List<Hop.Single<RelayItem>>?> =
