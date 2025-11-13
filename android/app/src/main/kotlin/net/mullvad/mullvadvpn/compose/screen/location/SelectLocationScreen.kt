@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
@@ -306,8 +305,8 @@ fun SelectLocation(
             },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick =
-            dropUnlessResumed { relayListType ->
-                navigator.navigate(FilterDestination(relayListType))
+            dropUnlessResumed { multihopRelayListType ->
+                navigator.navigate(FilterDestination(RelayListType.Multihop(multihopRelayListType)))
             },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
@@ -364,7 +363,7 @@ fun SelectLocationScreen(
     onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
-    onFilterClick: (RelayListType) -> Unit,
+    onFilterClick: (MultihopRelayListType) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
@@ -439,15 +438,12 @@ fun SelectLocationScreen(
                     )
                 }
             }
-            val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
             val multihopEnabled = state.contentOrNull()?.multihopEnabled == true
             val disabledText = stringResource(id = R.string.recents_disabled)
             val scope = rememberCoroutineScope()
 
             SelectLocationDropdownMenu(
-                filterButtonEnabled = filterButtonEnabled,
-                onFilterClick = { onFilterClick(state.contentOrNull()?.relayListType!!) },
                 recentsEnabled = recentsCurrentlyEnabled,
                 multihopEnabled = multihopEnabled,
                 onRecentsToggleEnableClick = {
@@ -531,6 +527,7 @@ fun SelectLocationScreen(
                         onSelectRelayList = onSelectRelayList,
                         removeOwnershipFilter = removeOwnershipFilter,
                         removeProviderFilter = removeProviderFilter,
+                        onFilterClick = onFilterClick,
                         scrollToRelayItem = { relayListType: RelayListType, relayItem: RelayItem ->
                             scrollToItem(relayListType to relayItem)
                         },
@@ -556,8 +553,6 @@ fun SelectLocationScreen(
 
 @Composable
 private fun SelectLocationDropdownMenu(
-    filterButtonEnabled: Boolean,
-    onFilterClick: () -> Unit,
     recentsEnabled: Boolean,
     multihopEnabled: Boolean,
     onRecentsToggleEnableClick: () -> Unit,
@@ -586,17 +581,6 @@ private fun SelectLocationDropdownMenu(
                 disabledLeadingIconColor =
                     MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
             )
-
-        DropdownMenuItem(
-            text = { Text(text = stringResource(R.string.filter)) },
-            onClick = {
-                showMenu = false
-                onFilterClick()
-            },
-            enabled = filterButtonEnabled,
-            colors = colors,
-            leadingIcon = { Icon(Icons.Filled.FilterList, contentDescription = null) },
-        )
 
         // Keep these assets in remember so we don't change them as we animate away the dropdown
         // menu
@@ -730,10 +714,11 @@ private fun SelectionContainer(
     relayListType: RelayListType,
     hopSelection: HopSelection,
     error: ErrorStateCause?,
-    filterChips: List<FilterChip>,
+    filterChips: Map<RelayListType, List<FilterChip>>,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     removeOwnershipFilter: (RelayListType) -> Unit,
     removeProviderFilter: (RelayListType) -> Unit,
+    onFilterClick: (MultihopRelayListType) -> Unit,
     scrollToRelayItem: (RelayListType, RelayItem) -> Unit,
 ) {
 
@@ -762,6 +747,8 @@ private fun SelectionContainer(
                                 scrollToRelayItem(RelayListType.Single, it)
                             }
                         },
+                        filters = filterChips[relayListType]?.size ?: 0,
+                        onFilterClick = { onFilterClick(MultihopRelayListType.EXIT) },
                     )
                 is HopSelection.Multi ->
                     MultihopSelector(
@@ -796,6 +783,14 @@ private fun SelectionContainer(
                                 onSelectRelayList(MultihopRelayListType.ENTRY)
                             }
                         },
+                        entryFilters =
+                            filterChips[RelayListType.Multihop(MultihopRelayListType.ENTRY)]?.size
+                                ?: 0,
+                        onEntryFilterClick = { onFilterClick(MultihopRelayListType.ENTRY) },
+                        exitFilters =
+                            filterChips[RelayListType.Multihop(MultihopRelayListType.EXIT)]?.size
+                                ?: 0,
+                        onExitFilterClick = { onFilterClick(MultihopRelayListType.EXIT) },
                         expandProgress = progress,
                     )
             }
@@ -831,7 +826,7 @@ private fun SelectionContainer(
         ) {
             FilterRow(
                 modifier = Modifier.layoutId(keyFilters).alpha(EaseInQuint.transform(progress)),
-                filters = filterChips,
+                filters = filterChips[relayListType]!!,
                 onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
                 onRemoveProviderFilter = { removeProviderFilter(relayListType) },
             )

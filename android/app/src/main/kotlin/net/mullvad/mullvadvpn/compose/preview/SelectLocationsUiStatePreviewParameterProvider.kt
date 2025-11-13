@@ -4,6 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.util.Lc
@@ -15,8 +16,8 @@ class SelectLocationsUiStatePreviewParameterProvider :
         sequenceOf(
             Lc.Loading(Unit),
             SelectLocationUiState(
-                    filterChips = emptyList(),
                     multihopListSelection = MultihopRelayListType.EXIT,
+                    filterChips = emptyMap(),
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -27,9 +28,12 @@ class SelectLocationsUiStatePreviewParameterProvider :
                 .toLc(),
             SelectLocationUiState(
                     filterChips =
-                        listOf(
-                            FilterChip.Ownership(ownership = ModelOwnership.Rented),
-                            FilterChip.Provider(PROVIDER_COUNT),
+                        mapOf(
+                            RelayListType.Single to
+                                listOf(
+                                    FilterChip.Ownership(ownership = ModelOwnership.Rented),
+                                    FilterChip.Provider(PROVIDER_COUNT),
+                                )
                         ),
                     multihopListSelection = MultihopRelayListType.EXIT,
                     isSearchButtonEnabled = true,
@@ -41,8 +45,8 @@ class SelectLocationsUiStatePreviewParameterProvider :
                 )
                 .toLc(),
             SelectLocationUiState(
-                    filterChips = emptyList(),
                     multihopListSelection = MultihopRelayListType.ENTRY,
+                    filterChips = emptyMap(),
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -53,9 +57,12 @@ class SelectLocationsUiStatePreviewParameterProvider :
                 .toLc(),
             SelectLocationUiState(
                     filterChips =
-                        listOf(
-                            FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
-                            FilterChip.Provider(PROVIDER_COUNT),
+                        mapOf(
+                            RelayListType.Multihop(MultihopRelayListType.ENTRY) to
+                                listOf(
+                                    FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
+                                    FilterChip.Provider(PROVIDER_COUNT),
+                                )
                         ),
                     multihopListSelection = MultihopRelayListType.ENTRY,
                     isSearchButtonEnabled = true,

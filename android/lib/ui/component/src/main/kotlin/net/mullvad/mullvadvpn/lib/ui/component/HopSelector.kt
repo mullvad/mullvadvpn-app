@@ -16,11 +16,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -134,6 +138,10 @@ private fun CollapsibleMultihopSelector() {
                 "Sweden",
                 if (isExitError) "No relays matching your selection" else null,
                 { exitSelected = true },
+                2,
+                {},
+                0,
+                {},
                 expandProgress = progress,
             )
         }
@@ -155,10 +163,13 @@ fun MultihopSelectorPreview() {
                     exitSelected = false,
                     entryLocation = "Sweden",
                     exitLocation = "Germany",
+                    exitFilters = 3,
+                    entryFilters = 1,
                 )
                 MultihopSelector(
                     entryLocation = "Sweden",
                     exitLocation = "Germany",
+                    entryFilters = 1,
                     entryErrorText = null,
                     exitErrorText = "No relays matching your selection",
                 )
@@ -166,6 +177,7 @@ fun MultihopSelectorPreview() {
                 MultihopSelector(
                     entryLocation = "Sweden",
                     exitLocation = "Germany",
+                    entryFilters = 1,
                     exitErrorText = null,
                     entryErrorText = "No relays matching your selection",
                 )
@@ -186,6 +198,10 @@ fun MultihopSelector(
     exitLocation: String,
     exitErrorText: String? = null,
     onExitClick: () -> Unit = {},
+    entryFilters: Int = 0,
+    onEntryFilterClick: () -> Unit = {},
+    exitFilters: Int = 0,
+    onExitFilterClick: () -> Unit = {},
     expandProgress: Float = 1f,
 ) {
     val scene = MotionScene {
@@ -353,6 +369,8 @@ fun MultihopSelector(
             selected = exitSelected,
             onSelect = onExitClick,
             isError = exitErrorText != null,
+            filters = exitFilters,
+            onFilterClick = onExitFilterClick,
             colors = colors,
             onIconGloballyPositioned = { exitIconLC = it },
         )
@@ -382,6 +400,8 @@ fun MultihopSelector(
             selected = !exitSelected,
             onSelect = onEntryClick,
             isError = entryErrorText != null,
+            filters = entryFilters,
+            onFilterClick = onEntryFilterClick,
             colors = colors,
             onIconGloballyPositioned = { entryIconLC = it },
         )
@@ -410,11 +430,11 @@ fun SinglehopSelectorPreview() {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Singlehop("Sweden")
+                Singlehop("Sweden", filters = 0)
 
-                Singlehop("Germany")
+                Singlehop("Germany", filters = 2)
 
-                Singlehop("Norway", errorText = "No relays matching your selection")
+                Singlehop("Norway", errorText = "No relays matching your selection", filters = 0)
             }
         }
     }
@@ -428,6 +448,8 @@ fun Singlehop(
     errorText: String? = null,
     expandProgress: Float = 1f,
     onSelect: (() -> Unit) = {},
+    filters: Int = 0,
+    onFilterClick: () -> Unit = {},
 ) {
     val scene = MotionScene {
         val expandSet =
@@ -527,6 +549,8 @@ fun Singlehop(
             selected = true,
             onSelect = onSelect,
             isError = errorText != null,
+            filters = filters,
+            onFilterClick = onFilterClick,
             colors = colors,
             onIconGloballyPositioned = { exitIconLC = it },
         )
@@ -556,6 +580,8 @@ fun HopPreview() {
                     selected = true,
                     onSelect = {},
                     isError = false,
+                    onFilterClick = {},
+                    filters = 0,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -565,6 +591,8 @@ fun HopPreview() {
                     selected = true,
                     onSelect = {},
                     isError = true,
+                    onFilterClick = {},
+                    filters = 0,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -574,6 +602,8 @@ fun HopPreview() {
                     selected = true,
                     onSelect = {},
                     isError = true,
+                    onFilterClick = {},
+                    filters = 0,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -583,6 +613,8 @@ fun HopPreview() {
                     selected = false,
                     onSelect = {},
                     isError = false,
+                    onFilterClick = {},
+                    filters = 0,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -598,6 +630,8 @@ private fun Hop(
     selected: Boolean,
     onSelect: (() -> Unit)?,
     isError: Boolean,
+    filters: Int,
+    onFilterClick: () -> Unit,
     modifier: Modifier = Modifier,
     onIconGloballyPositioned: (LayoutCoordinates) -> Unit = {},
     colors: HopSelectorColors = HopSelectorDefaults.colors(),
@@ -649,6 +683,9 @@ private fun Hop(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = SemiBold,
             )
+            CompositionLocalProvider(LocalContentColor provides colors.selectedContentColor) {
+                FilterButton(onClick = onFilterClick, filters = filters)
+            }
         }
     }
 }
@@ -685,6 +722,38 @@ private fun LocationHint(
     }
 }
 
+@Preview
+@Composable
+fun FilterButtonPreview() {
+    AppTheme {
+        Column {
+            FilterButton()
+            FilterButton(filters = 3)
+            FilterButton(filters = 10)
+        }
+    }
+}
+
+@Composable
+fun FilterButton(
+    modifier: Modifier = Modifier,
+    filters: Int = 0,
+    onClick: () -> Unit = {},
+    badgeColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+) {
+    IconButton(modifier = modifier, onClick = onClick) {
+        BadgedBox(
+            badge = {
+                if (filters > 0) {
+                    Badge(containerColor = badgeColor) { Text(filters.toString()) }
+                }
+            }
+        ) {
+            Icon(imageVector = Icons.Default.FilterList, contentDescription = null)
+        }
+    }
+}
+
 @Immutable
 class HopSelectorColors(
     val selectedContentColor: Color,
@@ -695,6 +764,7 @@ class HopSelectorColors(
     val errorColor: Color,
     val hintColor: Color,
     val legendColor: Color,
+    val badgeColor: Color,
 ) {
     @Stable
     internal fun containerColor(selected: Boolean): Color =
@@ -722,6 +792,7 @@ object HopSelectorDefaults {
         errorColor: Color = MaterialTheme.colorScheme.error,
         hintColor: Color = deselectedColor,
         legendColor: Color = deselectedColor,
+        badgeColor: Color = panelColor,
     ): HopSelectorColors =
         HopSelectorColors(
             selectedContentColor,
@@ -732,6 +803,7 @@ object HopSelectorDefaults {
             errorColor,
             hintColor,
             legendColor,
+            badgeColor,
         )
 }
 

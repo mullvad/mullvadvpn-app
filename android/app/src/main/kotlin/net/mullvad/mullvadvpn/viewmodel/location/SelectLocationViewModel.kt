@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -44,7 +43,6 @@ import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.combine
-import net.mullvad.mullvadvpn.util.isMultihopEnabled
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -105,14 +103,17 @@ class SelectLocationViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun filterChips() =
-        combine(settingsRepository.settingsUpdates, _multihopRelayListTypeSelection) {
-                settings,
-                multihopRelayListType ->
-                if (settings?.isMultihopEnabled() == true)
-                    RelayListType.Multihop(multihopRelayListType)
-                else RelayListType.Single
-            }
-            .flatMapLatest { filterChipUseCase(it) }
+        combine(
+            filterChipUseCase(RelayListType.Single),
+            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+        ) { single, entry, exit ->
+            mapOf(
+                RelayListType.Single to single,
+                RelayListType.Multihop(MultihopRelayListType.ENTRY) to entry,
+                RelayListType.Multihop(MultihopRelayListType.EXIT) to exit,
+            )
+        }
 
     private fun searchButtonEnabled(
         relayList: List<RelayItem.Location.Country>,
