@@ -51,25 +51,24 @@ class RecentsUseCase(
             customListsRelayItemUseCase(RelayListType.Multihop(multihopRelayListType)),
         ) { recents, relayList, customLists ->
             recents?.mapNotNull { recent ->
-                val item =
-                    if (multihopRelayListType == MultihopRelayListType.ENTRY) {
-                            recent.entry
-                        } else {
-                            recent.exit
-                        }
-                        .findItem(customLists, relayList)
+                val item = recent.getBy(multihopRelayListType).findItem(customLists, relayList)
                 item?.let { Hop.Single(it) }
             }
         }
 
     private fun recents(): Flow<List<Recent>?> =
         settingsRepository.settingsUpdates.map { settings ->
-            val recents = settings?.recents
-            when (recents) {
+            when (val recents = settings?.recents) {
                 is Recents.Enabled -> recents.recents
                 Recents.Disabled,
                 null -> null
             }
+        }
+
+    private fun Recent.Multihop.getBy(multihopListType: MultihopRelayListType) =
+        when (multihopListType) {
+            MultihopRelayListType.ENTRY -> entry
+            MultihopRelayListType.EXIT -> exit
         }
 
     private fun RelayItemId.findItem(
