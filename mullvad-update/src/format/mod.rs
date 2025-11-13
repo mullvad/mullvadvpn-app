@@ -11,148 +11,21 @@
 //! form of `signed` is in fact signed by key/signature in `signature`. It also reads the `expires`
 //! and rejects the file if it has expired.
 
-use std::fmt::Display;
-
-use serde::{Deserialize, Serialize};
-
-use crate::version::{FULLY_ROLLED_OUT, Rollout};
-
+pub mod architecture;
 pub mod deserializer;
+pub mod installer;
 pub mod key;
+pub mod release;
+pub mod response;
 #[cfg(feature = "sign")]
 pub mod serializer;
 
-/// JSON response including signature and signed content
-/// This type does not implement [serde::Deserialize] to prevent accidental deserialization without
-/// signature verification.
-#[derive(Debug, Serialize)]
-#[cfg_attr(test, derive(PartialEq))]
-pub struct SignedResponse {
-    /// Signatures of the canonicalized JSON of `signed`
-    pub signatures: Vec<ResponseSignature>,
-    /// Content signed by `signature`
-    pub signed: Response,
-}
-
-impl SignedResponse {
-    pub fn get_releases(self) -> Vec<Release> {
-        self.signed.releases
-    }
-}
-
-/// Helper type that leaves the signed data untouched
-/// Note that deserializing doesn't verify anything
-#[derive(Deserialize, Serialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
-struct PartialSignedResponse {
-    /// Signatures of the canonicalized JSON of `signed`
-    pub signatures: Vec<ResponseSignature>,
-    /// Content signed by `signature`
-    pub signed: serde_json::Value,
-}
-
-/// Signed JSON response, not including the signature
-#[derive(Default, Debug, Deserialize, Serialize, Clone)]
-#[serde(deny_unknown_fields)]
-#[cfg_attr(test, derive(PartialEq))]
-pub struct Response {
-    /// Version counter
-    pub metadata_version: usize,
-    /// When the signature expires
-    pub metadata_expiry: chrono::DateTime<chrono::Utc>,
-    /// Available app releases
-    pub releases: Vec<Release>,
-}
-
-/// App release
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Release {
-    /// Mullvad app version
-    pub version: mullvad_version::Version,
-    /// Changelog entries
-    pub changelog: String,
-    /// Installer details for different architectures
-    pub installers: Vec<Installer>,
-    /// Fraction of users that should receive the new version
-    #[serde(default = "complete_rollout")]
-    #[serde(skip_serializing_if = "is_complete_rollout")]
-    pub rollout: Rollout,
-}
-
-impl PartialEq for Release {
-    fn eq(&self, other: &Self) -> bool {
-        self.version.eq(&other.version)
-    }
-}
-
-impl PartialOrd for Release {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.version.partial_cmp(&other.version)
-    }
-}
-
-/// A full rollout includes all users
-fn complete_rollout() -> Rollout {
-    FULLY_ROLLED_OUT
-}
-
-fn is_complete_rollout(b: impl std::borrow::Borrow<Rollout>) -> bool {
-    // TODO: do we actually need this? if so, should we bake it into Rollout::eq?
-    //(b.borrow() - complete_rollout()).abs() < f32::EPSILON
-    b.borrow() == &FULLY_ROLLED_OUT
-}
-
-/// App installer
-#[derive(Debug, Deserialize, Serialize, Clone)]
-#[cfg_attr(test, derive(PartialEq))]
-pub struct Installer {
-    /// Installer architecture
-    pub architecture: Architecture,
-    /// Mirrors that host the artifact
-    pub urls: Vec<String>,
-    /// Size of the installer, in bytes
-    pub size: usize,
-    /// Hash of the installer, hexadecimal string
-    pub sha256: String,
-}
-
-/// Installer architecture
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
-#[serde(rename_all = "lowercase")]
-#[cfg_attr(feature = "strum", derive(strum::EnumIter))]
-pub enum Architecture {
-    /// x86-64 architecture
-    X86,
-    /// ARM64 architecture
-    Arm64,
-}
-
-impl Display for Architecture {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Architecture::X86 => f.write_str("x86"),
-            Architecture::Arm64 => f.write_str("arm64"),
-        }
-    }
-}
-
-/// JSON response signature
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(test, derive(PartialEq))]
-#[serde(tag = "keytype")]
-#[serde(rename_all = "lowercase")]
-pub enum ResponseSignature {
-    Ed25519 {
-        keyid: key::VerifyingKey,
-        sig: key::Signature,
-    },
-    #[serde(untagged)]
-    Other { keyid: String, sig: String },
-}
+pub use architecture::Architecture;
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use crate::format::release::Release;
+    use crate::version::rollout::Rollout;
 
     #[test]
     fn test_default_rollout_serialize() {
@@ -161,7 +34,7 @@ mod test {
             version: "2024.1".parse().unwrap(),
             changelog: "".to_owned(),
             installers: vec![],
-            rollout: complete_rollout(),
+            rollout: Rollout::complete(),
         })
         .unwrap();
 

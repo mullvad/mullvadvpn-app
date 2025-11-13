@@ -10,7 +10,7 @@ use mullvad_update::app::{
     AppCache, AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller,
 };
 use mullvad_update::fetch::ProgressUpdater;
-use mullvad_update::format::{Response, SignedResponse};
+use mullvad_update::format::response::{Response, SignedResponse};
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
 use mullvad_update::version_provider::VersionInfoProvider;
 use std::io;

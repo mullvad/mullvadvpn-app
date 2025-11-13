@@ -4,7 +4,11 @@ use std::sync::Arc;
 
 use http::StatusCode;
 use http::header;
-use mullvad_update::version::{Rollout, VersionInfo, VersionParameters, is_version_supported};
+use mullvad_update::format::response::SignedResponse;
+use mullvad_update::version::VersionInfo;
+use mullvad_update::version::VersionParameters;
+use mullvad_update::version::is_version_supported;
+use mullvad_update::version::rollout::Rollout;
 
 type AppVersion = String;
 
@@ -140,11 +144,8 @@ impl AppVersionProxy {
 
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
-            let response = mullvad_update::format::SignedResponse::deserialize_and_verify(
-                &bytes,
-                lowest_metadata_version,
-            )
-            .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
+            let response = SignedResponse::deserialize_and_verify(&bytes, lowest_metadata_version)
+                .map_err(|err| rest::Error::FetchVersions(Arc::new(err)))?;
 
             let params = VersionParameters {
                 architecture,

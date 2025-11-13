@@ -12,12 +12,11 @@ use std::{
 use anyhow::{Context, bail};
 use tokio::{process::Command, time::timeout};
 
-use crate::{
-    fetch::{self, ProgressUpdater},
-    format::SignedResponse,
-    verify::{AppVerifier, Sha256Verifier},
-    version::VersionParameters,
-};
+use crate::fetch;
+use crate::format::installer::Installer;
+use crate::format::response::SignedResponse;
+use crate::verify::{AppVerifier, Sha256Verifier};
+use crate::version::VersionParameters;
 
 #[derive(Debug, thiserror::Error)]
 pub enum DownloadError {
@@ -107,7 +106,7 @@ impl<AppProgress> HttpAppDownloader<AppProgress> {
     }
 }
 
-impl<AppProgress: ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
+impl<AppProgress: fetch::ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
     for HttpAppDownloader<AppProgress>
 {
     fn from(parameters: AppDownloaderParameters<AppProgress>) -> Self {
@@ -123,7 +122,7 @@ pub struct InstallerFile<const VERIFIED: bool> {
     pub app_sha256: [u8; 32],
 }
 
-impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
+impl<AppProgress: fetch::ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
     async fn download_executable(mut self) -> Result<impl DownloadedInstaller, DownloadError> {
         let bin_path = bin_path(&self.params.app_version, &self.params.cache_dir);
         fetch::get_to_file(
@@ -209,7 +208,7 @@ impl InstallerFile<false> {
     pub fn try_from_installer(
         cache_dir: &Path,
         app_version: mullvad_version::Version,
-        installer: crate::format::Installer,
+        installer: Installer,
     ) -> anyhow::Result<Self> {
         let path = bin_path(&app_version, cache_dir);
         // Sanity check (without verifying) installer to avoid returning partial downloads

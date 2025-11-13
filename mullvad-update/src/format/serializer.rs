@@ -17,10 +17,11 @@
 use anyhow::Context;
 use serde::Serialize;
 
-use super::{PartialSignedResponse, Response, ResponseSignature, SignedResponse, key};
+use super::key::SecretKey;
+use super::response::{PartialSignedResponse, Response, ResponseSignature, SignedResponse};
 
 impl SignedResponse {
-    pub fn sign(key: key::SecretKey, response: Response) -> anyhow::Result<SignedResponse> {
+    pub fn sign(key: SecretKey, response: Response) -> anyhow::Result<SignedResponse> {
         // Refuse to sign expired data
         if response.metadata_expiry < chrono::Utc::now() {
             anyhow::bail!("Signing failed since the data has expired");
@@ -42,7 +43,7 @@ impl SignedResponse {
 
 /// Serialize JSON to bytes, with a signature attached, signed using `key`
 fn sign<T: Serialize>(
-    key: &key::SecretKey,
+    key: &SecretKey,
     unsigned_value: &T,
 ) -> anyhow::Result<PartialSignedResponse> {
     // Serialize unsigned data to canonical JSON
@@ -70,14 +71,16 @@ fn sign<T: Serialize>(
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::format::deserializer::deserialize_and_verify;
+
     use serde_json::json;
     use vec1::vec1;
+
+    use crate::format::deserializer::deserialize_and_verify;
 
     #[test]
     fn test_sign() -> anyhow::Result<()> {
         // Generate key and data
-        let key = key::SecretKey::generate();
+        let key = SecretKey::generate();
         let pubkey = key.pubkey();
 
         let data = json!({
@@ -99,7 +102,7 @@ mod test {
         deserialize_and_verify(&vec1![pubkey.clone()], &bytes)?;
 
         // Verify that an irrelevant key is ignored
-        let invalid_key = key::SecretKey::generate();
+        let invalid_key = SecretKey::generate();
         let invalid_pubkey = invalid_key.pubkey();
 
         deserialize_and_verify(&vec1![pubkey.clone(), invalid_pubkey.clone()], &bytes)?;
@@ -113,13 +116,13 @@ mod test {
     #[test]
     fn test_sign_multiple() -> anyhow::Result<()> {
         // Generate keys and data
-        let key = key::SecretKey::generate();
+        let key = SecretKey::generate();
         let pubkey = key.pubkey();
 
-        let key2 = key::SecretKey::generate();
+        let key2 = SecretKey::generate();
         let pubkey2 = key2.pubkey();
 
-        let invalid_key = key::SecretKey::generate();
+        let invalid_key = SecretKey::generate();
         let invalid_pubkey = invalid_key.pubkey();
 
         let data = json!({

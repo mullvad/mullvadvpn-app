@@ -6,7 +6,8 @@ use anyhow::{Context, bail};
 use std::{path::PathBuf, vec};
 use tokio::fs;
 
-use crate::{format::SignedResponse, version::VersionParameters};
+use crate::format::response::SignedResponse;
+use crate::version::VersionParameters;
 
 use super::app::{AppCache, InstallerFile};
 
@@ -28,7 +29,7 @@ impl AppCache for AppCacheDir {
         }
     }
 
-    async fn get_metadata(&self) -> anyhow::Result<crate::format::SignedResponse> {
+    async fn get_metadata(&self) -> anyhow::Result<SignedResponse> {
         let metadata_file = self.directory.join(METADATA_FILENAME);
         let raw_json = fs::read(metadata_file)
             .await
