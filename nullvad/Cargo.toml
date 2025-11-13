@@ -1,0 +1,25 @@
+[package]
+name = "nullvad"
+version = "0.0.0"
+edition = "2024"
+
+[[bin]]
+name = "nullvad-exec"
+path = "src/bin/nullvad_exec.rs"
+
+[dependencies]
+anyhow = "1.0.100"
+clap = { version = "4.5.51", features = ["derive"] }
+futures = "0.3.31"
+neli = "0.7.1"
+netlink-packet = "0.1.1"
+netlink-packet-core = "0.8.1"
+netlink-packet-route = "0.25.1"
+nix = { version = "0.30.1", features = ["sched", "socket", "uio", "user"] }
+rtnetlink = "0.18.1"
+tokio = { version = "1.48.0", features = ["full"] }
+zerocopy = { version = "0.8.27", features = ["std", "derive"] }
+nftnl = { path = "../../nftnl-rs/nftnl" }
+mnl = "0.2.3"
+env_logger = "0.11.8"
+log = "0.4.28"
