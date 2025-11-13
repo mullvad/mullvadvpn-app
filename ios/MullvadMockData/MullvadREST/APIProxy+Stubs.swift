@@ -27,15 +27,6 @@ struct APIProxyStub: APIQuerying {
         AnyCancellable()
     }
 
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data
-    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse> {
-        RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
-            .timeAdded(42, .distantFuture)
-        })
-    }
-
     func sendProblemReport(
         _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
@@ -53,26 +44,25 @@ struct APIProxyStub: APIQuerying {
         AnyCancellable()
     }
 
-    func legacyStorekitPayment(
+    func legacyStoreKitPayment(
         accountNumber: String,
-        request: LegacyStorekitRequest,
+        request: LegacyStoreKitRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
     ) -> any Cancellable {
         AnyCancellable()
     }
 
-    func initStorekitPayment(
+    func initStoreKitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<String>
+        completionHandler: @escaping ProxyCompletionHandler<UUID>
     ) -> any MullvadTypes.Cancellable {
         AnyCancellable()
     }
 
-    func checkStorekitPayment(
-        accountNumber: String,
-        transaction: StorekitTransaction,
+    func checkStoreKitPayment(
+        transaction: StoreKitTransaction,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> any MullvadTypes.Cancellable {

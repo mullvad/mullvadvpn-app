@@ -61,38 +61,4 @@ final class AccountInteractor: Sendable {
     func logout() async {
         await tunnelManager.unsetAccount()
     }
-
-    // This function is for testing only
-    func getPaymentToken(for accountNumber: String) async -> Result<String, Error> {
-        await withCheckedContinuation { continuation in
-            _ =
-                apiProxy
-                .initStorekitPayment(
-                    accountNumber: accountNumber,
-                    retryStrategy: .noRetry,
-                    completionHandler: { result in
-                        continuation.resume(returning: result)
-                    }
-                )
-        }
-    }
-
-    // This function is for testing only
-    func sendStoreKitReceipt(
-        _ transaction: VerificationResult<Transaction>,
-        for accountNumber: String
-    ) async -> Result<Void, Error> {
-        await withCheckedContinuation { c in
-            _ =
-                apiProxy
-                .checkStorekitPayment(
-                    accountNumber: accountNumber,
-                    transaction: StorekitTransaction(transaction: transaction.jwsRepresentation),
-                    retryStrategy: .noRetry,
-                    completionHandler: { result in
-                        c.resume(returning: result)
-                    }
-                )
-        }
-    }
 }
