@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 
 import { spacings } from '../../foundations';
@@ -19,10 +18,6 @@ const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({
   margin: 'auto',
 }));
 
-export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
-  ({ size = '4', ...props }, ref) => {
-    return <StyledFlex ref={ref} $size={sizes[size]} {...props} />;
-  },
-);
-
-Container.displayName = 'Container';
+export function Container({ size = '4', ...props }: ContainerProps) {
+  return <StyledFlex $size={sizes[size]} {...props} />;
+}
