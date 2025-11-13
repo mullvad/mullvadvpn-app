@@ -473,11 +473,11 @@ impl HibernationDetector {
 
     /// Register a machine suspend event.
     fn register_suspend(&mut self) {
-        if let Some(logoff_time) = &self.logoff_time {
-            if logoff_time.elapsed() < Duration::from_secs(5) {
-                log::info!("Pending hibernation detected");
-                self.should_restart = true;
-            }
+        if let Some(logoff_time) = &self.logoff_time
+            && logoff_time.elapsed() < Duration::from_secs(5)
+        {
+            log::info!("Pending hibernation detected");
+            self.should_restart = true;
         }
     }
 

@@ -696,13 +696,13 @@ impl SplitTunnel {
 
 impl Drop for SplitTunnel {
     fn drop(&mut self) {
-        if let Some(_event_thread) = self.event_thread.take() {
-            if let Err(error) = self.quit_event.set() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to close ST event thread")
-                );
-            }
+        if let Some(_event_thread) = self.event_thread.take()
+            && let Err(error) = self.quit_event.set()
+        {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to close ST event thread")
+            );
             // Not joining `event_thread`: It may be unresponsive.
         }
 
