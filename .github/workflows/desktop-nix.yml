@@ -1,0 +1,32 @@
+name: Desktop Nix
+on:
+  pull_request:
+    paths:
+      - .github/workflows/desktop-nix.yml
+      - flake.nix
+      - flake.lock
+      - rust-toolchain.toml
+      - nix/**
+      - gui/**
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build desktop app
+        run: nix develop -c build
