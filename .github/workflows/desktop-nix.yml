@@ -1,0 +1,38 @@
+name: Desktop Nix
+on:
+  pull_request:
+    paths:
+      - .github/workflows/desktop-nix.yml
+      - flake.nix
+      - flake.lock
+      - rust-toolchain.toml
+      - nix/**
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            nix_flags: ""
+          - os: macos-latest
+            nix_flags: "--impure" # Required to access system libpcap with macOS-specific functions
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: git submodule update --init --depth=1 dist-assets/binaries
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build desktop app
+        run: nix develop ${{ matrix.nix_flags }} -c build
