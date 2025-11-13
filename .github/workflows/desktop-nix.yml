@@ -18,7 +18,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            nix_flags: ""
+          - os: macos-latest
+            nix_flags: "--impure" # Required to access system libpcap with macOS-specific functions
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -32,4 +36,4 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
 
       - name: Build desktop app
-        run: nix develop -c build
+        run: nix develop ${{ matrix.nix_flags }} -c build
