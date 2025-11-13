@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,11 +31,13 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
@@ -91,6 +94,7 @@ fun SelectLocationList(
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     lazyListState: LazyListState,
+    scrollToList: Boolean,
 ) {
     val viewModel =
         koinViewModel<SelectLocationListViewModel>(
@@ -98,15 +102,15 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    //    val stateActual = state
-    //
-    //    val lazyListState = rememberLazyListState()
-    //    RunOnKeyChange(stateActual is Content) {
-    //        stateActual.indexOfSelectedRelayItem()?.let { index ->
-    //            lazyListState.scrollToItem(index)
-    //            lazyListState.animateScrollAndCentralizeItem(index)
-    //        }
-    //    }
+    LaunchedEffect(Unit) {
+        val stateActual = viewModel.uiState.first { it is Content }
+        if (scrollToList) {
+            stateActual.indexOfSelectedRelayItem()?.let { index ->
+                lazyListState.scrollToItem(index)
+                lazyListState.animateScrollAndCentralizeItem(index)
+            }
+        }
+    }
 
     SelectLocationListContent(
         state = state,

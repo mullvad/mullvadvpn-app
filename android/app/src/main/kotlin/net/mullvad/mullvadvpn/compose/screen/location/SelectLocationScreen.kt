@@ -60,7 +60,6 @@ import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -474,7 +473,6 @@ fun SelectLocationScreen(
 
                     RelayLists(
                         relayListType = state.value.relayListType,
-                        isRecentsEnabled = state.value.isRecentsEnabled,
                         bottomMargin = bottomMarginList,
                         onSelectHop = onSelectHop,
                         onModifyMultihop = onModifyMultihop,
@@ -584,7 +582,6 @@ private fun SelectLocationDropdownMenu(
 @Suppress("ComplexCondition")
 private fun RelayLists(
     relayListType: RelayListType,
-    isRecentsEnabled: Boolean,
     bottomMargin: Dp,
     onSelectHop: (hop: Hop) -> Unit,
     onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
@@ -602,8 +599,8 @@ private fun RelayLists(
     }
 
     val lazyListStates = remember { mutableStateMapOf<RelayListType, LazyListState>() }
+    val scrollToLists = remember { mutableSetOf<RelayListType>() }
 
-    Logger.d("Relay list state: ${relayListType}")
     Crossfade(relayListType) {
         when (it) {
             is RelayListType.Multihop ->
@@ -618,7 +615,9 @@ private fun RelayLists(
                             onAddCustomList = onAddCustomList,
                             onEditCustomLists = onEditCustomLists,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
-                            lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                            lazyListState =
+                                lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                            scrollToList = scrollToLists.add(it),
                         )
                     MultihopRelayListType.EXIT ->
                         SelectLocationList(
@@ -630,7 +629,9 @@ private fun RelayLists(
                             onAddCustomList = onAddCustomList,
                             onEditCustomLists = onEditCustomLists,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
-                            lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                            lazyListState =
+                                lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                            scrollToList = scrollToLists.add(it),
                         )
                 }
             RelayListType.Single ->
@@ -644,6 +645,7 @@ private fun RelayLists(
                     onEditCustomLists = onEditCustomLists,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
                     lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                    scrollToList = scrollToLists.add(it),
                 )
         }
     }
