@@ -14,7 +14,7 @@ if [ "$CONFIGURATION" == "Release" ]; then
     echo "No file found at $RELAYS_FILE"
     exit 1
   fi
-  return 0
+  exit 0
 fi
 
 BACKUP_FILE="$CONFIGURATION_TEMP_DIR/relays.json"
