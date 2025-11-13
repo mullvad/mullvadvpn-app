@@ -9,11 +9,4 @@ sealed interface RelayItemSelection {
         val entryLocation: Constraint<RelayItemId>,
         override val exitLocation: Constraint<RelayItemId>,
     ) : RelayItemSelection
-
-    fun entryLocation() =
-        if (this is Multiple) {
-            entryLocation
-        } else {
-            null
-        }
 }

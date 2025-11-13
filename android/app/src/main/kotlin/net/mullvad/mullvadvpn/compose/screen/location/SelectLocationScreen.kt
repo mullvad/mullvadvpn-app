@@ -345,7 +345,11 @@ fun SelectLocationScreen(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
-    val bottomMarginList = with(LocalDensity.current) { fabHeight.toDp() + Dimens.fabSpacing }
+    val bottomMarginList = if(isTv()) {
+        0.dp
+    } else {
+        with(LocalDensity.current) { fabHeight.toDp() + Dimens.fabSpacing }
+    }
 
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.select_location),
