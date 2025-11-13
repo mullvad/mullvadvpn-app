@@ -36,17 +36,19 @@ data class Dimensions(
     val hopIconSize: Dp = 24.dp,
     val hopIconVerticalInternalPadding: Dp = 2.dp,
     val hopRadius: Dp = 12.dp,
+    val hopSelectorErrorStartPadding: Dp = 28.dp,
     val indentedCellStartPadding: Dp = 48.dp,
     val indicatorPadding: Dp = 4.dp,
     val indicatorSize: Dp = 8.dp,
     val largePadding: Dp = 32.dp,
     val listIconSize: Dp = 24.dp,
     val listItemDivider: Dp = 1.dp,
+    val locationHintIconSize: Dp = 18.dp,
+    val locationHintInternalPadding: Dp = 2.dp,
     val mediumIconSize: Dp = 32.dp,
     val mediumPadding: Dp = 16.dp,
     val mediumSpacer: Dp = 16.dp,
     val miniPadding: Dp = 4.dp,
-    val hopSelectorErrorStartPadding: Dp = 28.dp,
     val multihopSelectorPanelRadius: Dp = 16.dp,
     val notificationBannerEndPadding: Dp = 8.dp,
     val notificationBannerStartPadding: Dp = 16.dp,
@@ -58,8 +60,8 @@ data class Dimensions(
     val privacyPolicyIconSize: Dp = 16.dp,
     val problemReportTextFieldMinHeight: Dp = 220.dp,
     val reconnectButtonMinInteractiveComponentSize: Dp = 40.dp,
-    val relayCircleSize: Dp = 16.dp,
     val relayCirclePadding: Dp = 8.dp,
+    val relayCircleSize: Dp = 16.dp,
     val relayItemCornerRadius: Dp = 16.dp,
     val screenBottomMargin: Dp = 16.dp,
     val screenTopMargin: Dp = 24.dp,
@@ -91,10 +93,7 @@ data class Dimensions(
     val verticalDividerPadding: Dp = 16.dp,
     val verticalSpace: Dp = 16.dp,
     val verticalSpacer: Dp = 1.dp,
-) {
-    val locationHintIconSize: Dp = 18.dp
-    val locationHintInternalPadding: Dp = 2.dp
-}
+)
 
 val defaultDimensions = Dimensions()
 // Add more configurations here if needed
