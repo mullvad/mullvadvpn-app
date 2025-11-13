@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.compose.screen.location
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -686,16 +685,12 @@ private fun SelectionContainer(
             motionScene = scene,
             progress = progress,
         ) {
-            AnimatedContent(
-                relayListType,
-                Modifier.animateContentSize().layoutId(keyFilters).alpha(progress),
-            ) {
-                FilterRow(
-                    filters = filterChips,
-                    onRemoveOwnershipFilter = { removeOwnershipFilter() },
-                    onRemoveProviderFilter = { removeProviderFilter() },
-                )
-            }
+            FilterRow(
+                modifier = Modifier.layoutId(keyFilters).alpha(progress),
+                filters = filterChips,
+                onRemoveOwnershipFilter = { removeOwnershipFilter() },
+                onRemoveProviderFilter = { removeProviderFilter() },
+            )
         }
     }
 }
