@@ -7,8 +7,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.usecase.FilterChip
 
 data class SelectLocationUiState(
-    val filterChips: List<FilterChip>,
     val multihopListSelection: MultihopRelayListType,
+    val filterChips: Map<RelayListType, List<FilterChip>>,
     val isSearchButtonEnabled: Boolean,
     val isFilterButtonEnabled: Boolean,
     val isRecentsEnabled: Boolean,

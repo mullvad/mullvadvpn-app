@@ -344,6 +344,7 @@ class SelectLocationViewModelTest {
             val state = awaitItem()
             assertIs<Lc.Content<SelectLocationUiState>>(state)
             assertLists(expectedFilters, state.value.filterChips)
+            assert(state.value.filterChips.isEmpty())
         }
     }
 
