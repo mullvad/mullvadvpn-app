@@ -55,6 +55,8 @@ class MultihopViewModelTest {
                 isMultihopEnabled = true,
                 entryLocation = Constraint.Any,
                 ipVersion = Constraint.Any,
+                entryProviders = Constraint.Any,
+                entryOwnership = Constraint.Any,
             )
 
         // Act, Assert

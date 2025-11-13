@@ -47,6 +47,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
@@ -75,7 +76,9 @@ private fun PreviewFilterScreen(
     }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+data class FilterNavArgs(val relayListType: RelayListType)
+
+@Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = FilterNavArgs::class)
 @Composable
 fun Filter(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<FilterViewModel>()

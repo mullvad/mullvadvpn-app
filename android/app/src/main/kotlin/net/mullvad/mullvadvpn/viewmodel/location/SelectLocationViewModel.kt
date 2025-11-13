@@ -18,14 +18,14 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
 import net.mullvad.mullvadvpn.compose.screen.location.ScrollEvent
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -193,12 +193,22 @@ class SelectLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun removeOwnerFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
+    fun removeOwnerFilter(relayListType: RelayListType) {
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedOwnership(
+                relayListType = relayListType,
+                ownership = Constraint.Any,
+            )
+        }
     }
 
-    fun removeProviderFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
+    fun removeProviderFilter(relayListType: RelayListType) {
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedProviders(
+                relayListType = relayListType,
+                providers = Constraint.Any,
+            )
+        }
     }
 
     fun toggleRecentsEnabled() {

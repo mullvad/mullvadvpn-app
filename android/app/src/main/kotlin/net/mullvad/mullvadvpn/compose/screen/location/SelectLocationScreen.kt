@@ -90,8 +90,6 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -101,8 +99,10 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.HopSelection
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.resource.icon.DeleteHistory
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -305,7 +305,10 @@ fun SelectLocation(
                 navigator.navigate(SearchLocationDestination(relayListType))
             },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
-        onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
+        onFilterClick =
+            dropUnlessResumed { relayListType ->
+                navigator.navigate(FilterDestination(relayListType))
+            },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
                 navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
@@ -361,12 +364,12 @@ fun SelectLocationScreen(
     onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
-    onFilterClick: () -> Unit,
+    onFilterClick: (RelayListType) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
-    removeOwnershipFilter: () -> Unit,
-    removeProviderFilter: () -> Unit,
+    removeOwnershipFilter: (RelayListType) -> Unit,
+    removeProviderFilter: (RelayListType) -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
@@ -444,7 +447,7 @@ fun SelectLocationScreen(
 
             SelectLocationDropdownMenu(
                 filterButtonEnabled = filterButtonEnabled,
-                onFilterClick = onFilterClick,
+                onFilterClick = { onFilterClick(state.contentOrNull()?.relayListType!!) },
                 recentsEnabled = recentsCurrentlyEnabled,
                 multihopEnabled = multihopEnabled,
                 onRecentsToggleEnableClick = {
@@ -729,8 +732,8 @@ private fun SelectionContainer(
     error: ErrorStateCause?,
     filterChips: List<FilterChip>,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
-    removeOwnershipFilter: () -> Unit,
-    removeProviderFilter: () -> Unit,
+    removeOwnershipFilter: (RelayListType) -> Unit,
+    removeProviderFilter: (RelayListType) -> Unit,
     scrollToRelayItem: (RelayListType, RelayItem) -> Unit,
 ) {
 
@@ -829,8 +832,8 @@ private fun SelectionContainer(
             FilterRow(
                 modifier = Modifier.layoutId(keyFilters).alpha(EaseInQuint.transform(progress)),
                 filters = filterChips,
-                onRemoveOwnershipFilter = { removeOwnershipFilter() },
-                onRemoveProviderFilter = { removeProviderFilter() },
+                onRemoveOwnershipFilter = { removeOwnershipFilter(relayListType) },
+                onRemoveProviderFilter = { removeProviderFilter(relayListType) },
             )
         }
     }

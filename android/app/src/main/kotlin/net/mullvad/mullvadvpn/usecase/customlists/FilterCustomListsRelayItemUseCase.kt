@@ -2,15 +2,15 @@ package net.mullvad.mullvadvpn.usecase.customlists
 
 import kotlin.collections.mapNotNull
 import kotlinx.coroutines.flow.combine
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.relaylist.filter
-import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.util.ipVersionConstraint
 import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
 import net.mullvad.mullvadvpn.util.isLwoEnabled
@@ -21,17 +21,16 @@ import net.mullvad.mullvadvpn.util.shouldFilterByQuic
 
 class FilterCustomListsRelayItemUseCase(
     private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    private val relayListFilterRepository: RelayListFilterRepository,
+    private val relayListFilterUseCase: RelayListFilterUseCase,
     private val settingsRepository: SettingsRepository,
 ) {
 
     operator fun invoke(relayListType: RelayListType) =
         combine(
             customListsRelayItemUseCase(),
-            relayListFilterRepository.selectedOwnership,
-            relayListFilterRepository.selectedProviders,
+            relayListFilterUseCase(relayListType),
             settingsRepository.settingsUpdates,
-        ) { customLists, selectedOwnership, selectedProviders, settings ->
+        ) { customLists, (selectedOwnership, selectedProviders), settings ->
             customLists.filter(
                 ownership = selectedOwnership,
                 providers = selectedProviders,

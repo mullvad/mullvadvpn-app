@@ -48,6 +48,8 @@ class SelectedLocationUseCaseTest {
                 isMultihopEnabled = true,
                 entryLocation = entryLocation,
                 ipVersion = Constraint.Any,
+                entryOwnership = Constraint.Any,
+                entryProviders = Constraint.Any,
             )
         selectedLocation.value = exitLocation
 
