@@ -3,21 +3,22 @@ import styled from 'styled-components';
 import { spacings } from '../../foundations';
 import { Flex, FlexProps } from '../flex';
 
-export interface ContainerProps extends FlexProps {
+export type ContainerProps = FlexProps & {
   size?: '3' | '4';
-  children: React.ReactNode;
-}
+};
 
 const sizes: Record<'3' | '4', string> = {
   '3': `calc(100% - ${spacings.large} * 2)`,
   '4': `calc(100% - ${spacings.medium} * 2)`,
 };
 
-const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({
-  width: props.$size,
-  margin: 'auto',
-}));
+export const StyledContainer = styled(Flex)<{ $size: string }>`
+  ${({ $size }) => ({
+    width: $size,
+    margin: 'auto',
+  })}
+`;
 
 export function Container({ size = '4', ...props }: ContainerProps) {
-  return <StyledFlex $size={sizes[size]} {...props} />;
+  return <StyledContainer $size={sizes[size]} {...props} />;
 }
