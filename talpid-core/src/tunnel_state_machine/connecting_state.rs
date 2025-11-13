@@ -519,20 +519,20 @@ impl ConnectingState {
                     Ok(added_device) => {
                         let _ = result_tx.send(Ok(()));
 
-                        if added_device {
-                            if let Err(error) = Self::set_firewall_policy(
+                        if added_device
+                            && let Err(error) = Self::set_firewall_policy(
                                 shared_values,
                                 &self.tunnel_parameters,
                                 &self.tunnel_metadata,
                                 self.allowed_tunnel_traffic.clone(),
-                            ) {
-                                return self.disconnect(
-                                    shared_values,
-                                    AfterDisconnect::Block(
-                                        ErrorStateCause::SetFirewallPolicyError(error),
-                                    ),
-                                );
-                            }
+                            )
+                        {
+                            return self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
+                                    error,
+                                )),
+                            );
                         }
                     }
                     Err(error) => {

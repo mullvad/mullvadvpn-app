@@ -375,15 +375,15 @@ impl ConnectedState {
                     Ok(interface_changed) => {
                         let _ = result_tx.send(Ok(()));
 
-                        if interface_changed {
-                            if let Err(error) = self.set_firewall_policy(shared_values) {
-                                return self.disconnect(
-                                    shared_values,
-                                    AfterDisconnect::Block(
-                                        ErrorStateCause::SetFirewallPolicyError(error),
-                                    ),
-                                );
-                            }
+                        if interface_changed
+                            && let Err(error) = self.set_firewall_policy(shared_values)
+                        {
+                            return self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
+                                    error,
+                                )),
+                            );
                         }
                     }
                     Err(error) => {

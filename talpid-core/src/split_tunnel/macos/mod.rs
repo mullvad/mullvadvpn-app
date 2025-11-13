@@ -247,10 +247,10 @@ impl SplitTunnel {
 
         // Enter the error state if split tunneling is active. Otherwise, we might make incorrect
         // decisions for new processes
-        if self.state.active() {
-            if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
-                let _ = tunnel_tx.unbounded_send(TunnelCommand::Block(cause));
-            }
+        if self.state.active()
+            && let Some(tunnel_tx) = self.tunnel_tx.upgrade()
+        {
+            let _ = tunnel_tx.unbounded_send(TunnelCommand::Block(cause));
         }
 
         self.state.fail(result.err().map(Error::from));
