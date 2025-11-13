@@ -33,9 +33,9 @@ const NavigationHeader = ({ titleVisible, children, ...props }: NavigationHeader
     <NavigationHeaderProvider titleVisible={!!titleVisible}>
       <StyledHeader {...props}>
         <Flex
-          $flexDirection="column"
-          $justifyContent="center"
-          $padding={{
+          flexDirection="column"
+          justifyContent="center"
+          padding={{
             horizontal: 'medium',
             vertical: 'small',
           }}>

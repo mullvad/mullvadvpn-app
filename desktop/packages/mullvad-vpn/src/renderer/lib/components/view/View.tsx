@@ -16,7 +16,7 @@ export const StyledView = styled(Flex)<{ $backgroundColor?: ColorVariables }>`
 
 function View({ backgroundColor = 'blue', ...props }: ViewProps) {
   return (
-    <StyledView $backgroundColor={colors[backgroundColor]} $flexDirection="column" {...props} />
+    <StyledView $backgroundColor={colors[backgroundColor]} flexDirection="column" {...props} />
   );
 }
 

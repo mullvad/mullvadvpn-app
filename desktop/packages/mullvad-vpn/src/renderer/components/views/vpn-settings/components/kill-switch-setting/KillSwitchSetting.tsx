@@ -12,7 +12,7 @@ export function KillSwitchSetting() {
           <SettingsListItem.Label>
             {messages.pgettext('vpn-settings-view', 'Kill switch')}
           </SettingsListItem.Label>
-          <SettingsListItem.Group $gap="medium">
+          <SettingsListItem.Group gap="medium">
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(

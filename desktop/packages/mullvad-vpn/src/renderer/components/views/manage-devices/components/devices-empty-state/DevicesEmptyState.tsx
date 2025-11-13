@@ -5,7 +5,7 @@ import { useManageDevicesContext } from '../../ManageDevicesContext';
 export function DevicesEmptyState() {
   const { isFetching, refetchDevices } = useManageDevicesContext();
   return (
-    <EmptyState variant={isFetching ? 'loading' : 'error'} $alignSelf="stretch">
+    <EmptyState variant={isFetching ? 'loading' : 'error'} alignSelf="stretch">
       <EmptyState.StatusIcon />
       <EmptyState.TextContainer>
         <EmptyState.Title>{messages.gettext('Failed to fetch list of devices')}</EmptyState.Title>

@@ -9,15 +9,15 @@ export function MacOsSplitTunnelingAvailability() {
   const restartDaemon = useRestartDaemon();
 
   return (
-    <Flex $flexDirection="column" $gap="large">
+    <Flex flexDirection="column" gap="large">
       <HeaderSubTitle>
         {messages.pgettext(
           'split-tunneling-view',
           'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
         )}
       </HeaderSubTitle>
-      <Flex $flexDirection="column" $gap="small">
-        <Flex $flexDirection="column" $gap="big">
+      <Flex flexDirection="column" gap="small">
+        <Flex flexDirection="column" gap="big">
           <Button onClick={showFullDiskAccessSettings}>
             <Button.Text>
               {messages.pgettext('split-tunneling-view', 'Open System Settings')}

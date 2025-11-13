@@ -12,7 +12,7 @@ export function SplitTunnelingSettingsHeader() {
 
   return (
     <SettingsHeader>
-      <Flex $justifyContent="space-between" $alignItems="center">
+      <Flex justifyContent="space-between" alignItems="center">
         <HeaderTitle>{strings.splitTunneling}</HeaderTitle>
         <SplitTunnelingStateSwitch />
       </Flex>

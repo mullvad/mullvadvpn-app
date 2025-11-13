@@ -5,9 +5,9 @@ import { LaunchInstallerButton } from '../../../../../launch-installer-button';
 
 export function InstallerReady() {
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
-        <Flex $gap="tiny" $alignItems="center">
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
+        <Flex gap="tiny" alignItems="center">
           <Icon icon="checkmark" color="green" size="small" />
           <LabelTinySemiBold>
             {
@@ -18,7 +18,7 @@ export function InstallerReady() {
         </Flex>
         <DownloadProgress />
       </Flex>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         <LaunchInstallerButton>
           {
             // TRANSLATORS: Button text to install an update

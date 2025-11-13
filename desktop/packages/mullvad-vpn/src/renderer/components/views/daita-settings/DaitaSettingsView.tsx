@@ -26,12 +26,12 @@ export function DaitaSettingsView() {
           <AppNavigationHeader title={strings.daita} />
 
           <NavigationScrollbars>
-            <Flex $flexDirection="column" $gap="medium">
+            <Flex flexDirection="column" gap="medium">
               <View.Container>
-                <FlexColumn $gap="medium">
+                <FlexColumn gap="medium">
                   <HeaderTitle>{strings.daita}</HeaderTitle>
                   {showDaitaMultihopInfo && (
-                    <Flex $gap="small" $alignItems="center">
+                    <Flex gap="small" alignItems="center">
                       <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
                       <Text variant="labelTinySemiBold" color="whiteAlpha60">
                         {messages.pgettext(
@@ -150,7 +150,7 @@ export function DaitaSettingsView() {
                   </Carousel>
                 </FlexColumn>
               </View.Container>
-              <FlexColumn $padding={{ bottom: 'medium' }}>
+              <FlexColumn padding={{ bottom: 'medium' }}>
                 <DaitaSetting />
                 <DaitaDirectOnlySetting />
               </FlexColumn>

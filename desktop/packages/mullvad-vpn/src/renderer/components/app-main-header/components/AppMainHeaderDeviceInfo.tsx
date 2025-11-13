@@ -39,7 +39,7 @@ export const AppMainHeaderDeviceInfo = () => {
   }, [accountExpiry]);
 
   return (
-    <StyledFlex $gap="large" $margin={{ top: 'tiny' }}>
+    <StyledFlex gap="large" margin={{ top: 'tiny' }}>
       <StyledDeviceLabel color="whiteAlpha80">
         {sprintf(
           // TRANSLATORS: A label that will display the newly created device name to inform the user

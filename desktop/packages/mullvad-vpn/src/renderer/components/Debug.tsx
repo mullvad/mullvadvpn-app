@@ -42,7 +42,7 @@ export default function Debug() {
 
               <StyledContent>
                 <StyledButtonGroup>
-                  <FlexColumn $gap="medium">
+                  <FlexColumn gap="medium">
                     <ThrowErrorButton />
                     <UnhandledRejectionButton />
                     <ErrorDuringRender />

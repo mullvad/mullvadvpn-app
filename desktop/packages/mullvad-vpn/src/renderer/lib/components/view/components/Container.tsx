@@ -20,5 +20,5 @@ const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({
 }));
 
 export function Container({ size = '4', ...props }: ContainerProps) {
-  return <StyledFlex $size={sizes[size]} $flexDirection="column" {...props} />;
+  return <StyledFlex $size={sizes[size]} flexDirection="column" {...props} />;
 }
