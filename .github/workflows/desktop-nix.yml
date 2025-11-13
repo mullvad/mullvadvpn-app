@@ -7,7 +7,6 @@ on:
       - flake.lock
       - rust-toolchain.toml
       - nix/**
-      - gui/**
   push:
     branches:
       - main
