@@ -65,7 +65,6 @@ import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -114,7 +113,6 @@ import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
-
 
 val SCROLL_COLLAPSE_DISTANCE = 150.dp
 const val ANIMATION_DELAY_FADE_IN = 90
