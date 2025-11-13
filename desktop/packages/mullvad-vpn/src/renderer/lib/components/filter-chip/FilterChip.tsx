@@ -53,11 +53,11 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
           onClick={onClick}
           {...props}>
           <Flex
-            $flex={1}
-            $gap="tiny"
-            $alignItems="center"
-            $justifyContent="space-between"
-            $padding={{
+            flex={1}
+            gap="tiny"
+            alignItems="center"
+            justifyContent="space-between"
+            padding={{
               horizontal: 'small',
             }}>
             {children}

@@ -48,18 +48,18 @@ export const Footer = styled.div({
 });
 
 export const SettingsStack = styled(Flex).attrs({
-  $flexDirection: 'column',
-  $gap: 'medium',
+  flexDirection: 'column',
+  gap: 'medium',
 })({});
 
 export const SettingsGroup = styled(Flex).attrs({
-  $flex: 1,
-  $flexDirection: 'column',
+  flex: 1,
+  flexDirection: 'column',
 })({});
 
 export const ButtonStack = styled(Flex).attrs({
-  $flexDirection: 'column',
-  $gap: 'medium',
+  flexDirection: 'column',
+  gap: 'medium',
 })({
   [`${Footer} &&`]: {
     margin: `0 ${spacings.small}`,
@@ -67,8 +67,8 @@ export const ButtonStack = styled(Flex).attrs({
 });
 
 export const LabelStack = styled(Flex).attrs({
-  $flexGrow: 1,
-  $flexDirection: 'row',
-  $alignItems: 'center',
-  $gap: 'small',
+  flexGrow: 1,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 'small',
 })({});

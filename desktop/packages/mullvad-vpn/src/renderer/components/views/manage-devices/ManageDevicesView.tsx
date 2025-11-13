@@ -29,9 +29,9 @@ export function ManageDevicesView() {
               }
             />
             <NavigationScrollbars>
-              <FlexColumn $gap="medium">
+              <FlexColumn gap="medium">
                 <View.Container>
-                  <FlexColumn $gap="small">
+                  <FlexColumn gap="small">
                     <Text variant="titleBig">
                       {
                         // TRANSLATORS: Title text in the manage devices view

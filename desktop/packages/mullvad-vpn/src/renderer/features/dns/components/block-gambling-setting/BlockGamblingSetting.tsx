@@ -9,7 +9,7 @@ export function BlockGamblingSetting() {
       <ListItem.Item>
         <ListItem.Content>
           <BlockGamblingSwitch>
-            <FlexRow $padding={{ left: 'medium' }}>
+            <FlexRow padding={{ left: 'medium' }}>
               <BlockGamblingSwitch.Label variant="bodySmall">
                 {
                   // TRANSLATORS: Label for settings that enables block of gamling related websites.

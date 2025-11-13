@@ -31,7 +31,7 @@ export const ChangelogView = () => {
             />
 
             <NavigationScrollbars>
-              <Flex $flexDirection="column" $gap="large">
+              <Flex flexDirection="column" gap="large">
                 <Container size="4">
                   <TitleBig as="h1">
                     {
@@ -41,11 +41,11 @@ export const ChangelogView = () => {
                     }
                   </TitleBig>
                 </Container>
-                <Flex $flexDirection="column" $gap="small">
+                <Flex flexDirection="column" gap="small">
                   <Container size="4">
                     <TitleLarge as="h2">{current}</TitleLarge>
                   </Container>
-                  <Container size="3" $flexDirection="column">
+                  <Container size="3" flexDirection="column">
                     {showChangelogList ? (
                       <ChangelogList changelog={changelog} />
                     ) : (

@@ -43,8 +43,8 @@ export default function ErrorView(props: ErrorViewProps) {
         {!props.settingsUnavailable && <AppMainHeader.SettingsButton />}
       </AppMainHeader>
       <StyledContainer>
-        <Flex $flexDirection="column" $gap="medium">
-          <Flex $flexDirection="column" $alignItems="center" $justifyContent="end" $gap="medium">
+        <Flex flexDirection="column" gap="medium">
+          <Flex flexDirection="column" alignItems="center" justifyContent="end" gap="medium">
             <Logo variant="icon" size="2" />
             <Logo variant="text" size="2" />
           </Flex>

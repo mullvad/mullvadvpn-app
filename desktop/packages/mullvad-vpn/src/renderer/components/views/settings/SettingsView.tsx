@@ -51,10 +51,10 @@ export function SettingsView() {
           />
 
           <SettingsNavigationScrollbars fillContainer>
-            <Flex $flexDirection="column" $gap="medium">
+            <Flex flexDirection="column" gap="medium">
               {showSubSettings ? (
                 <>
-                  <Flex $flexDirection="column">
+                  <Flex flexDirection="column">
                     <DaitaListItem />
                     <MultihopListItem />
                     <VpnSettingsListItem />
@@ -68,7 +68,7 @@ export function SettingsView() {
 
               <ApiAccessMethodsListItem />
 
-              <Flex $flexDirection="column">
+              <Flex flexDirection="column">
                 <SupportListItem />
                 <AppInfoListItem />
               </Flex>

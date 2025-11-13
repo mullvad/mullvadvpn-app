@@ -58,12 +58,12 @@ export function Account() {
           />
 
           <StyledViewContainer>
-            <FlexColumn $gap="medium">
+            <FlexColumn gap="medium">
               <Text variant="titleBig">
                 <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
               </Text>
 
-              <FlexColumn $gap="large">
+              <FlexColumn gap="large">
                 <LabelledRow label={messages.pgettext('device-management', 'Device name')}>
                   <DeviceNameRow />
                 </LabelledRow>
@@ -72,13 +72,13 @@ export function Account() {
                   <AccountNumberRow />
                 </LabelledRow>
 
-                <LabelledRow $gap="tiny" label={messages.pgettext('account-view', 'Paid until')}>
+                <LabelledRow gap="tiny" label={messages.pgettext('account-view', 'Paid until')}>
                   <AccountExpiryRow />
                 </LabelledRow>
               </FlexColumn>
             </FlexColumn>
 
-            <FlexColumn $gap="medium" $padding={{ bottom: 'large' }}>
+            <FlexColumn gap="medium" padding={{ bottom: 'large' }}>
               <Button
                 variant="success"
                 disabled={isOffline}

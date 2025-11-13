@@ -98,7 +98,7 @@ export function VoucherInput() {
             </StyledBody>
 
             <Footer>
-              <FlexColumn $gap="medium">
+              <FlexColumn gap="medium">
                 <RedeemVoucherSubmitButton />
                 <Button onClick={navigateBack}>
                   <Button.Text>{messages.gettext('Cancel')}</Button.Text>
@@ -165,7 +165,7 @@ export function TimeAdded(props: ITimeAddedProps) {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <Flex $justifyContent="center" $margin={{ bottom: 'medium' }}>
+            <Flex justifyContent="center" margin={{ bottom: 'medium' }}>
               <IconBadge state="positive" />
             </Flex>
             <StyledTitle>
@@ -225,7 +225,7 @@ export function SetupFinished() {
           </StyledBody>
 
           <Footer>
-            <FlexColumn $gap="medium">
+            <FlexColumn gap="medium">
               <Button
                 onClick={openPrivacyLink}
                 aria-description={messages.pgettext('accessibility', 'Opens externally')}>

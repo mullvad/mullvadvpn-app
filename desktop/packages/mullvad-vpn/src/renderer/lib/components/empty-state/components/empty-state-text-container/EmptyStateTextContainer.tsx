@@ -4,7 +4,7 @@ export type EmptyStateTextContainerProps = FlexProps;
 
 export function EmptyStateTextContainer({ children, ...props }: EmptyStateTextContainerProps) {
   return (
-    <Flex $flexDirection="column" $alignItems="center" $gap="tiny" {...props}>
+    <Flex flexDirection="column" alignItems="center" gap="tiny" {...props}>
       {children}
     </Flex>
   );

@@ -7,10 +7,10 @@ export function DevicesState() {
   const { isLoading } = useManageDevicesContext();
   return (
     <View.Container
-      $flexDirection="column"
-      $gap="tiny"
-      $alignItems="center"
-      $padding={{ bottom: 'tiny' }}>
+      flexDirection="column"
+      gap="tiny"
+      alignItems="center"
+      padding={{ bottom: 'tiny' }}>
       {isLoading ? <Spinner size="big" /> : <DevicesEmptyState />}
     </View.Container>
   );

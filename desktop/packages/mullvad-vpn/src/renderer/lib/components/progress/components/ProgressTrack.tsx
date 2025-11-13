@@ -20,7 +20,7 @@ export const ProgressTrack: React.FC<ProgressTrackProps> = ({ children, ...props
   const { max, min, value } = useProgress();
   return (
     <StyledFlex
-      $alignItems="center"
+      alignItems="center"
       role="progressbar"
       aria-valuemin={min}
       aria-valuemax={max}

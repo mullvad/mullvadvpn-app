@@ -100,7 +100,7 @@ export default function ApiAccessMethods() {
                   </HeaderSubTitle>
                 </SettingsHeader>
 
-                <Flex $flexDirection="column" $gap="large">
+                <Flex flexDirection="column" gap="large">
                   <Cell.Group $noMarginBottom>
                     <ApiAccessMethod
                       method={methods.direct}
@@ -123,7 +123,7 @@ export default function ApiAccessMethods() {
                       />
                     ))}
                   </Cell.Group>
-                  <Container size="4" $flex={1} $justifyContent="flex-end">
+                  <Container size="4" flex={1} justifyContent="flex-end">
                     <Button width="fit" onClick={navigateToNew}>
                       <Button.Text>{messages.gettext('Add')}</Button.Text>
                     </Button>
@@ -228,7 +228,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         <StyledNameLabel>{props.method.name}</StyledNameLabel>
         {testing && (
           <Cell.SubLabel>
-            <Flex $gap="tiny" $alignItems="center">
+            <Flex gap="tiny" alignItems="center">
               <Spinner size="small" />
               {messages.pgettext('api-access-methods-view', 'Testing...')}
             </Flex>
@@ -246,7 +246,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           <Cell.SubLabel>{messages.pgettext('api-access-methods-view', 'In use')}</Cell.SubLabel>
         )}
       </Cell.LabelContainer>
-      <Flex $gap="small" $alignItems="center">
+      <Flex gap="small" alignItems="center">
         {props.method.type === 'direct' && (
           <InfoButton
             message={[
