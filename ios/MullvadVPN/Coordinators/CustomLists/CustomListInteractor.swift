@@ -24,11 +24,11 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         case save, delete
     }
 
-    private let tunnelManager: TunnelManager
+    private let tunnelManager: SettingsUpdating
     private let repository: CustomListRepositoryProtocol
 
     init(
-        tunnelManager: TunnelManager,
+        tunnelManager: SettingsUpdating,
         repository: CustomListRepositoryProtocol
     ) {
         self.tunnelManager = tunnelManager
@@ -45,12 +45,12 @@ struct CustomListInteractor: CustomListInteractorProtocol {
 
     func save(list: CustomList) throws {
         try repository.save(list: list)
-        updateRelayConstraint(list: list, action: .save)
+        updateCustomListRelayConstraints(list: list, action: .save)
     }
 
     func delete(customList: CustomList) {
         repository.delete(id: customList.id)
-        updateRelayConstraint(list: customList, action: .delete)
+        updateCustomListRelayConstraints(list: customList, action: .delete)
     }
 
     func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
@@ -101,7 +101,7 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         try save(list: newCustomList)
     }
 
-    private func updateRelayConstraint(list: CustomList, action: CustomListAction) {
+    private func updateCustomListRelayConstraints(list: CustomList, action: CustomListAction) {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
         // only update relay constraints if custom list is currently selected
@@ -137,7 +137,11 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         {
             relayConstraints.exitLocations = newExitLocations
             relayConstraints.entryLocations = newEntryLocations
-            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            tunnelManager
+                .updateSettings(
+                    [.relayConstraints(relayConstraints)],
+                    completionHandler: nil
+                )
         }
     }
 
@@ -178,3 +182,10 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         return relayConstraint
     }
 }
+
+protocol SettingsUpdating {
+    func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (@Sendable () -> Void)?)
+    var settings: LatestTunnelSettings { get }
+}
+
+extension TunnelManager: SettingsUpdating {}

@@ -1100,6 +1100,8 @@
 		F9C579C62E8FE0D000C90C50 /* LocationDisclosureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */; };
 		F9C579C82E8FE10400C90C50 /* RelayItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C72E8FE10400C90C50 /* RelayItemView.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
+		F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */; };
+		F9EDB26D2EC4C0CD0015DE36 /* CustomListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2519,6 +2521,7 @@
 		F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDisclosureGroup.swift; sourceTree = "<group>"; };
 		F9C579C72E8FE10400C90C50 /* RelayItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayItemView.swift; sourceTree = "<group>"; };
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
+		F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListInteractorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2733,6 +2736,7 @@
 		440E9EF02BDA93CB00B1FD11 /* MullvadVPN */ = {
 			isa = PBXGroup;
 			children = (
+				F9EDB26A2EC4C03A0015DE36 /* Interactors */,
 				F0A7EBB02CEF6C5F005BB671 /* Log */,
 				440E9EF62BDA957300B1FD11 /* Classes */,
 				440E9F002BDA997C00B1FD11 /* Extensions */,
@@ -4852,6 +4856,14 @@
 			path = DataSource;
 			sourceTree = "<group>";
 		};
+		F9EDB26A2EC4C03A0015DE36 /* Interactors */ = {
+			isa = PBXGroup;
+			children = (
+				F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */,
+			);
+			path = Interactors;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -5925,6 +5937,7 @@
 				A9A5F9EE2ACB05160083449F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				7A9BE5A72B907EEC00E2A7D0 /* AllLocationDataSource.swift in Sources */,
 				A9A5F9EF2ACB05160083449F /* String+AccountFormatting.swift in Sources */,
+				F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */,
 				A9A5F9F02ACB05160083449F /* String+FuzzyMatch.swift in Sources */,
 				F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */,
 				F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */,
@@ -6014,6 +6027,7 @@
 				F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */,
 				7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */,
 				F0FA160A2D7F0E8B007E2546 /* FilterDescriptor.swift in Sources */,
+				F9EDB26D2EC4C0CD0015DE36 /* CustomListInteractor.swift in Sources */,
 				A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,
 				A9A5FA252ACB05160083449F /* UpdateAccountDataOperation.swift in Sources */,
