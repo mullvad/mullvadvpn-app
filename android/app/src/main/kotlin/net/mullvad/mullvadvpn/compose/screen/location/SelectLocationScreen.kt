@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
@@ -30,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,6 +60,7 @@ import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -469,7 +473,8 @@ fun SelectLocationScreen(
                     )
 
                     RelayLists(
-                        state = state.value,
+                        relayListType = state.value.relayListType,
+                        isRecentsEnabled = state.value.isRecentsEnabled,
                         bottomMargin = bottomMarginList,
                         onSelectHop = onSelectHop,
                         onModifyMultihop = onModifyMultihop,
@@ -578,7 +583,8 @@ private fun SelectLocationDropdownMenu(
 @Composable
 @Suppress("ComplexCondition")
 private fun RelayLists(
-    state: SelectLocationUiState,
+    relayListType: RelayListType,
+    isRecentsEnabled: Boolean,
     bottomMargin: Dp,
     onSelectHop: (hop: Hop) -> Unit,
     onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
@@ -595,17 +601,51 @@ private fun RelayLists(
         }
     }
 
-    Crossfade(state.relayListType) {
-        SelectLocationList(
-            relayListType = it,
-            bottomMargin = bottomMargin,
-            onSelectHop = onSelectHop,
-            onSelectRelayItem = onSelectRelayItem,
-            openDaitaSettings = openDaitaSettings,
-            onAddCustomList = onAddCustomList,
-            onEditCustomLists = onEditCustomLists,
-            onUpdateBottomSheetState = onUpdateBottomSheetState,
-        )
+    val lazyListStates = remember { mutableStateMapOf<RelayListType, LazyListState>() }
+
+    Logger.d("Relay list state: ${relayListType}")
+    Crossfade(relayListType) {
+        when (it) {
+            is RelayListType.Multihop ->
+                when (it.multihopRelayListType) {
+                    MultihopRelayListType.ENTRY ->
+                        SelectLocationList(
+                            relayListType = it,
+                            bottomMargin = bottomMargin,
+                            onSelectHop = onSelectHop,
+                            onSelectRelayItem = onSelectRelayItem,
+                            openDaitaSettings = openDaitaSettings,
+                            onAddCustomList = onAddCustomList,
+                            onEditCustomLists = onEditCustomLists,
+                            onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                        )
+                    MultihopRelayListType.EXIT ->
+                        SelectLocationList(
+                            relayListType = it,
+                            bottomMargin = bottomMargin,
+                            onSelectHop = onSelectHop,
+                            onSelectRelayItem = onSelectRelayItem,
+                            openDaitaSettings = openDaitaSettings,
+                            onAddCustomList = onAddCustomList,
+                            onEditCustomLists = onEditCustomLists,
+                            onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                        )
+                }
+            RelayListType.Single ->
+                SelectLocationList(
+                    relayListType = it,
+                    bottomMargin = bottomMargin,
+                    onSelectHop = onSelectHop,
+                    onSelectRelayItem = onSelectRelayItem,
+                    openDaitaSettings = openDaitaSettings,
+                    onAddCustomList = onAddCustomList,
+                    onEditCustomLists = onEditCustomLists,
+                    onUpdateBottomSheetState = onUpdateBottomSheetState,
+                    lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                )
+        }
     }
 }
 

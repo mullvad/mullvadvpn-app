@@ -92,6 +92,7 @@ fun SelectLocationList(
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    lazyListState: LazyListState,
 ) {
     val viewModel =
         koinViewModel<SelectLocationListViewModel>(
@@ -99,15 +100,15 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val stateActual = state
-
-    val lazyListState = rememberLazyListState()
-    RunOnKeyChange(stateActual is Content) {
-        stateActual.indexOfSelectedRelayItem()?.let { index ->
-            lazyListState.scrollToItem(index)
-            lazyListState.animateScrollAndCentralizeItem(index)
-        }
-    }
+//    val stateActual = state
+//
+//    val lazyListState = rememberLazyListState()
+//    RunOnKeyChange(stateActual is Content) {
+//        stateActual.indexOfSelectedRelayItem()?.let { index ->
+//            lazyListState.scrollToItem(index)
+//            lazyListState.animateScrollAndCentralizeItem(index)
+//        }
+//    }
 
     SelectLocationListContent(
         state = state,
