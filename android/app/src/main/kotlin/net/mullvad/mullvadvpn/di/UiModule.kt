@@ -9,11 +9,11 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState
 import net.mullvad.mullvadvpn.compose.screen.location.RelayListScrollConnection
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.util.BackstackObserver
 import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
+import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
@@ -236,6 +237,7 @@ val uiModule = module {
             wireguardConstraintsRepository = get(),
         )
     }
+    single { RelayListFilterUseCase(relayListFilterRepository = get()) }
 
     single { InAppNotificationController(getAll(), MainScope()) }
 
@@ -331,7 +333,7 @@ val uiModule = module {
     }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { FilterViewModel(get(), get()) }
+    viewModel { FilterViewModel(get(), get(), get(), get()) }
     viewModel { CreateCustomListDialogViewModel(get(), get()) }
     viewModel { CustomListLocationsViewModel(get(), get(), get(), get()) }
     viewModel { EditCustomListViewModel(get(), get()) }

@@ -9,20 +9,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -222,11 +223,21 @@ class SearchLocationViewModel(
     }
 
     fun removeOwnerFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedOwnership(
+                relayListType = relayListType,
+                ownership = Constraint.Any,
+            )
+        }
     }
 
     fun removeProviderFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedProviders(
+                relayListType = relayListType,
+                providers = Constraint.Any,
+            )
+        }
     }
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {

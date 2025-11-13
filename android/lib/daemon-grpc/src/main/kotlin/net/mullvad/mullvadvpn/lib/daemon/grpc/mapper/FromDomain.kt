@@ -145,6 +145,8 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
     ManagementInterface.WireguardConstraints.newBuilder()
         .setUseMultihop(isMultihopEnabled)
         .setEntryLocation(entryLocation.fromDomain())
+        .setEntryOwnership(entryOwnership.fromDomain())
+        .addAllEntryProviders(entryProviders.fromDomain())
         .apply {
             when (val ipVersion = this@fromDomain.ipVersion) {
                 is Constraint.Any -> clearIpVersion()
