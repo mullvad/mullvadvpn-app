@@ -71,6 +71,9 @@ ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
 # Set up python3 path for the rust gradle plugin
 ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 
+# Make adb and other platform tools accessible
+ENV PATH="${ANDROID_SDK_ROOT}/platform-tools:${PATH}"
+
 # === Install/set up the image ===
 
 RUN apt-get update -y && apt-get install -y \
