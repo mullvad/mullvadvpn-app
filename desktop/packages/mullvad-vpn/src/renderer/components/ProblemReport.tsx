@@ -181,7 +181,7 @@ function Form() {
         </StyledFormMessageRow>
       </StyledForm>
       <Footer>
-        <FlexColumn $gap="medium">
+        <FlexColumn gap="medium">
           <Button
             onClick={onViewLog}
             disabled={disableActions}
@@ -236,7 +236,7 @@ function Sent() {
   return (
     <StyledContent>
       <StyledForm>
-        <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
+        <Flex justifyContent="center" margin={{ top: 'large', bottom: 'medium' }}>
           <IconBadge state="positive" />
         </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
@@ -261,7 +261,7 @@ function Failed() {
   return (
     <StyledContent>
       <StyledForm>
-        <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
+        <Flex justifyContent="center" margin={{ top: 'large', bottom: 'medium' }}>
           <IconBadge state="negative" />
         </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>
@@ -273,7 +273,7 @@ function Failed() {
         </StyledSentMessage>
       </StyledForm>
       <Footer>
-        <FlexColumn $gap="medium">
+        <FlexColumn gap="medium">
           <Button onClick={handleEditMessage}>
             <Button.Text>
               {

@@ -4,7 +4,7 @@ export type GalleryTextGroupProps = FlexProps;
 
 export function GalleryTextGroup({ children, ...props }: GalleryTextGroupProps) {
   return (
-    <Flex $gap="medium" $flexDirection="column" {...props}>
+    <Flex gap="medium" flexDirection="column" {...props}>
       {children}
     </Flex>
   );

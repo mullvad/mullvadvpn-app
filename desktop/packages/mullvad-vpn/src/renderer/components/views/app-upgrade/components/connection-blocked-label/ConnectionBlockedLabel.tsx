@@ -4,7 +4,7 @@ import { Dot } from '../../../../../lib/components/dot';
 
 export function ConnectionBlockedLabel() {
   return (
-    <Flex $gap="small" $alignItems="baseline">
+    <Flex gap="small" alignItems="baseline">
       <Dot size="small" variant="error" />
       <LabelTinySemiBold>
         {

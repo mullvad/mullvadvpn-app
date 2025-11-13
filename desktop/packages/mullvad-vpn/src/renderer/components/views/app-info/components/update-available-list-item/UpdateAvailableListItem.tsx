@@ -23,7 +23,7 @@ export function UpdateAvailableListItem() {
       <ListItem.Trigger onClick={handleClick}>
         <ListItem.Item>
           <ListItem.Content>
-            <Flex $flexDirection="column">
+            <Flex flexDirection="column">
               <ListItem.Label>
                 {
                   // TRANSLATORS: Label for update available list item.

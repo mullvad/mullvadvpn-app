@@ -4,5 +4,5 @@ import { ListItemGroupProps } from '../../../../lib/components/list-item/compone
 export type SettingsListItemGroupProps = ListItemGroupProps;
 
 export function SettingsListItemGroup(props: SettingsListItemGroupProps) {
-  return <ListItem.Group $gap="medium" {...props} />;
+  return <ListItem.Group gap="medium" {...props} />;
 }

@@ -43,10 +43,10 @@ export function ListItemContent({ size = 'full', ...props }: ListItemContentProp
 
   return (
     <StyledFlex
+      alignItems="center"
+      justifyContent="space-between"
+      gap="small"
       $size={size}
-      $alignItems="center"
-      $justifyContent="space-between"
-      $gap="small"
       $paddingLeft={leftPadding}
       {...props}
     />

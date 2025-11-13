@@ -37,7 +37,7 @@ export function ApplicationRowInner() {
       <StyledContainer>
         <ApplicationIcon icon={application.icon} />
         <ApplicationLabel>{application.name}</ApplicationLabel>
-        <Flex $gap="small">
+        <Flex gap="small">
           {showAddButton && <AddButton />}
           {showDeleteButton && <DeleteButton />}
           {showRemoveButton && <RemoveButton />}

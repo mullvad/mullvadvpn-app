@@ -29,11 +29,11 @@ export function MultihopSettingsView() {
 
             <NavigationScrollbars>
               <SettingsHeader>
-                <FlexColumn $gap="medium">
+                <FlexColumn gap="medium">
                   <HeaderTitle>
                     {messages.pgettext('wireguard-settings-view', 'Multihop')}
                   </HeaderTitle>
-                  <FlexColumn $gap="small">
+                  <FlexColumn gap="small">
                     <StyledIllustration source="multihop-illustration" />
                     <Text variant="labelTiny" color="whiteAlpha60">
                       {messages.pgettext(
@@ -45,7 +45,7 @@ export function MultihopSettingsView() {
                 </FlexColumn>
               </SettingsHeader>
 
-              <Flex $flexDirection="column" $flex={1}>
+              <Flex flexDirection="column" flex={1}>
                 <Cell.Group>
                   <MultihopSetting />
                 </Cell.Group>

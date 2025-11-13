@@ -9,7 +9,7 @@ export function BlockAdsSetting() {
       <ListItem.Item>
         <ListItem.Content>
           <BlockAdsSwitch>
-            <FlexRow $padding={{ left: 'medium' }}>
+            <FlexRow padding={{ left: 'medium' }}>
               <BlockAdsSwitch.Label variant="bodySmall">
                 {
                   // TRANSLATORS: Label for settings that enables ad blocking.

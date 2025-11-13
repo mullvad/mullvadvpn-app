@@ -9,7 +9,7 @@ export function BlockAdultContentSetting() {
       <ListItem.Item>
         <ListItem.Content>
           <BlockAdultContentSwitch>
-            <FlexRow $padding={{ left: 'medium' }}>
+            <FlexRow padding={{ left: 'medium' }}>
               <BlockAdultContentSwitch.Label variant="bodySmall">
                 {
                   // TRANSLATORS: Label for settings that enables block of adult content.

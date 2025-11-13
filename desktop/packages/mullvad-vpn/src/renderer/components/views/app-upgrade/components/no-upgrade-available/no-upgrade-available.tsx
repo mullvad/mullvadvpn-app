@@ -19,8 +19,8 @@ export function NoUpgradeAvailable() {
       </TitleBig>
       <EmptyState
         variant="success"
-        $alignSelf="stretch"
-        $margin={{
+        alignSelf="stretch"
+        margin={{
           top: 'medium',
         }}>
         <EmptyState.StatusIcon />

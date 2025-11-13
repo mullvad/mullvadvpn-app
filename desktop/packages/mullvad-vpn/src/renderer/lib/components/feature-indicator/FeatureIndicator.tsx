@@ -89,7 +89,7 @@ function FeatureIndicator({
         disabled={disabled}
         onClick={onClick}
         {...props}>
-        <StyledFlex $flex={1} $alignItems="center">
+        <StyledFlex flex={1} alignItems="center">
           {children}
         </StyledFlex>
       </StyledFeatureIndicator>

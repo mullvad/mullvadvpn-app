@@ -84,7 +84,7 @@ function ExpiredAccountErrorViewComponent() {
           <StyledBody>{isNewAccount ? <WelcomeView /> : <Content />}</StyledBody>
 
           <Footer>
-            <FlexColumn $gap="medium">
+            <FlexColumn gap="medium">
               {recoveryAction === RecoveryAction.disconnect && (
                 <Button variant="destructive" disabled={disconnecting} onClick={disconnect}>
                   <Button.Text>
@@ -135,7 +135,7 @@ function WelcomeView() {
         </StyledAccountNumberContainer>
       </StyledAccountNumberMessage>
 
-      <Flex $alignItems="center" $gap="tiny" $margin={{ bottom: 'medium' }}>
+      <Flex alignItems="center" gap="tiny" margin={{ bottom: 'medium' }}>
         <StyledDeviceLabel>
           {sprintf(
             // TRANSLATORS: A label that will display the newly created device name to inform the user
@@ -169,7 +169,7 @@ function Content() {
 
   return (
     <>
-      <Flex $justifyContent="center" $margin={{ bottom: 'medium' }}>
+      <Flex justifyContent="center" margin={{ bottom: 'medium' }}>
         <IconBadge state="negative" />
       </Flex>
       <StyledTitle data-testid="title">

@@ -156,10 +156,10 @@ export default function SelectLocation() {
                 <>
                   {showFilters && (
                     <Flex
-                      $gap="small"
-                      $alignItems="center"
-                      $flexWrap="wrap"
-                      $margin={{ horizontal: 'small', bottom: 'medium' }}>
+                      gap="small"
+                      alignItems="center"
+                      flexWrap="wrap"
+                      margin={{ horizontal: 'small', bottom: 'medium' }}>
                       <LabelTinySemiBold>
                         {messages.pgettext('select-location-view', 'Filtered:')}
                       </LabelTinySemiBold>
@@ -404,7 +404,7 @@ function DisabledEntrySelection() {
   }, [push]);
 
   return (
-    <FlexColumn $gap="large" $margin={{ horizontal: 'large', bottom: 'tiny' }}>
+    <FlexColumn gap="large" margin={{ horizontal: 'large', bottom: 'tiny' }}>
       <StyledSelectionUnavailableText>
         {sprintf(
           messages.pgettext(

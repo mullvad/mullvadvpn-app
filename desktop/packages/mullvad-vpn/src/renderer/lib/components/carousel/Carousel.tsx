@@ -29,8 +29,8 @@ function CarouselImpl({ children, ...props }: CarouselProps) {
     <StyledCarousel
       as={'section'}
       ref={carouselRef}
-      $flexDirection="column"
-      $gap="medium"
+      flexDirection="column"
+      gap="medium"
       onKeyDown={handleKeyboardNavigation}
       aria-roledescription="carousel"
       tabIndex={-1}

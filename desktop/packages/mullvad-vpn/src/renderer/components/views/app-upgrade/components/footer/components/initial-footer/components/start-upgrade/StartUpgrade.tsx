@@ -7,8 +7,8 @@ export function StartUpgrade() {
   const disabled = useDisabled();
 
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $flexDirection="column">
+    <Flex padding="large" flexDirection="column">
+      <Flex flexDirection="column">
         <UpgradeButton disabled={disabled}>
           {
             // TRANSLATORS: Button text to download and install an update
