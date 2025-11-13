@@ -400,7 +400,7 @@ fun MultihopSelector(
 
 @Preview
 @Composable
-fun SingleHopSelectorPreview() {
+fun SinglehopSelectorPreview() {
     AppTheme {
         Surface {
             Column(

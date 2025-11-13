@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -25,12 +24,12 @@ class RecentsUseCase(
 
     operator fun invoke(relayListType: RelayListType): Flow<List<Hop.Single<RelayItem>>?> =
         if (relayListType is RelayListType.Multihop) {
-            multiHopRecents(relayListType.multihopRelayListType)
+            multihopRecents(relayListType.multihopRelayListType)
         } else {
-            singleHopRecents()
+            singlehopRecents()
         }
 
-    private fun singleHopRecents(): Flow<List<Hop.Single<RelayItem>>?> =
+    private fun singlehopRecents(): Flow<List<Hop.Single<RelayItem>>?> =
         combine(
             recents().map { it?.filterIsInstance<Recent.Singlehop>() },
             filteredRelayListUseCase(RelayListType.Single),
@@ -42,7 +41,7 @@ class RecentsUseCase(
             }
         }
 
-    private fun multiHopRecents(
+    private fun multihopRecents(
         multihopRelayListType: MultihopRelayListType
     ): Flow<List<Hop.Single<RelayItem>>?> =
         combine(
