@@ -13,10 +13,10 @@ import MullvadTypes
 import WireGuardKitTypes
 
 public struct MockProxyFactory: ProxyFactoryProtocol {
-    public var configuration: REST.AuthProxyConfiguration
+    public var apiTransportProvider: APITransportProviderProtocol
 
     public func createAPIProxy() -> any APIQuerying {
-        REST.APIProxy(configuration: configuration)
+        APIProxyStub()
     }
 
     public func createAccountsProxy() -> any RESTAccountHandling {
@@ -28,28 +28,10 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
     }
 
     public static func makeProxyFactory(
-        transportProvider: any RESTTransportProvider,
-        apiTransportProvider: any APITransportProviderProtocol,
-        addressCache: REST.AddressCache
+        apiTransportProvider: any APITransportProviderProtocol
     ) -> any ProxyFactoryProtocol {
-        let basicConfiguration = REST.ProxyConfiguration(
-            transportProvider: transportProvider,
-            apiTransportProvider: apiTransportProvider,
-            addressCacheStore: addressCache
+        MockProxyFactory(
+            apiTransportProvider: apiTransportProvider
         )
-
-        let authenticationProxy = REST.AuthenticationProxy(
-            configuration: basicConfiguration
-        )
-        let accessTokenManager = REST.AccessTokenManager(
-            authenticationProxy: authenticationProxy
-        )
-
-        let authConfiguration = REST.AuthProxyConfiguration(
-            proxyConfiguration: basicConfiguration,
-            accessTokenManager: accessTokenManager
-        )
-
-        return MockProxyFactory(configuration: authConfiguration)
     }
 }

@@ -16,26 +16,21 @@ import MullvadREST
 public struct AppMessageHandler {
     private let logger = Logger(label: "AppMessageHandler")
     private let packetTunnelActor: PacketTunnelActorProtocol
-    private let urlRequestProxy: URLRequestProxyProtocol
     private let apiRequestProxy: APIRequestProxyProtocol
 
     public init(
         packetTunnelActor: PacketTunnelActorProtocol,
-        urlRequestProxy: URLRequestProxyProtocol,
         apiRequestProxy: APIRequestProxyProtocol
     ) {
         self.packetTunnelActor = packetTunnelActor
-        self.urlRequestProxy = urlRequestProxy
         self.apiRequestProxy = apiRequestProxy
     }
 
     /**
      Handle app message received via packet tunnel IPC.
-    
      - Message data is expected to be a serialized `TunnelProviderMessage`.
      - Reply is expected to be wrapped in `TunnelProviderReply`.
      - Return `nil` in the event of error or when the call site does not expect any reply.
-    
      Calls to reconnect and notify actor when private key is changed are meant to run in parallel because those tasks are serialized in `TunnelManager` and await
      the acknowledgment from IPC before starting next operation, hence it's critical to return as soon as possible.
      (See `TunnelManager.reconnectTunnel()`, `SendTunnelProviderMessageOperation`)
@@ -46,15 +41,8 @@ public struct AppMessageHandler {
         logger.debug("Received app message: \(message)")
 
         switch message {
-        case let .sendURLRequest(request):
-            return await encodeReply(urlRequestProxy.sendRequest(request))
-
         case let .sendAPIRequest(request):
             return await encodeReply(apiRequestProxy.sendRequest(request))
-
-        case let .cancelURLRequest(id):
-            urlRequestProxy.cancelRequest(identifier: id)
-            return nil
 
         case let .cancelAPIRequest(id):
             apiRequestProxy.cancelRequest(identifier: id)

@@ -10,56 +10,34 @@ import Foundation
 import MullvadRustRuntime
 
 public protocol ProxyFactoryProtocol {
-    var configuration: REST.AuthProxyConfiguration { get }
+    var apiTransportProvider: APITransportProviderProtocol { get }
 
     func createAPIProxy() -> APIQuerying
     func createAccountsProxy() -> RESTAccountHandling
     func createDevicesProxy() -> DeviceHandling
 
     static func makeProxyFactory(
-        transportProvider: RESTTransportProvider,
-        apiTransportProvider: APITransportProviderProtocol,
-        addressCache: REST.AddressCache
+        apiTransportProvider: APITransportProviderProtocol
     ) -> ProxyFactoryProtocol
 }
 
 extension REST {
     public final class ProxyFactory: ProxyFactoryProtocol {
-        public var configuration: AuthProxyConfiguration
+        public let apiTransportProvider: APITransportProviderProtocol
 
         public static func makeProxyFactory(
-            transportProvider: any RESTTransportProvider,
-            apiTransportProvider: any APITransportProviderProtocol,
-            addressCache: REST.AddressCache
+            apiTransportProvider: any APITransportProviderProtocol
         ) -> any ProxyFactoryProtocol {
-            let basicConfiguration = REST.ProxyConfiguration(
-                transportProvider: transportProvider,
-                apiTransportProvider: apiTransportProvider,
-                addressCacheStore: addressCache
-            )
-
-            let authenticationProxy = REST.AuthenticationProxy(
-                configuration: basicConfiguration
-            )
-            let accessTokenManager = REST.AccessTokenManager(
-                authenticationProxy: authenticationProxy
-            )
-
-            let authConfiguration = REST.AuthProxyConfiguration(
-                proxyConfiguration: basicConfiguration,
-                accessTokenManager: accessTokenManager
-            )
-
-            return ProxyFactory(configuration: authConfiguration)
+            ProxyFactory(apiTransportProvider: apiTransportProvider)
         }
 
-        public init(configuration: AuthProxyConfiguration) {
-            self.configuration = configuration
+        public init(apiTransportProvider: APITransportProviderProtocol) {
+            self.apiTransportProvider = apiTransportProvider
         }
 
         public func createAPIProxy() -> APIQuerying {
             MullvadAPIProxy(
-                transportProvider: configuration.apiTransportProvider,
+                transportProvider: apiTransportProvider,
                 dispatchQueue: DispatchQueue(label: "MullvadAPIProxy.dispatchQueue"),
                 responseDecoder: Coding.makeJSONDecoder()
             )
@@ -67,7 +45,7 @@ extension REST {
 
         public func createAccountsProxy() -> RESTAccountHandling {
             MullvadAccountProxy(
-                transportProvider: configuration.apiTransportProvider,
+                transportProvider: apiTransportProvider,
                 dispatchQueue: DispatchQueue(label: "MullvadAccountProxy.dispatchQueue"),
                 responseDecoder: Coding.makeJSONDecoder()
             )
@@ -75,7 +53,7 @@ extension REST {
 
         public func createDevicesProxy() -> DeviceHandling {
             MullvadDeviceProxy(
-                transportProvider: configuration.apiTransportProvider,
+                transportProvider: apiTransportProvider,
                 dispatchQueue: DispatchQueue(label: "MullvadDeviceProxy.dispatchQueue"),
                 responseDecoder: Coding.makeJSONDecoder()
             )

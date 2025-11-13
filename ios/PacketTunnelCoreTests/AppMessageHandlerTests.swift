@@ -15,40 +15,6 @@ import XCTest
 @testable import MullvadREST
 
 final class AppMessageHandlerTests: XCTestCase {
-    // MARK: URLRequest
-
-    func testHandleAppMessageForSendURLRequest() async throws {
-        let sendRequestExpectation = expectation(description: "Expect sending request")
-
-        let urlRequestProxy = URLRequestProxyStub(sendRequestExpectation: sendRequestExpectation)
-        let appMessageHandler = createAppMessageHandler(urlRequestProxy: urlRequestProxy)
-
-        let url = URL(string: "localhost")!
-        let urlRequest = ProxyURLRequest(
-            id: UUID(),
-            urlRequest: URLRequest(url: url)
-        )!
-
-        _ = try? await appMessageHandler.handleAppMessage(
-            TunnelProviderMessage.sendURLRequest(urlRequest).encode()
-        )
-
-        await fulfillment(of: [sendRequestExpectation], timeout: .UnitTest.timeout)
-    }
-
-    func testHandleAppMessageForCancelURLRequest() async throws {
-        let cancelRequestExpectation = expectation(description: "Expect cancelling request")
-
-        let urlRequestProxy = URLRequestProxyStub(cancelRequestExpectation: cancelRequestExpectation)
-        let appMessageHandler = createAppMessageHandler(urlRequestProxy: urlRequestProxy)
-
-        _ = try? await appMessageHandler.handleAppMessage(
-            TunnelProviderMessage.cancelURLRequest(UUID()).encode()
-        )
-
-        await fulfillment(of: [cancelRequestExpectation], timeout: .UnitTest.timeout)
-    }
-
     // MARK: APIRequest
 
     func testHandleAppMessageForSendAPIRequest() async throws {
@@ -157,12 +123,10 @@ final class AppMessageHandlerTests: XCTestCase {
 extension AppMessageHandlerTests {
     func createAppMessageHandler(
         actor: PacketTunnelActorProtocol = PacketTunnelActorStub(),
-        urlRequestProxy: URLRequestProxyProtocol = URLRequestProxyStub(),
         apiRequestProxy: APIRequestProxyProtocol = APIRequestProxyStub()
     ) -> AppMessageHandler {
         return AppMessageHandler(
             packetTunnelActor: actor,
-            urlRequestProxy: urlRequestProxy,
             apiRequestProxy: apiRequestProxy
         )
     }

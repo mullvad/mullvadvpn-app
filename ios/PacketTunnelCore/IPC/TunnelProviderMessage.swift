@@ -17,14 +17,8 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel status.
     case getTunnelStatus
 
-    /// Send HTTP request outside of VPN tunnel.
-    case sendURLRequest(ProxyURLRequest)
-
     /// Send API request outside of VPN tunnel.
     case sendAPIRequest(ProxyAPIRequest)
-
-    /// Cancel HTTP request sent outside of VPN tunnel.
-    case cancelURLRequest(UUID)
 
     /// Cancel API request sent outside of VPN tunnel.
     case cancelAPIRequest(UUID)
@@ -38,12 +32,8 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
             return "reconnect-tunnel"
         case .getTunnelStatus:
             return "get-tunnel-status"
-        case .sendURLRequest:
-            return "send-http-request"
         case .sendAPIRequest:
             return "send-api-request"
-        case .cancelURLRequest:
-            return "cancel-http-request"
         case .cancelAPIRequest:
             return "cancel-api-request"
         case .privateKeyRotation:
