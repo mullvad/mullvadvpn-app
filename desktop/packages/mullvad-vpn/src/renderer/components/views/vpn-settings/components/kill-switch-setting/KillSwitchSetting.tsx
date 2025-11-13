@@ -28,7 +28,9 @@ export function KillSwitchSetting() {
               </ModalMessage>
             </InfoButton>
             <Switch checked disabled>
-              <Switch.Thumb />
+              <Switch.Trigger>
+                <Switch.Thumb />
+              </Switch.Trigger>
             </Switch>
           </SettingsListItem.Group>
         </SettingsListItem.Content>
