@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.EaseInQuint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -62,14 +63,17 @@ import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
-private const val keyInternet = "internet"
-private const val keyPanel = "panel"
-private const val keyExit = "exit"
-private const val keyExitError = "exitError"
-private const val keyEntry = "entry"
-private const val keyEntryError = "entryError"
-private const val keyDevice = "device"
+private object AnimationKey {
+    const val Internet = "internet"
+    const val Panel = "panel"
+    const val Exit = "exit"
+    const val ExitError = "exitError"
+    const val Entry = "entry"
+    const val EntryError = "entryError"
+    const val Device = "device"
+}
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
@@ -169,6 +173,7 @@ fun MultihopSelectorPreview() {
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMotionApi::class)
+@Suppress("LongMethod")
 @Composable
 fun MultihopSelector(
     modifier: Modifier = Modifier,
@@ -186,13 +191,13 @@ fun MultihopSelector(
             constraintSet("expanded") {
                 val (internet, exit, exitError, entry, entryError, device, panel) =
                     createRefsFor(
-                        keyInternet,
-                        keyExit,
-                        keyExitError,
-                        keyEntry,
-                        keyEntryError,
-                        keyDevice,
-                        keyPanel,
+                        AnimationKey.Internet,
+                        AnimationKey.Exit,
+                        AnimationKey.ExitError,
+                        AnimationKey.Entry,
+                        AnimationKey.EntryError,
+                        AnimationKey.Device,
+                        AnimationKey.Panel,
                     )
                 createVerticalChain(internet, exit, exitError, entry, entryError, device)
                 constrain(exit) { linkTo(start = parent.start, end = parent.end) }
@@ -223,13 +228,13 @@ fun MultihopSelector(
             constraintSet("collapsed") {
                 val (internet, exit, exitError, entry, entryError, device, panel) =
                     createRefsFor(
-                        keyInternet,
-                        keyExit,
-                        keyExitError,
-                        keyEntry,
-                        keyEntryError,
-                        keyDevice,
-                        keyPanel,
+                        AnimationKey.Internet,
+                        AnimationKey.Exit,
+                        AnimationKey.ExitError,
+                        AnimationKey.Entry,
+                        AnimationKey.EntryError,
+                        AnimationKey.Device,
+                        AnimationKey.Panel,
                     )
 
                 constrain(internet) { top.linkTo(parent.top) }
@@ -272,7 +277,10 @@ fun MultihopSelector(
     var entryIconLC by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var deviceIconLC by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val colors =
-        HopSelectorDefaults.colors(legendColor = deselectedColor.copy(alpha = expandProgress))
+        HopSelectorDefaults.colors(
+            legendColor = deselectedColor.copy(alpha = EaseInQuint.transform(expandProgress)),
+            hintColor = deselectedColor.copy(alpha = expandProgress),
+        )
     MotionLayout(
         modifier =
             modifier
@@ -311,27 +319,27 @@ fun MultihopSelector(
         progress = expandProgress,
     ) {
         LocationHint(
-            modifier = Modifier.layoutId(keyInternet),
+            modifier = Modifier.layoutId(AnimationKey.Internet),
             text = "Internet",
             imageVector = Icons.Default.Language,
             colors = colors,
             onIconGloballyPositioned = { internetIconLC = it },
         )
         LocationHint(
-            modifier = Modifier.layoutId(keyDevice),
+            modifier = Modifier.layoutId(AnimationKey.Device),
             text = "Your device",
             imageVector = Icons.Default.PhoneAndroid,
             colors = colors,
             onIconGloballyPositioned = { deviceIconLC = it },
         )
         Box(
-            Modifier.layoutId(keyPanel)
-                .clip(RoundedCornerShape(16.dp))
+            Modifier.layoutId(AnimationKey.Panel)
+                .clip(RoundedCornerShape(Dimens.multihopSelectorPanelRadius))
                 .background(colors.panelColor)
         ) {}
         Hop(
             modifier =
-                Modifier.layoutId(keyExit)
+                Modifier.layoutId(AnimationKey.Exit)
                     .padding(
                         start = 4.dp,
                         top = 4.dp,
@@ -348,18 +356,23 @@ fun MultihopSelector(
         )
 
         Text(
-            modifier = Modifier.layoutId(keyExitError).padding(start = 28.dp, end = 8.dp),
+            modifier =
+                Modifier.layoutId(AnimationKey.ExitError)
+                    .padding(
+                        start = Dimens.hopSelectorErrorStartPadding,
+                        end = Dimens.smallPadding,
+                    ),
             text = exitErrorText ?: "No error",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
         )
         Hop(
             modifier =
-                Modifier.layoutId(keyEntry)
+                Modifier.layoutId(AnimationKey.Entry)
                     .padding(
                         start = 4.dp,
                         end = 4.dp,
-                        bottom = if (entryErrorText == null) 4.dp else 0.dp,
+                        bottom = if (entryErrorText == null) Dimens.tinyPadding else 0.dp,
                     ),
             leadingIcon = Icons.Outlined.Dns,
             text = entryLocation,
@@ -372,7 +385,12 @@ fun MultihopSelector(
 
         Text(
             modifier =
-                Modifier.layoutId(keyEntryError).padding(start = 28.dp, end = 8.dp, bottom = 4.dp),
+                Modifier.layoutId(AnimationKey.EntryError)
+                    .padding(
+                        start = Dimens.hopSelectorErrorStartPadding,
+                        end = Dimens.smallPadding,
+                        bottom = Dimens.tinyPadding,
+                    ),
             text = entryErrorText ?: "No error",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
@@ -400,13 +418,19 @@ fun SingleHopSelectorPreview() {
 }
 
 @OptIn(ExperimentalMotionApi::class)
+@Suppress("LongMethod")
 @Composable
 fun Singlehop(exitLocation: String, errorText: String? = null, expandProgress: Float = 1f) {
     val scene = MotionScene {
         val expandSet =
             constraintSet("expanded") {
                 val (internet, exit, exitError, device) =
-                    createRefsFor(keyInternet, keyExit, keyExitError, keyDevice)
+                    createRefsFor(
+                        AnimationKey.Internet,
+                        AnimationKey.Exit,
+                        AnimationKey.ExitError,
+                        AnimationKey.Device,
+                    )
                 createVerticalChain(internet, exit, exitError, device)
                 constrain(exitError) {
                     visibility = if (errorText == null) Visibility.Gone else Visibility.Visible
@@ -418,7 +442,12 @@ fun Singlehop(exitLocation: String, errorText: String? = null, expandProgress: F
         val collapseSet =
             constraintSet("collapsed") {
                 val (internet, exit, exitError, device) =
-                    createRefsFor(keyInternet, keyExit, keyExitError, keyDevice)
+                    createRefsFor(
+                        AnimationKey.Internet,
+                        AnimationKey.Exit,
+                        AnimationKey.ExitError,
+                        AnimationKey.Device,
+                    )
                 constrain(internet) { top.linkTo(parent.top) }
                 createVerticalChain(exit, exitError)
                 constrain(exitError) {
@@ -432,7 +461,10 @@ fun Singlehop(exitLocation: String, errorText: String? = null, expandProgress: F
         defaultTransition(collapseSet, expandSet) {}
     }
     val colors =
-        HopSelectorDefaults.colors(legendColor = deselectedColor.copy(alpha = expandProgress))
+        HopSelectorDefaults.colors(
+            legendColor = deselectedColor.copy(alpha = EaseInQuint.transform(expandProgress)),
+            hintColor = deselectedColor.copy(alpha = expandProgress),
+        )
     var motionLayoutLC by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var internetIconLC by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var exitIconLC by remember { mutableStateOf<LayoutCoordinates?>(null) }
@@ -466,21 +498,22 @@ fun Singlehop(exitLocation: String, errorText: String? = null, expandProgress: F
         progress = expandProgress,
     ) {
         LocationHint(
-            modifier = Modifier.layoutId(keyInternet),
+            modifier = Modifier.layoutId(AnimationKey.Internet),
             text = "Internet",
             imageVector = Icons.Default.Language,
             colors = colors,
             onIconGloballyPositioned = { internetIconLC = it },
         )
         LocationHint(
-            modifier = Modifier.layoutId(keyDevice),
+            modifier = Modifier.layoutId(AnimationKey.Device),
             text = "Your device",
             imageVector = Icons.Default.PhoneAndroid,
             onIconGloballyPositioned = { deviceIconLC = it },
             colors = colors,
         )
         Hop(
-            modifier = Modifier.layoutId(keyExit).padding(horizontal = 4.dp),
+            modifier =
+                Modifier.layoutId(AnimationKey.Exit).padding(horizontal = Dimens.tinyPadding),
             leadingIcon = Icons.Outlined.LocationOn,
             text = exitLocation,
             selected = true,
@@ -490,7 +523,9 @@ fun Singlehop(exitLocation: String, errorText: String? = null, expandProgress: F
             onIconGloballyPositioned = { exitIconLC = it },
         )
         Text(
-            modifier = Modifier.layoutId(keyExitError).padding(start = 28.dp, end = 4.dp),
+            modifier =
+                Modifier.layoutId(AnimationKey.ExitError)
+                    .padding(Dimens.hopSelectorErrorStartPadding, end = Dimens.tinyPadding),
             text = errorText ?: "",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
@@ -570,7 +605,7 @@ private fun Hop(
                         role = Role.Switch
                         this.selected = selected
                     }
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(Dimens.hopRadius))
                     .background(colors.containerColor(selected))
                     .let {
                         if (onSelect != null) {
@@ -584,15 +619,18 @@ private fun Hop(
                         1.dp,
                         animateColorAsState(if (isError) colors.errorColor else Color.Transparent)
                             .value,
-                        RoundedCornerShape(12.dp),
+                        RoundedCornerShape(Dimens.hopRadius),
                     ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 modifier =
                     Modifier.onGloballyPositioned(onIconGloballyPositioned)
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                        .size(24.dp),
+                        .padding(
+                            horizontal = Dimens.tinyPadding,
+                            vertical = Dimens.hopIconVerticalInternalPadding,
+                        )
+                        .size(Dimens.hopIconSize),
                 imageVector = if (!isError) leadingIcon else Icons.Default.ErrorOutline,
                 tint = colors.leadingIconColor(selected, isError),
                 contentDescription = null,
@@ -615,18 +653,18 @@ private fun LocationHint(
     colors: HopSelectorColors = HopSelectorDefaults.colors(),
     onIconGloballyPositioned: (LayoutCoordinates) -> Unit,
 ) {
-    CompositionLocalProvider(LocalContentColor provides colors.legendColor) {
+    CompositionLocalProvider(LocalContentColor provides colors.hintColor) {
         Row(
-            modifier.padding(horizontal = 8.dp),
+            modifier.padding(horizontal = Dimens.smallPadding),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
         ) {
             Icon(
                 modifier =
                     Modifier.padding(1.dp)
                         .onGloballyPositioned(onIconGloballyPositioned)
-                        .padding(2.dp)
-                        .size(18.dp),
+                        .padding(Dimens.locationHintInternalPadding)
+                        .size(Dimens.locationHintIconSize),
                 imageVector = imageVector,
                 contentDescription = null,
             )
@@ -647,6 +685,7 @@ class HopSelectorColors(
     val deselectedContainerColor: Color,
     val panelColor: Color,
     val errorColor: Color,
+    val hintColor: Color,
     val legendColor: Color,
 ) {
     @Stable
@@ -673,6 +712,7 @@ object HopSelectorDefaults {
         deselectedContainerColor: Color = Color.Transparent,
         panelColor: Color = MaterialTheme.colorScheme.surfaceContainer,
         errorColor: Color = MaterialTheme.colorScheme.error,
+        hintColor: Color = deselectedColor,
         legendColor: Color = deselectedColor,
     ): HopSelectorColors =
         HopSelectorColors(
@@ -682,6 +722,7 @@ object HopSelectorDefaults {
             deselectedContainerColor,
             panelColor,
             errorColor,
+            hintColor,
             legendColor,
         )
 }

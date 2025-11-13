@@ -33,6 +33,9 @@ data class Dimensions(
     val dialogIconHeight: Dp = 48.dp,
     val fabSpacing: Dp = 16.dp, // Copied from the private val FabSpacing in Scaffold.kt
     val formTextFieldMinHeight: Dp = 72.dp,
+    val hopIconSize: Dp = 24.dp,
+    val hopIconVerticalInternalPadding: Dp = 2.dp,
+    val hopRadius: Dp = 12.dp,
     val indentedCellStartPadding: Dp = 48.dp,
     val indicatorPadding: Dp = 4.dp,
     val indicatorSize: Dp = 8.dp,
@@ -43,6 +46,8 @@ data class Dimensions(
     val mediumPadding: Dp = 16.dp,
     val mediumSpacer: Dp = 16.dp,
     val miniPadding: Dp = 4.dp,
+    val hopSelectorErrorStartPadding: Dp = 28.dp,
+    val multihopSelectorPanelRadius: Dp = 16.dp,
     val notificationBannerEndPadding: Dp = 8.dp,
     val notificationBannerStartPadding: Dp = 16.dp,
     val notificationEndIconPadding: Dp = 4.dp,
@@ -86,7 +91,10 @@ data class Dimensions(
     val verticalDividerPadding: Dp = 16.dp,
     val verticalSpace: Dp = 16.dp,
     val verticalSpacer: Dp = 1.dp,
-)
+) {
+    val locationHintIconSize: Dp = 18.dp
+    val locationHintInternalPadding: Dp = 2.dp
+}
 
 val defaultDimensions = Dimensions()
 // Add more configurations here if needed

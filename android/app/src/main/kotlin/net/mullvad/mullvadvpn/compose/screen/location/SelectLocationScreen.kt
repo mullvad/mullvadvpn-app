@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.constraintlayout.compose.MotionLayout
 import androidx.constraintlayout.compose.MotionScene
@@ -74,6 +76,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.result.onResult
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
@@ -140,6 +143,8 @@ private fun PreviewSelectLocationScreen(
         )
     }
 }
+
+val SCROLL_COLLAPSE_DISTANCE = 150.dp
 
 @SuppressLint("CheckResult")
 @Destination<RootGraph>(style = TopLevelTransition::class)
@@ -419,12 +424,14 @@ fun SelectLocationScreen(
         )
 
         val expandProgress = remember { Animatable(1f) }
+
         val scope = rememberCoroutineScope()
+        val scrollRequired = with(LocalDensity.current) { SCROLL_COLLAPSE_DISTANCE.toPx() }
+
         val nestedScrollConnection = remember {
             object : NestedScrollConnection {
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    // TODO Calculate the value
-                    val delta = available.y / 265f
+                    val delta = available.y / scrollRequired
                     scope.launch {
                         expandProgress.snapTo((expandProgress.value + delta).coerceIn(0f, 1f))
                     }
@@ -436,7 +443,10 @@ fun SelectLocationScreen(
                     available: Velocity,
                 ): Velocity {
                     scope.launch {
-                        expandProgress.animateTo(if (expandProgress.value < 0.5f) 0f else 1f)
+                        expandProgress.animateTo(
+                            expandProgress.value.roundToInt().toFloat(),
+                            animationSpec = tween(),
+                        )
                     }
                     return super.onPostFling(consumed, available)
                 }
