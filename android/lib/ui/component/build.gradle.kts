@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.constrainlayout)
+    implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.compose.icons.extended)
     implementation(libs.androidx.ktx)

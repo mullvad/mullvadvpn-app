@@ -5,6 +5,9 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -62,6 +65,7 @@ import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -111,6 +115,10 @@ import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
+
+val SCROLL_COLLAPSE_DISTANCE = 150.dp
+const val ANIMATION_DELAY_FADE_IN = 90
+
 @Preview("Loading|Default|Filters|Multihop|Multihop and Filters")
 @Composable
 private fun PreviewSelectLocationScreen(
@@ -143,8 +151,6 @@ private fun PreviewSelectLocationScreen(
         )
     }
 }
-
-val SCROLL_COLLAPSE_DISTANCE = 150.dp
 
 @SuppressLint("CheckResult")
 @Destination<RootGraph>(style = TopLevelTransition::class)
@@ -677,30 +683,33 @@ private fun SelectionContainer(
 ) {
     Column {
         AnimatedContent(
-            relayListType is RelayListType.Single,
+            relayListType,
+            contentKey = { it is RelayListType.Single },
+            transitionSpec = {
+                fadeIn(tween(delayMillis = ANIMATION_DELAY_FADE_IN)).togetherWith(fadeOut())
+            },
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
         ) {
-            if (it) {
-                Singlehop(
-                    exitLocation = exitSelection ?: stringResource(R.string.any),
-                    errorText = error.errorText(RelayListType.Single),
-                    expandProgress = progress,
-                )
-            } else {
-                MultihopSelector(
-                    exitSelected =
-                        (relayListType as? RelayListType.Multihop)?.multihopRelayListType ==
-                            MultihopRelayListType.EXIT,
-                    exitLocation = exitSelection ?: stringResource(R.string.any),
-                    exitErrorText =
-                        error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
-                    onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
-                    entryLocation = entrySelection ?: stringResource(R.string.any),
-                    entryErrorText =
-                        error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
-                    onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
-                    expandProgress = progress,
-                )
+            when (it) {
+                RelayListType.Single ->
+                    Singlehop(
+                        exitLocation = exitSelection ?: stringResource(R.string.any),
+                        errorText = error.errorText(RelayListType.Single),
+                        expandProgress = progress,
+                    )
+                is RelayListType.Multihop ->
+                    MultihopSelector(
+                        exitSelected = it.multihopRelayListType == MultihopRelayListType.EXIT,
+                        exitLocation = exitSelection ?: stringResource(R.string.any),
+                        exitErrorText =
+                            error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+                        onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
+                        entryLocation = entrySelection ?: stringResource(R.string.any),
+                        entryErrorText =
+                            error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+                        onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
+                        expandProgress = progress,
+                    )
             }
         }
 
