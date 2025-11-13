@@ -94,7 +94,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                     .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
-                
+
                 let mut wireguard_constraints =
                     mullvad_constraints::WireguardConstraints::try_from(
                         &settings.wireguard_constraints.ok_or(

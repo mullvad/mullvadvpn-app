@@ -35,11 +35,9 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
-import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -100,15 +98,15 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-//    val stateActual = state
-//
-//    val lazyListState = rememberLazyListState()
-//    RunOnKeyChange(stateActual is Content) {
-//        stateActual.indexOfSelectedRelayItem()?.let { index ->
-//            lazyListState.scrollToItem(index)
-//            lazyListState.animateScrollAndCentralizeItem(index)
-//        }
-//    }
+    //    val stateActual = state
+    //
+    //    val lazyListState = rememberLazyListState()
+    //    RunOnKeyChange(stateActual is Content) {
+    //        stateActual.indexOfSelectedRelayItem()?.let { index ->
+    //            lazyListState.scrollToItem(index)
+    //            lazyListState.animateScrollAndCentralizeItem(index)
+    //        }
+    //    }
 
     SelectLocationListContent(
         state = state,
