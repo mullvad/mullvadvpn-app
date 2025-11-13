@@ -666,10 +666,7 @@ fn test_selecting_ignore_extra_ips_override_v4() {
 
     let config = mullvad_relay_selector::SelectorConfig {
         relay_overrides: vec![RelayOverride {
-            hostname: SHADOWSOCKS_RELAY_LOCATION
-                .get_hostname()
-                .unwrap()
-                .to_string(),
+            hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
             ipv4_addr_in: Some(OVERRIDE_IPV4),
             ipv6_addr_in: None,
         }],
@@ -713,10 +710,7 @@ fn test_selecting_ignore_extra_ips_override_v6() {
 
     let config = SelectorConfig {
         relay_overrides: vec![RelayOverride {
-            hostname: SHADOWSOCKS_RELAY_LOCATION
-                .get_hostname()
-                .unwrap()
-                .to_string(),
+            hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
             ipv4_addr_in: None,
             ipv6_addr_in: Some(OVERRIDE_IPV6),
         }],
