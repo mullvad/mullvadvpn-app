@@ -136,7 +136,7 @@ export default function SettingsImport() {
               ]}
             />
           </AppNavigationHeader>
-          <Flex $flexDirection="column" $flex={1}>
+          <Flex flexDirection="column" flex={1}>
             <SettingsHeader>
               <HeaderTitle>
                 {messages.pgettext('settings-import', 'Server IP override')}
@@ -149,8 +149,8 @@ export default function SettingsImport() {
               </HeaderSubTitle>
             </SettingsHeader>
 
-            <Flex $flexDirection="column" $flex={1}>
-              <ButtonGroup $gap="small" $margin="medium">
+            <Flex flexDirection="column" flex={1}>
+              <ButtonGroup gap="small" margin="medium">
                 <Button onClick={navigateTextImport}>
                   <Button.Text>
                     {messages.pgettext('settings-import', 'Import via text')}

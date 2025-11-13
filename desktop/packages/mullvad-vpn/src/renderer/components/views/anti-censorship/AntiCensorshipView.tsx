@@ -31,8 +31,8 @@ export function AntiCensorshipView() {
                 }
               </HeaderTitle>
             </SettingsHeader>
-            <FlexColumn $gap="medium">
-              <Container size="4" $flexDirection="column" $gap="medium">
+            <FlexColumn gap="medium">
+              <Container size="4" flexDirection="column" gap="medium">
                 <Text variant="labelTiny" color="whiteAlpha60">
                   {
                     // TRANSLATORS: First paragraph of description text in anti-censorship view

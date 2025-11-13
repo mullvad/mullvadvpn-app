@@ -5,9 +5,9 @@ import { PauseButton } from '../../../pause-button';
 
 export function VerifyFooter() {
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
-        <Flex $gap="tiny" $alignItems="center">
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
+        <Flex gap="tiny" alignItems="center">
           <Spinner size="small" />
           <LabelTinySemiBold>
             {
@@ -18,7 +18,7 @@ export function VerifyFooter() {
         </Flex>
         <DownloadProgress />
       </Flex>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         <PauseButton disabled>
           {
             // TRANSLATORS: Button text to pause the download of an update

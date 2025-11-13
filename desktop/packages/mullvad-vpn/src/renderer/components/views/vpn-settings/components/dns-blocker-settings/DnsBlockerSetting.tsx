@@ -32,7 +32,7 @@ export function DnsBlockerSettings() {
           <SettingsAccordion.Title>
             {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
           </SettingsAccordion.Title>
-          <FlexRow $gap="medium">
+          <FlexRow gap="medium">
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(

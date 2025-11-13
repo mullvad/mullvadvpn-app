@@ -6,7 +6,7 @@ export type GalleryProps = FlexProps;
 
 function Gallery({ children, ...props }: GalleryProps) {
   return (
-    <Flex $flexDirection="column" $gap="small" {...props}>
+    <Flex flexDirection="column" gap="small" {...props}>
       {children}
     </Flex>
   );

@@ -31,9 +31,9 @@ export function AppInfoView() {
                 <HeaderTitle>{messages.pgettext('app-info-view', 'App info')}</HeaderTitle>
               </SettingsHeader>
 
-              <Flex $flexDirection="column" $gap="medium">
+              <Flex flexDirection="column" gap="medium">
                 {showUpdateAvailable && <UpdateAvailableListItem />}
-                <Flex $flexDirection="column">
+                <Flex flexDirection="column">
                   <VersionListItem />
                   <ChangelogListItem />
                 </Flex>

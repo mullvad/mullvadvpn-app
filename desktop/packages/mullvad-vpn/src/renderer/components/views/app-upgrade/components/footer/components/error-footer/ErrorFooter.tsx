@@ -8,19 +8,19 @@ export function ErrorFooter() {
   const showManualDownloadLink = useShowManualDownloadLink();
 
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
-        <Flex $gap="tiny" $flexDirection="row">
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
+        <Flex gap="tiny" flexDirection="row">
           <div>
             <Icon size="small" icon="alert-circle" color="red" />
           </div>
-          <Flex $flexDirection="column">
+          <Flex flexDirection="column">
             <LabelTinySemiBold>{message}</LabelTinySemiBold>
           </Flex>
         </Flex>
         <DownloadProgress />
       </Flex>
-      <Flex $gap="medium" $flexDirection="column">
+      <Flex gap="medium" flexDirection="column">
         {showManualDownloadLink && <ManualDownloadLink />}
         <ReportProblemButton />
         <RetryButton />

@@ -14,7 +14,7 @@ function TextField({ children, ...props }: TextFieldProps) {
   const labelId = React.useId();
   return (
     <TextFieldProvider labelId={labelId} {...props}>
-      <FlexColumn $gap="tiny">{children}</FlexColumn>
+      <FlexColumn gap="tiny">{children}</FlexColumn>
     </TextFieldProvider>
   );
 }

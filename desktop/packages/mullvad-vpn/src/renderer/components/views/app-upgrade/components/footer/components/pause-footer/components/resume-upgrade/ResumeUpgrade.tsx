@@ -5,8 +5,8 @@ import { ResumeButton } from '../../../../../resume-button';
 
 export function ResumeUpgrade() {
   return (
-    <Flex $padding="large" $flexDirection="column">
-      <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
+    <Flex padding="large" flexDirection="column">
+      <Flex gap="medium" flexDirection="column" margin={{ bottom: 'medium' }}>
         <LabelTinySemiBold>
           {
             // TRANSLATORS: Label displayed above a progress bar when the update is verified successfully
@@ -15,7 +15,7 @@ export function ResumeUpgrade() {
         </LabelTinySemiBold>
         <DownloadProgress />
       </Flex>
-      <Flex $flexDirection="column">
+      <Flex flexDirection="column">
         <ResumeButton>
           {
             // TRANSLATORS: Button text to resume updating

@@ -18,7 +18,7 @@ export function UpgradeDetails() {
   const showHeaderSubtitle = cacheDir !== undefined;
 
   return (
-    <Flex $flexDirection="column" $gap="large" $padding={{ bottom: 'medium' }}>
+    <Flex flexDirection="column" gap="large" padding={{ bottom: 'medium' }}>
       <AppUpgradeHeader>
         <TitleBig as="h2">
           {
@@ -41,11 +41,11 @@ export function UpgradeDetails() {
           </HeaderSubTitle>
         )}
       </AppUpgradeHeader>
-      <Flex $flexDirection="column" $gap="small">
+      <Flex flexDirection="column" gap="small">
         <Container size="4">
           <TitleLarge as="h2">{title}</TitleLarge>
         </Container>
-        <Container size="3" $flexDirection="column">
+        <Container size="3" flexDirection="column">
           {showChangelogList ? <ChangelogList changelog={changelog} /> : <NoChangelogUpdates />}
         </Container>
       </Flex>
