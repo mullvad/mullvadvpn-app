@@ -25,6 +25,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Checkout submodules
+        run: git submodule update --init --depth=1 dist-assets/binaries
+
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 
