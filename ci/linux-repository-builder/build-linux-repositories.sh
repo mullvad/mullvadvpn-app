@@ -66,6 +66,9 @@ case "$environment" in
         ;;
 esac
 
+echo "Running against environment: $environment"
+echo "repository upload domain: $repository_server_upload_domain"
+
 inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment"
 
 if [[ ! -d "$inbox_dir" ]]; then
@@ -136,14 +139,14 @@ function rsync_repo {
     local local_repo_dir=$1
     local remote_repo_dir=$2
 
-    echo "Syncing to $repository_server_upload_domain:$remote_repo_dir"
+    echo "Syncing to repository-upload@$repository_server_upload_domain:$remote_repo_dir"
     # We have an issue where the rsync can fail due to the remote dir being locked (only one rsync at a time allowed)
     # We suspect this is because of too fast subsequent invocations of rsync to the same target dir. With a hacky sleep
     # we hope to avoid this issue for now.
     sleep 10
-    rsync -av --delete --mkpath --rsh='ssh -p 1122' \
+    rsync -av --delete --mkpath --rsh='ssh -p 1322' \
         "$local_repo_dir"/ \
-        build@"$repository_server_upload_domain":"$remote_repo_dir"
+        repository-upload@"$repository_server_upload_domain":"$remote_repo_dir"
 }
 
 function invalidate_bunny_cdn_cache {
