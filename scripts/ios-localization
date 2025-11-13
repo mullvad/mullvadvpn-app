@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# shellcheck disable=SC1091
+source utils/log
+
+function main {
+  case ${1:-""} in
+    upload) upload_to_crowdin ;;
+    download) download_from_crowdin ;;
+    "")
+      echo "Available subcommands: upload and download"
+      ;;
+    *)
+      echo "Unknown parameter: $1"
+      exit 1
+      ;;
+  esac
+}
+
+function update_relay_locations {
+  log_header "Retrieving relay locations from server list and updating RelayLocationList.Swift"
+  ./scripts/fetch-relay-locations.sh
+  ./scripts/relays-localization.sh
+}
+
+function commit_changes {
+  if [[ $(git diff --shortstat 2>/dev/null | tail -n1) != "" ]]; then
+    git commit -a -S -m "$1"
+  fi
+}
+
+function prepare_localization_strings {
+  update_relay_locations
+  update_ios_strings export
+  commit_changes "Export iOS strings"
+}
+
+function ensure_crowdin_api_key {
+  test ! -z "$CROWDIN_API_KEY"
+}
+
+function upload_to_crowdin {
+  pushd ../ios/translation
+  ensure_crowdin_api_key
+  prepare_localization_strings
+  log_header "Uploading iOS translations to Crowdin"
+  crowdin upload sources
+  crowdin upload translations
+  popd
+}
+
+function download_from_crowdin {
+  pushd ../ios/translation
+  ensure_crowdin_api_key
+  log_header "Downloading iOS translations from Crowdin"
+  crowdin download translations
+  update_ios_strings import
+  commit_changes "Import iOS translations"
+  popd
+}
+
+function update_ios_strings {
+  if [ $# -ne 1 ] || { [ "$1" != "export" ] && [ "$1" != "import" ]; }; then
+    echo "Usage: update_ios_strings [export|import]" >&2
+    return 2
+  fi
+  if [ "$1" = "export" ]; then
+    log_header "Extracting strings from iOS source code"
+  else
+    log_header "Updating strings into iOS source code with new translations"
+  fi
+  ./scripts/localizations.sh "$1"
+}
+
+main "$@"
