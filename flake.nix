@@ -39,6 +39,10 @@
           inherit pkgs rust-overlay;
         };
 
+        desktop = import ./nix/desktop-toolchain.nix {
+          inherit pkgs common-toolchain;
+        };
+
         android = import ./nix/android-toolchain.nix {
           inherit
             pkgs
@@ -51,8 +55,14 @@
 
       in
       {
-        devShells.default = import ./nix/android-devshell.nix {
-          inherit pkgs android;
+        devShells = {
+          default = import ./nix/desktop-devshell.nix {
+            inherit pkgs desktop;
+          };
+
+          android = import ./nix/android-devshell.nix {
+            inherit pkgs android;
+          };
         };
       }
     );
