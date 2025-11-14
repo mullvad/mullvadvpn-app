@@ -31,7 +31,7 @@ export function AntiCensorshipView() {
               </HeaderTitle>
             </SettingsHeader>
             <FlexColumn gap="medium">
-              <View.Container size="4" flexDirection="column" gap="medium">
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
                 <Text variant="labelTiny" color="whiteAlpha60">
                   {
                     // TRANSLATORS: First paragraph of description text in anti-censorship view

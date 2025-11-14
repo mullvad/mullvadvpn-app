@@ -6,7 +6,7 @@ export type AppUpgradeHeaderProps = {
 
 export function AppUpgradeHeader({ children }: AppUpgradeHeaderProps) {
   return (
-    <Container size="4" flexDirection="column" gap="small">
+    <Container horizontalMargin="medium" flexDirection="column" gap="small">
       {children}
     </Container>
   );

@@ -32,7 +32,7 @@ export const ChangelogView = () => {
 
             <NavigationScrollbars>
               <Flex flexDirection="column" gap="large">
-                <Container size="4">
+                <Container horizontalMargin="medium">
                   <TitleBig as="h1">
                     {
                       // TRANSLATORS: Heading for the view of the changes and updates in the
@@ -42,10 +42,10 @@ export const ChangelogView = () => {
                   </TitleBig>
                 </Container>
                 <Flex flexDirection="column" gap="small">
-                  <Container size="4">
+                  <Container horizontalMargin="medium">
                     <TitleLarge as="h2">{current}</TitleLarge>
                   </Container>
-                  <Container size="3" flexDirection="column">
+                  <Container horizontalMargin="large" flexDirection="column">
                     {showChangelogList ? (
                       <ChangelogList changelog={changelog} />
                     ) : (
