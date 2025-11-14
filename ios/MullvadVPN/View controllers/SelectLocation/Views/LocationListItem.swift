@@ -86,7 +86,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     }
 }
 
-@available(iOS 17, *)
 #Preview {
     let viewModel = MockSelectLocationViewModel()
     Text("")

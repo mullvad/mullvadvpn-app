@@ -13,89 +13,39 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         !$0.isHiddenFromSearch
                     }.isEmpty)
     }
+    var isShowingAllLocationsSection: Bool {
+        !context.locations.filter({ !$0.isHiddenFromSearch }).isEmpty
+    }
 
     @State private var topOfTheListId = UUID()
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading) {
+                if !context.filter.isEmpty {
+                    ActiveFilterView(
+                        activeFilter: context.filter
+                    ) { filter in
+                        viewModel.onFilterTapped(filter)
+                    } onRemove: { filter in
+                        viewModel.onFilterRemoved(filter)
+                    }
+                    .padding(.vertical)
+                }
+                VStack(spacing: 24) {
                     EmptyView()
                         .id(topOfTheListId)
-                    if !context.filter.isEmpty {
-                        ActiveFilterView(
-                            activeFilter: context.filter
-                        ) { filter in
-                            viewModel.onFilterTapped(filter)
-                        } onRemove: { filter in
-                            viewModel.onFilterRemoved(filter)
-                        }
-                    }
                     if isShowingCustomListsSection {
-                        HStack {
-                            MullvadListSectionHeader(title: "Custom lists")
-                            Button {
-                                viewModel.showAddCustomListView(
-                                    locations: context
-                                        .locations)
-                            } label: {
-                                Image.mullvadIconAdd
-                                    .padding(.horizontal, 12)
-                            }
-                            .accessibilityIdentifier(.addNewCustomListButton)
-                            if !context.customLists.isEmpty {
-                                Button {
-                                    viewModel.showEditCustomListView(
-                                        locations: context.locations
-                                    )
-                                } label: {
-                                    Image.mullvadIconEdit
-                                        .padding(.horizontal, 12)
-                                }
-                                .accessibilityIdentifier(.editCustomListButton)
-                            }
-                        }
-                        .padding(.vertical, 12)
-                        LocationsListView(
-                            locations: $context.customLists,
-                            multihopContext: viewModel.multihopContext,
-                        ) { location in
-                            context.selectLocation(location)
-                        } contextMenu: { location in
-                            customListContextMenu(location)
-                        }
-
-                        let text: LocalizedStringKey =
-                            context.customLists.isEmpty
-                            ? """
-                            Save locations by adding them to a custom list.
-                            """
-                            : """
-                            To add locations to a list, press the pen or long press on a country, city, or server.
-                            """
-                        Text(text)
-                            .font(.mullvadMini)
-                            .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                        MullvadListSectionHeader(title: "All locations")
-                            .padding(.vertical, 12)
+                        customListSection(isShowingHeader: isShowingAllLocationsSection)
                     }
-                    if !viewModel.searchText.isEmpty
-                        && context.locations
-                            .filter({ !$0.isHiddenFromSearch }).isEmpty
-                    {
+                    if isShowingAllLocationsSection {
+                        allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                    }
+                    if !isShowingCustomListsSection && !isShowingAllLocationsSection {
                         Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
                             .font(.mullvadMiniSemiBold)
                             .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
                             .padding(.vertical)
-                    } else {
-                        LocationsListView(
-                            locations: $context.locations,
-                            multihopContext: viewModel.multihopContext,
-                        ) { location in
-                            context.selectLocation(location)
-                        } contextMenu: { location in
-                            locationContextMenu(location)
-                        }
                     }
                 }
                 .transformEffect(.identity)
@@ -117,7 +67,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     }
                     Task {
                         // Due to the use of LazyVStack the view can not scroll to child nodes that are outside the viewport
-                        // Therefor the view must scroll to the root parent first
+                        // Therefore the view must scroll to the root parent first
                         if rootParent != selectedLocation {
                             proxy.scrollTo(rootParent.code, anchor: .center)
                         }
@@ -131,4 +81,95 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         .mullvadInputAlert(item: $newCustomListAlert)
         .mullvadAlert(item: $alert)
     }
+
+    @ViewBuilder
+    func allLocationsSection(isShowingHeader: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if isShowingHeader {
+                MullvadListSectionHeader(title: "All locations")
+            }
+            LocationsListView(
+                locations: $context.locations,
+                multihopContext: viewModel.multihopContext,
+            ) { location in
+                context.selectLocation(location)
+            } contextMenu: { location in
+                locationContextMenu(location)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func customListSection(isShowingHeader: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if isShowingHeader {
+                HStack(spacing: 0) {
+                    MullvadListSectionHeader(title: "Custom lists")
+                    Button {
+                        viewModel.showAddCustomListView(
+                            locations: context
+                                .locations)
+                    } label: {
+                        Image.mullvadIconAdd
+                            .padding(.horizontal, 10)
+                    }
+                    .accessibilityIdentifier(.addNewCustomListButton)
+                    if !context.customLists.isEmpty {
+                        Button {
+                            viewModel.showEditCustomListView(
+                                locations: context.locations
+                            )
+                        } label: {
+                            Image.mullvadIconEdit
+                                .padding(.horizontal, 10)
+                        }
+                        .accessibilityIdentifier(.editCustomListButton)
+                    }
+                }
+            }
+            LocationsListView(
+                locations: $context.customLists,
+                multihopContext: viewModel.multihopContext,
+            ) { location in
+                context.selectLocation(location)
+            } contextMenu: { location in
+                customListContextMenu(location)
+            }
+
+            let text: LocalizedStringKey =
+                context.customLists.isEmpty
+                ? """
+                To create a custom list press the “+” or long press on a country, city, or server.
+                """
+                : """
+                To add locations to a list, press the pen or long press on a country, city, or server.
+                """
+            Text(text)
+                .font(.mullvadMini)
+                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                .padding(.horizontal, context.customLists.isEmpty ? 0 : 16)
+        }
+    }
+}
+
+#Preview {
+    @Previewable @State var viewModel = MockSelectLocationViewModel()
+    ExitLocationView(
+        viewModel: viewModel,
+        context: $viewModel.exitContext,
+        newCustomListAlert: nil,
+        alert: nil
+    )
+    .background(Color.mullvadBackground)
+}
+
+#Preview("Empty lists") {
+    @Previewable @State var viewModel = MockSelectLocationViewModel()
+    ExitLocationView(
+        viewModel: viewModel,
+        context: $viewModel.entryContext,
+        newCustomListAlert: nil,
+        alert: nil
+    )
+    .background(Color.mullvadBackground)
 }

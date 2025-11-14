@@ -41,6 +41,7 @@ struct ActiveFilterView: View {
                     .accessibilityIdentifier(filter.accessibilityIdentifier)
                 }
             }
+            .padding(.horizontal)
         }
         .scrollIndicators(.never)
     }
