@@ -35,7 +35,6 @@ const StyledFeatureIndicator = styled.button<{
     const variant = styles.variants[variantProp];
     return css`
       display: flex;
-      align-items: center;
 
       border-radius: ${Radius.radius8};
       background: ${variant.backgroundColor};
@@ -89,9 +88,7 @@ function FeatureIndicator({
         disabled={disabled}
         onClick={onClick}
         {...props}>
-        <StyledFlex flex={1} alignItems="center">
-          {children}
-        </StyledFlex>
+        <StyledFlex alignItems="center">{children}</StyledFlex>
       </StyledFeatureIndicator>
     </FeatureIndicatorProvider>
   );

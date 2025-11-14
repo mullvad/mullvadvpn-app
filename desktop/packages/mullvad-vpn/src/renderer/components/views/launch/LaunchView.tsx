@@ -9,10 +9,10 @@ export function LaunchView() {
       <AppMainHeader logoVariant="none">
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
-      <View.Container size="4" flex={1}>
+      <View.Container size="4" flexGrow={1}>
         <Flex
           flexDirection="column"
-          flex={1}
+          flexGrow={1}
           margin={{ vertical: 'large' }}
           alignItems="center"
           gap="medium">

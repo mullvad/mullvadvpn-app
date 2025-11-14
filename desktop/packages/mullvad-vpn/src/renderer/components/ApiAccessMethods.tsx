@@ -123,7 +123,7 @@ export default function ApiAccessMethods() {
                       />
                     ))}
                   </Cell.Group>
-                  <Container size="4" flex={1} justifyContent="flex-end">
+                  <Container size="4" justifyContent="flex-end">
                     <Button width="fit" onClick={navigateToNew}>
                       <Button.Text>{messages.gettext('Add')}</Button.Text>
                     </Button>
