@@ -16,6 +16,7 @@ log.workspace = true
 nix = { workspace = true, features = ["sched", "socket", "uio", "user", "fs"] }
 rtnetlink.workspace = true
 tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true, features = ["rt"] }
 zerocopy = { workspace = true, features = ["std", "derive"] }
 
 mnl = "0.2.3"

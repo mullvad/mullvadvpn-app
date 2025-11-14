@@ -16,6 +16,7 @@ use nix::{
 
 use rtnetlink::{LinkUnspec, LinkVeth, RouteMessageBuilder};
 use tokio::{fs, runtime, sync::oneshot, task::JoinSet};
+use tokio_util::sync::CancellationToken;
 
 pub mod nft;
 
@@ -202,6 +203,7 @@ pub async fn open_namespace_file() -> anyhow::Result<Option<OwnedFd>> {
 /// Execute `f` on a thread running in the network namespace referenced by `namespace_fd`.
 ///
 /// `f` will be executed on a new tokio runtime, running on a dedicated thread.
+/// It will be cancelled if this future is dropped.
 ///
 /// See also: [do_in_namespace].
 pub async fn do_in_namespace_async<Fd, Fn, Ft, T>(namespace_fd: Fd, f: Fn) -> anyhow::Result<T>
@@ -214,6 +216,9 @@ where
     Fn: Send + 'static,
     T: Send + 'static,
 {
+    let ct = CancellationToken::new();
+    let (ct, _cancel_on_drop) = (ct.child_token(), ct.drop_guard());
+
     do_in_namespace(namespace_fd, move || {
         // We don't want to risk tasks being executed on worker threads in a different namespace,
         // so we create an isolated runtime within this namespace to run tasks on.
@@ -221,9 +226,10 @@ where
             .enable_all()
             .build()
             .expect("Failed to create tokio runtime")
-            .block_on(f())
+            .block_on(ct.run_until_cancelled(f()))
     })
     .await
+    .map(|option| option.expect("the future wasn't cancelled"))
 }
 
 /// Execute `f` on a thread running in the network namespace referenced by `namespace_fd`.
