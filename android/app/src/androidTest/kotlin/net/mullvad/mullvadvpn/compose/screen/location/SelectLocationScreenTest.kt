@@ -110,7 +110,7 @@ class SelectLocationScreenTest {
                 openDaitaSettings = openDaitaSettings,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
-                setMultihop = setMultihop,
+                toggleMultihop = setMultihop,
             )
         }
     }

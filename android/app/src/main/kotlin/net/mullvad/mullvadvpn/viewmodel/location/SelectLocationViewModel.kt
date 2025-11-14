@@ -7,7 +7,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -143,15 +142,12 @@ class SelectLocationViewModel(
         viewModelScope.launch { _relayListType.emit(RelayListType.Multihop(multihopRelayListType)) }
     }
 
-    fun selectHop(hop: Hop, onSuccess: suspend () -> Unit = {}) {
+    fun selectHop(hop: Hop) {
         viewModelScope.launch {
             selectHopUseCase(hop)
                 .fold(
                     { _uiSideEffect.send(it.toSideEffect()) },
-                    {
-                        onSuccess()
-                        _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
-                    },
+                    { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) },
                 )
         }
     }
@@ -166,7 +162,7 @@ class SelectLocationViewModel(
         viewModelScope.launch { modifyMultihop(change) }
     }
 
-    private suspend fun modifyMultihop(change: MultihopChange, onSuccess: suspend () -> Unit = {}) {
+    private suspend fun modifyMultihop(change: MultihopChange) {
         modifyMultihopUseCase(change)
             .fold(
                 { _uiSideEffect.send(it.toSideEffect(change)) },
@@ -178,7 +174,6 @@ class SelectLocationViewModel(
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                     }
-                    onSuccess()
                 },
             )
     }
@@ -234,7 +229,7 @@ class SelectLocationViewModel(
         }
     }
 
-    fun setMultihop(enable: Boolean) {
+    fun toggleMultihop(enable: Boolean) {
         viewModelScope.launch {
             wireguardConstraintsRepository
                 .setMultihop(enable)

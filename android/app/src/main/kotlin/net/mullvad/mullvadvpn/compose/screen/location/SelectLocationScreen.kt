@@ -145,7 +145,7 @@ private fun PreviewSelectLocationScreen(
             onSelectRelayList = {},
             openDaitaSettings = {},
             onRefreshRelayList = {},
-            setMultihop = {},
+            toggleMultihop = {},
         )
     }
 }
@@ -314,7 +314,7 @@ fun SelectLocation(
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
-        setMultihop = vm::setMultihop,
+        toggleMultihop = vm::toggleMultihop,
     )
 }
 
@@ -341,7 +341,7 @@ fun SelectLocationScreen(
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
-    setMultihop: (enable: Boolean) -> Unit,
+    toggleMultihop: (enable: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -416,7 +416,7 @@ fun SelectLocationScreen(
                     onRecentsToggleEnableClick()
                 },
                 onRefreshRelayList = onRefreshRelayList,
-                onMultihopToggleEnableClick = { setMultihop(!multihopEnabled) },
+                onMultihopToggleEnableClick = { toggleMultihop(!multihopEnabled) },
             )
         },
     ) { modifier ->

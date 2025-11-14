@@ -73,7 +73,7 @@ private fun PreviewSelectLocationList(
                 onUpdateBottomSheetState = {},
                 onAddCustomList = {},
                 onEditCustomLists = {},
-                onToggleExpand = { id: RelayItemId, id1: CustomListId?, bool: Boolean -> },
+                onToggleExpand = { _, _, _ -> },
             )
         }
     }
@@ -102,6 +102,9 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // The first time the list is opened and we have content we should scroll to the selected item.
+    // Due to how recomposition works and that the viewmodel is preserved between we need to use
+    // this hack to only scroll the first time.
     LaunchedEffect(Unit) {
         val stateActual = viewModel.uiState.first { it is Content }
         if (scrollToList) {
