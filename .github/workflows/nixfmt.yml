@@ -1,0 +1,23 @@
+---
+name: Nix - Check formatting
+on:
+  pull_request:
+    paths:
+      - .github/workflows/nixfmt.yml
+      - '**/*.nix'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+
+      - name: Install nixfmt-tree
+        run: nix shell nixpkgs#nixfmt-tree --command treefmt --ci
