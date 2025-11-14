@@ -30,25 +30,23 @@ export function ManageDevicesView() {
             />
             <NavigationScrollbars>
               <FlexColumn gap="medium">
-                <View.Container>
-                  <FlexColumn gap="small">
-                    <Text variant="titleBig">
-                      {
-                        // TRANSLATORS: Title text in the manage devices view
-                        messages.pgettext('device-management', 'Manage devices')
-                      }
-                    </Text>
-                    <Text variant="labelTiny" color="whiteAlpha60">
-                      {
-                        // TRANSLATORS: Subtitle text in the manage devices view, explaining
-                        // TRANSLATORS: devices and what they can do in the manage devices view.
-                        messages.pgettext(
-                          'device-management',
-                          'View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.',
-                        )
-                      }
-                    </Text>
-                  </FlexColumn>
+                <View.Container flexDirection="column" gap="small">
+                  <Text variant="titleBig">
+                    {
+                      // TRANSLATORS: Title text in the manage devices view
+                      messages.pgettext('device-management', 'Manage devices')
+                    }
+                  </Text>
+                  <Text variant="labelTiny" color="whiteAlpha60">
+                    {
+                      // TRANSLATORS: Subtitle text in the manage devices view, explaining
+                      // TRANSLATORS: devices and what they can do in the manage devices view.
+                      messages.pgettext(
+                        'device-management',
+                        'View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.',
+                      )
+                    }
+                  </Text>
                 </View.Container>
                 {showDeviceList ? <DeviceList devices={devices} /> : <DevicesState />}
               </FlexColumn>
