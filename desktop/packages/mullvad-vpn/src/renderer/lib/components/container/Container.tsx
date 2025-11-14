@@ -4,7 +4,7 @@ import { spacings } from '../../foundations';
 import { Flex, FlexProps } from '../flex';
 
 export type ContainerProps = FlexProps & {
-  size?: '3' | '4';
+  size: '3' | '4';
 };
 
 const sizes: Record<'3' | '4', string> = {
