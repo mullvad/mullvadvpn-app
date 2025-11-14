@@ -132,7 +132,7 @@ class Login extends React.Component<IProps, IState> {
         </AppMainHeader>
         <View.Container
           flexDirection="column"
-          size="4"
+          indent="medium"
           justifyContent="center"
           padding={{ bottom: 'large' }}>
           <FlexColumn gap="medium">

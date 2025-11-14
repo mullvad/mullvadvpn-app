@@ -8,7 +8,7 @@ export function DevicesState() {
   return (
     <View.Container
       flexDirection="column"
-      size="4"
+      indent="medium"
       gap="tiny"
       alignItems="center"
       padding={{ bottom: 'tiny' }}>

@@ -30,7 +30,7 @@ export function ManageDevicesView() {
             />
             <NavigationScrollbars>
               <FlexColumn gap="medium">
-                <View.Container size="4" flexDirection="column" gap="small">
+                <View.Container indent="medium" flexDirection="column" gap="small">
                   <Text variant="titleBig">
                     {
                       // TRANSLATORS: Title text in the manage devices view
