@@ -71,12 +71,11 @@ class SelectLocationListViewModel(
         combine(
             filteredRelayListUseCase(relayListType = relayListType),
             filteredCustomListRelayItemsUseCase(relayListType = relayListType),
-            recentsUseCase(isMultihop = relayListType is RelayListType.Multihop),
+            recentsUseCase(relayListType = relayListType),
             selectedLocationUseCase(),
             _expandedItems,
         ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
-            // If we have no locations we have an empty relay list
-            // and we should show an error
+            // If we have no locations we have an empty relay list and we should show an error
             if (relayCountries.isEmpty()) {
                 emptyLocationsRelayListItems(
                     relayListType = relayListType,
@@ -104,7 +103,6 @@ class SelectLocationListViewModel(
                             selectedItem.selectedByOtherEntryExitList(relayListType, customLists)
                         },
                     expandedItems = expandedItems,
-                    isEntryBlocked = settings?.entryBlocked() == true,
                 )
             }
         }

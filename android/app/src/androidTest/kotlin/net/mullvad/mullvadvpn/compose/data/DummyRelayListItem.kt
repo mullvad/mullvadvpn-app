@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.data
 
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
@@ -17,13 +16,13 @@ fun createSimpleRelayListItemList(
     if (recentItems.isNotEmpty()) {
         add(RelayListItem.RecentsListHeader)
         recentItems.forEach {
-            add(RelayListItem.RecentListItem(Hop.Single(it), isSelected = it.id == selectedItem))
+            add(RelayListItem.RecentListItem(it, isSelected = it.id == selectedItem))
         }
     }
     if (customListItem.isNotEmpty()) {
         add(RelayListItem.CustomListHeader)
         customListItem.forEach {
-            add(RelayListItem.CustomListItem(Hop.Single(it), isSelected = it.id == selectedItem))
+            add(RelayListItem.CustomListItem(it, isSelected = it.id == selectedItem))
         }
         add(RelayListItem.CustomListFooter(hasCustomList = true))
     }
@@ -33,7 +32,7 @@ fun createSimpleRelayListItemList(
             val descendantIsSelected = country.descendants().any { it.id == selectedItem }
             add(
                 RelayListItem.GeoLocationItem(
-                    hop = Hop.Single(country),
+                    item = country,
                     isSelected = country == selectedItem,
                     expanded = descendantIsSelected,
                     itemPosition =
@@ -49,7 +48,7 @@ fun createSimpleRelayListItemList(
                     val childIsSelected = city.relays.any { it.id == selectedItem }
                     add(
                         RelayListItem.GeoLocationItem(
-                            hop = Hop.Single(city),
+                            item = city,
                             isSelected = city.id == selectedItem,
                             expanded = childIsSelected,
                             itemPosition =
@@ -64,7 +63,7 @@ fun createSimpleRelayListItemList(
                         city.relays.forEach { relay ->
                             add(
                                 RelayListItem.GeoLocationItem(
-                                    hop = Hop.Single(relay),
+                                    item = relay,
                                     isSelected = relay.id == selectedItem,
                                     itemPosition =
                                         if (city.relays.last() == relay) {
