@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
+import { useDns } from '../../../../../features/dns/hooks';
 import { Button, IconButton } from '../../../../../lib/components';
 import { Accordion } from '../../../../../lib/components/accordion';
+import { Switch } from '../../../../../lib/components/switch';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../../../../../lib/utility-hooks';
-import { useSelector } from '../../../../../redux/store';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../../AriaGroup';
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
 import { ModalAlert, ModalAlertType } from '../../../../Modal';
-import { SettingsToggleListItem } from '../../../../settings-toggle-list-item';
+import { SettingsListItem } from '../../../../settings-list-item';
 import {
   AddServerContainer,
   StyledAddCustomDnsLabel,
@@ -25,8 +25,7 @@ import {
 const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
 export function CustomDnsSettings() {
-  const { setDnsOptions } = useAppContext();
-  const dns = useSelector((state) => state.settings.dns);
+  const { dns, setDns } = useDns();
 
   const [inputVisible, showInput, hideInput] = useBoolean(false);
   const [invalid, setInvalid, setValid] = useBoolean(false);
@@ -66,7 +65,7 @@ export function CustomDnsSettings() {
   const setCustomDnsEnabled = useCallback(
     async (enabled: boolean) => {
       if (dns.customOptions.addresses.length > 0) {
-        await setDnsOptions({ ...dns, state: enabled ? 'custom' : 'default' });
+        await setDns({ ...dns, state: enabled ? 'custom' : 'default' });
       }
       if (enabled && dns.customOptions.addresses.length === 0) {
         showInput();
@@ -75,7 +74,7 @@ export function CustomDnsSettings() {
         hideInput();
       }
     },
-    [dns, hideInput, setDnsOptions, showInput],
+    [dns, hideInput, setDns, showInput],
   );
 
   // The input field should be hidden when it loses focus unless something on the same row or the
@@ -103,7 +102,7 @@ export function CustomDnsSettings() {
         setInvalid();
       } else {
         const add = async () => {
-          await setDnsOptions({
+          await setDns({
             ...dns,
             state: dns.state === 'custom' || inputVisible ? 'custom' : 'default',
             customOptions: {
@@ -128,7 +127,7 @@ export function CustomDnsSettings() {
         }
       }
     },
-    [dns, setInvalid, setDnsOptions, inputVisible, hideInput],
+    [dns, setInvalid, setDns, inputVisible, hideInput],
   );
 
   const onEdit = useCallback(
@@ -143,7 +142,7 @@ export function CustomDnsSettings() {
         const addresses = dns.customOptions.addresses.map((address) =>
           oldAddress === address ? newAddress : address,
         );
-        await setDnsOptions({
+        await setDns({
           ...dns,
           customOptions: {
             addresses,
@@ -164,13 +163,13 @@ export function CustomDnsSettings() {
         }
       });
     },
-    [dns, setDnsOptions],
+    [dns, setDns],
   );
 
   const onRemove = useCallback(
     (address: string) => {
       const addresses = dns.customOptions.addresses.filter((item) => item !== address);
-      void setDnsOptions({
+      void setDns({
         ...dns,
         state: addresses.length > 0 && dns.state === 'custom' ? 'custom' : 'default',
         customOptions: {
@@ -178,7 +177,7 @@ export function CustomDnsSettings() {
         },
       });
     },
-    [dns, setDnsOptions],
+    [dns, setDns],
   );
 
   useEffect(() => setSavingEdit(false), [dns.customOptions.addresses]);
@@ -188,16 +187,23 @@ export function CustomDnsSettings() {
 
   return (
     <>
-      <SettingsToggleListItem
-        anchorId="custom-dns-settings"
-        checked={dns.state === 'custom' || inputVisible}
-        onCheckedChange={setCustomDnsEnabled}
-        disabled={!featureAvailable}>
-        <SettingsToggleListItem.Label>
-          {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
-        </SettingsToggleListItem.Label>
-        <SettingsToggleListItem.Switch ref={switchRef} aria-describedby={descriptionId} />
-      </SettingsToggleListItem>
+      <SettingsListItem anchorId="custom-dns-settings" disabled={!featureAvailable}>
+        <SettingsListItem.Item>
+          <SettingsListItem.Content>
+            <Switch
+              checked={dns.state === 'custom' || inputVisible}
+              onCheckedChange={setCustomDnsEnabled}
+              disabled={!featureAvailable}>
+              <Switch.Label variant="titleMedium">
+                {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
+              </Switch.Label>
+              <Switch.Trigger ref={switchRef} aria-describedby={descriptionId}>
+                <Switch.Thumb />
+              </Switch.Trigger>
+            </Switch>
+          </SettingsListItem.Content>
+        </SettingsListItem.Item>
+      </SettingsListItem>
       <Accordion expanded={listExpanded} disabled={!featureAvailable}>
         <Accordion.Content>
           <Cell.Section role="listbox">

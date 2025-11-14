@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
+import { MultihopSetting } from '../../../features/multihop/components';
 import { Flex, Image, Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { useHistory } from '../../../lib/history';
@@ -11,7 +12,6 @@ import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { MultihopSetting } from './components';
 
 const StyledIllustration = styled(Image)({
   width: '100%',

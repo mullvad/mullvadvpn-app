@@ -1,12 +1,10 @@
-import { useAppContext } from '../../../../../../../../../context';
+import { useSplitTunneling } from '../../../../../../../../../features/split-tunneling/hooks';
 import { Switch } from '../../../../../../../../../lib/components/switch';
-import { useSelector } from '../../../../../../../../../redux/store';
 import { useDisabled } from './hooks';
 
 export function SplitTunnelingStateSwitch() {
-  const { setSplitTunnelingState } = useAppContext();
+  const { splitTunnelingEnabled, setSplitTunnelingState } = useSplitTunneling();
   const disabled = useDisabled();
-  const splitTunnelingEnabled = useSelector((state) => state.settings.splitTunneling);
 
   return (
     <Switch

@@ -1,9 +1,9 @@
-import { useSelector } from '../../../../../../../../../../redux/store';
+import { useSplitTunneling } from '../../../../../../../../../../features/split-tunneling/hooks';
 import { useSplitTunnelingSettingsContext } from '../../../../../SplitTunnelingSettingsContext';
 
 export function useDisabled() {
   const { loadingDiskPermissions, splitTunnelingAvailable } = useSplitTunnelingSettingsContext();
-  const splitTunnelingEnabled = useSelector((state) => state.settings.splitTunneling);
+  const { splitTunnelingEnabled } = useSplitTunneling();
 
   const disabled = !splitTunnelingEnabled && (!splitTunnelingAvailable || loadingDiskPermissions);
 

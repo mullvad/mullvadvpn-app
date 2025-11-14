@@ -1,6 +1,13 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
+import {
+  AnimateMapSetting,
+  MonochromaticTrayIconSetting,
+  NotificationsSetting,
+  StartMinimizedSetting,
+  UnpinnedWindowSetting,
+} from '../../../features/client/components';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
@@ -15,14 +22,7 @@ import {
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import {
-  AnimateMapSetting,
-  LanguageListItem,
-  MonochromaticTrayIconSetting,
-  NotificationsSetting,
-  StartMinimizedSetting,
-  UnpinnedWindowSetting,
-} from './components';
+import { LanguageListItem } from './components';
 
 const StyledAnimateMapCellGroup = styled(SettingsGroup)({
   '@media (prefers-reduced-motion: reduce)': {
