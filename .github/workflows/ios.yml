@@ -9,6 +9,9 @@ on:
       - ios/wireguard-apple
       - ios/**/*.swift
       - ios/**/*.xctestplan
+      - rust-toolchain.toml
+      - Cargo.toml
+      - Cargo.lock
   workflow_dispatch:
 
 permissions: {}
