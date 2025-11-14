@@ -756,7 +756,7 @@ fun Constraint<RelayItem>?.toDisplayName() =
     when (this) {
         Constraint.Any -> stringResource(R.string.automatic)
         is Constraint.Only<RelayItem> -> value.name
-        null -> stringResource(R.string.unknown)
+        null -> stringResource(R.string.unavailable)
     }
 
 @Composable

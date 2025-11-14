@@ -3340,6 +3340,9 @@ msgstr ""
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr ""
 
+msgid "Unavailable"
+msgstr ""
+
 msgid "Undo"
 msgstr ""
 
