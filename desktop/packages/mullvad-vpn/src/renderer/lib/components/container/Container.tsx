@@ -3,22 +3,24 @@ import styled from 'styled-components';
 import { spacings } from '../../foundations';
 import { Flex, FlexProps } from '../flex';
 
+type Indent = 'medium' | 'large';
+
 export type ContainerProps = FlexProps & {
-  size: '3' | '4';
+  indent: Indent;
 };
 
-const sizes: Record<'3' | '4', string> = {
-  '3': `calc(100% - ${spacings.large} * 2)`,
-  '4': `calc(100% - ${spacings.medium} * 2)`,
+const widths: Record<Indent, string> = {
+  medium: `calc(100% - ${spacings.medium} * 2)`,
+  large: `calc(100% - ${spacings.large} * 2)`,
 };
 
-export const StyledContainer = styled(Flex)<{ $size: string }>`
-  ${({ $size }) => ({
-    width: $size,
+export const StyledContainer = styled(Flex)<{ $width: string }>`
+  ${({ $width }) => ({
+    width: $width,
     margin: 'auto',
   })}
 `;
 
-export function Container({ size = '4', ...props }: ContainerProps) {
-  return <StyledContainer $size={sizes[size]} {...props} />;
+export function Container({ indent, ...props }: ContainerProps) {
+  return <StyledContainer $width={widths[indent]} {...props} />;
 }
