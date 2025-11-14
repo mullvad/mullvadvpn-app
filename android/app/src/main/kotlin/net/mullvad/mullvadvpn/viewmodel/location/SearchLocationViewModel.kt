@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -46,7 +45,6 @@ import net.mullvad.mullvadvpn.util.combine
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class SearchLocationViewModel(
-    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
     private val relayListFilterRepository: RelayListFilterRepository,

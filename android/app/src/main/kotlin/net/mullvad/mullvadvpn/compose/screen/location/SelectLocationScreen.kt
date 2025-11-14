@@ -90,7 +90,6 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType.*
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -316,7 +315,7 @@ fun SelectLocation(
     )
 }
 
-@Suppress("LongMethod", "LongParameterList")
+@Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
@@ -479,8 +478,8 @@ fun SelectLocationScreen(
                     SelectionContainer(
                         progress = expandProgress.value,
                         multihopRelayListType =
-                            (state.value.relayListType as? Multihop)?.multihopRelayListType
-                                ?: MultihopRelayListType.EXIT,
+                            (state.value.relayListType as? RelayListType.Multihop)
+                                ?.multihopRelayListType ?: MultihopRelayListType.EXIT,
                         filterChips = state.value.filterChips,
                         hopSelection = state.value.hopSelection,
                         error = state.value.tunnelErrorStateCause,
@@ -698,10 +697,12 @@ private fun SelectionContainer(
                     MultihopSelector(
                         exitSelected = multihopRelayListType == MultihopRelayListType.EXIT,
                         exitLocation = it.exit.toDisplayName(),
-                        exitErrorText = error.errorText(Multihop(MultihopRelayListType.EXIT)),
+                        exitErrorText =
+                            error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
                         onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
                         entryLocation = it.entry.toDisplayName(),
-                        entryErrorText = error.errorText(Multihop(MultihopRelayListType.ENTRY)),
+                        entryErrorText =
+                            error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
                         onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
                         expandProgress = progress,
                     )
