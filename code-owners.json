@@ -23,6 +23,7 @@
     "wireguard-go-rs/**"
   ],
   "appteam-ios": [
+    ".github/workflows/ios*",
     "ci/ios/**",
     "ios/**",
     "mullvad-ios/**"
