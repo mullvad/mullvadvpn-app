@@ -29,5 +29,9 @@ pkgs.devshell.mkShell {
       name = "build";
       command = "cd android && ./gradlew assembleOssProdDebug";
     }
+    {
+      name = "buildFdroid";
+      command = "cd android && ./gradlew assembleOssProdFdroid";
+    }
   ];
 }
