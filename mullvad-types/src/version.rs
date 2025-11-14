@@ -9,8 +9,8 @@ pub struct AppVersionInfo {
     /// False if Mullvad has stopped supporting the currently running version. This could mean
     /// a number of things. For example:
     /// * API endpoints it uses might not work any more.
-    /// * Software bundled with this version, such as OpenVPN or OpenSSL, has known security
-    ///   issues, so using it is no longer recommended.
+    /// * Software bundled with this version has known security issues, so using it is no longer
+    ///   recommended.
     ///
     /// The user should really upgrade when this is false.
     pub current_version_supported: bool,
