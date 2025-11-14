@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -54,7 +54,8 @@ class SelectLocationListViewModelTest {
     private val filteredCustomListRelayItems =
         MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
-    private val recentsRelayItems = MutableStateFlow<List<Hop.Single<RelayItem>>?>(emptyList())
+    private val recentsRelayItems =
+        MutableStateFlow<List<HopSelection.Single<RelayItem>>?>(emptyList())
     private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SelectLocationListViewModel

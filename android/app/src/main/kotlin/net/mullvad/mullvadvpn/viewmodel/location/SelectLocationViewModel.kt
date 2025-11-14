@@ -21,12 +21,11 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -34,12 +33,12 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.SelectHopError
-import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
+import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.combine
@@ -55,9 +54,9 @@ class SelectLocationViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val filterChipUseCase: FilterChipUseCase,
     private val settingsRepository: SettingsRepository,
-    private val selectHopUseCase: SelectHopUseCase,
+    private val selectSingleUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
-    selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
+    hopSelectionUseCase: HopSelectionUseCase,
     connectionProxy: ConnectionProxy,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType?> = MutableStateFlow(null)
@@ -65,24 +64,15 @@ class SelectLocationViewModel(
     val uiState =
         combine(
                 filterChips(),
-                wireguardConstraintsRepository.wireguardConstraints.filterNotNull().onFirst {
-                    _relayListType.emit(it.initialRelayListType())
-                },
                 _relayListType.filterNotNull(),
                 relayListRepository.relayList,
                 settingsRepository.settingsUpdates.filterNotNull(),
                 connectionProxy.tunnelState
                     .map { it as? TunnelState.Error }
                     .map { it?.errorState?.cause },
-                selectedLocationRelayItemUseCase(),
-            ) {
-                filterChips,
-                wireguardConstraints,
-                relayListSelection,
-                relayList,
-                settings,
-                errorStateCause,
-                (entryRelayItem, exitRelayItem) ->
+                hopSelectionUseCase().onFirst { _relayListType.emit(it.initialRelayListType()) },
+            ) { filterChips, relayListSelection, relayList, settings, errorStateCause, selectedHop
+                ->
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips =
@@ -92,7 +82,6 @@ class SelectLocationViewModel(
                             } else {
                                 filterChips
                             },
-                        multihopEnabled = wireguardConstraints.isMultihopEnabled,
                         relayListType = relayListSelection,
                         isSearchButtonEnabled =
                             searchButtonEnabled(
@@ -102,10 +91,8 @@ class SelectLocationViewModel(
                             ),
                         isFilterButtonEnabled = relayList.isNotEmpty(),
                         isRecentsEnabled = settings.recents is Recents.Enabled,
-                        entrySelection = entryRelayItem?.name,
-                        exitSelection = exitRelayItem?.name,
+                        hopSelection = selectedHop,
                         tunnelErrorStateCause = errorStateCause,
-                        entrySelectionAllowed = !settings.entryBlocked(),
                     )
                 )
             }
@@ -131,8 +118,8 @@ class SelectLocationViewModel(
         return hasRelayListItems && !isEntryAndBlocked
     }
 
-    private fun WireguardConstraints.initialRelayListType(): RelayListType =
-        if (isMultihopEnabled) {
+    private fun HopSelection.initialRelayListType(): RelayListType =
+        if (this is HopSelection.Multi) {
             RelayListType.Multihop(MultihopRelayListType.EXIT)
         } else {
             RelayListType.Single
@@ -142,9 +129,9 @@ class SelectLocationViewModel(
         viewModelScope.launch { _relayListType.emit(RelayListType.Multihop(multihopRelayListType)) }
     }
 
-    fun selectHop(hop: Hop) {
+    fun selectSingle(item: RelayItem) {
         viewModelScope.launch {
-            selectHopUseCase(hop)
+            selectSingleUseCase(item)
                 .fold(
                     { _uiSideEffect.send(it.toSideEffect()) },
                     { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) },
@@ -257,15 +244,15 @@ class SelectLocationViewModel(
                 }
             ModifyMultihopError.GenericError -> SelectLocationSideEffect.GenericError
             is ModifyMultihopError.RelayItemInactive ->
-                SelectLocationSideEffect.RelayItemInactive(hop = Hop.Single(this.relayItem))
+                SelectLocationSideEffect.RelayItemInactive(relayItem = relayItem)
         }
 
-    private fun SelectHopError.toSideEffect(): SelectLocationSideEffect =
+    private fun SelectRelayItemError.toSideEffect(): SelectLocationSideEffect =
         when (this) {
-            SelectHopError.GenericError -> SelectLocationSideEffect.GenericError
-            is SelectHopError.HopInactive ->
-                SelectLocationSideEffect.RelayItemInactive(hop = this.hop)
-            SelectHopError.EntryAndExitSame -> SelectLocationSideEffect.EntryAndExitAreSame
+            SelectRelayItemError.GenericError -> SelectLocationSideEffect.GenericError
+            is SelectRelayItemError.RelayInactive ->
+                SelectLocationSideEffect.RelayItemInactive(relayItem = relayItem)
+            SelectRelayItemError.EntryAndExitSame -> SelectLocationSideEffect.EntryAndExitAreSame
         }
 }
 
@@ -277,7 +264,7 @@ sealed interface SelectLocationSideEffect {
 
     data object GenericError : SelectLocationSideEffect
 
-    data class RelayItemInactive(val hop: Hop) : SelectLocationSideEffect
+    data class RelayItemInactive(val relayItem: RelayItem) : SelectLocationSideEffect
 
     data class EntryAlreadySelected(val relayItem: RelayItem) : SelectLocationSideEffect
 

@@ -4,7 +4,6 @@ import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
@@ -20,7 +19,7 @@ internal fun relayListItems(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
-    recents: List<Hop.Single<RelayItem>>?,
+    recents: List<RelayItem>?,
     selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -84,7 +83,7 @@ private fun createRelayListItems(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
-    recents: List<Hop.Single<RelayItem>>?,
+    recents: List<RelayItem>?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
@@ -112,7 +111,7 @@ private fun createRelayListItems(
 }
 
 private fun createRecentsSection(
-    recents: List<Hop.Single<RelayItem>>,
+    recents: List<RelayItem>,
     itemSelection: RelayItemSelection,
     relayListType: RelayListType,
 ): List<RelayListItem> = buildList {
@@ -122,7 +121,7 @@ private fun createRecentsSection(
         recents
             .map { recent ->
                 val isSelected = recent.matches(itemSelection, relayListType)
-                RelayListItem.RecentListItem(hop = recent, isSelected = isSelected)
+                RelayListItem.RecentListItem(item = recent, isSelected = isSelected)
             }
             // Convert to a set to remove possible duplicates. We can get duplicate entries if
             // multihop is enabled because multiple multihop recents
@@ -138,14 +137,14 @@ private fun createRecentsSection(
     }
 }
 
-private fun Hop.Single<RelayItem>.matches(
+private fun RelayItem.matches(
     itemSelection: RelayItemSelection,
     relayListType: RelayListType,
 ): Boolean {
     return when (itemSelection) {
-        is RelayItemSelection.Single -> relay.id == itemSelection.exitLocation.getOrNull()
+        is RelayItemSelection.Single -> id == itemSelection.exitLocation.getOrNull()
         is RelayItemSelection.Multiple if relayListType is RelayListType.Multihop ->
-            itemSelection.getBy(relayListType).getOrNull() == relay.id
+            itemSelection.getBy(relayListType).getOrNull() == id
         else -> false
     }
 }
@@ -233,7 +232,7 @@ private fun createCustomListRelayItems(
         buildList {
             add(
                 RelayListItem.CustomListItem(
-                    hop = Hop.Single(customList),
+                    item = customList,
                     isSelected = selectedByThisEntryExitList == customList.id,
                     state =
                         customList.createState(
@@ -277,7 +276,7 @@ private fun createLocationSection(
 ): List<RelayListItem> = buildList {
     add(RelayListItem.LocationHeader)
     addAll(
-        countries.flatMapIndexed { index, country ->
+        countries.flatMap { country ->
             createGeoLocationEntry(
                 item = country,
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
@@ -328,7 +327,7 @@ private fun createCustomListEntry(
         RelayListItem.CustomListEntryItem(
             parentId = parent.id,
             parentName = parent.customList.name,
-            hop = Hop.Single(item),
+            item = item,
             state =
                 item.createState(
                     relayListType = relayListType,
@@ -393,7 +392,7 @@ private fun createGeoLocationEntry(
 
     add(
         RelayListItem.GeoLocationItem(
-            hop = Hop.Single(item),
+            item = item,
             isSelected = selectedByThisEntryExitList == item.id,
             state =
                 item.createState(

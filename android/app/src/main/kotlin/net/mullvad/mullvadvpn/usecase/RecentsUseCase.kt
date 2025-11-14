@@ -7,7 +7,6 @@ import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -22,36 +21,32 @@ class RecentsUseCase(
     private val settingsRepository: SettingsRepository,
 ) {
 
-    operator fun invoke(relayListType: RelayListType): Flow<List<Hop.Single<RelayItem>>?> =
+    operator fun invoke(relayListType: RelayListType): Flow<List<RelayItem>?> =
         when (relayListType) {
             is RelayListType.Multihop -> multihopRecents(relayListType.multihopRelayListType)
             RelayListType.Single -> singlehopRecents()
         }
 
-    private fun singlehopRecents(): Flow<List<Hop.Single<RelayItem>>?> =
+    private fun singlehopRecents(): Flow<List<RelayItem>?> =
         combine(
             recents().map { it?.filterIsInstance<Recent.Singlehop>() },
             filteredRelayListUseCase(RelayListType.Single),
             customListsRelayItemUseCase(RelayListType.Single),
         ) { recents, relayList, customList ->
-            recents
-                ?.mapNotNull { recent -> recent.location.findItem(customList, relayList) }
-                ?.map(Hop::Single)
+            recents?.mapNotNull { recent -> recent.location.findItem(customList, relayList) }
         }
 
     private fun multihopRecents(
         multihopRelayListType: MultihopRelayListType
-    ): Flow<List<Hop.Single<RelayItem>>?> =
+    ): Flow<List<RelayItem>?> =
         combine(
             recents().map { it?.filterIsInstance<Recent.Multihop>() },
             filteredRelayListUseCase(RelayListType.Multihop(multihopRelayListType)),
             customListsRelayItemUseCase(RelayListType.Multihop(multihopRelayListType)),
         ) { recents, relayList, customLists ->
-            recents
-                ?.mapNotNull { recent ->
-                    recent.getBy(multihopRelayListType).findItem(customLists, relayList)
-                }
-                ?.map(Hop::Single)
+            recents?.mapNotNull { recent ->
+                recent.getBy(multihopRelayListType).findItem(customLists, relayList)
+            }
         }
 
     private fun recents(): Flow<List<Recent>?> =

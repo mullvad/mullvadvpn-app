@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -42,11 +43,11 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
@@ -64,14 +65,14 @@ class SelectLocationViewModelTest {
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockSelectHopUseCase: SelectHopUseCase = mockk()
+    private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
-    private val mockSelectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase = mockk()
+    private val mockHopSelectionUseCase: HopSelectionUseCase = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
-    private val selectedRelayItemFlow = MutableStateFlow<Pair<RelayItem?, RelayItem?>>(null to null)
+    private val selectedRelayItemFlow = MutableStateFlow<HopSelection>(HopSelection.Single(null))
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val relayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
@@ -86,7 +87,7 @@ class SelectLocationViewModelTest {
         every { mockRelayListRepository.relayList } returns relayList
         every { mockSettingsRepository.settingsUpdates } returns settings
         every { mockConnectionProxy.tunnelState } returns flowOf(mockk())
-        every { mockSelectedLocationRelayItemUseCase() } returns selectedRelayItemFlow
+        every { mockHopSelectionUseCase() } returns selectedRelayItemFlow
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -101,8 +102,8 @@ class SelectLocationViewModelTest {
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 settingsRepository = mockSettingsRepository,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
-                selectHopUseCase = mockSelectHopUseCase,
-                selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
+                selectSingleUseCase = mockSelectSinglehopUseCase,
+                hopSelectionUseCase = mockHopSelectionUseCase,
                 connectionProxy = mockConnectionProxy,
             )
     }

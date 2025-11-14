@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
@@ -43,8 +44,7 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
-import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.SupportEmailUseCase
@@ -187,7 +187,7 @@ val uiModule = module {
     single { FilterChipUseCase(get(), get(), get()) }
     single { DeleteCustomDnsUseCase(get()) }
     single { RecentsUseCase(get(), get(), get()) }
-    single { SelectHopUseCase(relayListRepository = get()) }
+    single { SelectSinglehopUseCase(relayListRepository = get()) }
     single {
         ModifyMultihopUseCase(
             relayListRepository = get(),
@@ -204,10 +204,10 @@ val uiModule = module {
         )
     }
     single {
-        SelectedLocationRelayItemUseCase(
+        HopSelectionUseCase(
             customListRelayItemUseCase = get(),
             relayListRepository = get(),
-            wireguardConstraintsRepository = get(),
+            settingsRepository = get(),
         )
     }
 

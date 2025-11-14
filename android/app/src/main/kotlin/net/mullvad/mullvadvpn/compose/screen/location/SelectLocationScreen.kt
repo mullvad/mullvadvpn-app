@@ -90,14 +90,16 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.compose.state.RelayListType.*
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -106,7 +108,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lc
@@ -127,7 +128,7 @@ private fun PreviewSelectLocationScreen(
         SelectLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectHop = {},
+            onSelectSinglehop = {},
             onModifyMultihop = { _, _ -> },
             onSearchClick = {},
             onBackClick = {},
@@ -216,10 +217,7 @@ fun SelectLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
-                                R.string.relayitem_is_inactive,
-                                it.hop.displayName(context),
-                            )
+                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
                     )
                 }
             SelectLocationSideEffect.EntryAndExitAreSame ->
@@ -268,7 +266,7 @@ fun SelectLocation(
     SelectLocationScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onSelectHop = vm::selectHop,
+        onSelectSinglehop = vm::selectSingle,
         onModifyMultihop = vm::modifyMultihop,
         onSearchClick =
             dropUnlessResumed { relayListType ->
@@ -323,7 +321,7 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (item: Hop) -> Unit,
+    onSelectSinglehop: (item: RelayItem) -> Unit,
     onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
@@ -480,10 +478,11 @@ fun SelectLocationScreen(
                 is Lc.Content -> {
                     SelectionContainer(
                         progress = expandProgress.value,
-                        relayListType = state.value.relayListType,
+                        multihopRelayListType =
+                            (state.value.relayListType as? Multihop)?.multihopRelayListType
+                                ?: MultihopRelayListType.EXIT,
                         filterChips = state.value.filterChips,
-                        entrySelection = state.value.entrySelection,
-                        exitSelection = state.value.exitSelection,
+                        hopSelection = state.value.hopSelection,
                         error = state.value.tunnelErrorStateCause,
                         onSelectRelayList = onSelectRelayList,
                         removeOwnershipFilter = removeOwnershipFilter,
@@ -493,7 +492,7 @@ fun SelectLocationScreen(
                     RelayLists(
                         relayListType = state.value.relayListType,
                         bottomMargin = bottomMarginList,
-                        onSelectHop = onSelectHop,
+                        onSelect = onSelectSinglehop,
                         onModifyMultihop = onModifyMultihop,
                         openDaitaSettings = openDaitaSettings,
                         onAddCustomList = { onCreateCustomList(null) },
@@ -601,7 +600,7 @@ private fun SelectLocationDropdownMenu(
 private fun RelayLists(
     relayListType: RelayListType,
     bottomMargin: Dp,
-    onSelectHop: (hop: Hop) -> Unit,
+    onSelect: (item: RelayItem) -> Unit,
     onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
@@ -612,7 +611,7 @@ private fun RelayLists(
         if (relayListType is RelayListType.Multihop) {
             onModifyMultihop(relayItem, relayListType.multihopRelayListType)
         } else {
-            onSelectHop(Hop.Single(relayItem))
+            onSelect(relayItem)
         }
     }
 
@@ -671,9 +670,8 @@ private fun RelayLists(
 @Composable
 private fun SelectionContainer(
     progress: Float, // 0 - 1
-    relayListType: RelayListType,
-    entrySelection: String?,
-    exitSelection: String?,
+    multihopRelayListType: MultihopRelayListType,
+    hopSelection: HopSelection,
     error: ErrorStateCause?,
     filterChips: List<FilterChip>,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
@@ -682,30 +680,28 @@ private fun SelectionContainer(
 ) {
     Column {
         AnimatedContent(
-            relayListType,
-            contentKey = { it is RelayListType.Single },
+            hopSelection,
+            contentKey = { it is HopSelection.Multi },
             transitionSpec = {
                 fadeIn(tween(delayMillis = ANIMATION_DELAY_FADE_IN)).togetherWith(fadeOut())
             },
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
         ) {
             when (it) {
-                RelayListType.Single ->
+                is HopSelection.Single ->
                     Singlehop(
-                        exitLocation = exitSelection ?: stringResource(R.string.any),
+                        exitLocation = it.relay.toDisplayName(),
                         errorText = error.errorText(RelayListType.Single),
                         expandProgress = progress,
                     )
-                is RelayListType.Multihop ->
+                is HopSelection.Multi ->
                     MultihopSelector(
-                        exitSelected = it.multihopRelayListType == MultihopRelayListType.EXIT,
-                        exitLocation = exitSelection ?: stringResource(R.string.any),
-                        exitErrorText =
-                            error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+                        exitSelected = multihopRelayListType == MultihopRelayListType.EXIT,
+                        exitLocation = it.exit.toDisplayName(),
+                        exitErrorText = error.errorText(Multihop(MultihopRelayListType.EXIT)),
                         onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
-                        entryLocation = entrySelection ?: stringResource(R.string.any),
-                        entryErrorText =
-                            error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+                        entryLocation = it.entry.toDisplayName(),
+                        entryErrorText = error.errorText(Multihop(MultihopRelayListType.ENTRY)),
                         onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
                         expandProgress = progress,
                     )
@@ -754,6 +750,14 @@ private fun SelectionContainer(
         }
     }
 }
+
+@Composable
+fun Constraint<RelayItem>?.toDisplayName() =
+    when (this) {
+        Constraint.Any -> stringResource(R.string.automatic)
+        is Constraint.Only<RelayItem> -> value.name
+        null -> stringResource(R.string.unknown)
+    }
 
 @Composable
 private fun ColumnScope.Loading() {
