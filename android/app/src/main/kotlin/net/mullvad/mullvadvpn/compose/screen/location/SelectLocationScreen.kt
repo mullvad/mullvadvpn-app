@@ -738,12 +738,7 @@ private fun SelectionContainer(
             defaultTransition(collapseSet, expandSet) {}
         }
         MotionLayout(
-            modifier =
-                Modifier.padding(
-                    bottom = Dimens.smallPadding
-                    //                    start = Dimens.mediumPadding,
-                    //                    end = Dimens.mediumPadding,
-                ),
+            modifier = Modifier.padding(bottom = Dimens.smallPadding),
             motionScene = scene,
             progress = progress,
         ) {

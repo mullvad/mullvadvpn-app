@@ -151,7 +151,8 @@ class SelectLocationViewModel(
                 { _uiSideEffect.send(it.toSideEffect(change)) },
                 {
                     when (change) {
-                        is MultihopChange.Entry -> _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+                        is MultihopChange.Entry ->
+                            _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                     }
