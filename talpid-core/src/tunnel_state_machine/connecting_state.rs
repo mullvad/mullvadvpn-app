@@ -27,7 +27,7 @@ use super::{
 use self::resolver::LOCAL_DNS_RESOLVER;
 #[cfg(target_os = "macos")]
 use crate::dns::DnsConfig;
-use crate::tunnel::{self, TunnelMonitor};
+use crate::tunnel_state_machine::tunnel_monitor::{self, TunnelMonitor};
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
@@ -260,7 +260,7 @@ impl ConnectingState {
             };
 
             #[cfg(target_os = "windows")]
-            async fn maybe_dump_device_logs(log_dir: Option<&Path>, error: &tunnel::Error) {
+            async fn maybe_dump_device_logs(log_dir: Option<&Path>, error: &tunnel_monitor::Error) {
                 if error.get_tunnel_device_error().is_some()
                     && let Some(log_dir) = log_dir
                 {
@@ -332,13 +332,13 @@ impl ConnectingState {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {
-                tunnel::Error::WireguardTunnelMonitoringError(
+                tunnel_monitor::Error::WireguardTunnelMonitoringError(
                     talpid_wireguard::Error::TimeoutError,
                 ) => {
                     log::debug!("WireGuard tunnel timed out");
                     None
                 }
-                error @ tunnel::Error::WireguardTunnelMonitoringError(..)
+                error @ tunnel_monitor::Error::WireguardTunnelMonitoringError(..)
                     if !should_retry(&error, retry_attempt) =>
                 {
                     log::error!(
@@ -548,7 +548,7 @@ impl ConnectingState {
 
     fn handle_tunnel_events(
         mut self: Box<Self>,
-        event: Option<(tunnel::TunnelEvent, oneshot::Sender<()>)>,
+        event: Option<(TunnelEvent, oneshot::Sender<()>)>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
@@ -648,7 +648,7 @@ impl ConnectingState {
 }
 
 #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
-fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
+fn should_retry(error: &tunnel_monitor::Error, retry_attempt: u32) -> bool {
     #[cfg(target_os = "windows")]
     if error.get_tunnel_device_error().is_some() {
         return retry_attempt < MAX_ATTEMPT_CREATE_TUN;

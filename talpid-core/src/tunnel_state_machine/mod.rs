@@ -3,6 +3,7 @@ mod connecting_state;
 mod disconnected_state;
 mod disconnecting_state;
 mod error_state;
+mod tunnel_monitor;
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::ffi::OsString;

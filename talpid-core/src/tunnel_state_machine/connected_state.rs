@@ -4,14 +4,13 @@ use futures::stream::Fuse;
 
 use talpid_dns::ResolvedDnsConfig;
 use talpid_firewall::FirewallPolicy;
+use talpid_tunnel::{TunnelEvent, TunnelMetadata};
 use talpid_types::net::{AllowedClients, AllowedEndpoint, wireguard::TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
 #[cfg(target_os = "macos")]
 use self::resolver::LOCAL_DNS_RESOLVER;
-
-use crate::tunnel::{TunnelEvent, TunnelMetadata};
 
 use super::connecting_state::TunnelCloseEvent;
 use super::{
