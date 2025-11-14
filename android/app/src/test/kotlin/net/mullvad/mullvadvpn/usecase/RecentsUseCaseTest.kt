@@ -125,7 +125,7 @@ class RecentsUseCaseTest {
             useCase(RelayListType.Single).test {
                 val hops = awaitItem()
 
-                val expectedHops = listOf(HopSelection.Single(STOCKHOLM))
+                val expectedHops = listOf(STOCKHOLM)
                 assertLists(expectedHops, hops!!)
             }
         }
@@ -156,7 +156,7 @@ class RecentsUseCaseTest {
         useCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
             val hops = awaitItem()
 
-            val expectedHops = listOf(HopSelection.Single(CUSTOM_LIST_SWE_NO))
+            val expectedHops = listOf(CUSTOM_LIST_SWE_NO)
             assertLists(expectedHops, hops!!)
         }
     }
