@@ -55,3 +55,15 @@ impl PidManager {
         self.result.is_ok()
     }
 }
+
+impl Drop for PidManager {
+    fn drop(&mut self) {
+        log::info!("Removing split-tunneling network namespace");
+        if let Err(e) = nullvad::destroy_namespace() {
+            log::error!("{e:#?}");
+        }
+        if let Err(e) = nullvad::nft::remove_nft_rules() {
+            log::error!("{e:#?}");
+        }
+    }
+}
