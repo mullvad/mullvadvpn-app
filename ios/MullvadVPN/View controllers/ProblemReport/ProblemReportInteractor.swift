@@ -48,8 +48,10 @@ final class ProblemReportInteractor: @unchecked Sendable {
     ) {
         let logString = self.consolidatedLog.string
         let accountToken =
-            if isUserLoggedIn() && includeAccountTokenInLogs {
-                "\naccount-token: \(String(describing: tunnelManager.deviceState.accountData?.identifier))"
+            if isUserLoggedIn() && includeAccountTokenInLogs,
+                let token = tunnelManager.deviceState.accountData?.identifier
+            {
+                "\naccount-token: \(token)"
             } else { "" }
 
         if logString.isEmpty {
