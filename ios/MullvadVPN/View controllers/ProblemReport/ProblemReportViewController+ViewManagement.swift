@@ -78,6 +78,11 @@ extension ProblemReportViewController {
             userPrivacyLabel.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .trailing(0), .bottom(10)]))
         }
 
+        let constraint = verticalStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
+        NSLayoutConstraint.activate(
+            [constraint]
+        )
+
         self.reduceAnonymityWarningView = reduceAnonymityWarningView
 
         return verticalStackView
