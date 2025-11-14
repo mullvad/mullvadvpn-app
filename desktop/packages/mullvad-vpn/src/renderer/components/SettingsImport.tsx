@@ -136,7 +136,7 @@ export default function SettingsImport() {
               ]}
             />
           </AppNavigationHeader>
-          <Flex flexDirection="column" flex={1}>
+          <Flex flexDirection="column" flexGrow={1}>
             <SettingsHeader>
               <HeaderTitle>
                 {messages.pgettext('settings-import', 'Server IP override')}
@@ -148,8 +148,7 @@ export default function SettingsImport() {
                 )}
               </HeaderSubTitle>
             </SettingsHeader>
-
-            <Flex flexDirection="column" flex={1}>
+            <Flex flexDirection="column" flexGrow={1}>
               <ButtonGroup gap="small" margin="medium">
                 <Button onClick={navigateTextImport}>
                   <Button.Text>
@@ -163,7 +162,6 @@ export default function SettingsImport() {
 
               <SettingsImportStatus status={importStatus} />
             </Flex>
-
             <Footer>
               <Button variant="destructive" onClick={showClearDialog} disabled={!activeOverrides}>
                 <Button.Text>
@@ -171,7 +169,6 @@ export default function SettingsImport() {
                 </Button.Text>
               </Button>
             </Footer>
-
             <ModalAlert
               isOpen={clearDialogVisible}
               type={ModalAlertType.warning}
