@@ -59,13 +59,13 @@ class SelectLocationViewModel(
     hopSelectionUseCase: HopSelectionUseCase,
     connectionProxy: ConnectionProxy,
 ) : ViewModel() {
-    private val _relayListType: MutableStateFlow<MultihopRelayListType> =
+    private val _multihopRelayListTypeSelection: MutableStateFlow<MultihopRelayListType> =
         MutableStateFlow(MultihopRelayListType.EXIT)
 
     val uiState =
         combine(
                 filterChips(),
-                _relayListType.filterNotNull(),
+                _multihopRelayListTypeSelection.filterNotNull(),
                 relayListRepository.relayList,
                 settingsRepository.settingsUpdates.filterNotNull(),
                 connectionProxy.tunnelState
@@ -101,7 +101,7 @@ class SelectLocationViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun filterChips() =
-        combine(settingsRepository.settingsUpdates, _relayListType) {
+        combine(settingsRepository.settingsUpdates, _multihopRelayListTypeSelection) {
                 settings,
                 multihopRelayListType ->
                 if (settings?.isMultihopEnabled() == true)
@@ -122,7 +122,7 @@ class SelectLocationViewModel(
     }
 
     fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
-        viewModelScope.launch { _relayListType.emit(multihopRelayListType) }
+        viewModelScope.launch { _multihopRelayListTypeSelection.emit(multihopRelayListType) }
     }
 
     fun selectSingle(item: RelayItem) {
@@ -151,7 +151,7 @@ class SelectLocationViewModel(
                 { _uiSideEffect.send(it.toSideEffect(change)) },
                 {
                     when (change) {
-                        is MultihopChange.Entry -> _relayListType.emit(MultihopRelayListType.EXIT)
+                        is MultihopChange.Entry -> _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                     }
@@ -218,7 +218,7 @@ class SelectLocationViewModel(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {
                         if (enable) {
-                            _relayListType.emit(MultihopRelayListType.EXIT)
+                            _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
                         }
                     },
                 )
