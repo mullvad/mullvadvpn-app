@@ -21,11 +21,10 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
@@ -63,7 +62,7 @@ class SelectLocationScreenTest {
 
     private fun ComposeContext.initScreen(
         state: Lc<Unit, SelectLocationUiState> = Lc.Loading(Unit),
-        onSelectHop: (hop: Hop) -> Unit = {},
+        onSelectHop: (item: RelayItem) -> Unit = {},
         onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
@@ -87,12 +86,13 @@ class SelectLocationScreenTest {
         openDaitaSettings: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
+        setMultihop: (Boolean) -> Unit = {},
     ) {
 
         setContentWithTheme {
             SelectLocationScreen(
                 state = state,
-                onSelectHop = onSelectHop,
+                onSelectSinglehop = onSelectHop,
                 onModifyMultihop = onModifyMultihop,
                 onSearchClick = onSearchClick,
                 onBackClick = onBackClick,
@@ -110,6 +110,7 @@ class SelectLocationScreenTest {
                 openDaitaSettings = openDaitaSettings,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
+                toggleMultihop = setMultihop,
             )
         }
     }
@@ -126,7 +127,7 @@ class SelectLocationScreenTest {
                             relayListItems =
                                 DUMMY_RELAY_COUNTRIES.map {
                                     RelayListItem.GeoLocationItem(
-                                        hop = Hop.Single(it),
+                                        item = it,
                                         itemPosition = ItemPosition.Single,
                                     )
                                 },
@@ -139,11 +140,12 @@ class SelectLocationScreenTest {
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     )
             )
@@ -176,11 +178,12 @@ class SelectLocationScreenTest {
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     )
             )
@@ -193,7 +196,7 @@ class SelectLocationScreenTest {
     fun whenCustomListIsClickedShouldCallOnSelectHop() =
         composeExtension.use {
             // Arrange
-            val customList = Hop.Single(DUMMY_RELAY_ITEM_CUSTOM_LISTS[0])
+            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             every { listViewModel.uiState } returns
                 MutableStateFlow(
                     Lce.Content(
@@ -204,24 +207,25 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
 
             // Act
-            onNodeWithText(customList.relay.name).performClick()
+            onNodeWithText(customList.name).performClick()
 
             // Assert
             verify { mockedOnSelectHop(customList) }
@@ -231,7 +235,7 @@ class SelectLocationScreenTest {
     fun whenRecentIsClickedShouldCallOnSelectHop() =
         composeExtension.use {
             // Arrange
-            val recent = Hop.Single(DUMMY_RELAY_COUNTRIES[0])
+            val recent = DUMMY_RELAY_COUNTRIES[0]
             every { listViewModel.uiState } returns
                 MutableStateFlow(
                     Lce.Content(
@@ -242,24 +246,25 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
 
             // Act
-            onNodeWithText(recent.relay.name).performClick()
+            onNodeWithText(recent.name).performClick()
 
             // Assert
             verify { mockedOnSelectHop(recent) }
@@ -269,35 +274,37 @@ class SelectLocationScreenTest {
     fun whenCustomListIsLongClickedShouldShowBottomSheet() =
         composeExtension.use {
             // Arrange
-            val customList = Hop.Single(DUMMY_RELAY_ITEM_CUSTOM_LISTS[0])
+            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             every { listViewModel.uiState } returns
                 MutableStateFlow(
                     Lce.Content(
                         SelectLocationListUiState(
-                            relayListItems = listOf(RelayListItem.CustomListItem(hop = customList)),
+                            relayListItems =
+                                listOf(RelayListItem.CustomListItem(item = customList)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
 
             // Act
-            onNodeWithText(customList.relay.name).performLongClick()
+            onNodeWithText(customList.name).performLongClick()
 
             // Assert
             onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG).assertExists()
@@ -307,7 +314,7 @@ class SelectLocationScreenTest {
     fun whenLocationIsLongClickedShouldShowBottomSheet() =
         composeExtension.use {
             // Arrange
-            val relayItem = Hop.Single(DUMMY_RELAY_COUNTRIES[0] as RelayItem.Location)
+            val relayItem = DUMMY_RELAY_COUNTRIES[0] as RelayItem.Location
             every { listViewModel.uiState } returns
                 MutableStateFlow(
                     Lce.Content(
@@ -324,24 +331,25 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
 
             // Act
-            onNodeWithText(relayItem.relay.name).performLongClick()
+            onNodeWithText(relayItem.name).performLongClick()
 
             // Assert
             onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG).assertExists()
@@ -373,11 +381,12 @@ class SelectLocationScreenTest {
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     )
             )
@@ -417,11 +426,12 @@ class SelectLocationScreenTest {
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopEnabled = false,
                             relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = false,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
                         )
                     )
             )

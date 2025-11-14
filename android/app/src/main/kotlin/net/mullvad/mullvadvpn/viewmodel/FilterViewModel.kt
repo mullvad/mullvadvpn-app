@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 
 class FilterViewModel(
-    private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
+    providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val relayListFilterRepository: RelayListFilterRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<FilterScreenSideEffect>()

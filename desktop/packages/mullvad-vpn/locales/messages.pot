@@ -2938,6 +2938,9 @@ msgstr ""
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
+msgid "Disable multihop"
+msgstr ""
+
 msgid "Disable recents"
 msgstr ""
 
@@ -2984,6 +2987,9 @@ msgid "Enable all access methods in the app"
 msgstr ""
 
 msgid "Enable method"
+msgstr ""
+
+msgid "Enable multihop"
 msgstr ""
 
 msgid "Enable recents"
@@ -3332,6 +3338,9 @@ msgid "Unable to start tunnel connection. Please disable Always-on VPN before us
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr ""
+
+msgid "Unavailable"
 msgstr ""
 
 msgid "Undo"

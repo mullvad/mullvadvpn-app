@@ -15,3 +15,9 @@ sealed interface Constraint<out T> {
 
     companion object
 }
+
+fun <T, R> Constraint<T>.map(transform: (T) -> R): Constraint<R> =
+    when (this) {
+        Constraint.Any -> Constraint.Any
+        is Constraint.Only<T> -> Constraint.Only(transform(value))
+    }

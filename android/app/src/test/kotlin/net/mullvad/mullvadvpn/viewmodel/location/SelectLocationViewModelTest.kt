@@ -13,6 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
@@ -27,12 +28,13 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -41,10 +43,11 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
@@ -62,12 +65,14 @@ class SelectLocationViewModelTest {
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockSelectHopUseCase: SelectHopUseCase = mockk()
+    private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
+    private val mockHopSelectionUseCase: HopSelectionUseCase = mockk()
+    private val mockConnectionProxy: ConnectionProxy = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
-    private val selectedRelayItemFlow = MutableStateFlow<Constraint<RelayItemId>>(Constraint.Any)
+    private val selectedRelayItemFlow = MutableStateFlow<HopSelection>(HopSelection.Single(null))
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val relayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
@@ -76,12 +81,13 @@ class SelectLocationViewModelTest {
     @BeforeEach
     fun setup() {
 
-        every { mockRelayListRepository.selectedLocation } returns selectedRelayItemFlow
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
         every { mockFilterChipUseCase(any()) } returns filterChips
         every { mockRelayListRepository.relayList } returns relayList
         every { mockSettingsRepository.settingsUpdates } returns settings
+        every { mockConnectionProxy.tunnelState } returns flowOf(mockk())
+        every { mockHopSelectionUseCase() } returns selectedRelayItemFlow
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -96,7 +102,9 @@ class SelectLocationViewModelTest {
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 settingsRepository = mockSettingsRepository,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
-                selectHopUseCase = mockSelectHopUseCase,
+                selectSingleUseCase = mockSelectSinglehopUseCase,
+                hopSelectionUseCase = mockHopSelectionUseCase,
+                connectionProxy = mockConnectionProxy,
             )
     }
 

@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 object RelayListItemPreviewData {
@@ -17,25 +16,23 @@ object RelayListItemPreviewData {
             // Add custom list items
             if (includeCustomLists) {
                 RelayListItem.CustomListItem(
-                    hop =
-                        Hop.Single(
-                            RelayItem.CustomList(
-                                customList =
-                                    CustomList(
-                                        id = CustomListId("custom_list_id"),
-                                        name = CustomListName.fromString("Custom List"),
-                                        locations = emptyList(),
-                                    ),
-                                locations =
-                                    listOf(
-                                        generateRelayItemCountry(
-                                            name = "Country",
-                                            cityNames = listOf("City"),
-                                            relaysPerCity = 2,
-                                            active = true,
-                                        )
-                                    ),
-                            )
+                    item =
+                        RelayItem.CustomList(
+                            customList =
+                                CustomList(
+                                    id = CustomListId("custom_list_id"),
+                                    name = CustomListName.fromString("Custom List"),
+                                    locations = emptyList(),
+                                ),
+                            locations =
+                                listOf(
+                                    generateRelayItemCountry(
+                                        name = "Country",
+                                        cityNames = listOf("City"),
+                                        relaysPerCity = 2,
+                                        active = true,
+                                    )
+                                ),
                         ),
                     isSelected = false,
                     state = null,
@@ -66,7 +63,7 @@ object RelayListItemPreviewData {
         addAll(
             listOf(
                 RelayListItem.GeoLocationItem(
-                    hop = Hop.Single(locations[0]),
+                    item = locations[0],
                     isSelected = false,
                     depth = 0,
                     expanded = true,
@@ -74,7 +71,7 @@ object RelayListItemPreviewData {
                     itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
-                    hop = Hop.Single(locations[0].cities[0]),
+                    item = locations[0].cities[0],
                     isSelected = true,
                     depth = 1,
                     expanded = false,
@@ -82,7 +79,7 @@ object RelayListItemPreviewData {
                     itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
-                    hop = Hop.Single(locations[0].cities[1]),
+                    item = locations[0].cities[1],
                     isSelected = false,
                     depth = 1,
                     expanded = true,
@@ -90,7 +87,7 @@ object RelayListItemPreviewData {
                     itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
-                    hop = Hop.Single(locations[0].cities[1].relays[0]),
+                    item = locations[0].cities[1].relays[0],
                     isSelected = false,
                     depth = 2,
                     expanded = false,
@@ -98,7 +95,7 @@ object RelayListItemPreviewData {
                     itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
-                    hop = Hop.Single(locations[0].cities[1].relays[1]),
+                    item = locations[0].cities[1].relays[1],
                     isSelected = false,
                     depth = 2,
                     expanded = false,
@@ -106,7 +103,7 @@ object RelayListItemPreviewData {
                     itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
-                    hop = Hop.Single(locations[1]),
+                    item = locations[1],
                     isSelected = false,
                     depth = 0,
                     expanded = false,
