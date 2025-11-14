@@ -345,11 +345,12 @@ fun SelectLocationScreen(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
-    val bottomMarginList = if(isTv()) {
-        0.dp
-    } else {
-        with(LocalDensity.current) { fabHeight.toDp() + Dimens.fabSpacing }
-    }
+    val bottomMarginList =
+        if (isTv()) {
+            0.dp
+        } else {
+            with(LocalDensity.current) { fabHeight.toDp() + Dimens.fabSpacing }
+        }
 
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.select_location),
@@ -526,8 +527,7 @@ private fun SelectLocationDropdownMenu(
         onClick = {
             showMenu = !showMenu
             // Only update the recents and multihop menu items text when the menu is being opened to
-            // prevent
-            // the texts from being updated when the menu is being closed.
+            // prevent the texts from being updated when the menu is being closed.
             if (showMenu) {
                 recentsItemTextId =
                     if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
@@ -766,20 +766,18 @@ private fun ColumnScope.Loading() {
 @Composable
 private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
     when ((this as? ErrorStateCause.TunnelParameterError)?.error) {
-        ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single -> {
+        ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single ->
             stringResource(R.string.no_matching_relay)
-        }
+
         ParameterGenerationError.NoMatchingRelayEntry if
             relayListType is RelayListType.Multihop &&
                 relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
-         -> {
-            stringResource(R.string.no_matching_relay)
-        }
+         -> stringResource(R.string.no_matching_relay)
+
         ParameterGenerationError.NoMatchingRelayExit if
             relayListType is RelayListType.Multihop &&
                 relayListType.multihopRelayListType == MultihopRelayListType.EXIT
-         -> {
-            stringResource(R.string.no_matching_relay)
-        }
+         -> stringResource(R.string.no_matching_relay)
+
         else -> null
     }
