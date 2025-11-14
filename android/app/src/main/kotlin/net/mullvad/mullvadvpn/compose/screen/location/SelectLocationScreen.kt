@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInQuint
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -730,7 +731,7 @@ private fun SelectionContainer(
                     constrain(filters) {
                         linkTo(start = parent.start, end = parent.end)
                         bottom.linkTo(parent.top)
-                        visibility = Visibility.Gone
+                        visibility = Visibility.Invisible
                     }
                 }
 
@@ -747,7 +748,7 @@ private fun SelectionContainer(
             progress = progress,
         ) {
             FilterRow(
-                modifier = Modifier.layoutId(keyFilters).alpha(progress),
+                modifier = Modifier.layoutId(keyFilters).alpha(EaseInQuint.transform(progress)),
                 filters = filterChips,
                 onRemoveOwnershipFilter = { removeOwnershipFilter() },
                 onRemoveProviderFilter = { removeProviderFilter() },
