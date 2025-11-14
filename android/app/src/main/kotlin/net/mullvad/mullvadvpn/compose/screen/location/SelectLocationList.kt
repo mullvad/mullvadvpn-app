@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
@@ -36,9 +41,7 @@ import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
-import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -62,13 +65,13 @@ private fun PreviewSelectLocationList(
             SelectLocationListContent(
                 state = state,
                 lazyListState = rememberLazyListState(),
+                bottomMargin = 0.dp,
                 openDaitaSettings = {},
-                onSelectHop = {},
                 onSelectRelayItem = { _, _ -> },
                 onUpdateBottomSheetState = {},
                 onAddCustomList = {},
                 onEditCustomLists = {},
-                onToggleExpand = { id: RelayItemId, id1: CustomListId?, bool: Boolean -> },
+                onToggleExpand = { _, _, _ -> },
             )
         }
     }
@@ -80,13 +83,15 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 
 @Composable
 fun SelectLocationList(
+    bottomMargin: Dp,
     relayListType: RelayListType,
-    onSelectHop: (Hop) -> Unit,
     onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    lazyListState: LazyListState,
+    scrollToList: Boolean,
 ) {
     val viewModel =
         koinViewModel<SelectLocationListViewModel>(
@@ -94,21 +99,24 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val stateActual = state
-
-    val lazyListState = rememberLazyListState()
-    RunOnKeyChange(stateActual is Content) {
-        stateActual.indexOfSelectedRelayItem()?.let { index ->
-            lazyListState.scrollToItem(index)
-            lazyListState.animateScrollAndCentralizeItem(index)
+    // The first time the list is opened and we have content we should scroll to the selected item.
+    // Due to how recomposition works and that the viewmodel is preserved between we need to use
+    // this hack to only scroll the first time.
+    LaunchedEffect(Unit) {
+        val stateActual = viewModel.uiState.first { it is Content }
+        if (scrollToList) {
+            stateActual.indexOfSelectedRelayItem()?.let { index ->
+                lazyListState.scrollToItem(index)
+                lazyListState.animateScrollAndCentralizeItem(index)
+            }
         }
     }
 
     SelectLocationListContent(
         state = state,
         lazyListState = lazyListState,
+        bottomMargin = bottomMargin,
         openDaitaSettings = openDaitaSettings,
-        onSelectHop = onSelectHop,
         onSelectRelayItem = onSelectRelayItem,
         onUpdateBottomSheetState = onUpdateBottomSheetState,
         onAddCustomList = onAddCustomList,
@@ -121,8 +129,8 @@ fun SelectLocationList(
 private fun SelectLocationListContent(
     state: Lce<Unit, SelectLocationListUiState, Unit>,
     lazyListState: LazyListState,
+    bottomMargin: Dp,
     openDaitaSettings: () -> Unit,
-    onSelectHop: (Hop) -> Unit,
     onSelectRelayItem: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     onAddCustomList: () -> Unit,
@@ -140,6 +148,7 @@ private fun SelectLocationListContent(
                     MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                 )
                 .testTag(SELECT_LOCATION_LIST_TEST_TAG),
+        contentPadding = PaddingValues(bottom = bottomMargin),
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement =
@@ -166,7 +175,6 @@ private fun SelectLocationListContent(
                 relayListContent(
                     relayListItems = state.value.relayListItems,
                     customLists = state.value.customLists,
-                    onSelectHop = onSelectHop,
                     onSelectRelayItem = { onSelectRelayItem(it, state.value.relayListType) },
                     onToggleExpand = onToggleExpand,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,

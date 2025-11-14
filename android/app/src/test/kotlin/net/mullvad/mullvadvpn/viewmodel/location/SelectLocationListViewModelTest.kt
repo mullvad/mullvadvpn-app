@@ -16,7 +16,6 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -54,7 +53,7 @@ class SelectLocationListViewModelTest {
     private val filteredCustomListRelayItems =
         MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
-    private val recentsRelayItems = MutableStateFlow<List<Hop>?>(emptyList())
+    private val recentsRelayItems = MutableStateFlow<List<RelayItem>?>(emptyList())
     private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SelectLocationListViewModel
@@ -168,7 +167,6 @@ class SelectLocationListViewModelTest {
                     selectedByThisEntryExitList = exitLocation.getOrNull(),
                     selectedByOtherEntryExitList = null,
                     expandedItems = emptySet(),
-                    isEntryBlocked = true,
                 )
             }
         }
@@ -190,9 +188,9 @@ class SelectLocationListViewModelTest {
     private fun RelayListItem.relayItemId() =
         when (this) {
             is RelayListItem.CustomListEntryItem -> item.id
-            is RelayListItem.CustomListItem -> hop.exit().id
+            is RelayListItem.CustomListItem -> item.id
             is RelayListItem.GeoLocationItem -> item.id
-            is RelayListItem.RecentListItem -> hop.exit().id
+            is RelayListItem.RecentListItem -> item.id
             is RelayListItem.CustomListFooter,
             is RelayListItem.LocationsEmptyText,
             is RelayListItem.EmptyRelayList,

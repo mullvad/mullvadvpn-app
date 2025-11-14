@@ -2,18 +2,21 @@ package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInQuint
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
@@ -21,32 +24,46 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ExperimentalMotionApi
+import androidx.constraintlayout.compose.MotionLayout
+import androidx.constraintlayout.compose.MotionScene
+import androidx.constraintlayout.compose.Visibility
+import androidx.constraintlayout.compose.layoutId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -63,11 +80,9 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.result.onResult
-import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedEndButton
-import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedStartButton
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
@@ -79,21 +94,29 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
+import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.HopSelection
+import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
+import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
+import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
+import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
+
+val SCROLL_COLLAPSE_DISTANCE = 150.dp
+const val ANIMATION_DELAY_FADE_IN = 90
 
 @Preview("Loading|Default|Filters|Multihop|Multihop and Filters")
 @Composable
@@ -105,7 +128,7 @@ private fun PreviewSelectLocationScreen(
         SelectLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectHop = {},
+            onSelectSinglehop = {},
             onModifyMultihop = { _, _ -> },
             onSearchClick = {},
             onBackClick = {},
@@ -123,6 +146,7 @@ private fun PreviewSelectLocationScreen(
             onSelectRelayList = {},
             openDaitaSettings = {},
             onRefreshRelayList = {},
+            toggleMultihop = {},
         )
     }
 }
@@ -152,7 +176,6 @@ fun SelectLocation(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
@@ -194,10 +217,7 @@ fun SelectLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
-                                R.string.relayitem_is_inactive,
-                                it.hop.displayName(context),
-                            )
+                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
                     )
                 }
             SelectLocationSideEffect.EntryAndExitAreSame ->
@@ -211,18 +231,6 @@ fun SelectLocation(
                     snackbarHostState.showSnackbarImmediately(
                         message = context.getString(R.string.updating_server_list_in_the_background)
                     )
-                }
-            is SelectLocationSideEffect.FocusExitList ->
-                launch {
-                    // If multihop is enabled and the user selects a location or custom list in the
-                    // entry list
-                    // the app will switch to the exit list. Normally in this case the focus will
-                    // stay in the
-                    // entry list, but in this case we want move the focus to the exit list.
-                    focusManager.moveFocus(FocusDirection.Right)
-                    if (it.relayItem.hasChildren) {
-                        focusManager.moveFocus(FocusDirection.Right)
-                    }
                 }
         }
     }
@@ -258,9 +266,12 @@ fun SelectLocation(
     SelectLocationScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onSelectHop = vm::selectHop,
+        onSelectSinglehop = vm::selectSingle,
         onModifyMultihop = vm::modifyMultihop,
-        onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
+        onSearchClick =
+            dropUnlessResumed { relayListType ->
+                navigator.navigate(SearchLocationDestination(relayListType))
+            },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
         onCreateCustomList =
@@ -301,15 +312,16 @@ fun SelectLocation(
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
+        toggleMultihop = vm::toggleMultihop,
     )
 }
 
-@Suppress("LongMethod", "LongParameterList")
+@Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (item: Hop) -> Unit,
+    onSelectSinglehop: (item: RelayItem) -> Unit,
     onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
@@ -327,8 +339,16 @@ fun SelectLocationScreen(
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
+    toggleMultihop: (enable: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
+    var fabHeight by remember { mutableIntStateOf(0) }
+    val bottomMarginList =
+        if (isTv()) {
+            0.dp
+        } else {
+            with(LocalDensity.current) { fabHeight.toDp() + Dimens.fabSpacing }
+        }
 
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.select_location),
@@ -343,24 +363,42 @@ fun SelectLocationScreen(
         },
         modifier = Modifier.testTag(SELECT_LOCATION_SCREEN_TEST_TAG),
         snackbarHostState = snackbarHostState,
-        actions = {
-            val isSearchButtonEnabled = state.contentOrNull()?.isSearchButtonEnabled == true
-            IconButton(
-                enabled = isSearchButtonEnabled,
-                onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(id = R.string.search),
-                    tint =
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
-                        ),
-                )
+        floatingActionButton = {
+            if (!isTv() && state is Lc.Content && state.value.isSearchButtonEnabled) {
+                FloatingActionButton(
+                    modifier = Modifier.onGloballyPositioned { fabHeight = it.size.height },
+                    onClick = { onSearchClick(state.value.relayListType) },
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(id = R.string.search),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
-
+        },
+        actions = {
+            if (isTv()) {
+                val isSearchButtonEnabled = state.contentOrNull()?.isSearchButtonEnabled == true
+                IconButton(
+                    enabled = isSearchButtonEnabled,
+                    onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(id = R.string.search),
+                        tint =
+                            MaterialTheme.colorScheme.onSurface.copy(
+                                alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
+                            ),
+                    )
+                }
+            }
             val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
+            val multihopEnabled = state.contentOrNull()?.multihopEnabled == true
             val disabledText = stringResource(id = R.string.recents_disabled)
             val scope = rememberCoroutineScope()
 
@@ -368,6 +406,7 @@ fun SelectLocationScreen(
                 filterButtonEnabled = filterButtonEnabled,
                 onFilterClick = onFilterClick,
                 recentsEnabled = recentsCurrentlyEnabled,
+                multihopEnabled = multihopEnabled,
                 onRecentsToggleEnableClick = {
                     if (recentsCurrentlyEnabled) {
                         scope.launch { snackbarHostState.showSnackbarImmediately(disabledText) }
@@ -375,6 +414,7 @@ fun SelectLocationScreen(
                     onRecentsToggleEnableClick()
                 },
                 onRefreshRelayList = onRefreshRelayList,
+                onMultihopToggleEnableClick = { toggleMultihop(!multihopEnabled) },
             )
         },
     ) { modifier ->
@@ -390,8 +430,41 @@ fun SelectLocationScreen(
             onHideBottomSheet = { locationBottomSheetState = null },
         )
 
+        val expandProgress = remember { Animatable(1f) }
+
+        val scope = rememberCoroutineScope()
+        val scrollRequired = with(LocalDensity.current) { SCROLL_COLLAPSE_DISTANCE.toPx() }
+
+        val nestedScrollConnection = remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    val delta = available.y / scrollRequired
+                    scope.launch {
+                        expandProgress.snapTo((expandProgress.value + delta).coerceIn(0f, 1f))
+                    }
+                    return super.onPreScroll(available, source)
+                }
+
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity {
+                    scope.launch {
+                        expandProgress.animateTo(
+                            expandProgress.value.roundToInt().toFloat(),
+                            animationSpec = tween(),
+                        )
+                    }
+                    return super.onPostFling(consumed, available)
+                }
+            }
+        }
         Column(
-            modifier = modifier.background(backgroundColor).fillMaxSize(),
+            modifier =
+                modifier
+                    .nestedScroll(nestedScrollConnection)
+                    .background(backgroundColor)
+                    .fillMaxSize(),
             verticalArrangement =
                 when (state) {
                     is Lc.Loading -> Arrangement.Center
@@ -403,47 +476,21 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
-                    val pagerState =
-                        rememberPagerState(
-                            initialPage = state.value.relayListType.initialPage(),
-                            pageCount = { state.value.relayListType.pageCount() },
-                        )
-
-                    if (state.value.relayListType is RelayListType.Multihop) {
-                        MultihopBar(
-                            pagerState,
-                            state.value.relayListType.multihopRelayListType,
-                            onSelectRelayList,
-                        )
-                    }
-
-                    AnimatedContent(
-                        targetState = state.value.filterChips,
-                        label = "Select location top bar",
-                    ) { filterChips ->
-                        if (filterChips.isNotEmpty()) {
-                            FilterRow(
-                                modifier =
-                                    Modifier.padding(
-                                        bottom = Dimens.smallPadding,
-                                        start = Dimens.mediumPadding,
-                                        end = Dimens.mediumPadding,
-                                    ),
-                                filters = filterChips,
-                                onRemoveOwnershipFilter = removeOwnershipFilter,
-                                onRemoveProviderFilter = removeProviderFilter,
-                            )
-                        }
-                    }
-
-                    if (state.value.multihopEnabled && state.value.filterChips.isEmpty()) {
-                        Spacer(modifier = Modifier.height(Dimens.smallPadding))
-                    }
+                    SelectionContainer(
+                        progress = expandProgress.value,
+                        relayListType = state.value.relayListType,
+                        filterChips = state.value.filterChips,
+                        hopSelection = state.value.hopSelection,
+                        error = state.value.tunnelErrorStateCause,
+                        onSelectRelayList = onSelectRelayList,
+                        removeOwnershipFilter = removeOwnershipFilter,
+                        removeProviderFilter = removeProviderFilter,
+                    )
 
                     RelayLists(
-                        pagerState,
-                        state = state.value,
-                        onSelectHop = onSelectHop,
+                        relayListType = state.value.relayListType,
+                        bottomMargin = bottomMarginList,
+                        onSelect = onSelectSinglehop,
                         onModifyMultihop = onModifyMultihop,
                         openDaitaSettings = openDaitaSettings,
                         onAddCustomList = { onCreateCustomList(null) },
@@ -451,7 +498,6 @@ fun SelectLocationScreen(
                         onUpdateBottomSheetState = { newState ->
                             locationBottomSheetState = newState
                         },
-                        onSelectRelayList,
                     )
                 }
             }
@@ -464,21 +510,26 @@ private fun SelectLocationDropdownMenu(
     filterButtonEnabled: Boolean,
     onFilterClick: () -> Unit,
     recentsEnabled: Boolean,
+    multihopEnabled: Boolean,
     onRecentsToggleEnableClick: () -> Unit,
     onRefreshRelayList: () -> Unit,
+    onMultihopToggleEnableClick: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
     var recentsItemTextId by remember { mutableIntStateOf(R.string.disable_recents) }
+    var multihopItemTextId by remember { mutableIntStateOf(R.string.disable_multihop) }
 
     IconButton(
         onClick = {
             showMenu = !showMenu
-            // Only update the recents menu item text when the menu is being opened to prevent
-            // the text from being updated when the menu is being closed.
+            // Only update the recents and multihop menu items text when the menu is being opened to
+            // prevent the texts from being updated when the menu is being closed.
             if (showMenu) {
                 recentsItemTextId =
                     if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
+                multihopItemTextId =
+                    if (multihopEnabled) R.string.disable_multihop else R.string.enable_multihop
             }
         }
     ) {
@@ -521,6 +572,16 @@ private fun SelectLocationDropdownMenu(
         )
 
         DropdownMenuItem(
+            text = { Text(text = stringResource(multihopItemTextId)) },
+            onClick = {
+                showMenu = false
+                onMultihopToggleEnableClick()
+            },
+            colors = colors,
+            leadingIcon = { Icon(Icons.Outlined.AddLocationAlt, contentDescription = null) },
+        )
+
+        DropdownMenuItem(
             text = { Text(text = stringResource(R.string.refresh_server_list)) },
             onClick = {
                 showMenu = false
@@ -533,118 +594,192 @@ private fun SelectLocationDropdownMenu(
 }
 
 @Composable
-private fun MultihopBar(
-    pagerState: PagerState,
-    relayListType: MultihopRelayListType,
-    onSelectHopList: (MultihopRelayListType) -> Unit,
-) {
-    SingleChoiceSegmentedButtonRow(
-        modifier =
-            Modifier.fillMaxWidth()
-                .padding(
-                    start = Dimens.mediumPadding,
-                    end = Dimens.mediumPadding,
-                    bottom = Dimens.smallPadding,
-                )
-    ) {
-        MullvadSegmentedStartButton(
-            selected = relayListType == MultihopRelayListType.ENTRY,
-            selectedProgress =
-                1f -
-                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.ENTRY.ordinal))
-                        .coerceIn(0f..1f),
-            onClick = { onSelectHopList(MultihopRelayListType.ENTRY) },
-            text = stringResource(id = R.string.entry),
-        )
-        MullvadSegmentedEndButton(
-            selected = relayListType == MultihopRelayListType.EXIT,
-            selectedProgress =
-                1f -
-                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.EXIT.ordinal))
-                        .coerceIn(0f..1f),
-            onClick = { onSelectHopList(MultihopRelayListType.EXIT) },
-            text = stringResource(id = R.string.exit),
-        )
-    }
-}
-
-@Composable
 @Suppress("ComplexCondition")
 private fun RelayLists(
-    pagerState: PagerState,
-    state: SelectLocationUiState,
-    onSelectHop: (hop: Hop) -> Unit,
+    relayListType: RelayListType,
+    bottomMargin: Dp,
+    onSelect: (item: RelayItem) -> Unit,
     onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    onSelectRelayList: (MultihopRelayListType) -> Unit,
 ) {
-    if (state.relayListType is RelayListType.Multihop) {
-        // This is so that when the pager is scrolled by the user the relay list type is updated
-        // correctly.
-        // If multihop is not enabled, the pager will only have one page, so this will not be
-        // called.
-        RunOnKeyChange(pagerState.currentPage) {
-            onSelectRelayList(MultihopRelayListType.entries[pagerState.currentPage])
-        }
-        // This is so that when the relay list entry or exit button is clicked, the pager will
-        // scroll to the correct page.
-        LaunchedEffect(state.relayListType.multihopRelayListType) {
-            val index = state.relayListType.multihopRelayListType.ordinal
-            pagerState.animateScrollToPage(index)
-        }
-    }
-
     val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
         if (relayListType is RelayListType.Multihop) {
             onModifyMultihop(relayItem, relayListType.multihopRelayListType)
         } else {
-            onSelectHop(Hop.Single(relayItem))
+            onSelect(relayItem)
         }
     }
 
-    HorizontalPager(
-        state = pagerState,
-        userScrollEnabled = true,
-        beyondViewportPageCount =
-            if (state.multihopEnabled) {
-                1
-            } else {
-                0
-            },
-    ) { pageIndex ->
-        SelectLocationList(
-            relayListType =
-                if (state.multihopEnabled) {
-                    RelayListType.Multihop(MultihopRelayListType.entries[pageIndex])
-                } else {
-                    RelayListType.Single
-                },
-            onSelectHop = onSelectHop,
-            onSelectRelayItem = onSelectRelayItem,
-            openDaitaSettings = openDaitaSettings,
-            onAddCustomList = onAddCustomList,
-            onEditCustomLists = onEditCustomLists,
-            onUpdateBottomSheetState = onUpdateBottomSheetState,
-        )
+    val lazyListStates = remember { mutableStateMapOf<RelayListType, LazyListState>() }
+    val scrollToLists = remember { mutableSetOf<RelayListType>() }
+
+    Crossfade(relayListType) {
+        when (it) {
+            is RelayListType.Multihop ->
+                when (it.multihopRelayListType) {
+                    MultihopRelayListType.ENTRY ->
+                        SelectLocationList(
+                            relayListType = it,
+                            bottomMargin = bottomMargin,
+                            onSelectRelayItem = onSelectRelayItem,
+                            openDaitaSettings = openDaitaSettings,
+                            onAddCustomList = onAddCustomList,
+                            onEditCustomLists = onEditCustomLists,
+                            onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            lazyListState =
+                                lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                            scrollToList = scrollToLists.add(it),
+                        )
+                    MultihopRelayListType.EXIT ->
+                        SelectLocationList(
+                            relayListType = it,
+                            bottomMargin = bottomMargin,
+                            onSelectRelayItem = onSelectRelayItem,
+                            openDaitaSettings = openDaitaSettings,
+                            onAddCustomList = onAddCustomList,
+                            onEditCustomLists = onEditCustomLists,
+                            onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            lazyListState =
+                                lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                            scrollToList = scrollToLists.add(it),
+                        )
+                }
+            RelayListType.Single ->
+                SelectLocationList(
+                    relayListType = it,
+                    bottomMargin = bottomMargin,
+                    onSelectRelayItem = onSelectRelayItem,
+                    openDaitaSettings = openDaitaSettings,
+                    onAddCustomList = onAddCustomList,
+                    onEditCustomLists = onEditCustomLists,
+                    onUpdateBottomSheetState = onUpdateBottomSheetState,
+                    lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
+                    scrollToList = scrollToLists.add(it),
+                )
+        }
     }
 }
+
+@OptIn(ExperimentalMotionApi::class)
+@Suppress("LongMethod")
+@Composable
+private fun SelectionContainer(
+    progress: Float, // 0 - 1
+    relayListType: RelayListType,
+    hopSelection: HopSelection,
+    error: ErrorStateCause?,
+    filterChips: List<FilterChip>,
+    onSelectRelayList: (MultihopRelayListType) -> Unit,
+    removeOwnershipFilter: () -> Unit,
+    removeProviderFilter: () -> Unit,
+) {
+
+    var multihopListSelector by remember { mutableStateOf(MultihopRelayListType.EXIT) }
+    if (relayListType is RelayListType.Multihop) {
+        multihopListSelector = relayListType.multihopRelayListType
+    }
+
+    Column {
+        AnimatedContent(
+            hopSelection,
+            contentKey = { it is HopSelection.Multi },
+            transitionSpec = {
+                fadeIn(tween(delayMillis = ANIMATION_DELAY_FADE_IN)).togetherWith(fadeOut())
+            },
+            modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
+        ) { hopSelection ->
+            when (hopSelection) {
+                is HopSelection.Single ->
+                    Singlehop(
+                        exitLocation = hopSelection.relay.toDisplayName(),
+                        errorText = error.errorText(RelayListType.Single),
+                        expandProgress = progress,
+                    )
+                is HopSelection.Multi ->
+                    MultihopSelector(
+                        exitSelected = multihopListSelector == MultihopRelayListType.EXIT,
+                        exitLocation = hopSelection.exit.toDisplayName(),
+                        exitErrorText =
+                            error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+                        onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
+                        entryLocation = hopSelection.entry.toDisplayName(),
+                        entryErrorText =
+                            error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+                        onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },
+                        expandProgress = progress,
+                    )
+            }
+        }
+
+        val keyFilters = "filters"
+        val scene = MotionScene {
+            val expandSet =
+                constraintSet("expanded") {
+                    val filters = createRefFor(keyFilters)
+                    constrain(filters) {
+                        centerTo(parent)
+                        visibility = Visibility.Visible
+                    }
+                }
+
+            val collapseSet =
+                constraintSet("collapsed") {
+                    val filters = createRefFor(keyFilters)
+                    constrain(filters) {
+                        linkTo(start = parent.start, end = parent.end)
+                        bottom.linkTo(parent.top)
+                        visibility = Visibility.Invisible
+                    }
+                }
+
+            defaultTransition(collapseSet, expandSet) {}
+        }
+        MotionLayout(
+            modifier = Modifier.padding(bottom = Dimens.smallPadding),
+            motionScene = scene,
+            progress = progress,
+        ) {
+            FilterRow(
+                modifier = Modifier.layoutId(keyFilters).alpha(EaseInQuint.transform(progress)),
+                filters = filterChips,
+                onRemoveOwnershipFilter = { removeOwnershipFilter() },
+                onRemoveProviderFilter = { removeProviderFilter() },
+            )
+        }
+    }
+}
+
+@Composable
+fun Constraint<RelayItem>?.toDisplayName() =
+    when (this) {
+        Constraint.Any -> stringResource(R.string.automatic)
+        is Constraint.Only<RelayItem> -> value.name
+        null -> stringResource(R.string.unavailable)
+    }
 
 @Composable
 private fun ColumnScope.Loading() {
     MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
 }
 
-private fun RelayListType.initialPage(): Int =
-    when (this) {
-        is RelayListType.Multihop -> multihopRelayListType.ordinal
-        RelayListType.Single -> 0
-    }
+@Composable
+private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
+    when ((this as? ErrorStateCause.TunnelParameterError)?.error) {
+        ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single ->
+            stringResource(R.string.no_matching_relay)
 
-private fun RelayListType.pageCount(): Int =
-    when (this) {
-        is RelayListType.Multihop -> MultihopRelayListType.entries.size
-        RelayListType.Single -> 1
+        ParameterGenerationError.NoMatchingRelayEntry if
+            relayListType is RelayListType.Multihop &&
+                relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+         -> stringResource(R.string.no_matching_relay)
+
+        ParameterGenerationError.NoMatchingRelayExit if
+            relayListType is RelayListType.Multihop &&
+                relayListType.multihopRelayListType == MultihopRelayListType.EXIT
+         -> stringResource(R.string.no_matching_relay)
+
+        else -> null
     }

@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
@@ -50,7 +50,7 @@ class SearchLocationViewModelTest {
     private val mockFilteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase = mockk()
     private val mockSelectedLocationUseCase: SelectedLocationUseCase = mockk()
     private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
-    private val mockSelectHopUseCase: SelectHopUseCase = mockk()
+    private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
 
@@ -80,7 +80,6 @@ class SearchLocationViewModelTest {
 
         viewModel =
             SearchLocationViewModel(
-                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 customListsRepository = mockCustomListsRepository,
@@ -89,7 +88,7 @@ class SearchLocationViewModelTest {
                 filteredCustomListRelayItemsUseCase = mockFilteredCustomListRelayItemsUseCase,
                 selectedLocationUseCase = mockSelectedLocationUseCase,
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
-                selectHopUseCase = mockSelectHopUseCase,
+                selectSinglehopUseCase = mockSelectSinglehopUseCase,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
                 settingsRepository = mockSettingsRepository,
                 savedStateHandle =
