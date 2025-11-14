@@ -168,9 +168,8 @@ class SelectLocationViewModel(
                 { _uiSideEffect.send(it.toSideEffect(change)) },
                 {
                     when (change) {
-                        is MultihopChange.Entry -> {
+                        is MultihopChange.Entry ->
                             _relayListType.emit(RelayListType.Multihop(MultihopRelayListType.EXIT))
-                        }
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                     }
@@ -237,11 +236,8 @@ class SelectLocationViewModel(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {
                         _relayListType.emit(
-                            if (enable) {
-                                RelayListType.Multihop(MultihopRelayListType.EXIT)
-                            } else {
-                                RelayListType.Single
-                            }
+                            if (enable) RelayListType.Multihop(MultihopRelayListType.EXIT)
+                            else RelayListType.Single
                         )
                     },
                 )
