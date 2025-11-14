@@ -44,7 +44,7 @@ class SelectLocationListViewModel(
                 relayListItems(),
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
-            ) { (relayListItems, selectedItem), customLists, settings ->
+            ) { relayListItems, customLists, settings ->
                 if (relayListType.isEntryAndBlocked(settings)) {
                     Lce.Error(Unit)
                 } else {
@@ -75,8 +75,7 @@ class SelectLocationListViewModel(
             selectedLocationUseCase(),
             _expandedItems,
         ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
-            // If we have no locations we have an empty relay list
-            // and we should show an error
+            // If we have no locations we have an empty relay list and we should show an error
             if (relayCountries.isEmpty()) {
                 emptyLocationsRelayListItems(
                     relayListType = relayListType,
@@ -105,7 +104,7 @@ class SelectLocationListViewModel(
                         },
                     expandedItems = expandedItems,
                 )
-            } to selectedItem
+            }
         }
 
     private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {

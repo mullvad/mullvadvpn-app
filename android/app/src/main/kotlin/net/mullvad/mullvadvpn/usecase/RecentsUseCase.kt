@@ -34,10 +34,9 @@ class RecentsUseCase(
             filteredRelayListUseCase(RelayListType.Single),
             customListsRelayItemUseCase(RelayListType.Single),
         ) { recents, relayList, customList ->
-            recents?.mapNotNull { recent ->
-                val relayListItem = recent.location.findItem(customList, relayList)
-                relayListItem?.let { Hop.Single(it) }
-            }
+            recents
+                ?.mapNotNull { recent -> recent.location.findItem(customList, relayList) }
+                ?.map(Hop::Single)
         }
 
     private fun multihopRecents(
@@ -48,10 +47,11 @@ class RecentsUseCase(
             filteredRelayListUseCase(RelayListType.Multihop(multihopRelayListType)),
             customListsRelayItemUseCase(RelayListType.Multihop(multihopRelayListType)),
         ) { recents, relayList, customLists ->
-            recents?.mapNotNull { recent ->
-                val item = recent.getBy(multihopRelayListType).findItem(customLists, relayList)
-                item?.let { Hop.Single(it) }
-            }
+            recents
+                ?.mapNotNull { recent ->
+                    recent.getBy(multihopRelayListType).findItem(customLists, relayList)
+                }
+                ?.map(Hop::Single)
         }
 
     private fun recents(): Flow<List<Recent>?> =

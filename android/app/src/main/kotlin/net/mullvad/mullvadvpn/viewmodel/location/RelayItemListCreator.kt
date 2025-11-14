@@ -143,21 +143,16 @@ private fun Hop.Single<RelayItem>.matches(
     relayListType: RelayListType,
 ): Boolean {
     return when (itemSelection) {
-        is RelayItemSelection.Single -> {
-            relay.id == itemSelection.exitLocation.getOrNull()
-        }
-
-        is RelayItemSelection.Multiple if relayListType is RelayListType.Multihop -> {
-            if (relayListType.multihopRelayListType == MultihopRelayListType.ENTRY) {
-                relay.id == itemSelection.entryLocation.getOrNull()
-            } else {
-                relay.id == itemSelection.exitLocation.getOrNull()
-            }
-        }
-
+        is RelayItemSelection.Single -> relay.id == itemSelection.exitLocation.getOrNull()
+        is RelayItemSelection.Multiple if relayListType is RelayListType.Multihop ->
+            itemSelection.getBy(relayListType).getOrNull() == relay.id
         else -> false
     }
 }
+
+private fun RelayItemSelection.Multiple.getBy(relayListType: RelayListType.Multihop) =
+    if (relayListType.multihopRelayListType == MultihopRelayListType.ENTRY) entryLocation
+    else exitLocation
 
 private fun createRelayListItemsSearching(
     relayListType: RelayListType,

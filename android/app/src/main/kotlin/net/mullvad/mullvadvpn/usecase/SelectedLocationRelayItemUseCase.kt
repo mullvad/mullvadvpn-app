@@ -2,8 +2,7 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -23,9 +22,7 @@ class SelectedLocationRelayItemUseCase(
         combine(
             customListRelayItemUseCase(),
             relayListRepository.relayList,
-            wireguardConstraintsRepository.wireguardConstraints
-                .map { it?.entryLocation }
-                .filterNotNull(),
+            wireguardConstraintsRepository.wireguardConstraints.mapNotNull { it?.entryLocation },
             relayListRepository.selectedLocation,
         ) { customLists, relayList, selectedEntryLocation, selectedExitLocation ->
             selectedEntryLocation.toRelayItem(customLists, relayList) to
