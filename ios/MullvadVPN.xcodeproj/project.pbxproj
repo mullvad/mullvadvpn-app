@@ -866,6 +866,8 @@
 		A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */; };
 		A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
 		A9B6AC1B2ADEA3AD00F7802A /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
+		A9B95DED2EC73A3400C7FE9B /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
+		A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */; };
 		A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
 		A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
 		A9BFAFFF2BD004ED00F2BCA1 /* CustomListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */; };
@@ -2295,6 +2297,7 @@
 		A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduceAnonymityWarningView.swift; sourceTree = "<group>"; };
 		A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerTests.swift; sourceTree = "<group>"; };
 		A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemorySettingsStore.swift; sourceTree = "<group>"; };
+		A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAPIMock.swift; sourceTree = "<group>"; };
 		A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsTests.swift; sourceTree = "<group>"; };
 		A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListPage.swift; sourceTree = "<group>"; };
 		A9C308392C19DDA7008715F1 /* MullvadPostQuantum+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadPostQuantum+Stubs.swift"; sourceTree = "<group>"; };
@@ -2622,6 +2625,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9B95DED2EC73A3400C7FE9B /* MullvadRustRuntime.framework in Frameworks */,
 				58FBFBEA291622580020E046 /* MullvadREST.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4516,6 +4520,7 @@
 				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
 				A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */,
 				A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */,
+				A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */,
 			);
 			path = MullvadRustRuntime;
 			sourceTree = "<group>";
@@ -6819,6 +6824,7 @@
 				F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */,
 				A97687CA2DD60F36000D96E8 /* MullvadAddressCacheProvider.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
+				A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */,
 				A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */,
 				7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */,
 				A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */,

@@ -67,12 +67,8 @@ class MullvadApiTests: XCTestCase {
         let bodyData = try encoder.encode(expectedEndpoints)
         let body = String(data: bodyData, encoding: .utf8)!
         let responseCode: UInt = 200
-        let mock = mullvad_api_mock_get(
-            "/app/v1/api-addrs",
-            UInt(responseCode),
-            body
-        )
-        defer { mullvad_api_mock_drop(mock) }
+
+        let mock = MullvadApiMock.get(path: "/app/v1/api-addrs", responseCode: responseCode, responseData: body)
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
@@ -95,12 +91,8 @@ class MullvadApiTests: XCTestCase {
 
     func testHTTPError() async throws {
         let expectedResponseCode = 500
-        let mock = mullvad_api_mock_get(
-            "/app/v1/api-addrs",
-            UInt(expectedResponseCode),
-            ""
-        )
-        defer { mullvad_api_mock_drop(mock) }
+        let mock = MullvadApiMock.get(
+            path: "/app/v1/api-addrs", responseCode: UInt(expectedResponseCode), responseData: "")
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
@@ -125,12 +117,9 @@ class MullvadApiTests: XCTestCase {
 
     func testInvalidBody() async throws {
         let expectedResponseCode = 200
-        let mock = mullvad_api_mock_get(
-            "/app/v1/api-addrs",
-            UInt(expectedResponseCode),
-            "This is an invalid JSON"
+        let mock = MullvadApiMock.get(
+            path: "/app/v1/api-addrs", responseCode: UInt(expectedResponseCode), responseData: "This is an invalid JSON"
         )
-        defer { mullvad_api_mock_drop(mock) }
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
@@ -156,16 +145,15 @@ class MullvadApiTests: XCTestCase {
     func testCustomErrorCode() async throws {
         let expectedResponseCode = 400
         let expectedErrorCode = 123
-        let mock = mullvad_api_mock_get(
-            "/app/v1/api-addrs",
-            UInt(expectedResponseCode),
-            """
-            {"code": "\(expectedErrorCode)",
-            "error": "A magical error occurred"
-            }
-            """
+        let mock = MullvadApiMock.get(
+            path: "/app/v1/api-addrs", responseCode: UInt(expectedResponseCode),
+            responseData:
+                """
+                {"code": "\(expectedErrorCode)",
+                "error": "A magical error occurred"
+                }
+                """
         )
-        defer { mullvad_api_mock_drop(mock) }
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
@@ -205,12 +193,8 @@ class MullvadApiTests: XCTestCase {
         // The mock server will only responde to requests with `matchBodyString` as body.
         let matchBodyString = String(data: try encoder.encode(problemReportRequest), encoding: .utf8)!
         let expectedResponseCode: UInt = 204
-        let mock = mullvad_api_mock_post(
-            "/app/v1/problem-report",
-            UInt(expectedResponseCode),
-            matchBodyString
-        )
-        defer { mullvad_api_mock_drop(mock) }
+        let mock = MullvadApiMock.post(
+            path: "/app/v1/problem-report", responseCode: UInt(expectedResponseCode), responseData: matchBodyString)
         let apiProxy = try makeApiProxy(port: mock.port)
 
         let result: Result<Void, Error> = await withCheckedContinuation { continuation in
