@@ -9,7 +9,7 @@ use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
 #[cfg(target_os = "macos")]
-use crate::resolver::LOCAL_DNS_RESOLVER;
+use self::resolver::LOCAL_DNS_RESOLVER;
 
 use crate::tunnel::{TunnelEvent, TunnelMetadata};
 

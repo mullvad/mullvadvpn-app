@@ -21,10 +21,6 @@ pub mod mpsc;
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 
-/// A resolver that's controlled by the tunnel state machine
-#[cfg(target_os = "macos")]
-pub(crate) mod resolver;
-
 /// Connectivity monitor for Android
 #[cfg(target_os = "android")]
 pub mod connectivity_listener;

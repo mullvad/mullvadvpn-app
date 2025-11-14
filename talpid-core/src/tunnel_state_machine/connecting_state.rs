@@ -24,9 +24,9 @@ use super::{
 };
 
 #[cfg(target_os = "macos")]
-use crate::dns::DnsConfig;
+use self::resolver::LOCAL_DNS_RESOLVER;
 #[cfg(target_os = "macos")]
-use crate::resolver::LOCAL_DNS_RESOLVER;
+use crate::dns::DnsConfig;
 use crate::tunnel::{self, TunnelMonitor};
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;

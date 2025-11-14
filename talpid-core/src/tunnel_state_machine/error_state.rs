@@ -1,11 +1,11 @@
+#[cfg(target_os = "macos")]
+use self::resolver::LOCAL_DNS_RESOLVER;
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition,
 };
 #[cfg(target_os = "macos")]
 use crate::dns::DnsConfig;
-#[cfg(target_os = "macos")]
-use crate::resolver::LOCAL_DNS_RESOLVER;
 use futures::StreamExt;
 #[cfg(not(target_os = "android"))]
 use talpid_firewall::FirewallPolicy;

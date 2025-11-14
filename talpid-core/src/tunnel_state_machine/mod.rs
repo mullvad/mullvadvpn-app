@@ -37,6 +37,8 @@ use talpid_types::{
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 
+#[cfg(target_os = "macos")]
+use self::resolver;
 use self::{
     connected_state::ConnectedState,
     connecting_state::ConnectingState,
@@ -75,7 +77,7 @@ pub enum Error {
     /// Failed to initialize filtering resolver
     #[cfg(target_os = "macos")]
     #[error("Failed to initialize filtering resolver")]
-    InitFilteringResolver(#[from] crate::resolver::Error),
+    InitFilteringResolver(#[from] resolver::Error),
 
     /// Failed to initialize tunnel state machine event loop executor
     #[error("Failed to initialize tunnel state machine event loop executor")]
@@ -351,7 +353,7 @@ impl TunnelStateMachine {
         let runtime = tokio::runtime::Handle::current();
 
         #[cfg(target_os = "macos")]
-        let filtering_resolver = crate::resolver::start_resolver(Default::default()).await?;
+        let filtering_resolver = resolver::start_resolver(Default::default()).await?;
 
         #[cfg(windows)]
         let split_tunnel = {
@@ -576,7 +578,7 @@ struct SharedTunnelStateValues {
 
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
-    filtering_resolver: crate::resolver::ResolverHandle,
+    filtering_resolver: resolver::ResolverHandle,
 }
 
 impl SharedTunnelStateValues {
