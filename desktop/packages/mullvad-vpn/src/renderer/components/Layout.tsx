@@ -53,7 +53,6 @@ export const SettingsStack = styled(Flex).attrs({
 })({});
 
 export const SettingsGroup = styled(Flex).attrs({
-  flex: 1,
   flexDirection: 'column',
 })({});
 

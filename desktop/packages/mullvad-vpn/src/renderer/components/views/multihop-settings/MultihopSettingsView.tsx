@@ -2,11 +2,10 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { MultihopSetting } from '../../../features/multihop/components';
-import { Flex, Image, Text } from '../../../lib/components';
+import { Image, Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
-import * as Cell from '../../cell';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
@@ -45,11 +44,7 @@ export function MultihopSettingsView() {
                 </FlexColumn>
               </SettingsHeader>
 
-              <Flex flexDirection="column" flex={1}>
-                <Cell.Group>
-                  <MultihopSetting />
-                </Cell.Group>
-              </Flex>
+              <MultihopSetting />
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
