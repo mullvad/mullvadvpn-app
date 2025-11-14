@@ -1042,14 +1042,18 @@ async fn log_daita_overhead(tunnel: &TunnelType) {
     let Ok(tunnel_stats) = tunnel.get_tunnel_stats().await else {
         return;
     };
+
+    // Convert bytes to MiB
+    let bytes_to_mib = |bytes: u64| bytes / 1024 / 1024;
+
     if let Some(stats) = tunnel_stats.values().find(|stats| stats.daita.is_some()) {
         let daita = stats.daita.as_ref().unwrap();
-        let total_out = stats.tx_bytes / 1024 / 1024;
-        let total_in = stats.rx_bytes / 1024 / 1024;
-        let padding_packet_out = daita.tx_padding_packet_bytes / 1024 / 1024;
-        let padding_packet_in = daita.rx_padding_packet_bytes / 1024 / 1024;
-        let constant_size_padding_out = daita.tx_padding_bytes / 1024 / 1024;
-        let constant_size_padding_in = daita.rx_padding_bytes / 1024 / 1024;
+        let total_out = bytes_to_mib(stats.tx_bytes);
+        let total_in = bytes_to_mib(stats.rx_bytes);
+        let padding_packet_out = bytes_to_mib(daita.tx_padding_packet_bytes);
+        let padding_packet_in = bytes_to_mib(daita.rx_padding_packet_bytes);
+        let constant_size_padding_out = bytes_to_mib(daita.tx_padding_bytes);
+        let constant_size_padding_in = bytes_to_mib(daita.rx_padding_bytes);
 
         log::info!("DAITA overhead stats:
 Outgoing: {total_out} MiB total, {padding_packet_out} MiB padding packets, {constant_size_padding_out} MiB constant size padding
