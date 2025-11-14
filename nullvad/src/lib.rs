@@ -1,5 +1,3 @@
-mod nft;
-
 use std::{
     net::{Ipv4Addr, Ipv6Addr},
     os::fd::{AsFd, AsRawFd, OwnedFd},
@@ -9,9 +7,16 @@ use std::{
 
 use anyhow::{Context, anyhow, bail};
 use futures::StreamExt;
-use nix::sched::{CloneFlags, setns};
+use nix::{
+    mount::{MntFlags, umount2},
+    sched::{CloneFlags, setns},
+    unistd::unlink,
+};
+
 use rtnetlink::{LinkUnspec, LinkVeth, RouteMessageBuilder};
 use tokio::{fs, runtime, sync::oneshot, task::JoinSet};
+
+pub mod nft;
 
 pub type Error = anyhow::Error;
 pub type Result<T> = anyhow::Result<T>;
@@ -142,15 +147,24 @@ pub async fn up() -> anyhow::Result<()> {
 }
 
 /// Destroy split-tunneling network namespace
-pub async fn down() {
-    // TODO: also call remove_nft_rules if this fails
-    if let Err(e) = rtnetlink::NetworkNamespace::del(NETNS_NAME.into()).await {
+// TODO: make an async version?
+pub fn down() {
+    if let Err(e) = destroy_namespace() {
         log::error!("failed to destroy network namespace {NETNS_NAME}: {e:#?}");
     }
 
-    if let Err(e) = nft::remove_nft_rules().await {
+    if let Err(e) = nft::remove_nft_rules() {
         log::error!("{e:#?}");
     }
+}
+
+/// Destroy the network namespace by unmounting and removing the persistent namespace file.
+// TODO: is it possible that the namespace still persists? if so, document.
+pub fn destroy_namespace() -> anyhow::Result<()> {
+    let netns_path = Path::new(NETNS_DIR).join(NETNS_NAME);
+    (umount2(&netns_path, MntFlags::MNT_DETACH).context("Unmount failed"))
+        .and_then(|_| unlink(&netns_path).context("Failed to remove file"))
+        .with_context(|| anyhow!("Failed to destroy network namespace {NETNS_NAME:?}"))
 }
 
 /// Get the index of a linux network link.

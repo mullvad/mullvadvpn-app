@@ -76,7 +76,7 @@ pub async fn add_nft_rules() -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn remove_nft_rules() -> anyhow::Result<()> {
+pub fn remove_nft_rules() -> anyhow::Result<()> {
     let mut batch = Batch::new();
 
     let table = Table::new(TABLE_NAME, ProtoFamily::Inet);

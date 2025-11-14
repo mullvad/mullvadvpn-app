@@ -14,7 +14,7 @@ async fn main() -> nullvad::Result<()> {
 
     match opt {
         Opt::Up {} => nullvad::up().await?,
-        Opt::Down {} => nullvad::down().await,
+        Opt::Down {} => nullvad::down(),
     }
 
     Ok(())

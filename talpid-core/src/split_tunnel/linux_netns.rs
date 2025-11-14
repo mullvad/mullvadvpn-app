@@ -17,7 +17,10 @@ pub struct PidManager {
 impl PidManager {
     /// Set up network namespace used for split tunneling.
     pub async fn new() -> Self {
-        let _ = nullvad::down().await;
+        // if the namespace already exists, clean it up first.
+        let _ = nullvad::destroy_namespace();
+        let _ = nullvad::nft::remove_nft_rules();
+
         Self {
             result: nullvad::up().await,
         }
