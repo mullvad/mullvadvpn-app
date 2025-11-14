@@ -6,16 +6,11 @@ import {
   LockdownModeSetting,
   QuantumResistantSetting,
 } from '../../../features/tunnel/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsGroup,
-  SettingsStack,
-} from '../../Layout';
+import { Layout, SettingsContainer, SettingsContent } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
@@ -50,50 +45,28 @@ export function VpnSettingsView() {
               </SettingsHeader>
 
               <SettingsContent>
-                <SettingsStack>
-                  <SettingsGroup>
+                <FlexColumn gap="medium">
+                  <FlexColumn>
                     <AutoStartSetting />
                     <AutoConnectSetting />
-                  </SettingsGroup>
+                  </FlexColumn>
 
-                  <SettingsGroup>
-                    <AllowLanSetting />
-                  </SettingsGroup>
+                  <AllowLanSetting />
 
-                  <SettingsGroup>
+                  <FlexColumn>
                     <DnsBlockerSettings />
                     <CustomDnsSettings />
-                  </SettingsGroup>
+                  </FlexColumn>
 
-                  <SettingsGroup>
-                    <EnableIpv6Setting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <KillSwitchSetting />
-                    <LockdownModeSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <AntiCensorshipListItem />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <QuantumResistantSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <IpVersionSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <MtuSetting />
-                  </SettingsGroup>
-
-                  <SettingsGroup>
-                    <IpOverrideSettings />
-                  </SettingsGroup>
-                </SettingsStack>
+                  <EnableIpv6Setting />
+                  <KillSwitchSetting />
+                  <LockdownModeSetting />
+                  <AntiCensorshipListItem />
+                  <QuantumResistantSetting />
+                  <IpVersionSetting />
+                  <MtuSetting />
+                  <IpOverrideSettings />
+                </FlexColumn>
               </SettingsContent>
             </NavigationScrollbars>
           </NavigationContainer>
