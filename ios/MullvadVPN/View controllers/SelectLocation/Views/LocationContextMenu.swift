@@ -30,7 +30,7 @@ extension ExitLocationView {
                 }
 
             default:
-                if let customListNode = location.parent as? CustomListLocationNode {
+                if let customListNode = location.parent?.asCustomListNode {
                     Button("Remove") {
                         viewModel
                             .removeLocationFromCustomList(

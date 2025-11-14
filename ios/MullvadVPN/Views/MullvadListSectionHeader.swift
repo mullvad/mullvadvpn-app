@@ -13,6 +13,6 @@ struct MullvadListSectionHeader: View {
                 .frame(height: 1)
                 .foregroundStyle(Color.mullvadTextPrimary)
         }
-        .frame(minHeight: 24, alignment: .center)
+        .frame(minHeight: 44, alignment: .center)
     }
 }

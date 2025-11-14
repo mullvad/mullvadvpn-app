@@ -54,7 +54,6 @@ struct SegmentedControl<Segment>: View where Segment: CustomStringConvertible, S
     }
 }
 
-@available(iOS 17, *)
 #Preview {
     @Previewable @State var selectedSegment = "Exit"
     VStack {
