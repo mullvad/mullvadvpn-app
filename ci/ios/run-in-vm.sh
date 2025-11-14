@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # This takes the following positional arguments 
 # 1. tart VM name
 # 2. Script to execute in the VM
@@ -22,7 +21,9 @@ vm_pid=$!
 # Sleep to wait until VM is up
 sleep 10
 
-ssh admin@"$(tart ip "$VM_NAME")" bash /dev/stdin < "$SCRIPT"
+# apparently, there's a difference between piping into bash like this and doing
+# a <(echo $SCRIPT).
+cat "$SCRIPT" | ssh -i ~/build/upload-vm-ssh-key admin@$(tart ip "$VM_NAME") bash /dev/stdin
 script_status=$?
 
 kill $vm_pid

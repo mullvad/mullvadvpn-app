@@ -2,21 +2,29 @@
 set -eu
 shopt -s nullglob
 
-TAG_PATTERN_TO_BUILD="^ios/"
+TAG_PATTERN_TO_BUILD=("^ios/")
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app/ios"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
+
+export MULLVAD_SETUP_PLATFORM="ios"
 mkdir -p "$LAST_BUILT_DIR"
 
+cd "$SCRIPT_DIR" || exit 1
+
+echo "Running iOS buildserver script"
+
 # Convince git to work on our checkout of the app repository, regardless of PWD.
-export GIT_WORK_TREE="$SCRIPT_DIR/mullvadvpn-app/"
-export GIT_DIR="$GIT_WORK_TREE/.git"
+GIT_WORK_TREE="$SCRIPT_DIR/mullvadvpn-app/"
 function run_git {
     # `git submodule` needs more info than just $GIT_DIR and $GIT_WORK_TREE.
     # But -C makes it work.
-    git -C "$GIT_WORK_TREE" "$@"
+    git -C $GIT_WORK_TREE $@
 }
 
+function upload_app() {
+	bash run-in-vm.sh "ios-upload" "$(pwd)/upload-app.sh" "build-output:~/build/build-output"
+}
 
 function build_ref() {
     local tag=$1;
@@ -43,7 +51,7 @@ function build_ref() {
     fi
 
     run_git reset --hard
-    run_git checkout "$tag"
+    run_git checkout $tag
     run_git submodule update
     run_git submodule update --init ios/wireguard-apple || true
     run_git clean -df
@@ -69,10 +77,10 @@ function build_ref() {
     echo ""
     echo "[#] $tag: $app_build_version $current_hash, building new packages."
 
-    if "$SCRIPT_DIR"/run-build-and-upload.sh; then
+    if bash "${SCRIPT_DIR}/build-app.sh" && upload_app; then
         touch "$LAST_BUILT_DIR"/"commit-$current_hash"
         echo "$current_hash" > "$LAST_BUILT_DIR"/"build-${app_build_version}"
-        echo "Successfully built ${app_build_version} ${tag} with hash ${current_hash}"
+        echo "Successfully built ${app_build_version} ${tag} with hash ${current_hash} at $(date)"
     fi
 }
 
@@ -90,20 +98,22 @@ function read_app_version() {
 function run_build_loop() {
     while true; do
         # Delete all tags. So when fetching we only get the ones existing on the remote
-        run_git tag | xargs git tag -d > /dev/null
+        (cd mullvadvpn-app && git tag | xargs git tag -d > /dev/null)
 
         run_git fetch --prune --tags --recurse-submodules=no 2> /dev/null || true
-        local tags
-
-        # shellcheck disable=SC2207
         tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
         for tag in "${tags[@]}"; do
           build_ref "refs/tags/$tag"
         done
+	echo All done
 
         sleep 240
     done
 }
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+echo "Please enter the user password to unlock the keychain for the signing certificates"
+security unlock-keychain
 run_build_loop
