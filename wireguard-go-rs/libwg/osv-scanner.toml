@@ -162,3 +162,9 @@ reason = "wireguard-go does not use archive/tar"
 id = "CVE-2025-61724" # GO-2025-4015
 ignoreUntil = 2026-10-30
 reason = "wireguard-go does not use net/textproto"
+
+# Potential denial of service in golang.org/x/crypto/ssh/agent
+[[IgnoredVulns]]
+id = "CVE-2025-47913" # GO-2025-4116
+ignoreUntil = 2026-11-14
+reason = "wireguard-go does not use x/crypto/ssh/agent"
