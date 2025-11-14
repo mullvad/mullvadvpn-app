@@ -19,7 +19,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
     #[error("Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
-    EnableIpv6Error,
+    EnableIpv6,
 
     /// Running on an operating system which is not supported yet.
     #[error("Tunnel type not supported on this operating system")]
@@ -31,35 +31,35 @@ pub enum Error {
 
     /// There was an error listening for events from the Wireguard tunnel
     #[error("Failed while listening for events from the Wireguard tunnel")]
-    WireguardTunnelMonitoringError(#[from] talpid_wireguard::Error),
+    TunnelMonitoring(#[from] talpid_wireguard::Error),
 }
 
 impl From<Error> for ErrorStateCause {
     fn from(error: Error) -> ErrorStateCause {
         match error {
-            Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
+            Error::EnableIpv6 => ErrorStateCause::Ipv6Unavailable,
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+            Error::TunnelMonitoring(talpid_wireguard::Error::TunnelError(
                 talpid_wireguard::TunnelError::SetupTunnelDevice(
                     tun_provider::Error::OtherLegacyAlwaysOnVpn,
                 ),
             )) => ErrorStateCause::OtherLegacyAlwaysOnVpn,
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+            Error::TunnelMonitoring(talpid_wireguard::Error::TunnelError(
                 talpid_wireguard::TunnelError::SetupTunnelDevice(
                     tun_provider::Error::OtherAlwaysOnApp { app_name },
                 ),
             )) => ErrorStateCause::OtherAlwaysOnApp { app_name },
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+            Error::TunnelMonitoring(talpid_wireguard::Error::TunnelError(
                 talpid_wireguard::TunnelError::SetupTunnelDevice(tun_provider::Error::NotPrepared),
             )) => ErrorStateCause::NotPrepared,
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+            Error::TunnelMonitoring(talpid_wireguard::Error::TunnelError(
                 talpid_wireguard::TunnelError::SetupTunnelDevice(
                     tun_provider::Error::InvalidDnsServers(addresses),
                 ),
@@ -81,7 +81,7 @@ impl Error {
     /// Return whether retrying the operation that caused this error is likely to succeed.
     pub fn is_recoverable(&self) -> bool {
         match self {
-            Error::WireguardTunnelMonitoringError(error) => error.is_recoverable(),
+            Error::TunnelMonitoring(error) => error.is_recoverable(),
             _ => false,
         }
     }
@@ -90,7 +90,7 @@ impl Error {
     #[cfg(target_os = "windows")]
     pub fn get_tunnel_device_error(&self) -> Option<&std::io::Error> {
         match self {
-            Error::WireguardTunnelMonitoringError(error) => error.get_tunnel_device_error(),
+            Error::TunnelMonitoring(error) => error.get_tunnel_device_error(),
             _ => None,
         }
     }
@@ -128,7 +128,7 @@ impl TunnelMonitor {
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_parameters: &TunnelParameters) -> Result<()> {
         let options = &tunnel_parameters.generic_options;
         if options.enable_ipv6 && !is_ipv6_enabled_in_os() {
-            Err(Error::EnableIpv6Error)
+            Err(Error::EnableIpv6)
         } else {
             Ok(())
         }
