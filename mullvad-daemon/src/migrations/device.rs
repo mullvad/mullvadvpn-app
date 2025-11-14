@@ -13,7 +13,7 @@ use crate::{
 };
 use mullvad_types::{account::AccountNumber, wireguard::WireguardData};
 use std::time::Duration;
-use talpid_core::mpsc::Sender;
+use talpid_channels::mpsc::Sender;
 use talpid_types::ErrorExt;
 use tokio::time::timeout;
 

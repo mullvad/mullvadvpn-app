@@ -3080,6 +3080,7 @@ dependencies = [
  "serde_json",
  "simple-signal",
  "socket2 0.5.8",
+ "talpid-channels",
  "talpid-core",
  "talpid-dbus",
  "talpid-dns",
@@ -5465,6 +5466,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-channels"
+version = "0.0.0"
+dependencies = [
+ "futures",
+ "thiserror 2.0.9",
+]
+
+[[package]]
 name = "talpid-core"
 version = "0.0.0"
 dependencies = [
@@ -5483,6 +5492,7 @@ dependencies = [
  "rand 0.9.2",
  "serde",
  "socket2 0.5.8",
+ "talpid-channels",
  "talpid-dbus",
  "talpid-dns",
  "talpid-firewall",

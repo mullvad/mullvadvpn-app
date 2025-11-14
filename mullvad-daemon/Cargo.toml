@@ -45,6 +45,7 @@ mullvad-version = { path = "../mullvad-version" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 mullvad-leak-checker = { path = "../mullvad-leak-checker", default-features = false }
 talpid-core = { path = "../talpid-core" }
+talpid-channels = { path = "../talpid-channels" }
 talpid-dns = { path = "../talpid-dns" }
 talpid-firewall = { path = "../talpid-firewall" }
 talpid-future = { path = "../talpid-future" }

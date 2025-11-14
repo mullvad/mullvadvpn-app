@@ -34,6 +34,7 @@ members = [
   "mullvad-update",
   "mullvad-update/mullvad-release",
   "mullvad-version",
+  "talpid-channels",
   "talpid-core",
   "talpid-dbus",
   "talpid-dns",

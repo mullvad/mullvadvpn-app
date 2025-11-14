@@ -17,7 +17,7 @@ use std::{
     sync::LazyLock,
     time::{Duration, SystemTime},
 };
-use talpid_core::mpsc::Sender;
+use talpid_channels::mpsc::Sender;
 use talpid_future::retry::{ConstantInterval, retry_future};
 use talpid_types::ErrorExt;
 

@@ -12,9 +12,6 @@ mod offline;
 /// Helper function to preserve previous log files.
 pub mod logging;
 
-/// Abstractions and extra features on `std::mpsc`
-pub mod mpsc;
-
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 

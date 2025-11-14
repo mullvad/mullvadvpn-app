@@ -89,14 +89,12 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
+use talpid_channels::mpsc::Sender;
 #[cfg(target_os = "android")]
 use talpid_core::connectivity_listener::ConnectivityListener;
 #[cfg(not(target_os = "android"))]
 use talpid_core::tunnel_state_machine::LockdownMode;
-use talpid_core::{
-    mpsc::Sender,
-    tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
-};
+use talpid_core::tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle};
 use talpid_routing::RouteManagerHandle;
 #[cfg(not(target_os = "android"))]
 use talpid_split_tunnel as split_tunnel;
@@ -619,12 +617,12 @@ impl<E> Sender<E> for DaemonEventSender<E>
 where
     InternalDaemonEvent: From<E>,
 {
-    fn send(&self, event: E) -> Result<(), talpid_core::mpsc::Error> {
+    fn send(&self, event: E) -> Result<(), talpid_channels::mpsc::Error> {
         match self.sender.upgrade() {
             Some(sender) => sender
                 .unbounded_send(InternalDaemonEvent::from(event))
-                .map_err(|_| talpid_core::mpsc::Error::ChannelClosed),
-            _ => Err(talpid_core::mpsc::Error::ChannelClosed),
+                .map_err(|_| talpid_channels::mpsc::Error::ChannelClosed),
+            _ => Err(talpid_channels::mpsc::Error::ChannelClosed),
         }
     }
 }

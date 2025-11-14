@@ -9,7 +9,7 @@ use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 use mullvad_update::version::VersionInfo;
 use mullvad_update::version::rollout::Rollout;
-use talpid_core::mpsc::Sender;
+use talpid_channels::mpsc::Sender;
 #[cfg(in_app_upgrade)]
 use talpid_types::ErrorExt;
 

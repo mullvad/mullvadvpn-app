@@ -20,6 +20,7 @@ thiserror = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
 rand = { workspace = true }
+talpid-channels = { path = "../talpid-channels" }
 talpid-dns = { path = "../talpid-dns" }
 talpid-firewall = { path = "../talpid-firewall" }
 talpid-routing = { path = "../talpid-routing" }

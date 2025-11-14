@@ -24,7 +24,7 @@ use std::{
     },
     time::{Duration, SystemTime},
 };
-use talpid_core::mpsc::Sender;
+use talpid_channels::mpsc::Sender;
 use talpid_types::{ErrorExt, tunnel::TunnelStateTransition};
 use tokio::{
     fs,

@@ -23,6 +23,7 @@ use futures::{
     channel::{mpsc, oneshot},
     stream,
 };
+use talpid_channels::mpsc::Sender;
 use talpid_dns::{DnsConfig, DnsMonitor};
 use talpid_firewall::{Firewall, FirewallArguments, InitialFirewallState};
 use talpid_routing::RouteManagerHandle;
@@ -49,9 +50,9 @@ use self::{
 };
 #[cfg(target_os = "android")]
 use crate::connectivity_listener::ConnectivityListener;
+use crate::offline;
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use crate::split_tunnel;
-use crate::{mpsc::Sender, offline};
 
 const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
