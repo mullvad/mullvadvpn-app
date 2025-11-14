@@ -1,7 +1,7 @@
 use std::net::{IpAddr, Ipv4Addr};
 
 use mullvad_types::settings::{DnsOptions, DnsState};
-use talpid_core::firewall::is_local_address;
+use talpid_firewall::is_local_address;
 use talpid_dns::DnsConfig;
 
 /// When we want to block certain contents with the help of DNS server side,

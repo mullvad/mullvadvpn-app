@@ -4,11 +4,11 @@ use super::{
 };
 #[cfg(target_os = "macos")]
 use crate::dns::DnsConfig;
-#[cfg(not(target_os = "android"))]
-use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
 use futures::StreamExt;
+#[cfg(not(target_os = "android"))]
+use talpid_firewall::FirewallPolicy;
 use talpid_types::{
     ErrorExt,
     tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError},

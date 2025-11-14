@@ -12,6 +12,8 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     sync::LazyLock,
 };
+use talpid_net::unix::{IfaceIndexLookupError, iface_index};
+use talpid_split_tunnel as split_tunnel;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
     cgroup::find_net_cls_mount,
@@ -55,7 +57,7 @@ pub enum Error {
 
     /// Unable to translate network interface name into index.
     #[error("Unable to translate network interface name \"{0}\" into index")]
-    LookupIfaceIndexError(String, #[source] crate::linux::IfaceIndexLookupError),
+    LookupIfaceIndexError(String, #[source] IfaceIndexLookupError),
 
     /// Failed to check if the net_cls mount exists.
     #[error("An error occurred when checking for net_cls")]
@@ -366,9 +368,9 @@ impl<'a> PolicyBatch<'a> {
         // metadata.
         let mut rule = Rule::new(&self.mangle_chain);
         rule.add_expr(&nft_expr!(meta cgroup));
-        rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::NET_CLS_CLASSID));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
         // Loads `split_tunnel::MARK` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data talpid_split_tunnel::MARK));
+        rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
         // Sets `split_tunnel::MARK` as connection tracker mark
         rule.add_expr(&nft_expr!(ct mark set));
         // Loads `fwmark` into first nftnl register
@@ -380,7 +382,7 @@ impl<'a> PolicyBatch<'a> {
         for chain in &[&self.in_chain, &self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
             rule.add_expr(&nft_expr!(ct mark));
-            rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
@@ -390,7 +392,7 @@ impl<'a> PolicyBatch<'a> {
             let mut block_tunnel_rule = Rule::new(&self.nat_chain);
             check_iface(&mut block_tunnel_rule, Direction::Out, &tunnel.interface)?;
             block_tunnel_rule.add_expr(&nft_expr!(ct mark));
-            block_tunnel_rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
+            block_tunnel_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
             add_verdict(&mut block_tunnel_rule, &Verdict::Drop);
             self.batch.add(&block_tunnel_rule, nftnl::MsgType::Add);
         }
@@ -399,13 +401,13 @@ impl<'a> PolicyBatch<'a> {
         // Don't masquerade packets on the loopback device.
         let mut rule = Rule::new(&self.nat_chain);
 
-        let iface_index = crate::linux::iface_index("lo")
-            .map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
+        let iface_index =
+            iface_index("lo").map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
         rule.add_expr(&nft_expr!(meta oif));
         rule.add_expr(&nft_expr!(cmp != iface_index));
 
         rule.add_expr(&nft_expr!(ct mark));
-        rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
 
         rule.add_expr(&nft_expr!(masquerade));
         if *ADD_COUNTERS {
@@ -419,7 +421,7 @@ impl<'a> PolicyBatch<'a> {
             let mut prerouting_rule = Rule::new(&self.prerouting_chain);
             check_not_iface(&mut prerouting_rule, Direction::In, &tunnel.interface)?;
             prerouting_rule.add_expr(&nft_expr!(ct mark));
-            prerouting_rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
+            prerouting_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
             prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
             prerouting_rule.add_expr(&nft_expr!(meta mark set));
             if *ADD_COUNTERS {
@@ -709,7 +711,7 @@ impl<'a> PolicyBatch<'a> {
         if endpoint.clients.allow_all() {
             let mut rule = Rule::new(&self.mangle_chain);
             check_endpoint(&mut rule, End::Dst, &endpoint.endpoint);
-            rule.add_expr(&nft_expr!(immediate data talpid_split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
             rule.add_expr(&nft_expr!(ct mark set));
             rule.add_expr(&nft_expr!(immediate data fwmark));
             rule.add_expr(&nft_expr!(meta mark set));
@@ -974,8 +976,8 @@ fn allow_interface_rule<'a>(
 }
 
 fn check_iface(rule: &mut Rule<'_>, direction: Direction, iface: &str) -> Result<()> {
-    let iface_index = crate::linux::iface_index(iface)
-        .map_err(|e| Error::LookupIfaceIndexError(iface.to_owned(), e))?;
+    let iface_index =
+        iface_index(iface).map_err(|e| Error::LookupIfaceIndexError(iface.to_owned(), e))?;
     rule.add_expr(&match direction {
         Direction::In => nft_expr!(meta iif),
         Direction::Out => nft_expr!(meta oif),
@@ -985,8 +987,8 @@ fn check_iface(rule: &mut Rule<'_>, direction: Direction, iface: &str) -> Result
 }
 
 fn check_not_iface(rule: &mut Rule<'_>, direction: Direction, iface: &str) -> Result<()> {
-    let iface_index = crate::linux::iface_index(iface)
-        .map_err(|e| Error::LookupIfaceIndexError(iface.to_owned(), e))?;
+    let iface_index =
+        iface_index(iface).map_err(|e| Error::LookupIfaceIndexError(iface.to_owned(), e))?;
     rule.add_expr(&match direction {
         Direction::In => nft_expr!(meta iif),
         Direction::Out => nft_expr!(meta oif),

@@ -6,6 +6,7 @@ use std::time::{Duration, Instant};
 use futures::channel::{mpsc, oneshot};
 use futures::future::Fuse;
 use futures::{FutureExt, StreamExt};
+use talpid_firewall::FirewallPolicy;
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
@@ -24,7 +25,6 @@ use super::{
 
 #[cfg(target_os = "macos")]
 use crate::dns::DnsConfig;
-use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
 use crate::tunnel::{self, TunnelMonitor};

@@ -10,7 +10,7 @@ use std::{
     ops::Deref,
     path::{Path, PathBuf},
 };
-use talpid_core::firewall::is_local_address;
+use talpid_firewall::is_local_address;
 use talpid_types::ErrorExt;
 use tokio::{
     fs,

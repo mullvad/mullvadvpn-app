@@ -18,15 +18,13 @@ multihop-pcap = ["talpid-wireguard/multihop-pcap"]
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
-ipnetwork = { workspace = true }
-libc = "0.2"
 log = { workspace = true }
 rand = { workspace = true }
 talpid-dns = { path = "../talpid-dns" }
+talpid-firewall = { path = "../talpid-firewall" }
 talpid-routing = { path = "../talpid-routing" }
 talpid-split-tunnel = { path = "../talpid-split-tunnel" }
 talpid-tunnel = { path = "../talpid-tunnel" }
-talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 talpid-wireguard = { path = "../talpid-wireguard" }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
@@ -36,43 +34,24 @@ jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = { workspace = true }
-nftnl = { version = "0.8.0", features = ["nftnl-1-1-0"] }
-mnl = { version = "0.2.3", features = ["mnl-1-0-4"] }
 talpid-dbus = { path = "../talpid-dbus" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 async-trait = "0.1"
-pfctl = "0.7.0"
-system-configuration = "0.5.1"
 hickory-proto = { workspace = true }
 hickory-server = { workspace = true, features = ["resolver"] }
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
-pcap = { version = "2.1", features = ["capture-stream"] }
-pnet_packet = { workspace = true }
-tun = { workspace = true, features = ["async"] }
 nix = { workspace = true, features = ["socket", "signal", "user"] }
 serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 socket2 = { workspace = true }
 talpid-macos = { path = "../talpid-macos" }
-talpid-net = { path = "../talpid-net" }
-either = { version = "1.15.0", features = ["serde"] }
 
 [target.'cfg(windows)'.dependencies]
-bitflags = "2.6"
 chrono = { workspace = true, features = ["clock"] }
 csv = "1.3.1"
-widestring = { workspace = true }
 winreg = { workspace = true, features = ["transactions"] }
-memoffset = "0.6"
-windows-service = "0.6.0"
 serde = { workspace = true, features = ["derive"] }
 parking_lot = "0.12.0"
 talpid-windows = { path = "../talpid-windows" }
-
-wmi = "0.14.0"
-windows-core = "0.58.0"
-windows = "0.58.0"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true

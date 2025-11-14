@@ -4,35 +4,8 @@ mod disconnected_state;
 mod disconnecting_state;
 mod error_state;
 
-use self::{
-    connected_state::ConnectedState,
-    connecting_state::ConnectingState,
-    disconnected_state::DisconnectedState,
-    disconnecting_state::{AfterDisconnect, DisconnectingState},
-    error_state::ErrorState,
-};
-#[cfg(any(windows, target_os = "android", target_os = "macos"))]
-use crate::split_tunnel;
-use crate::{
-    firewall::{Firewall, FirewallArguments, InitialFirewallState},
-    mpsc::Sender,
-    offline,
-};
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::ffi::OsString;
-use talpid_dns::{DnsConfig, DnsMonitor};
-use talpid_routing::RouteManagerHandle;
-#[cfg(target_os = "macos")]
-use talpid_tunnel::TunnelMetadata;
-use talpid_tunnel::{TunnelEvent, tun_provider::TunProvider};
-#[cfg(target_os = "macos")]
-use talpid_types::ErrorExt;
-
-use futures::{
-    StreamExt,
-    channel::{mpsc, oneshot},
-    stream,
-};
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
 use std::{
@@ -43,6 +16,20 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
+
+use futures::{
+    StreamExt,
+    channel::{mpsc, oneshot},
+    stream,
+};
+use talpid_dns::{DnsConfig, DnsMonitor};
+use talpid_firewall::{Firewall, FirewallArguments, InitialFirewallState};
+use talpid_routing::RouteManagerHandle;
+#[cfg(target_os = "macos")]
+use talpid_tunnel::TunnelMetadata;
+use talpid_tunnel::{TunnelEvent, tun_provider::TunProvider};
+#[cfg(target_os = "macos")]
+use talpid_types::ErrorExt;
 #[cfg(target_os = "android")]
 use talpid_types::{ErrorExt, android::AndroidContext};
 use talpid_types::{
@@ -50,8 +37,18 @@ use talpid_types::{
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 
+use self::{
+    connected_state::ConnectedState,
+    connecting_state::ConnectingState,
+    disconnected_state::DisconnectedState,
+    disconnecting_state::{AfterDisconnect, DisconnectingState},
+    error_state::ErrorState,
+};
 #[cfg(target_os = "android")]
 use crate::connectivity_listener::ConnectivityListener;
+#[cfg(any(windows, target_os = "android", target_os = "macos"))]
+use crate::split_tunnel;
+use crate::{mpsc::Sender, offline};
 
 const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -65,7 +62,7 @@ pub enum Error {
 
     /// Failed to initialize the system firewall integration.
     #[error("Failed to initialize the system firewall integration")]
-    InitFirewallError(#[from] crate::firewall::Error),
+    InitFirewallError(#[from] talpid_firewall::Error),
 
     /// Failed to initialize the system DNS manager and monitor.
     #[error("Failed to initialize the system DNS manager and monitor")]
