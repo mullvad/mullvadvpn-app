@@ -114,8 +114,7 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
         return Ok(false);
     }
 
-    // OpenVPN uses interface type IF_TYPE_PROP_VIRTUAL,
-    // but tethering etc. may rely on virtual adapters too,
+    // Tethering etc. may rely on virtual adapters,
     // so we have to filter out the TAP adapter specifically.
 
     // SAFETY: We are allowed to initialize MIB_IF_ROW2 with zeroed because it is made up entirely
