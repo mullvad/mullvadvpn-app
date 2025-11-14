@@ -36,6 +36,7 @@ members = [
   "mullvad-version",
   "talpid-core",
   "talpid-dbus",
+  "talpid-dns",
   "talpid-future",
   "talpid-macos",
   "talpid-net",

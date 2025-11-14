@@ -1,12 +1,26 @@
-use crate::linux::{IfaceIndexLookupError, iface_index};
 use std::net::IpAddr;
+
+use nix::{errno::Errno, net::if_::if_nametoindex};
 use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
 use talpid_routing::RouteManagerHandle;
 use talpid_types::ErrorExt;
 
 pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
 
-pub type Result<T> = std::result::Result<T, Error>;
+/// Converts an interface name into the corresponding index.
+pub fn iface_index(name: &str) -> Result<nix::libc::c_uint, IfaceIndexLookupError> {
+    if_nametoindex(name).map_err(|error| IfaceIndexLookupError {
+        interface_name: name.to_owned(),
+        error,
+    })
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("Failed to get index for interface {interface_name}: {error}")]
+pub struct IfaceIndexLookupError {
+    pub interface_name: String,
+    pub error: Errno,
+}
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -23,7 +37,7 @@ pub struct SystemdResolved {
 }
 
 impl SystemdResolved {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> Result<Self, Error> {
         let dbus_interface = DbusInterface::new()?.async_handle();
 
         let systemd_resolved = SystemdResolved {
@@ -39,7 +53,7 @@ impl SystemdResolved {
         _route_manager: RouteManagerHandle,
         interface_name: &str,
         servers: &[IpAddr],
-    ) -> Result<()> {
+    ) -> Result<(), Error> {
         let tunnel_index = iface_index(interface_name)?;
         self.tunnel_index = tunnel_index;
 
@@ -63,7 +77,7 @@ impl SystemdResolved {
         Ok(())
     }
 
-    pub async fn reset(&mut self) -> Result<()> {
+    pub async fn reset(&mut self) -> Result<(), Error> {
         if let Err(error) = self
             .dbus_interface
             .set_domains(self.tunnel_index, &[])
