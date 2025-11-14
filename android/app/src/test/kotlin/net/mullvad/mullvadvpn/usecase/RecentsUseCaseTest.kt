@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -53,7 +53,7 @@ class RecentsUseCaseTest {
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
         // Act, Assert
-        useCase(isMultihop = false).test { assertNull(awaitItem()) }
+        useCase(RelayListType.Single).test { assertNull(awaitItem()) }
     }
 
     @Test
@@ -64,7 +64,7 @@ class RecentsUseCaseTest {
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
         // Act, Assert
-        useCase(isMultihop = false).test { assertNull(awaitItem()) }
+        useCase(RelayListType.Single).test { assertNull(awaitItem()) }
     }
 
     @Test
@@ -76,7 +76,7 @@ class RecentsUseCaseTest {
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
         // Act, Assert
-        useCase(isMultihop = false).test { assertEquals(emptyList(), awaitItem()) }
+        useCase(RelayListType.Single).test { assertEquals(emptyList(), awaitItem()) }
     }
 
     @Test
@@ -99,13 +99,13 @@ class RecentsUseCaseTest {
         every { customListsRelayItemUseCase(any()) } returns flowOf(listOf(customList))
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
-        useCase(isMultihop = false).test { assertEquals(emptyList(), awaitItem()) }
+        useCase(RelayListType.Single).test { assertEquals(emptyList(), awaitItem()) }
     }
 
     @Test
     fun `given recents enabled when invoke then emit hops based on the relay item filters`() =
         runTest {
-            val singleHopRecent = Recent.Singlehop(STOCKHOLM_ID)
+            val singlehopRecent = Recent.Singlehop(STOCKHOLM_ID)
             val filteredOutRecent =
                 Recent.Singlehop(
                     GeoLocationId.City(country = GeoLocationId.Country("xx"), code = "xx-xxx-xx")
@@ -114,29 +114,29 @@ class RecentsUseCaseTest {
             settingsFlow.value =
                 mockk<Settings> {
                     every { recents } returns
-                        Recents.Enabled(listOf(singleHopRecent, filteredOutRecent))
+                        Recents.Enabled(listOf(singlehopRecent, filteredOutRecent))
                 }
 
             every { customListsRelayItemUseCase(RelayListType.Single) } returns flowOf(emptyList())
             every { filteredRelayListUseCase(RelayListType.Single) } returns
                 flowOf(listOf(SWEDEN, NORWAY))
 
-            useCase(isMultihop = false).test {
+            useCase(RelayListType.Single).test {
                 val hops = awaitItem()
 
-                val expectedHops = listOf(Hop.Single(STOCKHOLM))
-                assertEquals(expectedHops, hops)
+                val expectedHops = listOf(STOCKHOLM)
+                assertLists(expectedHops, hops!!)
             }
         }
 
     @Test
     fun `given multihop true should filter out singlehop recents`() = runTest {
-        val singleHopRecent = Recent.Singlehop(STOCKHOLM_ID)
-        val multiHopRecent = Recent.Multihop(entry = CUSTOM_LIST_ID, exit = NORWAY_ID)
+        val singlehopRecent = Recent.Singlehop(STOCKHOLM_ID)
+        val multihopRecent = Recent.Multihop(entry = CUSTOM_LIST_ID, exit = NORWAY_ID)
 
         settingsFlow.value =
             mockk<Settings> {
-                every { recents } returns Recents.Enabled(listOf(singleHopRecent, multiHopRecent))
+                every { recents } returns Recents.Enabled(listOf(singlehopRecent, multihopRecent))
             }
 
         every {
@@ -152,11 +152,11 @@ class RecentsUseCaseTest {
             filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
         } returns flowOf(listOf(SWEDEN, NORWAY))
 
-        useCase(isMultihop = true).test {
+        useCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
             val hops = awaitItem()
 
-            val expectedHops = listOf(Hop.Multi(CUSTOM_LIST_SWE_NO, NORWAY))
-            assertEquals(expectedHops, hops)
+            val expectedHops = listOf(CUSTOM_LIST_SWE_NO)
+            assertLists(expectedHops, hops!!)
         }
     }
 

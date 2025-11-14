@@ -243,7 +243,7 @@ fun SearchLocation(
     )
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
@@ -311,11 +311,13 @@ fun SearchLocationScreen(
                 state = lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                filterRow(
-                    filters = state.contentOrNull()?.filterChips ?: emptyList(),
-                    onRemoveOwnershipFilter = onRemoveOwnershipFilter,
-                    onRemoveProviderFilter = onRemoveProviderFilter,
-                )
+                if (state is Lce.Content) {
+                    filterRow(
+                        filters = state.value.filterChips,
+                        onRemoveOwnershipFilter = onRemoveOwnershipFilter,
+                        onRemoveProviderFilter = onRemoveProviderFilter,
+                    )
+                }
                 when (state) {
                     is Lce.Loading -> {
                         loading()
@@ -328,7 +330,6 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
-                            onSelectHop = { error("Can not select hop in search screen") },
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)
                             },

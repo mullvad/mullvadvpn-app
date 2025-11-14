@@ -10,12 +10,19 @@ import net.mullvad.mullvadvpn.util.isMultihopEnabled
 // If Daita is enabled without direct only we should block selection, search and hide filters for
 // the multihop enry list
 internal fun RelayListType.isEntryAndBlocked(settings: Settings?): Boolean {
-    val isMultihopEntry = isMultihopEntry()
-
-    if (!isMultihopEntry) {
+    if (!isMultihopEntry()) {
         return false
     }
+    return settings?.entryBlocked() == true
+}
 
+internal fun isEntryAndBlocked(
+    multihopRelayListType: MultihopRelayListType,
+    settings: Settings?,
+): Boolean {
+    if (multihopRelayListType == MultihopRelayListType.EXIT) {
+        return false
+    }
     return settings?.entryBlocked() == true
 }
 
