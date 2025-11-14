@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Spacings, spacings } from '../../foundations';
 import { TransientProps } from '../../types';
@@ -31,19 +31,19 @@ const StyledFlex = styled(Layout)<TransientProps<FlexProps>>(({
   $alignSelf,
 }) => {
   const $gap = gapProp ? spacings[gapProp] : undefined;
-  return {
-    display: 'flex',
-    gap: $gap,
-    flex: $flex,
-    flexDirection: $flexDirection,
-    alignItems: $alignItems,
-    justifyContent: $justifyContent,
-    flexGrow: $flexGrow,
-    flexShrink: $flexShrink,
-    flexBasis: $flexBasis,
-    flexWrap: $flexWrap,
-    alignSelf: $alignSelf,
-  };
+  return css`
+    display: flex;
+    gap: ${$gap};
+    flex: ${$flex};
+    flex-direction: ${$flexDirection};
+    align-items: ${$alignItems};
+    justify-content: ${$justifyContent};
+    flex-grow: ${$flexGrow};
+    flex-shrink: ${$flexShrink};
+    flex-basis: ${$flexBasis};
+    flex-wrap: ${$flexWrap};
+    align-self: ${$alignSelf};
+  `;
 });
 
 export function Flex({
