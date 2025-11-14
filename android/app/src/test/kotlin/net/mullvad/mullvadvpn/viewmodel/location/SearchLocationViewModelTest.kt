@@ -80,7 +80,6 @@ class SearchLocationViewModelTest {
 
         viewModel =
             SearchLocationViewModel(
-                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 customListsRepository = mockCustomListsRepository,
