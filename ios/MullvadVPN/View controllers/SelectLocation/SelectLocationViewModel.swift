@@ -88,8 +88,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
         // If multihop is enabled, we should check if there's a DAITA related error when opening the location
         // view. If there is, help the user by showing the entry instead of the exit view.
-        isMultihopEnabled = tunnelManager.settings.tunnelMultihopState.isEnabled
-        if tunnelManager.settings.tunnelMultihopState.isEnabled {
+        let isMultihopEnabled = tunnelManager.settings.tunnelMultihopState.isEnabled
+        self.isMultihopEnabled = isMultihopEnabled
+
+        if isMultihopEnabled {
             self.multihopContext =
                 if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
                     .blockedState?.reason
@@ -324,15 +326,15 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
             // exclude selected entry relays in exit lists
             exitLocationsDataSource
-                .setExcludedNode(excludedRelays: selectedEntryRelays)
+                .setExcludedNode(excludedSelection: selectedEntryRelays)
             exitCustomListsDataSource
-                .setExcludedNode(excludedRelays: selectedEntryRelays)
+                .setExcludedNode(excludedSelection: selectedEntryRelays)
 
             // exclude selected exit relays in entry lists
             entryLocationsDataSource
-                .setExcludedNode(excludedRelays: selectedExitRelays)
+                .setExcludedNode(excludedSelection: selectedExitRelays)
             entryCustomListsDataSource
-                .setExcludedNode(excludedRelays: selectedExitRelays)
+                .setExcludedNode(excludedSelection: selectedExitRelays)
         }
     }
 

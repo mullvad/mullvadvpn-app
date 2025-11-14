@@ -14257,6 +14257,7 @@
       }
     },
     "Entry" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -14493,6 +14494,7 @@
       }
     },
     "Exit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -24571,6 +24573,7 @@
       }
     },
     "multihop" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -32666,13 +32669,11 @@
         }
       }
     },
-    "Save locations by adding them to a custom list." : {
-
-    },
     "Saving changes..." : {
 
     },
     "Search for..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -38995,6 +38996,9 @@
           }
         }
       }
+    },
+    "To create a custom list press the “+” or long press on a country, city, or server." : {
+
     },
     "To create a custom list, tap on \"...\" " : {
 

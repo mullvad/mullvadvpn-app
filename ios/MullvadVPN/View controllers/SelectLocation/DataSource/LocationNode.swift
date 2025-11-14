@@ -54,9 +54,13 @@ extension LocationNode {
         parent?.root ?? self
     }
 
+    var asCustomListNode: CustomListLocationNode? {
+        self as? CustomListLocationNode
+    }
+
     var userSelectedRelays: UserSelectedRelays {
         var customListSelection: UserSelectedRelays.CustomListSelection?
-        if let topmostNode = root as? CustomListLocationNode {
+        if let topmostNode = root.asCustomListNode {
             customListSelection = UserSelectedRelays.CustomListSelection(
                 listId: topmostNode.customList.id,
                 isList: topmostNode == self

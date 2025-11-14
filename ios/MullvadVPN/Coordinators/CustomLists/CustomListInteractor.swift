@@ -154,17 +154,23 @@ struct CustomListInteractor: CustomListInteractorProtocol {
 
         guard let customListSelection = relayConstraint.value?.customListSelection,
             customListSelection.listId == list.id
-        else { return relayConstraint }
+        else {
+            // leave constraint untouched if custom list is not selected
+            return relayConstraint
+        }
 
         switch action {
         case .save:
+            // update constraint to custom list
             if customListSelection.isList {
+                // the selection is the list itself. In that case, update the constraint
                 let selectedRelays = UserSelectedRelays(
                     locations: list.locations,
                     customListSelection: UserSelectedRelays.CustomListSelection(listId: list.id, isList: true)
                 )
                 relayConstraint = .only(selectedRelays)
             } else {
+                // the selection is a location inside a custom list
                 let selectedConstraintIsRemovedFromList = list.locations.allSatisfy { listLocation in
                     !(relayConstraint.value?.locations
                         .flatMap { [$0] + $0.ancestors }
@@ -172,10 +178,14 @@ struct CustomListInteractor: CustomListInteractorProtocol {
                 }
 
                 if selectedConstraintIsRemovedFromList {
+                    // remove location from constraint if it is removed from the custom list
+                    // this will lead to the blocked state
                     relayConstraint = .only(UserSelectedRelays(locations: []))
                 }
             }
         case .delete:
+            // remove list from constraint
+            // this will lead to the blocked state
             relayConstraint = .only(UserSelectedRelays(locations: []))
         }
 

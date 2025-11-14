@@ -147,6 +147,8 @@ struct InputAlertModifier: ViewModifier {
                         Text(alert.title)
                             .font(.mullvadLarge)
                             .foregroundStyle(Color.mullvadTextPrimary)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
                         MullvadPrimaryTextField(
                             label: "",
                             placeholder: alert.placeholder,

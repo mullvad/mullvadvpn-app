@@ -33,7 +33,6 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     }
 }
 
-@available(iOS 17, *)
 #Preview {
     @Previewable @StateObject var viewModel = MockSelectLocationViewModel()
     ScrollView {
