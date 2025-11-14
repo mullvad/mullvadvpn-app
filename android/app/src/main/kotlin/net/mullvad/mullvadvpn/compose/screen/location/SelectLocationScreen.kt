@@ -741,8 +741,8 @@ private fun SelectionContainer(
             modifier =
                 Modifier.padding(
                     bottom = Dimens.smallPadding,
-                    start = Dimens.mediumPadding,
-                    end = Dimens.mediumPadding,
+//                    start = Dimens.mediumPadding,
+//                    end = Dimens.mediumPadding,
                 ),
             motionScene = scene,
             progress = progress,
