@@ -1,4 +1,12 @@
-{ pkgs, rustPlatform, pkg-config, libmnl, libnftnl, libpcap, ... }:
+{
+  pkgs,
+  rustPlatform,
+  pkg-config,
+  libmnl,
+  libnftnl,
+  libpcap,
+  ...
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "raas";
@@ -8,5 +16,9 @@ rustPlatform.buildRustPackage rec {
   cargoLock.lockFile = ./raas/Cargo.lock;
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ libmnl libnftnl libpcap ];
+  buildInputs = [
+    libmnl
+    libnftnl
+    libpcap
+  ];
 }
