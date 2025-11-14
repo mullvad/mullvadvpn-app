@@ -167,7 +167,7 @@ jobs:
       - uses: cachix/install-nix-action@v31
 
       - name: Build app
-        run: nix develop .#android -c build
+        run: nix develop .#android -c buildFdroid
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
