@@ -6,7 +6,7 @@ import net.mullvad.mullvadvpn.usecase.FilterChip
 
 data class SelectLocationUiState(
     val filterChips: List<FilterChip>,
-    val relayListType: RelayListType,
+    val multihopListSelection: MultihopRelayListType,
     val isSearchButtonEnabled: Boolean,
     val isFilterButtonEnabled: Boolean,
     val isRecentsEnabled: Boolean,
@@ -14,4 +14,6 @@ data class SelectLocationUiState(
     val tunnelErrorStateCause: ErrorStateCause?,
 ) {
     val multihopEnabled: Boolean = hopSelection is HopSelection.Multi
+    val relayListType =
+        if (multihopEnabled) RelayListType.Multihop(multihopListSelection) else RelayListType.Single
 }

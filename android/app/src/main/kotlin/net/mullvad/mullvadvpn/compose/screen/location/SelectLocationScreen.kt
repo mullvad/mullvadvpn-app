@@ -477,9 +477,7 @@ fun SelectLocationScreen(
                 is Lc.Content -> {
                     SelectionContainer(
                         progress = expandProgress.value,
-                        multihopRelayListType =
-                            (state.value.relayListType as? RelayListType.Multihop)
-                                ?.multihopRelayListType ?: MultihopRelayListType.EXIT,
+                        relayListType = state.value.relayListType,
                         filterChips = state.value.filterChips,
                         hopSelection = state.value.hopSelection,
                         error = state.value.tunnelErrorStateCause,
@@ -669,7 +667,7 @@ private fun RelayLists(
 @Composable
 private fun SelectionContainer(
     progress: Float, // 0 - 1
-    multihopRelayListType: MultihopRelayListType,
+    relayListType: RelayListType,
     hopSelection: HopSelection,
     error: ErrorStateCause?,
     filterChips: List<FilterChip>,
@@ -677,6 +675,12 @@ private fun SelectionContainer(
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
 ) {
+
+    var multihopListSelector by remember { mutableStateOf(MultihopRelayListType.EXIT) }
+    if (relayListType is RelayListType.Multihop) {
+        multihopListSelector = relayListType.multihopRelayListType
+    }
+
     Column {
         AnimatedContent(
             hopSelection,
@@ -685,22 +689,22 @@ private fun SelectionContainer(
                 fadeIn(tween(delayMillis = ANIMATION_DELAY_FADE_IN)).togetherWith(fadeOut())
             },
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
-        ) {
-            when (it) {
+        ) { hopSelection ->
+            when (hopSelection) {
                 is HopSelection.Single ->
                     Singlehop(
-                        exitLocation = it.relay.toDisplayName(),
+                        exitLocation = hopSelection.relay.toDisplayName(),
                         errorText = error.errorText(RelayListType.Single),
                         expandProgress = progress,
                     )
                 is HopSelection.Multi ->
                     MultihopSelector(
-                        exitSelected = multihopRelayListType == MultihopRelayListType.EXIT,
-                        exitLocation = it.exit.toDisplayName(),
+                        exitSelected = multihopListSelector == MultihopRelayListType.EXIT,
+                        exitLocation = hopSelection.exit.toDisplayName(),
                         exitErrorText =
                             error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
                         onExitClick = { onSelectRelayList(MultihopRelayListType.EXIT) },
-                        entryLocation = it.entry.toDisplayName(),
+                        entryLocation = hopSelection.entry.toDisplayName(),
                         entryErrorText =
                             error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
                         onEntryClick = { onSelectRelayList(MultihopRelayListType.ENTRY) },

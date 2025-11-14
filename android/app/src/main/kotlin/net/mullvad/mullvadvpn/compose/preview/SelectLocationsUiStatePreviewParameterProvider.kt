@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.usecase.FilterChip
@@ -17,7 +16,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
             Lc.Loading(Unit),
             SelectLocationUiState(
                     filterChips = emptyList(),
-                    relayListType = RelayListType.Single,
+                    multihopListSelection = MultihopRelayListType.EXIT,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -31,7 +30,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Ownership(ownership = ModelOwnership.Rented),
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
-                    relayListType = RelayListType.Single,
+                    multihopListSelection = MultihopRelayListType.EXIT,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -41,7 +40,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                 .toLc(),
             SelectLocationUiState(
                     filterChips = emptyList(),
-                    relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    multihopListSelection = MultihopRelayListType.ENTRY,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -55,7 +54,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
-                    relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    multihopListSelection = MultihopRelayListType.ENTRY,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
