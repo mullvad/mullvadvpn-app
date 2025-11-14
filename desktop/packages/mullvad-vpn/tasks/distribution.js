@@ -103,11 +103,6 @@ function newConfig() {
         { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-problem-report')), to: '.' },
         { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-daemon')), to: '.' },
         { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-setup')), to: '.' },
-        {
-          from: distAssets(path.join('${env.BINARIES_PATH}', 'libtalpid_openvpn_plugin.dylib')),
-          to: '.',
-        },
-        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
         { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
         { from: buildAssets('shell-completions/_mullvad'), to: '.' },
         { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
@@ -145,7 +140,6 @@ function newConfig() {
           from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-setup.exe')),
           to: '.',
         },
-        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'talpid_openvpn_plugin.dll')), to: '.' },
         {
           from: root(
             path.join(
@@ -158,8 +152,6 @@ function newConfig() {
           ),
           to: '.',
         },
-        // TODO: OpenVPN does not have an ARM64 build yet.
-        { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
         {
           from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'wintun/wintun.dll')),
           to: '.',
@@ -204,12 +196,7 @@ function newConfig() {
       extraResources: [
         { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-problem-report')), to: '.' },
         { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-setup')), to: '.' },
-        {
-          from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')),
-          to: '.',
-        },
         { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
-        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       ],
     },
 
