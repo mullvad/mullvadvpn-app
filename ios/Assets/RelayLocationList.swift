@@ -2,7 +2,7 @@
 
 import Foundation
 
-let allLocations: [String: String] = [
+let relayLocationList: [String: String] = [
     "Australia": NSLocalizedString("Australia", comment: ""),
     "Netherlands": NSLocalizedString("Netherlands", comment: ""),
     "USA": NSLocalizedString("USA", comment: ""),
