@@ -1,4 +1,5 @@
 use std::{
+    io,
     net::{Ipv4Addr, Ipv6Addr},
     os::fd::{AsFd, AsRawFd, OwnedFd},
     panic,
@@ -183,15 +184,19 @@ async fn get_link_index(handle: &rtnetlink::Handle, name: &str) -> anyhow::Resul
     Ok(veth_2?.header.index)
 }
 
-pub async fn open_namespace_file() -> anyhow::Result<OwnedFd> {
+/// Open the file associated with the network namespace.
+///
+/// Returns `Ok(None)` if the file doesn't exist.
+pub async fn open_namespace_file() -> anyhow::Result<Option<OwnedFd>> {
     // TODO: validate that this file is actually a namespace?
-    let netns_fd = fs::OpenOptions::new()
-        .read(true)
-        .open(Path::new(NETNS_DIR).join(NETNS_NAME))
-        .await
-        .context("Failed to open namespace file")?;
+    let netns_path = Path::new(NETNS_DIR).join(NETNS_NAME);
+    let netns_fd = fs::OpenOptions::new().read(true).open(netns_path).await;
 
-    Ok(netns_fd.into_std().await.into())
+    match netns_fd {
+        Ok(fd) => Ok(Some(fd.into_std().await.into())),
+        Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(None),
+        Err(e) => Err(e).context("Failed to open namespace file"),
+    }
 }
 
 /// Execute `f` on a thread running in the network namespace referenced by `namespace_fd`.
@@ -223,7 +228,7 @@ where
 
 /// Execute `f` on a thread running in the network namespace referenced by `namespace_fd`.
 ///
-/// `namespace_fd` should be a file in `/run/netns/`.
+/// By convention, `namespace_fd` should be a file in `/run/netns/`.
 ///
 /// Any threads created by `f` will be executed in that same namespace, but be careful not to
 /// leak execution onto other threads, i.e. by spawning them on an existing async runtime.

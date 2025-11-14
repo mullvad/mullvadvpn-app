@@ -14,8 +14,12 @@ struct Opt {
 async fn main() -> anyhow::Result<()> {
     let opt = Opt::parse();
 
+    let Some(netns_fd) = open_namespace_file().await? else {
+        log::error!("Network namespace doesn't exist");
+        std::process::exit(1);
+    };
+
     // Enter the namespace
-    let netns_fd = open_namespace_file().await?;
     do_in_namespace(netns_fd, move || {
         let args = opt.command;
         let Some(program) = args.first() else {
