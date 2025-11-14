@@ -2,7 +2,6 @@ import { messages } from '../../../../shared/gettext';
 import { Text } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
-import { Container } from '../../../lib/components/view/components';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
@@ -32,7 +31,7 @@ export function AntiCensorshipView() {
               </HeaderTitle>
             </SettingsHeader>
             <FlexColumn gap="medium">
-              <Container size="4" flexDirection="column" gap="medium">
+              <View.Container size="4" flexDirection="column" gap="medium">
                 <Text variant="labelTiny" color="whiteAlpha60">
                   {
                     // TRANSLATORS: First paragraph of description text in anti-censorship view
@@ -51,7 +50,7 @@ export function AntiCensorshipView() {
                     )
                   }
                 </Text>
-              </Container>
+              </View.Container>
 
               <MethodSetting />
             </FlexColumn>

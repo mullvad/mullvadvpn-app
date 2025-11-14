@@ -130,7 +130,11 @@ class Login extends React.Component<IProps, IState> {
         <AppMainHeader>
           <AppMainHeader.SettingsButton disabled={!allowInteraction} />
         </AppMainHeader>
-        <View.Container size="4" justifyContent="center" padding={{ bottom: 'large' }}>
+        <View.Container
+          flexDirection="column"
+          size="4"
+          justifyContent="center"
+          padding={{ bottom: 'large' }}>
           <FlexColumn gap="medium">
             <Flex justifyContent="center">
               {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
