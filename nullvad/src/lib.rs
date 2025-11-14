@@ -243,8 +243,11 @@ where
     Fn: Send + 'static,
     T: Send + 'static,
 {
+    // We can't await an std JoinHandle, so we'll send the
+    // return-value of `f` on this oneshot and await it instead.
     let (tx, rx) = oneshot::channel();
 
+    // Spawn an OS-thread, assign it to the namespace, and execute `f`
     let thread = std::thread::spawn(move || {
         let t = setns(namespace_fd, CloneFlags::empty())
             .with_context(|| anyhow!("Failed to enter namespace {NETNS_NAME}"))
@@ -257,8 +260,8 @@ where
     match t {
         Ok(t) => t,
         Err(_dropped) => {
-            // thread must have panicked
-            let err = thread.join().unwrap_err();
+            // thread must have panicked since we don't drop tx otherwise
+            let err = thread.join().expect_err("thread must have panicked");
             panic::resume_unwind(err)
         }
     }

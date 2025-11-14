@@ -33,10 +33,10 @@ async fn main() -> anyhow::Result<()> {
         setgid(real_gid).context("Failed to drop group privileges")?;
 
         // Launch the process
-        let infallible =
+        let never =
             execvp(program, &args).with_context(|| anyhow!("Failed to exec {program:?}"))?;
 
-        match infallible {}
+        match never {}
     })
     .await?
 }
