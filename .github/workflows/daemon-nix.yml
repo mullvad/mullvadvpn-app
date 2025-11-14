@@ -1,0 +1,30 @@
+name: Daemon+CLI - Build (Nix)
+on:
+  pull_request:
+    paths:
+      - .github/workflows/daemon-nix.yml
+      - rust-toolchain.toml
+      - 'flake*'
+      - 'nix/desktop-*.nix'
+      - 'nix/common-toolchain.nix'
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: git submodule update --init --depth=1 dist-assets/binaries
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build desktop app
+        run: nix develop -c build
