@@ -132,7 +132,7 @@ class Login extends React.Component<IProps, IState> {
         </AppMainHeader>
         <View.Container size="4" justifyContent="center" padding={{ bottom: 'large' }}>
           <FlexColumn gap="medium">
-            <Flex flex={1} justifyContent="center">
+            <Flex justifyContent="center">
               {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
             </Flex>
 
