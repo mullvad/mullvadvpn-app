@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Colors, colors, ColorVariables } from '../../foundations';
 import { Container } from '../container';
 import { Flex, FlexProps } from '../flex';
+import { ViewContent } from './components';
 
 export type ViewProps = FlexProps & {
   backgroundColor?: Colors;
@@ -21,6 +22,7 @@ function View({ backgroundColor = 'blue', ...props }: ViewProps) {
 }
 
 const ViewNamespace = Object.assign(View, {
+  Content: ViewContent,
   Container: Container,
 });
 
