@@ -169,7 +169,7 @@ been established and verified to work. Then it transitions to the [connected] st
 
 In this state, network traffic to the IP+port+protocol combination used for the first hop of the
 VPN tunnel is allowed on all interfaces, together with responses to this outgoing traffic.
-First hop means the bridge server if one is used, otherwise the VPN server directly.
+First hop means the entry server if multihop is used, otherwise the VPN server directly.
 This IP+port+protocol combination should only be allowed for the process establishing the
 VPN tunnel, or only administrator level processes, depending on what the platform firewall
 allows restricting. On Windows the rule only allows processes from binaries in certain paths. macOS
@@ -181,15 +181,12 @@ This process/user check is important to not allow unprivileged programs
 to leak packets to this IP outside the tunnel, as those packets can be fingerprinted.
 
 Examples:
-1. No bridge is used and the tunnel protocol is OpenVPN trying to connect with UDP to a VPN
-  server at IP `a.b.c.d` port `1301` - Allow traffic to `a.b.c.d:1301/UDP` for `openvpn.exe`
-  or any process running as `root`, and incoming matching traffic.
-1. Connecting to the same VPN server, but via a bridge. The bridge is at IP `e.f.g.h` and the
-  proxy service listens on TCP port `443` - Allow traffic to `e.f.g.h:443/TCP` for
-  `mullvad-daemon.exe` or any process running as `root`, and incoming matching
-  traffic. Do not allow any direct communication with the VPN server.
 1. Connecting to `a.b.c.d` port `1234` using WireGuard: Allow `a.b.c.d:1234/UDP` for
   `mullvad-daemon.exe` or any process running as `root`.
+1. Connecting to the same VPN server, but using multihop. The entry server is
+  at IP `e.f.g.h` and we are using the port `5678` - Allow traffic to `e.f.g.h:5678/UDP` for
+  `mullvad-daemon.exe` or any process running as `root`, and incoming matching
+  traffic. Do not allow any direct communication with the exit server with IP `a.b.c.d`.
 
 When using WireGuard, traffic inside the tunnel is permitted immediately after the tunnel device
 has been created. See the [connected] state for details on this.
