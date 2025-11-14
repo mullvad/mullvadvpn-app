@@ -41,7 +41,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     customLists: List<RelayItem.CustomList>,
-    onSelectHop: (Hop) -> Unit,
     onSelectRelayItem: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
@@ -85,7 +84,7 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.RecentListItem ->
                         RecentListItem(
                             listItem,
-                            onSelectHop = onSelectHop,
+                            onSelectHop = { onSelectRelayItem(it.exit()) },
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                             customLists = customLists,
                         )
@@ -132,7 +131,7 @@ private fun GeoLocationItem(
 @Composable
 private fun RecentListItem(
     listItem: RelayListItem.RecentListItem,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop.Single<RelayItem>) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customLists: List<RelayItem.CustomList>,
 ) {
@@ -140,8 +139,8 @@ private fun RecentListItem(
         relayListItem = listItem,
         onClick = { onSelectHop(listItem.hop) },
         onLongClick = {
-            val entry = listItem.hop.entry()
-            if (listItem.hop is Hop.Single<*> && entry is RelayItem.Location) {
+            val entry = listItem.hop.relay
+            if (entry is RelayItem.Location) {
                 onUpdateBottomSheetState(
                     ShowLocationBottomSheet(customLists = customLists, item = entry)
                 )

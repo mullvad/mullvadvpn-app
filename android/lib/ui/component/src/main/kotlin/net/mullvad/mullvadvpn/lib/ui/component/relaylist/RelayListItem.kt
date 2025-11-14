@@ -108,7 +108,7 @@ sealed interface RelayListItem {
     }
 
     data class RecentListItem(
-        override val hop: Hop,
+        override val hop: Hop.Single<RelayItem>,
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,

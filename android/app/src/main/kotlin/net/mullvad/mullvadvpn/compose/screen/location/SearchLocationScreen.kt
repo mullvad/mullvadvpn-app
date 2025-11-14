@@ -330,7 +330,6 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
-                            onSelectHop = { error("Can not select hop in search screen") },
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)
                             },

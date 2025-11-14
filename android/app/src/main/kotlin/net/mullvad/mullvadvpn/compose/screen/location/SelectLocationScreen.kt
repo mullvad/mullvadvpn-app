@@ -627,7 +627,6 @@ private fun RelayLists(
                         SelectLocationList(
                             relayListType = it,
                             bottomMargin = bottomMargin,
-                            onSelectHop = onSelectHop,
                             onSelectRelayItem = onSelectRelayItem,
                             openDaitaSettings = openDaitaSettings,
                             onAddCustomList = onAddCustomList,
@@ -641,7 +640,6 @@ private fun RelayLists(
                         SelectLocationList(
                             relayListType = it,
                             bottomMargin = bottomMargin,
-                            onSelectHop = onSelectHop,
                             onSelectRelayItem = onSelectRelayItem,
                             openDaitaSettings = openDaitaSettings,
                             onAddCustomList = onAddCustomList,
@@ -656,7 +654,6 @@ private fun RelayLists(
                 SelectLocationList(
                     relayListType = it,
                     bottomMargin = bottomMargin,
-                    onSelectHop = onSelectHop,
                     onSelectRelayItem = onSelectRelayItem,
                     openDaitaSettings = openDaitaSettings,
                     onAddCustomList = onAddCustomList,

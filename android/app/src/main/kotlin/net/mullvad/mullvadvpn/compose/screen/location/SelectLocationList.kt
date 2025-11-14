@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.compose.preview.SearchLocationsListUiStatePreviewP
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -68,7 +67,6 @@ private fun PreviewSelectLocationList(
                 lazyListState = rememberLazyListState(),
                 bottomMargin = 0.dp,
                 openDaitaSettings = {},
-                onSelectHop = {},
                 onSelectRelayItem = { _, _ -> },
                 onUpdateBottomSheetState = {},
                 onAddCustomList = {},
@@ -87,7 +85,6 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 fun SelectLocationList(
     bottomMargin: Dp,
     relayListType: RelayListType,
-    onSelectHop: (Hop) -> Unit,
     onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
@@ -120,7 +117,6 @@ fun SelectLocationList(
         lazyListState = lazyListState,
         bottomMargin = bottomMargin,
         openDaitaSettings = openDaitaSettings,
-        onSelectHop = onSelectHop,
         onSelectRelayItem = onSelectRelayItem,
         onUpdateBottomSheetState = onUpdateBottomSheetState,
         onAddCustomList = onAddCustomList,
@@ -135,7 +131,6 @@ private fun SelectLocationListContent(
     lazyListState: LazyListState,
     bottomMargin: Dp,
     openDaitaSettings: () -> Unit,
-    onSelectHop: (Hop) -> Unit,
     onSelectRelayItem: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     onAddCustomList: () -> Unit,
@@ -180,7 +175,6 @@ private fun SelectLocationListContent(
                 relayListContent(
                     relayListItems = state.value.relayListItems,
                     customLists = state.value.customLists,
-                    onSelectHop = onSelectHop,
                     onSelectRelayItem = { onSelectRelayItem(it, state.value.relayListType) },
                     onToggleExpand = onToggleExpand,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
