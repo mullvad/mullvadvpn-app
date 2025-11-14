@@ -14,9 +14,6 @@ pub mod window;
 
 mod offline;
 
-/// Split tunneling
-pub mod split_tunnel;
-
 /// Abstracts over different VPN tunnel technologies
 pub mod tunnel;
 

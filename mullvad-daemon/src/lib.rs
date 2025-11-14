@@ -95,10 +95,11 @@ use talpid_core::connectivity_listener::ConnectivityListener;
 use talpid_core::tunnel_state_machine::LockdownMode;
 use talpid_core::{
     mpsc::Sender,
-    split_tunnel,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
 use talpid_routing::RouteManagerHandle;
+#[cfg(not(target_os = "android"))]
+use talpid_split_tunnel as split_tunnel;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]

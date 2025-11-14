@@ -42,6 +42,7 @@ members = [
   "talpid-net",
   "talpid-platform-metadata",
   "talpid-routing",
+  "talpid-split-tunnel",
   "talpid-time",
   "talpid-tunnel",
   "talpid-tunnel-config-client",

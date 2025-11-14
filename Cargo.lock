@@ -3087,6 +3087,7 @@ dependencies = [
  "talpid-macos",
  "talpid-platform-metadata",
  "talpid-routing",
+ "talpid-split-tunnel",
  "talpid-time",
  "talpid-types",
  "talpid-windows",
@@ -5499,6 +5500,7 @@ dependencies = [
  "talpid-net",
  "talpid-platform-metadata",
  "talpid-routing",
+ "talpid-split-tunnel",
  "talpid-tunnel",
  "talpid-tunnel-config-client",
  "talpid-types",
@@ -5619,6 +5621,36 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "widestring",
+ "windows-sys 0.61.1",
+]
+
+[[package]]
+name = "talpid-split-tunnel"
+version = "0.0.0"
+dependencies = [
+ "bitflags 2.9.0",
+ "either",
+ "futures",
+ "insta",
+ "libc",
+ "log",
+ "memoffset 0.6.5",
+ "nix 0.30.1",
+ "pcap",
+ "pnet_packet 0.35.0",
+ "serde",
+ "serde_json",
+ "talpid-macos",
+ "talpid-net",
+ "talpid-platform-metadata",
+ "talpid-routing",
+ "talpid-tunnel",
+ "talpid-types",
+ "talpid-windows",
+ "thiserror 2.0.9",
+ "tokio",
+ "tun 0.5.5",
+ "windows-service",
  "windows-sys 0.61.1",
 ]
 

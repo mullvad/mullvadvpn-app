@@ -1,5 +1,4 @@
 use super::{FirewallArguments, FirewallPolicy};
-use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
 use nftnl::{
     Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
@@ -13,6 +12,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     sync::LazyLock,
 };
+use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
     cgroup::find_net_cls_mount,
     net::{
@@ -366,9 +366,9 @@ impl<'a> PolicyBatch<'a> {
         // metadata.
         let mut rule = Rule::new(&self.mangle_chain);
         rule.add_expr(&nft_expr!(meta cgroup));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+        rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::NET_CLS_CLASSID));
         // Loads `split_tunnel::MARK` into first nftnl register
-        rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+        rule.add_expr(&nft_expr!(immediate data talpid_split_tunnel::MARK));
         // Sets `split_tunnel::MARK` as connection tracker mark
         rule.add_expr(&nft_expr!(ct mark set));
         // Loads `fwmark` into first nftnl register
@@ -380,7 +380,7 @@ impl<'a> PolicyBatch<'a> {
         for chain in &[&self.in_chain, &self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
             rule.add_expr(&nft_expr!(ct mark));
-            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
@@ -390,7 +390,7 @@ impl<'a> PolicyBatch<'a> {
             let mut block_tunnel_rule = Rule::new(&self.nat_chain);
             check_iface(&mut block_tunnel_rule, Direction::Out, &tunnel.interface)?;
             block_tunnel_rule.add_expr(&nft_expr!(ct mark));
-            block_tunnel_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            block_tunnel_rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
             add_verdict(&mut block_tunnel_rule, &Verdict::Drop);
             self.batch.add(&block_tunnel_rule, nftnl::MsgType::Add);
         }
@@ -405,7 +405,7 @@ impl<'a> PolicyBatch<'a> {
         rule.add_expr(&nft_expr!(cmp != iface_index));
 
         rule.add_expr(&nft_expr!(ct mark));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+        rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
 
         rule.add_expr(&nft_expr!(masquerade));
         if *ADD_COUNTERS {
@@ -419,7 +419,7 @@ impl<'a> PolicyBatch<'a> {
             let mut prerouting_rule = Rule::new(&self.prerouting_chain);
             check_not_iface(&mut prerouting_rule, Direction::In, &tunnel.interface)?;
             prerouting_rule.add_expr(&nft_expr!(ct mark));
-            prerouting_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            prerouting_rule.add_expr(&nft_expr!(cmp == talpid_split_tunnel::MARK));
             prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
             prerouting_rule.add_expr(&nft_expr!(meta mark set));
             if *ADD_COUNTERS {
@@ -709,7 +709,7 @@ impl<'a> PolicyBatch<'a> {
         if endpoint.clients.allow_all() {
             let mut rule = Rule::new(&self.mangle_chain);
             check_endpoint(&mut rule, End::Dst, &endpoint.endpoint);
-            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(immediate data talpid_split_tunnel::MARK));
             rule.add_expr(&nft_expr!(ct mark set));
             rule.add_expr(&nft_expr!(immediate data fwmark));
             rule.add_expr(&nft_expr!(meta mark set));
@@ -871,7 +871,7 @@ impl<'a> PolicyBatch<'a> {
     /// the tunnel IP the device used if the device was set to not filter reverse path (rp_filter.)
     /// These rules stops all packets coming in to the tunnel IP. As such, these rules must come
     /// after the rule allowing the tunnel, otherwise even the tunnel can't talk to that IP.
-    fn add_block_cve_2019_14899(&mut self, tunnel: &tunnel::TunnelMetadata) {
+    fn add_block_cve_2019_14899(&mut self, tunnel: &TunnelMetadata) {
         for tunnel_ip in &tunnel.ips {
             let mut rule = Rule::new(&self.in_chain);
             check_ip(&mut rule, End::Dst, *tunnel_ip);
