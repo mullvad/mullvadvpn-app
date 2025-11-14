@@ -163,8 +163,6 @@ jobs:
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Build app
         working-directory: android
