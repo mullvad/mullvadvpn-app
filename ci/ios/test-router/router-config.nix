@@ -1,14 +1,19 @@
-args@{ hostname
-, # hostname of the router
-  lanMac ? null
-, # MAC address of the local area network interface
-  wanMac
-, # MAC address of the upstream interface
-  lanIp
-, # IP adderss/subnet
+args@{
+  hostname,
+  # hostname of the router
+  lanMac ? null,
+  # MAC address of the local area network interface
+  wanMac,
+  # MAC address of the upstream interface
+  lanIp, # IP adderss/subnet
 }:
 
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   ifNotNull = maybeNull: attrSet: lib.attrsets.optionalAttrs (!builtins.isNull maybeNull) attrSet;
 in
@@ -28,7 +33,14 @@ in
   services.nftables.internetHostOverride = gatewayAddress;
   services.nftables.lanInterfaces = "lan";
 
-  environment.systemPackages = with pkgs; [ htop vim curl dig tcpdump cargo ];
+  environment.systemPackages = with pkgs; [
+    htop
+    vim
+    curl
+    dig
+    tcpdump
+    cargo
+  ];
 
   networking.hostName = args.hostname;
   networking.useDHCP = true;
@@ -54,7 +66,9 @@ in
     };
   };
 
-  networking = { firewall.enable = false; };
+  networking = {
+    firewall.enable = false;
+  };
   hardware.bluetooth.enable = false;
 
   boot.kernel.sysctl = {
@@ -85,23 +99,28 @@ in
 
   networking.wireguard.interfaces.staging = {
     privateKeyFile = "/staging-wg-private-key";
-    ips = [ "10.64.9.184/32" "fc00:bbbb:bbbb:bb01::a40:9b8/128" ];
+    ips = [
+      "10.64.9.184/32"
+      "fc00:bbbb:bbbb:bb01::a40:9b8/128"
+    ];
     allowedIPsAsRoutes = true;
     # postSetup could be used to dynamically fetch the IP of the staging API and set up the route to that IP through this interface too.
     # postSetup = '''';
-    peers = [{
-      publicKey = "2KS+F8ZAOUSMwygl2CYqkqFhbi3L5u58b3kIpaylaEk=";
-      name = "se-sto-wg-001-staging";
-      endpoint = "85.203.53.81:51820";
-      allowedIPs = [
-        # api.stagemole.eu
-        "185.217.116.129/32"
-        # api-app.stagemole.eu
-        "185.217.116.132/32"
-        # api-partners.stagemole.eu
-        "185.217.116.131/32"
-      ];
-    }];
+    peers = [
+      {
+        publicKey = "2KS+F8ZAOUSMwygl2CYqkqFhbi3L5u58b3kIpaylaEk=";
+        name = "se-sto-wg-001-staging";
+        endpoint = "85.203.53.81:51820";
+        allowedIPs = [
+          # api.stagemole.eu
+          "185.217.116.129/32"
+          # api-app.stagemole.eu
+          "185.217.116.132/32"
+          # api-partners.stagemole.eu
+          "185.217.116.131/32"
+        ];
+      }
+    ];
   };
 
   systemd.network.enable = true;
@@ -125,7 +144,9 @@ in
       UseDNS = true;
     };
 
-    dhcpV6Config = { UseDNS = true; };
+    dhcpV6Config = {
+      UseDNS = true;
+    };
   };
 
   # obtain all leases
@@ -142,7 +163,6 @@ in
     linkConfig.RequiredForOnline = "enslaved";
   };
 
-
   systemd.network.networks.lan = {
     name = "lan";
     address = [ "192.168.105.1/24" ];
@@ -157,7 +177,10 @@ in
 
     dhcpServerConfig = {
       ServerAddress = "192.168.105.1/24";
-      DNS = [ "1.1.1.1" "1.0.0.1" ];
+      DNS = [
+        "1.1.1.1"
+        "1.0.0.1"
+      ];
       PoolOffset = 128;
       EmitDNS = true;
       EmitNTP = true;
@@ -197,7 +220,10 @@ in
 
   services.openssh = {
     enable = true;
-    ports = [ 22 2021 ];
+    ports = [
+      22
+      2021
+    ];
     settings.PermitRootLogin = "yes";
   };
 
@@ -217,7 +243,10 @@ in
       enable = true;
       description = "Web service to apply blocking firewall rules";
       bindsTo = [ "sys-subsystem-net-devices-lan.device" ];
-      after = [ "systemd-networkd.service" "network-online.target" ];
+      after = [
+        "systemd-networkd.service"
+        "network-online.target"
+      ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig.ExecStart = ''
         ${raas}/bin/raas ${listenAddress}:80
