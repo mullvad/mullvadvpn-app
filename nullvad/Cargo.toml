@@ -15,7 +15,7 @@ neli = "0.7.1"
 netlink-packet = "0.1.1"
 netlink-packet-core = "0.8.1"
 netlink-packet-route = "0.25.1"
-nix = { version = "0.30.1", features = ["sched", "socket", "uio", "user"] }
+nix = { version = "0.30.1", features = ["sched", "socket", "uio", "user", "fs"] }
 rtnetlink = "0.18.1"
 tokio = { version = "1.48.0", features = ["full"] }
 zerocopy = { version = "0.8.27", features = ["std", "derive"] }
