@@ -1,6 +1,6 @@
 [package]
-name = "talpid-core"
-description = "Privacy preserving and secure VPN client library"
+name = "talpid-dns"
+description = "Privacy preserving and secure DNS client library"
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
@@ -9,10 +9,6 @@ rust-version.workspace = true
 
 [lints]
 workspace = true
-
-[features]
-wireguard-go = ["talpid-wireguard/wireguard-go"]
-multihop-pcap = ["talpid-wireguard/multihop-pcap"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -23,12 +19,10 @@ libc = "0.2"
 log = { workspace = true }
 parking_lot = "0.12.0"
 rand = { workspace = true }
-talpid-dns = { path = "../talpid-dns" }
 talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
-talpid-wireguard = { path = "../talpid-wireguard" }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 
 [target.'cfg(target_os="linux")'.dependencies]
@@ -38,24 +32,18 @@ triggered = "0.1.1"
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = { workspace = true, features = ["mount"] }
+nix = { workspace = true, features = ["mount", "net"] }
 inotify = "0.10"
 resolv-conf = "0.7"
-nftnl = { version = "0.8.0", features = ["nftnl-1-1-0"] }
-mnl = { version = "0.2.3", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 talpid-dbus = { path = "../talpid-dbus" }
 
-
 [target.'cfg(target_os = "macos")'.dependencies]
 async-trait = "0.1"
-pfctl = "0.7.0"
 system-configuration = "0.5.1"
 hickory-proto = { workspace = true }
 hickory-server = { workspace = true, features = ["resolver"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
-pcap = { version = "2.1", features = ["capture-stream"] }
-pnet_packet = { workspace = true }
 tun = { workspace = true, features = ["async"] }
 nix = { workspace = true, features = ["socket", "signal", "user"] }
 serde = { workspace = true, features = ["derive"] }

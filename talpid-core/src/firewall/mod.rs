@@ -1,10 +1,9 @@
-#[cfg(not(target_os = "android"))]
-use crate::dns::ResolvedDnsConfig;
+use std::fmt;
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-use std::{
-    fmt,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
-};
+#[cfg(not(target_os = "android"))]
+use talpid_dns::ResolvedDnsConfig;
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
 #[cfg(target_os = "macos")]

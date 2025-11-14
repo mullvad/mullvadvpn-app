@@ -29,9 +29,6 @@ pub mod mpsc;
 /// Abstractions over operating system firewalls.
 pub mod firewall;
 
-/// Abstractions over operating system DNS settings.
-pub mod dns;
-
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 

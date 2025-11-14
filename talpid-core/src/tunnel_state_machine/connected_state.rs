@@ -2,11 +2,11 @@ use futures::StreamExt;
 use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
 
+use talpid_dns::ResolvedDnsConfig;
 use talpid_types::net::{AllowedClients, AllowedEndpoint, wireguard::TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
-use crate::dns::ResolvedDnsConfig;
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;

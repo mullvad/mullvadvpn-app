@@ -14,13 +14,13 @@ use self::{
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use crate::split_tunnel;
 use crate::{
-    dns::{DnsConfig, DnsMonitor},
     firewall::{Firewall, FirewallArguments, InitialFirewallState},
     mpsc::Sender,
     offline,
 };
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::ffi::OsString;
+use talpid_dns::{DnsConfig, DnsMonitor};
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]
 use talpid_tunnel::TunnelMetadata;
@@ -69,7 +69,7 @@ pub enum Error {
 
     /// Failed to initialize the system DNS manager and monitor.
     #[error("Failed to initialize the system DNS manager and monitor")]
-    InitDnsMonitorError(#[from] crate::dns::Error),
+    InitDnsMonitorError(#[from] talpid_dns::Error),
 
     /// Failed to initialize the route manager.
     #[error("Failed to initialize the route manager")]
@@ -198,7 +198,7 @@ pub enum TunnelCommand {
     #[cfg(not(target_os = "android"))]
     AllowEndpoint(AllowedEndpoint, oneshot::Sender<()>),
     /// Set DNS configuration to use.
-    Dns(crate::dns::DnsConfig, oneshot::Sender<()>),
+    Dns(DnsConfig, oneshot::Sender<()>),
     /// Enable or disable the lockdown_mode feature.
     #[cfg(not(target_os = "android"))]
     LockdownMode(LockdownMode, oneshot::Sender<()>),
@@ -561,7 +561,7 @@ struct SharedTunnelStateValues {
     /// True when the computer is known to be offline.
     connectivity: Connectivity,
     /// DNS configuration to use.
-    dns_config: crate::dns::DnsConfig,
+    dns_config: DnsConfig,
     /// Endpoint that should not be blocked by the firewall.
     allowed_endpoint: AllowedEndpoint,
     /// The generator of new `TunnelParameter`s
