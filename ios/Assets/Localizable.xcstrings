@@ -1560,6 +1560,9 @@
         }
       }
     },
+    "Add %@ to list" : {
+
+    },
     "Add 30 days time (%@)" : {
       "localizations" : {
         "da" : {
@@ -8435,6 +8438,9 @@
     "Client is not allowed to issue the request." : {
 
     },
+    "Collapse" : {
+
+    },
     "Collapse %@" : {
 
     },
@@ -8912,6 +8918,9 @@
           }
         }
       }
+    },
+    "Connected server" : {
+
     },
     "Connected to %@" : {
 
@@ -13173,6 +13182,9 @@
         }
       }
     },
+    "Edit" : {
+
+    },
     "Edit custom list" : {
 
     },
@@ -14245,6 +14257,7 @@
       }
     },
     "Entry" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -14481,6 +14494,7 @@
       }
     },
     "Exit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -14597,6 +14611,9 @@
           }
         }
       }
+    },
+    "Expand" : {
+
     },
     "Expand %@" : {
 
@@ -15096,6 +15113,9 @@
           }
         }
       }
+    },
+    "Filters" : {
+
     },
     "Finland" : {
       "localizations" : {
@@ -21475,6 +21495,9 @@
         }
       }
     },
+    "List name" : {
+
+    },
     "Ljubljana" : {
       "localizations" : {
         "da" : {
@@ -24550,6 +24573,7 @@
       }
     },
     "multihop" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -25495,6 +25519,9 @@
           }
         }
       }
+    },
+    "New list" : {
+
     },
     "NEW VERSION INSTALLED" : {
       "localizations" : {
@@ -26448,6 +26475,9 @@
           }
         }
       }
+    },
+    "No result for \"%@\", please try a different search term." : {
+
     },
     "No servers match your location filter. Try changing filter settings." : {
 
@@ -28357,6 +28387,9 @@
           }
         }
       }
+    },
+    "Owned" : {
+
     },
     "Ownership" : {
       "localizations" : {
@@ -30485,6 +30518,9 @@
     "Providers: %d" : {
 
     },
+    "Providers: %lld" : {
+
+    },
     "Quantum resistance" : {
       "localizations" : {
         "da" : {
@@ -31565,6 +31601,9 @@
     "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
 
     },
+    "Rented" : {
+
+    },
     "Rented only" : {
       "localizations" : {
         "da" : {
@@ -32634,6 +32673,7 @@
 
     },
     "Search for..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -37504,12 +37544,12 @@
     "The entry and exit servers cannot be the same. Try changing one to a new server or location." : {
 
     },
-    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." : {
+    "The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings."
+            "value" : "The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings."
           }
         }
       }
@@ -38482,6 +38522,9 @@
         }
       }
     },
+    "To add locations to a list, press the pen or long press on a country, city, or server." : {
+
+    },
     "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
       "localizations" : {
         "da" : {
@@ -38953,6 +38996,9 @@
           }
         }
       }
+    },
+    "To create a custom list press the “+” or long press on a country, city, or server." : {
+
     },
     "To create a custom list, tap on \"...\" " : {
 

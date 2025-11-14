@@ -47,30 +47,83 @@ class CustomListsDataSourceTests: XCTestCase {
     }
 
     func testSearch() throws {
-        let nodes = dataSource.search(by: "got")
-        let rootNode = RootLocationNode(children: nodes)
+        dataSource.search(by: "got")
+        let rootNode = RootLocationNode(children: dataSource.nodes)
 
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["Netflix", "se", "got"])?.isHiddenFromSearch == false)
         XCTAssertTrue(rootNode.descendantNodeFor(codes: ["Netflix", "se", "sto"])?.isHiddenFromSearch == true)
     }
 
     func testSearchWithEmptyText() throws {
-        let nodes = dataSource.search(by: "")
-        XCTAssertEqual(nodes, dataSource.nodes)
+        dataSource.search(by: "")
+        dataSource.nodes.forEachNode {
+            XCTAssertFalse($0.isHiddenFromSearch)
+        }
     }
 
     func testSearchYieldsNoListNodes() throws {
-        let nodes = dataSource.search(by: "net")
-        XCTAssertFalse(nodes.contains(where: { $0.name == "Netflix" }))
+        dataSource.search(by: "net")
+        dataSource.nodes.forEachNode {
+            if $0.name == "Netflix" {
+                XCTAssertFalse($0.isHiddenFromSearch)
+            }
+        }
     }
 
     func testNodeByLocations() throws {
-        let relays = UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")], customListSelection: nil)
+        let customListId = (dataSource.nodes.first! as! CustomListLocationNode).customList.id
+        let relays = UserSelectedRelays(
+            locations: [.hostname("es", "mad", "es1-wireguard")],
+            customListSelection: .init(listId: customListId, isList: false)
+        )
 
-        let nodeByLocations = dataSource.node(by: relays, for: customLists.first!)
+        let nodeByLocations = dataSource.node(by: relays)
         let nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["Netflix", "es1-wireguard"])
 
         XCTAssertEqual(nodeByLocations, nodeByCode)
+    }
+
+    func testSetSelection() throws {
+        let customListId = (dataSource.nodes.first! as! CustomListLocationNode).customList.id
+        let userSelectedRelays = UserSelectedRelays(
+            locations: [.country("se")],
+            customListSelection: .init(listId: customListId, isList: false)
+        )
+
+        dataSource
+            .setSelectedNode(
+                selectedRelays: userSelectedRelays
+            )
+
+        dataSource.nodes.forEachNode { node in
+            if node.locations == [.country("se")] {
+                XCTAssertTrue(node.isSelected)
+            } else {
+                XCTAssertFalse(node.isSelected)
+            }
+        }
+
+        dataSource
+            .setSelectedNode(
+                selectedRelays: .init(locations: [.country("invalid")])
+            )
+        dataSource.nodes.forEachNode { node in
+            XCTAssertFalse(node.isSelected)
+        }
+    }
+
+    func testDoNotSetSelectedLocation() throws {
+        let selectedRelays: UserSelectedRelays = .init(
+            locations: [
+                .country("se")
+            ]
+        )
+
+        dataSource.setSelectedNode(selectedRelays: selectedRelays)
+
+        dataSource.nodes.forEachNode { node in
+            XCTAssertFalse(node.isSelected)
+        }
     }
 }
 

@@ -5,10 +5,11 @@ extension Color {
     private static let mullvadSecondaryColor = MullvadDarkBlue.base
     private static let mullvadWarningColor = UIColor.warningColor.color
     private static let mullvadDangerColor = UIColor.dangerColor.color
-    private static let mullvadSuccessColor = UIColor.successColor.color
+    static let mullvadSuccessColor = UIColor.successColor.color
 
     static let mullvadBackground: Color = .mullvadSecondaryColor
     static let mullvadTextPrimary: Color = UIColor.primaryTextColor.color
+    static let mullvadTextSecondary: Color = MullvadWhite._60
     static let mullvadTextPrimaryDisabled: Color = .mullvadTextPrimary.opacity(
         0.2
     )
@@ -74,6 +75,13 @@ extension Color {
     enum MullvadList {
         static let separator: Color = .mullvadSecondaryColor
         static let background: Color = .mullvadPrimaryColor
+        enum Item {
+            static let parent: Color = .mullvadPrimaryColor
+            static let child1 = Color.MullvadBlue._60
+            static let child2 = Color.MullvadBlue._40
+            static let child3 = Color.MullvadBlue._20
+            static let child4 = Color.MullvadBlue._10
+        }
     }
 
     enum MullvadTextField {

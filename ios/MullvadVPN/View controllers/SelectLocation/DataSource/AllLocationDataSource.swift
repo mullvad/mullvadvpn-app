@@ -13,10 +13,6 @@ import MullvadTypes
 class AllLocationDataSource: LocationDataSourceProtocol {
     private(set) var nodes = [LocationNode]()
 
-    var searchableNodes: [LocationNode] {
-        nodes
-    }
-
     /// Constructs a collection of node trees from relays fetched from the API.
     /// ``RelayLocation.city`` is of special import since we use it to get country
     /// and city names.
@@ -47,19 +43,6 @@ class AllLocationDataSource: LocationDataSourceProtocol {
         }
 
         nodes = rootNode.children
-    }
-
-    func node(by location: RelayLocation) -> LocationNode? {
-        let rootNode = RootLocationNode(children: nodes)
-
-        return switch location {
-        case let .country(countryCode):
-            rootNode.descendantNodeFor(codes: [countryCode])
-        case let .city(countryCode, cityCode):
-            rootNode.descendantNodeFor(codes: [countryCode, cityCode])
-        case let .hostname(_, _, hostCode):
-            rootNode.descendantNodeFor(codes: [hostCode])
-        }
     }
 
     private func addLocation(
