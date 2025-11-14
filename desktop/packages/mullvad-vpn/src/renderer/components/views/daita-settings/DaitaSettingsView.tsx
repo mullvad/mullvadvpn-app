@@ -27,7 +27,7 @@ export function DaitaSettingsView() {
 
           <NavigationScrollbars>
             <Flex flexDirection="column" gap="medium">
-              <View.Container>
+              <View.Container marginInline="medium">
                 <FlexColumn gap="medium">
                   <HeaderTitle>{strings.daita}</HeaderTitle>
                   {showDaitaMultihopInfo && (

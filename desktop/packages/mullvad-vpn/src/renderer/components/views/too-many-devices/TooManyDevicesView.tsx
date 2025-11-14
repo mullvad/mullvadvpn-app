@@ -49,14 +49,14 @@ export function TooManyDevicesView() {
       </AppMainHeader>
       <StyledCustomScrollbars fillContainer>
         <FlexColumn gap="large">
-          <View.Container flexDirection="column" size="4">
+          <View.Container flexDirection="column" marginInline="medium">
             <Flex justifyContent="center" margin={{ top: 'large' }}>
               <IconBadge key={imageSource} state={imageSource} />
             </Flex>
           </View.Container>
           {devices !== undefined && (
             <>
-              <View.Container flexDirection="column" size="4" gap="small">
+              <View.Container flexDirection="column" marginInline="medium" gap="small">
                 <Text variant="titleLarge" data-testid="title">
                   {title}
                 </Text>
@@ -69,7 +69,7 @@ export function TooManyDevicesView() {
           {devices !== undefined && (
             <View.Container
               flexDirection="column"
-              size="4"
+              marginInline="medium"
               gap="medium"
               padding={{ bottom: 'large' }}>
               <Button variant="success" onClick={continueLogin} disabled={continueButtonDisabled}>

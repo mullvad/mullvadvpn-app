@@ -42,10 +42,10 @@ export function UpgradeDetails() {
         )}
       </AppUpgradeHeader>
       <Flex flexDirection="column" gap="small">
-        <Container size="4">
+        <Container marginInline="medium">
           <TitleLarge as="h2">{title}</TitleLarge>
         </Container>
-        <Container size="3" flexDirection="column">
+        <Container marginInline="large" flexDirection="column">
           {showChangelogList ? <ChangelogList changelog={changelog} /> : <NoChangelogUpdates />}
         </Container>
       </Flex>

@@ -9,7 +9,7 @@ export function LaunchView() {
       <AppMainHeader logoVariant="none">
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
-      <View.Container flexDirection="column" size="4" flexGrow={1}>
+      <View.Container flexDirection="column" marginInline="medium" flexGrow={1}>
         <Flex
           flexDirection="column"
           flexGrow={1}

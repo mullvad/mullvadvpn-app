@@ -57,7 +57,7 @@ export function Account() {
             }
           />
 
-          <StyledViewContainer flexDirection="column" size="4">
+          <StyledViewContainer flexDirection="column" marginInline="medium">
             <FlexColumn gap="medium">
               <Text variant="titleBig">
                 <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
