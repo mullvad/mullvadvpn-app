@@ -138,11 +138,13 @@ private fun RecentListItem(
         relayListItem = listItem,
         onClick = { onSelect(listItem.item) },
         onLongClick = {
-            val entry = listItem.item
-            if (entry is RelayItem.Location) {
-                onUpdateBottomSheetState(
-                    ShowLocationBottomSheet(customLists = customLists, item = entry)
-                )
+            when (val entry = listItem.item) {
+                is RelayItem.CustomList ->
+                    onUpdateBottomSheetState(ShowEditCustomListBottomSheet(entry))
+                is RelayItem.Location ->
+                    onUpdateBottomSheetState(
+                        ShowLocationBottomSheet(customLists = customLists, item = entry)
+                    )
             }
         },
         onToggleExpand = { _ -> },
