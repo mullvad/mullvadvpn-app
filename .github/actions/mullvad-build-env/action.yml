@@ -46,11 +46,10 @@ runs:
       with:
         repo-token: ${{ inputs.protoc-token }}
 
-    - name: Checkout submodules
+    - name: Checkout Wireguard-GO submodule
       shell: bash
       run: |
         git config --global --add safe.directory '*'
-        git submodule update --init --depth=1 windows
         git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
     - name: Checkout Mullvad binaries submodule
@@ -60,6 +59,14 @@ runs:
       run: |
         git config --global --add safe.directory '*'
         git submodule update --init --depth=1 dist-assets/binaries
+
+    - name: Checkout Windows libraries submodule
+      # These libraries are only required if building for Windows.
+      if: runner.os == 'Windows' || runner.os == 'Linux'
+      shell: bash
+      run: |
+        git config --global --add safe.directory '*'
+        git submodule update --init --depth=1 windows
 
     - name: Calculate Windows libraries cache hash
       if: runner.os == 'Windows'
