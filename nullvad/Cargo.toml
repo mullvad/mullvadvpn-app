@@ -13,7 +13,7 @@ clap = { workspace = true, features = ["derive"] }
 env_logger.workspace = true
 futures.workspace = true
 log.workspace = true
-nix = { workspace = true, features = ["sched", "socket", "uio", "user", "fs"] }
+nix = { workspace = true, features = ["sched", "socket", "uio", "user", "fs", "mount"] }
 rtnetlink.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true, features = ["rt"] }
