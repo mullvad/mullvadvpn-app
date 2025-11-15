@@ -32,7 +32,7 @@ SystemCallArchitectures=native
 LockPersonality=true
 MemoryDenyWriteExecute=true
 RestrictAddressFamilies=AF_NETLINK AF_UNIX AF_INET AF_INET6
-RestrictNamespaces=true
+RestrictNamespaces=cgroup
 
 # devices
 DeviceAllow=/dev/net/tun rw
