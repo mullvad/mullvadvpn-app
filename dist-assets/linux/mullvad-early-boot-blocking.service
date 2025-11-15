@@ -12,5 +12,35 @@ Before=basic.target mullvad-daemon.service
 Type=oneshot
 ExecStart=/usr/bin/mullvad-daemon --initialize-early-boot-firewall
 
+# capabilities
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
+
+# files
+ProtectSystem=true
+ProtectHome=true
+PrivateTmp=true
+
+# kernel
+ProtectKernelLogs=true
+ProtectKernelModules=true
+
+# sys calls
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+RestrictRealtime=true
+SystemCallArchitectures=native
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_NETLINK AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=cgroup
+
+# devices
+DeviceAllow=/dev/net/tun rw
+DevicePolicy=closed
+
+# misc
+NoNewPrivileges=true
+RestrictSUIDSGID=true
+
 [Install]
 WantedBy=mullvad-daemon.service
