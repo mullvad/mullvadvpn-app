@@ -50,9 +50,16 @@ runs:
       shell: bash
       run: |
         git config --global --add safe.directory '*'
-        git submodule update --init --depth=1 dist-assets/binaries
         git submodule update --init --depth=1 windows
         git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
+    - name: Checkout Mullvad binaries submodule
+      # macOS does not depend on any of our binaries.
+      if: runner.os != 'macOS'
+      shell: bash
+      run: |
+        git config --global --add safe.directory '*'
+        git submodule update --init --depth=1 dist-assets/binaries
 
     - name: Calculate Windows libraries cache hash
       if: runner.os == 'Windows'
