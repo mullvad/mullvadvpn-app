@@ -332,13 +332,11 @@ impl ConnectingState {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {
-                tunnel_monitor::Error::WireguardTunnelMonitoringError(
-                    talpid_wireguard::Error::TimeoutError,
-                ) => {
+                tunnel_monitor::Error::TunnelMonitoring(talpid_wireguard::Error::TimeoutError) => {
                     log::debug!("WireGuard tunnel timed out");
                     None
                 }
-                error @ tunnel_monitor::Error::WireguardTunnelMonitoringError(..)
+                error @ tunnel_monitor::Error::TunnelMonitoring(..)
                     if !should_retry(&error, retry_attempt) =>
                 {
                     log::error!(
