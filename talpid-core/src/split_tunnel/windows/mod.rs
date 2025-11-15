@@ -6,7 +6,7 @@ mod service;
 mod volume_monitor;
 mod windows;
 
-use crate::{tunnel::TunnelMetadata, tunnel_state_machine::TunnelCommand};
+use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::{mpsc, oneshot};
 use std::{
     collections::HashMap,
@@ -23,6 +23,7 @@ use std::{
     time::Duration,
 };
 use talpid_routing::{CallbackHandle, EventType, RouteManagerHandle, get_best_default_route};
+use talpid_tunnel::TunnelMetadata;
 use talpid_types::{ErrorExt, split_tunnel::ExcludedProcess, tunnel::ErrorStateCause};
 use talpid_windows::{
     io::Overlapped,

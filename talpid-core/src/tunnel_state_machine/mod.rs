@@ -3,6 +3,7 @@ mod connecting_state;
 mod disconnected_state;
 mod disconnecting_state;
 mod error_state;
+mod tunnel_monitor;
 
 use self::{
     connected_state::ConnectedState,
