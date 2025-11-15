@@ -17,9 +17,6 @@ mod offline;
 /// Split tunneling
 pub mod split_tunnel;
 
-/// Abstracts over different VPN tunnel technologies
-pub mod tunnel;
-
 /// Helper function to preserve previous log files.
 pub mod logging;
 

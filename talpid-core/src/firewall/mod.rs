@@ -5,6 +5,7 @@ use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
+use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
 #[cfg(target_os = "macos")]
@@ -80,7 +81,7 @@ pub enum FirewallPolicy {
         #[cfg(target_os = "windows")]
         exit_endpoint_ip: Option<IpAddr>,
         /// Metadata about the tunnel and tunnel interface.
-        tunnel: Option<crate::tunnel::TunnelMetadata>,
+        tunnel: Option<TunnelMetadata>,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// Host that should be reachable while connecting.
@@ -100,7 +101,7 @@ pub enum FirewallPolicy {
         #[cfg(target_os = "windows")]
         exit_endpoint_ip: Option<IpAddr>,
         /// Metadata about the tunnel and tunnel interface.
-        tunnel: crate::tunnel::TunnelMetadata,
+        tunnel: TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// Servers that are allowed to respond to DNS requests.
@@ -145,7 +146,7 @@ impl FirewallPolicy {
     }
 
     /// Return tunnel metadata, if available
-    pub fn tunnel(&self) -> Option<&crate::tunnel::TunnelMetadata> {
+    pub fn tunnel(&self) -> Option<&TunnelMetadata> {
         match self {
             FirewallPolicy::Connecting {
                 tunnel: Some(tunnel),
