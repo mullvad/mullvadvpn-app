@@ -1,5 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy};
-use crate::{split_tunnel, tunnel};
+use crate::split_tunnel;
 use ipnetwork::IpNetwork;
 use nftnl::{
     Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
@@ -13,6 +13,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     sync::LazyLock,
 };
+use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
     cgroup::find_net_cls_mount,
     net::{
@@ -871,7 +872,7 @@ impl<'a> PolicyBatch<'a> {
     /// the tunnel IP the device used if the device was set to not filter reverse path (rp_filter.)
     /// These rules stops all packets coming in to the tunnel IP. As such, these rules must come
     /// after the rule allowing the tunnel, otherwise even the tunnel can't talk to that IP.
-    fn add_block_cve_2019_14899(&mut self, tunnel: &tunnel::TunnelMetadata) {
+    fn add_block_cve_2019_14899(&mut self, tunnel: &TunnelMetadata) {
         for tunnel_ip in &tunnel.ips {
             let mut rule = Rule::new(&self.in_chain);
             check_ip(&mut rule, End::Dst, *tunnel_ip);

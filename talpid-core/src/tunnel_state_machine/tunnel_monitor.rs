@@ -1,12 +1,11 @@
+//! Abstracts over an active VPN tunnel.
 use std::path;
+
+use talpid_tunnel::TunnelArgs;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider;
-pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
-
-use talpid_types::{
-    net::{wireguard as wireguard_types, wireguard::TunnelParameters},
-    tunnel::ErrorStateCause,
-};
+use talpid_types::net::{wireguard as wireguard_types, wireguard::TunnelParameters};
+use talpid_types::tunnel::ErrorStateCause;
 use talpid_wireguard::WireguardMonitor;
 
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";

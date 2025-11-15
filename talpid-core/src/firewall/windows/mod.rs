@@ -1,5 +1,6 @@
 use std::{net::IpAddr, sync::LazyLock};
 
+use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
     ErrorExt,
     net::{AllowedEndpoint, AllowedTunnelTraffic},
@@ -9,7 +10,7 @@ use widestring::WideCString;
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
-use crate::{dns::ResolvedDnsConfig, tunnel::TunnelMetadata};
+use crate::dns::ResolvedDnsConfig;
 
 mod hyperv;
 mod winfw;
