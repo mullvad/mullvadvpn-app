@@ -4,7 +4,10 @@
 }:
 let
   desktop-rust-toolchain = common-toolchain.rust-toolchain-base.override {
-    extensions = [ "rust-analyzer" ];
+    extensions = [
+      "rust-analyzer"
+      "rust-src"
+    ];
   };
 in
 {

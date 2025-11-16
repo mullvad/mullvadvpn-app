@@ -31,7 +31,10 @@ let
   );
 
   rust-toolchain = common-toolchain.rust-toolchain-base.override {
-    extensions = [ "rust-analyzer" ];
+    extensions = [
+      "rust-analyzer"
+      "rust-src"
+    ];
     targets = [
       "aarch64-linux-android"
       "armv7-linux-androideabi"
