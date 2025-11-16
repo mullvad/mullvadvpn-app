@@ -30,7 +30,7 @@ on:
       - android/gradle/wrapper/gradle-wrapper.jar
       - android/gradle/wrapper/gradle-wrapper.properties
       - android/scripts/lockfile
-      - android/flake.lock
+      - flake.lock
       - building/build-and-publish-container-image.sh
       - building/mullvad-app-container-signing.asc
       - building/linux-container-image.txt
