@@ -10,6 +10,7 @@ CARGO_HOME_PATH=${CARGO_HOME:-$HOME/.cargo}
 RUSTUP_HOME_PATH=${RUSTUP_HOME:-$HOME/.rustup}
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 CARGO_TARGET_DIR_PATH=${CARGO_TARGET_DIR:-$SOURCE_DIR/target}
+SYSROOT_PATH=$(rustc --print sysroot)
 
 # The order is significant. Iterated over in reverse, so last argument is
 # treated as most significant. Since CARGO_TARGET_DIR_PATH might be located
@@ -20,4 +21,5 @@ echo "\
 --remap-path-prefix $RUSTUP_HOME_PATH=/RUSTUP_HOME \
 --remap-path-prefix $SOURCE_DIR=/SOURCE_DIR \
 --remap-path-prefix $CARGO_TARGET_DIR_PATH=/CARGO_TARGET_DIR \
+--remap-path-prefix $SYSROOT_PATH=/SYSROOT \
 " | xargs
