@@ -3,7 +3,7 @@
   nixpkgs,
   android-nixpkgs,
   system,
-  rust-overlay,
+  common-toolchain,
 }:
 let
   versions =
@@ -30,17 +30,15 @@ let
     ]
   );
 
-  rust-toolchain =
-    (pkgs.buildPackages.rust-bin.fromRustupToolchainFile ../rust-toolchain.toml).override
-      {
-        extensions = [ "rust-analyzer" ];
-        targets = [
-          "aarch64-linux-android"
-          "armv7-linux-androideabi"
-          "x86_64-linux-android"
-          "i686-linux-android"
-        ];
-      };
+  rust-toolchain = common-toolchain.rust-toolchain-base.override {
+    extensions = [ "rust-analyzer" ];
+    targets = [
+      "aarch64-linux-android"
+      "armv7-linux-androideabi"
+      "x86_64-linux-android"
+      "i686-linux-android"
+    ];
+  };
 in
 {
   inherit
@@ -51,15 +49,11 @@ in
     minSdkVersion
     ;
 
-  packages = [
+  packages = common-toolchain.commonPackages ++ [
     android-sdk
     rust-toolchain
     pkgs.protoc-gen-grpc-java
-    pkgs.gcc
-    pkgs.gnumake
-    pkgs.protobuf
     pkgs.jdk17
     pkgs.python314
-  ]
-  ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
+  ];
 }
