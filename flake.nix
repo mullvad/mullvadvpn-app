@@ -17,12 +17,12 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       android-nixpkgs,
       rust-overlay,
       flake-utils,
       devshell,
+      ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -58,12 +58,12 @@
         devShells =
           pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
             default = import ./nix/desktop-devshell.nix {
-              inherit pkgs self desktop-toolchain;
+              inherit pkgs desktop-toolchain;
             };
           }
           // {
             android = import ./nix/android-devshell.nix {
-              inherit pkgs self android-toolchain;
+              inherit pkgs android-toolchain;
             };
           };
       }
