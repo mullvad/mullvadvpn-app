@@ -1,8 +1,4 @@
-{
-  pkgs,
-  self,
-  android-toolchain,
-}:
+{ pkgs, android-toolchain }:
 pkgs.devshell.mkShell {
   name = "mullvad-android-devshell";
   packages = android-toolchain.packages;

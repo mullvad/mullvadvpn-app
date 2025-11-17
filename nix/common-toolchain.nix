@@ -1,4 +1,4 @@
-{ pkgs, rust-overlay }:
+{ pkgs }:
 let
   rust-toolchain-base = pkgs.buildPackages.rust-bin.fromRustupToolchainFile ../rust-toolchain.toml;
 in
