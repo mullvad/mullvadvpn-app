@@ -55,5 +55,6 @@ in
     pkgs.protoc-gen-grpc-java
     pkgs.jdk17
     pkgs.python314
-  ];
+  ]
+  ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
 }

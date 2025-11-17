@@ -9,6 +9,5 @@ in
     pkgs.gcc
     pkgs.gnumake
     pkgs.protobuf
-  ]
-  ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
+  ];
 }
