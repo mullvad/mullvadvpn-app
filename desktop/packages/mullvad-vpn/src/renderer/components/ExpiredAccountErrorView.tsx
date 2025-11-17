@@ -10,6 +10,7 @@ import { useAppContext } from '../context';
 import { LockdownModeSwitch } from '../features/tunnel/components';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
+import { View } from '../lib/components/view';
 import { spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
@@ -22,14 +23,11 @@ import {
   StyledAccountNumberContainer,
   StyledAccountNumberLabel,
   StyledAccountNumberMessage,
-  StyledBody,
-  StyledContainer,
   StyledCustomScrollbars,
   StyledDeviceLabel,
   StyledMessage,
   StyledTitle,
 } from './ExpiredAccountErrorViewStyles';
-import { Footer, Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { SettingsListItem } from './settings-list-item';
 
@@ -72,7 +70,7 @@ function ExpiredAccountErrorViewComponent() {
   }, [push]);
 
   return (
-    <Layout>
+    <View backgroundColor="darkBlue">
       <AppMainHeader
         variant={isNewAccount ? 'default' : 'basedOnConnectionStatus'}
         size="basedOnLoginStatus">
@@ -80,10 +78,15 @@ function ExpiredAccountErrorViewComponent() {
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
       <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <StyledBody>{isNewAccount ? <WelcomeView /> : <Content />}</StyledBody>
+        <View.Content>
+          <View.Container
+            flexDirection="column"
+            horizontalMargin="large"
+            margin={{ top: 'large' }}
+            flexGrow={1}
+            justifyContent="space-between">
+            <FlexColumn>{isNewAccount ? <WelcomeView /> : <Content />}</FlexColumn>
 
-          <Footer>
             <FlexColumn gap="medium">
               {recoveryAction === RecoveryAction.disconnect && (
                 <Button variant="destructive" disabled={disconnecting} onClick={disconnect}>
@@ -107,12 +110,12 @@ function ExpiredAccountErrorViewComponent() {
                 </Button.Text>
               </Button>
             </FlexColumn>
-          </Footer>
 
-          <LockdownModeAlert />
-        </StyledContainer>
+            <LockdownModeAlert />
+          </View.Container>
+        </View.Content>
       </StyledCustomScrollbars>
-    </Layout>
+    </View>
   );
 }
 

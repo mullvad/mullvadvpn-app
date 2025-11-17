@@ -2,9 +2,8 @@ import styled from 'styled-components';
 
 import { colors } from '../lib/foundations';
 import AccountNumberLabel from './AccountNumberLabel';
-import { hugeText, measurements, tinyText } from './common-styles';
+import { hugeText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { Container } from './Layout';
 
 export const StyledAccountNumberLabel = styled(AccountNumberLabel)({
   fontFamily: 'Open Sans',
@@ -16,19 +15,6 @@ export const StyledAccountNumberLabel = styled(AccountNumberLabel)({
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
-});
-
-export const StyledContainer = styled(Container)({
-  paddingTop: '22px',
-  minHeight: '100%',
-  backgroundColor: colors.darkBlue,
-});
-
-export const StyledBody = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  padding: `0 ${measurements.horizontalViewMargin}`,
 });
 
 export const StyledTitle = styled.span(hugeText, {
