@@ -2,7 +2,7 @@
 set -eu
 shopt -s nullglob
 
-TAG_PATTERN_TO_BUILD=("^ios/")
+TAG_PATTERN_TO_BUILD="^ios/"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app/ios"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
@@ -19,7 +19,7 @@ GIT_WORK_TREE="$SCRIPT_DIR/mullvadvpn-app/"
 function run_git {
     # `git submodule` needs more info than just $GIT_DIR and $GIT_WORK_TREE.
     # But -C makes it work.
-    git -C $GIT_WORK_TREE $@
+    git -C "$GIT_WORK_TREE" "$@"
 }
 
 function upload_app() {
@@ -51,7 +51,7 @@ function build_ref() {
     fi
 
     run_git reset --hard
-    run_git checkout $tag
+    run_git checkout "$tag"
     run_git submodule update
     run_git submodule update --init ios/wireguard-apple || true
     run_git clean -df
@@ -101,13 +101,12 @@ function run_build_loop() {
         (cd mullvadvpn-app && git tag | xargs git tag -d > /dev/null)
 
         run_git fetch --prune --tags --recurse-submodules=no 2> /dev/null || true
+        # shellcheck disable=SC2207
         tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
         for tag in "${tags[@]}"; do
           build_ref "refs/tags/$tag"
         done
-	echo All done
-
         sleep 240
     done
 }

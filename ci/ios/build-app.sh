@@ -20,7 +20,7 @@ cp -a "$CHECKOUT_DIR" "$CLONE_DIR"
 cd "$BUILD_DIR"
 
 # Instantiate Xcconfig templates.
-for file in ./Configurations/*.template ; do cp $file ${file//.template/} ; done
+for file in ./Configurations/*.template ; do cp "$file" "${file//.template/}" ; done
 
 IOS_PROVISIONING_PROFILES_DIR="${SCRIPT_DIR}/provisioning-profiles" \
     bash build.sh | tee "$LAST_BUILD_LOG"
