@@ -8,7 +8,6 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
@@ -52,7 +51,6 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
@@ -61,7 +59,6 @@ import net.mullvad.mullvadvpn.relaylist.canAddLocation
 @Composable
 internal fun LocationBottomSheets(
     locationBottomSheetState: LocationBottomSheetState?,
-    enableEntryOption: Boolean,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
     onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
@@ -93,8 +90,9 @@ internal fun LocationBottomSheets(
                 sheetState = sheetState,
                 customLists = locationBottomSheetState.customLists,
                 item = locationBottomSheetState.item,
-                selection = locationBottomSheetState.selection,
-                enableEntryOption = enableEntryOption,
+                canBeSetAsEntry = locationBottomSheetState.canBeSetAsEntry,
+                canBeSetAsExit = locationBottomSheetState.canBeSetAsExit,
+                canBeRemovedAsEntry = locationBottomSheetState.canBeRemovedAsEntry,
                 onCreateCustomList = onCreateCustomList,
                 onAddLocationToList = onAddLocationToList,
                 onSetAsEntry = onSetAsEntry,
@@ -109,8 +107,9 @@ internal fun LocationBottomSheets(
                 onBackgroundColor = onBackgroundColor,
                 sheetState = sheetState,
                 customList = locationBottomSheetState.customList,
-                selection = locationBottomSheetState.selection,
-                enableEntryOption = enableEntryOption,
+                canBeSetAsEntry = locationBottomSheetState.canBeSetAsEntry,
+                canBeSetAsExit = locationBottomSheetState.canBeSetAsExit,
+                canBeRemovedAsEntry = locationBottomSheetState.canBeRemovedAsEntry,
                 onEditName = onEditCustomListName,
                 onEditLocations = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
@@ -128,8 +127,9 @@ internal fun LocationBottomSheets(
                 customListId = locationBottomSheetState.customListId,
                 customListName = locationBottomSheetState.customListName,
                 item = locationBottomSheetState.item,
-                selection = locationBottomSheetState.selection,
-                enableEntryOption = enableEntryOption,
+                canBeSetAsEntry = locationBottomSheetState.canBeSetAsEntry,
+                canBeSetAsExit = locationBottomSheetState.canBeSetAsExit,
+                canBeRemovedAsEntry = locationBottomSheetState.canBeRemovedAsEntry,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onSetAsEntry = onSetAsEntry,
                 onDisableMultihop = onDisableMultihop,
@@ -151,8 +151,9 @@ private fun LocationBottomSheet(
     sheetState: SheetState,
     customLists: List<RelayItem.CustomList>,
     item: RelayItem.Location,
-    selection: RelayItemSelection,
-    enableEntryOption: Boolean,
+    canBeSetAsEntry: Boolean,
+    canBeSetAsExit: Boolean,
+    canBeRemovedAsEntry: Boolean,
     onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     onDisableMultihop: () -> Unit,
@@ -212,8 +213,9 @@ private fun LocationBottomSheet(
                     )
                     MultihopOptions(
                         item = item,
-                        selection = selection,
-                        enableEntryOption = enableEntryOption,
+                        canBeSetAsEntry = canBeSetAsEntry,
+                        canBeSetAsExit = canBeSetAsExit,
+                        canBeRemovedAsEntry = canBeRemovedAsEntry,
                         onBackgroundColor = onBackgroundColor,
                         onSetAsEntry = onSetAsEntry,
                         onSetAsExit = onSetAsExit,
@@ -233,8 +235,9 @@ private fun EditCustomListBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
     customList: RelayItem.CustomList,
-    selection: RelayItemSelection,
-    enableEntryOption: Boolean,
+    canBeSetAsEntry: Boolean,
+    canBeSetAsExit: Boolean,
+    canBeRemovedAsEntry: Boolean,
     onEditName: (item: RelayItem.CustomList) -> Unit,
     onEditLocations: (item: RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
@@ -281,8 +284,9 @@ private fun EditCustomListBottomSheet(
         )
         MultihopOptions(
             item = customList,
-            selection = selection,
-            enableEntryOption = enableEntryOption,
+            canBeSetAsEntry = canBeSetAsEntry,
+            canBeSetAsExit = canBeSetAsExit,
+            canBeRemovedAsEntry = canBeRemovedAsEntry,
             onBackgroundColor = onBackgroundColor,
             onSetAsEntry = onSetAsEntry,
             onSetAsExit = onSetAsExit,
@@ -301,8 +305,9 @@ private fun CustomListEntryBottomSheet(
     customListId: CustomListId,
     customListName: CustomListName,
     item: RelayItem.Location,
-    selection: RelayItemSelection,
-    enableEntryOption: Boolean,
+    canBeSetAsEntry: Boolean,
+    canBeSetAsExit: Boolean,
+    canBeRemovedAsEntry: Boolean,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onSetAsEntry: (RelayItem.Location) -> Unit,
     onDisableMultihop: () -> Unit,
@@ -331,8 +336,9 @@ private fun CustomListEntryBottomSheet(
         )
         MultihopOptions(
             item = item,
-            selection = selection,
-            enableEntryOption = enableEntryOption,
+            canBeSetAsEntry = canBeSetAsEntry,
+            canBeSetAsExit = canBeSetAsExit,
+            canBeRemovedAsEntry = canBeRemovedAsEntry,
             onBackgroundColor = onBackgroundColor,
             onSetAsEntry = onSetAsEntry,
             onSetAsExit = onSetAsExit,
@@ -388,29 +394,29 @@ private fun CustomLists(
 }
 
 @Composable
-private fun <T : RelayItem> ColumnScope.MultihopOptions(
+private fun <T : RelayItem> MultihopOptions(
     item: T,
-    selection: RelayItemSelection,
-    enableEntryOption: Boolean,
+    canBeSetAsEntry: Boolean,
+    canBeSetAsExit: Boolean,
+    canBeRemovedAsEntry: Boolean,
     onBackgroundColor: Color,
     onSetAsEntry: (T) -> Unit,
     onSetAsExit: (T) -> Unit,
     onDisableMultihop: () -> Unit,
     closeBottomSheet: (Boolean) -> Unit,
 ) {
-    if (enableEntryOption) {
-        val isMultihopEntrySelection = item.id == selection.entryLocation()?.getOrNull()
+    if (canBeSetAsEntry || canBeRemovedAsEntry) {
         IconCell(
             imageVector = null,
             title =
-                if (isMultihopEntrySelection) {
+                if (canBeRemovedAsEntry) {
                     stringResource(R.string.remove_as_multihop_entry)
                 } else {
                     stringResource(R.string.set_as_multihop_entry)
                 },
             titleColor = onBackgroundColor,
             onClick = {
-                if (isMultihopEntrySelection) {
+                if (canBeRemovedAsEntry) {
                     onDisableMultihop()
                 } else {
                     onSetAsEntry(item)
@@ -418,17 +424,17 @@ private fun <T : RelayItem> ColumnScope.MultihopOptions(
                 closeBottomSheet(true)
             },
         )
-        if (selection.exitLocation.getOrNull() != item.id) {
-            IconCell(
-                imageVector = null,
-                title = stringResource(R.string.set_as_multihop_exit),
-                titleColor = onBackgroundColor,
-                onClick = {
-                    onSetAsExit(item)
-                    closeBottomSheet(true)
-                },
-            )
-        }
+    }
+    if (canBeSetAsExit) {
+        IconCell(
+            imageVector = null,
+            title = stringResource(R.string.set_as_multihop_exit),
+            titleColor = onBackgroundColor,
+            onClick = {
+                onSetAsExit(item)
+                closeBottomSheet(true)
+            },
+        )
     }
 }
 
@@ -507,21 +513,31 @@ internal fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipie
 }
 
 sealed interface LocationBottomSheetState {
+    val canBeSetAsEntry: Boolean
+    val canBeSetAsExit: Boolean
+    val canBeRemovedAsEntry: Boolean
+
     data class ShowCustomListsEntryBottomSheet(
+        override val canBeSetAsEntry: Boolean,
+        override val canBeSetAsExit: Boolean,
+        override val canBeRemovedAsEntry: Boolean,
         val customListId: CustomListId,
         val customListName: CustomListName,
         val item: RelayItem.Location,
-        val selection: RelayItemSelection,
     ) : LocationBottomSheetState
 
     data class ShowLocationBottomSheet(
+        override val canBeSetAsEntry: Boolean,
+        override val canBeSetAsExit: Boolean,
+        override val canBeRemovedAsEntry: Boolean,
         val customLists: List<RelayItem.CustomList>,
-        val selection: RelayItemSelection,
         val item: RelayItem.Location,
     ) : LocationBottomSheetState
 
     data class ShowEditCustomListBottomSheet(
+        override val canBeSetAsEntry: Boolean,
+        override val canBeSetAsExit: Boolean,
+        override val canBeRemovedAsEntry: Boolean,
         val customList: RelayItem.CustomList,
-        val selection: RelayItemSelection,
     ) : LocationBottomSheetState
 }

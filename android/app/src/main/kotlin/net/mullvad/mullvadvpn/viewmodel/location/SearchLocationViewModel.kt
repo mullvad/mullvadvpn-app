@@ -27,12 +27,14 @@ import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
+import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -51,6 +53,8 @@ class SearchLocationViewModel(
     private val selectSinglehopUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val settingsRepository: SettingsRepository,
+    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    relayItemCanBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -73,6 +77,7 @@ class SearchLocationViewModel(
                 selectedLocationUseCase(),
                 filterChips(),
                 _expandOverrides,
+                relayItemCanBeSelectedUseCase(),
             ) {
                 searchTerm,
                 relayCountries,
@@ -80,7 +85,8 @@ class SearchLocationViewModel(
                 customLists,
                 selectedItem,
                 filterChips,
-                expandOverrides ->
+                expandOverrides,
+                (canBeSelectedEntry, canBeSelectedExit) ->
                 if (relayCountries.isEmpty()) {
                     return@combine Lce.Error(Unit)
                 }
@@ -113,11 +119,11 @@ class SearchLocationViewModel(
                                         )
                                     },
                                 expandedItems = expandedItems,
+                                validEntryLocations = canBeSelectedEntry,
+                                validExitLocations = canBeSelectedExit,
                             ),
                         customLists = customLists,
                         filterChips = filterChips,
-                        selection = selectedItem,
-                        entrySelectionAllowed = settings?.entryBlocked() == false,
                     )
                 )
             }

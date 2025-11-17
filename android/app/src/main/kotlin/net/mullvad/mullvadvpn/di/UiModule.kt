@@ -45,6 +45,8 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
+import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
+import net.mullvad.mullvadvpn.usecase.SelectMultiHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -212,6 +214,15 @@ val uiModule = module {
             settingsRepository = get(),
         )
     }
+    single { SelectMultiHopUseCase(relayListRepository = get()) }
+    single {
+        RelayItemCanBeSelectedUseCase(
+            filteredRelayListUseCase = get(),
+            hopSelectionUseCase = get(),
+            settingsRepository = get(),
+            relayListRepository = get(),
+        )
+    }
 
     single { InAppNotificationController(getAll(), MainScope()) }
 
@@ -286,6 +297,7 @@ val uiModule = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
@@ -336,11 +348,14 @@ val uiModule = module {
             get(),
             get(),
             get(),
+            get(),
+            get(),
         )
     }
     viewModel { (relayListType: RelayListType) ->
         SelectLocationListViewModel(
             relayListType,
+            get(),
             get(),
             get(),
             get(),

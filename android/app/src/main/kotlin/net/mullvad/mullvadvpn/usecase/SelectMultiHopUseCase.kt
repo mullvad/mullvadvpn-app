@@ -8,7 +8,10 @@ import net.mullvad.mullvadvpn.relaylist.isTheSameAs
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
 class SelectMultiHopUseCase(private val relayListRepository: RelayListRepository) {
-    suspend operator fun invoke(entry: RelayItem, exit: RelayItem): Either<SelectRelayItemError, Unit> = either {
+    suspend operator fun invoke(
+        entry: RelayItem,
+        exit: RelayItem,
+    ): Either<SelectRelayItemError, Unit> = either {
         ensure(entry.active) { SelectRelayItemError.RelayInactive(entry) }
         ensure(exit.active) { SelectRelayItemError.RelayInactive(exit) }
         ensure(!entry.isTheSameAs(exit)) { SelectRelayItemError.EntryAndExitSame }
