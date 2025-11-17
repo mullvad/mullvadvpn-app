@@ -83,6 +83,50 @@ pub async fn test_split_tunnel(
 }
 
 /// Test that split tunneling works by asserting the following:
+/// - Splitting a process with the split tunneling (ST) feature enabled and an active tunnel
+///   allow the split process to leak.
+/// - Disabling ST forces the split program to route its traffic through the active tunnel.
+/// - Enabling ST allows the split program to leak again.
+/// The property we're testing for here is that toggling ST respects the list of split apps, and
+/// vice-versa.
+///
+/// NOTE: This will not work with Linux split tunneling, since there is no persistant list of split
+/// apps(yet!).
+#[test_function(target_os = "macos", target_os = "windows")]
+pub async fn test_split_tunnel_toggle(
+    _ctx: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // I'm a gamer, so I want to split steam for maximum performance.
+    let mut steam = ConnChecker::new(rpc.clone(), mullvad_client.clone(), LEAK_DESTINATION);
+    // Enable the split tunneling feature in the daemon.
+    // No apps are split at this point.
+    //
+    // Note: ConnChecker::split already does this, but being explicit with the state the we expect
+    // the daemon to be in at any stage of the test is not harmful.
+    mullvad_client.set_split_tunnel_state(true).await?; // <- Split tunneling: on
+    // Connect.
+    helpers::connect_and_wait(&mut mullvad_client).await?;
+    // Assert that steam does not leak yet. We are yet to add it as a split app.
+    let mut steam = steam.spawn().await?;
+    steam.assert_secure().await?;
+    // Assert that splitting the process does indeed leak.
+    steam.split().await?; // <- SPLIT
+    steam.assert_insecure().await?;
+    // Disabling split-tunneling at the settings-level should force all traffic through the tunnel.
+    // HACK: ConnChecker::split tries to be clever and enables ST at the settings-level.
+    // Therefore we have to explicitly disable it *after* calling split.
+    mullvad_client.set_split_tunnel_state(false).await?; // <- Split tunneling: off
+    // Steam should now be forced to route traffic through the tunnel again.
+    steam.assert_secure().await?;
+    // Re-enabling split-tunneling will once again make the split program leak.
+    mullvad_client.set_split_tunnel_state(true).await?; // <- Split tunneling: off
+    steam.assert_insecure().await?;
+    Ok(())
+}
+
+/// Test that split tunneling works by asserting the following:
 /// - Splitting a process shouldn't do anything if tunnel is not connected.
 /// - A split process should never push traffic through the tunnel.
 /// - Splitting/unsplitting should work regardless if process is running.
