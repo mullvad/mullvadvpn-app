@@ -20,6 +20,7 @@ import { useIsPlatformLinux } from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button, Flex, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
+import { View } from '../lib/components/view';
 import { useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
@@ -27,11 +28,9 @@ import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
 import { AppNavigationHeader } from './';
 import { BackAction } from './KeyboardNavigation';
-import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
   StyledContent,
-  StyledContentContainer,
   StyledEmail,
   StyledEmailInput,
   StyledForm,
@@ -43,7 +42,7 @@ import {
   StyledStatusIcon,
   StyledThanks,
 } from './ProblemReportStyles';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 enum SendState {
   initial,
@@ -65,25 +64,27 @@ function ProblemReportComponent() {
   const history = useHistory();
 
   return (
-    <BackAction action={history.pop}>
-      <Layout>
-        <SettingsContainer>
-          <AppNavigationHeader
-            title={
-              // TRANSLATORS: Title label in navigation bar
-              messages.pgettext('support-view', 'Report a problem')
-            }
-          />
-          <StyledContentContainer>
-            <Header />
-            <Content />
-          </StyledContentContainer>
+    <View backgroundColor="darkBlue">
+      <BackAction action={history.pop}>
+        <View.Content>
+          <View.Container indent="medium" flexDirection="column" flexGrow={1}>
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Title label in navigation bar
+                messages.pgettext('support-view', 'Report a problem')
+              }
+            />
+            <FlexColumn flexGrow={1} gap="medium">
+              <Header />
+              <Content />
+            </FlexColumn>
 
-          <NoEmailDialog />
-          <OutdatedVersionWarningDialog />
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+            <NoEmailDialog />
+            <OutdatedVersionWarningDialog />
+          </View.Container>
+        </View.Content>
+      </BackAction>
+    </View>
   );
 }
 
@@ -91,7 +92,7 @@ function Header() {
   const { sendState } = useProblemReportContext();
 
   return (
-    <SettingsHeader>
+    <FlexColumn gap="small">
       <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
       {(sendState === SendState.initial || sendState === SendState.confirm) && (
         <HeaderSubTitle>
@@ -101,13 +102,12 @@ function Header() {
           )}
         </HeaderSubTitle>
       )}
-    </SettingsHeader>
+    </FlexColumn>
   );
 }
 
 function Content() {
   const { sendState } = useProblemReportContext();
-
   switch (sendState) {
     case SendState.initial:
     case SendState.confirm:
@@ -158,9 +158,8 @@ function Form() {
   );
 
   const validate = () => message.trim().length > 0;
-
   return (
-    <StyledContent>
+    <FlexColumn flexGrow={1} justifyContent="space-between" gap="medium">
       <StyledForm>
         <StyledFormEmailRow>
           <StyledEmailInput
@@ -180,31 +179,29 @@ function Form() {
           />
         </StyledFormMessageRow>
       </StyledForm>
-      <Footer>
-        <FlexColumn gap="medium">
-          <Button
-            onClick={onViewLog}
-            disabled={disableActions}
-            aria-description={messages.pgettext('accessibility', 'Opens externally')}>
-            <Button.Text>
-              {
-                // TRANSLATORS: Button label for opening app logs.
-                messages.pgettext('support-view', 'View app logs')
-              }
-            </Button.Text>
-            <Button.Icon icon="external" />
-          </Button>
-          <Button variant="success" disabled={!validate() || disableActions} onClick={onSend}>
-            <Button.Text>
-              {
-                // TRANSLATORS: Button label for sending the problem report.
-                messages.pgettext('support-view', 'Send')
-              }
-            </Button.Text>
-          </Button>
-        </FlexColumn>
-      </Footer>
-    </StyledContent>
+      <FlexColumn gap="medium">
+        <Button
+          onClick={onViewLog}
+          disabled={disableActions}
+          aria-description={messages.pgettext('accessibility', 'Opens externally')}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for opening app logs.
+              messages.pgettext('support-view', 'View app logs')
+            }
+          </Button.Text>
+          <Button.Icon icon="external" />
+        </Button>
+        <Button variant="success" disabled={!validate() || disableActions} onClick={onSend}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for sending the problem report.
+              messages.pgettext('support-view', 'Send')
+            }
+          </Button.Text>
+        </Button>
+      </FlexColumn>
+    </FlexColumn>
   );
 }
 
@@ -272,26 +269,24 @@ function Failed() {
           )}
         </StyledSentMessage>
       </StyledForm>
-      <Footer>
-        <FlexColumn gap="medium">
-          <Button onClick={handleEditMessage}>
-            <Button.Text>
-              {
-                // TRANSLATORS: Button text to edit the message after a failed attempt to send the problem report.
-                messages.pgettext('support-view', 'Edit message')
-              }
-            </Button.Text>
-          </Button>
-          <Button variant="success" onClick={onSend}>
-            <Button.Text>
-              {
-                // TRANSLATORS: Button label for retrying problem report submission after a failure.
-                messages.pgettext('support-view', 'Try again')
-              }
-            </Button.Text>
-          </Button>
-        </FlexColumn>
-      </Footer>
+      <FlexColumn gap="medium">
+        <Button onClick={handleEditMessage}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button text to edit the message after a failed attempt to send the problem report.
+              messages.pgettext('support-view', 'Edit message')
+            }
+          </Button.Text>
+        </Button>
+        <Button variant="success" onClick={onSend}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for retrying problem report submission after a failure.
+              messages.pgettext('support-view', 'Try again')
+            }
+          </Button.Text>
+        </Button>
+      </FlexColumn>
     </StyledContent>
   );
 }
