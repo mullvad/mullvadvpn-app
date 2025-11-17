@@ -75,9 +75,9 @@ runs:
 
     - name: Install msbuild
       if: runner.os == 'Windows'
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v2
       with:
-        vs-version: 16
+        vs-version: latest
 
     - name: Install latest zig
       if: runner.os == 'Windows'
