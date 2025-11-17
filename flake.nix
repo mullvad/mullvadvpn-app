@@ -35,13 +35,17 @@
           ];
         };
 
+        common-toolchain = import ./nix/common-toolchain.nix {
+          inherit pkgs rust-overlay;
+        };
+
         android-toolchain = import ./nix/android-toolchain.nix {
           inherit
             pkgs
             nixpkgs
             android-nixpkgs
             system
-            rust-overlay
+            common-toolchain
             ;
         };
 
