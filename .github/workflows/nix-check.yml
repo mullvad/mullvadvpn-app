@@ -1,0 +1,29 @@
+---
+name: Nix - Check lint and format
+on:
+  pull_request:
+    paths:
+      - .github/workflows/nix-check.yml
+      - '**/*.nix'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+
+      - name: Check formatting
+        run: nix shell nixpkgs#nixfmt-tree --command treefmt --ci
+
+      - name: Check for unused code
+        run: nix shell nixpkgs#deadnix --command deadnix --fail --exclude ci/ios/test-router
+
+      - name: Check for antipatterns
+        run: nix shell nixpkgs#statix --command statix check --ignore ci/ios/test-router
