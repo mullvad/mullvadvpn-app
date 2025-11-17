@@ -247,7 +247,7 @@ fun SelectLocation(
                                 }
                             ),
                         actionLabel = context.getString(R.string.undo),
-                        onAction = { vm.setMultihop(!it.enabled) },
+                        onAction = { vm.toggleMultihop(!it.enabled) },
                         duration = SnackbarDuration.Long,
                     )
                 }
@@ -438,14 +438,13 @@ fun SelectLocationScreen(
                     onRecentsToggleEnableClick()
                 },
                 onRefreshRelayList = onRefreshRelayList,
-                onMultihopToggleEnableClick = { toggleMultihop(!multihopEnabled) },
+                onMultihopToggleEnableClick = { toggleMultihop(!multihopEnabled, false) },
             )
         },
     ) { modifier ->
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
-            enableEntryOption = state.contentOrNull()?.entrySelectionAllowed == true,
             onCreateCustomList = onCreateCustomList,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
@@ -455,7 +454,7 @@ fun SelectLocationScreen(
             onHideBottomSheet = { locationBottomSheetState = null },
             onSetAsEntry = onSetAsEntry,
             onSetAsExit = onSetAsExit,
-            onDisableMultihop = { setMultihop(false, true) },
+            onDisableMultihop = { toggleMultihop(false, true) },
         )
 
         val expandProgress = remember { Animatable(1f) }

@@ -20,11 +20,14 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
+import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.Lce
+import net.mullvad.mullvadvpn.util.combine
 
+@Suppress("LongParameterList")
 class SelectLocationListViewModel(
     private val relayListType: RelayListType,
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
@@ -34,6 +37,7 @@ class SelectLocationListViewModel(
     private val relayListRepository: RelayListRepository,
     private val recentsUseCase: RecentsUseCase,
     private val settingsRepository: SettingsRepository,
+    private val canBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
 ) : ViewModel() {
     private val _expandedItems: MutableStateFlow<Set<String>> =
@@ -44,7 +48,7 @@ class SelectLocationListViewModel(
                 relayListItems(),
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
-            ) { (relayListItems, selectedItem), customLists, settings ->
+            ) { relayListItems, customLists, settings ->
                 if (relayListType.isEntryAndBlocked(settings)) {
                     Lce.Error(Unit)
                 } else {
@@ -53,7 +57,6 @@ class SelectLocationListViewModel(
                             relayListType = relayListType,
                             relayListItems = relayListItems,
                             customLists = customLists,
-                            selection = selectedItem,
                         )
                     )
                 }
@@ -75,7 +78,14 @@ class SelectLocationListViewModel(
             recentsUseCase(relayListType = relayListType),
             selectedLocationUseCase(),
             _expandedItems,
-        ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
+            canBeSelectedUseCase(),
+        ) {
+            relayCountries,
+            customLists,
+            recents,
+            selectedItem,
+            expandedItems,
+            (canBeSelectedAsEntry, canBeSelectedAsExit) ->
             // If we have no locations we have an empty relay list and we should show an error
             if (relayCountries.isEmpty()) {
                 emptyLocationsRelayListItems(
@@ -104,8 +114,10 @@ class SelectLocationListViewModel(
                             selectedItem.selectedByOtherEntryExitList(relayListType, customLists)
                         },
                     expandedItems = expandedItems,
+                    validEntryLocations = canBeSelectedAsEntry,
+                    validExitLocations = canBeSelectedAsExit,
                 )
-            } to selectedItem
+            }
         }
 
     private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {
