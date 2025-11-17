@@ -405,7 +405,7 @@ msgctxt "accessibility"
 msgid "More information"
 msgstr "Więcej informacji"
 
-#. Accessibility label for link to go to download page.
+#. Accessbility label for link to go to download page.
 msgctxt "accessibility"
 msgid "New version available, click here to go to download page, opens externally"
 msgstr "Dostępna jest nowa wersja. Kliknij tutaj, aby przejść do zewnętrznej strony pobierania"
