@@ -85,7 +85,7 @@ pub async fn test_cve_2019_14899_mitigation(
 
     // Get the private IP address of the victims VPN tunnel
     let victim_tunnel_ip = rpc
-        .get_interface_ip(victim_tunnel_interface.to_string())
+        .get_interface_ip(victim_tunnel_interface.clone())
         .await
         .with_context(|| {
             anyhow!("Failed to get ip of guest tunnel interface {victim_tunnel_interface:?}")
