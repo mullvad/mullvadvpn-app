@@ -6,14 +6,16 @@
   common-toolchain,
 }:
 let
-  versions =
+  inherit
     (builtins.fromTOML (
       builtins.concatStringsSep "\n" (
         builtins.filter (line: !(builtins.match "^[[:space:]]*#" line != null)) (
           nixpkgs.lib.splitString "\n" (builtins.readFile ../android/gradle/libs.versions.toml)
         )
       )
-    )).versions;
+    ))
+    versions
+    ;
 
   compileSdkVersion = versions."compile-sdk";
   buildToolsVersion = versions."build-tools";
