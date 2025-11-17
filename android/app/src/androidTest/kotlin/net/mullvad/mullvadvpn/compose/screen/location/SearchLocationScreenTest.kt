@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
@@ -100,8 +99,6 @@ class SearchLocationScreenTest {
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
                             customLists = emptyList(),
-                            selection = RelayItemSelection.Single(mockk()),
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSearchInputChanged = mockedSearchTermInput,
@@ -130,8 +127,6 @@ class SearchLocationScreenTest {
                             relayListItems =
                                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
                             customLists = emptyList(),
-                            selection = RelayItemSelection.Single(mockk()),
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -155,8 +150,6 @@ class SearchLocationScreenTest {
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                            selection = RelayItemSelection.Single(mockk()),
-                            entrySelectionAllowed = true,
                         )
                     )
             )

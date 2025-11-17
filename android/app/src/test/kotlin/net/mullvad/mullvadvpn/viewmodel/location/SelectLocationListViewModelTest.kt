@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
+import net.mullvad.mullvadvpn.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
@@ -47,7 +48,8 @@ class SelectLocationListViewModelTest {
     private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockCustomListRelayItemsUseCase: CustomListsRelayItemUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val recentsUseCase: RecentsUseCase = mockk()
+    private val mockRecentsUseCase: RecentsUseCase = mockk()
+    private val mockRelayItemCanBeSelectedUseCase: RelayItemCanBeSelectedUseCase = mockk()
 
     private val relayListScrollConnection: RelayListScrollConnection = RelayListScrollConnection()
 
@@ -58,6 +60,8 @@ class SelectLocationListViewModelTest {
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val recentsRelayItems = MutableStateFlow<List<RelayItem>?>(emptyList())
     private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
+    private val canBeSelectedFlow =
+        MutableStateFlow(emptySet<RelayItem.Location>() to emptySet<RelayItem.Location>())
 
     private lateinit var viewModel: SelectLocationListViewModel
 
@@ -74,7 +78,8 @@ class SelectLocationListViewModelTest {
             filteredCustomListRelayItems
         every { mockCustomListRelayItemsUseCase() } returns customListRelayItems
         every { mockSettingsRepository.settingsUpdates } returns settings
-        every { recentsUseCase(any()) } returns recentsRelayItems
+        every { mockRecentsUseCase(any()) } returns recentsRelayItems
+        every { mockRelayItemCanBeSelectedUseCase() } returns canBeSelectedFlow
 
         mockkStatic(RELAY_ITEM_LIST_CREATOR_CLASS)
         mockkStatic(LOCATION_UTIL_CLASS)
@@ -249,8 +254,9 @@ class SelectLocationListViewModelTest {
             relayListRepository = mockRelayListRepository,
             customListsRelayItemUseCase = mockCustomListRelayItemsUseCase,
             settingsRepository = mockSettingsRepository,
-            recentsUseCase = recentsUseCase,
             relayListScrollConnection = relayListScrollConnection,
+            recentsUseCase = mockRecentsUseCase,
+            canBeSelectedUseCase = mockRelayItemCanBeSelectedUseCase,
         )
 
     private fun RelayListItem.relayItemId() =
