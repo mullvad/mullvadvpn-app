@@ -14,6 +14,8 @@ use crate::dns::ResolvedDnsConfig;
 
 mod hyperv;
 mod winfw;
+#[macro_use]
+mod ffi;
 
 const HYPERV_LEAK_WARNING_MSG: &str = "Hyper-V (e.g. WSL machines) may leak in blocked states.";
 
