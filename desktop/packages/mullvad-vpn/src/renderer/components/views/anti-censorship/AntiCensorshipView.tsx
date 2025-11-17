@@ -22,38 +22,40 @@ export function AntiCensorshipView() {
           />
 
           <NavigationScrollbars>
-            <SettingsHeader>
-              <HeaderTitle>
-                {
-                  // TRANSLATORS: Page title for anti censorship settings view
-                  messages.pgettext('anti-censorship-view', 'Anti-censorship')
-                }
-              </HeaderTitle>
-            </SettingsHeader>
-            <FlexColumn gap="medium">
-              <View.Container indent="medium" flexDirection="column" gap="medium">
-                <Text variant="labelTiny" color="whiteAlpha60">
+            <View.Content>
+              <SettingsHeader>
+                <HeaderTitle>
                   {
-                    // TRANSLATORS: First paragraph of description text in anti-censorship view
-                    messages.pgettext(
-                      'anti-censorship-view',
-                      'These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.',
-                    )
+                    // TRANSLATORS: Page title for anti censorship settings view
+                    messages.pgettext('anti-censorship-view', 'Anti-censorship')
                   }
-                </Text>
-                <Text variant="labelTinySemiBold" color="whiteAlpha60">
-                  {
-                    // TRANSLATORS: Second paragraph of description text in anti-censorship view
-                    messages.pgettext(
-                      'anti-censorship-view',
-                      'Please note that these methods do not improve performance, and may increase system utilization and battery consumption.',
-                    )
-                  }
-                </Text>
-              </View.Container>
+                </HeaderTitle>
+              </SettingsHeader>
+              <FlexColumn gap="medium">
+                <View.Container indent="medium" flexDirection="column" gap="medium">
+                  <Text variant="labelTiny" color="whiteAlpha60">
+                    {
+                      // TRANSLATORS: First paragraph of description text in anti-censorship view
+                      messages.pgettext(
+                        'anti-censorship-view',
+                        'These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.',
+                      )
+                    }
+                  </Text>
+                  <Text variant="labelTinySemiBold" color="whiteAlpha60">
+                    {
+                      // TRANSLATORS: Second paragraph of description text in anti-censorship view
+                      messages.pgettext(
+                        'anti-censorship-view',
+                        'Please note that these methods do not improve performance, and may increase system utilization and battery consumption.',
+                      )
+                    }
+                  </Text>
+                </View.Container>
 
-              <MethodSetting />
-            </FlexColumn>
+                <MethodSetting />
+              </FlexColumn>
+            </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>
       </BackAction>
