@@ -148,7 +148,7 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 error_state.cause()
                             {
                                 Some(proto::error_state::OtherAlwaysOnAppError {
-                                    app_name: app_name.to_string(),
+                                    app_name: app_name.clone(),
                                 })
                             } else {
                                 None

@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">カスタムDNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">その他%1$s件…</string>
-    <string name="feature_obfuscation">難読化</string>
     <string name="feature_quantum_resistant">耐量子</string>
     <string name="filter">絞り込み</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
@@ -397,11 +396,11 @@
     <string name="try_again">再試行</string>
     <string name="type">種類</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
     <string name="undo">元に戻す</string>
     <string name="unsupported_version">未対応のバージョン</string>
     <string name="unsupported_version_description">このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS サーバーを更新</string>
     <string name="update_list_name">リスト名の更新</string>
     <string name="updating_server_list_in_the_background">サーバーリストをバックグラウンドで更新中...</string>

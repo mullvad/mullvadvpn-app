@@ -418,7 +418,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         VPNSettingsPage(app)
             .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationOffCell()
+            .tapWireGuardObfuscationAutomaticCell()
             .tapBackButton()
 
         SettingsPage(app)
@@ -675,6 +675,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
+            .waitForConnectedLabel()
             .verifyConnectingUsingQuantumResistance()
 
         HeaderBar(app)

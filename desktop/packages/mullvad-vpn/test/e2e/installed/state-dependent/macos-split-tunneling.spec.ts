@@ -35,7 +35,7 @@ async function navigateToSplitTunneling() {
 test('App should enable split tunneling', async () => {
   await navigateToSplitTunneling();
 
-  const toggle = page.getByRole('checkbox');
+  const toggle = page.getByRole('switch');
   await expect(toggle).not.toBeChecked();
 
   const splitList = page.getByTestId('split-applications');
@@ -122,7 +122,7 @@ test('App should unsplit launchpad', async () => {
 });
 
 test('App should disable split tunneling', async () => {
-  const toggle = page.getByRole('checkbox');
+  const toggle = page.getByRole('switch');
   await expect(toggle).toBeChecked();
 
   const splitList = page.getByTestId('split-applications');

@@ -171,10 +171,10 @@ impl SystemState {
         let new_state = self.connectivity.into_connectivity();
         if old_state != new_state {
             log::info!("Connectivity changed: {new_state}");
-            if let Some(notify_tx) = self.notify_tx.upgrade() {
-                if let Err(e) = notify_tx.unbounded_send(self.connectivity.into_connectivity()) {
-                    log::error!("Failed to send new offline state to daemon: {}", e);
-                }
+            if let Some(notify_tx) = self.notify_tx.upgrade()
+                && let Err(e) = notify_tx.unbounded_send(self.connectivity.into_connectivity())
+            {
+                log::error!("Failed to send new offline state to daemon: {}", e);
             }
         }
     }

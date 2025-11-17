@@ -31,8 +31,8 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
-# Use boringtun instead of wireguard-go
-BORINGTUN="false"
+# Use gotatun instead of wireguard-go. The current desktop default is wireguard-go.
+GOTATUN="false"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -46,7 +46,7 @@ while [[ "$#" -gt 0 ]]; do
             fi
             UNIVERSAL="true"
             ;;
-        --boringtun) BORINGTUN="true";;
+        --gotatun) GOTATUN="true";;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -244,8 +244,8 @@ function build {
     fi
 
     local cargo_features=()
-    if [[ "$BORINGTUN" == "true" ]]; then
-        cargo_features+=(--features boringtun)
+    if [[ "$GOTATUN" == "false" ]]; then
+        cargo_features+=(--features wireguard-go)
     fi
 
     local cargo_crates_to_build=(
@@ -253,7 +253,6 @@ function build {
         -p mullvad-cli --bin mullvad
         -p mullvad-setup --bin mullvad-setup
         -p mullvad-problem-report --bin mullvad-problem-report
-        -p talpid-openvpn-plugin --lib
     )
     if [[ ("$(uname -s)" == "Linux") ]]; then
         cargo_crates_to_build+=(-p mullvad-exclude --bin mullvad-exclude)
@@ -271,7 +270,6 @@ function build {
             mullvad-daemon
             mullvad
             mullvad-problem-report
-            libtalpid_openvpn_plugin.dylib
             mullvad-setup
         )
     elif [[ ("$(uname -s)" == "Linux") ]]; then
@@ -279,7 +277,6 @@ function build {
             mullvad-daemon
             mullvad
             mullvad-problem-report
-            libtalpid_openvpn_plugin.so
             mullvad-setup
             mullvad-exclude
         )
@@ -288,11 +285,15 @@ function build {
             mullvad-daemon.exe
             mullvad.exe
             mullvad-problem-report.exe
-            talpid_openvpn_plugin.dll
             mullvad-setup.exe
-            libwg.dll
-            maybenot_ffi.dll
         )
+        if [[ "$GOTATUN" == "false" ]]; then
+            BINARIES+=(
+                libwg.dll
+                maybenot_ffi.dll
+            )
+            NPM_PACK_ARGS+=(--wggo)
+        fi
     fi
 
     if [[ -n $specified_target ]]; then
@@ -317,25 +318,6 @@ function build {
             sign_win "$destination"
         fi
     done
-
-    if [[ "$current_target" == "aarch64-pc-windows-msvc" ]]; then
-        # We ship x64 OpenVPN with ARM64, so we need an x64 talpid-openvpn-plugin
-        # to include in the package.
-        local source="$CARGO_TARGET_DIR/x86_64-pc-windows-msvc/$RUST_BUILD_MODE/talpid_openvpn_plugin.dll"
-        local destination
-        if [[ -n "$specified_target" ]]; then
-            destination="dist-assets/$specified_target/talpid_openvpn_plugin.dll"
-        else
-            destination="dist-assets/talpid_openvpn_plugin.dll"
-        fi
-
-        log_info "Workaround: building x64 talpid-openvpn-plugin"
-        cargo build --target x86_64-pc-windows-msvc "${CARGO_ARGS[@]}" -p talpid-openvpn-plugin --lib
-        cp "$source" "$destination"
-        if [[ "$SIGN" == "true" ]]; then
-            sign_win "$destination"
-        fi
-    fi
 }
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then

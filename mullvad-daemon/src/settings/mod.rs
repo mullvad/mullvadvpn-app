@@ -439,8 +439,6 @@ impl Display for SettingsSummary<'_> {
 
         let relay_settings = self.settings.get_relay_settings();
 
-        write!(f, "openvpn mssfix: ")?;
-        Self::fmt_option(f, self.settings.tunnel_options.openvpn.mssfix)?;
         write!(f, ", wg mtu: ")?;
         Self::fmt_option(f, self.settings.tunnel_options.wireguard.mtu)?;
 

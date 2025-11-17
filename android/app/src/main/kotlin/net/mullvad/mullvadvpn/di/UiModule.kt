@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
@@ -43,7 +44,7 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.usecase.RecentsUseCase
-import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.SupportEmailUseCase
@@ -138,7 +139,9 @@ val uiModule = module {
             context = androidContext(),
             apiEndpointOverride = getOrNull(),
             apiEndpointFromIntentHolder = get(),
+            kermitFileLogDirName = KERMIT_FILE_LOG_DIR_NAME,
             accountRepository = get(),
+            paymentUseCase = get(),
         )
     }
     single { RelayOverridesRepository(get()) }
@@ -176,16 +179,16 @@ val uiModule = module {
     single { CustomListActionUseCase(get(), get()) }
     single { SelectedLocationTitleUseCase(get(), get()) }
     single { ProviderToOwnershipsUseCase(get()) }
-    single { FilterCustomListsRelayItemUseCase(get(), get(), get(), get()) }
+    single { FilterCustomListsRelayItemUseCase(get(), get(), get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }
-    single { FilteredRelayListUseCase(get(), get(), get(), get()) }
+    single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
     single { SelectedLocationUseCase(get(), get()) }
     single { FilterChipUseCase(get(), get(), get()) }
     single { DeleteCustomDnsUseCase(get()) }
     single { RecentsUseCase(get(), get(), get()) }
-    single { SelectHopUseCase(relayListRepository = get()) }
+    single { SelectSinglehopUseCase(relayListRepository = get()) }
     single {
         ModifyMultihopUseCase(
             relayListRepository = get(),
@@ -199,6 +202,13 @@ val uiModule = module {
             context = androidContext(),
             mullvadProblemReport = get(),
             buildVersion = get(),
+        )
+    }
+    single {
+        HopSelectionUseCase(
+            customListRelayItemUseCase = get(),
+            relayListRepository = get(),
+            settingsRepository = get(),
         )
     }
 
@@ -263,14 +273,33 @@ val uiModule = module {
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
-        SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())
+        SelectLocationViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+        )
     }
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { ReportProblemViewModel(get(), get(), get()) }
+    viewModel {
+        ReportProblemViewModel(
+            mullvadProblemReporter = get(),
+            problemReportRepository = get(),
+            accountRepository = get(),
+            isPlayBuild = IS_PLAY_BUILD,
+        )
+    }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { FilterViewModel(get(), get()) }
@@ -294,7 +323,6 @@ val uiModule = module {
     viewModel { NotificationSettingsViewModel(get()) }
     viewModel {
         SearchLocationViewModel(
-            get(),
             get(),
             get(),
             get(),
@@ -346,3 +374,4 @@ val uiModule = module {
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
+const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"

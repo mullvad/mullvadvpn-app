@@ -1,0 +1,43 @@
+---
+source: mullvad-update/src/version/mod.rs
+expression: info
+---
+stable:
+  version: "2026.10"
+  urls: []
+  size: 0
+  changelog: ""
+  sha256:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+beta: ~

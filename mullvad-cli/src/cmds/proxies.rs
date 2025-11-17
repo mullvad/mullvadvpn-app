@@ -125,57 +125,6 @@ pub struct ProxyEditParams {
     pub transport_protocol: Option<TransportProtocol>,
 }
 
-impl ProxyEditParams {
-    pub fn merge_socks_local(self, local: &Socks5Local) -> Socks5Local {
-        let remote_ip = self.ip.unwrap_or(local.remote_endpoint.address.ip());
-        let remote_port = self.port.unwrap_or(local.remote_endpoint.address.port());
-        let local_port = self.local_port.unwrap_or(local.local_port);
-        let remote_peer_transport_protocol = self
-            .transport_protocol
-            .unwrap_or(local.remote_endpoint.protocol);
-        Socks5Local::new_with_transport_protocol(
-            (remote_ip, remote_port),
-            local_port,
-            remote_peer_transport_protocol,
-        )
-    }
-
-    pub fn merge_socks_remote(self, remote: &Socks5Remote) -> Result<Socks5Remote, Error> {
-        let ip = self.ip.unwrap_or(remote.endpoint.ip());
-        let port = self.port.unwrap_or(remote.endpoint.port());
-        let config = match &remote.auth {
-            None => match (self.username, self.password) {
-                (Some(username), Some(password)) => {
-                    let auth = SocksAuth::new(username, password)?;
-                    Socks5Remote::new_with_authentication((ip, port), auth)
-                }
-                (None, None) => Socks5Remote::new((ip, port)),
-                _ => {
-                    println!(
-                        "Remote SOCKS5 proxy does not have a username and password set already, so you must provide both or neither when you edit."
-                    );
-                    Socks5Remote::new((ip, port))
-                }
-            },
-            Some(credentials) => {
-                let username = self.username.unwrap_or(credentials.username().to_string());
-                let password = self.password.unwrap_or(credentials.password().to_string());
-                let auth = SocksAuth::new(username, password)?;
-                Socks5Remote::new_with_authentication((ip, port), auth)
-            }
-        };
-        Ok(config)
-    }
-
-    pub fn merge_shadowsocks(self, shadowsocks: &Shadowsocks) -> Shadowsocks {
-        let ip = self.ip.unwrap_or(shadowsocks.endpoint.ip());
-        let port = self.port.unwrap_or(shadowsocks.endpoint.port());
-        let password = self.password.unwrap_or(shadowsocks.password.clone());
-        let cipher = self.cipher.unwrap_or(shadowsocks.cipher.clone());
-        Shadowsocks::new((ip, port), cipher, password)
-    }
-}
-
 pub mod pp {
     use crate::print_option;
     use talpid_types::net::proxy::CustomProxy;

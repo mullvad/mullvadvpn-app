@@ -7,7 +7,7 @@ use std::{
 
 use mullvad_types::{
     constraints::Constraint,
-    endpoint::MullvadWireguardEndpoint,
+    endpoint::MullvadEndpoint,
     relay_constraints::{ShadowsocksSettings, Udp2TcpObfuscationSettings},
     relay_list::Relay,
 };
@@ -96,7 +96,7 @@ pub fn get_multiplexer_obfuscator(
     udp2tcp_ports: &[u16],
     shadowsocks_ports: &[RangeInclusive<u16>],
     obfuscator_relay: Relay,
-    endpoint: &MullvadWireguardEndpoint,
+    endpoint: &MullvadEndpoint,
 ) -> Result<SelectedObfuscator, Error> {
     use talpid_types::net::obfuscation::Obfuscators;
 
@@ -143,7 +143,7 @@ pub fn get_udp2tcp_obfuscator(
     obfuscation_settings_constraint: &Udp2TcpObfuscationSettings,
     udp2tcp_ports: &[u16],
     relay: Relay,
-    endpoint: &MullvadWireguardEndpoint,
+    endpoint: &MullvadEndpoint,
 ) -> Result<(ObfuscatorConfig, Relay), Error> {
     let udp2tcp_endpoint_port =
         get_udp2tcp_obfuscator_port(obfuscation_settings_constraint, udp2tcp_ports)?;
@@ -174,7 +174,7 @@ pub fn get_shadowsocks_obfuscator(
     settings: &ShadowsocksSettings,
     non_extra_port_ranges: &[RangeInclusive<u16>],
     relay: Relay,
-    endpoint: &MullvadWireguardEndpoint,
+    endpoint: &MullvadEndpoint,
 ) -> Result<(ObfuscatorConfig, Relay), Error> {
     let port = settings.port;
     let extra_addrs = match &relay.endpoint_data {
@@ -220,7 +220,7 @@ pub fn get_quic_obfuscator(
 
 pub fn get_lwo_obfuscator(
     relay: Relay,
-    endpoint: &MullvadWireguardEndpoint,
+    endpoint: &MullvadEndpoint,
 ) -> Option<(ObfuscatorConfig, Relay)> {
     if !relay.wireguard()?.lwo {
         return None;
@@ -274,9 +274,10 @@ pub fn desired_or_random_port_from_range<R: RangeBounds<u16> + Iterator<Item = u
     port_ranges: &[R],
     desired_port: Constraint<u16>,
 ) -> Result<u16, Error> {
-    desired_port
-        .map(|port| port_if_in_range(port_ranges, port))
-        .unwrap_or_else(|| select_random_port(port_ranges))
+    match desired_port {
+        Constraint::Only(port) => port_if_in_range(port_ranges, port),
+        Constraint::Any => select_random_port(port_ranges),
+    }
 }
 
 /// Return `Ok(port)`, if and only if `port` is in `port_ranges`. Otherwise, return an error.

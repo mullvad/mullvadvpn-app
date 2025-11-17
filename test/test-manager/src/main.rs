@@ -20,8 +20,6 @@ use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
 use vm::provision;
 
-use crate::tests::config::OpenVPNCertificate;
-
 /// Test manager for Mullvad VPN app
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -107,12 +105,6 @@ enum Commands {
         /// Folder to search for packages. Defaults to current directory.
         #[arg(long, value_name = "DIR")]
         package_dir: Option<PathBuf>,
-
-        /// OpenVPN CA certificate to use with the app under test. The expected argument is a path
-        /// (absolut or relative) to the desired CA certificate. The default certificate is
-        /// `assets/openvpn.ca.crt`.
-        #[arg(long)]
-        openvpn_certificate: Option<PathBuf>,
 
         /// Names of tests to not run. Any tests given here will be skipped.
         #[arg(long)]
@@ -288,7 +280,6 @@ async fn main() -> Result<()> {
             app_package_to_upgrade_from,
             gui_package,
             package_dir,
-            openvpn_certificate,
             skip,
             test_filters,
             verbose,
@@ -330,13 +321,6 @@ async fn main() -> Result<()> {
             )
             .context("Could not find the specified app packages")?;
 
-            // Load a new OpenVPN CA certificate if the user provided a path.
-            let openvpn_certificate = openvpn_certificate
-                .map(OpenVPNCertificate::from_file)
-                .transpose()
-                .context("Could not find OpenVPN CA certificate")?
-                .unwrap_or_default();
-
             let mut instance = vm::run(&config, &vm).await.context("Failed to start VM")?;
             let runner_dir = runner_dir.unwrap_or_else(|| vm_config.get_default_runner_dir());
             let artifacts_dir = provision::provision(vm_config, &*instance, &manifest, runner_dir)
@@ -371,7 +355,6 @@ async fn main() -> Result<()> {
                 bridge_name,
                 bridge_ip,
                 test_rpc::meta::Os::from(vm_config.os_type),
-                openvpn_certificate,
             ));
 
             let mut tests = get_filtered_tests(&test_filters, &skip)?;

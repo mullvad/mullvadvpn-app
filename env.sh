@@ -9,10 +9,6 @@ source "$SCRIPT_DIR/scripts/utils/host"
 ENV_TARGET=${1:-$HOST}
 
 case "$ENV_TARGET" in
-  *linux*)
-    export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$ENV_TARGET"
-    export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$ENV_TARGET"
-    ;;
   x86_64-*-darwin*)
     export MACOSX_DEPLOYMENT_TARGET="10.12"
 
@@ -30,6 +26,8 @@ case "$ENV_TARGET" in
         SDKROOT=$(xcrun --show-sdk-path)
         export SDKROOT
     fi
+    ;;
+  *linux*)
     ;;
   *windows*)
     ;;

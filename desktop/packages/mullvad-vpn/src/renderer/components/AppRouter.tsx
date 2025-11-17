@@ -22,9 +22,9 @@ import ProblemReport from './ProblemReport';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
-import Support from './Support';
 import {
   Account,
+  AntiCensorshipView,
   AppInfoView,
   AppUpgradeView,
   ChangelogView,
@@ -34,7 +34,6 @@ import {
   MainView,
   ManageDevicesView,
   MultihopSettingsView,
-  OpenVpnSettingsView,
   SelectLanguageView,
   SettingsView,
   ShadowsocksSettingsView,
@@ -43,8 +42,9 @@ import {
   UdpOverTcpSettingsView,
   UserInterfaceSettingsView,
   VpnSettingsView,
-  WireguardSettingsView,
+  WireguardPortView,
 } from './views';
+import { SupportView } from './views/support/SupportView';
 
 export default function AppRouter() {
   const focusRef = useRef<IFocusHandle>(null);
@@ -79,17 +79,15 @@ export default function AppRouter() {
           />
           <Route exact path={RoutePath.multihopSettings} component={MultihopSettingsView} />
           <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
-          <Route exact path={RoutePath.wireguardSettings} component={WireguardSettingsView} />
           <Route exact path={RoutePath.daitaSettings} component={DaitaSettingsView} />
           <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcpSettingsView} />
           <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
-          <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettingsView} />
           <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingView} />
           <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
           <Route exact path={RoutePath.settingsImport} component={SettingsImport} />
           <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImport} />
           <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
-          <Route exact path={RoutePath.support} component={Support} />
+          <Route exact path={RoutePath.support} component={SupportView} />
           <Route exact path={RoutePath.problemReport} component={ProblemReport} />
           <Route exact path={RoutePath.debug} component={Debug} />
           <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
@@ -99,6 +97,8 @@ export default function AppRouter() {
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
           <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
+          <Route exact path={RoutePath.antiCensorship} component={AntiCensorshipView} />
+          <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
         </Switch>
       </Focus>
     </>

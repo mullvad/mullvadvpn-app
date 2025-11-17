@@ -158,3 +158,9 @@ extension UIColor {
     static let primaryTextColor = UIColor.white
     static let secondaryTextColor = UIColor(white: 1.0, alpha: 0.8)
 }
+
+extension CGColor {
+    enum ReduceAnonymityWarningView {
+        static let backroundColor = CGColor(red: 0.06, green: 0.09, blue: 0.14, alpha: 0.4)
+    }
+}

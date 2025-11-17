@@ -7,10 +7,6 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
         proto::TunnelEndpoint {
             address: endpoint.endpoint.address.to_string(),
             protocol: i32::from(proto::TransportProtocol::from(endpoint.endpoint.protocol)),
-            tunnel_type: match endpoint.tunnel_type {
-                net::TunnelType::Wireguard => i32::from(proto::TunnelType::Wireguard),
-                net::TunnelType::OpenVpn => i32::from(proto::TunnelType::Openvpn),
-            },
             quantum_resistant: endpoint.quantum_resistant,
             proxy: endpoint.proxy.map(|proxy_ep| proto::ProxyEndpoint {
                 address: proxy_ep.endpoint.address.to_string(),
@@ -152,7 +148,6 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 address: arg_from_str(&endpoint.address, "invalid endpoint address")?,
                 protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
             },
-            tunnel_type: try_tunnel_type_from_i32(endpoint.tunnel_type)?,
             quantum_resistant: endpoint.quantum_resistant,
             proxy: endpoint
                 .proxy
@@ -262,18 +257,6 @@ impl From<proto::IpVersion> for talpid_types::net::IpVersion {
             proto::IpVersion::V4 => talpid_types::net::IpVersion::V4,
             proto::IpVersion::V6 => talpid_types::net::IpVersion::V6,
         }
-    }
-}
-
-pub fn try_tunnel_type_from_i32(
-    tunnel_type: i32,
-) -> Result<talpid_types::net::TunnelType, FromProtobufTypeError> {
-    match proto::TunnelType::try_from(tunnel_type) {
-        Ok(proto::TunnelType::Openvpn) => Ok(talpid_types::net::TunnelType::OpenVpn),
-        Ok(proto::TunnelType::Wireguard) => Ok(talpid_types::net::TunnelType::Wireguard),
-        Err(_) => Err(FromProtobufTypeError::InvalidArgument(
-            "invalid tunnel protocol",
-        )),
     }
 }
 

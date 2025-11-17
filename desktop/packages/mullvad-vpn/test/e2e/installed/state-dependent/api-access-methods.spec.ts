@@ -100,7 +100,9 @@ test('App should use invalid method', async () => {
   await expect(page.getByText(IN_USE_LABEL)).toHaveCount(1);
   await expect(nonFunctioningTestMethod).not.toContainText(IN_USE_LABEL);
 
-  await nonFunctioningTestMethod.locator('button').last().click();
+  const contextMenuButton = nonFunctioningTestMethod.getByRole('button').first();
+  await nonFunctioningTestMethod.highlight();
+  await contextMenuButton.click();
   await nonFunctioningTestMethod.getByText('Use').click();
   await expect(nonFunctioningTestMethod).toContainText('Testing...');
   await expect(nonFunctioningTestMethod).toContainText('API unreachable');
@@ -111,7 +113,8 @@ test('App should use invalid method', async () => {
 
 test('App should edit access method', async () => {
   const customMethod = page.getByTestId('access-method').last();
-  await customMethod.locator('button').last().click();
+  const contextMenuButton = customMethod.getByRole('button').first();
+  await contextMenuButton.click();
   await customMethod.getByText('Edit').click();
   await util.expectRoute(RoutePath.editApiAccessMethods);
 
@@ -159,7 +162,8 @@ test('App should use valid method', async () => {
   await expect(functioningTestMethod).not.toContainText(IN_USE_LABEL);
   await expect(functioningTestMethod).toHaveText(FUNCTIONING_METHOD_NAME);
 
-  await functioningTestMethod.locator('button').last().click();
+  const contextMenuButton = functioningTestMethod.getByRole('button').first();
+  await contextMenuButton.click();
   await functioningTestMethod.getByText('Use').click();
   await expect(direct).not.toContainText(IN_USE_LABEL);
   await expect(bridges).not.toContainText(IN_USE_LABEL);
@@ -172,7 +176,8 @@ test('App should delete method', async () => {
   const accessMethods = page.getByTestId('access-method');
   const customMethod = accessMethods.last();
 
-  await customMethod.locator('button').last().click();
+  const contextMenuButton = customMethod.getByRole('button').first();
+  await contextMenuButton.click();
   await customMethod.getByText('Delete').click();
 
   await expect(page.getByText(`Delete ${FUNCTIONING_METHOD_NAME}?`)).toBeVisible();

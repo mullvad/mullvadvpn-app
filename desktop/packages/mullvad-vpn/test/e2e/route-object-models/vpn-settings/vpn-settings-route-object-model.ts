@@ -16,9 +16,9 @@ export class VpnSettingsRouteObjectModel extends NavigationObjectModel {
     this.selectors = createSelectors(page);
   }
 
-  async gotoWireguardSettings() {
-    await this.selectors.wireguardSettingsButton().click();
-    await this.utils.expectRoute(RoutePath.wireguardSettings);
+  async gotoAntiCensorship() {
+    await this.selectors.antiCensorship().click();
+    await this.utils.expectRoute(RoutePath.antiCensorship);
   }
 
   getAutoConnectSwitch() {

@@ -16,10 +16,10 @@ pub fn pid_of_path(find_path: impl AsRef<Path>) -> Option<pid_t> {
     match list_pids() {
         Ok(pids) => {
             for pid in pids {
-                if let Ok(path) = process_path(pid) {
-                    if path == find_path.as_ref() {
-                        return Some(pid);
-                    }
+                if let Ok(path) = process_path(pid)
+                    && path == find_path.as_ref()
+                {
+                    return Some(pid);
                 }
             }
             None

@@ -54,7 +54,7 @@ class AppInteractor(
         }
     }
 
-    private fun clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
+    fun clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
         timeout: Long = DEFAULT_TIMEOUT
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {

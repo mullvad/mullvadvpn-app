@@ -110,13 +110,16 @@ pub fn collect_report<P: AsRef<Path>>(
     output_path: &Path,
     redact_custom_strings: Vec<String>,
     #[cfg(target_os = "android")] android_log_dir: &Path,
+    #[cfg(target_os = "android")] extra_logs_dir: &Path,
+    #[cfg(target_os = "android")] unverified_purchases: i32,
+    #[cfg(target_os = "android")] pending_purchases: i32,
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
     let daemon_logs_dir = {
         #[cfg(target_os = "android")]
         {
-            Ok(android_log_dir.to_owned())
+            Ok(android_log_dir)
         }
         #[cfg(not(target_os = "android"))]
         {
@@ -127,21 +130,11 @@ pub fn collect_report<P: AsRef<Path>>(
     let daemon_logs = daemon_logs_dir.and_then(list_logs);
     match daemon_logs {
         Ok(daemon_logs) => {
-            let mut other_logs = Vec::new();
             for log in daemon_logs {
                 match log {
-                    Ok(path) => {
-                        if is_tunnel_log(&path) {
-                            problem_report.add_log(&path);
-                        } else {
-                            other_logs.push(path);
-                        }
-                    }
+                    Ok(path) => problem_report.add_log(&path),
                     Err(error) => problem_report.add_error("Unable to get log path", &error),
                 }
-            }
-            for other_log in other_logs {
-                problem_report.add_log(&other_log);
             }
         }
         Err(error) => {
@@ -163,9 +156,34 @@ pub fn collect_report<P: AsRef<Path>>(
         None => {}
     }
     #[cfg(target_os = "android")]
-    match write_logcat_to_file(android_log_dir) {
-        Ok(logcat_path) => problem_report.add_log(&logcat_path),
-        Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+    {
+        match write_logcat_to_file(android_log_dir) {
+            Ok(logcat_path) => problem_report.add_log(&logcat_path),
+            Err(error) => problem_report.add_error("Failed to collect logcat", &error),
+        }
+
+        match list_logs(extra_logs_dir) {
+            Ok(android_app_logs) => {
+                for log in android_app_logs {
+                    match log {
+                        Ok(path) => problem_report.add_log(&path),
+                        Err(error) => problem_report.add_error("Unable to get log path", &error),
+                    }
+                }
+            }
+            Err(error) => {
+                problem_report.add_error("Failed to list logs in android app log directory", &error)
+            }
+        }
+
+        problem_report.add_metadata(
+            "unverified-purchases".to_string(),
+            unverified_purchases.to_string(),
+        );
+        problem_report.add_metadata(
+            "pending-purchases".to_string(),
+            pending_purchases.to_string(),
+        );
     }
 
     problem_report.add_logs(extra_logs);
@@ -178,11 +196,11 @@ pub fn collect_report<P: AsRef<Path>>(
 
 /// Returns an iterator over all files in the given directory that has the `.log` extension.
 fn list_logs(
-    log_dir: PathBuf,
+    log_dir: impl AsRef<Path>,
 ) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    fs::read_dir(&log_dir)
+    fs::read_dir(log_dir.as_ref())
         .map_err(|source| LogError::ListLogDir {
-            path: log_dir.display().to_string(),
+            path: log_dir.as_ref().display().to_string(),
             source,
         })
         .map(|dir_entries| {
@@ -199,7 +217,7 @@ fn list_logs(
                     }
                 }
                 Err(source) => Some(Err(LogError::ListLogDir {
-                    path: log_dir.display().to_string(),
+                    path: log_dir.as_ref().display().to_string(),
                     source,
                 })),
             })
@@ -235,13 +253,6 @@ fn frontend_log_dir() -> Option<Result<PathBuf, LogError>> {
     #[cfg(target_os = "android")]
     {
         None
-    }
-}
-
-fn is_tunnel_log(path: &Path) -> bool {
-    match path.file_name() {
-        Some(file_name) => file_name.to_string_lossy().contains("openvpn"),
-        None => false,
     }
 }
 
@@ -321,7 +332,7 @@ async fn send_problem_report_inner(
 
     let message: String = match account_token {
         Some(account_token) => {
-            format!("{user_message}\nAccountToken: {account_token}")
+            format!("{user_message}\naccount-token: {account_token}")
         }
         None => user_message.to_string(),
     };
@@ -379,6 +390,13 @@ impl ProblemReport {
             log_paths: HashSet::new(),
             redact_custom_strings,
         }
+    }
+
+    /// Add extra metadata to the problem report that is not possible to access from the daemon
+    /// directly.
+    #[cfg(target_os = "android")]
+    pub fn add_metadata(&mut self, key: String, value: String) {
+        self.metadata.insert(key, value);
     }
 
     /// Attach some file logs to this report. This method adds the error chain instead of the log

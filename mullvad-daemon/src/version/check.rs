@@ -6,12 +6,12 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
-use mullvad_update::version::{Rollout, VersionInfo};
+use mullvad_update::version::{VersionInfo, rollout::Rollout};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
     future::Future,
-    path::{Path, PathBuf},
+    path::PathBuf,
     pin::Pin,
     str::FromStr,
     sync::LazyLock,
@@ -95,12 +95,12 @@ impl VersionUpdater {
         refresh_rx: mpsc::UnboundedReceiver<()>,
         rollout: Rollout,
     ) {
+        let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         // load the last known AppVersionInfo from cache
-        let last_app_version_info = load_cache(&cache_dir).await;
+        let last_app_version_info = load_cache(&cache_path).await;
 
         api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
-        let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         let platform_version = talpid_platform_metadata::short_version();
 
         tokio::spawn(
@@ -146,16 +146,16 @@ impl VersionUpdaterInner {
 
     #[cfg(not(target_os = "android"))]
     fn ignore_cache_if_same_version(&self, mut new_version_info: VersionCache) -> VersionCache {
-        if let Some(current_cache) = self.last_app_version_info.as_ref() {
-            if current_cache.metadata_version == new_version_info.metadata_version {
-                log::trace!("Ignoring version info with same metadata version");
-                // Ignore everything except etag and platform timestamp
-                new_version_info = VersionCache {
-                    last_platform_header_check: new_version_info.last_platform_header_check,
-                    etag: new_version_info.etag,
-                    ..current_cache.clone()
-                };
-            }
+        if let Some(current_cache) = self.last_app_version_info.as_ref()
+            && current_cache.metadata_version == new_version_info.metadata_version
+        {
+            log::trace!("Ignoring version info with same metadata version");
+            // Ignore everything except etag and platform timestamp
+            new_version_info = VersionCache {
+                last_platform_header_check: new_version_info.last_platform_header_check,
+                etag: new_version_info.etag,
+                ..current_cache.clone()
+            };
         }
         new_version_info
     }
@@ -314,7 +314,7 @@ impl UpdateContext {
         let cache_path = self.cache_path.clone();
 
         async move {
-            log::debug!("Writing version check cache to {}", cache_path.display());
+            log::trace!("Writing version check cache to {}", cache_path.display());
             let buf = serde_json::to_vec_pretty(&last_app_version).map_err(Error::Serialize)?;
             tokio::fs::write(cache_path, buf)
                 .await
@@ -415,7 +415,7 @@ async fn version_check_inner(
                 .map_err(Error::Download)?
             else {
                 // ETag is up to date
-                log::debug!("Version data unchanged");
+                log::trace!("Version data unchanged");
                 return Ok(VersionCache {
                     last_platform_header_check: get_last_platform_header_check(),
                     ..prev_cache
@@ -482,7 +482,7 @@ async fn version_check_inner(
                 .map_err(Error::Download)?
             else {
                 // ETag is up to date
-                log::debug!("Version data unchanged");
+                log::trace!("Version data unchanged");
                 return Ok(VersionCache {
                     last_platform_header_check: get_last_platform_header_check(),
                     ..prev_cache
@@ -549,8 +549,8 @@ async fn version_check_inner(
 ///
 /// Returns the [AppVersionInfo] along with the modification time of the cache file,
 /// or `None` on any error.
-async fn load_cache(cache_dir: &Path) -> Option<VersionCache> {
-    try_load_cache(cache_dir)
+async fn load_cache(cache_path: &PathBuf) -> Option<VersionCache> {
+    try_load_cache(cache_path)
         .await
         .inspect_err(|error| {
             if matches!(error, Error::OutdatedVersion) {
@@ -565,15 +565,14 @@ async fn load_cache(cache_dir: &Path) -> Option<VersionCache> {
         .ok()
 }
 
-async fn try_load_cache(cache_dir: &Path) -> Result<VersionCache, Error> {
+async fn try_load_cache(cache_path: &PathBuf) -> Result<VersionCache, Error> {
     if !*CHECK_ENABLED {
         return Ok(dev_version_cache());
     }
 
-    let path = cache_dir.join(VERSION_INFO_FILENAME);
-    log::debug!("Loading version check cache from {}", path.display());
+    log::debug!("Loading version check cache from {}", cache_path.display());
 
-    let content = tokio::fs::read_to_string(&path)
+    let content = tokio::fs::read_to_string(&cache_path)
         .map_err(Error::ReadVersionCache)
         .await?;
 

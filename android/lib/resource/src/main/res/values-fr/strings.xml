@@ -199,7 +199,6 @@
     <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s de plus…</string>
-    <string name="feature_obfuscation">Dissimulation</string>
     <string name="feature_quantum_resistant">Résistance quantique</string>
     <string name="filter">Filtrer</string>
     <string name="foreground_notification_channel_description">Affiche l\'état actuel du tunnel VPN</string>
@@ -397,11 +396,11 @@
     <string name="try_again">Réessayer</string>
     <string name="type">Type</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
     <string name="undo">Annuler</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="update_list_name">Mettre à jour le nom de la liste</string>
     <string name="updating_server_list_in_the_background">Mise à jour en arrière-plan de la liste des serveurs…</string>

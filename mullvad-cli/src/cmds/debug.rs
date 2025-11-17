@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, bail};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::Constraint,
@@ -12,16 +12,31 @@ pub enum DebugCommands {
     /// Relay
     #[clap(subcommand)]
     Relay(RelayDebugCommands),
+    /// Handy commands for interacting with the app release rollout system.
+    #[clap(subcommand)]
+    Rollout(RolloutDebugCommands),
 }
 
 #[derive(clap::Subcommand, Debug)]
 pub enum RelayDebugCommands {
     /// Inactivate this _category of relays_ - a category can be one of the following: a relay, a
-    /// city, a country or a tunnel protocol (`openvpn` or `wireguard`).
+    /// city, a country.
     Disable { relay: String },
     /// (Re)Activate this _category of relays_ - a category can be one of the following: a relay, a
-    /// city, a country or a tunnel protocol (`openvpn` or `wireguard`).
+    /// city, a country.
     Enable { relay: String },
+}
+
+#[derive(clap::Subcommand, Debug)]
+pub enum RolloutDebugCommands {
+    /// Print your rollout threshold.
+    Get,
+    /// Generate a new rollout threshold (overwrites the current threshold value)
+    Reroll,
+    /// Set your rollout threshold seed to a known value.
+    ///
+    /// The seed is used to generate a rollout threshold.
+    Seed { value: u32 },
 }
 
 impl DebugCommands {
@@ -64,6 +79,35 @@ impl DebugCommands {
                 let mut rpc = MullvadProxyClient::new().await?;
                 rpc.enable_relay(relay.clone()).await?;
                 println!("{relay} is now marked as active");
+                Ok(())
+            }
+            DebugCommands::Rollout(rollout_cmd) => rollout_cmd.handle().await,
+        }
+    }
+}
+
+impl RolloutDebugCommands {
+    pub async fn handle(self) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        match self {
+            RolloutDebugCommands::Get => {
+                let Ok(threshold) = rpc.get_rollout_threshold().await else {
+                    bail!("Failed to get rollout");
+                };
+                println!("{threshold}");
+                Ok(())
+            }
+            RolloutDebugCommands::Reroll => {
+                let Ok(threshold) = rpc.generate_new_rollout_threshold().await else {
+                    bail!("Failed to get rollout");
+                };
+                println!("{threshold}");
+                Ok(())
+            }
+            RolloutDebugCommands::Seed { value: seed } => {
+                if rpc.set_new_rollout_threshold_seed(seed).await.is_err() {
+                    bail!("Failed to update rollout seed");
+                }
                 Ok(())
             }
         }

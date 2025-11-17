@@ -144,10 +144,10 @@ fn start_and_wait_for_service(service: &Service) -> Result<(), Error> {
     log::debug!("Starting split tunnel service");
 
     if let Err(error) = service.start::<&OsStr>(&[]) {
-        if let windows_service::Error::Winapi(error) = &error {
-            if error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32) {
-                return Ok(());
-            }
+        if let windows_service::Error::Winapi(error) = &error
+            && error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32)
+        {
+            return Ok(());
         }
         return Err(Error::StartService(error));
     }

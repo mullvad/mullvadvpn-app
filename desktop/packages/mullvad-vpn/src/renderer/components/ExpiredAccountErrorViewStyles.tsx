@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import { colors } from '../lib/foundations';
 import AccountNumberLabel from './AccountNumberLabel';
-import * as Cell from './cell';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { Container } from './Layout';
@@ -13,12 +12,6 @@ export const StyledAccountNumberLabel = styled(AccountNumberLabel)({
   fontSize: '20px',
   fontWeight: 700,
   color: colors.white,
-});
-
-export const StyledModalCellContainer = styled(Cell.Container)({
-  marginTop: '18px',
-  paddingLeft: '12px',
-  paddingRight: '12px',
 });
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({

@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
@@ -8,13 +9,13 @@ import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
+import { spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { IconBadge } from '../lib/icon-badge';
 import { formatDeviceName } from '../lib/utils';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
-import * as Cell from './cell';
 import DeviceInfoButton from './DeviceInfoButton';
 import {
   StyledAccountNumberContainer,
@@ -25,17 +26,21 @@ import {
   StyledCustomScrollbars,
   StyledDeviceLabel,
   StyledMessage,
-  StyledModalCellContainer,
   StyledTitle,
 } from './ExpiredAccountErrorViewStyles';
 import { Footer, Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
+import { SettingsToggleListItem } from './settings-toggle-list-item';
 
 enum RecoveryAction {
   openBrowser,
   disconnect,
   disableLockdownMode,
 }
+
+const StyledSettingsToggleListItem = styled(SettingsToggleListItem)`
+  margin-top: ${spacings.medium};
+`;
 
 export default function ExpiredAccountErrorView() {
   return (
@@ -258,10 +263,12 @@ function LockdownModeAlert() {
           'Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings.',
         )}
       </ModalMessage>
-      <StyledModalCellContainer>
-        <Cell.Label>{messages.pgettext('vpn-settings-view', 'Lockdown mode')}</Cell.Label>
-        <Cell.Switch isOn={lockdownMode} onChange={onChange} />
-      </StyledModalCellContainer>
+      <StyledSettingsToggleListItem checked={lockdownMode} onCheckedChange={onChange}>
+        <SettingsToggleListItem.Label>
+          {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
+        </SettingsToggleListItem.Label>
+        <SettingsToggleListItem.Switch />
+      </StyledSettingsToggleListItem>
     </ModalAlert>
   );
 }

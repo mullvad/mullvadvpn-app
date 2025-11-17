@@ -104,7 +104,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoMtuFeature = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+    history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
       options: [
         {
@@ -116,7 +116,7 @@ export const useGetFeatureIndicator = () => {
   }, [history]);
 
   const gotoQuantumResistantFeature = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+    history.push(RoutePath.vpnSettings, {
       transition: TransitionType.show,
       options: [
         {
@@ -127,37 +127,13 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
-  const gotoObfuscation = React.useCallback(() => {
-    history.push(RoutePath.wireguardSettings, {
+  const gotoAntiCensorship = React.useCallback(() => {
+    history.push(RoutePath.antiCensorship, {
       transition: TransitionType.show,
       options: [
         {
           type: 'scroll-to-anchor',
           id: 'obfuscation-setting',
-        },
-      ],
-    });
-  }, [history]);
-
-  const gotoBridgeMode = React.useCallback(() => {
-    history.push(RoutePath.openVpnSettings, {
-      transition: TransitionType.show,
-      options: [
-        {
-          type: 'scroll-to-anchor',
-          id: 'bridge-mode-setting',
-        },
-      ],
-    });
-  }, [history]);
-
-  const goToMssFix = React.useCallback(() => {
-    history.push(RoutePath.openVpnSettings, {
-      transition: TransitionType.show,
-      options: [
-        {
-          type: 'scroll-to-anchor',
-          id: 'mss-fix-setting',
         },
       ],
     });
@@ -179,20 +155,24 @@ export const useGetFeatureIndicator = () => {
       onClick: gotoDaitaFeature,
     },
     [FeatureIndicator.udp2tcp]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: messages.pgettext('wireguard-settings-view', 'UDP-over-TCP'),
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.shadowsocks]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: messages.pgettext('wireguard-settings-view', 'Shadowsocks'),
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.quic]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: strings.quic,
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.lwo]: {
-      label: messages.pgettext('wireguard-settings-view', 'Obfuscation'),
-      onClick: gotoObfuscation,
+      label: strings.lwo,
+      onClick: gotoAntiCensorship,
+    },
+    [FeatureIndicator.port]: {
+      label: sprintf(messages.gettext('%(wireguard)s port'), { wireguard: strings.wireguard }),
+      onClick: gotoAntiCensorship,
     },
     [FeatureIndicator.multihop]: {
       label:
@@ -212,17 +192,9 @@ export const useGetFeatureIndicator = () => {
       label: messages.pgettext('wireguard-settings-view', 'MTU'),
       onClick: gotoMtuFeature,
     },
-    [FeatureIndicator.bridgeMode]: {
-      label: messages.pgettext('openvpn-settings-view', 'Bridge mode'),
-      onClick: gotoBridgeMode,
-    },
     [FeatureIndicator.lanSharing]: {
       label: messages.pgettext('vpn-settings-view', 'Local network sharing'),
       onClick: gotoLanSharingFeature,
-    },
-    [FeatureIndicator.customMssFix]: {
-      label: messages.pgettext('openvpn-settings-view', 'Mssfix'),
-      onClick: goToMssFix,
     },
     [FeatureIndicator.lockdownMode]: {
       label: messages.pgettext('vpn-settings-view', 'Lockdown mode'),

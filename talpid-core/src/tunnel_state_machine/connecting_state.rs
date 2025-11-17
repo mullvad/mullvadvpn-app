@@ -10,7 +10,9 @@ use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_types::ErrorExt;
-use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
+use talpid_types::net::{
+    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, wireguard::TunnelParameters,
+};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 
 use super::connected_state::TunnelEventsReceiver;
@@ -25,7 +27,7 @@ use crate::dns::DnsConfig;
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
-use crate::tunnel::{self, TunnelMonitor};
+use crate::tunnel_state_machine::tunnel_monitor::{self, TunnelMonitor};
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
@@ -126,15 +128,15 @@ impl ConnectingState {
                     #[cfg(target_os = "android")]
                     {
                         shared_values.prepare_tun_config(false);
-                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
-                            if let Err(error) =
-                                { shared_values.tun_provider.lock().unwrap().open_tun_forced() }
-                            {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to recreate tun device")
-                                );
-                            }
+                        if retry_attempt > 0
+                            && retry_attempt.is_multiple_of(MAX_ATTEMPTS_WITH_SAME_TUN)
+                            && let Err(error) =
+                                shared_values.tun_provider.lock().unwrap().open_tun_forced()
+                        {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to recreate tun device")
+                            );
                         }
                     }
 
@@ -170,18 +172,10 @@ impl ConnectingState {
         let endpoints = params.get_next_hop_endpoints();
 
         #[cfg(target_os = "windows")]
-        let clients = AllowedClients::from(
-            TunnelMonitor::get_relay_client(&shared_values.resource_dir, params)
-                .into_iter()
-                .collect::<Vec<_>>(),
-        );
+        let clients = AllowedClients::from(vec![std::env::current_exe().unwrap()]);
 
         #[cfg(not(target_os = "windows"))]
-        let clients = if params.get_openvpn_local_proxy_settings().is_some() {
-            AllowedClients::All
-        } else {
-            AllowedClients::Root
-        };
+        let clients = AllowedClients::Root;
 
         #[cfg(target_os = "windows")]
         let exit_endpoint_ip = params.get_exit_hop_endpoint().map(|ep| ep.address.ip());
@@ -266,7 +260,7 @@ impl ConnectingState {
             };
 
             #[cfg(target_os = "windows")]
-            async fn maybe_dump_device_logs(log_dir: Option<&Path>, error: &tunnel::Error) {
+            async fn maybe_dump_device_logs(log_dir: Option<&Path>, error: &tunnel_monitor::Error) {
                 if error.get_tunnel_device_error().is_some()
                     && let Some(log_dir) = log_dir
                 {
@@ -338,13 +332,11 @@ impl ConnectingState {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {
-                tunnel::Error::WireguardTunnelMonitoringError(
-                    talpid_wireguard::Error::TimeoutError,
-                ) => {
+                tunnel_monitor::Error::TunnelMonitoring(talpid_wireguard::Error::TimeoutError) => {
                     log::debug!("WireGuard tunnel timed out");
                     None
                 }
-                error @ tunnel::Error::WireguardTunnelMonitoringError(..)
+                error @ tunnel_monitor::Error::TunnelMonitoring(..)
                     if !should_retry(&error, retry_attempt) =>
                 {
                     log::error!(
@@ -525,20 +517,20 @@ impl ConnectingState {
                     Ok(added_device) => {
                         let _ = result_tx.send(Ok(()));
 
-                        if added_device {
-                            if let Err(error) = Self::set_firewall_policy(
+                        if added_device
+                            && let Err(error) = Self::set_firewall_policy(
                                 shared_values,
                                 &self.tunnel_parameters,
                                 &self.tunnel_metadata,
                                 self.allowed_tunnel_traffic.clone(),
-                            ) {
-                                return self.disconnect(
-                                    shared_values,
-                                    AfterDisconnect::Block(
-                                        ErrorStateCause::SetFirewallPolicyError(error),
-                                    ),
-                                );
-                            }
+                            )
+                        {
+                            return self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
+                                    error,
+                                )),
+                            );
                         }
                     }
                     Err(error) => {
@@ -554,7 +546,7 @@ impl ConnectingState {
 
     fn handle_tunnel_events(
         mut self: Box<Self>,
-        event: Option<(tunnel::TunnelEvent, oneshot::Sender<()>)>,
+        event: Option<(TunnelEvent, oneshot::Sender<()>)>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
@@ -654,7 +646,7 @@ impl ConnectingState {
 }
 
 #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
-fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
+fn should_retry(error: &tunnel_monitor::Error, retry_attempt: u32) -> bool {
     #[cfg(target_os = "windows")]
     if error.get_tunnel_device_error().is_some() {
         return retry_attempt < MAX_ATTEMPT_CREATE_TUN;

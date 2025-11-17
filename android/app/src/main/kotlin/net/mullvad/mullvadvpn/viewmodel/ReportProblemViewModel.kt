@@ -26,6 +26,8 @@ data class ReportProblemUiState(
     val description: String = "",
     val showIncludeAccountId: Boolean = false,
     val includeAccountId: Boolean = false,
+    val showIncludeAccountWarningMessage: Boolean = false,
+    val isPlayBuild: Boolean = false,
 )
 
 sealed interface SendingReportUiState {
@@ -44,30 +46,41 @@ class ReportProblemViewModel(
     private val mullvadProblemReporter: MullvadProblemReport,
     private val problemReportRepository: ProblemReportRepository,
     accountRepository: AccountRepository,
+    private val isPlayBuild: Boolean,
 ) : ViewModel() {
 
     private val sendingState: MutableStateFlow<SendingReportUiState?> = MutableStateFlow(null)
     private val includeAccountIdState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val showIncludeAccountWarningMessage: MutableStateFlow<Boolean> =
+        MutableStateFlow(false)
 
     val uiState =
         combine(
                 sendingState,
                 includeAccountIdState,
+                showIncludeAccountWarningMessage,
                 problemReportRepository.problemReport,
                 accountRepository.accountData,
-            ) { sendingState, includeAccountToken, userReport, accountData ->
+            ) {
+                sendingState,
+                includeAccountToken,
+                showIncludeAccountWarningMessage,
+                userReport,
+                accountData ->
                 ReportProblemUiState(
                     sendingState = sendingState,
                     email = userReport.email ?: "",
                     description = userReport.description,
                     showIncludeAccountId = accountData != null,
                     includeAccountId = includeAccountToken,
+                    showIncludeAccountWarningMessage = showIncludeAccountWarningMessage,
+                    isPlayBuild = isPlayBuild,
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                ReportProblemUiState(),
+                ReportProblemUiState(isPlayBuild = isPlayBuild),
             )
 
     private val _uiSideEffect = Channel<ReportProblemSideEffect>()
@@ -116,6 +129,10 @@ class ReportProblemViewModel(
 
     fun onIncludeAccountIdCheckChange(checked: Boolean) {
         includeAccountIdState.tryEmit(checked)
+    }
+
+    fun showIncludeAccountInformationWarningMessage(show: Boolean) {
+        showIncludeAccountWarningMessage.tryEmit(show)
     }
 
     private fun shouldShowConfirmNoEmail(userEmail: String?): Boolean =

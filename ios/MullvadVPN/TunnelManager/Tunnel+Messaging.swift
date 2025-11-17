@@ -58,49 +58,6 @@ extension TunnelProtocol {
         return operation
     }
 
-    /// Send HTTP request via packet tunnel process bypassing VPN.
-    func sendRequest(
-        _ proxyRequest: ProxyURLRequest,
-        completionHandler: @escaping @Sendable (Result<ProxyURLResponse, Error>) -> Void
-    ) -> Cancellable {
-        let decoderHandler: (Data?) throws -> ProxyURLResponse = { data in
-            if let data {
-                return try TunnelProviderReply<ProxyURLResponse>(messageData: data).value
-            } else {
-                throw EmptyTunnelProviderResponseError()
-            }
-        }
-
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
-            message: .sendURLRequest(proxyRequest),
-            timeout: proxyRequestTimeout,
-            decoderHandler: decoderHandler,
-            completionHandler: completionHandler
-        )
-
-        operation.onCancel { [weak self] _ in
-            guard let self else { return }
-
-            let cancelOperation = SendTunnelProviderMessageOperation(
-                dispatchQueue: dispatchQueue,
-                backgroundTaskProvider: backgroundTaskProvider,
-                tunnel: self,
-                message: .cancelURLRequest(proxyRequest.id),
-                decoderHandler: decoderHandler,
-                completionHandler: nil
-            )
-
-            operationQueue.addOperation(cancelOperation)
-        }
-
-        operationQueue.addOperation(operation)
-
-        return operation
-    }
-
     /// Send API request via packet tunnel process bypassing VPN.
     func sendAPIRequest(
         _ proxyRequest: ProxyAPIRequest,

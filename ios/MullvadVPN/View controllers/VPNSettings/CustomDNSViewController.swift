@@ -70,11 +70,7 @@ class CustomDNSViewController: UITableViewController {
 
         navigationItem.setHidesBackButton(editing, animated: animated)
         if navigationItem.rightBarButtonItem != editButtonItem {
-            if #available(iOS 16.0, *) {
-                navigationItem.rightBarButtonItem?.isHidden = editing
-            } else {
-                navigationItem.rightBarButtonItem?.isEnabled = !editing
-            }
+            navigationItem.rightBarButtonItem?.isHidden = editing
         }
 
         // Disable swipe to dismiss when editing

@@ -10,7 +10,6 @@ import {
   AccountDataResponse,
   AccountNumber,
   BridgeSettings,
-  BridgeState,
   CustomListError,
   CustomProxy,
   DaemonAppUpgradeEvent,
@@ -301,18 +300,6 @@ export class DaemonRpc extends GrpcClient {
     await this.callBool(this.client.setLockdownMode, lockdownMode);
   }
 
-  public async setBridgeState(bridgeState: BridgeState): Promise<void> {
-    const bridgeStateMap = {
-      auto: grpcTypes.BridgeState.State.AUTO,
-      on: grpcTypes.BridgeState.State.ON,
-      off: grpcTypes.BridgeState.State.OFF,
-    };
-
-    const grpcBridgeState = new grpcTypes.BridgeState();
-    grpcBridgeState.setState(bridgeStateMap[bridgeState]);
-    await this.call<grpcTypes.BridgeState, Empty>(this.client.setBridgeState, grpcBridgeState);
-  }
-
   public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
     const grpcBridgeSettings = new grpcTypes.BridgeSettings();
 
@@ -369,6 +356,11 @@ export class DaemonRpc extends GrpcClient {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO,
         );
         break;
+      case ObfuscationType.port:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.PORT,
+        );
+        break;
     }
 
     if (obfuscationSettings.udp2tcpSettings) {
@@ -393,15 +385,11 @@ export class DaemonRpc extends GrpcClient {
     );
   }
 
-  public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
-    await this.callNumber(this.client.setOpenvpnMssfix, mssfix);
-  }
-
   public async setWireguardMtu(mtu?: number): Promise<void> {
     await this.callNumber(this.client.setWireguardMtu, mtu);
   }
 
-  public async setWireguardQuantumResistant(quantumResistant?: boolean): Promise<void> {
+  public async setWireguardQuantumResistant(quantumResistant: boolean): Promise<void> {
     const quantumResistantState = new grpcTypes.QuantumResistantState();
     switch (quantumResistant) {
       case true:
@@ -409,9 +397,6 @@ export class DaemonRpc extends GrpcClient {
         break;
       case false:
         quantumResistantState.setState(grpcTypes.QuantumResistantState.State.OFF);
-        break;
-      case undefined:
-        quantumResistantState.setState(grpcTypes.QuantumResistantState.State.AUTO);
         break;
     }
     await this.call<grpcTypes.QuantumResistantState, Empty>(

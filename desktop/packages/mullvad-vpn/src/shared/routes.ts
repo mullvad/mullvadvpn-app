@@ -15,11 +15,9 @@ export enum RoutePath {
   userInterfaceSettings = '/settings/interface',
   multihopSettings = '/settings/multihop',
   vpnSettings = '/settings/vpn',
-  wireguardSettings = '/settings/advanced/wireguard',
   daitaSettings = '/settings/daita',
   udpOverTcp = '/settings/advanced/wireguard/udp-over-tcp',
   shadowsocks = '/settings/advanced/shadowsocks',
-  openVpnSettings = '/settings/advanced/openvpn',
   splitTunneling = '/settings/split-tunneling',
   apiAccessMethods = '/settings/api-access-methods',
   settingsImport = '/settings/settings-import',
@@ -35,4 +33,6 @@ export enum RoutePath {
   changelog = '/settings/changelog',
   appUpgrade = '/settings/app-upgrade',
   manageDevices = '/settings/manage-devices',
+  antiCensorship = '/settings/advanced/anti-censorship',
+  wireguardPort = '/settings/advanced/wireguard-port',
 }

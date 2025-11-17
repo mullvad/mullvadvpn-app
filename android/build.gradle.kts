@@ -1,8 +1,10 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import utilities.isNonStableVersion
 
 plugins {
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.test) apply false
@@ -21,11 +23,6 @@ plugins {
 }
 
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
     dependencies {
         //noinspection UseTomlInstead
         // Dependency class paths are required for Gradle metadata verification to work properly,
@@ -109,11 +106,6 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 
 allprojects {
     apply(plugin = rootProject.libs.plugins.ktfmt.get().pluginId)
-
-    repositories {
-        google()
-        mavenCentral()
-    }
 
     // Should be the same as ktfmt config in buildSrc/build.gradle.kts
     configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {

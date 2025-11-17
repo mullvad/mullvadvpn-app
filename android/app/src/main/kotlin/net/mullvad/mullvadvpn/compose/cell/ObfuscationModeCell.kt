@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.VerticalDivider
@@ -75,7 +75,9 @@ fun ObfuscationModeCell(
             titleStyle = MaterialTheme.typography.bodyLarge,
             titleColor = MaterialTheme.colorScheme.onSurface,
             subtitleStyle = MaterialTheme.typography.labelLarge,
-            subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            subtitleColor =
+                if (isSelected) MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.onSurfaceVariant,
             titleText = obfuscationMode.toTitle(),
             subtitleText = stringResource(id = R.string.port_x, port.toSubTitle()),
             onCellClicked = { onSelected(obfuscationMode) },
@@ -107,7 +109,7 @@ fun ObfuscationModeCell(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = Icons.Default.ChevronRight,
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = null,
             )
@@ -120,7 +122,7 @@ private fun ObfuscationMode.toTitle() =
     when (this) {
         ObfuscationMode.Auto -> stringResource(id = R.string.automatic)
         ObfuscationMode.Off -> stringResource(id = R.string.off)
-        ObfuscationMode.Udp2Tcp -> stringResource(id = R.string.upd_over_tcp)
+        ObfuscationMode.Udp2Tcp -> stringResource(id = R.string.udp_over_tcp)
         ObfuscationMode.Shadowsocks -> stringResource(id = R.string.shadowsocks)
         ObfuscationMode.Quic -> stringResource(id = R.string.quic)
         ObfuscationMode.Lwo -> stringResource(id = R.string.lwo)

@@ -1,6 +1,18 @@
+fn main() {
+    #[cfg(windows)]
+    win::main();
+}
+
 #[cfg(windows)]
 mod win {
     use std::{env, path::PathBuf};
+
+    pub fn main() {
+        const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
+        declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
+        let lib_dir = manifest_dir().join("../build/lib").join(target());
+        println!("cargo::rustc-link-search={}", &lib_dir.display());
+    }
 
     pub static WINFW_BUILD_DIR: &str = "..\\windows\\winfw\\bin";
 
@@ -46,25 +58,4 @@ mod win {
             .map(PathBuf::from)
             .expect("CARGO_MANIFEST_DIR env var not set")
     }
-}
-
-#[cfg(windows)]
-fn main() {
-    generate_grpc_code();
-
-    use crate::win::*;
-
-    const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
-    declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
-    let lib_dir = manifest_dir().join("../build/lib").join(target());
-    println!("cargo::rustc-link-search={}", &lib_dir.display());
-}
-
-#[cfg(not(windows))]
-fn main() {
-    generate_grpc_code()
-}
-
-fn generate_grpc_code() {
-    tonic_build::compile_protos("../talpid-openvpn-plugin/proto/openvpn_plugin.proto").unwrap();
 }

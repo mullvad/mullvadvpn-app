@@ -22,8 +22,25 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2025.10-beta1] - 2025-11-10
 ### Added
 - Option to show server location in the connection notification.
+- Option to include account token in problem reports.
+
+### Changed
+- Switch from wireguard-go to GotaTun as default wireguard library.
+- Improve login and create account error messages.
+- Show feature indicators while connecting.
+- Show the exact obfuscation method used instead of "Obfuscation" in feature indicators.
+- Remember the expanded state of the connection panel between connections.
+
+### Fixed
+- Recents will now always show the selected location.
+
+### Removed
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
 
 
 ## [android/2025.9] - 2025-10-20

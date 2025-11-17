@@ -4,7 +4,7 @@ repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0-only"
 edition = "2024"
 # Must be less than or equal to `channel` in `rust-toolchain.toml`
-rust-version = "1.88.0"
+rust-version = "1.91.0"
 
 [workspace]
 resolver = "2"
@@ -39,8 +39,6 @@ members = [
   "talpid-future",
   "talpid-macos",
   "talpid-net",
-  "talpid-openvpn",
-  "talpid-openvpn-plugin",
   "talpid-platform-metadata",
   "talpid-routing",
   "talpid-time",
@@ -116,6 +114,8 @@ netlink-packet-route = "0.25"
 netlink-proto = "0.12"
 netlink-sys = "0.8.3"
 
+zerocopy = "0.8.27"
+
 # Hickory & DNS
 hickory-proto = "0.24.3"
 hickory-resolver = "0.24.3"
@@ -148,7 +148,7 @@ shadowsocks-service = "1.20.3"
 itertools = "0.14"
 
 # Test dependencies
-proptest = "1.4"
+proptest = "1.9"
 insta = { version = "1.42", features = ["yaml"] }
 
 [profile.release]
@@ -158,7 +158,7 @@ strip = true
 
 # Selectively optimize packages where we know it makes a difference
 [profile.release.package]
-boringtun.opt-level = 3
+gotatun.opt-level = 3
 pqcrypto-hqc.opt-level = 3
 quinn-proto.opt-level = 3
 quinn-udp.opt-level = 3

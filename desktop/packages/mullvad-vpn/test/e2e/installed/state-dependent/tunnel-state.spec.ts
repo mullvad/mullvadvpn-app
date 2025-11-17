@@ -72,20 +72,20 @@ test.describe('Tunnel state and settings', () => {
     const inIp = routes.main.getInIp();
     await expect(inIp).toHaveText(new RegExp(':[0-9]+'));
 
-    await exec('mullvad obfuscation set mode off');
-    await exec('mullvad relay set tunnel wireguard --port=53');
+    await exec('mullvad obfuscation set mode port');
+    await exec('mullvad relay set port 53');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
     await expect(inIp).toHaveText(new RegExp(':53'));
 
-    await exec('mullvad relay set tunnel wireguard --port=51820');
+    await exec('mullvad relay set port 51820');
     await expectConnected(page);
     await routes.main.expandConnectionPanel();
 
     await expect(inIp).toHaveText(new RegExp(':51820'));
 
-    await exec('mullvad relay set tunnel wireguard --port=any');
+    await exec('mullvad relay set port any');
     await exec('mullvad obfuscation set mode auto');
   });
 
@@ -93,12 +93,12 @@ test.describe('Tunnel state and settings', () => {
     async function gotoWireguardSettings() {
       await routes.main.gotoSettings();
       await routes.settings.gotoVpnSettings();
-      await routes.vpnSettings.gotoWireguardSettings();
+      await routes.vpnSettings.gotoAntiCensorship();
     }
 
     async function gotoUdpOverTcpSettings() {
       await gotoWireguardSettings();
-      await routes.wireguardSettings.gotoUdpOverTcpSettings();
+      await routes.antiCensorship.gotoUdpOverTcpSettings();
     }
 
     test.beforeAll(async () => {
@@ -115,13 +115,13 @@ test.describe('Tunnel state and settings', () => {
     test('App should enable UDP-over-TCP', async () => {
       await gotoWireguardSettings();
 
-      const udpOverTcpOption = routes.wireguardSettings.getUdpOverTcpOption();
+      const udpOverTcpOption = routes.antiCensorship.getUdpOverTcpOption();
       await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'false');
 
-      await routes.wireguardSettings.selectUdpOverTcp();
+      await routes.antiCensorship.selectUdpOverTcp();
       await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'true');
 
-      await routes.wireguardSettings.goBackToRoute(RoutePath.main);
+      await routes.antiCensorship.goBackToRoute(RoutePath.main);
 
       await expectConnected(page);
 
@@ -147,9 +147,9 @@ test.describe('Tunnel state and settings', () => {
 
     test('App should set obfuscation to automatic', async () => {
       await gotoWireguardSettings();
-      await routes.wireguardSettings.selectAutomaticObfuscation();
+      await routes.antiCensorship.selectAutomaticObfuscation();
 
-      const automaticOption = routes.wireguardSettings.getAutomaticObfuscationOption();
+      const automaticOption = routes.antiCensorship.getAutomaticObfuscationOption();
       await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
       await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
     });
@@ -171,11 +171,11 @@ test.describe('Tunnel state and settings', () => {
   });
 
   test('App should show multihop', async () => {
-    await exec('mullvad relay set tunnel wireguard --use-multihop=on');
+    await exec('mullvad relay set multihop on');
     await expectConnected(page);
     const relay = routes.main.getRelayHostname();
     await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${HOSTNAME} via`), 'i'));
-    await exec('mullvad relay set tunnel wireguard --use-multihop=off');
+    await exec('mullvad relay set multihop off');
     await page.getByText('Disconnect').click();
   });
 

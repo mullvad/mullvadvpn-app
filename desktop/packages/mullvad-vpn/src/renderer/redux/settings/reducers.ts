@@ -20,20 +20,14 @@ import {
   RelayLocation,
   RelayOverride,
   RelayProtocol,
-  TunnelProtocol,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
 
 export type NormalRelaySettingsRedux = {
-  tunnelProtocol: TunnelProtocol;
   location: LiftedConstraint<RelayLocation>;
   providers: string[];
   ownership: Ownership;
-  openvpn: {
-    port: LiftedConstraint<number>;
-    protocol: LiftedConstraint<RelayProtocol>;
-  };
   wireguard: {
     port: LiftedConstraint<number>;
     ipVersion: LiftedConstraint<IpVersion>;
@@ -108,12 +102,9 @@ export interface ISettingsReduxState {
   bridgeState: BridgeState;
   lockdownMode: boolean;
   showBetaReleases: boolean;
-  openVpn: {
-    mssfix?: number;
-  };
   wireguard: {
     mtu?: number;
-    quantumResistant?: boolean;
+    quantumResistant: boolean;
     daita?: IDaitaSettings;
   };
   dns: IDnsOptions;
@@ -143,14 +134,9 @@ const initialState: ISettingsReduxState = {
   relaySettings: {
     normal: {
       location: 'any',
-      tunnelProtocol: 'wireguard',
       providers: [],
       ownership: Ownership.any,
       wireguard: { port: 'any', ipVersion: 'any', useMultihop: false, entryLocation: 'any' },
-      openvpn: {
-        port: 'any',
-        protocol: 'any',
-      },
     },
   },
   relayLocations: [],
@@ -169,8 +155,9 @@ const initialState: ISettingsReduxState = {
   bridgeState: 'auto',
   lockdownMode: false,
   showBetaReleases: false,
-  openVpn: {},
-  wireguard: {},
+  wireguard: {
+    quantumResistant: true,
+  },
   dns: {
     state: 'default',
     defaultOptions: {
@@ -255,15 +242,6 @@ export default function (
         showBetaReleases: action.showBetaReleases,
       };
 
-    case 'UPDATE_OPENVPN_MSSFIX':
-      return {
-        ...state,
-        openVpn: {
-          ...state.openVpn,
-          mssfix: action.mssfix,
-        },
-      };
-
     case 'UPDATE_WIREGUARD_MTU':
       return {
         ...state,
@@ -300,12 +278,6 @@ export default function (
       return {
         ...state,
         bridgeSettings: action.bridgeSettings,
-      };
-
-    case 'UPDATE_BRIDGE_STATE':
-      return {
-        ...state,
-        bridgeState: action.bridgeState,
       };
 
     case 'UPDATE_DNS_OPTIONS':

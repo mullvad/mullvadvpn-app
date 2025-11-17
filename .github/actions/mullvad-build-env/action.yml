@@ -35,13 +35,6 @@ runs:
       shell: bash
       run: rustup component add ${{ inputs.rustup-components }}
 
-    # The x64 target is needed to build talpid-openvpn-plugin
-    # TODO: Remove once fixed
-    - name: Install Rust x64 target
-      if: runner.os == 'Windows' && runner.arch == 'ARM64'
-      shell: bash
-      run: rustup target add x86_64-pc-windows-msvc
-
     # Install 32-bit target for NSIS plugins
     - name: Install Rust 32-bit x86 target
       if: runner.os == 'Windows'

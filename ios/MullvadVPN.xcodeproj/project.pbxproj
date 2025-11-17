@@ -12,7 +12,7 @@
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
-		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
+		063687BA28EB234F00BE7161 /* PacketTunnelAPITransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelAPITransport.swift */; };
 		063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
@@ -20,13 +20,9 @@
 		06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */; };
 		06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */; };
 		06799ADD28F98E4800ACD94E /* RESTError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66928F83CA30033DD93 /* RESTError.swift */; };
-		06799ADE28F98E4800ACD94E /* RESTRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */; };
-		06799ADF28F98E4800ACD94E /* RESTDevicesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */; };
+		06799ADF28F98E4800ACD94E /* DeviceHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67A28F83CA50033DD93 /* DeviceHandling.swift */; };
 		06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66C28F83CA40033DD93 /* RESTCoding.swift */; };
 		06799AE128F98E4800ACD94E /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */; };
-		06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */; };
-		06799AE328F98E4800ACD94E /* RESTNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */; };
-		06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */; };
 		06799AE528F98E4800ACD94E /* HTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67128F83CA40033DD93 /* HTTP.swift */; };
 		06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */; };
 		06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66528F83CA30033DD93 /* RESTURLSession.swift */; };
@@ -34,12 +30,9 @@
 		06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */; };
 		06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67628F83CA40033DD93 /* RetryStrategy.swift */; };
 		06799AF028F98E4800ACD94E /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67B28F83CA50033DD93 /* REST.swift */; };
-		06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */; };
-		06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */; };
-		06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */; };
-		06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */; };
+		06799AF128F98E4800ACD94E /* RESTSubmitVoucherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67328F83CA40033DD93 /* RESTSubmitVoucherResponse.swift */; };
 		06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCache.swift */; };
-		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
+		0697D6E728F01513007A9E99 /* APITransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* APITransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */; };
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
@@ -142,7 +135,6 @@
 		58342C042AAB61FB003BA12D /* State+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58342C032AAB61FB003BA12D /* State+Extensions.swift */; };
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		5838321B2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */; };
-		5838321D2AC1C54600EA2071 /* TaskSleepTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */; };
 		5838321F2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321E2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift */; };
 		583832232AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832222AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift */; };
 		583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832242AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift */; };
@@ -151,7 +143,6 @@
 		5838322B2AC3EF9600EA2071 /* EventChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838322A2AC3EF9600EA2071 /* EventChannel.swift */; };
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
-		583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */; };
 		58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
 		5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* StoreSubscription.swift */; };
@@ -195,7 +186,6 @@
 		586C14582AC463BB00245C01 /* EventChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C14572AC463BB00245C01 /* EventChannelTests.swift */; };
 		586C145A2AC4735F00245C01 /* PacketTunnelActor+Public.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C14592AC4735F00245C01 /* PacketTunnelActor+Public.swift */; };
 		586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
-		586E8DB82AAF4AC4007BF3DA /* Task+Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E8DB72AAF4AC4007BF3DA /* Task+Duration.swift */; };
 		5871167F2910035700D41AAC /* VPNSettingsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871167E2910035700D41AAC /* VPNSettingsInteractor.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
@@ -280,13 +270,10 @@
 		58B2FDE92AA71D5C003EB5C6 /* SettingsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E03292D0F7100AFC18C /* SettingsParser.swift */; };
 		58B2FDEE2AA72098003EB5C6 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		58B2FDEF2AA720C4003EB5C6 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
-		58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B4656F2A98C53300467203 /* RequestExecutorTests.swift */; };
 		58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B93A1226C3F13600A55733 /* TunnelState.swift */; };
 		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
 		58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* RESTError+Display.swift */; };
 		58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
-		58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */; };
-		58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */; };
 		58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
 		58BE4B9D2B18A85B007EA1D3 /* NSAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */; };
 		58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */; };
@@ -313,9 +300,6 @@
 		58C7A46A2A8643A90060C66F /* ICMPHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 58218E1628B65396000C624F /* ICMPHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		58C7AF112ABD8480007EDD7A /* TunnelProviderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */; };
 		58C7AF122ABD8480007EDD7A /* TunnelProviderReply.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2A7290182B000EB5EBA /* TunnelProviderReply.swift */; };
-		58C7AF162ABD84A8007EDD7A /* URLRequestProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */; };
-		58C7AF172ABD84AA007EDD7A /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
-		58C7AF182ABD84AB007EDD7A /* ProxyURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2AD290185D200EB5EBA /* ProxyURLResponse.swift */; };
 		58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */; };
 		58C9B8CE2ABB252E00040B46 /* DeviceCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */; };
 		58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9FF2983FF0200BE19F7 /* LoginInteractor.swift */; };
@@ -373,7 +357,7 @@
 		58D22400294C90050029F5F8 /* OSLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E428F8010400B0CB5E /* OSLogHandler.swift */; };
 		58D22401294C90050029F5F8 /* CustomFormatLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */; };
 		58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E028F8010300B0CB5E /* Logger+Errors.swift */; };
-		58D22403294C90050029F5F8 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943DF28F8010300B0CB5E /* Logging.swift */; };
+		58D22403294C90050029F5F8 /* LoggerBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943DF28F8010300B0CB5E /* LoggerBuilder.swift */; };
 		58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E228F8010400B0CB5E /* Date+LogFormat.swift */; };
 		58D22405294C90050029F5F8 /* LogRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943DD28F8010300B0CB5E /* LogRotation.swift */; };
 		58D22406294C90210029F5F8 /* IPv4Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */; };
@@ -411,7 +395,6 @@
 		58E45A5729F12C5100281ECF /* Result+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */; };
 		58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
 		58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
-		58E7BA192A975DF70068EC3A /* RESTTransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */; };
 		58E9C3842A4EF15300CFDEAC /* WireGuardAdapter+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */; };
 		58EC067A2A8D208D00BEB973 /* TunnelDeviceInfoStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC06792A8D208D00BEB973 /* TunnelDeviceInfoStub.swift */; };
 		58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */; };
@@ -495,7 +478,6 @@
 		7A2E7B722D6C9FE5009EF2C3 /* APIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */; };
 		7A2E7B732D6C9FEB009EF2C3 /* APIRequestProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A95B6742D5DF86400687524 /* APIRequestProxy.swift */; };
 		7A2E7B752D6CA0B1009EF2C3 /* APITransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */; };
-		7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307AD82A8CD8DA0017618B /* Duration.swift */; };
 		7A307ADB2A8F56DF0017618B /* Duration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */; };
 		7A3215722D3934E6005DF395 /* MullvadApiCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */; };
 		7A33538F2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A33538E2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift */; };
@@ -504,8 +486,6 @@
 		7A3353972AAA0F8600F0A71C /* OperationBlockObserverSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */; };
 		7A3AD5012C1068A800E9AD90 /* RelayPicking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */; };
 		7A3FD1B52AD4465A0042BEA6 /* AppMessageHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */; };
-		7A3FD1B72AD54ABD0042BEA6 /* AnyTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */; };
-		7A3FD1B82AD54AE60042BEA6 /* TimeServerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
 		7A45CFC62C05FF6A00D80B21 /* ScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A45CFC22C05FF2F00D80B21 /* ScreenshotTests.swift */; };
 		7A45CFC72C071DD400D80B21 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */; };
@@ -664,8 +644,7 @@
 		7AD03E1F2E8EB49700270EAE /* RevokedDeviceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD03E1E2E8EB48B00270EAE /* RevokedDeviceViewModel.swift */; };
 		7AD0AA1C2AD6A63F00119E10 /* PacketTunnelActorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA1B2AD6A63F00119E10 /* PacketTunnelActorStub.swift */; };
 		7AD0AA1D2AD6A86700119E10 /* PacketTunnelActorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA192AD69B6E00119E10 /* PacketTunnelActorProtocol.swift */; };
-		7AD0AA1F2AD6C8B900119E10 /* URLRequestProxyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA1E2AD6C8B900119E10 /* URLRequestProxyProtocol.swift */; };
-		7AD0AA212AD6CB0000119E10 /* URLRequestProxyStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA202AD6CB0000119E10 /* URLRequestProxyStub.swift */; };
+		7AD0AA212AD6CB0000119E10 /* APIRequestProxyStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA202AD6CB0000119E10 /* APIRequestProxyStub.swift */; };
 		7AD63A392CD520FD00445268 /* RelayObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A382CD520FD00445268 /* RelayObfuscator.swift */; };
 		7AD63A3B2CD5278900445268 /* ObfuscationMethodSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */; };
 		7AD63A3D2CD9065D00445268 /* RelayObfuscatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3C2CD9065100445268 /* RelayObfuscatorTests.swift */; };
@@ -743,30 +722,9 @@
 		85FB5A102B6960A30015DCED /* AccountDeletionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0F2B6960A30015DCED /* AccountDeletionPage.swift */; };
 		A9019ED72E6878CD0002ACA9 /* SegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */; };
 		A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */; };
-		A90763B02B2857D50045ADF0 /* Socks5ConnectCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */; };
-		A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */; };
-		A90763B22B2857D50045ADF0 /* Socks5EndpointReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */; };
-		A90763B32B2857D50045ADF0 /* Socks5Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A32B2857D50045ADF0 /* Socks5Authentication.swift */; };
-		A90763B42B2857D50045ADF0 /* NWConnection+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A42B2857D50045ADF0 /* NWConnection+Extensions.swift */; };
-		A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A52B2857D50045ADF0 /* Socks5Constants.swift */; };
-		A90763B62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift */; };
-		A90763B72B2857D50045ADF0 /* Socks5DataStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A72B2857D50045ADF0 /* Socks5DataStreamHandler.swift */; };
-		A90763B82B2857D50045ADF0 /* Socks5Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A82B2857D50045ADF0 /* Socks5Command.swift */; };
-		A90763B92B2857D50045ADF0 /* Socks5ForwardingProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A92B2857D50045ADF0 /* Socks5ForwardingProxy.swift */; };
-		A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AA2B2857D50045ADF0 /* Socks5Error.swift */; };
-		A90763BB2B2857D50045ADF0 /* Socks5AddressType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AB2B2857D50045ADF0 /* Socks5AddressType.swift */; };
-		A90763BC2B2857D50045ADF0 /* Socks5StatusCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AC2B2857D50045ADF0 /* Socks5StatusCode.swift */; };
-		A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AD2B2857D50045ADF0 /* Socks5Connection.swift */; };
-		A90763BE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift */; };
-		A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AF2B2857D50045ADF0 /* Socks5Handshake.swift */; };
-		A90763C12B2858320045ADF0 /* URLSessionSocks5Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C02B2858310045ADF0 /* URLSessionSocks5Transport.swift */; };
-		A90763C32B2858630045ADF0 /* Socks5Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C22B2858630045ADF0 /* Socks5Configuration.swift */; };
-		A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */; };
-		A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C62B2858DC0045ADF0 /* CancellableChain.swift */; };
 		A90C48672C36BC2600DCB94C /* EphemeralPeerReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */; };
 		A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48682C36BF3900DCB94C /* TunnelProvider.swift */; };
 		A91614D12B108D1B00F416EB /* TransportLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91614D02B108D1B00F416EB /* TransportLayer.swift */; };
-		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */; };
 		A9173C372C36CD2B00F6A08C /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; platformFilter = ios; };
 		A91D78E42B03C01600FCD5D3 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
@@ -774,9 +732,6 @@
 		A91E26E22E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */; };
 		A91EBEDA2C1337040004A84D /* RetryStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91EBED92C1337040004A84D /* RetryStrategyTests.swift */; };
 		A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */; };
-		A932D9F32B5EB61100999395 /* HeadRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F22B5EB61100999395 /* HeadRequestTests.swift */; };
-		A932D9F52B5EBB9D00999395 /* RESTTransportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */; };
-		A935594C2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */; };
 		A939661B2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */; };
 		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
 		A959E23E2D75F33300F95DDB /* PersistentAccessMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */; };
@@ -786,7 +741,6 @@
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
 		A95EEE382B722DFC00A8A39B /* PingStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE372B722DFC00A8A39B /* PingStats.swift */; };
 		A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */; };
-		A970C89D2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */; };
 		A9711B2B2D662AE3003DA71D /* SwiftConnectionModeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */; };
 		A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */; };
 		A97687C82DD60D5D000D96E8 /* AddressCacheProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */; };
@@ -813,7 +767,6 @@
 		A998DA832BD2B055001D61A2 /* EditCustomListLocationsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A998DA822BD2B055001D61A2 /* EditCustomListLocationsPage.swift */; };
 		A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */; };
 		A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */; };
-		A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */; };
 		A9A557F32B7E19B10017ADA8 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
 		A9A5F9E12ACB05160083449F /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
 		A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
@@ -858,8 +811,8 @@
 		A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
 		A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* StorePaymentObserver.swift */; };
 		A9A5FA0F2ACB05160083449F /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* StoreSubscription.swift */; };
-		A9A5FA102ACB05160083449F /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
-		A9A5FA112ACB05160083449F /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
+		A9A5FA102ACB05160083449F /* PacketTunnelAPITransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelAPITransport.swift */; };
+		A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* APITransportMonitor.swift */; };
 		A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		A9A5FA142ACB05160083449F /* MapConnectionStatusOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */; };
 		A9A5FA152ACB05160083449F /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
@@ -886,7 +839,6 @@
 		A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */; };
 		A9A5FA2B2ACB05160083449F /* CustomDateComponentsFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */; };
 		A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */; };
-		A9A5FA2D2ACB05160083449F /* DurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FBFBF0291630700020E046 /* DurationTests.swift */; };
 		A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3FA672A385C89006A450A /* FileCacheTests.swift */; };
 		A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */; };
 		A9A5FA302ACB05160083449F /* InputTextFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */; };
@@ -910,18 +862,20 @@
 		A9A5FA432ACB05F20083449F /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
 		A9A60ED42DF6E5AC00CD9C3D /* UIHostingRootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A60ED32DF6E5AC00CD9C3D /* UIHostingRootController.swift */; };
 		A9A8A8EB2A262AB30086D569 /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A8A8EA2A262AB30086D569 /* FileCache.swift */; };
+		A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */; };
 		A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */; };
 		A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
 		A9B6AC1B2ADEA3AD00F7802A /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
+		A9B95DED2EC73A3400C7FE9B /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
+		A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */; };
 		A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
 		A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
-		A9BD4D552CA58C3700C8A0E6 /* RESTTransportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */; };
 		A9BFAFFF2BD004ED00F2BCA1 /* CustomListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */; };
 		A9BFB0012BD00B7F00F2BCA1 /* CustomListPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */; };
 		A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9C342C32ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */; };
+		A9C7B62C2EB9F71D002CABB1 /* LoggerBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */; };
 		A9D4A4792C2DAB5F00F1E522 /* libmullvad_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */; };
-		A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67D28F83CA50033DD93 /* RESTTransport.swift */; };
 		A9D9A4B12C36D10E004088DD /* ShadowSocksProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */; };
 		A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584023212A406BF5007B27AC /* TunnelObfuscator.swift */; };
 		A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */; };
@@ -990,8 +944,7 @@
 		F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
-		F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTransport.swift */; };
-		F06045EA2B23217E00B2D37A /* ShadowsocksTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */; };
+		F06045E62B231EB700B2D37A /* URLSessionTaskWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */; };
 		F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045EB2B2322A500B2D37A /* Jittered.swift */; };
 		F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */; };
 		F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */; };
@@ -1041,7 +994,6 @@
 		F0ACE3112BE4E478006D5333 /* MullvadMockData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F0ACE3082BE4E478006D5333 /* MullvadMockData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F0ACE31D2BE4E4F2006D5333 /* DevicesProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */; };
 		F0ACE31E2BE4E4F2006D5333 /* AccountsProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */; };
-		F0ACE3202BE4E4F2006D5333 /* AccessTokenManager+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */; };
 		F0ACE3222BE4E4F2006D5333 /* APIProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */; };
 		F0ACE3232BE4E53B006D5333 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; platformFilter = ios; };
 		F0ACE3262BE4E6C7006D5333 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; platformFilter = ios; };
@@ -1084,12 +1036,10 @@
 		F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */; };
 		F0DAC8AD2C16EFE400F80144 /* TunnelSettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */; };
 		F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */; };
-		F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4112B220458006B57A7 /* TransportProvider.swift */; };
 		F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4272B220A15006B57A7 /* Haversine.swift */; };
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
-		F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */; };
 		F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */; };
 		F0E61CAB2BF2911D000C4A95 /* MultihopSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */; };
 		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
@@ -1099,6 +1049,7 @@
 		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
 		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
+		F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */; };
 		F0F313A72E85321D00D55C43 /* RecentConnectionsRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */; };
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
 		F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */; };
@@ -1604,8 +1555,7 @@
 		01EF6F332B6A590700125696 /* libmullvad_api.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_api.a; path = "../target/aarch64-apple-ios/debug/libmullvad_api.a"; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
 		062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTDefaults.swift; sourceTree = "<group>"; };
-		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
-		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
+		063687B928EB234F00BE7161 /* PacketTunnelAPITransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelAPITransport.swift; sourceTree = "<group>"; };
 		06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSettingsStore.swift; sourceTree = "<group>"; };
 		06410E03292D0F7100AFC18C /* SettingsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsParser.swift; sourceTree = "<group>"; };
 		06410E06292D108E00AFC18C /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
@@ -1613,7 +1563,7 @@
 		06799ABC28F98E1D00ACD94E /* MullvadREST.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadREST.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		06799ABE28F98E1D00ACD94E /* MullvadREST.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadREST.h; sourceTree = "<group>"; };
 		068CE5732927B7A400A068BB /* Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migration.swift; sourceTree = "<group>"; };
-		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
+		0697D6E628F01513007A9E99 /* APITransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransportMonitor.swift; sourceTree = "<group>"; };
 		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
 		06AC114028F841390037AF9A /* AddressCacheTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
 		06AC114128F8413A0037AF9A /* AddressCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
@@ -1621,26 +1571,18 @@
 		06FAE66528F83CA30033DD93 /* RESTURLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTURLSession.swift; sourceTree = "<group>"; };
 		06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTResponseHandler.swift; sourceTree = "<group>"; };
 		06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTProxyFactory.swift; sourceTree = "<group>"; };
-		06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAccountsProxy.swift; sourceTree = "<group>"; };
 		06FAE66928F83CA30033DD93 /* RESTError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTError.swift; sourceTree = "<group>"; };
-		06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRequestFactory.swift; sourceTree = "<group>"; };
 		06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLPinningURLSessionDelegate.swift; sourceTree = "<group>"; };
 		06FAE66C28F83CA40033DD93 /* RESTCoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTCoding.swift; sourceTree = "<group>"; };
 		06FAE66E28F83CA40033DD93 /* RESTProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTProxy.swift; sourceTree = "<group>"; };
-		06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTNetworkOperation.swift; sourceTree = "<group>"; };
-		06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
 		06FAE67128F83CA40033DD93 /* HTTP.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTP.swift; sourceTree = "<group>"; };
-		06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
-		06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAPIProxy.swift; sourceTree = "<group>"; };
-		06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRequestHandler.swift; sourceTree = "<group>"; };
+		06FAE67328F83CA40033DD93 /* RESTSubmitVoucherResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTSubmitVoucherResponse.swift; sourceTree = "<group>"; };
 		06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
 		06FAE67628F83CA40033DD93 /* RetryStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryStrategy.swift; sourceTree = "<group>"; };
 		06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerRelaysResponse.swift; sourceTree = "<group>"; };
 		06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RESTCreateApplePaymentResponse+Localization.swift"; sourceTree = "<group>"; };
-		06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAuthorization.swift; sourceTree = "<group>"; };
-		06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTDevicesProxy.swift; sourceTree = "<group>"; };
+		06FAE67A28F83CA50033DD93 /* DeviceHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceHandling.swift; sourceTree = "<group>"; };
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
-		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
 		44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
@@ -1709,7 +1651,7 @@
 		581813A628E09DF2002817DE /* MutuallyExclusive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutuallyExclusive.swift; sourceTree = "<group>"; };
 		581943DD28F8010300B0CB5E /* LogRotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogRotation.swift; sourceTree = "<group>"; };
 		581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogFileOutputStream.swift; sourceTree = "<group>"; };
-		581943DF28F8010300B0CB5E /* Logging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		581943DF28F8010300B0CB5E /* LoggerBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggerBuilder.swift; sourceTree = "<group>"; };
 		581943E028F8010300B0CB5E /* Logger+Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Logger+Errors.swift"; sourceTree = "<group>"; };
 		581943E128F8010300B0CB5E /* Error+LogFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Error+LogFormat.swift"; sourceTree = "<group>"; };
 		581943E228F8010400B0CB5E /* Date+LogFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+LogFormat.swift"; sourceTree = "<group>"; };
@@ -1759,7 +1701,6 @@
 		58342C032AAB61FB003BA12D /* State+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "State+Extensions.swift"; sourceTree = "<group>"; };
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+Mocks.swift"; sourceTree = "<group>"; };
-		5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSleepTests.swift; sourceTree = "<group>"; };
 		5838321E2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+KeyPolicy.swift"; sourceTree = "<group>"; };
 		583832222AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+ErrorState.swift"; sourceTree = "<group>"; };
 		583832242AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+ConnectionMonitoring.swift"; sourceTree = "<group>"; };
@@ -1830,7 +1771,6 @@
 		586C14592AC4735F00245C01 /* PacketTunnelActor+Public.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+Public.swift"; sourceTree = "<group>"; };
 		586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTunnelProviderMessageOperation.swift; sourceTree = "<group>"; };
 		586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsReaderProtocol.swift; sourceTree = "<group>"; };
-		586E8DB72AAF4AC4007BF3DA /* Task+Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+Duration.swift"; sourceTree = "<group>"; };
 		5871167E2910035700D41AAC /* VPNSettingsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsInteractor.swift; sourceTree = "<group>"; };
 		5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLog.swift; sourceTree = "<group>"; };
 		5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+IPAddress.swift"; sourceTree = "<group>"; };
@@ -1889,7 +1829,6 @@
 		5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountContentView.swift; sourceTree = "<group>"; };
 		5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExponentialBackoff.swift; sourceTree = "<group>"; };
 		5898D2A7290182B000EB5EBA /* TunnelProviderReply.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProviderReply.swift; sourceTree = "<group>"; };
-		5898D2AD290185D200EB5EBA /* ProxyURLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLResponse.swift; sourceTree = "<group>"; };
 		5898D2AF2902A67C00EB5EBA /* RelayLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayLocation.swift; sourceTree = "<group>"; };
 		5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraint.swift; sourceTree = "<group>"; };
 		589A455228E094B300565204 /* OperationsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OperationsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1921,14 +1860,11 @@
 		58B26E292943545A00D5980C /* NotificationManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerDelegate.swift; sourceTree = "<group>"; };
 		58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadSettings.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B2FDD52AA71D2A003EB5C6 /* MullvadSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadSettings.h; sourceTree = "<group>"; };
-		58B4656F2A98C53300467203 /* RequestExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestExecutorTests.swift; sourceTree = "<group>"; };
 		58B93A1226C3F13600A55733 /* TunnelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelState.swift; sourceTree = "<group>"; };
 		58B993B02608A34500BA7811 /* LoginContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContentView.swift; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		58B9EB142489139B00095626 /* RESTError+Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTError+Display.swift"; sourceTree = "<group>"; };
 		58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProvider.swift; sourceTree = "<group>"; };
-		58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyTransport.swift; sourceTree = "<group>"; };
-		58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeServerProxy.swift; sourceTree = "<group>"; };
 		58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCache.swift; sourceTree = "<group>"; };
 		58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyTask.swift; sourceTree = "<group>"; };
 		58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTracker.swift; sourceTree = "<group>"; };
@@ -1979,7 +1915,6 @@
 		58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadTypes.h; sourceTree = "<group>"; };
 		58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadLogging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		58D223F5294C8FF00029F5F8 /* MullvadLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadLogging.h; sourceTree = "<group>"; };
-		58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxy.swift; sourceTree = "<group>"; };
 		58DDA18E2ABC32380039C360 /* Timings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timings.swift; sourceTree = "<group>"; };
 		58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManager.swift; sourceTree = "<group>"; };
 		58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Extensions.swift"; sourceTree = "<group>"; };
@@ -1996,7 +1931,6 @@
 		58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomErrorDescriptionProtocol.swift; sourceTree = "<group>"; };
 		58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingErrors+CustomErrorDescription.swift"; sourceTree = "<group>"; };
 		58E511EA28DDE18400B0BCDE /* Error+Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+Chain.swift"; sourceTree = "<group>"; };
-		58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportProvider.swift; sourceTree = "<group>"; };
 		58E973DD24850EB600096F90 /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WireGuardAdapter+Async.swift"; sourceTree = "<group>"; };
 		58E9C3852A4EF1CB00CFDEAC /* PacketTunnelActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActor.swift; sourceTree = "<group>"; };
@@ -2031,7 +1965,6 @@
 		58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTrackerObserver.swift; sourceTree = "<group>"; };
 		58FBFBE6291622580020E046 /* MullvadRESTTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadRESTTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExponentialBackoffTests.swift; sourceTree = "<group>"; };
-		58FBFBF0291630700020E046 /* DurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationTests.swift; sourceTree = "<group>"; };
 		58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitor.swift; sourceTree = "<group>"; };
 		58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Formatting.swift"; sourceTree = "<group>"; };
 		58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseButton.swift; sourceTree = "<group>"; };
@@ -2081,7 +2014,6 @@
 		7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRequest.swift; sourceTree = "<group>"; };
 		7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransportProvider.swift; sourceTree = "<group>"; };
-		7A307AD82A8CD8DA0017618B /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
 		7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+Extensions.swift"; sourceTree = "<group>"; };
 		7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiCompletion.swift; sourceTree = "<group>"; };
 		7A33538E2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProviderManager.swift; sourceTree = "<group>"; };
@@ -2230,8 +2162,7 @@
 		7AD03E1E2E8EB48B00270EAE /* RevokedDeviceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDeviceViewModel.swift; sourceTree = "<group>"; };
 		7AD0AA192AD69B6E00119E10 /* PacketTunnelActorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorProtocol.swift; sourceTree = "<group>"; };
 		7AD0AA1B2AD6A63F00119E10 /* PacketTunnelActorStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorStub.swift; sourceTree = "<group>"; };
-		7AD0AA1E2AD6C8B900119E10 /* URLRequestProxyProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxyProtocol.swift; sourceTree = "<group>"; };
-		7AD0AA202AD6CB0000119E10 /* URLRequestProxyStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxyStub.swift; sourceTree = "<group>"; };
+		7AD0AA202AD6CB0000119E10 /* APIRequestProxyStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRequestProxyStub.swift; sourceTree = "<group>"; };
 		7AD63A382CD520FD00445268 /* RelayObfuscator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayObfuscator.swift; sourceTree = "<group>"; };
 		7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethodSelector.swift; sourceTree = "<group>"; };
 		7AD63A3C2CD9065100445268 /* RelayObfuscatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayObfuscatorTests.swift; sourceTree = "<group>"; };
@@ -2313,33 +2244,11 @@
 		A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTRequestExecutor+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "APIProxy+Stubs.swift"; sourceTree = "<group>"; };
-		A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessTokenManager+Stubs.swift"; sourceTree = "<group>"; };
 		A9019ED62E6878CD0002ACA9 /* SegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControl.swift; sourceTree = "<group>"; };
 		A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileOutputStreamTests.swift; sourceTree = "<group>"; };
-		A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectCommand.swift; sourceTree = "<group>"; };
-		A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Endpoint.swift; sourceTree = "<group>"; };
-		A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5EndpointReader.swift; sourceTree = "<group>"; };
-		A90763A32B2857D50045ADF0 /* Socks5Authentication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Authentication.swift; sourceTree = "<group>"; };
-		A90763A42B2857D50045ADF0 /* NWConnection+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NWConnection+Extensions.swift"; sourceTree = "<group>"; };
-		A90763A52B2857D50045ADF0 /* Socks5Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Constants.swift; sourceTree = "<group>"; };
-		A90763A62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectNegotiation.swift; sourceTree = "<group>"; };
-		A90763A72B2857D50045ADF0 /* Socks5DataStreamHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5DataStreamHandler.swift; sourceTree = "<group>"; };
-		A90763A82B2857D50045ADF0 /* Socks5Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Command.swift; sourceTree = "<group>"; };
-		A90763A92B2857D50045ADF0 /* Socks5ForwardingProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ForwardingProxy.swift; sourceTree = "<group>"; };
-		A90763AA2B2857D50045ADF0 /* Socks5Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Error.swift; sourceTree = "<group>"; };
-		A90763AB2B2857D50045ADF0 /* Socks5AddressType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5AddressType.swift; sourceTree = "<group>"; };
-		A90763AC2B2857D50045ADF0 /* Socks5StatusCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5StatusCode.swift; sourceTree = "<group>"; };
-		A90763AD2B2857D50045ADF0 /* Socks5Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Connection.swift; sourceTree = "<group>"; };
-		A90763AE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5HandshakeNegotiation.swift; sourceTree = "<group>"; };
-		A90763AF2B2857D50045ADF0 /* Socks5Handshake.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Handshake.swift; sourceTree = "<group>"; };
-		A90763C02B2858310045ADF0 /* URLSessionSocks5Transport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionSocks5Transport.swift; sourceTree = "<group>"; };
-		A90763C22B2858630045ADF0 /* Socks5Configuration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Configuration.swift; sourceTree = "<group>"; };
-		A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AnyIPEndpoint+Socks5.swift"; sourceTree = "<group>"; };
-		A90763C62B2858DC0045ADF0 /* CancellableChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CancellableChain.swift; sourceTree = "<group>"; };
 		A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerReceiver.swift; sourceTree = "<group>"; };
 		A90C48682C36BF3900DCB94C /* TunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProvider.swift; sourceTree = "<group>"; };
 		A91614D02B108D1B00F416EB /* TransportLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportLayer.swift; sourceTree = "<group>"; };
-		A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategyTests.swift; sourceTree = "<group>"; };
 		A91E26DF2E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCacheCleaner.swift; sourceTree = "<group>"; };
 		A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCacheCleanerTests.swift; sourceTree = "<group>"; };
 		A91EBED92C1337040004A84D /* RetryStrategyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryStrategyTests.swift; sourceTree = "<group>"; };
@@ -2349,9 +2258,6 @@
 		A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredDeviceData.swift; sourceTree = "<group>"; };
 		A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceState.swift; sourceTree = "<group>"; };
 		A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV4.swift; sourceTree = "<group>"; };
-		A932D9F22B5EB61100999395 /* HeadRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadRequestTests.swift; sourceTree = "<group>"; };
-		A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportStub.swift; sourceTree = "<group>"; };
-		A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAvailabilityTestRequest.swift; sourceTree = "<group>"; };
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerMultiProcessUpgradeTests.swift; sourceTree = "<group>"; };
 		A944F2712B8E02E800473F4C /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
@@ -2360,7 +2266,6 @@
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
 		A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadConnectionModeProvider.swift; sourceTree = "<group>"; };
-		A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5UsernamePasswordCommand.swift; sourceTree = "<group>"; };
 		A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftConnectionModeProvider.swift; sourceTree = "<group>"; };
 		A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaV2Parameters.swift; sourceTree = "<group>"; };
 		A97687C72DD60D5D000D96E8 /* AddressCacheProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheProviding.swift; sourceTree = "<group>"; };
@@ -2385,18 +2290,20 @@
 		A998DA822BD2B055001D61A2 /* EditCustomListLocationsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomListLocationsPage.swift; sourceTree = "<group>"; };
 		A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewModel.swift; sourceTree = "<group>"; };
 		A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProblemReportViewController+ViewManagement.swift"; sourceTree = "<group>"; };
-		A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransportStrategy.swift; sourceTree = "<group>"; };
 		A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerReceiver.swift; sourceTree = "<group>"; };
 		A9A5F9A12ACB003D0083449F /* TunnelManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerTests.swift; sourceTree = "<group>"; };
 		A9A60ED32DF6E5AC00CD9C3D /* UIHostingRootController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHostingRootController.swift; sourceTree = "<group>"; };
 		A9A8A8EA2A262AB30086D569 /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
+		A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduceAnonymityWarningView.swift; sourceTree = "<group>"; };
 		A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerTests.swift; sourceTree = "<group>"; };
 		A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemorySettingsStore.swift; sourceTree = "<group>"; };
+		A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAPIMock.swift; sourceTree = "<group>"; };
 		A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsTests.swift; sourceTree = "<group>"; };
 		A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListPage.swift; sourceTree = "<group>"; };
 		A9C308392C19DDA7008715F1 /* MullvadPostQuantum+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadPostQuantum+Stubs.swift"; sourceTree = "<group>"; };
 		A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelayCacheTracker+Stubs.swift"; sourceTree = "<group>"; };
 		A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
+		A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerBuilderTests.swift; sourceTree = "<group>"; };
 		A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTests.swift; sourceTree = "<group>"; };
 		A9D96B192A8247C100A5C673 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 		A9D9A4C02C36D53C004088DD /* MullvadRustRuntimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadRustRuntimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2465,8 +2372,7 @@
 		F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiHopEphemeralPeerExchanger.swift; sourceTree = "<group>"; };
 		F059197E2C454CE000C301F3 /* EphemeralPeerExchangingProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangingProtocol.swift; sourceTree = "<group>"; };
 		F05AEE6D2E4A35DE004F266A /* my */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = my; path = my.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
-		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
+		F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTaskWrapper.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
 		F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGSize+Helpers.swift"; sourceTree = "<group>"; };
 		F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Helpers.swift"; sourceTree = "<group>"; };
@@ -2541,7 +2447,6 @@
 		F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountNumberRow.swift; sourceTree = "<group>"; };
 		F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowSocksProxy.swift; sourceTree = "<group>"; };
 		F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksConfigurationCache.swift; sourceTree = "<group>"; };
-		F0DDE4112B220458006B57A7 /* TransportProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransportProvider.swift; sourceTree = "<group>"; };
 		F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksConfiguration.swift; sourceTree = "<group>"; };
 		F0DDE4272B220A15006B57A7 /* Haversine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Haversine.swift; sourceTree = "<group>"; };
 		F0DDE4282B220A15006B57A7 /* RelaySelector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
@@ -2549,7 +2454,6 @@
 		F0DEA1FB2E4A326F002275F7 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
 		F0E576BB2E4A324A0079FA27 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedDNSTransport.swift; sourceTree = "<group>"; };
 		F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV5.swift; sourceTree = "<group>"; };
 		F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultihopSettings.swift; sourceTree = "<group>"; };
 		F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -2562,6 +2466,7 @@
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
 		F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequestTests.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
+		F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayLocationList.swift; sourceTree = "<group>"; };
 		F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepositoryTests.swift; sourceTree = "<group>"; };
 		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
 		F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoRelaysSatisfyingConstraintsError.swift; sourceTree = "<group>"; };
@@ -2720,6 +2625,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9B95DED2EC73A3400C7FE9B /* MullvadRustRuntime.framework in Frameworks */,
 				58FBFBEA291622580020E046 /* MullvadREST.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2903,7 +2809,6 @@
 			isa = PBXGroup;
 			children = (
 				7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */,
-				58FBFBF0291630700020E046 /* DurationTests.swift */,
 				58C3FA672A385C89006A450A /* FileCacheTests.swift */,
 				582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */,
 				58C3FA652A38549D006A450A /* MockFileCache.swift */,
@@ -2915,9 +2820,10 @@
 		440E9EFA2BDA976800B1FD11 /* MullvadLogging */ = {
 			isa = PBXGroup;
 			children = (
+				A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */,
+				A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */,
 				44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */,
 				7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */,
-				A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */,
 			);
 			path = MullvadLogging;
 			sourceTree = "<group>";
@@ -3078,7 +2984,6 @@
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
 				58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */,
 				586168682976F6BD00EF8598 /* DisplayError.swift */,
-				7A307AD82A8CD8DA0017618B /* Duration.swift */,
 				7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */,
 				58E511EA28DDE18400B0BCDE /* Error+Chain.swift */,
 				A9A8A8EA2A262AB30086D569 /* FileCache.swift */,
@@ -3291,6 +3196,7 @@
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
 				A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */,
 				A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */,
+				A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */,
 			);
 			path = ProblemReport;
 			sourceTree = "<group>";
@@ -3613,7 +3519,6 @@
 				58ED3A132A7C199C0085CE65 /* StartOptions.swift */,
 				5824030C2A811B0000163DE8 /* State.swift */,
 				58342C032AAB61FB003BA12D /* State+Extensions.swift */,
-				586E8DB72AAF4AC4007BF3DA /* Task+Duration.swift */,
 				58DDA18E2ABC32380039C360 /* Timings.swift */,
 				F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */,
 			);
@@ -3731,8 +3636,8 @@
 		589E63DA28F7E9E7005FAB05 /* TransportMonitor */ = {
 			isa = PBXGroup;
 			children = (
-				063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */,
-				0697D6E628F01513007A9E99 /* TransportMonitor.swift */,
+				0697D6E628F01513007A9E99 /* APITransportMonitor.swift */,
+				063687B928EB234F00BE7161 /* PacketTunnelAPITransport.swift */,
 			);
 			path = TransportMonitor;
 			sourceTree = "<group>";
@@ -3830,10 +3735,7 @@
 		58BDEB9E2A98F6B400F578F2 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
-				58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */,
 				58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */,
-				A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */,
-				58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -3864,7 +3766,6 @@
 			children = (
 				A9840BB12C69F7190030F05E /* Daita */,
 				58C7A4382A863F450060C66F /* PacketTunnelCore.h */,
-				58C9B8DF2ABB273700040B46 /* URLRequestProxy */,
 				58C9B8C52ABB23B400040B46 /* IPC */,
 				5864AF802A9F52E3008BC928 /* Actor */,
 				58C7A42E2A85091B0060C66F /* Pinger */,
@@ -3884,7 +3785,6 @@
 				58FE25D32AA729B5003D1918 /* PacketTunnelActorTests.swift */,
 				A97D25B12B0CB02D00946B2D /* ProtocolObfuscatorTests.swift */,
 				F0A163882C47B46300592300 /* SingleHopEphemeralPeerExchangerTests.swift */,
-				5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */,
 				58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */,
 				F062B94C2C16E09700B6D47A /* TunnelSettingsManagerTests.swift */,
 			);
@@ -3900,17 +3800,6 @@
 				5898D2A7290182B000EB5EBA /* TunnelProviderReply.swift */,
 			);
 			path = IPC;
-			sourceTree = "<group>";
-		};
-		58C9B8DF2ABB273700040B46 /* URLRequestProxy */ = {
-			isa = PBXGroup;
-			children = (
-				063687AF28EB083800BE7161 /* ProxyURLRequest.swift */,
-				5898D2AD290185D200EB5EBA /* ProxyURLResponse.swift */,
-				58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */,
-				7AD0AA1E2AD6C8B900119E10 /* URLRequestProxyProtocol.swift */,
-			);
-			path = URLRequestProxy;
 			sourceTree = "<group>";
 		};
 		58CAF9F22983D32200BE19F7 /* Coordinators */ = {
@@ -4123,7 +4012,7 @@
 				581943E228F8010400B0CB5E /* Date+LogFormat.swift */,
 				581943E128F8010300B0CB5E /* Error+LogFormat.swift */,
 				581943E028F8010300B0CB5E /* Logger+Errors.swift */,
-				581943DF28F8010300B0CB5E /* Logging.swift */,
+				581943DF28F8010300B0CB5E /* LoggerBuilder.swift */,
 				581943DD28F8010300B0CB5E /* LogRotation.swift */,
 				581943E428F8010400B0CB5E /* OSLogHandler.swift */,
 				581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */,
@@ -4168,6 +4057,7 @@
 		58EC067D2A8D2B0700BEB973 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				7AD0AA202AD6CB0000119E10 /* APIRequestProxyStub.swift */,
 				58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */,
 				581F23AC2A8CF92100788AB6 /* DefaultPathObserverFake.swift */,
 				F0C4C9BF2C495E7500A79006 /* EphemeralPeerExchangeActorStub.swift */,
@@ -4182,7 +4072,6 @@
 				58EC06792A8D208D00BEB973 /* TunnelDeviceInfoStub.swift */,
 				58FE25EB2AA77638003D1918 /* TunnelMonitorStub.swift */,
 				A97D25B32B0CB59300946B2D /* TunnelObfuscationStub.swift */,
-				7AD0AA202AD6CB0000119E10 /* URLRequestProxyStub.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -4225,6 +4114,7 @@
 				5859A55429CD9DD800F66591 /* changes.txt */,
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
 				F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */,
+				F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -4249,14 +4139,11 @@
 				58BDEB9E2A98F6B400F578F2 /* Mocks */,
 				7AA5C3742E9FCD5F00B35530 /* DefaultLocationServiceTests.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
-				A932D9F22B5EB61100999395 /* HeadRequestTests.swift */,
 				F924C4522D706929001F4660 /* MullvadApiTests.swift */,
-				58B4656F2A98C53300467203 /* RequestExecutorTests.swift */,
 				A91EBED92C1337040004A84D /* RetryStrategyTests.swift */,
 				F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */,
 				A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */,
 				F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */,
-				A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */,
 			);
 			path = MullvadRESTTests;
 			sourceTree = "<group>";
@@ -4604,34 +4491,6 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
-		A907639F2B2857D50045ADF0 /* Socks5 */ = {
-			isa = PBXGroup;
-			children = (
-				A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */,
-				A90763C62B2858DC0045ADF0 /* CancellableChain.swift */,
-				A90763A42B2857D50045ADF0 /* NWConnection+Extensions.swift */,
-				A90763AB2B2857D50045ADF0 /* Socks5AddressType.swift */,
-				A90763A32B2857D50045ADF0 /* Socks5Authentication.swift */,
-				A90763A82B2857D50045ADF0 /* Socks5Command.swift */,
-				A90763C22B2858630045ADF0 /* Socks5Configuration.swift */,
-				A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */,
-				A90763AD2B2857D50045ADF0 /* Socks5Connection.swift */,
-				A90763A62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift */,
-				A90763A52B2857D50045ADF0 /* Socks5Constants.swift */,
-				A90763A72B2857D50045ADF0 /* Socks5DataStreamHandler.swift */,
-				A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */,
-				A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */,
-				A90763AA2B2857D50045ADF0 /* Socks5Error.swift */,
-				A90763A92B2857D50045ADF0 /* Socks5ForwardingProxy.swift */,
-				A90763AF2B2857D50045ADF0 /* Socks5Handshake.swift */,
-				A90763AE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift */,
-				A90763AC2B2857D50045ADF0 /* Socks5StatusCode.swift */,
-				A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */,
-				A90763C02B2858310045ADF0 /* URLSessionSocks5Transport.swift */,
-			);
-			path = Socks5;
-			sourceTree = "<group>";
-		};
 		A9840BB12C69F7190030F05E /* Daita */ = {
 			isa = PBXGroup;
 			children = (
@@ -4661,6 +4520,7 @@
 				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
 				A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */,
 				A97687C92DD60F36000D96E8 /* MullvadAddressCacheProvider.swift */,
+				A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */,
 			);
 			path = MullvadRustRuntime;
 			sourceTree = "<group>";
@@ -4706,25 +4566,17 @@
 			isa = PBXGroup;
 			children = (
 				06AC114128F8413A0037AF9A /* AddressCache.swift */,
-				A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */,
 				7AA5C36F2E9D21CD00B35530 /* DefaultLocationService.swift */,
+				06FAE67A28F83CA50033DD93 /* DeviceHandling.swift */,
 				06FAE67128F83CA40033DD93 /* HTTP.swift */,
-				06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */,
-				06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */,
-				06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */,
-				06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */,
-				06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */,
 				06FAE66C28F83CA40033DD93 /* RESTCoding.swift */,
 				062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */,
-				06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */,
 				06FAE66928F83CA30033DD93 /* RESTError.swift */,
-				06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */,
 				06FAE66E28F83CA40033DD93 /* RESTProxy.swift */,
 				06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */,
 				589E76BF2A9378F100E502F3 /* RESTRequestExecutor.swift */,
-				06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */,
-				06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */,
 				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
+				06FAE67328F83CA40033DD93 /* RESTSubmitVoucherResponse.swift */,
 				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
 				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
 				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
@@ -4773,7 +4625,6 @@
 			isa = PBXGroup;
 			children = (
 				F0164EB92B4456D30020268D /* AccessMethodRepository+Stub.swift */,
-				A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */,
 				A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */,
 				A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */,
 				A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */,
@@ -4845,14 +4696,8 @@
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
 				7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */,
 				7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */,
-				F0DC77A32B2315800087F09D /* Direct */,
-				F0E5B2F62C9C689C0007F78C /* EncryptedDNS */,
-				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
-				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
 				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
-				A907639F2B2857D50045ADF0 /* Socks5 */,
-				F0DDE4112B220458006B57A7 /* TransportProvider.swift */,
-				A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */,
+				F06045E52B231EB700B2D37A /* URLSessionTaskWrapper.swift */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -4874,17 +4719,8 @@
 				F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */,
 				F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */,
 				F01528BA2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift */,
-				F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */,
 			);
 			path = Shadowsocks;
-			sourceTree = "<group>";
-		};
-		F0DC77A32B2315800087F09D /* Direct */ = {
-			isa = PBXGroup;
-			children = (
-				F06045E52B231EB700B2D37A /* URLSessionTransport.swift */,
-			);
-			path = Direct;
 			sourceTree = "<group>";
 		};
 		F0E361892A4ADCF500AEEF2B /* Welcome */ = {
@@ -4895,14 +4731,6 @@
 				F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */,
 			);
 			path = Welcome;
-			sourceTree = "<group>";
-		};
-		F0E5B2F62C9C689C0007F78C /* EncryptedDNS */ = {
-			isa = PBXGroup;
-			children = (
-				F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */,
-			);
-			path = EncryptedDNS;
 			sourceTree = "<group>";
 		};
 		F0E8CC082A4EE0DC007ED3B4 /* Completed */ = {
@@ -5940,59 +5768,36 @@
 				F01528BB2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift in Sources */,
 				7AD63A392CD520FD00445268 /* RelayObfuscator.swift in Sources */,
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
-				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
-				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
 				7A2C0E8C2D8B13F0003D8048 /* MullvadAPIProxy.swift in Sources */,
-				06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */,
-				06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */,
 				7A964BBC2E699C8500C6A4EC /* QuicObfuscator.swift in Sources */,
-				A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */,
 				06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */,
 				7A2E7B712D6C9FE0009EF2C3 /* APIError.swift in Sources */,
-				58E7BA192A975DF70068EC3A /* RESTTransportProvider.swift in Sources */,
 				F0791F1B2D76377500449F6D /* RelayCandidates.swift in Sources */,
 				F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */,
-				06799ADE28F98E4800ACD94E /* RESTRequestHandler.swift in Sources */,
-				F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */,
 				06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */,
 				06799AE128F98E4800ACD94E /* SSLPinningURLSessionDelegate.swift in Sources */,
 				7A4D849E2C0F289800687980 /* RelaySelectorProtocol.swift in Sources */,
 				F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */,
-				A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */,
 				7A2E7B732D6C9FEB009EF2C3 /* APIRequestProxy.swift in Sources */,
-				A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */,
 				7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */,
 				7A3AD5012C1068A800E9AD90 /* RelayPicking.swift in Sources */,
-				A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */,
 				F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */,
 				7AA5C3702E9D21DB00B35530 /* DefaultLocationService.swift in Sources */,
 				F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */,
 				06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */,
-				A90763BC2B2857D50045ADF0 /* Socks5StatusCode.swift in Sources */,
-				A90763B82B2857D50045ADF0 /* Socks5Command.swift in Sources */,
-				A90763BE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift in Sources */,
-				A90763B02B2857D50045ADF0 /* Socks5ConnectCommand.swift in Sources */,
 				06799ADD28F98E4800ACD94E /* RESTError.swift in Sources */,
 				7AB73F6E2D9AAD0A00DA5E1D /* MullvadAccountProxy.swift in Sources */,
-				A90763B92B2857D50045ADF0 /* Socks5ForwardingProxy.swift in Sources */,
-				A970C89D2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift in Sources */,
-				A90763B32B2857D50045ADF0 /* Socks5Authentication.swift in Sources */,
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
 				7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */,
-				F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */,
-				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
-				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
 				7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */,
 				7A2E7B702D6C9FCF009EF2C3 /* APITransport.swift in Sources */,
 				7A2E7B752D6CA0B1009EF2C3 /* APITransportProvider.swift in Sources */,
-				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */,
 				7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */,
 				7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */,
-				A90763B62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift in Sources */,
 				7A964BB92E699A3F00C6A4EC /* ShadowsocksObfuscator.swift in Sources */,
 				7ACE19112C1C349200260BB6 /* MultihopDecisionFlow.swift in Sources */,
-				F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */,
+				F06045E62B231EB700B2D37A /* URLSessionTaskWrapper.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
 				F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */,
 				F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */,
@@ -6000,39 +5805,27 @@
 				7AD63A3B2CD5278900445268 /* ObfuscationMethodSelector.swift in Sources */,
 				F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
-				A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */,
 				7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */,
-				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
+				06799AF128F98E4800ACD94E /* RESTSubmitVoucherResponse.swift in Sources */,
 				F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */,
 				589E76C02A9378F100E502F3 /* RESTRequestExecutor.swift in Sources */,
-				A90763C12B2858320045ADF0 /* URLSessionSocks5Transport.swift in Sources */,
 				06799AE528F98E4800ACD94E /* HTTP.swift in Sources */,
 				F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */,
-				A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */,
 				7A964BBE2E699CBF00C6A4EC /* UdpOverTcpObfuscator.swift in Sources */,
-				A90763BB2B2857D50045ADF0 /* Socks5AddressType.swift in Sources */,
 				7A99D36F2D56070400891FF7 /* MullvadApiRequestFactory.swift in Sources */,
 				F0A89CB32D9D6C2100580C27 /* MullvadDeviceProxy.swift in Sources */,
 				F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
-				A90763B72B2857D50045ADF0 /* Socks5DataStreamHandler.swift in Sources */,
 				A91E26E02E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift in Sources */,
-				A90763B22B2857D50045ADF0 /* Socks5EndpointReader.swift in Sources */,
-				A90763B42B2857D50045ADF0 /* NWConnection+Extensions.swift in Sources */,
-				F06045EA2B23217E00B2D37A /* ShadowsocksTransport.swift in Sources */,
 				06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */,
 				7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */,
 				06799AF028F98E4800ACD94E /* REST.swift in Sources */,
-				06799ADF28F98E4800ACD94E /* RESTDevicesProxy.swift in Sources */,
+				06799ADF28F98E4800ACD94E /* DeviceHandling.swift in Sources */,
 				06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */,
 				062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */,
-				A935594C2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift in Sources */,
-				A90763C32B2858630045ADF0 /* Socks5Configuration.swift in Sources */,
-				06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */,
 				5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */,
 				44CAEAA12D442F5E004A8E65 /* LocationIdentifier.swift in Sources */,
 				7A2E7B722D6C9FE5009EF2C3 /* APIRequest.swift in Sources */,
-				06799AE328F98E4800ACD94E /* RESTNetworkOperation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6137,9 +5930,9 @@
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				A9A5FA0F2ACB05160083449F /* StoreSubscription.swift in Sources */,
 				7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */,
-				A9A5FA102ACB05160083449F /* PacketTunnelTransport.swift in Sources */,
+				A9A5FA102ACB05160083449F /* PacketTunnelAPITransport.swift in Sources */,
 				7AD63A472CDA666100445268 /* UIntTests.swift in Sources */,
-				A9A5FA112ACB05160083449F /* TransportMonitor.swift in Sources */,
+				A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
 				A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */,
 				7AD63A3F2CDA53F600445268 /* ObfuscationMethodSelectorTests.swift in Sources */,
@@ -6193,7 +5986,6 @@
 				A9A5FA2B2ACB05160083449F /* CustomDateComponentsFormattingTests.swift in Sources */,
 				440870842D809C980038972F /* UIImage+Helpers.swift in Sources */,
 				A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */,
-				A9A5FA2D2ACB05160083449F /* DurationTests.swift in Sources */,
 				A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */,
 				F0FA16112D7F2FE8007E2546 /* RelayFilterViewModel.swift in Sources */,
 				F0D5591F2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */,
@@ -6211,12 +6003,12 @@
 				44E1F75A2D3FDCCA003A60FF /* DestinationDescriberTests.swift in Sources */,
 				A9A5FA322ACB05160083449F /* RelayCacheTests.swift in Sources */,
 				A9A5FA332ACB05160083449F /* RelaySelectorTests.swift in Sources */,
-				A9BD4D552CA58C3700C8A0E6 /* RESTTransportStub.swift in Sources */,
 				F073FCB32C6617D70062EA1D /* TunnelStore+Stubs.swift in Sources */,
 				58DFF7D32B02570000F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				A9A5FA342ACB05160083449F /* StringTests.swift in Sources */,
 				F0F313A72E85321D00D55C43 /* RecentConnectionsRepositoryTests.swift in Sources */,
 				7A52F96C2C17450C00B133B9 /* RelaySelectorWrapperTests.swift in Sources */,
+				A9C7B62C2EB9F71D002CABB1 /* LoggerBuilderTests.swift in Sources */,
 				A9A5FA352ACB05160083449F /* WgKeyRotationTests.swift in Sources */,
 				F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */,
 				7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */,
@@ -6279,7 +6071,6 @@
 				58FE25F42AA9D730003D1918 /* PacketTunnelActor+Extensions.swift in Sources */,
 				58DDA18F2ABC32380039C360 /* Timings.swift in Sources */,
 				580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */,
-				58C7AF172ABD84AA007EDD7A /* ProxyURLRequest.swift in Sources */,
 				5838321F2AC3160A00EA2071 /* PacketTunnelActor+KeyPolicy.swift in Sources */,
 				58C7AF122ABD8480007EDD7A /* TunnelProviderReply.swift in Sources */,
 				58C7A4572A863FB90060C66F /* TunnelDeviceInfoProtocol.swift in Sources */,
@@ -6292,17 +6083,14 @@
 				583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */,
 				F05919752C45194B00C301F3 /* EphemeralPeerKey.swift in Sources */,
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
-				58C7AF182ABD84AB007EDD7A /* ProxyURLResponse.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
 				583832292AC3DF1300EA2071 /* PacketTunnelActorCommand.swift in Sources */,
 				58CF95A22AD6F35800B59F5D /* ObservedState.swift in Sources */,
 				449275422C3570CA000526DE /* ICMP.swift in Sources */,
 				583832232AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift in Sources */,
 				58C7AF112ABD8480007EDD7A /* TunnelProviderMessage.swift in Sources */,
-				58C7AF162ABD84A8007EDD7A /* URLRequestProxy.swift in Sources */,
 				58FE25D72AA72A8F003D1918 /* State.swift in Sources */,
 				58C7A4592A863FB90060C66F /* WgStats.swift in Sources */,
-				7AD0AA1F2AD6C8B900119E10 /* URLRequestProxyProtocol.swift in Sources */,
 				44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */,
 				7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */,
 				A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */,
@@ -6313,7 +6101,6 @@
 				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift in Sources */,
 				7AD0AA1D2AD6A86700119E10 /* PacketTunnelActorProtocol.swift in Sources */,
 				5826B6CB2ABD83E200B1CA13 /* PacketTunnelOptions.swift in Sources */,
-				586E8DB82AAF4AC4007BF3DA /* Task+Duration.swift in Sources */,
 				5838322B2AC3EF9600EA2071 /* EventChannel.swift in Sources */,
 				586C145A2AC4735F00245C01 /* PacketTunnelActor+Public.swift in Sources */,
 				F0DAC8AD2C16EFE400F80144 /* TunnelSettingsManager.swift in Sources */,
@@ -6339,20 +6126,17 @@
 				58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */,
 				F07751552C50F149006E6A12 /* EphemeralPeerExchangeActorStub.swift in Sources */,
 				58FE25EC2AA77639003D1918 /* TunnelMonitorStub.swift in Sources */,
-				7A3FD1B82AD54AE60042BEA6 /* TimeServerProxy.swift in Sources */,
 				58FE25EE2AA7764E003D1918 /* TunnelAdapterDummy.swift in Sources */,
 				581F23AD2A8CF92100788AB6 /* DefaultPathObserverFake.swift in Sources */,
 				F07751582C50F149006E6A12 /* MultiHopEphemeralPeerExchangerTests.swift in Sources */,
 				5838321B2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift in Sources */,
-				5838321D2AC1C54600EA2071 /* TaskSleepTests.swift in Sources */,
 				58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */,
-				7AD0AA212AD6CB0000119E10 /* URLRequestProxyStub.swift in Sources */,
+				7AD0AA212AD6CB0000119E10 /* APIRequestProxyStub.swift in Sources */,
 				581F23AF2A8CF94D00788AB6 /* PingerMock.swift in Sources */,
 				F07751592C50F149006E6A12 /* SingleHopEphemeralPeerExchangerTests.swift in Sources */,
 				A97D25B42B0CB59300946B2D /* TunnelObfuscationStub.swift in Sources */,
 				F0077EEE2C52844800DAB2AA /* KeyExchangingResultStub.swift in Sources */,
 				A97D25B02B0BB5C400946B2D /* ProtocolObfuscationStub.swift in Sources */,
-				7A3FD1B72AD54ABD0042BEA6 /* AnyTransport.swift in Sources */,
 				58FE25F22AA77674003D1918 /* SettingsReaderStub.swift in Sources */,
 				F08B6B7C2C528C6300D0A121 /* SingleHopEphemeralPeerExchanger.swift in Sources */,
 				F08B6B7D2C528C6300D0A121 /* EphemeralPeerExchangingPipeline.swift in Sources */,
@@ -6406,6 +6190,7 @@
 				7AD03E1F2E8EB49700270EAE /* RevokedDeviceViewModel.swift in Sources */,
 				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */,
+				F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */,
 				F97C38E32DEEDC28006DCB08 /* MullvadListActionItemView.swift in Sources */,
 				7A8A18F92CE34EA8000BCB5B /* SettingsMultihopView.swift in Sources */,
 				7AFBE3892D089163002335FC /* TunnelViewController.swift in Sources */,
@@ -6460,6 +6245,7 @@
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
+				A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */,
 				4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */,
 				F90A988E2E13C5490020F64F /* MullvadSecondaryTextField.swift in Sources */,
 				5827B0BD2B14AC9200CCBBA1 /* AccessViewModel+TestingStatus.swift in Sources */,
@@ -6489,7 +6275,7 @@
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
 				F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */,
 				7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */,
-				0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */,
+				0697D6E728F01513007A9E99 /* APITransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
 				7A1A26472A29CF0800B978AA /* RelayFilterDataSource.swift in Sources */,
 				5864AF0929C78850005B0CD9 /* VPNSettingsCellFactory.swift in Sources */,
@@ -6733,7 +6519,7 @@
 				F0B583D42D6DCE12007F5AE4 /* FilterDescriptor.swift in Sources */,
 				7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */,
 				F050AE522B70DFC0003F4EDB /* LocationSection.swift in Sources */,
-				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
+				063687BA28EB234F00BE7161 /* PacketTunnelAPITransport.swift in Sources */,
 				A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				7AB3BEB52BD7A6CB00E34384 /* LocationViewControllerWrapper.swift in Sources */,
@@ -6821,7 +6607,6 @@
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
-				583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				58FDF2D92A0BA11A00C2B061 /* DeviceCheckOperation.swift in Sources */,
@@ -6865,7 +6650,6 @@
 				A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */,
 				58D22408294C90210029F5F8 /* AnyIPEndpoint.swift in Sources */,
 				58D22409294C90210029F5F8 /* AnyIPAddress.swift in Sources */,
-				7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */,
 				58D2240A294C90210029F5F8 /* IPAddress+Codable.swift in Sources */,
 				58E45A5729F12C5100281ECF /* Result+Extensions.swift in Sources */,
 				F924C5A42DA65F28001F4660 /* Storekit2.swift in Sources */,
@@ -6913,7 +6697,7 @@
 				7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */,
 				58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */,
 				58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */,
-				58D22403294C90050029F5F8 /* Logging.swift in Sources */,
+				58D22403294C90050029F5F8 /* LoggerBuilder.swift in Sources */,
 				58D223FE294C90050029F5F8 /* Error+LogFormat.swift in Sources */,
 				58D223FF294C90050029F5F8 /* LogFileOutputStream.swift in Sources */,
 				58D22400294C90050029F5F8 /* OSLogHandler.swift in Sources */,
@@ -6926,20 +6710,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */,
 				7AA5C3752E9FCD9300B35530 /* DefaultLocationServiceTests.swift in Sources */,
-				A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
 				F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */,
 				F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */,
 				F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */,
 				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
-				58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */,
-				A932D9F52B5EBB9D00999395 /* RESTTransportStub.swift in Sources */,
 				A91E26E22E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift in Sources */,
 				A91EBEDA2C1337040004A84D /* RetryStrategyTests.swift in Sources */,
-				58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */,
-				A932D9F32B5EB61100999395 /* HeadRequestTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7046,6 +6824,7 @@
 				F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */,
 				A97687CA2DD60F36000D96E8 /* MullvadAddressCacheProvider.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
+				A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */,
 				A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */,
 				7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */,
 				A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */,
@@ -7078,7 +6857,6 @@
 				F0ACE31D2BE4E4F2006D5333 /* DevicesProxy+Stubs.swift in Sources */,
 				F07F63CE2C63E5790027A351 /* AccessMethodRepository+Stub.swift in Sources */,
 				F0ACE31E2BE4E4F2006D5333 /* AccountsProxy+Stubs.swift in Sources */,
-				F0ACE3202BE4E4F2006D5333 /* AccessTokenManager+Stubs.swift in Sources */,
 				7AA5C3792E9FD8BA00B35530 /* URLSessionStub.swift in Sources */,
 				F0ACE32C2BE4E77E006D5333 /* DeviceMock.swift in Sources */,
 				F0ACE3222BE4E4F2006D5333 /* APIProxy+Stubs.swift in Sources */,
@@ -7386,6 +7164,7 @@
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7424,6 +7203,7 @@
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7455,6 +7235,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.OperationsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -7476,6 +7257,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.OperationsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -7492,6 +7274,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				INFOPLIST_FILE = MullvadVPNTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7512,6 +7295,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				INFOPLIST_FILE = MullvadVPNTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7542,6 +7326,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7579,6 +7364,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7617,6 +7403,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7657,6 +7444,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7688,6 +7476,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnelCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7709,6 +7498,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnelCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7773,7 +7563,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -7836,7 +7626,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -7867,6 +7657,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7895,6 +7686,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7915,6 +7707,7 @@
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7936,6 +7729,7 @@
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7964,6 +7758,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -7999,6 +7794,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8033,6 +7829,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8069,6 +7866,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8104,6 +7902,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8140,6 +7939,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8199,6 +7999,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.MullvadRESTTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -8218,6 +8019,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.MullvadRESTTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -8250,6 +8052,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8290,6 +8093,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8323,7 +8127,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.RoutingTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8348,7 +8152,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.RoutingTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8384,7 +8188,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/mullvad-api/include";
 				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -8418,7 +8222,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/mullvad-api/include";
 				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -8489,7 +8293,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -8523,6 +8327,7 @@
 					"DEBUG=1",
 				);
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8562,6 +8367,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8582,6 +8388,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				INFOPLIST_FILE = MullvadVPNTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8612,6 +8419,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8640,6 +8448,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.OperationsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -8667,6 +8476,7 @@
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8698,6 +8508,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.MullvadRESTTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -8724,6 +8535,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8759,6 +8571,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8795,6 +8608,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8826,6 +8640,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnelCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8854,6 +8669,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8897,6 +8713,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -8930,7 +8747,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.RoutingTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8955,7 +8772,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../mullvad-api/include";
 				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadVPNUITests";
@@ -8981,7 +8798,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../mullvad-api/include";
 				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadVPNUITests";
@@ -9020,7 +8837,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9072,7 +8889,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9124,7 +8941,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9174,7 +8991,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9213,7 +9030,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadRustRuntimeTests;
@@ -9239,7 +9056,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadRustRuntimeTests;
@@ -9264,7 +9081,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadRustRuntimeTests;
@@ -9290,7 +9107,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadRustRuntimeTests;
@@ -9351,7 +9168,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -9381,6 +9198,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9416,6 +9234,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9435,6 +9254,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				INFOPLIST_FILE = MullvadVPNTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9465,6 +9285,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9493,6 +9314,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.OperationsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -9520,6 +9342,7 @@
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9551,6 +9374,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.MullvadRESTTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -9577,6 +9401,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9612,6 +9437,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9648,6 +9474,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9679,6 +9506,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnelCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9707,6 +9535,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9747,6 +9576,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9780,7 +9610,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.RoutingTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9815,7 +9645,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9863,7 +9693,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9911,7 +9741,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -9960,7 +9790,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Mullvad VPN AB. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

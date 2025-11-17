@@ -8,6 +8,12 @@ msgstr ""
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr ""
 
+#. The label for the WireGuard port option.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgid "%(wireguard)s port"
+msgstr ""
+
 msgid "1 day"
 msgid_plural "%d days"
 msgstr[0] ""
@@ -209,6 +215,9 @@ msgstr ""
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr ""
 
+msgid "None"
+msgstr ""
+
 msgid "Off"
 msgstr ""
 
@@ -264,13 +273,7 @@ msgstr ""
 msgid "System default"
 msgstr ""
 
-msgid "TCP"
-msgstr ""
-
 msgid "Test"
-msgstr ""
-
-msgid "This setting increases latency. Use only if needed."
 msgstr ""
 
 msgid "Troubleshoot"
@@ -280,9 +283,6 @@ msgid "Try a different search."
 msgstr ""
 
 msgid "Type"
-msgstr ""
-
-msgid "UDP"
 msgstr ""
 
 msgid "Unblock"
@@ -299,6 +299,13 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
+msgstr ""
+
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
 msgstr ""
 
 msgctxt "accessibility"
@@ -334,27 +341,17 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr ""
 
-#. Accessibility label for link to wireguard settings.
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "accessibility"
-msgid "Go to %(wireGuard)s settings."
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
 msgstr ""
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
 msgid "Go to app update page"
-msgstr ""
-
-#. Accessibility label for link to blog post about OpenVPN support ending.
-msgctxt "accessibility"
-msgid "Go to blog post to read more, opens externally"
-msgstr ""
-
-#. Accessibility label for link to VPN settings where
-#. the user can change tunnel protocol.
-msgctxt "accessibility"
-msgid "Go to VPN settings to change tunnel protocol"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe
@@ -464,6 +461,26 @@ msgstr ""
 
 msgctxt "account-view"
 msgid "Paid until"
+msgstr ""
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr ""
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr ""
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr ""
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
 msgstr ""
 
 msgctxt "api-access-methods-view"
@@ -1194,41 +1211,11 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr ""
 
-#. First part of notification subtitle when there are no openVPN servers available.
-#. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support has ended. Please update the app or"
-msgstr ""
-
-#. Notification title indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s SUPPORT IS ENDING"
-msgstr ""
-
-#. First part of notification subtitle when there are no openVPN servers
-#. matching current settings. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support is ending. Switch location or"
-msgstr ""
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
-msgstr ""
-
-#. Link in notication to go to WireGuard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "%(wireGuard)s settings."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -1245,14 +1232,6 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr ""
-
-#. Link following the first part of the notification subtitle.
-#. Will navigate the user to the VPN settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "change tunnel protocol to %(wireGuard)s."
 msgstr ""
 
 #. Notification subtitle when the app upgrade is ready to install.
@@ -1334,35 +1313,8 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr ""
 
-#. Notification title when there are no openVPN servers
-#. matching current settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVER AVAILABLE"
-msgstr ""
-
-#. Notification title when there are no openVPN servers available.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVERS AVAILABLE"
-msgstr ""
-
-#. Notification subtitle indicating that OpenVPN support is ending.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "Please change tunnel protocol to %(wireGuard)s."
-msgstr ""
-
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
-msgstr ""
-
-#. Link in notication to a blog post about OpenVPN support ending.
-msgctxt "in-app-notifications"
-msgid "Read more"
 msgstr ""
 
 #. Notification title when the app upgrade is ready to install.
@@ -1404,14 +1356,14 @@ msgstr ""
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
-msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr ""
 
 #. Notification text when a new device has been created.
 #. Available placeholders:
 #. - %(deviceName)s: Name of created device.
 msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under \"Manage devices\" in Account."
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app beta update is
@@ -1726,12 +1678,12 @@ msgstr ""
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgid "IPv4 is not available, please try changing Device IP version setting."
 msgstr ""
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgid "IPv6 is not available, please try changing Device IP version setting."
 msgstr ""
 
 msgctxt "notifications"
@@ -1820,86 +1772,6 @@ msgstr ""
 #. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
-msgstr ""
-
-#. Title label in navigation bar
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-nav"
-msgid "%(openvpn)s settings"
-msgstr ""
-
-#. %(openvpn)s will be replaced with "OpenVPN"
-msgctxt "openvpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr ""
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "openvpn-settings-view"
-msgid "%(portType)s port"
-msgstr ""
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr ""
-
-#. This is used as a description for the bridge mode
-#. setting.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
-msgstr ""
-
-msgctxt "openvpn-settings-view"
-msgid "Mssfix"
-msgstr ""
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(openvpn)s - will be replaced with "OpenVPN"
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
-msgstr ""
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automatic)s - the translation of "Automatic"
-#. %(tcp)s - the translation of "TCP"
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
-msgstr ""
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
-msgstr ""
-
-#. This is used to instruct users how to make UDP mode
-#. available.
-msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
-msgstr ""
-
-#. This text is shown beneath the bridge mode setting to instruct users how to
-#. configure the feature further.
-msgctxt "openvpn-settings-view"
-msgid "To select a specific bridge server, go to the Select location view."
-msgstr ""
-
-msgctxt "openvpn-settings-view"
-msgid "Transport protocol"
 msgstr ""
 
 #. Cancel button label for voucher redemption.
@@ -2509,16 +2381,6 @@ msgctxt "user-interface-settings-view"
 msgid "User interface settings"
 msgstr ""
 
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr ""
-
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr ""
-
 msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr ""
@@ -2538,19 +2400,18 @@ msgctxt "vpn-settings-view"
 msgid "Adult content"
 msgstr ""
 
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr ""
+
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
-msgstr ""
-
-#. Footer text for tunnel protocol selector when OpenVPN is selected.
-#. Available placeholders:
-#. %(openvpn)s - Will be replaced with OpenVPN
-msgctxt "vpn-settings-view"
-msgid "Attention: We are removing support for %(openVpn)s."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2582,11 +2443,12 @@ msgid "DNS content blockers"
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
+msgid "Enable to add at least one DNS server."
 msgstr ""
 
+#. Description of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
-msgid "Enable to add at least one DNS server."
+msgid "Enable to allow IPv6 traffic through the tunnel."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2598,8 +2460,19 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr ""
 
+#. Title of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "In-tunnel IPv6"
+msgstr ""
+
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
+msgstr ""
+
+#. A complimentary description for the setting Device IP version,
+#. explaining why the user might want to configure the setting.
+msgctxt "vpn-settings-view"
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2625,12 +2498,6 @@ msgstr ""
 #. Label for settings that enables malware blocking.
 msgctxt "vpn-settings-view"
 msgid "Malware"
-msgstr ""
-
-#. Link in tunnel protocol selector footer to blog post
-#. about OpenVPN support ending.
-msgctxt "vpn-settings-view"
-msgid "Read more"
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2666,12 +2533,14 @@ msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
 msgstr ""
 
+#. A description for the setting Device IP version,
+#. explaining how the user can configure the setting.
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and apps."
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
+msgid "This might cause issues on certain websites, services, and apps."
 msgstr ""
 
 #. Label for settings that enables tracker blocking.
@@ -2709,13 +2578,6 @@ msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server
 msgstr ""
 
 #. Title label in navigation bar
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-nav"
-msgid "%(wireguard)s settings"
-msgstr ""
-
-#. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
 msgid "Shadowsocks"
 msgstr ""
@@ -2733,14 +2595,17 @@ msgctxt "wireguard-settings-view"
 msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
 msgstr ""
 
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
-msgid "%(wireguard)s settings"
+msgid "%(wireguard)s port"
+msgstr ""
+
+#. Page title for WireGuard port view
+msgctxt "wireguard-settings-view"
+msgid "%(wireGuard)s port"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2755,13 +2620,13 @@ msgctxt "wireguard-settings-view"
 msgid "Cancel"
 msgstr ""
 
+#. Title for device IP version setting.
 msgctxt "wireguard-settings-view"
-msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
+msgid "Device IP version"
 msgstr ""
 
-#. The title for the WireGuard IP version selector.
 msgctxt "wireguard-settings-view"
-msgid "IP version"
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2794,17 +2659,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
-msgstr ""
-
-#. The title for the WireGuard obfuscation selector.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation"
-msgstr ""
-
-#. Describes what WireGuard obfuscation does, how it works and when
-#. it would be useful to enable it.
-msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr ""
 
 #. The title for the WireGuard port selector.
@@ -2849,13 +2703,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
-msgstr ""
-
-#. The hint displayed below the WireGuard IP version selector.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "wireguard-settings-view"
-msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2906,6 +2753,9 @@ msgid "%s is already selected as exit relay"
 msgstr ""
 
 msgid "%s is unavailable"
+msgstr ""
+
+msgid "%s settings."
 msgstr ""
 
 msgid "%s was added to your account."
@@ -3001,9 +2851,6 @@ msgstr ""
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr ""
 
-msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
-msgstr ""
-
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr ""
 
@@ -3020,6 +2867,9 @@ msgid "Blocking internet (device offline)"
 msgstr ""
 
 msgid "Blocking..."
+msgstr ""
+
+msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr ""
 
 msgid "Can't connect?"
@@ -3085,10 +2935,10 @@ msgstr ""
 msgid "Delete method?"
 msgstr ""
 
-msgid "Device IP version"
+msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
-msgid "Disable all \"%s\" above to activate this setting."
+msgid "Disable multihop"
 msgstr ""
 
 msgid "Disable recents"
@@ -3139,6 +2989,9 @@ msgstr ""
 msgid "Enable method"
 msgstr ""
 
+msgid "Enable multihop"
+msgstr ""
+
 msgid "Enable recents"
 msgstr ""
 
@@ -3170,6 +3023,9 @@ msgid "Failed to set to current - Unknown reason"
 msgstr ""
 
 msgid "File"
+msgstr ""
+
+msgid "For details, please see our %s."
 msgstr ""
 
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
@@ -3214,13 +3070,10 @@ msgstr ""
 msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr ""
 
-msgid "In-tunnel IPv6"
+msgid "Include my account token for faster help with payment or account related issues"
 msgstr ""
 
 msgid "Invalid or missing value \"%1$s\""
-msgstr ""
-
-msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr ""
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
@@ -3287,6 +3140,9 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr ""
 
 msgid "Open app details"
@@ -3397,6 +3253,9 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
+msgid "TCP"
+msgstr ""
+
 msgid "Test method"
 msgstr ""
 
@@ -3433,13 +3292,10 @@ msgstr ""
 msgid "This address has already been entered."
 msgstr ""
 
-msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
-msgstr ""
-
 msgid "This field is required"
 msgstr ""
 
-msgid "This is a question about account or payments (include account information)"
+msgid "This impacts your anonymity"
 msgstr ""
 
 msgid "This is already set as current"
@@ -3463,6 +3319,9 @@ msgstr ""
 msgid "Too many attempts, please try again later"
 msgstr ""
 
+msgid "UDP"
+msgstr ""
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
@@ -3479,6 +3338,9 @@ msgid "Unable to start tunnel connection. Please disable Always-on VPN before us
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr ""
+
+msgid "Unavailable"
 msgstr ""
 
 msgid "Undo"
@@ -3575,6 +3437,9 @@ msgid "less than one day"
 msgstr ""
 
 msgid "login"
+msgstr ""
+
+msgid "privacy policy"
 msgstr ""
 
 msgid "read more here"

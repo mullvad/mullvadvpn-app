@@ -15,7 +15,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{IpVersion, TransportProtocol, TunnelType, proxy::CustomProxy};
+use talpid_types::net::{IpVersion, TransportProtocol, proxy::CustomProxy};
 
 /// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
 /// relay.
@@ -24,27 +24,6 @@ use talpid_types::net::{IpVersion, TransportProtocol, TunnelType, proxy::CustomP
 pub enum RelaySettings {
     CustomTunnelEndpoint(CustomTunnelEndpoint),
     Normal(RelayConstraints),
-}
-
-impl RelaySettings {
-    /// Returns false if the specified relay settings update explicitly do not allow for bridging
-    /// (i.e. use UDP instead of TCP)
-    pub fn supports_bridge(&self) -> bool {
-        match &self {
-            RelaySettings::CustomTunnelEndpoint(endpoint) => {
-                endpoint.endpoint().protocol == TransportProtocol::Tcp
-            }
-            RelaySettings::Normal(update) => !matches!(
-                &update.openvpn_constraints,
-                OpenVpnConstraints {
-                    port: Constraint::Only(TransportPort {
-                        protocol: TransportProtocol::Udp,
-                        ..
-                    })
-                }
-            ),
-        }
-    }
 }
 
 impl From<CustomTunnelEndpoint> for RelaySettings {
@@ -123,9 +102,7 @@ pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
-    pub tunnel_protocol: TunnelType,
     pub wireguard_constraints: WireguardConstraints,
-    pub openvpn_constraints: OpenVpnConstraints,
 }
 
 pub struct RelayConstraintsFormatter<'a> {
@@ -137,9 +114,7 @@ impl fmt::Display for RelayConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
             f,
-            "Tunnel protocol: {}\nOpenVPN constraints: {}\nWireguard constraints: {}",
-            self.constraints.tunnel_protocol,
-            self.constraints.openvpn_constraints,
+            "Tunnel protocol: wireguard\nWireguard constraints: {}",
             WireguardConstraintsFormatter {
                 constraints: &self.constraints.wireguard_constraints,
                 custom_lists: self.custom_lists,
@@ -380,27 +355,6 @@ pub struct TransportPort {
     pub port: Constraint<u16>,
 }
 
-/// [`Constraint`]s applicable to OpenVPN relays.
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub struct OpenVpnConstraints {
-    pub port: Constraint<TransportPort>,
-}
-
-impl fmt::Display for OpenVpnConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self.port {
-            Constraint::Any => write!(f, "any port"),
-            Constraint::Only(port) => {
-                match port.port {
-                    Constraint::Any => write!(f, "any port")?,
-                    Constraint::Only(port) => write!(f, "port {port}")?,
-                }
-                write!(f, "/{}", port.protocol)
-            }
-        }
-    }
-}
-
 /// [`Constraint`]s applicable to WireGuard relays.
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", default)]
@@ -638,6 +592,7 @@ pub enum SelectedObfuscation {
     #[default]
     Auto,
     Off,
+    Port,
     #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,
     Shadowsocks,
@@ -669,6 +624,7 @@ impl fmt::Display for SelectedObfuscation {
             SelectedObfuscation::Shadowsocks => "shadowsocks".fmt(f),
             SelectedObfuscation::Quic => "quic".fmt(f),
             SelectedObfuscation::Lwo => "lwo".fmt(f),
+            SelectedObfuscation::Port => "port".fmt(f),
         }
     }
 }
@@ -756,6 +712,7 @@ impl fmt::Display for BridgeConstraintsFormatter<'_> {
 }
 
 /// Setting indicating whether to connect to a bridge server, or to handle it automatically.
+// TODO: remove
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]

@@ -5,9 +5,6 @@ tested on a clean install of macOS Ventura 13.5.1 on a M2 MacBook.
 
 As an alternative to this guide you can also follow [these nix devshell instructions](../BuildInstructions.md#build-using-nix-devshell).
 
-> __*WARNING:*__ This guide will not apply the [wireguard-go patch](https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go/goruntime-boottime-over-monotonic.diff)
-> as done in Linux build instructions which may affect app performance.
-
 ## 1. Install Prerequisites
 
 > __*NOTE:*__ Following instructions assume that you have [brew](https://brew.sh/) installed.
@@ -19,7 +16,7 @@ brew install --cask android-studio
 
 Install the following packages:
 ```bash
-brew install protobuf gcc go openjdk@17 rustup-init python3
+brew install protobuf gcc openjdk@17 rustup-init python3
 ```
 
 > __*NOTE:*__ Ensure that you setup `openjdk@17` to be the active JDK, follow instructions in
@@ -63,11 +60,9 @@ export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/i686-linux-and
 export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
 ```
 
-## 3. Checkout the wireguard-go-rs and rust-android-gradle-plugin submodules
-wireguard-go-rs and rust-android-gradle-plugin submodules need to be downloaded:
-
+## 3. Checkout required submodules
 ```bash
-git submodule update --init wireguard-go-rs/libwg/wireguard-go android/rust-android-gradle-plugin
+git submodule update --init android/rust-android-gradle-plugin
 ```
 
 ## 4. Debug build

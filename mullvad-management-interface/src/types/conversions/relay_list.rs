@@ -15,7 +15,6 @@ impl From<mullvad_types::relay_list::RelayList> for proto::RelayList {
     fn from(relay_list: mullvad_types::relay_list::RelayList) -> Self {
         let mut proto_list = proto::RelayList {
             countries: vec![],
-            openvpn: Some(proto::OpenVpnEndpointData::from(relay_list.openvpn)),
             bridge: Some(proto::BridgeEndpointData::from(relay_list.bridge)),
             wireguard: Some(proto::WireguardEndpointData::from(relay_list.wireguard)),
         };
@@ -25,21 +24,6 @@ impl From<mullvad_types::relay_list::RelayList> for proto::RelayList {
             .map(proto::RelayListCountry::from)
             .collect();
         proto_list
-    }
-}
-
-impl From<mullvad_types::relay_list::OpenVpnEndpointData> for proto::OpenVpnEndpointData {
-    fn from(openvpn: mullvad_types::relay_list::OpenVpnEndpointData) -> Self {
-        proto::OpenVpnEndpointData {
-            endpoints: openvpn
-                .ports
-                .into_iter()
-                .map(|endpoint| proto::OpenVpnEndpoint {
-                    port: u32::from(endpoint.port),
-                    protocol: proto::TransportProtocol::from(endpoint.protocol) as i32,
-                })
-                .collect(),
-        }
     }
 }
 
@@ -60,8 +44,8 @@ impl From<mullvad_types::relay_list::BridgeEndpointData> for proto::BridgeEndpoi
     }
 }
 
-impl From<mullvad_types::relay_list::WireguardEndpointData> for proto::WireguardEndpointData {
-    fn from(wireguard: mullvad_types::relay_list::WireguardEndpointData) -> Self {
+impl From<mullvad_types::relay_list::EndpointData> for proto::WireguardEndpointData {
+    fn from(wireguard: mullvad_types::relay_list::EndpointData) -> Self {
         proto::WireguardEndpointData {
             port_ranges: wireguard
                 .port_ranges
@@ -126,7 +110,7 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
             weight: relay.weight,
             endpoint_data: {
                 use proto::relay::RelayData;
-                use proto::relay::relay_data::{Bridge, Data, OpenVpn, Wireguard, wireguard};
+                use proto::relay::relay_data::{Bridge, Data, Wireguard, wireguard};
                 let data = match relay.endpoint_data {
                     MullvadEndpointData::Wireguard(data) => {
                         let shadowsocks_extra_addr_in = data
@@ -145,7 +129,6 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
                         })
                     }
                     MullvadEndpointData::Bridge => Data::Bridge(Bridge {}),
-                    MullvadEndpointData::Openvpn => Data::Openvpn(OpenVpn {}),
                 };
                 Some(RelayData { data: Some(data) })
             },
@@ -207,9 +190,6 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
         let bridge = value.bridge.ok_or(FromProtobufTypeError::InvalidArgument(
             "missing bridge data",
         ))?;
-        let openvpn = value.openvpn.ok_or(FromProtobufTypeError::InvalidArgument(
-            "missing openvpn data",
-        ))?;
 
         let countries = value
             .countries
@@ -220,9 +200,8 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
         Ok(mullvad_types::relay_list::RelayList {
             etag: None,
             countries,
-            openvpn: mullvad_types::relay_list::OpenVpnEndpointData::try_from(openvpn)?,
             bridge: mullvad_types::relay_list::BridgeEndpointData::try_from(bridge)?,
-            wireguard: mullvad_types::relay_list::WireguardEndpointData::try_from(wireguard)?,
+            wireguard: mullvad_types::relay_list::EndpointData::try_from(wireguard)?,
         })
     }
 }
@@ -282,7 +261,6 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
                     "invalid relay endpoint type",
                 ))?;
             match data {
-                proto::relay::relay_data::Data::Openvpn(_openvpn) => MullvadEndpointData::Openvpn,
                 proto::relay::relay_data::Data::Bridge(_bridge) => MullvadEndpointData::Bridge,
                 proto::relay::relay_data::Data::Wireguard(wireguard) => {
                     fn parse_addr(addr: &str) -> Result<IpAddr, FromProtobufTypeError> {
@@ -356,32 +334,6 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
     }
 }
 
-impl TryFrom<proto::OpenVpnEndpointData> for mullvad_types::relay_list::OpenVpnEndpointData {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(openvpn: proto::OpenVpnEndpointData) -> Result<Self, FromProtobufTypeError> {
-        let ports = openvpn
-            .endpoints
-            .into_iter()
-            .map(mullvad_types::relay_list::OpenVpnEndpoint::try_from)
-            .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
-
-        Ok(mullvad_types::relay_list::OpenVpnEndpointData { ports })
-    }
-}
-
-impl TryFrom<proto::OpenVpnEndpoint> for mullvad_types::relay_list::OpenVpnEndpoint {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(openvpn: proto::OpenVpnEndpoint) -> Result<Self, FromProtobufTypeError> {
-        Ok(mullvad_types::relay_list::OpenVpnEndpoint {
-            port: u16::try_from(openvpn.port)
-                .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid port"))?,
-            protocol: try_transport_protocol_from_i32(openvpn.protocol)?,
-        })
-    }
-}
-
 impl TryFrom<proto::BridgeEndpointData> for mullvad_types::relay_list::BridgeEndpointData {
     type Error = FromProtobufTypeError;
 
@@ -414,7 +366,7 @@ impl TryFrom<proto::ShadowsocksEndpointData>
     }
 }
 
-impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::WireguardEndpointData {
+impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::EndpointData {
     type Error = FromProtobufTypeError;
 
     fn try_from(wireguard: proto::WireguardEndpointData) -> Result<Self, FromProtobufTypeError> {
@@ -444,7 +396,7 @@ impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::Wiregu
             })
             .collect::<Result<Vec<u16>, FromProtobufTypeError>>()?;
 
-        Ok(mullvad_types::relay_list::WireguardEndpointData {
+        Ok(mullvad_types::relay_list::EndpointData {
             port_ranges,
             ipv4_gateway,
             ipv6_gateway,

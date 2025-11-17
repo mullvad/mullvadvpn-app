@@ -4,8 +4,25 @@ import java.io.FileInputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import utilities.BuildTypes
+import utilities.FlavorDimensions
+import utilities.Flavors
+import utilities.SigningConfigs
+import utilities.Variant
+import utilities.allPlayDebugReleaseVariants
+import utilities.appVersionProvider
+import utilities.baselineFilter
+import utilities.generateRemapArguments
+import utilities.getBooleanProperty
+import utilities.getStringListProperty
+import utilities.isReleaseBuild
+import utilities.leakCanaryImplementation
+import utilities.matchesAny
+import utilities.ossProdAnyBuildType
+import utilities.playImplementation
 
 plugins {
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.application)
     alias(libs.plugins.play.publisher)
     alias(libs.plugins.kotlin.android)
@@ -30,6 +47,8 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val appVersion = appVersionProvider.get()
+
 android {
     namespace = "net.mullvad.mullvadvpn"
     compileSdk = libs.versions.compile.sdk.get().toInt()
@@ -40,8 +59,8 @@ android {
         applicationId = "net.mullvad.mullvadvpn"
         minSdk = libs.versions.min.sdk.get().toInt()
         targetSdk = libs.versions.target.sdk.get().toInt()
-        versionCode = generateVersionCode()
-        versionName = generateVersionName()
+        versionCode = appVersion.code
+        versionName = appVersion.name
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         lint {
@@ -55,9 +74,21 @@ android {
     }
 
     playConfigs {
-        register("playDevmoleRelease") { enabled = true }
-        register("playStagemoleRelease") { enabled = true }
-        register("playProdRelease") { enabled = true }
+        register("playDevmoleRelease") { enabled = !appVersion.isDev }
+        register("playStagemoleRelease") { enabled = !appVersion.isDev }
+        register("playProdRelease") {
+            enabled = !appVersion.isDev
+            track.set(
+                when {
+                    appVersion.isStable -> "production"
+                    appVersion.isBeta -> "beta"
+                    else -> "internal"
+                }
+            )
+            if (appVersion.isStable) {
+                releaseStatus.set(ReleaseStatus.DRAFT)
+            }
+        }
     }
 
     androidResources {
@@ -90,6 +121,7 @@ android {
                 "proguard-rules.pro",
             )
         }
+        getByName(BuildTypes.DEBUG) { isPseudoLocalesEnabled = true }
         create(BuildTypes.FDROID) {
             initWith(buildTypes.getByName(BuildTypes.RELEASE))
             signingConfig = null
@@ -159,6 +191,7 @@ android {
                 events("passed", "skipped", "failed", "standardOut", "standardError")
                 showCauses = true
                 showExceptions = true
+                showStandardStreams = true
             }
         }
     }
@@ -254,7 +287,7 @@ cargo {
     val generateDebugSymbolsForReleaseBuilds =
         getBooleanProperty("mullvad.app.build.cargo.generateDebugSymbolsForReleaseBuilds")
     val enableGotaTun = getBooleanProperty("mullvad.app.build.gotatun.enable")
-    val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
+    val enableApiOverride = !isReleaseBuild || appVersion.isDev || appVersion.isAlpha
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
@@ -274,8 +307,8 @@ cargo {
                     if (enableApiOverride) {
                         add("api-override")
                     }
-                    if (enableGotaTun) {
-                        add("boringtun")
+                    if (!enableGotaTun) {
+                        add("wireguard-go")
                     }
                 }
                 .toTypedArray()

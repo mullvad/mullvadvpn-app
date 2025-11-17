@@ -3,6 +3,7 @@ mod connecting_state;
 mod disconnected_state;
 mod disconnecting_state;
 mod error_state;
+mod tunnel_monitor;
 
 use self::{
     connected_state::ConnectedState,
@@ -46,7 +47,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_types::{ErrorExt, android::AndroidContext};
 use talpid_types::{
-    net::{AllowedEndpoint, Connectivity, IpAvailability, TunnelParameters},
+    net::{AllowedEndpoint, Connectivity, IpAvailability, wireguard::TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 

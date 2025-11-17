@@ -20,6 +20,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import mullvad_daemon.management_interface.dnsOptions
 import net.mullvad.mullvadvpn.compose.screen.VpnSettingsNavArgs
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
@@ -42,7 +43,6 @@ import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
-import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -134,17 +134,17 @@ class VpnSettingsViewModelTest {
         runTest {
             val expectedResistantState = QuantumResistantState.On
             val mockSettings: Settings = mockk(relaxed = true)
-            val mockTunnelOptions: TunnelOptions = mockk(relaxed = true)
+
             // Can not use a mock here since mocking a value class val leads to class cast exception
-            val mockWireguardTunnelOptions =
-                WireguardTunnelOptions(
+            every { mockSettings.tunnelOptions } returns
+                TunnelOptions(
                     mtu = Mtu(0),
                     quantumResistant = expectedResistantState,
                     daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                    dnsOptions = mockk(relaxed = true),
+                    enableIpv6 = true,
                 )
 
-            every { mockSettings.tunnelOptions } returns mockTunnelOptions
-            every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
             every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
             every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.port } returns
                 Constraint.Any
@@ -181,14 +181,11 @@ class VpnSettingsViewModelTest {
             every { mockWireguardConstraints.ipVersion } returns Constraint.Any
             every { mockSettings.tunnelOptions } returns
                 TunnelOptions(
-                    wireguard =
-                        WireguardTunnelOptions(
-                            mtu = null,
-                            quantumResistant = QuantumResistantState.Off,
-                            daitaSettings = DaitaSettings(enabled = false, directOnly = false),
-                        ),
+                    mtu = null,
+                    quantumResistant = QuantumResistantState.Off,
+                    daitaSettings = DaitaSettings(enabled = false, directOnly = false),
                     dnsOptions = mockk(relaxed = true),
-                    genericOptions = mockk(relaxed = true),
+                    enableIpv6 = true,
                 )
 
             // Act, Assert
@@ -302,11 +299,13 @@ class VpnSettingsViewModelTest {
         val mockSettings = mockk<Settings>(relaxed = true)
         every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.ipVersion } returns
             ipVersion
-        every { mockSettings.tunnelOptions.wireguard } returns
-            WireguardTunnelOptions(
+        every { mockSettings.tunnelOptions } returns
+            TunnelOptions(
                 mtu = null,
                 quantumResistant = QuantumResistantState.Off,
                 daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                dnsOptions = mockk(relaxed = true),
+                enableIpv6 = true,
             )
         every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.port } returns
             Constraint.Any
@@ -370,14 +369,11 @@ class VpnSettingsViewModelTest {
                 allowLan = false,
                 tunnelOptions =
                     TunnelOptions(
-                        wireguard =
-                            WireguardTunnelOptions(
-                                mtu = null,
-                                quantumResistant = QuantumResistantState.Auto,
-                                daitaSettings = DaitaSettings(enabled = false, directOnly = false),
-                            ),
+                        mtu = null,
+                        quantumResistant = QuantumResistantState.On,
+                        daitaSettings = DaitaSettings(enabled = false, directOnly = false),
                         dnsOptions = mockk(relaxed = true),
-                        genericOptions = mockk(relaxed = true),
+                        enableIpv6 = true,
                     ),
                 relayOverrides = emptyList(),
                 showBetaReleases = false,

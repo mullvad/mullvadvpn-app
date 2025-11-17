@@ -345,12 +345,11 @@
     <string name="daita_info">By enabling “%1$s” you will have to manually select a server that is %2$s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.</string>
     <string name="setting_chip">Setting: %s</string>
     <string name="enable_anyway">Enable anyway</string>
-    <string name="upd_over_tcp">UDP-over-TCP</string>
+    <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="port_x">Port: %s</string>
     <string name="connect_panel_active_features">Active features</string>
     <string name="connect_panel_connection_details">Connection details</string>
     <string name="feature_quantum_resistant">Quantum resistance</string>
-    <string name="feature_obfuscation">Obfuscation</string>
     <string name="feature_custom_dns">Custom DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="dns_content_blockers">DNS content blockers</string>
@@ -462,7 +461,14 @@
     <string name="enable_all_methods">Enable all &amp; retry</string>
     <string name="send_email">Send email</string>
     <string name="no_email_app_available">No email app available on the device</string>
-    <string name="include_account_token_checkbox_text">This is a question about account or payments (include account information)</string>
+    <string name="include_account_token_checkbox_text">Include my account token for faster help with payment or account related issues</string>
     <string name="no_matching_relay_entry">No entry server match your settings, try changing server or other settings.</string>
     <string name="no_matching_relay_exit">No exit server match your settings, try changing server or other settings.</string>
+    <string name="include_account_token_warning_title">This impacts your anonymity</string>
+    <string name="include_account_token_warning_message_first">By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time.</string>
+    <string name="include_account_token_warning_message_second">For details, please see our %s.</string>
+    <string name="privacy_policy_lower_case">privacy policy</string>
+    <string name="disable_multihop">Disable multihop</string>
+    <string name="enable_multihop">Enable multihop</string>
+    <string name="unavailable">Unavailable</string>
 </resources>

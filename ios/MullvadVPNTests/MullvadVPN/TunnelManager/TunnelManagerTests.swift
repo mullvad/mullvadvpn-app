@@ -22,11 +22,9 @@ class TunnelManagerTests: XCTestCase {
     var application: BackgroundTaskProviding!
     var relayCacheTracker: RelayCacheTrackerStub!
     var accountProxy: AccountsProxyStub!
-    var accessTokenManager: AccessTokenManagerStub!
     var devicesProxy: DevicesProxyStub!
     var apiProxy: APIProxyStub!
     var addressCache: REST.AddressCache!
-    var transportProvider: TransportProvider!
     var apiContext: MullvadApiContext!
 
     override static func setUp() {
@@ -41,7 +39,6 @@ class TunnelManagerTests: XCTestCase {
         application = UIApplicationStub()
         relayCacheTracker = RelayCacheTrackerStub()
         accountProxy = AccountsProxyStub()
-        accessTokenManager = AccessTokenManagerStub()
         devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         apiProxy = APIProxyStub()
         let shadowsocksLoader = ShadowsocksLoader(
@@ -49,31 +46,20 @@ class TunnelManagerTests: XCTestCase {
             relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
             settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
         )
-        let transportStrategy = TransportStrategy(
-            datasource: AccessMethodRepositoryStub.stub,
-            shadowsocksLoader: shadowsocksLoader
-        )
         addressCache = REST.AddressCache(
             canWriteToCache: false,
             fileCache: MockFileCache(initialState: .fileNotFound)
         )
 
-        transportProvider = TransportProvider(
-            urlSessionTransport: URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache)),
-            addressCache: REST.AddressCache(
-                canWriteToCache: true,
-                cacheDirectory: FileManager.default.temporaryDirectory
-            ),
-            transportStrategy: transportStrategy,
-            encryptedDNSTransport: RESTTransportStub()
-        )
+        let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
+            methods: AccessMethodRepositoryStub.stub.fetchAll())
 
         apiContext = try MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
+            accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             addressCacheProvider: addressCache,
             accessMethodChangeListeners: []
         )
@@ -85,10 +71,8 @@ class TunnelManagerTests: XCTestCase {
         application = nil
         relayCacheTracker = nil
         accountProxy = nil
-        accessTokenManager = nil
         devicesProxy = nil
         apiProxy = nil
-        transportProvider = nil
         tunnelObserver = nil
     }
 
@@ -152,7 +136,6 @@ class TunnelManagerTests: XCTestCase {
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
             relaySelector: relaySelector,
-            transportProvider: transportProvider,
             apiTransportProvider: APITransportProvider(
                 requestFactory: MullvadApiRequestFactory(
                     apiContext: apiContext,
@@ -222,7 +205,6 @@ class TunnelManagerTests: XCTestCase {
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
             relaySelector: relaySelector,
-            transportProvider: transportProvider,
             apiTransportProvider: APITransportProvider(
                 requestFactory: MullvadApiRequestFactory(
                     apiContext: apiContext,
@@ -295,7 +277,6 @@ class TunnelManagerTests: XCTestCase {
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
             relaySelector: relaySelector,
-            transportProvider: transportProvider,
             apiTransportProvider: APITransportProvider(
                 requestFactory: MullvadApiRequestFactory(
                     apiContext: apiContext,

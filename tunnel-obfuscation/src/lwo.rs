@@ -227,7 +227,7 @@ async fn run_obfuscation_inner(
     }
 }
 
-// WG message types, copied from boringtun
+// WG message types, copied from gotatun
 type MessageType = u8;
 const HANDSHAKE_INIT: MessageType = 1;
 const HANDSHAKE_RESP: MessageType = 2;

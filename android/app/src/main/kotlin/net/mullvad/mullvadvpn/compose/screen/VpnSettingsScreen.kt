@@ -34,6 +34,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -486,6 +488,7 @@ fun VpnSettingsContent(
             FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistanceHeader::class
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> VpnSettingItem.DnsContentBlockersHeader::class
             FeatureIndicator.CUSTOM_MTU -> VpnSettingItem.Mtu::class
+            FeatureIndicator.CUSTOM_DNS -> VpnSettingItem.CustomDnsServerSetting::class
             else -> null
         }?.let { clazz -> state.settings.indexOfFirstOrNull { it::class == clazz } } ?: 0
 
@@ -510,6 +513,12 @@ fun VpnSettingsContent(
 
     val lazyListState = rememberLazyListState(initialIndexFocus)
     canScroll.value = lazyListState.canScrollForward || lazyListState.canScrollBackward
+    val focusRequesters: Map<FeatureIndicator, FocusRequester> = remember {
+        featureIndicators().associateWith { FocusRequester() }
+    }
+    if (initialScrollToFeature != null) {
+        LaunchedEffect(Unit) { focusRequesters[initialScrollToFeature]?.requestFocus() }
+    }
     LazyColumn(
         modifier =
             Modifier.testTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
@@ -602,7 +611,11 @@ fun VpnSettingsContent(
                             onCellClicked = { newValue -> onToggleDnsClick(newValue) },
                             onInfoClicked = { navigateToCustomDnsInfo() },
                             background = highlightBackground(FeatureIndicator.CUSTOM_DNS),
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.CUSTOM_DNS)
+                                    ),
                         )
                     }
                 VpnSettingItem.CustomDnsUnavailable ->
@@ -732,7 +745,13 @@ fun VpnSettingsContent(
                 is VpnSettingItem.DnsContentBlockersHeader ->
                     item(key = it::class.simpleName) {
                         ExpandableComposeCell(
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(
+                                            FeatureIndicator.DNS_CONTENT_BLOCKERS
+                                        )
+                                    ),
                             title = stringResource(R.string.dns_content_blockers),
                             background = highlightBackground(FeatureIndicator.DNS_CONTENT_BLOCKERS),
                             isExpanded = it.expanded,
@@ -766,7 +785,11 @@ fun VpnSettingsContent(
                             title = stringResource(R.string.local_network_sharing),
                             isToggled = it.enabled,
                             isEnabled = true,
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.LAN_SHARING)
+                                    ),
                             onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
                             onInfoClicked = navigateToLocalNetworkSharingInfo,
                         )
@@ -777,7 +800,11 @@ fun VpnSettingsContent(
                         MtuComposeCell(
                             mtuValue = it.mtu,
                             onEditMtu = { navigateToMtuDialog(it.mtu) },
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.CUSTOM_MTU)
+                                    ),
                             background = highlightBackground(FeatureIndicator.CUSTOM_MTU),
                         )
                     }
@@ -796,15 +823,15 @@ fun VpnSettingsContent(
                             onInfoClicked = navigateToObfuscationInfo,
                             onCellClicked = navigateToObfuscationInfo,
                             background =
-                                if (
-                                    initialScrollToFeature == FeatureIndicator.UDP_2_TCP ||
-                                        initialScrollToFeature == FeatureIndicator.SHADOWSOCKS
-                                ) {
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = highlightAnimation.value
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.primary
+                                when (initialScrollToFeature) {
+                                    FeatureIndicator.UDP_2_TCP,
+                                    FeatureIndicator.SHADOWSOCKS,
+                                    FeatureIndicator.QUIC,
+                                    FeatureIndicator.LWO ->
+                                        MaterialTheme.colorScheme.primary.copy(
+                                            alpha = highlightAnimation.value
+                                        )
+                                    else -> MaterialTheme.colorScheme.primary
                                 },
                             testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
                             modifier = Modifier.animateItem(),
@@ -841,7 +868,11 @@ fun VpnSettingsContent(
                             onSelected = onSelectObfuscationMode,
                             onNavigate = navigateToShadowSocksSettings,
                             testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG,
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.SHADOWSOCKS)
+                                    ),
                         )
                     }
 
@@ -854,7 +885,11 @@ fun VpnSettingsContent(
                             onSelected = onSelectObfuscationMode,
                             onNavigate = navigateToUdp2TcpSettings,
                             testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG,
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.UDP_2_TCP)
+                                    ),
                         )
                     }
 
@@ -863,7 +898,11 @@ fun VpnSettingsContent(
                         SelectableCell(
                             title = stringResource(id = R.string.quic),
                             isSelected = it.selected,
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(
+                                        focusRequesters.getValue(FeatureIndicator.QUIC)
+                                    ),
                             testTag = WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG,
                             onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Quic) },
                         )
@@ -874,7 +913,9 @@ fun VpnSettingsContent(
                         SelectableCell(
                             title = stringResource(id = R.string.lwo),
                             isSelected = it.selected,
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .focusRequester(focusRequesters.getValue(FeatureIndicator.LWO)),
                             testTag = WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG,
                             onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
                         )
@@ -885,21 +926,28 @@ fun VpnSettingsContent(
                         SelectableCell(
                             title =
                                 when (it.quantumResistantState) {
-                                    QuantumResistantState.Auto ->
-                                        stringResource(id = R.string.automatic)
-
                                     QuantumResistantState.Off -> stringResource(id = R.string.off)
-
                                     QuantumResistantState.On -> stringResource(id = R.string.on)
                                 },
                             isSelected = it.selected,
-                            modifier = Modifier.animateItem(),
+                            modifier =
+                                Modifier.animateItem()
+                                    .then(
+                                        if (it.quantumResistantState == QuantumResistantState.On) {
+                                            Modifier.focusRequester(
+                                                focusRequesters.getValue(
+                                                    FeatureIndicator.QUANTUM_RESISTANCE
+                                                )
+                                            )
+                                        } else {
+                                            Modifier
+                                        }
+                                    ),
                             onCellClicked = {
                                 onSelectQuantumResistanceSetting(it.quantumResistantState)
                             },
                             testTag =
                                 when (it.quantumResistantState) {
-                                    QuantumResistantState.Auto -> ""
                                     QuantumResistantState.On -> LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 
                                     QuantumResistantState.Off -> LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
@@ -1028,3 +1076,17 @@ private fun Lc<Boolean, VpnSettingsUiState>.isModal() =
         is Lc.Loading -> value
         is Lc.Content -> value.isModal
     }
+
+// A list of feature indicators on this screen
+private fun featureIndicators() =
+    listOf(
+        FeatureIndicator.UDP_2_TCP,
+        FeatureIndicator.SHADOWSOCKS,
+        FeatureIndicator.QUIC,
+        FeatureIndicator.LWO,
+        FeatureIndicator.LAN_SHARING,
+        FeatureIndicator.QUANTUM_RESISTANCE,
+        FeatureIndicator.DNS_CONTENT_BLOCKERS,
+        FeatureIndicator.CUSTOM_MTU,
+        FeatureIndicator.CUSTOM_DNS,
+    )

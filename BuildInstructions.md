@@ -149,12 +149,6 @@ rustup target add aarch64-pc-windows-msvc
 
 In addition to the above requirements:
 
-- `x86_64-pc-windows-msvc` is required to build `talpid-openvpn-plugin`:
-
-  ```bash
-  rustup target add x86_64-pc-windows-msvc
-  ```
-
 - `clang` is required (can be found in the Visual Studio installer) in `PATH`.
 
   `INCLUDE` also needs to include the correct headers for clang. This can be found by running
@@ -257,7 +251,7 @@ On Linux, you may also have to specify `USE_SYSTEM_FPM=true` to generate the deb
 
 This section is for building the system service individually.
 
-1. Source `env.sh` to set the default environment variables:
+1. On macOS, source `env.sh` to set the default environment variables:
     ```bash
     source env.sh
     ```
@@ -266,19 +260,14 @@ This section is for building the system service individually.
     ```bash
     ./build-windows-modules.sh
     ```
+    And copy the `wintun.dll` next to the daemon binary:
+    ```bash
+    cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/
+    ```
 
 1. Build the system daemon plus the other Rust tools and programs:
     ```bash
     cargo build
-    ```
-
-1. Copy the OpenVPN binaries, and our plugin for it, to the directory we will
-    use as a resource directory. If you want to use any other directory, you would need to copy
-    even more files.
-    ```bash
-    cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
-    cp target/debug/*talpid_openvpn_plugin* dist-assets/
-    cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/
     ```
 
 1. On Windows, the daemon must be run as the SYSTEM user. You can use

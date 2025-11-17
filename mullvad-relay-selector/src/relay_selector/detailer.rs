@@ -1,5 +1,5 @@
-//! This module implements functions for producing a [`MullvadEndpoint`] given a Wireguard or
-//! OpenVPN relay chosen by the relay selector.
+//! This module implements functions for producing a [`MullvadEndpoint`] given a Wireguard
+//! relay chosen by the relay selector.
 //!
 //! [`MullvadEndpoint`] contains all the necessary information for establishing a connection
 //! between the client and Mullvad VPN. It is the daemon's responsibility to establish this
@@ -12,37 +12,31 @@ use std::net::{IpAddr, SocketAddr};
 use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
-    endpoint::MullvadWireguardEndpoint,
-    relay_constraints::{TransportPort, allowed_ip::resolve_from_constraint},
-    relay_list::{
-        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
-        WireguardEndpointData,
-    },
+    endpoint::MullvadEndpoint,
+    relay_constraints::allowed_ip::resolve_from_constraint,
+    relay_list::{BridgeEndpointData, EndpointData, Relay, RelayEndpointData},
 };
 use rand::seq::IndexedRandom;
 use talpid_types::net::{
-    Endpoint, IpVersion, TransportProtocol,
+    IpVersion,
     proxy::Shadowsocks,
     wireguard::{PeerConfig, PublicKey},
 };
 
-use super::{
-    WireguardConfig,
-    query::{BridgeQuery, OpenVpnRelayQuery, WireguardRelayQuery},
-};
+use crate::query::ObfuscationQuery;
+
+use super::{WireguardConfig, query::WireguardRelayQuery};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("No OpenVPN endpoint could be derived")]
-    NoOpenVpnEndpoint,
     #[error("No bridge endpoint could be derived")]
     NoBridgeEndpoint,
-    #[error("OpenVPN relays and bridges does not have a public key. Expected a Wireguard relay")]
+    #[error("Bridges do not have a public key. Expected a Wireguard relay")]
     MissingPublicKey,
     #[error("The selected relay does not support IPv6")]
     NoIPv6(Box<Relay>),
-    #[error("Failed to select port")]
-    PortSelectionError,
+    #[error("Failed to select port ({port})")]
+    PortSelectionError { port: Constraint<u16> },
 }
 
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
@@ -54,9 +48,9 @@ pub enum Error {
 ///   [`WireguardRelayQuery::port`]) or relay addresses cannot be resolved.
 pub fn wireguard_endpoint(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
     relay: &WireguardConfig,
-) -> Result<MullvadWireguardEndpoint, Error> {
+) -> Result<MullvadEndpoint, Error> {
     match relay {
         WireguardConfig::Singlehop { exit } => wireguard_singlehop_endpoint(query, data, exit),
         WireguardConfig::Multihop { exit, entry } => {
@@ -68,9 +62,9 @@ pub fn wireguard_endpoint(
 /// Configure a single-hop connection using the exit relay data.
 fn wireguard_singlehop_endpoint(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
     exit: &Relay,
-) -> Result<MullvadWireguardEndpoint, Error> {
+) -> Result<MullvadEndpoint, Error> {
     let endpoint = {
         let host = get_address_for_wireguard_relay(query, exit)?;
         let port = get_port_for_wireguard_relay(query, data)?;
@@ -92,7 +86,7 @@ fn wireguard_singlehop_endpoint(
         #[cfg(daita)]
         constant_packet_size: false,
     };
-    Ok(MullvadWireguardEndpoint {
+    Ok(MullvadEndpoint {
         peer: peer_config,
         exit_peer: None,
         ipv4_gateway: data.ipv4_gateway,
@@ -107,10 +101,10 @@ fn wireguard_singlehop_endpoint(
 /// peer configuration.
 fn wireguard_multihop_endpoint(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
     exit: &Relay,
     entry: &Relay,
-) -> Result<MullvadWireguardEndpoint, Error> {
+) -> Result<MullvadEndpoint, Error> {
     /// The standard port on which an exit relay accepts connections from an entry relay in a
     /// multihop circuit.
     const WIREGUARD_EXIT_PORT: u16 = 51820;
@@ -156,7 +150,7 @@ fn wireguard_multihop_endpoint(
         constant_packet_size: false,
     };
 
-    Ok(MullvadWireguardEndpoint {
+    Ok(MullvadEndpoint {
         peer: entry,
         exit_peer: Some(exit),
         ipv4_gateway: data.ipv4_gateway,
@@ -188,10 +182,22 @@ pub fn resolve_ip_version(ip_version: Constraint<IpVersion>) -> IpVersion {
 /// Try to pick a valid Wireguard port.
 fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
-    data: &WireguardEndpointData,
+    data: &EndpointData,
 ) -> Result<u16, Error> {
-    super::helpers::desired_or_random_port_from_range(&data.port_ranges, query.port)
-        .map_err(|_err| Error::PortSelectionError)
+    // Only respect the port option if the Port method is used. Otherwise, we may pick any port.
+    //
+    // TODO: Enable the same behaviour on Android sometime later. For now, keep the old behaviour.
+    // If only || was supported in if-let-chains ..
+    let port = if cfg!(target_os = "android") {
+        query.port
+    } else if let ObfuscationQuery::Port = query.obfuscation {
+        query.port
+    } else {
+        Constraint::Any
+    };
+
+    super::helpers::desired_or_random_port_from_range(&data.port_ranges, port)
+        .map_err(|_err| Error::PortSelectionError { port })
 }
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
@@ -199,79 +205,7 @@ fn get_port_for_wireguard_relay(
 const fn get_public_key(relay: &Relay) -> Result<&PublicKey, Error> {
     match &relay.endpoint_data {
         RelayEndpointData::Wireguard(endpoint) => Ok(&endpoint.public_key),
-        RelayEndpointData::Openvpn | RelayEndpointData::Bridge => Err(Error::MissingPublicKey),
-    }
-}
-
-/// Constructs an [`Endpoint`] with details for how to connect to an OpenVPN relay.
-///
-/// If this endpoint is to be used in conjunction with a bridge, the resulting endpoint is
-/// guaranteed to use transport protocol `TCP`.
-///
-/// This function can fail if no valid port + transport protocol combination is found.
-/// See [`OpenVpnEndpointData`] for more details.
-pub fn openvpn_endpoint(
-    query: &OpenVpnRelayQuery,
-    data: &OpenVpnEndpointData,
-    relay: &Relay,
-) -> Result<Endpoint, Error> {
-    // If `bridge_mode` is true, this function may only return endpoints which use TCP, not UDP.
-    if BridgeQuery::should_use_bridge(&query.bridge_settings) {
-        openvpn_bridge_endpoint(&query.port, data, relay)
-    } else {
-        openvpn_singlehop_endpoint(&query.port, data, relay)
-    }
-}
-
-/// Configure a single-hop connection using the exit relay data.
-fn openvpn_singlehop_endpoint(
-    port_constraint: &Constraint<TransportPort>,
-    data: &OpenVpnEndpointData,
-    exit: &Relay,
-) -> Result<Endpoint, Error> {
-    use rand::seq::IteratorRandom;
-    data.ports
-        .iter()
-        .filter(|&endpoint| compatible_openvpn_port_combo(port_constraint, endpoint))
-        .choose(&mut rand::rng())
-        .map(|endpoint| Endpoint::new(exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
-        .ok_or(Error::NoOpenVpnEndpoint)
-}
-
-/// Configure an endpoint that will be used together with a bridge.
-///
-/// # Note
-/// In bridge mode, the only viable transport protocol is TCP. Otherwise, this function is
-/// identical to [`Self::to_singlehop_endpoint`].
-fn openvpn_bridge_endpoint(
-    port_constraint: &Constraint<TransportPort>,
-    data: &OpenVpnEndpointData,
-    exit: &Relay,
-) -> Result<Endpoint, Error> {
-    use rand::seq::IteratorRandom;
-    data.ports
-        .iter()
-        .filter(|endpoint| matches!(endpoint.protocol, TransportProtocol::Tcp))
-        .filter(|endpoint| compatible_openvpn_port_combo(port_constraint, endpoint))
-        .choose(&mut rand::rng())
-        .map(|endpoint| Endpoint::new(exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
-        .ok_or(Error::NoBridgeEndpoint)
-}
-
-/// Returns true if `port_constraint` can be used to connect to `endpoint`.
-/// Otherwise, false is returned.
-fn compatible_openvpn_port_combo(
-    port_constraint: &Constraint<TransportPort>,
-    endpoint: &OpenVpnEndpoint,
-) -> bool {
-    match port_constraint {
-        Constraint::Any => true,
-        Constraint::Only(transport_port) => match transport_port.port {
-            Constraint::Any => transport_port.protocol == endpoint.protocol,
-            Constraint::Only(port) => {
-                port == endpoint.port && transport_port.protocol == endpoint.protocol
-            }
-        },
+        RelayEndpointData::Bridge => Err(Error::MissingPublicKey),
     }
 }
 

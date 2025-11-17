@@ -1,0 +1,10 @@
+---
+source: mullvad-update/src/version/rollout.rs
+expression: "&string_reprs"
+---
+-0 => -0
+0 => 0
+0.00000011920929 => 0.00000011920929
+0.33333334 => 0.33333334
+0.9999999 => 0.9999999
+1 => 1

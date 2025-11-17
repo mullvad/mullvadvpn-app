@@ -1,6 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import utilities.FlavorDimensions
+import utilities.Flavors
+import utilities.Variant
+import utilities.baselineFilter
+import utilities.matches
 
 plugins {
+    alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.baselineprofile)
@@ -65,6 +71,14 @@ android {
         }
     }
     buildFeatures { buildConfig = true }
+
+    packaging {
+        // Needed to resolve conflicts because JUnit5 and JUnit4 both have the same name for their
+        // license files.
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE.txt,LICENSE-notice.md}"
+        }
+    }
 }
 
 // This is the configuration block for the Baseline Profile plugin.
@@ -78,7 +92,9 @@ baselineProfile { useConnectedDevices = true }
 configurations.all { resolutionStrategy { force("com.squareup.okio:okio:3.9.1") } }
 
 dependencies {
+    implementation(projects.test.common)
     implementation(projects.lib.ui.tag)
+    implementation(libs.androidx.test.core)
     implementation(libs.androidx.junit)
     implementation(libs.androidx.espresso)
     implementation(libs.androidx.test.uiautomator)

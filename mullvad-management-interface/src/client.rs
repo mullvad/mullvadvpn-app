@@ -22,7 +22,7 @@ use mullvad_types::{
     device::{Device, DeviceId, DeviceState},
     features::FeatureIndicators,
     relay_constraints::{
-        AllowedIps, BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        AllowedIps, BridgeSettings, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     settings::DnsOptions,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
@@ -233,12 +233,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn set_bridge_state(&mut self, state: BridgeState) -> Result<()> {
-        let state = types::BridgeState::from(state);
-        self.0.set_bridge_state(state).await?;
-        Ok(())
-    }
-
     pub async fn set_obfuscation_settings(&mut self, settings: ObfuscationSettings) -> Result<()> {
         let settings = types::ObfuscationSettings::from(&settings);
         self.0.set_obfuscation_settings(settings).await?;
@@ -272,13 +266,6 @@ impl MullvadProxyClient {
 
     pub async fn set_auto_connect(&mut self, state: bool) -> Result<()> {
         self.0.set_auto_connect(state).await?;
-        Ok(())
-    }
-
-    pub async fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
-        self.0
-            .set_openvpn_mssfix(mssfix.map(u32::from).unwrap_or(0))
-            .await?;
         Ok(())
     }
 
@@ -632,6 +619,25 @@ impl MullvadProxyClient {
 
     pub async fn enable_relay(&mut self, relay: String) -> Result<()> {
         self.0.enable_relay(relay).await?;
+        Ok(())
+    }
+
+    pub async fn get_rollout_threshold(&mut self) -> Result<f32> {
+        let rollout = self.0.get_rollout_threshold(()).await?;
+        let threshold = rollout.into_inner().threshold;
+        Ok(threshold)
+    }
+
+    pub async fn generate_new_rollout_threshold(&mut self) -> Result<f32> {
+        let rollout = self.0.regenerate_rollout_threshold(()).await?;
+        let threshold = rollout.into_inner().threshold;
+        Ok(threshold)
+    }
+
+    pub async fn set_new_rollout_threshold_seed(&mut self, seed: u32) -> Result<()> {
+        self.0
+            .set_rollout_threshold_seed(types::Seed { seed })
+            .await?;
         Ok(())
     }
 

@@ -30,6 +30,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -42,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,9 +54,11 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -349,6 +353,7 @@ private fun ColumnScope.LoginInput(
         visualTransformation = accountNumberVisualTransformation(),
         enabled = state.loginState is Idle,
         colors = mullvadWhiteTextFieldColors(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
         isError = state.loginState.isError(),
     )
 
@@ -358,17 +363,20 @@ private fun ColumnScope.LoginInput(
         val transformedText =
             remember(token) { accountTransformation.filter(AnnotatedString(token)).text }
 
-        AccountDropDownItem(
-            accountNumber = transformedText.toString(),
-            onClick = {
-                state.lastUsedAccount?.let {
-                    onAccountNumberChange(it.value)
-                    onLoginClick(it.value)
-                }
-            },
-            enabled = state.loginState is Idle,
-            onDeleteClick = onDeleteHistoryClick,
-        )
+        // Since content is number we should always do Ltr
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            AccountDropDownItem(
+                accountNumber = transformedText.toString(),
+                onClick = {
+                    state.lastUsedAccount?.let {
+                        onAccountNumberChange(it.value)
+                        onLoginClick(it.value)
+                    }
+                },
+                enabled = state.loginState is Idle,
+                onDeleteClick = onDeleteHistoryClick,
+            )
+        }
     }
 }
 

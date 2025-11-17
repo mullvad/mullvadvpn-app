@@ -11,8 +11,8 @@ rust-version.workspace = true
 workspace = true
 
 [features]
-boringtun = ["dep:boringtun", "dep:tun07", "talpid-tunnel/boringtun"]
-multihop-pcap = ["boringtun/pcap"]
+wireguard-go = ["dep:wireguard-go-rs", "talpid-tunnel/wireguard-go", "dep:chrono"]
+multihop-pcap = ["gotatun/pcap"]
 
 [dependencies]
 async-trait = "0.1"
@@ -28,25 +28,20 @@ talpid-types = { path = "../talpid-types" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 zeroize = "1"
-chrono = { workspace = true, features = ["clock"] }
+chrono = { workspace = true, features = ["clock"], optional = true }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = { workspace = true }
 surge-ping = "0.8.0"
-wireguard-go-rs = { path = "../wireguard-go-rs" }
+wireguard-go-rs = { path = "../wireguard-go-rs", optional = true }
 tun07 = { package = "tun", version = "0.7.11", features = [
   "async",
-], optional = true }
+] }
 byteorder = "1"
 internet-checksum = "0.2"
 socket2 = { workspace = true, features = ["all"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
-
-[dependencies.boringtun]
-optional = true
-features = ["device", "tun"]
-git = "https://github.com/mullvad/gotatun"
-rev = "d8ddd4232c9636aa98ab4bd14093e256f7d09abb"
+gotatun = { version = "0.1.0", features = ["device", "tun"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["fs"] }
@@ -60,6 +55,7 @@ rtnetlink = { workspace = true }
 netlink-packet-core = { workspace = true }
 netlink-packet-route = { workspace = true }
 netlink-proto = { workspace = true }
+zerocopy = { workspace = true, features = ["derive"] }
 talpid-dbus = { path = "../talpid-dbus" }
 
 [target.'cfg(windows)'.dependencies]
@@ -67,6 +63,7 @@ bitflags = "1.2"
 talpid-windows = { path = "../talpid-windows" }
 widestring = { workspace = true }
 rand_chacha = "0.3.1"
+chrono = { workspace = true, features = ["clock"] }
 
 # TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]

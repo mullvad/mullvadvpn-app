@@ -11,9 +11,9 @@ import {
 import { messages } from '../../shared/gettext';
 import { Button, Flex } from '../lib/components';
 import { FlexRow } from '../lib/components/flex-row';
+import { Switch } from '../lib/components/switch';
 import { IpAddress } from '../lib/ip';
 import { useEffectEvent } from '../lib/utility-hooks';
-import * as Cell from './cell';
 import { SettingsForm, useSettingsFormSubmittable } from './cell/SettingsForm';
 import { SettingsGroup } from './cell/SettingsGroup';
 import { SettingsRadioGroup } from './cell/SettingsRadioGroup';
@@ -424,7 +424,11 @@ function EditSocks5Remote(props: EditProxyProps<Socks5RemoteCustomProxy>) {
       </SettingsRow>
 
       <SettingsRow label={messages.pgettext('api-access-methods-view', 'Authentication')}>
-        <Cell.Switch isOn={authentication} onChange={setAuthentication} />
+        <Switch checked={authentication} onCheckedChange={setAuthentication}>
+          <Switch.Trigger>
+            <Switch.Thumb />
+          </Switch.Trigger>
+        </Switch>
       </SettingsRow>
 
       {authentication && (

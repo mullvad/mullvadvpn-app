@@ -42,7 +42,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var addressCacheTracker: AddressCacheTracker!
     nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
     nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
-    nonisolated(unsafe) private var transportMonitor: TransportMonitor!
     nonisolated(unsafe) private var apiTransportMonitor: APITransportMonitor!
     private var settingsObserver: TunnelBlockObserver!
     private var migrationManager: MigrationManager!
@@ -53,7 +52,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private(set) var relaySelector: RelaySelectorWrapper!
     private var launchArguments = LaunchArguments()
-    private var encryptedDNSTransport: EncryptedDNSTransport!
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
@@ -98,12 +96,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             settingsUpdater: tunnelSettingsUpdater
         )
 
-        let transportStrategy = TransportStrategy(
-            datasource: accessMethodRepository,
-            shadowsocksLoader: shadowsocksLoader
-        )
-
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
+
+        let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
+            methods: accessMethodRepository.fetchAll()
+        )
 
         // swift-format-ignore: NeverUseForceTry
         apiContext = try! MullvadApiContext(
@@ -111,7 +108,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
+            accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             addressCacheProvider: addressCache,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
@@ -163,16 +160,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             transactionLog: .default
         )
 
-        let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
-        encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSessionTransport.urlSession)
-
-        let transportProvider = TransportProvider(
-            urlSessionTransport: urlSessionTransport,
-            addressCache: addressCache,
-            transportStrategy: transportStrategy,
-            encryptedDNSTransport: encryptedDNSTransport
-        )
-
         let apiRequestFactory = MullvadApiRequestFactory(
             apiContext: apiContext,
             encoder: REST.Coding.makeJSONEncoder()
@@ -185,9 +172,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             requestFactory: apiRequestFactory
         )
 
-        setUpTransportMonitor(transportProvider: transportProvider)
         setUpSimulatorHost(
-            transportProvider: transportProvider,
             apiTransportProvider: apiTransportProvider,
             relaySelector: relaySelector
         )
@@ -220,21 +205,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func setUpProxies(containerURL: URL) {
         if launchArguments.target == .screenshots {
             proxyFactory = MockProxyFactory.makeProxyFactory(
-                transportProvider: REST.AnyTransportProvider { [weak self] in
-                    self?.transportMonitor.makeTransport()
-                },
                 apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
                     self?.apiTransportMonitor.makeTransport()
-                }, addressCache: addressCache
+                }
             )
         } else {
             proxyFactory = REST.ProxyFactory.makeProxyFactory(
-                transportProvider: REST.AnyTransportProvider { [weak self] in
-                    self?.transportMonitor.makeTransport()
-                },
                 apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
                     self?.apiTransportMonitor.makeTransport()
-                }, addressCache: addressCache
+                }
             )
         }
         apiProxy = proxyFactory.createAPIProxy()
@@ -242,16 +221,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         devicesProxy = proxyFactory.createDevicesProxy()
     }
 
-    private func setUpTransportMonitor(transportProvider: TransportProvider) {
-        transportMonitor = TransportMonitor(
-            tunnelManager: tunnelManager,
-            tunnelStore: tunnelStore,
-            transportProvider: transportProvider
-        )
-    }
-
     private func setUpSimulatorHost(
-        transportProvider: TransportProvider,
         apiTransportProvider: APITransportProvider,
         relaySelector: RelaySelectorWrapper
     ) {
@@ -259,7 +229,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             // Configure mock tunnel provider on simulator
             simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
                 relaySelector: relaySelector,
-                transportProvider: transportProvider,
                 apiTransportProvider: apiTransportProvider
             )
             SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
@@ -438,9 +407,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // MARK: - Private
 
     private func configureLogging() {
-        var loggerBuilder = LoggerBuilder(header: "MullvadVPN version \(Bundle.main.productVersion)")
+        let header = "MullvadVPN version \(Bundle.main.productVersion)"
+        let loggerBuilder = LoggerBuilder.shared
+
         loggerBuilder.addFileOutput(
-            fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp, in: ApplicationConfiguration.containerURL)
+            fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp, in: ApplicationConfiguration.containerURL),
+            header: header
         )
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)

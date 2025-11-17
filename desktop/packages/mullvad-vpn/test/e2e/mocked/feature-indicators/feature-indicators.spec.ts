@@ -60,30 +60,37 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'UDP over TCP',
     featureIndicator: FeatureIndicator.udp2tcp,
-    route: RoutePath.wireguardSettings,
-    featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    route: RoutePath.antiCensorship,
+    featureIndicatorLabel: 'UDP-over-TCP',
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'shadowsocks',
     featureIndicator: FeatureIndicator.shadowsocks,
-    route: RoutePath.wireguardSettings,
-    featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    route: RoutePath.antiCensorship,
+    featureIndicatorLabel: 'Shadowsocks',
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'QUIC',
     featureIndicator: FeatureIndicator.quic,
-    route: RoutePath.wireguardSettings,
-    featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    route: RoutePath.antiCensorship,
+    featureIndicatorLabel: 'QUIC',
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'LWO',
     featureIndicator: FeatureIndicator.lwo,
-    route: RoutePath.wireguardSettings,
-    featureIndicatorLabel: 'Obfuscation',
-    option: { name: 'Obfuscation', type: 'listbox' },
+    route: RoutePath.antiCensorship,
+    featureIndicatorLabel: 'LWO',
+    option: { name: 'Method', type: 'listbox' },
+  },
+  {
+    testId: 'WireGuard Port',
+    featureIndicator: FeatureIndicator.port,
+    route: RoutePath.antiCensorship,
+    featureIndicatorLabel: 'WireGuard Port',
+    option: { name: 'Method', type: 'listbox' },
   },
   {
     testId: 'multihop',
@@ -102,16 +109,9 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'MTU',
     featureIndicator: FeatureIndicator.customMtu,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.vpnSettings,
     featureIndicatorLabel: 'MTU',
     option: { name: 'MTU', type: 'input' },
-  },
-  {
-    testId: 'bridge mode',
-    featureIndicator: FeatureIndicator.bridgeMode,
-    route: RoutePath.openVpnSettings,
-    featureIndicatorLabel: 'Bridge mode',
-    option: { name: 'Bridge mode', type: 'listbox' },
   },
   {
     testId: 'local network sharing',
@@ -119,13 +119,6 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
     route: RoutePath.vpnSettings,
     featureIndicatorLabel: 'Local network sharing',
     option: { name: 'Local network sharing', type: 'switch' },
-  },
-  {
-    testId: 'Mssfix',
-    featureIndicator: FeatureIndicator.customMssFix,
-    route: RoutePath.openVpnSettings,
-    featureIndicatorLabel: 'Mssfix',
-    option: { name: 'Mssfix', type: 'input' },
   },
   {
     testId: 'lockdown mode',
@@ -137,9 +130,9 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'quantum resistance',
     featureIndicator: FeatureIndicator.quantumResistance,
-    route: RoutePath.wireguardSettings,
+    route: RoutePath.vpnSettings,
     featureIndicatorLabel: 'Quantum resistance',
-    option: { name: 'Quantum-resistant tunnel', type: 'listbox' },
+    option: { name: 'Quantum-resistant tunnel', type: 'switch' },
   },
   {
     testId: 'dns content blockers',
@@ -161,7 +154,7 @@ test.describe('Feature indicators', () => {
 
   test.beforeEach(async () => {
     await helpers.disconnect();
-    await routes.wireguardSettings.goBackToRoute(RoutePath.main);
+    await routes.antiCensorship.goBackToRoute(RoutePath.main);
   });
 
   test.afterAll(async () => {
@@ -212,7 +205,6 @@ test.describe('Feature indicators', () => {
     await helpers.connectWithFeatures([
       FeatureIndicator.daita,
       FeatureIndicator.udp2tcp,
-      FeatureIndicator.customMssFix,
       FeatureIndicator.customMtu,
       FeatureIndicator.lanSharing,
       FeatureIndicator.serverIpOverride,
@@ -230,9 +222,8 @@ test.describe('Feature indicators', () => {
     await expectFeatureIndicators([
       'DAITA',
       'Quantum resistance',
-      'Mssfix',
       'MTU',
-      'Obfuscation',
+      'UDP-over-TCP',
       'Local network sharing',
       'Lockdown mode',
       'Multihop',

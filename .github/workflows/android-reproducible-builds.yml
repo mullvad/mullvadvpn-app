@@ -45,6 +45,7 @@ jobs:
     outputs:
       COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
 
+  # Considered our source of truth.
   build-using-container:
     name: Build fdroid variant using container
     runs-on: ubuntu-latest
@@ -56,9 +57,8 @@ jobs:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           submodules: true
 
-      - name: Fetch submodules and tags
+      - name: Fetch tags
         run: |
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - name: Build app
@@ -149,6 +149,7 @@ jobs:
       matrix:
         include:
           - runs-on: ubuntu-latest
+          # Kept for nix build verification. Not reproducible.
           - runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -157,9 +158,8 @@ jobs:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           submodules: true
 
-      - name: Fetch submodules and tags
+      - name: Fetch tags
         run: |
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - uses: cachix/install-nix-action@v31
@@ -182,21 +182,30 @@ jobs:
     name: Check builds
     runs-on: ubuntu-latest
     needs: [build-using-container, build-using-fdroidserver, build-using-nix]
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact: [apk-fdroidserver, apk-nix-ubuntu-latest]
     steps:
-      - name: Download artifacts
+      - name: Download apk-container (source of truth)
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-          pattern: apk-*
-          merge-multiple: false
+          pattern: apk-container
+
+      - name: Download ${{ matrix.artifact }} for comparison
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: ${{ matrix.artifact }}
 
       - name: Print checksums
         working-directory: ./artifacts
         run: sha256sum */*
 
-      - name: Compare files
+      - name: Compare apk against source of truth
         working-directory: ./artifacts
-        run: diff apk-container/app-oss-prod-fdroid-unsigned.apk apk-fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        run: diff apk-container/app-oss-prod-fdroid-unsigned.apk ${{ matrix.artifact}}/app-oss-prod-fdroid-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.

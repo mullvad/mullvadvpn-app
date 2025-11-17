@@ -6,7 +6,7 @@ mod service;
 mod volume_monitor;
 mod windows;
 
-use crate::{tunnel::TunnelMetadata, tunnel_state_machine::TunnelCommand};
+use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::{mpsc, oneshot};
 use std::{
     collections::HashMap,
@@ -23,6 +23,7 @@ use std::{
     time::Duration,
 };
 use talpid_routing::{CallbackHandle, EventType, RouteManagerHandle, get_best_default_route};
+use talpid_tunnel::TunnelMetadata;
 use talpid_types::{ErrorExt, split_tunnel::ExcludedProcess, tunnel::ErrorStateCause};
 use talpid_windows::{
     io::Overlapped,
@@ -696,13 +697,13 @@ impl SplitTunnel {
 
 impl Drop for SplitTunnel {
     fn drop(&mut self) {
-        if let Some(_event_thread) = self.event_thread.take() {
-            if let Err(error) = self.quit_event.set() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to close ST event thread")
-                );
-            }
+        if let Some(_event_thread) = self.event_thread.take()
+            && let Err(error) = self.quit_event.set()
+        {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to close ST event thread")
+            );
             // Not joining `event_thread`: It may be unresponsive.
         }
 

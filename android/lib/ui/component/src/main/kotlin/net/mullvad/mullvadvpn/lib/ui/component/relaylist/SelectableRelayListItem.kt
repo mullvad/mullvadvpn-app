@@ -26,7 +26,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -75,7 +74,7 @@ fun SelectableRelayListItem(
         modifier = modifier,
         shape = relayListItem.itemPosition.toShape(),
         selected = relayListItem.isSelected,
-        enabled = relayListItem.hop.isActive,
+        enabled = relayListItem.item.active,
         content = {
             Row(
                 modifier =
@@ -87,7 +86,7 @@ fun SelectableRelayListItem(
             ) {
                 val iconTint =
                     when {
-                        !relayListItem.hop.isActive -> MaterialTheme.colorScheme.error
+                        !relayListItem.item.active -> MaterialTheme.colorScheme.error
                         relayListItem.isSelected -> MaterialTheme.colorScheme.tertiary
                         else -> Color.Transparent
                     }
@@ -97,7 +96,7 @@ fun SelectableRelayListItem(
                         contentDescription = null,
                         tint = iconTint,
                     )
-                } else if (!relayListItem.hop.isActive) {
+                } else if (!relayListItem.item.active) {
                     InactiveRelayIndicator(iconTint)
                 }
 
@@ -111,9 +110,9 @@ fun SelectableRelayListItem(
                                 is RelayListItem.RecentListItem -> RECENT_NAME_TAG
                             }
                         ),
-                    name = relayListItem.hop.displayName(LocalContext.current),
+                    name = relayListItem.item.name,
                     state = relayListItem.state,
-                    active = relayListItem.hop.isActive,
+                    active = relayListItem.item.active,
                 )
             }
         },

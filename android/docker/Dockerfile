@@ -19,7 +19,7 @@
 # patch for a given go version can be identified by checking the wireguard-android
 # repo: https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go.
 # It's also important to keep the go path in sync.
-FROM ghcr.io/mullvad/mullvadvpn-app-build:c099f08f8
+FROM ghcr.io/mullvad/mullvadvpn-app-build:dbc170b2c5
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
@@ -70,6 +70,9 @@ ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
 
 # Set up python3 path for the rust gradle plugin
 ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
+
+# Make adb and other platform tools accessible
+ENV PATH="${ANDROID_SDK_ROOT}/platform-tools:${PATH}"
 
 # === Install/set up the image ===
 

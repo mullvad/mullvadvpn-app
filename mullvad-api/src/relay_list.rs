@@ -89,7 +89,6 @@ impl RelayListProxy {
 #[derive(Debug, serde::Deserialize)]
 struct ServerRelayList {
     locations: BTreeMap<String, Location>,
-    openvpn: OpenVpn,
     wireguard: Wireguard,
     bridge: Bridges,
 }
@@ -99,7 +98,6 @@ impl ServerRelayList {
         let mut countries = BTreeMap::new();
         let Self {
             locations,
-            openvpn,
             wireguard,
             bridge,
         } = self;
@@ -128,7 +126,6 @@ impl ServerRelayList {
                 }
                 tag
             }),
-            openvpn: openvpn.extract_relays(&mut countries),
             wireguard: wireguard.extract_relays(&mut countries),
             bridge: bridge.extract_relays(&mut countries),
             countries: countries.into_values().collect(),
@@ -194,44 +191,6 @@ struct Location {
 }
 
 #[derive(Debug, serde::Deserialize)]
-struct OpenVpn {
-    #[serde(flatten)]
-    ports: relay_list::OpenVpnEndpointData,
-    relays: Vec<Relay>,
-}
-
-impl OpenVpn {
-    /// Consumes `self` and appends all its relays to `countries`.
-    fn extract_relays(
-        self,
-        countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> relay_list::OpenVpnEndpointData {
-        for mut openvpn_relay in self.relays.into_iter() {
-            openvpn_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location)
-                && let Some(country) = countries.get_mut(country_code)
-                && let Some(city) = country
-                    .cities
-                    .iter_mut()
-                    .find(|city| city.code == city_code)
-            {
-                let location = location::Location {
-                    country: country.name.clone(),
-                    country_code: country.code.clone(),
-                    city: city.name.clone(),
-                    city_code: city.code.clone(),
-                    latitude: city.latitude,
-                    longitude: city.longitude,
-                };
-                let relay = openvpn_relay.into_openvpn_mullvad_relay(location);
-                city.relays.push(relay);
-            };
-        }
-        self.ports
-    }
-}
-
-#[derive(Debug, serde::Deserialize)]
 struct Relay {
     hostname: String,
     active: bool,
@@ -245,10 +204,6 @@ struct Relay {
 }
 
 impl Relay {
-    fn into_openvpn_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(self, location, relay_list::RelayEndpointData::Openvpn)
-    }
-
     fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
         into_mullvad_relay(self, location, relay_list::RelayEndpointData::Bridge)
     }
@@ -270,7 +225,7 @@ struct Wireguard {
     relays: Vec<WireGuardRelay>,
 }
 
-impl From<&Wireguard> for relay_list::WireguardEndpointData {
+impl From<&Wireguard> for relay_list::EndpointData {
     fn from(wg: &Wireguard) -> Self {
         Self {
             port_ranges: inclusive_range_from_pair_set(wg.port_ranges.clone()).collect(),
@@ -300,8 +255,8 @@ impl Wireguard {
     fn extract_relays(
         self,
         countries: &mut BTreeMap<String, relay_list::RelayListCountry>,
-    ) -> relay_list::WireguardEndpointData {
-        let endpoint_data = relay_list::WireguardEndpointData::from(&self);
+    ) -> relay_list::EndpointData {
+        let endpoint_data = relay_list::EndpointData::from(&self);
         let relays = self.relays;
 
         for mut wireguard_relay in relays {

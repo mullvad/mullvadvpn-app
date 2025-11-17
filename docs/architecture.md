@@ -61,7 +61,7 @@ All API requests can be dropped in flight to allow for resetting the connection 
 established. The API requests can also be blocked when in the offline state or when it's assumed
 that the user hasn't used our client for a period of time.
 
-### Selecting relay and bridge servers
+### Selecting relays
 See [this document](relay-selector.md).
 
 ### Problem reports
@@ -267,8 +267,6 @@ is inferred if such a network exists.
 
 The iOS app uses WireGuard kit's offline detection, which in turn uses [`NWPathMonitor`] to listen
 for changes to the route table and assumes connectivity if a default route exists.
-
-### OpenVPN plugin and communication back to system service
 
 ### Split tunneling
 

@@ -9,7 +9,7 @@ use tokio::fs;
 use vec1::Vec1;
 
 use crate::defaults;
-use crate::format;
+use crate::format::response::SignedResponse;
 use crate::version::{VersionInfo, VersionParameters};
 
 use super::version_provider::VersionInfoProvider;
@@ -100,7 +100,7 @@ impl HttpVersionInfoProvider {
     pub async fn get_versions_for_platform(
         platform: MetaRepositoryPlatform,
         lowest_metadata_version: usize,
-    ) -> anyhow::Result<format::SignedResponse> {
+    ) -> anyhow::Result<SignedResponse> {
         HttpVersionInfoProvider::from(platform)
             .get_versions(lowest_metadata_version)
             .await
@@ -110,12 +110,9 @@ impl HttpVersionInfoProvider {
     ///
     /// By default, `pinned_certificate` will be set to the LE root certificate, and
     /// and the keys in `trusted-metadata-signing-keys` will be used for verification.
-    async fn get_versions(
-        &self,
-        lowest_metadata_version: usize,
-    ) -> anyhow::Result<format::SignedResponse> {
+    async fn get_versions(&self, lowest_metadata_version: usize) -> anyhow::Result<SignedResponse> {
         self.get_versions_inner(|raw_json| {
-            format::SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
+            SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
         })
         .await
     }
@@ -125,10 +122,10 @@ impl HttpVersionInfoProvider {
     async fn get_versions_with_keys(
         &self,
         lowest_metadata_version: usize,
-        verifying_keys: &Vec1<format::key::VerifyingKey>,
-    ) -> anyhow::Result<format::SignedResponse> {
+        verifying_keys: &Vec1<crate::format::key::VerifyingKey>,
+    ) -> anyhow::Result<SignedResponse> {
         self.get_versions_inner(|raw_json| {
-            format::SignedResponse::deserialize_and_verify_at_time(
+            SignedResponse::deserialize_and_verify_at_time(
                 verifying_keys,
                 raw_json,
                 chrono::DateTime::UNIX_EPOCH,
@@ -140,8 +137,8 @@ impl HttpVersionInfoProvider {
 
     async fn get_versions_inner(
         &self,
-        deserialize_fn: impl FnOnce(&[u8]) -> anyhow::Result<format::SignedResponse>,
-    ) -> anyhow::Result<format::SignedResponse> {
+        deserialize_fn: impl FnOnce(&[u8]) -> anyhow::Result<SignedResponse>,
+    ) -> anyhow::Result<SignedResponse> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone(), self.resolve).await?;
         let signed_response = deserialize_fn(&raw_json)?;
         if let Some(path) = &self.dump_to_path {
@@ -231,12 +228,11 @@ impl HttpVersionInfoProvider {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+
     use async_tempfile::TempDir;
     use insta::assert_yaml_snapshot;
     use vec1::vec1;
-
-    use super::*;
-    use crate::format::SignedResponse;
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
     // then most likely the snapshots need to be updated. The most convenient way to review
@@ -270,7 +266,7 @@ mod test {
 
         // Construct query and provider
         let info_provider = HttpVersionInfoProvider {
-            url: url.to_string(),
+            url,
             pinned_certificate: None,
             resolve: Some(resolve),
             dump_to_path: Some(temp_dump.clone()),

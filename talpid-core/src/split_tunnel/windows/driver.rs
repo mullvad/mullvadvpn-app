@@ -545,10 +545,10 @@ fn build_process_tree() -> io::Result<Vec<ProcessInfo>> {
         if parent_pid == 0 {
             continue;
         }
-        if let Some(parent_info) = process_info.get(&parent_pid) {
-            if parent_info.borrow_mut().creation_time > info.creation_time {
-                info.parent_pid = 0;
-            }
+        if let Some(parent_info) = process_info.get(&parent_pid)
+            && parent_info.borrow_mut().creation_time > info.creation_time
+        {
+            info.parent_pid = 0;
         }
     }
 

@@ -37,7 +37,7 @@ androidx-uiautomator = "2.4.0-alpha06"
 androidx-tv = "1.0.1"
 
 # Arrow
-arrow = "2.1.2"
+arrow = "2.2.0"
 
 # Compose
 compose = "1.9.4"
@@ -98,6 +98,9 @@ profileinstaller = "1.4.1"
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
 android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
+# Required for build-logic convention plugins to apply AGP and Kotlin Gradle Plugin
+android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
@@ -207,6 +210,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit4" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose" }
 
 [plugins]
 # Android
@@ -243,3 +247,7 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
+
+# Mullvad
+mullvad-android-library = { id = "mullvad.android-library" }
+mullvad-utilities = { id = "mullvad.utilities" }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -31,6 +32,7 @@ internal fun CheckboxCell(
     checked: Boolean,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     startPadding: Dp = Dimens.smallPadding,
     endPadding: Dp = Dimens.cellEndPadding,
@@ -50,7 +52,7 @@ internal fun CheckboxCell(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyLarge,
+            style = textStyle,
             color = MaterialTheme.colorScheme.onSurface,
             modifier =
                 Modifier.weight(1f)

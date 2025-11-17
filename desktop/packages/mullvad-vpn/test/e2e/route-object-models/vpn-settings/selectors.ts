@@ -5,5 +5,5 @@ export const createSelectors = (page: Page) => ({
   launchAppOnStartupSwitch: () => page.getByRole('switch', { name: 'Launch app on start-up' }),
   autoConnectSwitch: () => page.getByRole('switch', { name: 'Auto-connect' }),
   lanSwitch: () => page.getByRole('switch', { name: 'Local network sharing' }),
-  wireguardSettingsButton: () => page.getByRole('button', { name: 'WireGuard settings' }),
+  antiCensorship: () => page.getByRole('button', { name: 'Anti-censorship' }),
 });

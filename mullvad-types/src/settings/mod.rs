@@ -3,16 +3,16 @@ use crate::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeSettings, BridgeState, GeographicLocationConstraint, LocationConstraint,
-        ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
-        RelaySettingsFormatter, SelectedObfuscation, WireguardConstraints,
+        BridgeSettings, GeographicLocationConstraint, LocationConstraint, ObfuscationSettings,
+        RelayConstraints, RelayOverride, RelaySettings, RelaySettingsFormatter,
+        SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
-use talpid_types::net::{GenericTunnelOptions, openvpn};
+use talpid_types::net::GenericTunnelOptions;
 
 mod dns;
 
@@ -78,9 +78,9 @@ impl Serialize for SettingsVersion {
 #[serde(default)]
 pub struct Settings {
     pub relay_settings: RelaySettings,
+    // TODO: remove
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
-    pub bridge_state: BridgeState,
     /// All of the custom relay lists
     pub custom_lists: CustomListsSettings,
     /// API access methods
@@ -276,7 +276,6 @@ impl Default for Settings {
                 selected_obfuscation: SelectedObfuscation::Auto,
                 ..Default::default()
             },
-            bridge_state: BridgeState::Auto,
             custom_lists: CustomListsSettings::default(),
             api_access_methods: access_method::Settings::default(),
             allow_lan: false,
@@ -307,10 +306,6 @@ impl Settings {
 
     pub fn set_relay_settings(&mut self, new_settings: RelaySettings) {
         if self.relay_settings != new_settings {
-            if !new_settings.supports_bridge() && BridgeState::On == self.bridge_state {
-                self.bridge_state = BridgeState::Auto;
-            }
-
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
                 RelaySettingsFormatter {
@@ -366,10 +361,10 @@ impl Settings {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct TunnelOptions {
-    /// openvpn holds OpenVPN specific tunnel options.
-    pub openvpn: openvpn::TunnelOptions,
     /// Contains wireguard tunnel options.
     pub wireguard: wireguard::TunnelOptions,
+
+    // TODO: should this still exist?
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     pub generic: GenericTunnelOptions,
     /// DNS options.
@@ -381,7 +376,6 @@ pub use dns::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState};
 impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
-            openvpn: openvpn::TunnelOptions::default(),
             wireguard: wireguard::TunnelOptions::default(),
             generic: GenericTunnelOptions {
                 // Enable IPv6 by default on Android and macOS

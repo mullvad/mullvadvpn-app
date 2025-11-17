@@ -9,6 +9,12 @@ on:
       - ios/wireguard-apple
       - ios/**/*.swift
       - ios/**/*.xctestplan
+      # Rust code is generally checked in the ios-rust-ffi.yml workflow,
+      # But changing the Rust compiler can affect Swift->Rust linking not detected
+      # by that workflow, so we trigger the full iOS build on it.
+      - rust-toolchain.toml
+      # Changes to the FFI can affect the linking but not be detected `ios-rust-ffi.yml`.
+      - 'mullvad-ios/**'
   workflow_dispatch:
 
 permissions: {}

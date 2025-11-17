@@ -2,6 +2,7 @@ import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
 import { AccountRouteObjectModel } from './account';
+import { AntiCensorshipRouteObjectModel } from './anti-censorship';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { DeviceRevokedRouteObjectModel } from './device-revoked';
 import { ExpiredRouteObjectModel } from './expired';
@@ -24,7 +25,7 @@ import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
 import { VoucherSuccessRouteObjectModel } from './voucher-success';
 import { VpnSettingsRouteObjectModel } from './vpn-settings';
-import { WireguardSettingsRouteObjectModel } from './wireguard-settings';
+import { WireGuardPortRouteObjectModel } from './wireguard-port';
 
 export class RoutesObjectModel {
   readonly main: MainRouteObjectModel;
@@ -43,7 +44,7 @@ export class RoutesObjectModel {
   readonly filter: FilterRouteObjectModel;
   readonly selectLocation: SelectLocationRouteObjectModel;
   readonly vpnSettings: VpnSettingsRouteObjectModel;
-  readonly wireguardSettings: WireguardSettingsRouteObjectModel;
+  readonly antiCensorship: AntiCensorshipRouteObjectModel;
   readonly udpOverTcpSettings: UdpOverTcpSettingsRouteObjectModel;
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
@@ -51,6 +52,7 @@ export class RoutesObjectModel {
   readonly shadowsocksSettings: ShadowsocksSettingsRouteObjectModel;
   readonly account: AccountRouteObjectModel;
   readonly manageDevices: ManageDevicesRouteObjectModel;
+  readonly wireguardPort: WireGuardPortRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -69,7 +71,7 @@ export class RoutesObjectModel {
     this.filter = new FilterRouteObjectModel(page, utils);
     this.selectLocation = new SelectLocationRouteObjectModel(page, utils);
     this.vpnSettings = new VpnSettingsRouteObjectModel(page, utils);
-    this.wireguardSettings = new WireguardSettingsRouteObjectModel(page, utils);
+    this.antiCensorship = new AntiCensorshipRouteObjectModel(page, utils);
     this.udpOverTcpSettings = new UdpOverTcpSettingsRouteObjectModel(page, utils);
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
@@ -77,5 +79,6 @@ export class RoutesObjectModel {
     this.shadowsocksSettings = new ShadowsocksSettingsRouteObjectModel(page, utils);
     this.account = new AccountRouteObjectModel(page, utils);
     this.manageDevices = new ManageDevicesRouteObjectModel(page, utils);
+    this.wireguardPort = new WireGuardPortRouteObjectModel(page, utils);
   }
 }

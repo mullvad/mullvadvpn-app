@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -21,22 +21,20 @@ import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
-import net.mullvad.mullvadvpn.usecase.SelectHopError
-import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectRelayItemError
+import net.mullvad.mullvadvpn.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
@@ -44,14 +42,13 @@ import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseC
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.util.combine
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class SearchLocationViewModel(
-    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
     private val relayListFilterRepository: RelayListFilterRepository,
     private val filterChipUseCase: FilterChipUseCase,
-    private val selectHopUseCase: SelectHopUseCase,
+    private val selectSinglehopUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val settingsRepository: SettingsRepository,
     filteredRelayListUseCase: FilteredRelayListUseCase,
@@ -148,22 +145,23 @@ class SearchLocationViewModel(
                             MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
                         }
                     )
-                RelayListType.Single -> selectHop(hop = Hop.Single(relayItem))
+                RelayListType.Single -> selectSinglehop(item = relayItem)
             }
         }
     }
 
-    private suspend fun selectHop(hop: Hop.Single<*>) =
-        selectHopUseCase(hop)
+    private suspend fun selectSinglehop(item: RelayItem) =
+        selectSinglehopUseCase(item)
             .fold(
                 {
                     _uiSideEffect.send(
                         when (it) {
-                            SelectHopError.EntryAndExitSame ->
+                            SelectRelayItemError.EntryAndExitSame ->
                                 error("Entry and exit should not be the same when using Single hop")
-                            SelectHopError.GenericError -> SearchLocationSideEffect.GenericError
-                            is SelectHopError.HopInactive ->
-                                SearchLocationSideEffect.RelayItemInactive(hop.relay)
+                            SelectRelayItemError.GenericError ->
+                                SearchLocationSideEffect.GenericError
+                            is SelectRelayItemError.RelayInactive ->
+                                SearchLocationSideEffect.RelayItemInactive(item)
                         }
                     )
                 },
@@ -209,10 +207,7 @@ class SearchLocationViewModel(
         }
 
     private fun filterChips() =
-        combine(
-            filterChipUseCase(relayListType),
-            wireguardConstraintsRepository.wireguardConstraints,
-        ) { filterChips, constraints ->
+        filterChipUseCase(relayListType).map { filterChips ->
             filterChips.toMutableList().apply {
                 // Only show entry and exit filter chips if relayListType is Multihop
                 if (relayListType is RelayListType.Multihop) {

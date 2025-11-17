@@ -62,7 +62,7 @@ use mullvad_types::{
     features::{FeatureIndicator, FeatureIndicators, compute_feature_indicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
-        BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
+        BridgeSettings, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
         allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
@@ -71,8 +71,10 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+#[cfg(target_os = "android")]
+use mullvad_update::version::rollout::SUPPORTED_VERSION;
 #[cfg(not(target_os = "android"))]
-use mullvad_update::version::generate_rollout_seed;
+use mullvad_update::version::rollout::{Rollout, generate_rollout_seed};
 use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
@@ -103,7 +105,7 @@ use talpid_types::android::AndroidContext;
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
     ErrorExt,
-    net::{IpVersion, TunnelType},
+    net::IpVersion,
     tunnel::{ErrorStateCause, TunnelStateTransition},
 };
 use tokio::io;
@@ -278,12 +280,8 @@ pub enum DaemonCommand {
     SetLockdownMode(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
-    /// Set the mssfix argument for OpenVPN
-    SetOpenVpnMssfix(ResponseTx<(), settings::Error>, Option<u16>),
-    /// Set proxy details for OpenVPN
+    /// Set proxy details for Bridges
     SetBridgeSettings(ResponseTx<(), Error>, BridgeSettings),
-    /// Set proxy state
-    SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set if recents should be enabled
@@ -430,6 +428,20 @@ pub enum DaemonCommand {
         relay: String,
         tx: oneshot::Sender<()>,
     },
+    /// Calculate and return the rollout threshold for this client.
+    #[cfg(not(target_os = "android"))]
+    GetRolloutThreshold(oneshot::Sender<f32>),
+    /// Generate a new rollout threshold seed and update settings. Returns the new rollout
+    /// threshold.
+    #[cfg(not(target_os = "android"))]
+    GenerateNewRolloutSeed(oneshot::Sender<f32>),
+    /// Set the rollout threshold seed to the provided value and update settings.
+    #[cfg(not(target_os = "android"))]
+    SetRolloutThresholdSeed {
+        seed: u32,
+        tx: oneshot::Sender<()>,
+    },
+
     // App upgrade
     /// Prompt the daemon to start an app version upgrade.
     ///
@@ -953,10 +965,10 @@ impl Daemon {
             let version = mullvad_version::VERSION
                 .parse()
                 .expect("App version to be parsable");
-            mullvad_update::version::Rollout::threshold(seed, version)
+            Rollout::threshold(seed, version)
         };
         #[cfg(target_os = "android")]
-        let rollout = mullvad_update::version::SUPPORTED_VERSION;
+        let rollout = SUPPORTED_VERSION;
         let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
             api_handle.availability.clone(),
@@ -1458,11 +1470,9 @@ impl Daemon {
                 self.on_set_lockdown_mode(tx, lockdown_mode).await
             }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect).await,
-            SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg).await,
             SetBridgeSettings(tx, bridge_settings) => {
                 self.on_set_bridge_settings(tx, bridge_settings).await
             }
-            SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
             SetEnableRecents(tx, enable_recents) => {
                 self.on_set_enable_recents(tx, enable_recents).await
@@ -1558,6 +1568,19 @@ impl Daemon {
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
             DisableRelay { relay, tx } => self.on_toggle_relay(relay, false, tx),
             EnableRelay { relay, tx } => self.on_toggle_relay(relay, true, tx),
+            #[cfg(not(target_os = "android"))]
+            GetRolloutThreshold(tx) => self.on_get_rollout_threshold(tx).await,
+            #[cfg(not(target_os = "android"))]
+            GenerateNewRolloutSeed(tx) => {
+                let seed = self.generate_and_set().await;
+                let threshold = Self::calculate_rollout_threshold(seed);
+                let _ = tx.send(threshold);
+            }
+            #[cfg(not(target_os = "android"))]
+            SetRolloutThresholdSeed { seed, tx } => {
+                self.set_rollout_threshold_seed(seed).await;
+                let _ = tx.send(());
+            }
             AppUpgrade(tx) => self.on_app_upgrade(tx).await,
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
             GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
@@ -1613,9 +1636,7 @@ impl Daemon {
                 }
             }
             AccountEvent::Device(PrivateDeviceEvent::RotatedKey(_)) => {
-                if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
-                    self.schedule_reconnect(WG_RECONNECT_DELAY);
-                }
+                self.schedule_reconnect(WG_RECONNECT_DELAY);
             }
             AccountEvent::Expiry(expiry) if *self.target_state == TargetState::Secured => {
                 if expiry >= &chrono::Utc::now() {
@@ -1625,7 +1646,7 @@ impl Daemon {
                         log::debug!("Reconnecting since the account has time on it");
                         self.connect_tunnel();
                     }
-                } else if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
+                } else {
                     log::debug!("Entering blocking state since the account is out of time");
                     self.send_tunnel_command(TunnelCommand::Block(ErrorStateCause::AuthFailed(
                         Some(AuthFailed::ExpiredAccount.as_str().to_string()),
@@ -2528,32 +2549,6 @@ impl Daemon {
         }
     }
 
-    async fn on_set_openvpn_mssfix(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        mssfix: Option<u16>,
-    ) {
-        match self
-            .settings
-            .update(move |settings| settings.tunnel_options.openvpn.mssfix = mssfix)
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
-                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
-                    log::info!(
-                        "Initiating tunnel restart because the OpenVPN mssfix setting changed"
-                    );
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_openvpn_mssfix response");
-            }
-        }
-    }
-
     async fn on_set_bridge_settings(
         &mut self,
         tx: ResponseTx<(), Error>,
@@ -2623,34 +2618,6 @@ impl Daemon {
         }
     }
 
-    async fn on_set_bridge_state(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        bridge_state: BridgeState,
-    ) {
-        let result = match self
-            .settings
-            .update(move |settings| settings.bridge_state = bridge_state)
-            .await
-        {
-            Ok(settings_changed) => {
-                if settings_changed {
-                    log::info!("Initiating tunnel restart because bridge state changed");
-                    self.reconnect_tunnel();
-                }
-                Ok(())
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to set new bridge state")
-                );
-                Err(error)
-            }
-        };
-        Self::oneshot_send(tx, result, "on_set_bridge_state response");
-    }
-
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
         match self
             .settings
@@ -2714,8 +2681,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_quantum_resistant_tunnel response");
-                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::Wireguard)
-                {
+                if settings_changed {
                     log::info!("Reconnecting because the PQ safety setting changed");
                     self.reconnect_tunnel();
                 }
@@ -2739,13 +2705,11 @@ impl Daemon {
         match result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_enabled response");
-                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                if let RelaySettings::CustomTunnelEndpoint(_) = &self.settings.relay_settings {
                     return; // DAITA is not supported for custom relays
-                };
+                }
 
-                let wireguard_enabled = constraints.tunnel_protocol == TunnelType::Wireguard;
-
-                if settings_changed && wireguard_enabled {
+                if settings_changed {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
@@ -2777,15 +2741,13 @@ impl Daemon {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_use_multihop_if_necessary response");
 
-                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                if let RelaySettings::CustomTunnelEndpoint(_) = &self.settings.relay_settings {
                     return; // DAITA is not supported for custom relays
-                };
-
-                let wireguard_enabled = constraints.tunnel_protocol == TunnelType::Wireguard;
+                }
 
                 let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
 
-                if settings_changed && wireguard_enabled && daita_enabled {
+                if settings_changed && daita_enabled {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
@@ -2810,7 +2772,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
-                if settings_changed && self.get_target_tunnel_type() != Some(TunnelType::OpenVpn) {
+                if settings_changed {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
@@ -2908,9 +2870,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
-                if settings_changed
-                    && let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type()
-                {
+                if settings_changed {
                     log::info!(
                         "Initiating tunnel restart because the WireGuard MTU setting changed"
                     );
@@ -2971,9 +2931,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_allowed_ips response");
-                if settings_changed
-                    && let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type()
-                {
+                if settings_changed {
                     log::info!(
                         "Initiating tunnel restart because the WireGuard allowed IPs setting changed"
                     );
@@ -3262,6 +3220,48 @@ impl Daemon {
         self.reconnect_tunnel();
     }
 
+    #[cfg(not(target_os = "android"))]
+    async fn on_get_rollout_threshold(&mut self, reply: oneshot::Sender<f32>) {
+        let seed = match self.settings.rollout_threshold_seed {
+            Some(seed) => seed,
+            None => self.generate_and_set().await,
+        };
+        let _ = reply.send(Self::calculate_rollout_threshold(seed));
+    }
+
+    #[cfg(not(target_os = "android"))]
+    fn calculate_rollout_threshold(seed: u32) -> f32 {
+        let version = mullvad_version::VERSION
+            .parse::<mullvad_version::Version>()
+            .expect("Failed to parse version");
+        let threshold = Rollout::threshold(seed, version);
+        // a tiny bit hacky way to map Rollout -> f32, but it works.
+        threshold
+            .to_string()
+            .parse()
+            .expect("threshold is a valid Rollout is a valid f32")
+    }
+
+    // Regenrate a new seed and store it to settings.
+    #[cfg(not(target_os = "android"))]
+    async fn generate_and_set(&mut self) -> u32 {
+        let seed = generate_rollout_seed();
+        self.set_rollout_threshold_seed(seed).await;
+        seed
+    }
+
+    // Store the given seed to settings.
+    #[cfg(not(target_os = "android"))]
+    async fn set_rollout_threshold_seed(&mut self, seed: u32) {
+        if let Err(err) = self
+            .settings
+            .update(|settings| settings.rollout_threshold_seed = Some(seed))
+            .await
+        {
+            log::warn!("Failed to save settings when updating rollout seed: {err}");
+        }
+    }
+
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
         if tx.send(t).is_err() {
             log::warn!("Unable to send {} to the daemon command sender", msg);
@@ -3404,10 +3404,8 @@ impl Daemon {
                         let matching_city = relay == city.name;
                         for settings_relay in &mut city.relays {
                             // `relay` can also be a VPN protocol. This is arbitrary, but useful.
-                            let matching_protocol = (relay.to_lowercase().eq("openvpn")
-                                && settings_relay.is_openvpn())
-                                || (relay.to_lowercase().eq("wireguard")
-                                    && settings_relay.is_wireguard());
+                            let matching_protocol = relay.to_lowercase().eq("wireguard")
+                                && settings_relay.is_wireguard();
                             let matching_relay = relay == settings_relay.hostname;
 
                             if matching_relay
@@ -3522,17 +3520,6 @@ impl Daemon {
         if *self.target_state == TargetState::Secured {
             self.connect_tunnel();
         }
-    }
-
-    const fn get_connected_tunnel_type(&self) -> Option<TunnelType> {
-        match self.tunnel_state.get_tunnel_type() {
-            Some(tunnel_type) if self.tunnel_state.is_connected() => Some(tunnel_type),
-            Some(_) | None => None,
-        }
-    }
-
-    const fn get_target_tunnel_type(&self) -> Option<TunnelType> {
-        self.tunnel_state.get_tunnel_type()
     }
 
     fn send_tunnel_command(&self, command: TunnelCommand) {

@@ -9,7 +9,7 @@ mod relay_selector;
 // Re-exports
 pub use error::Error;
 pub use relay_selector::{
-    AdditionalRelayConstraints, AdditionalWireguardConstraints, GetRelay, OPENVPN_RETRY_ORDER,
-    RelaySelector, SelectedBridge, SelectedObfuscator, SelectorConfig, WIREGUARD_RETRY_ORDER,
-    detailer, matcher, matcher::filter_matching_relay_list, query, relays::WireguardConfig,
+    AdditionalRelayConstraints, AdditionalWireguardConstraints, GetRelay, RETRY_ORDER,
+    RelaySelector, SelectedObfuscator, SelectorConfig, detailer, matcher,
+    matcher::filter_matching_relay_list, query, relays::WireguardConfig,
 };

@@ -3,10 +3,13 @@ package net.mullvad.mullvadvpn.test.common.page
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
+import java.util.Locale
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
@@ -61,6 +64,10 @@ class VpnSettingsPage internal constructor() : Page() {
         scrollUntilCell(WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG)
     }
 
+    fun scrollUntilWireGuardCustomPort() {
+        scrollUntilCell(LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG)
+    }
+
     fun clickWireguardObfuscationUdpOverTcpCell() {
         uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
     }
@@ -94,9 +101,17 @@ class VpnSettingsPage internal constructor() : Page() {
         scrollView2.scrollUntil(Direction.DOWN, Until.hasObject(By.res(testTag)))
     }
 
-    fun clickWireguardCustomPort() {
+    fun clickWireguardCustomPort(port: Int? = null) {
         uiDevice
-            .findObjectWithTimeout(By.res(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
+            .let {
+                if (port != null) {
+                    it.findObjectWithTimeout(
+                        By.res(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG.format(Locale.US, port))
+                    )
+                } else {
+                    it.findObjectWithTimeout(By.res(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
+                }
+            }
             .click()
     }
 }

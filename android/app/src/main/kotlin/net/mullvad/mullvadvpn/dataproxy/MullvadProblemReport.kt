@@ -7,8 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.service.BuildConfig
+import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 
 const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"
 
@@ -30,12 +32,15 @@ class MullvadProblemReport(
     private val apiEndpointOverride: ApiEndpointOverride?,
     private val apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder,
     private val accountRepository: AccountRepository,
+    kermitFileLogDirName: String,
+    private val paymentUseCase: PaymentUseCase,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
     private val cacheDirectory = File(context.cacheDir.toURI())
     private val logDirectory = File(context.filesDir.toURI())
-    private val logsPath = File(logDirectory, PROBLEM_REPORT_LOGS_FILE)
+    private val problemReportOutputPath = File(logDirectory, PROBLEM_REPORT_LOGS_FILE)
+    private val kermitFileLogDirPath = File(logDirectory, kermitFileLogDirName)
 
     init {
         System.loadLibrary("mullvad_jni")
@@ -46,7 +51,18 @@ class MullvadProblemReport(
             // Delete any old report
             deleteLogs()
 
-            collectReport(logDirectory.absolutePath, logsPath.absolutePath)
+            val availableProducts = paymentUseCase.allAvailableProducts()
+
+            collectReport(
+                logDirectory = logDirectory.absolutePath,
+                kermitFileLogDir = kermitFileLogDirPath.absolutePath,
+                problemReportOutputPath = problemReportOutputPath.absolutePath,
+                unverifiedPurchases =
+                    availableProducts?.count { it.status == PaymentStatus.VERIFICATION_IN_PROGRESS }
+                        ?: 0,
+                pendingPurchases =
+                    availableProducts?.count { it.status == PaymentStatus.PENDING } ?: 0,
+            )
         }
 
     suspend fun sendReport(
@@ -77,7 +93,7 @@ class MullvadProblemReport(
                         } else {
                             null
                         },
-                    reportPath = logsPath.absolutePath,
+                    reportPath = problemReportOutputPath.absolutePath,
                     cacheDirectory = cacheDirectory.absolutePath,
                     apiEndpointOverride = apiOverride,
                 )
@@ -97,20 +113,26 @@ class MullvadProblemReport(
         }
 
         return if (logsExists()) {
-            logsPath.readLines()
+            problemReportOutputPath.readLines()
         } else {
             listOf("Failed to collect logs for problem report")
         }
     }
 
-    private fun logsExists() = logsPath.exists()
+    private fun logsExists() = problemReportOutputPath.exists()
 
     fun deleteLogs() {
-        logsPath.delete()
+        problemReportOutputPath.delete()
     }
 
     // TODO We should remove the external functions from this class and migrate it to the service
-    private external fun collectReport(logDirectory: String, logsPath: String): Boolean
+    private external fun collectReport(
+        logDirectory: String,
+        kermitFileLogDir: String,
+        problemReportOutputPath: String,
+        unverifiedPurchases: Int,
+        pendingPurchases: Int,
+    ): Boolean
 
     private external fun sendProblemReport(
         userEmail: String,

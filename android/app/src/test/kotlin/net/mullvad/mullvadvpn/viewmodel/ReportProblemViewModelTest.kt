@@ -45,6 +45,7 @@ class ReportProblemViewModelTest {
                 mockMullvadProblemReport,
                 mockProblemReportRepository,
                 mockAccountRepository,
+                isPlayBuild = false,
             )
     }
 

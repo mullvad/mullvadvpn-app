@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.relaylist.filter
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.util.ipVersionConstraint
 import net.mullvad.mullvadvpn.util.isDaitaAndDirectOnly
 import net.mullvad.mullvadvpn.util.isLwoEnabled
@@ -24,7 +23,6 @@ class FilteredRelayListUseCase(
     private val relayListRepository: RelayListRepository,
     private val relayListFilterRepository: RelayListFilterRepository,
     private val settingsRepository: SettingsRepository,
-    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
     operator fun invoke(relayListType: RelayListType) =
         combine(
@@ -32,8 +30,7 @@ class FilteredRelayListUseCase(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
             settingsRepository.settingsUpdates,
-            wireguardConstraintsRepository.wireguardConstraints,
-        ) { relayList, selectedOwnership, selectedProviders, settings, wireguardConstraints ->
+        ) { relayList, selectedOwnership, selectedProviders, settings ->
             relayList.filter(
                 ownership = selectedOwnership,
                 providers = selectedProviders,

@@ -1,12 +1,14 @@
 #![cfg(target_os = "linux")]
 
+use nix::unistd::geteuid;
 use tokio::process::Command;
 
 /// Re-launch self with rootlesskit if we're not root.
 /// Allows for rootless and containerized networking.
 /// The VNC port is published to localhost.
 pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
-    if unsafe { libc::geteuid() } == 0 {
+    // check if user is root (`man getuid`).
+    if geteuid().is_root() {
         return;
     }
 

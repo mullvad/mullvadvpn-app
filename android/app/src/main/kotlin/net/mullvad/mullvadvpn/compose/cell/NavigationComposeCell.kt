@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -73,7 +73,11 @@ fun NavigationComposeCell(
     onClick: () -> Unit,
     testTag: String = "",
     bodyView: @Composable () -> Unit = {
-        Icon(Icons.Default.ChevronRight, contentDescription = title, tint = textColor)
+        Icon(
+            Icons.AutoMirrored.Default.KeyboardArrowRight,
+            contentDescription = title,
+            tint = textColor,
+        )
     },
 ) {
     BaseCell(
@@ -146,7 +150,7 @@ internal fun NavigationCellBody(
             DefaultExternalLinkView(content, tint = contentColor)
         } else {
             Icon(
-                Icons.Default.ChevronRight,
+                Icons.AutoMirrored.Default.KeyboardArrowRight,
                 tint = contentColor,
                 contentDescription = contentBodyDescription,
             )

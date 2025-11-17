@@ -166,14 +166,13 @@ impl PowerManagementListener {
         let (tx, rx) = tokio::sync::broadcast::channel(16);
 
         let power_broadcast_callback = move |window, message, wparam, lparam| {
-            if message == WM_POWERBROADCAST {
-                if let Some(event) = PowerManagementEvent::try_from_winevent(wparam) {
-                    if tx.send(event).is_err() {
-                        log::error!("Stopping power management event monitor");
-                        unsafe { PostQuitMessage(0) };
-                        return 0;
-                    }
-                }
+            if message == WM_POWERBROADCAST
+                && let Some(event) = PowerManagementEvent::try_from_winevent(wparam)
+                && tx.send(event).is_err()
+            {
+                log::error!("Stopping power management event monitor");
+                unsafe { PostQuitMessage(0) };
+                return 0;
             }
             unsafe { DefWindowProcW(window, message, wparam, lparam) }
         };

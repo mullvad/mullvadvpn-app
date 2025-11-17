@@ -1,7 +1,6 @@
 use super::{Error, TestContext, config::TEST_CONFIG, helpers};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-use mullvad_types::relay_constraints::RelaySettings;
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -95,8 +94,7 @@ pub async fn test_ui_tunnel_settings(
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
     let entry =
-        helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::wireguard().build())
-            .await?;
+        helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::new().build()).await?;
 
     let ui_result = run_test_env(
         &rpc,
@@ -114,28 +112,6 @@ pub async fn test_ui_tunnel_settings(
     .unwrap();
     assert!(ui_result.success());
 
-    Ok(())
-}
-
-/// Test how various tunnel settings for OpenVPN are handled and displayed by the GUI
-#[test_function]
-pub async fn test_ui_openvpn_tunnel_settings(
-    _: TestContext,
-    rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> anyhow::Result<()> {
-    // openvpn-tunnel-state.spec precondition: OpenVPN needs to be selected
-    let relay_settings = mullvad_client.get_settings().await?.get_relay_settings();
-    let RelaySettings::Normal(mut constraints) = relay_settings else {
-        unimplemented!()
-    };
-    constraints.tunnel_protocol = talpid_types::net::TunnelType::OpenVpn;
-    mullvad_client
-        .set_relay_settings(RelaySettings::Normal(constraints))
-        .await?;
-
-    let ui_result = run_test(&rpc, &["openvpn-tunnel-state.spec"]).await?;
-    assert!(ui_result.success());
     Ok(())
 }
 
@@ -220,60 +196,6 @@ async fn test_custom_access_methods_gui(
             (
                 "SHADOWSOCKS_SERVER_PASSWORD",
                 access_method.password.as_ref(),
-            ),
-        ],
-    )
-    .await
-    .unwrap();
-
-    assert!(ui_result.success());
-
-    Ok(())
-}
-
-#[test_function(priority = 1000)]
-async fn test_custom_bridge_gui(
-    _: TestContext,
-    rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    // For this test to work, we need to supply the following env-variables:
-    //
-    // * SHADOWSOCKS_SERVER_IP
-    // * SHADOWSOCKS_SERVER_PORT
-    // * SHADOWSOCKS_SERVER_CIPHER
-    // * SHADOWSOCKS_SERVER_PASSWORD
-    //
-    // See
-    // `desktop/packages/mullvad-vpn/test/e2e/installed/state-dependent/custom-bridge.spec.ts`
-    // for details. The setup should be the same as in
-    // `test_manager::tests::access_methods::test_shadowsocks`.
-
-    let gui_test = "custom-bridge.spec";
-
-    let settings = mullvad_client.get_settings().await.unwrap();
-    let relay_list = mullvad_client.get_relay_locations().await.unwrap();
-    let relay_selector = helpers::get_daemon_relay_selector(&settings, relay_list);
-    let custom_proxy = relay_selector
-        .get_bridge_forced()
-        .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
-
-    let ui_result = run_test_env(
-        &rpc,
-        &[gui_test],
-        [
-            (
-                "SHADOWSOCKS_SERVER_IP",
-                custom_proxy.endpoint.ip().to_string().as_ref(),
-            ),
-            (
-                "SHADOWSOCKS_SERVER_PORT",
-                custom_proxy.endpoint.port().to_string().as_ref(),
-            ),
-            ("SHADOWSOCKS_SERVER_CIPHER", custom_proxy.cipher.as_ref()),
-            (
-                "SHADOWSOCKS_SERVER_PASSWORD",
-                custom_proxy.password.as_ref(),
             ),
         ],
     )

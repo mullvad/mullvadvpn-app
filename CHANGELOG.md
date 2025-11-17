@@ -25,6 +25,25 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Change `mullvad reconnect` to print an error message and exit with a non-zero exit code if issued
   in the disconnected state.
+- Move settings in `WireGuard settings` view into the `VPN settings` view.
+  - Rename `Enable IpV6` setting to `In-tunnel IPv6`.
+  - Rename `IP version` setting to `Device IP version`.
+  - Merge `Obfuscation` settings and `WireGuard port` setting into new `Anti-censorship` view.
+
+### Removed
+- Remove OpenVPN support from the app.
+  - See blog post for more info: https://mullvad.net/en/blog/removing-openvpn-15th-january-2026
+- Remove "Automatic" as a setting for the "Quantum-resistant tunnel" option.
+
+
+## [2025.13] - 2025-11-06
+This release is identical to 2025.13-beta2.
+
+
+## [2025.13-beta2] - 2025-10-28
+### Fixed
+- Fix bug introduced in 2025.13-beta1 with translations sometimes not being formatted
+  correctly.
 
 
 ## [2025.13-beta1] - 2025-10-20
@@ -43,6 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 36.5.0 to 37.6.0.
 - Run version check hourly and when interacting with the app instead of once per day.
 - Add support for gradual rollouts of new app releases
+
 
 ### Fixed
 #### macOS
