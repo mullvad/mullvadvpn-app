@@ -10,10 +10,17 @@ sealed interface HopSelection {
     data class Multi(val entry: Constraint<RelayItem>?, val exit: Constraint<RelayItem>?) :
         HopSelection
 
-    fun exit() = when(this) {
-        is Multi -> exit
-        is Single -> relay
-    }
+    fun entry() =
+        when (this) {
+            is Multi -> entry
+            is Single -> relay
+        }
+
+    fun exit() =
+        when (this) {
+            is Multi -> exit
+            is Single -> relay
+        }
 }
 
 @optics
