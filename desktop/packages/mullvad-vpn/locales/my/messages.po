@@ -387,7 +387,7 @@ msgctxt "accessibility"
 msgid "More information"
 msgstr "နောက်ထပ်အချက်အလက်"
 
-#. Accessibility label for link to go to download page.
+#. Accessbility label for link to go to download page.
 msgctxt "accessibility"
 msgid "New version available, click here to go to download page, opens externally"
 msgstr "ဗားရှင်းအသစ်ကို ရရှိနိုင်ပါပြီ၊ ဒေါင်းလုဒ်စာမျက်နှာသို့ သွားရန် ဤနေရာကို နှိပ်ပါ၊ ပြင်ပတွင် ဖွင့်ပါလိမ့်မည်"
