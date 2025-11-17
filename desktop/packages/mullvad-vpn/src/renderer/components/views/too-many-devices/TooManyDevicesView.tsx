@@ -48,44 +48,42 @@ export function TooManyDevicesView() {
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
       <StyledCustomScrollbars fillContainer>
-        <FlexColumn gap="large">
-          <View.Container flexDirection="column" marginInline="medium">
-            <Flex justifyContent="center" margin={{ top: 'large' }}>
-              <IconBadge key={imageSource} state={imageSource} />
-            </Flex>
-          </View.Container>
-          {devices !== undefined && (
-            <>
-              <View.Container flexDirection="column" marginInline="medium" gap="small">
-                <Text variant="titleLarge" data-testid="title">
-                  {title}
-                </Text>
-                <Text variant="labelTiny">{subtitle}</Text>
-              </View.Container>
-              <DeviceList devices={devices} />
-            </>
-          )}
-
-          {devices !== undefined && (
-            <View.Container
-              flexDirection="column"
-              marginInline="medium"
-              gap="medium"
-              padding={{ bottom: 'large' }}>
-              <Button variant="success" onClick={continueLogin} disabled={continueButtonDisabled}>
-                <Button.Text>
-                  {
-                    // TRANSLATORS: Button for continuing login process.
-                    messages.pgettext('device-management', 'Continue with login')
-                  }
-                </Button.Text>
-              </Button>
-              <Button onClick={cancel}>
-                <Button.Text>{messages.gettext('Back')}</Button.Text>
-              </Button>
+        <View.Content>
+          <FlexColumn gap="large">
+            <View.Container flexDirection="column" marginInline="medium">
+              <Flex justifyContent="center" margin={{ top: 'large' }}>
+                <IconBadge key={imageSource} state={imageSource} />
+              </Flex>
             </View.Container>
-          )}
-        </FlexColumn>
+            {devices !== undefined && (
+              <>
+                <View.Container flexDirection="column" marginInline="medium" gap="small">
+                  <Text variant="titleLarge" data-testid="title">
+                    {title}
+                  </Text>
+                  <Text variant="labelTiny">{subtitle}</Text>
+                </View.Container>
+                <DeviceList devices={devices} />
+              </>
+            )}
+
+            {devices !== undefined && (
+              <View.Container flexDirection="column" marginInline="medium" gap="medium">
+                <Button variant="success" onClick={continueLogin} disabled={continueButtonDisabled}>
+                  <Button.Text>
+                    {
+                      // TRANSLATORS: Button for continuing login process.
+                      messages.pgettext('device-management', 'Continue with login')
+                    }
+                  </Button.Text>
+                </Button>
+                <Button onClick={cancel}>
+                  <Button.Text>{messages.gettext('Back')}</Button.Text>
+                </Button>
+              </View.Container>
+            )}
+          </FlexColumn>
+        </View.Content>
       </StyledCustomScrollbars>
     </View>
   );

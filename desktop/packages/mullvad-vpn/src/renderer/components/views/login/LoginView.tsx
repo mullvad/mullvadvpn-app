@@ -130,44 +130,42 @@ class Login extends React.Component<IProps, IState> {
         <AppMainHeader>
           <AppMainHeader.SettingsButton disabled={!allowInteraction} />
         </AppMainHeader>
-        <View.Container
-          flexDirection="column"
-          marginInline="medium"
-          justifyContent="center"
-          padding={{ bottom: 'large' }}>
-          <FlexColumn gap="medium">
-            <Flex justifyContent="center">
-              {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
-            </Flex>
-
-            <FlexColumn
-              gap="large"
-              margin={{ horizontal: 'small' }}
-              justifyContent="center"
-              flexGrow={1}>
-              <FlexColumn gap="small">
-                <Text as="h1" variant="titleBig" aria-live="polite">
-                  {this.formTitle()}
-                </Text>
-
-                {this.createLoginForm()}
-              </FlexColumn>
+        <View.Content>
+          <View.Container flexDirection="column" marginInline="medium" justifyContent="center">
+            <FlexColumn gap="medium">
               <Flex justifyContent="center">
-                <StyledLine margin={{ vertical: 'small', right: 'small' }} />
-                <Text variant="labelTinySemiBold">
-                  {
-                    // TRANSLATORS: Text shown between two horizontal lines above the "create account" button.
-                    // TRANSLATORS: In this context it is used to separate the users alternative of logging in
-                    // TRANSLATORS: or creating a new account, "Login or Create a new account".
-                    messages.pgettext('login-view', 'Or')
-                  }
-                </Text>
-                <StyledLine margin={{ vertical: 'small', left: 'small' }} />
+                {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}
               </Flex>
+
+              <View.Container
+                gap="large"
+                marginInline="small"
+                justifyContent="center"
+                flexDirection="column">
+                <FlexColumn gap="small">
+                  <Text as="h1" variant="titleBig" aria-live="polite">
+                    {this.formTitle()}
+                  </Text>
+
+                  {this.createLoginForm()}
+                </FlexColumn>
+                <Flex justifyContent="center">
+                  <StyledLine margin={{ vertical: 'small', right: 'small' }} />
+                  <Text variant="labelTinySemiBold">
+                    {
+                      // TRANSLATORS: Text shown between two horizontal lines above the "create account" button.
+                      // TRANSLATORS: In this context it is used to separate the users alternative of logging in
+                      // TRANSLATORS: or creating a new account, "Login or Create a new account".
+                      messages.pgettext('login-view', 'Or')
+                    }
+                  </Text>
+                  <StyledLine margin={{ vertical: 'small', left: 'small' }} />
+                </Flex>
+              </View.Container>
+              {this.createFooter()}
             </FlexColumn>
-            {this.createFooter()}
-          </FlexColumn>
-        </View.Container>
+          </View.Container>
+        </View.Content>
       </View>
     );
   }

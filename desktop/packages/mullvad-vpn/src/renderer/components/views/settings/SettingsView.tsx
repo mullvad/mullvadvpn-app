@@ -1,13 +1,10 @@
-import styled from 'styled-components';
-
 import { messages } from '../../../../shared/gettext';
 import { usePop } from '../../../history/hooks';
-import { Flex, TitleBig } from '../../../lib/components';
-import { spacings } from '../../../lib/foundations';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { View } from '../../../lib/components/view';
 import { AppNavigationHeader } from '../../';
-import { measurements } from '../../common-styles';
 import { BackAction } from '../../KeyboardNavigation';
-import { SettingsContainer, SettingsNavigationScrollbars } from '../../Layout';
+import { SettingsNavigationScrollbars } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import {
   ApiAccessMethodsListItem,
@@ -23,14 +20,6 @@ import {
 } from './components';
 import { useShowDebug, useShowSplitTunneling, useShowSubSettings } from './hooks';
 
-export const Title = styled(TitleBig)`
-  margin: 0 ${spacings.medium} ${spacings.medium};
-`;
-
-export const Footer = styled(Flex)`
-  margin: ${spacings.large} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin};
-`;
-
 export function SettingsView() {
   const pop = usePop();
 
@@ -39,8 +28,8 @@ export function SettingsView() {
   const showDebug = useShowDebug();
 
   return (
-    <BackAction action={pop}>
-      <SettingsContainer>
+    <View backgroundColor="darkBlue">
+      <BackAction action={pop}>
         <NavigationContainer>
           <AppNavigationHeader
             title={
@@ -51,36 +40,40 @@ export function SettingsView() {
           />
 
           <SettingsNavigationScrollbars fillContainer>
-            <Flex flexDirection="column" gap="medium">
-              {showSubSettings ? (
-                <>
-                  <Flex flexDirection="column">
-                    <DaitaListItem />
-                    <MultihopListItem />
-                    <VpnSettingsListItem />
+            <View.Content>
+              <FlexColumn gap="large">
+                <FlexColumn gap="medium">
+                  {showSubSettings ? (
+                    <>
+                      <FlexColumn>
+                        <DaitaListItem />
+                        <MultihopListItem />
+                        <VpnSettingsListItem />
+                        <UserInterfaceSettingsListItem />
+                      </FlexColumn>
+                      {showSplitTunneling && <SplitTunnelingListItem />}
+                    </>
+                  ) : (
                     <UserInterfaceSettingsListItem />
-                  </Flex>
-                  {showSplitTunneling && <SplitTunnelingListItem />}
-                </>
-              ) : (
-                <UserInterfaceSettingsListItem />
-              )}
+                  )}
 
-              <ApiAccessMethodsListItem />
+                  <ApiAccessMethodsListItem />
 
-              <Flex flexDirection="column">
-                <SupportListItem />
-                <AppInfoListItem />
-              </Flex>
+                  <FlexColumn>
+                    <SupportListItem />
+                    <AppInfoListItem />
+                  </FlexColumn>
 
-              {showDebug && <DebugListItem />}
-            </Flex>
-            <Footer>
-              <QuitButton />
-            </Footer>
+                  {showDebug && <DebugListItem />}
+                </FlexColumn>
+                <View.Container marginInline="medium">
+                  <QuitButton />
+                </View.Container>
+              </FlexColumn>
+            </View.Content>
           </SettingsNavigationScrollbars>
         </NavigationContainer>
-      </SettingsContainer>
-    </BackAction>
+      </BackAction>
+    </View>
   );
 }
