@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors, spacings } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { measurements } from './common-styles';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
@@ -34,14 +34,4 @@ export const SettingsContent = styled.div({
   flex: 1,
   overflow: 'visible',
   marginBottom: measurements.verticalViewMargin,
-});
-
-export const Footer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 0,
-  padding: `${spacings.large} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
-  [`${SettingsContent} &&`]: {
-    paddingBottom: 0,
-  },
 });
