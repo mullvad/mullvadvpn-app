@@ -37,7 +37,7 @@ struct StorePaymentCompletion {
     /// The account number credited.
     let accountNumber: String
 
-    /// The server response received after uploading the AppStore receipt.
+    /// The server response received after uploading the App Store receipt.
     let serverResponse: REST.CreateApplePaymentResponse
 }
 
