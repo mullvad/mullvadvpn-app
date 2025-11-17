@@ -1,9 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.\nTo prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.\nWould you like to continue to enable “Local network sharing”?" : {
-
-    },
     "**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" : {
       "localizations" : {
         "da" : {
@@ -96,6 +93,9 @@
 
     },
     "%@" : {
+
+    },
+    "%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.\nTo prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.\nWould you like to continue to enable “Local network sharing”?" : {
 
     },
     "%@ (%@) hides patterns in your encrypted VPN traffic." : {
