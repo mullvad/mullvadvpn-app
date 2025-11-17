@@ -6,6 +6,7 @@ in
   inherit rust-toolchain-base;
 
   commonPackages = [
+    pkgs.git
     pkgs.gcc
     pkgs.gnumake
     pkgs.protobuf
