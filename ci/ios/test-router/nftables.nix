@@ -1,5 +1,6 @@
 { lib, config, ... }:
-with lib; let
+with lib;
+let
   cfg = config.services.nftables;
 in
 {
