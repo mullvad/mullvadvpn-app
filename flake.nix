@@ -36,7 +36,7 @@
         };
 
         common-toolchain = import ./nix/common-toolchain.nix {
-          inherit pkgs rust-overlay;
+          inherit pkgs;
         };
 
         desktop-toolchain = import ./nix/desktop-toolchain.nix {
