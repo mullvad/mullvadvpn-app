@@ -1,14 +1,14 @@
 {
   pkgs,
-  android,
+  android-toolchain,
 }:
 pkgs.devshell.mkShell {
   name = "mullvad-android-devshell";
-  packages = android.packages;
+  packages = android-toolchain.packages;
 
   env = import ./android-env.nix {
     inherit pkgs;
-    inherit (android)
+    inherit (android-toolchain)
       android-sdk
       buildToolsVersion
       ndkVersion
