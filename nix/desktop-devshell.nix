@@ -5,7 +5,7 @@
 }:
 pkgs.devshell.mkShell {
   name = "mullvad-desktop-devshell";
-  packages = desktop-toolchain.packages;
+  packages = desktop-toolchain.packages ++ [ pkgs.cargo-insta ];
 
   env = import ./desktop-env.nix {
     inherit pkgs;
