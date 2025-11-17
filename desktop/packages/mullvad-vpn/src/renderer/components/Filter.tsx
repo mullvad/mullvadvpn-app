@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { Button, Icon } from '../lib/components';
+import { View } from '../lib/components/view';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { filterLocations, filterLocationsByEndPointType } from '../lib/filter-locations';
 import { colors } from '../lib/foundations';
@@ -18,7 +19,6 @@ import Selector from './cell/Selector';
 import { normalText } from './common-styles';
 import { FilterAccordion } from './FilterAccordion';
 import { BackAction } from './KeyboardNavigation';
-import { Footer, Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
@@ -26,6 +26,10 @@ const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   backgroundColor: colors.darkBlue,
   flex: 1,
 });
+
+const StyledViewContent = styled(View.Content)`
+  margin-bottom: 0;
+`;
 
 export default function Filter() {
   const history = useHistory();
@@ -69,10 +73,10 @@ export default function Filter() {
   }, [formattedProviderList, ownership, history, relaySettingsUpdater]);
 
   return (
-    <BackAction action={history.pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
+    <View backgroundColor="darkBlue">
+      <BackAction action={history.pop}>
+        <NavigationContainer>
+          <StyledViewContent>
             <AppNavigationHeader
               title={
                 // TRANSLATORS: Title label in navigation bar
@@ -92,18 +96,18 @@ export default function Filter() {
                 setProviders={setProviders}
               />
             </StyledNavigationScrollbars>
-            <Footer>
+            <View.Container horizontalMargin="medium" padding={{ vertical: 'large' }}>
               <Button
                 variant="success"
                 disabled={Object.values(providers).every((provider) => !provider)}
                 onClick={onApply}>
                 <Button.Text>{messages.gettext('Apply')}</Button.Text>
               </Button>
-            </Footer>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+            </View.Container>
+          </StyledViewContent>
+        </NavigationContainer>
+      </BackAction>
+    </View>
   );
 }
 
