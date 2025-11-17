@@ -3,29 +3,17 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Flex } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
+import { View } from '../lib/components/view';
 import { colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
 import { bigText, measurements, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { Container, Footer, Layout } from './Layout';
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
-});
-
-export const StyledContainer = styled(Container)({
-  paddingTop: '22px',
-  minHeight: '100%',
-  backgroundColor: colors.darkBlue,
-});
-
-export const StyledBody = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  padding: `0 ${measurements.horizontalViewMargin}`,
 });
 
 export const StyledTitle = styled.span(bigText, {
@@ -44,36 +32,41 @@ export function DeviceRevokedView() {
   const tunnelState = useSelector((state) => state.connection.status);
 
   return (
-    <Layout>
+    <View backgroundColor="darkBlue">
       <AppMainHeader variant="basedOnConnectionStatus" size="basedOnLoginStatus">
         <AppMainHeader.AccountButton />
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
       <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <StyledBody>
-            <Flex justifyContent="center" margin={{ bottom: 'medium' }}>
-              <IconBadge state="negative" />
-            </Flex>
-            <StyledTitle data-testid="title">
-              {messages.pgettext('device-management', 'Device is inactive')}
-            </StyledTitle>
-            <StyledMessage>
-              {messages.pgettext(
-                'device-management',
-                'You have removed this device. To connect again, you will need to log back in.',
-              )}
-            </StyledMessage>
-            <StyledMessage>
-              {tunnelState.state !== 'disconnected' &&
-                messages.pgettext(
+        <View.Content>
+          <View.Container
+            flexDirection="column"
+            marginInline="large"
+            justifyContent="space-between"
+            flexGrow={1}
+            margin={{ top: 'large' }}>
+            <FlexColumn>
+              <Flex justifyContent="center" margin={{ bottom: 'medium' }}>
+                <IconBadge state="negative" />
+              </Flex>
+              <StyledTitle data-testid="title">
+                {messages.pgettext('device-management', 'Device is inactive')}
+              </StyledTitle>
+              <StyledMessage>
+                {messages.pgettext(
                   'device-management',
-                  'Going to login will unblock the Internet on this device.',
+                  'You have removed this device. To connect again, you will need to log back in.',
                 )}
-            </StyledMessage>
-          </StyledBody>
+              </StyledMessage>
+              <StyledMessage>
+                {tunnelState.state !== 'disconnected' &&
+                  messages.pgettext(
+                    'device-management',
+                    'Going to login will unblock the Internet on this device.',
+                  )}
+              </StyledMessage>
+            </FlexColumn>
 
-          <Footer>
             <Button
               variant={tunnelState.state === 'disconnected' ? 'primary' : 'destructive'}
               onClick={leaveRevokedDevice}>
@@ -84,9 +77,9 @@ export function DeviceRevokedView() {
                 }
               </Button.Text>
             </Button>
-          </Footer>
-        </StyledContainer>
+          </View.Container>
+        </View.Content>
       </StyledCustomScrollbars>
-    </Layout>
+    </View>
   );
 }
