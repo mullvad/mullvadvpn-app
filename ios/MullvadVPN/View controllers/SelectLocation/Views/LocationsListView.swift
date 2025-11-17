@@ -14,21 +14,19 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     }
 
     var body: some View {
-        LazyVStack(spacing: 4) {
-            ForEach(
-                Array(filteredLocationIndices.enumerated()),
-                id: \.element
-            ) {
-                index,
-                indexInLocationList in
-                let location = $locations[indexInLocationList]
-                LocationListItem(
-                    location: location,
-                    multihopContext: multihopContext,
-                    onSelect: onSelectLocation,
-                    contextMenu: { location in contextMenu(location) }
-                )
-            }
+        ForEach(
+            Array(filteredLocationIndices.enumerated()),
+            id: \.element
+        ) {
+            index,
+            indexInLocationList in
+            let location = $locations[indexInLocationList]
+            LocationListItem(
+                location: location,
+                multihopContext: multihopContext,
+                onSelect: onSelectLocation,
+                contextMenu: { location in contextMenu(location) }
+            )
         }
     }
 }

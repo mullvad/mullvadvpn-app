@@ -30,7 +30,7 @@ struct CustomListInteractorTests {
     @Test(
         "Adds custom list to repository"
     )
-    func testAddCustomList() throws {
+    func addCustomList() throws {
         let (customListInteractor, _) = makeDependencies()
         let customList = CustomList(name: "MyCustomList", locations: [])
         try? customListInteractor.save(list: customList)
@@ -41,7 +41,7 @@ struct CustomListInteractorTests {
     @Test(
         "Add location to custom list"
     )
-    func testAddLocationToCustomList() throws {
+    func addLocationToCustomList() throws {
         let (customListInteractor, _) = makeDependencies()
         let customList = CustomList(name: "MyCustomList", locations: [])
         try? customListInteractor.save(list: customList)
@@ -58,7 +58,7 @@ struct CustomListInteractorTests {
     @Test(
         "Custom list should not allow duplicate locations"
     )
-    func testDoNotAddDuplicateLocations() throws {
+    func doNotAddDuplicateLocations() throws {
         let (customListInteractor, _) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList = CustomList(name: "MyCustomList", locations: [location1])
@@ -78,7 +78,7 @@ struct CustomListInteractorTests {
     @Test(
         "Removes a child location it the parent gets added to a custom list"
     )
-    func testRemoveChildIfParentGetsAdded() throws {
+    func removeChildIfParentGetsAdded() throws {
         let (customListInteractor, _) = makeDependencies()
         let childLocation = RelayLocation.city("se", "got")
         let customList = CustomList(name: "MyCustomList", locations: [childLocation])
@@ -101,7 +101,7 @@ struct CustomListInteractorTests {
     @Test(
         "Remove location from custom list"
     )
-    func testRemoveLocation() throws {
+    func removeLocation() throws {
         let (customListInteractor, _) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList = CustomList(name: "MyCustomList", locations: [location1])
@@ -119,7 +119,7 @@ struct CustomListInteractorTests {
     @Test(
         "If a list is selected as exit location and the list gets modified, the constraints should update"
     )
-    func testUpdateConstraintsIfRemovedFromList() async throws {
+    func updateConstraintsIfRemovedFromList() async throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList = CustomList(name: "MyCustomList", locations: [location1])
@@ -162,7 +162,7 @@ struct CustomListInteractorTests {
     @Test(
         "The constraints should not update on custom list change if the list is not selected"
     )
-    func testDoNotUpdateConstraintsIfSelectionNotAffected() async throws {
+    func doNotUpdateConstraintsIfSelectionNotAffected() async throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList1 = CustomList(name: "MyCustomList1", locations: [location1])
@@ -204,7 +204,7 @@ struct CustomListInteractorTests {
     @Test(
         "Removes the constraint when a custom list is removed"
     )
-    func testRemoveConstraintIfListRemoved() async throws {
+    func removeConstraintIfListRemoved() async throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList1 = CustomList(name: "MyCustomList1", locations: [location1])
@@ -242,7 +242,7 @@ struct CustomListInteractorTests {
     @Test(
         "Removes the constraint when a location inside a custom list is removed"
     )
-    func testRemoveConstraintIfLocationRemoved() async throws {
+    func removeConstraintIfLocationRemoved() async throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let location2 = RelayLocation.country("es")

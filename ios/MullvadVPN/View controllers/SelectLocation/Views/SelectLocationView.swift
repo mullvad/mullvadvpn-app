@@ -79,7 +79,6 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 }
             )
         }
-        .accessibilityIdentifier(.selectLocationView)
     }
 }
 

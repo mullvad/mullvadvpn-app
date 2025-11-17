@@ -4,6 +4,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
     @Binding private var isExpanded: Bool
 
     let level: Int
+    let isLastInList: Bool
     let isActive: Bool
     let label: () -> Label
     let content: () -> Content
@@ -11,8 +12,16 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
     let contextMenu: () -> ContextMenu
     let accessibilityIdentifier: AccessibilityIdentifier?
 
+    private var topRadius: CGFloat {
+        level == 0 ? 16 : 0
+    }
+    private var bottomRadius: CGFloat {
+        isLastInList && !isExpanded ? 16 : 0
+    }
+
     init(
         level: Int,
+        isLastInList: Bool,
         isActive: Bool = true,
         isExpanded: Binding<Bool>,
         @ViewBuilder contextMenu: @escaping () -> ContextMenu,
@@ -22,6 +31,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
         onSelect: (() -> Void)? = nil,
     ) {
         self.level = level
+        self.isLastInList = isLastInList
         self.isActive = isActive
         self._isExpanded = isExpanded
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -33,50 +43,56 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 2) {
-                Button {
-                    onSelect?()
-                } label: {
-                    HStack {
-                        label()
-                        Spacer()
-                    }
+        HStack(spacing: 2) {
+            Button {
+                onSelect?()
+            } label: {
+                HStack {
+                    label()
+                    Spacer()
+                }
+                .frame(maxHeight: .infinity)
+                .background {
+                    Color.colorForLevel(level)
+                }
+            }
+            .disabled(!isActive)
+            Button {
+                withAnimation {
+                    isExpanded.toggle()
+                }
+            } label: {
+                Image.mullvadIconChevron
+                    .rotationEffect(.degrees(isExpanded ? -90 : 90))
+                    .padding(16)
                     .frame(maxHeight: .infinity)
                     .background {
                         Color.colorForLevel(level)
                     }
-                }
-                .disabled(!isActive)
-                Button {
-                    withAnimation {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    Image.mullvadIconChevron
-                        .rotationEffect(.degrees(isExpanded ? -90 : 90))
-                        .padding(16)
-                        .frame(maxHeight: .infinity)
-                        .background {
-                            Color.colorForLevel(level)
-                        }
-                }
-                .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
-                .accessibilityIdentifier(.expandButton)
-                .contentShape(Rectangle())
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(accessibilityIdentifier)
+            .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
+            .accessibilityIdentifier(.expandButton)
+            .contentShape(Rectangle())
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(accessibilityIdentifier)
+        .clipShape(
+            UnevenRoundedRectangle(
+                cornerRadii: .init(
+                    topLeading: topRadius,
+                    bottomLeading: bottomRadius,
+                    bottomTrailing: bottomRadius,
+                    topTrailing: topRadius
+                )
+            )
+        )
+        .padding(.top, level == 0 ? 4 : 1)
+        .contextMenu {
+            contextMenu()
+        }
 
-            .contextMenu {
-                contextMenu()
-            }
-            if isExpanded {
-                LazyVStack(spacing: 1) {
-                    content()
-                }
-                .padding(.top, 1)
-            }
+        if isExpanded {
+            content()
         }
     }
 }

@@ -146,7 +146,7 @@ class AllLocationsDataSourceTests: XCTestCase {
 
     func testExcludeLocation() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("se", "sto", "se2-wireguard")])
-        dataSource.setExcludedNode(excludedRelays: excludedRelays)
+        dataSource.setExcludedNode(excludedSelection: excludedRelays)
         let excludedNode = dataSource.node(by: excludedRelays)!
 
         XCTAssertTrue(excludedNode.isExcluded)
@@ -164,7 +164,7 @@ class AllLocationsDataSourceTests: XCTestCase {
 
     func testExcludeLocationIncludesAncestors() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")])
-        dataSource.setExcludedNode(excludedRelays: excludedRelays)
+        dataSource.setExcludedNode(excludedSelection: excludedRelays)
         let excludedNode = dataSource.node(by: excludedRelays)!
 
         XCTAssertTrue(excludedNode.isExcluded)

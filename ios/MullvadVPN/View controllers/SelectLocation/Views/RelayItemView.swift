@@ -4,6 +4,7 @@ struct RelayItemView: View {
     let location: LocationNode
     let multihopContext: MultihopContext
     let level: Int
+    var isLastInList = true
     let onSelect: () -> Void
 
     var disabled: Bool {
@@ -22,13 +23,13 @@ struct RelayItemView: View {
             switch multihopContext {
             case .entry:
                 return """
-                    \(location.name) (\(String(localized: 
+                    \(location.name) (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.exit.description))))
                     """
             case .exit:
                 return """
-                    \(location.name) (\(String(localized: 
+                    \(location.name) (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.entry.description))))
                     """
@@ -68,6 +69,17 @@ struct RelayItemView: View {
             }
         }
         .disabled(disabled)
+        .clipShape(
+            UnevenRoundedRectangle(
+                cornerRadii: .init(
+                    topLeading: level == 0 ? 16 : 0,
+                    bottomLeading: isLastInList ? 16 : 0,
+                    bottomTrailing: isLastInList ? 16 : 0,
+                    topTrailing: level == 0 ? 16 : 0
+                )
+            )
+        )
+
     }
 
     @ViewBuilder

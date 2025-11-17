@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     @Binding var location: LocationNode
+    var isLastInList: Bool = true
     let multihopContext: MultihopContext
     let onSelect: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
@@ -21,15 +22,18 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     location: location,
                     multihopContext: multihopContext,
                     level: level,
+                    isLastInList: isLastInList,
                     onSelect: { onSelect(location) }
                 )
                 .accessibilityIdentifier(.locationListItem(location.name))
+                .padding(.top, level == 0 ? 0 : 1)
                 .contextMenu {
                     contextMenu(location)
                 }
             } else {
                 LocationDisclosureGroup(
                     level: level,
+                    isLastInList: isLastInList,
                     isActive: location.isActive && !location.isExcluded,
                     isExpanded: $location.showsChildren,
                     contextMenu: { contextMenu(location) },
@@ -42,6 +46,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         let location = $location.children[indexInChildrenList]
                         LocationListItem(
                             location: location,
+                            isLastInList: isLastInList && index == (filteredChildrenIndices.count - 1),
                             multihopContext: multihopContext,
                             onSelect: onSelect,
                             contextMenu: { location in contextMenu(location) },
@@ -75,15 +80,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 }
             }
         }
+        .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
         .id(location.code)  // to be able to scroll to this item programmatically
-        .transformEffect(.identity)
-        .apply {
-            if level == 0 {
-                $0.clipShape(RoundedRectangle(cornerRadius: 16))
-            } else {
-                $0
-            }
-        }
     }
 }
 
@@ -103,9 +101,13 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     level: 0
                 )
                 LocationListItem(
-                    location: .constant(viewModel.exitContext.locations.first!),
+                    location:
+                        .constant(
+                            viewModel.exitContext.locations.first!
+                        ),
                     multihopContext: .exit,
-                    onSelect: { _ in },
+                    onSelect: { _ in
+                    },
                     contextMenu: { _ in EmptyView() },
                     level: 0
                 )
