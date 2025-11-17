@@ -13,7 +13,6 @@ import { useEffectEvent } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../KeyboardNavigation';
-import { SettingsContainer } from '../../Layout';
 import { RedeemVoucherButton } from '../../RedeemVoucher';
 import { HeaderTitle } from '../../SettingsHeader';
 import { AccountExpiryRow, AccountNumberRow, DeviceNameRow, LabelledRow } from './components';
@@ -47,16 +46,16 @@ export function Account() {
   }, [logout]);
 
   return (
-    <BackAction action={history.pop}>
-      <View>
-        <SettingsContainer>
-          <AppNavigationHeader
-            title={
-              // TRANSLATORS: Title label in navigation bar
-              messages.pgettext('account-view', 'Account')
-            }
-          />
+    <View backgroundColor="darkBlue">
+      <BackAction action={history.pop}>
+        <AppNavigationHeader
+          title={
+            // TRANSLATORS: Title label in navigation bar
+            messages.pgettext('account-view', 'Account')
+          }
+        />
 
+        <View.Content>
           <StyledViewContainer flexDirection="column" indent="medium">
             <FlexColumn gap="medium">
               <Text variant="titleBig">
@@ -78,7 +77,7 @@ export function Account() {
               </FlexColumn>
             </FlexColumn>
 
-            <FlexColumn gap="medium" padding={{ bottom: 'large' }}>
+            <FlexColumn gap="medium">
               <Button
                 variant="success"
                 disabled={isOffline}
@@ -100,8 +99,8 @@ export function Account() {
               </Button>
             </FlexColumn>
           </StyledViewContainer>
-        </SettingsContainer>
-      </View>
-    </BackAction>
+        </View.Content>
+      </BackAction>
+    </View>
   );
 }
