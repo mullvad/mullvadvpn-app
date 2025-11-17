@@ -3793,7 +3793,7 @@
     "App logs" : {
 
     },
-    "AppStore receipt is not found on disk." : {
+    "App Store receipt is not found on disk." : {
 
     },
     "Are you sure you want to log %@ out?" : {
@@ -7479,10 +7479,10 @@
     "Cannot complete the purchase" : {
 
     },
-    "Cannot read the AppStore receipt from disk" : {
+    "Cannot read the App Store receipt from disk" : {
 
     },
-    "Cannot refresh the AppStore receipt: %@" : {
+    "Cannot refresh the App Store receipt: %@" : {
 
     },
     "Cannot restore purchases" : {
