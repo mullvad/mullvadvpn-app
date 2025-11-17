@@ -35,4 +35,4 @@ jobs:
           max-subject-line-length: '72'
           # The action's wordlist is a bit short. Add more accepted verbs
           additional-verbs: 'tidy, wrap, obfuscate, bias, prohibit, forbid, revert, slim, impl, disregard, reproduce,
-            signal, guarantee, cap, parallelize'
+            signal, guarantee, cap, parallelize, clone'
