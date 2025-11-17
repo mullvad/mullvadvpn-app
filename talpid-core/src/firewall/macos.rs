@@ -7,6 +7,7 @@ use std::sync::LazyLock;
 use ipnetwork::IpNetwork;
 use libc::{c_int, sysctlbyname};
 use pfctl::{DropAction, FilterRuleAction, Ip, Uid};
+use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{
     ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
     TransportProtocol,
@@ -494,7 +495,7 @@ impl Firewall {
 
     fn get_allow_local_dns_rules_when_connected(
         &self,
-        tunnel: &crate::tunnel::TunnelMetadata,
+        tunnel: &TunnelMetadata,
         server: IpAddr,
     ) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = Vec::with_capacity(4);
@@ -547,7 +548,7 @@ impl Firewall {
 
     fn get_allow_tunnel_dns_rules_when_connected(
         &self,
-        tunnel: &crate::tunnel::TunnelMetadata,
+        tunnel: &TunnelMetadata,
         server: IpAddr,
     ) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = Vec::with_capacity(2);
