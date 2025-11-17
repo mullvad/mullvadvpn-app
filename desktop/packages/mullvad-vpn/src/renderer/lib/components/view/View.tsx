@@ -11,7 +11,9 @@ export type ViewProps = FlexProps & {
 
 export const StyledView = styled(Flex)<{ $backgroundColor?: ColorVariables }>`
   height: 100vh;
-  max-width: 100%;
+  width: 100vw;
+  overflow: hidden;
+  box-sizing: border-box;
   background-color: ${({ $backgroundColor }) => $backgroundColor || undefined};
 `;
 
