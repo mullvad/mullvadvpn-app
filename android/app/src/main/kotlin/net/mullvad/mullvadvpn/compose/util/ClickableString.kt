@@ -17,8 +17,12 @@ fun clickableAnnotatedString(
     linkStyle: SpanStyle,
     onClick: (String) -> Unit,
 ) = buildAnnotatedString {
-    val firstString = text.substringBefore("%s")
-    val secondString = text.substringAfter("%s")
+    val strings = text.split("%s", $$"%1$s")
+    if (strings.size != 2) {
+        error("String needs to have exactly one string argument")
+    }
+    val firstString = strings[0]
+    val secondString = strings[1]
     append(firstString)
     withLink(
         link =
