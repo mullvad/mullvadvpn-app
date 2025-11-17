@@ -7,7 +7,9 @@ import { RoutePath } from '../../shared/routes';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Button, Flex, Icon, IconProps, LabelTinySemiBold } from '../lib/components';
+import { Button, Icon, IconProps, LabelTinySemiBold } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
+import { View } from '../lib/components/view';
 import { colors, spacings } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
@@ -15,11 +17,10 @@ import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { ButtonGroup } from './ButtonGroup';
-import { measurements, normalText } from './common-styles';
+import { normalText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
-import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 type ImportStatus = { successful: boolean } & ({ type: 'file'; name: string } | { type: 'text' });
 
@@ -108,67 +109,71 @@ export default function SettingsImport() {
   useEffect(() => void onMount(), []);
 
   return (
-    <BackAction action={history.pop}>
-      <Layout>
-        <SettingsContainer>
-          <AppNavigationHeader
-            title={
-              // TRANSLATORS: Title label in navigation bar. This is for a feature that lets
-              // TRANSLATORS: users import server IP settings.
-              messages.pgettext('settings-import', 'Server IP override')
-            }>
-            <AppNavigationHeader.InfoButton
-              title={messages.pgettext('settings-import', 'Server IP override')}
-              variant="secondary"
-              message={[
-                messages.pgettext(
-                  'settings-import',
-                  'On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.',
-                ),
-                messages.pgettext(
-                  'settings-import',
-                  'To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.',
-                ),
-                messages.pgettext(
-                  'settings-import',
-                  'If you are having issues connecting to VPN servers, please contact support.',
-                ),
-              ]}
-            />
-          </AppNavigationHeader>
-          <Flex flexDirection="column" flexGrow={1}>
-            <SettingsHeader>
-              <HeaderTitle>
-                {messages.pgettext('settings-import', 'Server IP override')}
-              </HeaderTitle>
-              <HeaderSubTitle>
-                {messages.pgettext(
-                  'settings-import',
-                  'Import files or text with new IP addresses for the servers in the Select location view.',
-                )}
-              </HeaderSubTitle>
-            </SettingsHeader>
-            <Flex flexDirection="column" flexGrow={1}>
-              <ButtonGroup gap="small" margin="medium">
-                <Button onClick={navigateTextImport}>
-                  <Button.Text>
-                    {messages.pgettext('settings-import', 'Import via text')}
-                  </Button.Text>
-                </Button>
-                <Button onClick={importFile}>
-                  <Button.Text>{messages.pgettext('settings-import', 'Import file')}</Button.Text>
-                </Button>
-              </ButtonGroup>
+    <View backgroundColor="darkBlue">
+      <BackAction action={history.pop}>
+        <AppNavigationHeader
+          title={
+            // TRANSLATORS: Title label in navigation bar. This is for a feature that lets
+            // TRANSLATORS: users import server IP settings.
+            messages.pgettext('settings-import', 'Server IP override')
+          }>
+          <AppNavigationHeader.InfoButton
+            title={messages.pgettext('settings-import', 'Server IP override')}
+            variant="secondary"
+            message={[
+              messages.pgettext(
+                'settings-import',
+                'On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.',
+              ),
+              messages.pgettext(
+                'settings-import',
+                'To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.',
+              ),
+              messages.pgettext(
+                'settings-import',
+                'If you are having issues connecting to VPN servers, please contact support.',
+              ),
+            ]}
+          />
+        </AppNavigationHeader>
+        <View.Content>
+          <View.Container
+            horizontalMargin="medium"
+            flexDirection="column"
+            flexGrow={1}
+            justifyContent="space-between">
+            <FlexColumn gap="medium">
+              <FlexColumn gap="small">
+                <HeaderTitle>
+                  {messages.pgettext('settings-import', 'Server IP override')}
+                </HeaderTitle>
+                <HeaderSubTitle>
+                  {messages.pgettext(
+                    'settings-import',
+                    'Import files or text with new IP addresses for the servers in the Select location view.',
+                  )}
+                </HeaderSubTitle>
+              </FlexColumn>
+              <View.Container horizontalMargin="small" flexDirection="column" gap="large">
+                <ButtonGroup gap="medium">
+                  <Button onClick={navigateTextImport}>
+                    <Button.Text>
+                      {messages.pgettext('settings-import', 'Import via text')}
+                    </Button.Text>
+                  </Button>
+                  <Button onClick={importFile}>
+                    <Button.Text>{messages.pgettext('settings-import', 'Import file')}</Button.Text>
+                  </Button>
+                </ButtonGroup>
 
-              <SettingsImportStatus status={importStatus} />
-            </Flex>
-            <Footer>
-              <Button variant="destructive" onClick={showClearDialog} disabled={!activeOverrides}>
-                <Button.Text>
-                  {messages.pgettext('settings-import', 'Clear all overrides')}
-                </Button.Text>
-              </Button>
-            </Footer>
+                <SettingsImportStatus status={importStatus} />
+              </View.Container>
+            </FlexColumn>
+            <Button variant="destructive" onClick={showClearDialog} disabled={!activeOverrides}>
+              <Button.Text>
+                {messages.pgettext('settings-import', 'Clear all overrides')}
+              </Button.Text>
+            </Button>
             <ModalAlert
               isOpen={clearDialogVisible}
               type={ModalAlertType.warning}
@@ -187,18 +192,12 @@ export default function SettingsImport() {
                 'Clearing the imported overrides changes the server IPs, in the Select location view, back to default.',
               )}
             />
-          </Flex>
-        </SettingsContainer>
-      </Layout>
-    </BackAction>
+          </View.Container>
+        </View.Content>
+      </BackAction>
+    </View>
   );
 }
-
-const StyledStatusContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  margin: `18px ${measurements.horizontalViewMargin}`,
-});
 
 const StyledStatusTitle = styled.div(normalText, {
   display: 'flex',
@@ -269,7 +268,7 @@ function SettingsImportStatus(props: ImportStatusProps) {
   }
 
   return (
-    <StyledStatusContainer>
+    <FlexColumn>
       <StyledStatusTitle data-testid="status-title">
         {title}
         {iconProps !== undefined && <Icon {...iconProps} size="medium" />}
@@ -279,6 +278,6 @@ function SettingsImportStatus(props: ImportStatusProps) {
           {subtitle}
         </LabelTinySemiBold>
       )}
-    </StyledStatusContainer>
+    </FlexColumn>
   );
 }
