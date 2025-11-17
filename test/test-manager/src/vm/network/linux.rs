@@ -188,12 +188,11 @@ impl NetworkHandle {
                 .captures(&line)
                 .and_then(|cap| cap.get(1))
                 .map(|addr| addr.as_str())
+                && let Ok(parsed_addr) = IpAddr::from_str(addr)
             {
-                if let Ok(parsed_addr) = IpAddr::from_str(addr) {
-                    log::debug!("Captured DHCPACK: {}", parsed_addr);
-                    found_addr = Some(parsed_addr);
-                    break;
-                }
+                log::debug!("Captured DHCPACK: {}", parsed_addr);
+                found_addr = Some(parsed_addr);
+                break;
             }
         }
 
