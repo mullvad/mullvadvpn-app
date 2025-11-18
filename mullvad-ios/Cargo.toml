@@ -35,13 +35,6 @@ serde_json = { workspace = true }
 mockito = "1.6.1"
 async-trait = "0.1"
 
-shadowsocks-service = { workspace = true, features = [
-    "local",
-    "stream-cipher",
-    "local-http",
-    "local-tunnel",
-] }
-
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
 
