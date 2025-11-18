@@ -32,8 +32,13 @@ class UDPOverTCPObfuscationSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapPort5001Cell() -> Self {
+    @discardableResult func tapPort443Cell() -> Self {
         portCell(2).tap()
+        return self
+    }
+
+    @discardableResult func tapPort5001Cell() -> Self {
+        portCell(3).tap()
         return self
     }
 

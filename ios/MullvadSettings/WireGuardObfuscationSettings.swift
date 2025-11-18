@@ -58,6 +58,7 @@ public enum WireGuardObfuscationState: Codable, Sendable {
 public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomStringConvertible, Sendable {
     case automatic
     case port80
+    case port443
     case port5001
 
     public var portValue: UInt16? {
@@ -66,6 +67,8 @@ public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomString
             nil
         case .port80:
             80
+        case .port443:
+            443
         case .port5001:
             5001
         }
@@ -77,6 +80,8 @@ public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomString
             NSLocalizedString("Automatic", comment: "")
         case .port80:
             "80"
+        case .port443:
+            "443"
         case .port5001:
             "5001"
         }
