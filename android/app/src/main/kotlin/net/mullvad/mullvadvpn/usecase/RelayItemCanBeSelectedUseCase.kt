@@ -75,6 +75,6 @@ class RelayItemCanBeSelectedUseCase(
             selectedRelayItem?.getOrNull()?.isTheSameAs(relayItem) == true -> false
             else -> true
         }
-}
 
-private fun Settings.entrySelectionBlocked() = isDaitaEnabled() && !isDaitaDirectOnly()
+    private fun Settings.entrySelectionBlocked() = isDaitaEnabled() && !isDaitaDirectOnly()
+}
