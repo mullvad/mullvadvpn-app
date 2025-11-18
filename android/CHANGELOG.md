@@ -21,6 +21,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.10-beta2] - 2025-11-18
+### Security
+- Fix leak when disabling In-tunnel IPv6 and enabling local network sharing.
+
+### Fixed
+- Fix Android 16 upgrade warning text looking weird in some languages.
+
+
 ## [android/2025.10-beta1] - 2025-11-10
 ### Added
 - Option to show server location in the connection notification.
