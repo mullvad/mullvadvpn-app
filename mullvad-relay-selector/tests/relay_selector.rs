@@ -816,7 +816,7 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
 /// all configurations contain a valid port.
 #[test]
 fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
-    const TCP2UDP_PORTS: [u16; 2] = [80, 5001];
+    const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
     let relay_selector = default_relay_selector();
     // Note that we do *not* specify any port here!
     let query = RelayQueryBuilder::wireguard().udp2tcp().build();
