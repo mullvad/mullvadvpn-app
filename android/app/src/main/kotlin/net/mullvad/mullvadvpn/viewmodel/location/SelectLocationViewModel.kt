@@ -91,7 +91,6 @@ class SelectLocationViewModel(
                         isRecentsEnabled = settings.recents is Recents.Enabled,
                         hopSelection = selectedHop,
                         tunnelErrorStateCause = errorStateCause,
-                        entrySelectionAllowed = !settings.entryBlocked(),
                     )
                 )
             }

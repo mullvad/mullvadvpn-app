@@ -22,7 +22,6 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Single(null),
                     tunnelErrorStateCause = null,
-                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -37,7 +36,6 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Single(null),
                     tunnelErrorStateCause = null,
-                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -48,7 +46,6 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Multi(null, null),
                     tunnelErrorStateCause = null,
-                    entrySelectionAllowed = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -63,7 +60,6 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Multi(null, null),
                     tunnelErrorStateCause = null,
-                    entrySelectionAllowed = true,
                 )
                 .toLc(),
         )
