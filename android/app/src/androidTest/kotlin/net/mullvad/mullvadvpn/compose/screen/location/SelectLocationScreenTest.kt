@@ -446,7 +446,50 @@ class SelectLocationScreenTest {
         }
     }
 
+    @Test
+    fun whenRelayListIsEmptyShouldShowEmptyState() =
+        composeExtension.use {
+            // Arrange
+            every { listViewModel.uiState } returns
+                MutableStateFlow(
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListType = RelayListType.Single,
+                            relayListItems =
+                                createSimpleRelayListItemList(
+                                    recentItems = emptyList(),
+                                    customListItem = emptyList(),
+                                    locationItems = emptyList(),
+                                    selectedItem = null,
+                                ),
+                            customLists = emptyList(),
+                        )
+                    )
+                )
+            initScreen(
+                state =
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopListSelection = MultihopRelayListType.EXIT,
+                            isSearchButtonEnabled = false,
+                            isFilterButtonEnabled = false,
+                            isRecentsEnabled = true,
+                            hopSelection = HopSelection.Single(null),
+                            tunnelErrorStateCause = null,
+                        )
+                    )
+            )
+
+            // Assert
+            onNodeWithText(RELAY_LOCATIONS_EMTY_TEXT_FIRST_LINE).assertExists()
+            onNodeWithText(RELAY_LOCATIONS_EMTY_TEXT_SECOND_LINE).assertExists()
+        }
+
     companion object {
         private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"+\""
+        private const val RELAY_LOCATIONS_EMTY_TEXT_FIRST_LINE = "No matching servers found."
+        private const val RELAY_LOCATIONS_EMTY_TEXT_SECOND_LINE =
+            "Please try changing your filters."
     }
 }
