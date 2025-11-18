@@ -19,15 +19,15 @@ fun createSimpleRelayListItemList(
             add(RelayListItem.RecentListItem(it, isSelected = it.id == selectedItem))
         }
     }
+    add(RelayListItem.CustomListHeader)
     if (customListItem.isNotEmpty()) {
-        add(RelayListItem.CustomListHeader)
         customListItem.forEach {
             add(RelayListItem.CustomListItem(it, isSelected = it.id == selectedItem))
         }
-        add(RelayListItem.CustomListFooter(hasCustomList = true))
     }
+    add(RelayListItem.CustomListFooter(hasCustomList = customListItem.isNotEmpty()))
+    add(RelayListItem.LocationHeader)
     if (locationItems.isNotEmpty()) {
-        add(RelayListItem.LocationHeader)
         locationItems.forEach { country ->
             val descendantIsSelected = country.descendants().any { it.id == selectedItem }
             add(
@@ -78,5 +78,7 @@ fun createSimpleRelayListItemList(
                 }
             }
         }
+    } else {
+        add(RelayListItem.EmptyRelayList)
     }
 }

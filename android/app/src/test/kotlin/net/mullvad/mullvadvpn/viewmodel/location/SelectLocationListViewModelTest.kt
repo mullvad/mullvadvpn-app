@@ -143,35 +143,99 @@ class SelectLocationListViewModelTest {
     }
 
     @Test
-    fun `given relay list type exit and entry blocked isEntryBlocked should be true`() = runTest {
+    fun `given relay list type exit and entry blocked no item should be selected in the entry list`() =
+        runTest {
+            // Arrange
+            viewModel =
+                createSelectLocationListViewModel(
+                    RelayListType.Multihop(MultihopRelayListType.EXIT)
+                )
+            filteredRelayList.value = testCountries
+            val exitLocation = Constraint.Only(GeoLocationId.Country("us"))
+            selectedLocationFlow.value =
+                RelayItemSelection.Multiple(
+                    entryLocation = Constraint.Only(GeoLocationId.Country("se")),
+                    exitLocation = exitLocation,
+                )
+            every { settings.value.entryBlocked() } returns true
+
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem()
+
+                verify {
+                    relayListItems(
+                        relayListType = RelayListType.Multihop(MultihopRelayListType.EXIT),
+                        relayCountries = testCountries,
+                        customLists = any(),
+                        recents = any(),
+                        selectedItem = any(),
+                        selectedByThisEntryExitList = exitLocation.getOrNull(),
+                        selectedByOtherEntryExitList = null,
+                        expandedItems = emptySet(),
+                    )
+                }
+            }
+        }
+
+    @Test
+    fun `given relay type entry list and entry blocked uiState should be error`() = runTest {
+        // Arrange
+        viewModel =
+            createSelectLocationListViewModel(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+        filteredRelayList.value = testCountries
+        selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
+        val mockSettings: Settings = mockk()
+        every { mockSettings.entryBlocked() } returns true
+        settings.value = mockSettings
+
+        // Act, Assert
+        viewModel.uiState.test {
+            val actualState = awaitItem()
+            assertIs<Lce.Error<Unit>>(actualState)
+        }
+    }
+
+    @Test
+    fun `given relay type exit list and entry blocked should work`() = runTest {
         // Arrange
         viewModel =
             createSelectLocationListViewModel(RelayListType.Multihop(MultihopRelayListType.EXIT))
         filteredRelayList.value = testCountries
-        val exitLocation = Constraint.Only(GeoLocationId.Country("us"))
-        selectedLocationFlow.value =
-            RelayItemSelection.Multiple(
-                entryLocation = Constraint.Only(GeoLocationId.Country("se")),
-                exitLocation = exitLocation,
-            )
-        every { settings.value.entryBlocked() } returns true
+        selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
+        val mockSettings: Settings = mockk()
+        every { mockSettings.entryBlocked() } returns true
+        settings.value = mockSettings
 
         // Act, Assert
         viewModel.uiState.test {
-            awaitItem()
+            val actualState = awaitItem()
+            assertIs<Lce.Content<SelectLocationListUiState>>(actualState)
+            assertLists(
+                testCountries.map { it.id },
+                actualState.value.relayListItems.mapNotNull { it.relayItemId() },
+            )
+        }
+    }
 
-            verify {
-                relayListItems(
-                    relayListType = RelayListType.Multihop(MultihopRelayListType.EXIT),
-                    relayCountries = testCountries,
-                    customLists = any(),
-                    recents = any(),
-                    selectedItem = any(),
-                    selectedByThisEntryExitList = exitLocation.getOrNull(),
-                    selectedByOtherEntryExitList = null,
-                    expandedItems = emptySet(),
-                )
-            }
+    @Test
+    fun `given relay type single list and entry blocked should work`() = runTest {
+        // Arrange
+        viewModel = createSelectLocationListViewModel(RelayListType.Single)
+        filteredRelayList.value = testCountries
+        selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
+        val mockSettings: Settings = mockk()
+        every { mockSettings.entryBlocked() } returns true
+        settings.value = mockSettings
+
+        // Act, Assert
+        viewModel.uiState.test {
+            val actualState = awaitItem()
+            assertIs<Lce.Content<SelectLocationListUiState>>(actualState)
+            assertLists(
+                testCountries.map { it.id },
+                actualState.value.relayListItems.mapNotNull { it.relayItemId() },
+            )
         }
     }
 
