@@ -8,6 +8,9 @@ cd "$SCRIPT_DIR"
 # shellcheck disable=SC1091
 source utils/log
 
+# shellcheck disable=SC1091
+source utils/localization_utils
+
 function main {
     case ${1:-""} in
         prepare) prepare_localization_strings;;
@@ -50,22 +53,12 @@ function update_relay_locations_pot {
     popd
 }
 
-function commit_changes {
-    if ! git diff-index --quiet HEAD --; then
-        git commit -a -S -m "$1"
-    fi
-}
-
 function prepare_localization_strings {
     sync_localizations
     commit_changes "Update messages.pot"
 
     update_relay_locations_pot
     commit_changes "Update relay-locations.pot"
-}
-
-function ensure_crowdin_api_key {
-    test ! -z "$CROWDIN_API_KEY"
 }
 
 function upload_to_crowdin {
