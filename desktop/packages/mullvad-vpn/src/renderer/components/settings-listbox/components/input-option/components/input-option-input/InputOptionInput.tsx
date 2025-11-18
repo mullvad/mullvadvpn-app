@@ -10,7 +10,7 @@ type InputOptionInputProps = ListItemTextFieldInputProps;
 export function InputOptionInput(props: InputOptionInputProps) {
   const { onValueChange: listBoxOnValueChange } = useListboxContext<string | undefined>();
 
-  const { inputRef, labelId, inputState } = useInputOptionContext();
+  const { inputRef, triggerRef, labelId, inputState } = useInputOptionContext();
   const { value, invalid, dirty, blur, handleChange, reset } = inputState;
 
   // Prevent the click from propagating to the ListboxOption, which would select the option.
@@ -18,11 +18,20 @@ export function InputOptionInput(props: InputOptionInputProps) {
     event.stopPropagation();
   }, []);
 
-  const handleBlur = React.useCallback(() => {
-    if (invalid) {
+  const handleBlur = React.useCallback(
+    (event: React.FocusEvent) => {
+      const trigger = triggerRef.current;
+      const next = event.relatedTarget;
+
+      if (next instanceof Node && trigger?.contains(next)) {
+        // Focus moved to the trigger, do not reset the input.
+        return;
+      }
+
       reset();
-    }
-  }, [invalid, reset]);
+    },
+    [reset, triggerRef],
+  );
 
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent) => {
