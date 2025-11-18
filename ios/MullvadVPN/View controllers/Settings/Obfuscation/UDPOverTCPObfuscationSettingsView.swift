@@ -16,7 +16,7 @@ struct UDPOverTCPObfuscationSettingsView<VM>: View where VM: UDPOverTCPObfuscati
         let portString = NSLocalizedString("Port", comment: "")
         SingleChoiceList(
             title: portString,
-            options: [WireGuardObfuscationUdpOverTcpPort.automatic, .port80, .port5001],
+            options: [WireGuardObfuscationUdpOverTcpPort.automatic, .port80, .port443, .port5001],
             value: $viewModel.value,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationUdpOverTcpTable.asString,
             itemDescription: { item in

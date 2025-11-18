@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 
+### Added
+- Allow using port 443 for UDP-over-TCP.
+
 ### Changed
 - Bump minimum version to iOS 17.0
 - Quantum-resistant tunnel setting is now on by default through the "Automatic" setting.
