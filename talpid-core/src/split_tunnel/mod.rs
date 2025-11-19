@@ -1,5 +1,7 @@
-#[cfg(target_os = "linux")]
-#[path = "linux.rs"]
+#[cfg(all(target_os = "linux"))]
+#[path = "linux_v1.rs"]
+mod imp;
+
 mod imp;
 
 #[cfg(windows)]
