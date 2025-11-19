@@ -59,7 +59,7 @@ As such, the above algorithm is simplified to the following version:
 - The first attempt will connect to a relay on a random port
 - The second attempt will connect to a relay on a random port using Shadowsocks for obfuscation
 - The third attempt will connect to a relay using QUIC for obfuscation
-- The fourth attempt will connect to a relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
+- The fourth attempt will connect to a relay on a random port between port 80 and 443 using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
 
 ### Random Ports for UDP2TCP and Shadowsocks
 
