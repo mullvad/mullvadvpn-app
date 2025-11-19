@@ -19,8 +19,8 @@ const val RECENTS_MAX_VISIBLE: Int = 3
 internal fun relayListItems(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
-    validEntryLocations: Set<RelayItem.Location>,
-    validExitLocations: Set<RelayItem.Location>,
+    validEntryLocations: Set<GeoLocationId>,
+    validExitLocations: Set<GeoLocationId>,
     customLists: List<RelayItem.CustomList>,
     recents: List<RelayItem>?,
     selectedItem: RelayItemSelection,
@@ -47,8 +47,8 @@ internal fun relayListItemsSearching(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
-    validEntryLocations: Set<RelayItem.Location>,
-    validExitLocations: Set<RelayItem.Location>,
+    validEntryLocations: Set<GeoLocationId>,
+    validExitLocations: Set<GeoLocationId>,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     expandedItems: Set<String>,
@@ -626,9 +626,9 @@ private fun RelayItem.createState(
     }
 }
 
-private fun validate(relayItem: RelayItem, validRelayItems: Set<RelayItem.Location>): Boolean =
+private fun validate(relayItem: RelayItem, geoLocationIds: Set<GeoLocationId>): Boolean =
     when (relayItem) {
-        is RelayItem.Location -> validRelayItems.any { it.id == relayItem.id }
+        is RelayItem.Location -> geoLocationIds.contains(relayItem.id)
         is RelayItem.CustomList ->
-            relayItem.locations.withDescendants().any { it in validRelayItems }
+            relayItem.locations.withDescendants().any { geoLocationIds.contains(it.id) }
     }
