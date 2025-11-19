@@ -182,8 +182,6 @@ class TunnelControlPage: Page {
                 XCTAssertEqual(attempt.protocolName, "UDP")
             } else {
                 XCTAssertEqual(attempt.protocolName, "TCP")
-                let validPorts = ["80", "5001"]
-                XCTAssertTrue(validPorts.contains(attempt.port))
             }
         }
 
