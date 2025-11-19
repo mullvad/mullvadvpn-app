@@ -19,6 +19,7 @@ pub mod version;
 mod abortable_stream;
 pub mod access_mode;
 mod https_client_with_sni;
+pub use https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle};
 pub mod proxy;
 mod tls_stream;
 #[cfg(target_os = "android")]
@@ -27,6 +28,7 @@ pub use crate::https_client_with_sni::SocketBypassRequest;
 mod access;
 mod address_cache;
 pub mod device;
+pub mod domain_fronting;
 mod relay_list;
 
 pub mod ffi;
