@@ -293,8 +293,8 @@ impl DeviceHandle {
             if let Some(tunnel_ipv4) = tunnel_ipv4 {
                 let tunnel_ipv4 = tunnel_ipv4.octets();
                 ptr::copy_nonoverlapping(
-                    &tunnel_ipv4[0] as *const u8,
-                    &mut addresses.tunnel_ipv4 as *mut _ as *mut u8,
+                    tunnel_ipv4.as_ptr(),
+                    (&raw mut addresses.tunnel_ipv4).cast::<u8>(),
                     tunnel_ipv4.len(),
                 );
             }
@@ -302,8 +302,8 @@ impl DeviceHandle {
             if let Some(tunnel_ipv6) = tunnel_ipv6 {
                 let tunnel_ipv6 = tunnel_ipv6.octets();
                 ptr::copy_nonoverlapping(
-                    &tunnel_ipv6[0] as *const u8,
-                    &mut addresses.tunnel_ipv6 as *mut _ as *mut u8,
+                    tunnel_ipv6.as_ptr(),
+                    (&raw mut addresses.tunnel_ipv6).cast::<u8>(),
                     tunnel_ipv6.len(),
                 );
             }
@@ -311,8 +311,8 @@ impl DeviceHandle {
             if let Some(internet_ipv4) = internet_ipv4 {
                 let internet_ipv4 = internet_ipv4.octets();
                 ptr::copy_nonoverlapping(
-                    &internet_ipv4[0] as *const u8,
-                    &mut addresses.internet_ipv4 as *mut _ as *mut u8,
+                    internet_ipv4.as_ptr(),
+                    (&raw mut addresses.internet_ipv4).cast::<u8>(),
                     internet_ipv4.len(),
                 );
             }
@@ -320,8 +320,8 @@ impl DeviceHandle {
             if let Some(internet_ipv6) = internet_ipv6 {
                 let internet_ipv6 = internet_ipv6.octets();
                 ptr::copy_nonoverlapping(
-                    &internet_ipv6[0] as *const u8,
-                    &mut addresses.internet_ipv6 as *mut _ as *mut u8,
+                    internet_ipv6.as_ptr(),
+                    (&raw mut addresses.internet_ipv6).cast::<u8>(),
                     internet_ipv6.len(),
                 );
             }
@@ -896,7 +896,7 @@ pub fn get_overlapped_result(
         GetOverlappedResult(
             device.as_raw_handle(),
             overlapped.as_mut_ptr(),
-            &mut returned_bytes,
+            &raw mut returned_bytes,
             0,
         )
     };

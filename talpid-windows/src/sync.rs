@@ -51,7 +51,7 @@ impl Event {
                 GetCurrentProcess(),
                 self.0.as_raw_handle(),
                 GetCurrentProcess(),
-                &mut new_event,
+                &raw mut new_event,
                 0,
                 0,
                 DUPLICATE_SAME_ACCESS,

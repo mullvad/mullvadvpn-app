@@ -125,7 +125,7 @@ macro_rules! get_reparse_path {
                 "link indices out-of-bounds",
             ))
         } else {
-            let path_buffer = (&reparse_data.path_buffer) as *const u16;
+            let path_buffer = reparse_data.path_buffer.as_ptr();
             let parsed_path = std::slice::from_raw_parts(
                 path_buffer.add((reparse_data.sub_name_offset as usize / mem::size_of::<u16>())),
                 reparse_data.sub_name_length as usize / mem::size_of::<u16>(),
@@ -168,7 +168,7 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
             0u32,
             data_buffer.as_mut_ptr() as *mut _,
             data_buffer.len() as u32,
-            &mut bytes_returned,
+            &raw mut bytes_returned,
             ptr::null_mut(),
         )
     } == 0
@@ -304,8 +304,8 @@ impl DirContext {
                 FILE_NOTIFY_CHANGE_FILE_NAME
                     | FILE_NOTIFY_CHANGE_DIR_NAME
                     | FILE_NOTIFY_CHANGE_ATTRIBUTES,
-                &mut _bytes_returned,
-                &mut *self.overlapped,
+                &raw mut _bytes_returned,
+                &raw mut *self.overlapped,
                 None,
             )
         } == 0
@@ -384,9 +384,9 @@ impl CompletionPort {
         if unsafe {
             GetQueuedCompletionStatus(
                 self.handle,
-                &mut result.bytes_returned,
-                &mut result.completion_key,
-                &mut result.used_overlapped,
+                &raw mut result.bytes_returned,
+                &raw mut result.completion_key,
+                &raw mut result.used_overlapped,
                 timeout,
             )
         } == 0
@@ -687,7 +687,7 @@ impl PathMonitor {
             return None;
         }
         for (i, dir_context) in self.dir_contexts.iter().enumerate() {
-            if std::ptr::eq(&*dir_context.overlapped, overlapped) {
+            if std::ptr::eq(&raw const *dir_context.overlapped, overlapped) {
                 return Some(i);
             }
         }
@@ -701,7 +701,7 @@ impl PathMonitor {
         }
         let mut was_discarded = false;
         self.discarded_contexts.retain(|ctx| {
-            if !std::ptr::eq(&*ctx.overlapped, overlapped) {
+            if !std::ptr::eq(&raw const *ctx.overlapped, overlapped) {
                 true
             } else {
                 was_discarded = true;
@@ -796,7 +796,8 @@ impl PathMonitor {
                     result
                 }
             };
-            contexts.retain(|ctx| !std::ptr::eq(&*ctx.overlapped, result.used_overlapped));
+            contexts
+                .retain(|ctx| !std::ptr::eq(&raw const *ctx.overlapped, result.used_overlapped));
         }
     }
 }

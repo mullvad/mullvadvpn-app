@@ -101,7 +101,7 @@ impl WindowsVersion {
         // SAFETY:
         // - &mut version_info is a valid pointer.
         // - rtl_get_version was provided by GetProcAddress and should be valid.
-        let status = unsafe { rtl_get_version(&mut version_info) };
+        let status = unsafe { rtl_get_version(&raw mut version_info) };
         debug_assert_eq!(
             status, STATUS_SUCCESS,
             "RtlGetVersion always returns success"
@@ -184,7 +184,7 @@ fn ntoskrnl_version() -> io::Result<(u32, u32, u32)> {
     let mut handle = 0u32;
 
     // SAFETY: We have a valid string and `handle` pointer
-    let size = unsafe { GetFileVersionInfoSizeW(wide_path.as_ptr(), &mut handle) };
+    let size = unsafe { GetFileVersionInfoSizeW(wide_path.as_ptr(), &raw mut handle) };
     if size == 0 {
         return Err(io::Error::last_os_error());
     }
@@ -207,8 +207,8 @@ fn ntoskrnl_version() -> io::Result<(u32, u32, u32)> {
         VerQueryValueW(
             buffer.as_ptr() as *const _,
             sub_block.as_ptr(),
-            &mut lp_buffer,
-            &mut len,
+            &raw mut lp_buffer,
+            &raw mut len,
         )
     };
 

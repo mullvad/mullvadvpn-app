@@ -189,7 +189,7 @@ impl RouteManagerInternal {
 
         // SAFETY: This function must be used to initialize MIB_IPFORWARD_ROW2 structs if it is to
         // be used later by CreateIpForwardEntry2.
-        unsafe { InitializeIpForwardEntry(&mut spec) };
+        unsafe { InitializeIpForwardEntry(&raw mut spec) };
 
         spec.InterfaceLuid = node.iface;
         spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_port_zero(route.network);
@@ -201,7 +201,7 @@ impl RouteManagerInternal {
         // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have a
         // valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set
         // to the interface.
-        let mut status = unsafe { CreateIpForwardEntry2(&spec) };
+        let mut status = unsafe { CreateIpForwardEntry2(&raw const spec) };
 
         // The return code ERROR_OBJECT_ALREADY_EXISTS means there is already an existing route
         // on the same interface, with the same DestinationPrefix and NextHop.
@@ -216,7 +216,7 @@ impl RouteManagerInternal {
             // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have
             // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must
             // be set to the interface.
-            status = unsafe { SetIpForwardEntry2(&spec) };
+            status = unsafe { SetIpForwardEntry2(&raw const spec) };
         }
 
         win32_err!(status).map_err(|e| {
@@ -260,7 +260,7 @@ impl RouteManagerInternal {
                             let mut luid = NET_LUID_LH { Value: 0 };
                             // SAFETY: No specific safety requirement
                             if let Err(e) = win32_err!(unsafe {
-                                ConvertInterfaceAliasToLuid(device_name.as_ptr(), &mut luid)
+                                ConvertInterfaceAliasToLuid(device_name.as_ptr(), &raw mut luid)
                             }) {
                                 log::error!(
                                     "Unable to get interface LUID for interface \"{device_name:?}\": {e}"
@@ -348,7 +348,7 @@ impl RouteManagerInternal {
         // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have
         // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be
         // set to the interface.
-        match win32_err!(unsafe { DeleteIpForwardEntry2(&r) }) {
+        match win32_err!(unsafe { DeleteIpForwardEntry2(&raw const r) }) {
             Ok(()) => Ok(()),
             Err(e) if e.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => {
                 log::warn!(
@@ -370,7 +370,7 @@ impl RouteManagerInternal {
 
         // SAFETY: This function must be used to initialize MIB_IPFORWARD_ROW2 structs if it is to
         // be used later by CreateIpForwardEntry2.
-        unsafe { InitializeIpForwardEntry(&mut spec) };
+        unsafe { InitializeIpForwardEntry(&raw mut spec) };
 
         spec.InterfaceLuid = route.luid;
         spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_port_zero(route.network);
@@ -382,7 +382,7 @@ impl RouteManagerInternal {
         // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have a
         // valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set
         // to the interface.
-        win32_err!(unsafe { CreateIpForwardEntry2(&spec) }).map_err(|e| {
+        win32_err!(unsafe { CreateIpForwardEntry2(&raw const spec) }).map_err(|e| {
             log::error!("Could not register route in routing table. Route: {route}");
             Error::AddToRouteTable(e)
         })?;
@@ -717,7 +717,7 @@ impl Adapters {
                     flags,
                     std::ptr::null_mut(),
                     buffer_pointer as *mut IP_ADAPTER_ADDRESSES_LH,
-                    &mut buffer_size,
+                    &raw mut buffer_size,
                 )
             };
 
@@ -784,7 +784,7 @@ impl Adapters {
         let cur = if self.buffer.is_empty() {
             std::ptr::null()
         } else {
-            &self.buffer[0] as *const u8 as *const IP_ADAPTER_ADDRESSES_LH
+            self.buffer.as_ptr().cast::<IP_ADAPTER_ADDRESSES_LH>()
         };
         AdaptersIterator {
             _adapters: self,
