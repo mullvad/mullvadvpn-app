@@ -27,6 +27,7 @@ class SelectLocationPage: Page {
         let cell = app.buttons[AccessibilityIdentifier.locationListItem(name)]
         let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
         expandButton.tap()
+
         return self
     }
 
