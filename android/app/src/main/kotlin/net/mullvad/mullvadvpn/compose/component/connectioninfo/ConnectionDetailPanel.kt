@@ -90,22 +90,26 @@ fun ConnectionDetails(
                     width = Dimension.wrapContent
                 },
         )
-        Text(
-            text = inIPV4,
-            color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        SelectionContainer(
             modifier =
-                Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG).constrainAs(inAddr) {
+                Modifier.constrainAs(inAddr) {
                     start.linkTo(headerBarrier)
                     end.linkTo(parent.end)
                     top.linkTo(parent.top)
                     bottom.linkTo(inAddrBarrier)
                     height = Dimension.wrapContent
                     width = Dimension.fillToConstraints
-                },
-        )
+                }
+        ) {
+            Text(
+                text = inIPV4,
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG),
+            )
+        }
 
         if (outIPV4 != null) {
             Text(
