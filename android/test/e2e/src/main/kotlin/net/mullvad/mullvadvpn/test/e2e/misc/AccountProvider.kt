@@ -19,16 +19,15 @@ interface AccountProvider {
         fun createAccountProvider(): AccountProvider {
             val partnerAuth: String? = InstrumentationRegistry.getArguments().getPartnerAuth()
             return if (partnerAuth != null) {
-                PartnerAccountProvider(partnerAuth)
+                PartnerProvider(partnerAuth)
             } else {
-                StaticAccountProvider()
+                StaticProvider()
             }
         }
     }
 }
 
-data class StaticAccountProvider(private val mullvadApi: MullvadApi = MullvadApi()) :
-    AccountProvider {
+data class StaticProvider(private val mullvadApi: MullvadApi = MullvadApi()) : AccountProvider {
 
     override suspend fun getValidAccountNumber(withTime: Boolean): String =
         InstrumentationRegistry.getArguments().getValidAccountNumber().also {
@@ -38,7 +37,7 @@ data class StaticAccountProvider(private val mullvadApi: MullvadApi = MullvadApi
     override suspend fun cleanup(accountNumber: String) = Unit // No-op
 }
 
-class PartnerAccountProvider(val partnerApi: PartnerApi) : AccountProvider {
+data class PartnerProvider(val partnerApi: PartnerApi) : AccountProvider {
     constructor(partnerAuth: String) : this(partnerApi = PartnerApi(partnerAuth))
 
     override suspend fun getValidAccountNumber(withTime: Boolean): String =
