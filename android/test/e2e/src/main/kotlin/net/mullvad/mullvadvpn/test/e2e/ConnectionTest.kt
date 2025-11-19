@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.test.e2e
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
@@ -143,54 +144,56 @@ class ConnectionTest : EndToEndTest() {
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
-    fun testWireGuardObfuscationOff() = runTest {
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharingStory() }
+    fun testWireGuardObfuscationOff() =
+        runTest(timeout = 2.minutes) {
+            app.launchAndLogIn(accountTestRule.validAccountNumber)
+            on<ConnectPage> { enableLocalNetworkSharingStory() }
 
-        on<ConnectPage> { clickSelectLocation() }
+            on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-            clickLocationCell(relayProvider.getDefaultRelay().relay)
+            on<SelectLocationPage> {
+                clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+                clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+                clickLocationCell(relayProvider.getDefaultRelay().relay)
+            }
+
+            device.acceptVpnPermissionDialog()
+
+            var relayIpAddress: String? = null
+
+            on<ConnectPage> {
+                waitForConnectedLabel()
+                relayIpAddress = extractInIpv4Address()
+                clickDisconnect()
+            }
+
+            // Block UDP traffic to the relay
+            val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
+            firewallClient.createRule(firewallRule)
+
+            // Enable UDP-over-TCP
+            on<ConnectPage> { clickSettings() }
+
+            on<SettingsPage> { clickVpnSettings() }
+
+            on<VpnSettingsPage> {
+                scrollUntilWireGuardObfuscationOffCell()
+                clickWireGuardObfuscationOffCell()
+            }
+
+            device.pressBack()
+            device.pressBack()
+
+            on<ConnectPage> {
+                clickConnect() // Ensure it is not possible to connect to relay
+                // Give it some time and then verify still unable to connect. This duration must be
+                // long
+                // enough to ensure all retry attempts have been made.
+                runBlocking { delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds) }
+                waitForConnectingLabel()
+                clickCancel()
+            }
         }
-
-        device.acceptVpnPermissionDialog()
-
-        var relayIpAddress: String? = null
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            relayIpAddress = extractInIpv4Address()
-            clickDisconnect()
-        }
-
-        // Block UDP traffic to the relay
-        val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
-        firewallClient.createRule(firewallRule)
-
-        // Enable UDP-over-TCP
-        on<ConnectPage> { clickSettings() }
-
-        on<SettingsPage> { clickVpnSettings() }
-
-        on<VpnSettingsPage> {
-            scrollUntilWireGuardObfuscationOffCell()
-            clickWireGuardObfuscationOffCell()
-        }
-
-        device.pressBack()
-        device.pressBack()
-
-        on<ConnectPage> {
-            clickConnect() // Ensure it is not possible to connect to relay
-            // Give it some time and then verify still unable to connect. This duration must be long
-            // enough to ensure all retry attempts have been made.
-            delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds)
-            waitForConnectingLabel()
-            clickCancel()
-        }
-    }
 
     @Test
     @HasDependencyOnLocalAPI
@@ -346,36 +349,37 @@ class ConnectionTest : EndToEndTest() {
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
-    fun testShadowsocks() = runTest {
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharingStory() }
+    fun testShadowsocks() =
+        runTest(timeout = 2.minutes) {
+            app.launchAndLogIn(accountTestRule.validAccountNumber)
+            on<ConnectPage> { enableLocalNetworkSharingStory() }
 
-        on<ConnectPage> { disableObfuscationStory() }
+            on<ConnectPage> { disableObfuscationStory() }
 
-        // Block all WireGuard traffic
-        val firewallRule = DropRule.blockWireGuardTrafficRule(ANY_IP_ADDRESS)
-        firewallClient.createRule(firewallRule)
+            // Block all WireGuard traffic
+            val firewallRule = DropRule.blockWireGuardTrafficRule(ANY_IP_ADDRESS)
+            firewallClient.createRule(firewallRule)
 
-        on<ConnectPage> { clickConnect() }
+            on<ConnectPage> { clickConnect() }
 
-        device.acceptVpnPermissionDialog()
+            device.acceptVpnPermissionDialog()
 
-        // Ensure it is not possible to connect to relay
-        on<ConnectPage> {
-            delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds)
-            waitForConnectingLabel()
-            clickCancel()
+            // Ensure it is not possible to connect to relay
+            on<ConnectPage> {
+                runBlocking { delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds) }
+                waitForConnectingLabel()
+                clickCancel()
+            }
+
+            on<ConnectPage> { enableShadowsocksStory() }
+
+            // Ensure we can now connect with Shadowsocks enabled
+            on<ConnectPage> {
+                clickConnect()
+                waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+                clickDisconnect()
+            }
         }
-
-        on<ConnectPage> { enableShadowsocksStory() }
-
-        // Ensure we can now connect with Shadowsocks enabled
-        on<ConnectPage> {
-            clickConnect()
-            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
-            clickDisconnect()
-        }
-    }
 
     @Test
     @HasDependencyOnLocalAPI
