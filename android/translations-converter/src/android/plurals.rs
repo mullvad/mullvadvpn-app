@@ -49,6 +49,7 @@ pub struct PluralVariant {
 pub enum PluralQuantity {
     Zero,
     One,
+    Two,
     Few,
     Many,
     Other,
@@ -155,6 +156,7 @@ impl Display for PluralQuantity {
         let quantity = match self {
             PluralQuantity::Zero => "zero",
             PluralQuantity::One => "one",
+            PluralQuantity::Two => "two",
             PluralQuantity::Few => "few",
             PluralQuantity::Many => "many",
             PluralQuantity::Other => "other",
