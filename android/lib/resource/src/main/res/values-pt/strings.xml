@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP sobre TCP</string>
     <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>
-    <string name="unable_to_reach_api_dialog_action_create">criar uma conta</string>
-    <string name="unable_to_reach_api_dialog_action_login">iniciar sessão</string>
-    <string name="unable_to_reach_api_dialog_message_first">Não foi possível à aplicação %1$s por não conseguir aceder à API Mullvad. Isto pode dever-se a censura ou a problemas de rede. Tente o seguinte:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Reiniciar o seu dispositivo</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Ligar a uma rede diferente</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Ativar todos os métodos de acesso na aplicação</string>
-    <string name="unable_to_reach_api_dialog_message_second">Se estes passos não resultarem, envie um e-mail para o suporte através do botão abaixo. Anexará automaticamente os registos, que foram anonimizados.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Se estes passos não resultarem, envie um e-mail para o suporte através do botão abaixo. Anexará automaticamente os registos, que foram anonimizados.</string>
     <string name="unable_to_reach_api_dialog_title">Não é possível aceder à API</string>
     <string name="undo">Anular</string>
     <string name="unsupported_version">VERSÃO NÃO SUPORTADA</string>

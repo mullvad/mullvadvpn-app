@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP över TCP</string>
     <string name="udp_over_tcp_port_info">Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern.</string>
-    <string name="unable_to_reach_api_dialog_action_create">skapa ett konto</string>
-    <string name="unable_to_reach_api_dialog_action_login">logga in</string>
-    <string name="unable_to_reach_api_dialog_message_first">Appen kunde inte %1$s eftersom den inte når Mullvad API. Det kan bero på censur eller nätverksproblem. Försök att:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Starta om enheten</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Anslut till ett annat nätverk</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Aktivera alla åtkomstmetoder i appen</string>
-    <string name="unable_to_reach_api_dialog_message_second">Om dessa steg inte fungerar kan du skicka ett e-postmeddelande till supporten via knappen nedan. Detta bifogar automatisk loggarna som har anonymiserats.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Om dessa steg inte fungerar kan du skicka ett e-postmeddelande till supporten via knappen nedan. Detta bifogar automatisk loggarna som har anonymiserats.</string>
     <string name="unable_to_reach_api_dialog_title">Det går inte att nå API</string>
     <string name="undo">Ångra</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>

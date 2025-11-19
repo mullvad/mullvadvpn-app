@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-ผ่าน-TCP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
-    <string name="unable_to_reach_api_dialog_action_create">สร้างบัญชี</string>
-    <string name="unable_to_reach_api_dialog_action_login">เข้าสู่ระบบ</string>
-    <string name="unable_to_reach_api_dialog_message_first">แอปไม่สามารถ %1$s ได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้ ซึ่งอาจเกิดจากการเซ็นเซอร์ หรือปัญหาเครือข่าย โปรดลอง:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">รีสตาร์ทอุปกรณ์ของคุณ</string>
     <string name="unable_to_reach_api_dialog_message_list_second">เชื่อมต่อกับเครือข่ายอื่น</string>
     <string name="unable_to_reach_api_dialog_message_list_third">เปิดใช้งานวิธีการเข้าถึงทั้งหมดในแอป</string>
-    <string name="unable_to_reach_api_dialog_message_second">หากขั้นตอนเหล่านี้ไม่ได้ผล โปรดส่งอีเมลถึงฝ่ายสนับสนุนโดยใช้ปุ่มด้านล่าง ระบบจะแนบบันทึกที่ถูกทำให้ไม่ระบุตัวตนโดยอัตโนมัติ</string>
+    <string name="unable_to_reach_api_dialog_message_third">หากขั้นตอนเหล่านี้ไม่ได้ผล โปรดส่งอีเมลถึงฝ่ายสนับสนุนโดยใช้ปุ่มด้านล่าง ระบบจะแนบบันทึกที่ถูกทำให้ไม่ระบุตัวตนโดยอัตโนมัติ</string>
     <string name="unable_to_reach_api_dialog_title">ไม่สามารถเข้าถึง API ได้</string>
     <string name="undo">เลิกทำ</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>

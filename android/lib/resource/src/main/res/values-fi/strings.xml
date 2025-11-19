@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP TCP:n kautta</string>
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
-    <string name="unable_to_reach_api_dialog_action_create">luo tili</string>
-    <string name="unable_to_reach_api_dialog_action_login">kirjaudu sisään</string>
-    <string name="unable_to_reach_api_dialog_message_first">Toiminto %1$s ei onnistunut sovellukselta, koska se ei saanut yhteyttä Mullvad API:hin. Tämä voi johtua sensuurista tai verkko-ongelmista. Kokeile seuraavia:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Käynnistä laitteesi uudelleen</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Muodosta yhteys toiseen verkkoon</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Ota kaikki käyttötavat käyttöön sovelluksessa</string>
-    <string name="unable_to_reach_api_dialog_message_second">Jos nämä vaiheet eivät toimi, lähetä sähköpostiviesti tuelle käyttämällä alla olevaa painiketta. Se liittää automaattisesti anonymisoidut lokit.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Jos nämä vaiheet eivät toimi, lähetä sähköpostiviesti tuelle käyttämällä alla olevaa painiketta. Se liittää automaattisesti anonymisoidut lokit.</string>
     <string name="unable_to_reach_api_dialog_title">Yhteyden muodostaminen API:hin ei onnistu</string>
     <string name="undo">Kumoa</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>

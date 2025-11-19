@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP über TCP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
-    <string name="unable_to_reach_api_dialog_action_create">Kontoerstellung</string>
-    <string name="unable_to_reach_api_dialog_action_login">Anmeldung</string>
-    <string name="unable_to_reach_api_dialog_message_first">Die App konnte aufgrund fehlender Zugriffsrechte auf die Mullvad-API keine %1$s durchführen. Dies kann an Zensur oder Netzwerkproblemen liegen. Versuchen Sie Folgendes:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Ihr Gerät neu starten</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Mit einem anderen Netzwerk verbinden</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Alle Zugriffsmethoden in der App aktivieren</string>
-    <string name="unable_to_reach_api_dialog_message_second">Sollten die oben genannten Schritte nicht zum Erfolg führen, senden Sie bitte über die Schaltfläche unten eine E-Mail an unseren Support. Es werden automatisch anonymisierte Protokolle als Anhang beigefügt.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Sollten die oben genannten Schritte nicht zum Erfolg führen, senden Sie bitte über die Schaltfläche unten eine E-Mail an unseren Support. Es werden automatisch anonymisierte Protokolle als Anhang beigefügt.</string>
     <string name="unable_to_reach_api_dialog_title">API nicht erreichbar</string>
     <string name="undo">Rückgängig</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>

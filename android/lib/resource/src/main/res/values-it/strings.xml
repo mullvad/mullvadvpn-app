@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN.</string>
-    <string name="unable_to_reach_api_dialog_action_create">creare un account</string>
-    <string name="unable_to_reach_api_dialog_action_login">accedere</string>
-    <string name="unable_to_reach_api_dialog_message_first">L\'app non è riuscita a %1$s poiché non è stato possibile raggiungere l\'API Mullvad. Ciò potrebbe essere dovuto a problemi di censura o di rete. Prova a fare quanto segue:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Riavvia il tuo dispositivo</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Connettiti a un\'altra rete</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Abilita tutti i metodi di accesso nell\'app</string>
-    <string name="unable_to_reach_api_dialog_message_second">Se questi passaggi non funzionano, invia un\'e-mail al supporto utilizzando il pulsante qui sotto. Verranno allegati automaticamente i log precedentemente anonimizzati.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Se questi passaggi non funzionano, invia un\'e-mail al supporto utilizzando il pulsante qui sotto. Verranno allegati automaticamente i log precedentemente anonimizzati.</string>
     <string name="unable_to_reach_api_dialog_title">Impossibile raggiungere l\'API</string>
     <string name="undo">Annulla</string>
     <string name="unsupported_version">VERSIONE NON SUPPORTATA</string>

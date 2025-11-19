@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
-    <string name="unable_to_reach_api_dialog_action_create">建立帳戶</string>
-    <string name="unable_to_reach_api_dialog_action_login">登入</string>
-    <string name="unable_to_reach_api_dialog_message_first">由於無法存取 Mullvad API，應用程式無法 %1$s。這可能是審查或網路問題所導致。請嘗試：</string>
     <string name="unable_to_reach_api_dialog_message_list_first">重新啟動裝置</string>
     <string name="unable_to_reach_api_dialog_message_list_second">連上其他網路</string>
     <string name="unable_to_reach_api_dialog_message_list_third">啟用應用程式中所有存取方式</string>
-    <string name="unable_to_reach_api_dialog_message_second">若以上步驟無效，請使用下方按鈕傳送電子郵件至支援團隊。電子郵件將自動附加已匿名處理的日誌記錄。</string>
+    <string name="unable_to_reach_api_dialog_message_third">若以上步驟無效，請使用下方按鈕傳送電子郵件至支援團隊。電子郵件將自動附加已匿名處理的日誌記錄。</string>
     <string name="unable_to_reach_api_dialog_title">無法存取 API</string>
     <string name="undo">復原</string>
     <string name="unsupported_version">不支援的版本</string>

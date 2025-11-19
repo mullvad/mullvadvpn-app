@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
-    <string name="unable_to_reach_api_dialog_action_create">အကောင့်ဖွင့်ရန်</string>
-    <string name="unable_to_reach_api_dialog_action_login">ဝင်ရန်</string>
-    <string name="unable_to_reach_api_dialog_message_first">Mullvad API သို့ ချိတ်ဆက်၍ မရသဖြင့် အက်ပ်သည် %1$s ကို မလုပ်ဆောင်နိုင်ပါ။ ဆင်ဆာဖြတ်ခြင်း သို့မဟုတ် ကွန်ရက်ပြဿနာများကြောင့် ဖြစ်နိုင်ပါသည်။ ကျေးဇူးပြု၍ အောက်ပါအတိုင်း လုပ်ကြည့်ပါ-</string>
     <string name="unable_to_reach_api_dialog_message_list_first">သင့်စက်ကို ပြန်လည်စတင်ကြည့်ပါ</string>
     <string name="unable_to_reach_api_dialog_message_list_second">အခြားကွန်ရက်တစ်ခုကို ချိတ်ဆက်ကြည့်ပါ</string>
     <string name="unable_to_reach_api_dialog_message_list_third">အက်ပ်တွင် ရယူသုံးစွဲခွင့် နည်းလမ်းအားလုံးကို ဖွင့်ပါ</string>
-    <string name="unable_to_reach_api_dialog_message_second">ဤအဆင့်များအတိုင်း လုပ်ဆောင်သော်လည်း မပြေလည်ပါက အောက်ရှိ ခလုတ်ကို သုံး၍ သုံးစွဲသူ အကူအညီပေးရေး အဖွဲ့ထံ အီးမေးလ်တစ်စောင် ပို့ပေးပါ။ အီးမေးလ်တွင် အမည်ဝှက်ထားသော မှတ်တမ်းများကို အော်တို တွဲချိတ်သွားပါမည်။</string>
+    <string name="unable_to_reach_api_dialog_message_third">ဤအဆင့်များအတိုင်း လုပ်ဆောင်သော်လည်း မပြေလည်ပါက အောက်ရှိ ခလုတ်ကို သုံး၍ သုံးစွဲသူ အကူအညီပေးရေး အဖွဲ့ထံ အီးမေးလ်တစ်စောင် ပို့ပေးပါ။ အီးမေးလ်တွင် အမည်ဝှက်ထားသော မှတ်တမ်းများကို အော်တို တွဲချိတ်သွားပါမည်။</string>
     <string name="unable_to_reach_api_dialog_title">API ကို ချိတ်ဆက်၍ မရပါ</string>
     <string name="undo">မလုပ်တော့ပါ</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
