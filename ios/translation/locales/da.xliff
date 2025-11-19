@@ -5,9 +5,9 @@
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="%@" xml:space="preserve">
+      <trans-unit id="%@" xml:space="preserve" approved="yes">
         <source>%@</source>
-        <target state="needs-translation">%@</target>
+        <target state="final">%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
@@ -15,9 +15,9 @@
         <target state="final">%1$@ (%2$@) skjuler mønstre i din krypterede VPN-trafik.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ cannot be empty." xml:space="preserve">
+      <trans-unit id="%@ cannot be empty." xml:space="preserve" approved="yes">
         <source>%@ cannot be empty.</source>
-        <target state="needs-translation">%@ cannot be empty.</target>
+        <target state="final">%@ må ikke være tom.</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve" approved="yes">
@@ -25,9 +25,9 @@
         <target state="final">%@ gør dette ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ left on this account" xml:space="preserve">
+      <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
         <source>%@ left on this account</source>
-        <target state="needs-translation">%@ left on this account</target>
+        <target state="final">%@ tilbage på denne konto</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ via %@" xml:space="preserve" approved="yes">
@@ -40,14 +40,14 @@
         <target state="final">%@ blev føjet til din konto.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@, %@" xml:space="preserve">
+      <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
-        <target state="needs-translation">%1$@, %2$@</target>
+        <target state="final">%1$@, %2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve">
+      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
         <source>%@-enabled</source>
-        <target state="needs-translation">%@-enabled</target>
+        <target state="final">%@-aktiveret</target>
         <note/>
       </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
@@ -65,9 +65,9 @@
         <target state="final">**Bemærk: Dette øger netværkstrafikken og vil også påvirke hastighed, ventetid og batteriforbrug negativt. Brug det varsomt på abonnementer med begrænsninger.**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve">
+      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
         <source>**Tap here** to see what’s new</source>
-        <target state="needs-translation">**Tap here** to see what’s new</target>
+        <target state="final">**Tryk her** for at se nyhederne</target>
         <note/>
       </trans-unit>
       <trans-unit id="API access" xml:space="preserve" approved="yes">
@@ -90,19 +90,19 @@
         <target state="final">API utilgængelig, gemme metode alligevel?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About %@ method..." xml:space="preserve">
+      <trans-unit id="About %@ method..." xml:space="preserve" approved="yes">
         <source>About %@ method...</source>
-        <target state="needs-translation">About %@ method...</target>
+        <target state="final">Om %@-metoden ...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About API access…" xml:space="preserve">
+      <trans-unit id="About API access…" xml:space="preserve" approved="yes">
         <source>About API access…</source>
-        <target state="needs-translation">About API access…</target>
+        <target state="final">Om API-adgang …</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About Server IP override..." xml:space="preserve">
+      <trans-unit id="About Server IP override..." xml:space="preserve" approved="yes">
         <source>About Server IP override...</source>
-        <target state="needs-translation">About Server IP override...</target>
+        <target state="final">Om tilsidesættelse af server-IP ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account" xml:space="preserve" approved="yes">
@@ -120,14 +120,14 @@
         <target state="final">Kontokredit udløber snart</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account credit has expired" xml:space="preserve">
+      <trans-unit id="Account credit has expired" xml:space="preserve" approved="yes">
         <source>Account credit has expired</source>
-        <target state="needs-translation">Account credit has expired</target>
+        <target state="final">Kontokreditten er udløbet</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account deletion" xml:space="preserve">
+      <trans-unit id="Account deletion" xml:space="preserve" approved="yes">
         <source>Account deletion</source>
-        <target state="needs-translation">Account deletion</target>
+        <target state="final">Sletning af konto</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account number" xml:space="preserve" approved="yes">
@@ -220,14 +220,14 @@
         <target state="final">Enhver</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve">
+      <trans-unit id="App logs" xml:space="preserve" approved="yes">
         <source>App logs</source>
-        <target state="needs-translation">App logs</target>
+        <target state="final">Appens logfiler</target>
         <note/>
       </trans-unit>
-      <trans-unit id="AppStore receipt is not found on disk." xml:space="preserve">
-        <source>AppStore receipt is not found on disk.</source>
-        <target state="needs-translation">AppStore receipt is not found on disk.</target>
+      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
+        <source>App Store receipt is not found on disk.</source>
+        <target state="final">App Store-kvittering findes ikke på disken.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve" approved="yes">
@@ -235,9 +235,9 @@
         <target state="final">Er du sikker på, at du vil logge %@ af?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Argentina" xml:space="preserve">
+      <trans-unit id="Argentina" xml:space="preserve" approved="yes">
         <source>Argentina</source>
-        <target state="needs-translation">Argentina</target>
+        <target state="final">Argentina</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ashburn, VA" xml:space="preserve" approved="yes">
@@ -260,14 +260,14 @@
         <target state="final">Atlanta, GA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
+      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
-        <target state="needs-translation">Attention: this setting cannot be used in combination with **%@**</target>
+        <target state="final">Bemærk: Denne indstilling kan ikke bruges i kombination med **%@**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
+      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="needs-translation">Attention: toggling “Local network sharing” requires restarting the VPN connection.</target>
+        <target state="final">Bemærk: Hvis du slår "Lokal netværksdeling" til, skal du genstarte VPN-forbindelsen.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve" approved="yes">
@@ -330,9 +330,9 @@
         <target state="final">Berlin</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
+      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve" approved="yes">
         <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
-        <target state="needs-translation">Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</target>
+        <target state="final">Blokering af internet: Tiden på denne konto er udløbet. Hvis du vil fortsætte med at bruge internettet, skal du tilføje mere tid eller frakoble VPN'en.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bogota" xml:space="preserve" approved="yes">
@@ -380,9 +380,9 @@
         <target state="final">Budapest</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Buenos Aires" xml:space="preserve">
+      <trans-unit id="Buenos Aires" xml:space="preserve" approved="yes">
         <source>Buenos Aires</source>
-        <target state="needs-translation">Buenos Aires</target>
+        <target state="final">Buenos Aires</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bulgaria" xml:space="preserve" approved="yes">
@@ -390,9 +390,14 @@
         <target state="final">Bulgarien</target>
         <note/>
       </trans-unit>
-      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve">
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
+        <target state="final">Ved at vedhæfte dit konto-token knyttes denne rapport til din konto, og det hjælper os med at løse dit problem hurtigere. Alle rapporter bliver automatisk slettet efter noget tid. Du kan finde yderligere oplysninger i vores </target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve" approved="yes">
         <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
-        <target state="needs-translation">By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</target>
+        <target state="final">Hvis du aktiverer "%1$@", skal du manuelt vælge en server, der er %2$@-aktiveret. %3$@ vil ikke automatisk blive brugt til at aktivere DAITA med nogen server.</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -425,24 +430,24 @@
         <target state="final">Annuller</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve" approved="yes">
         <source>Cannot complete the purchase</source>
-        <target state="needs-translation">Cannot complete the purchase</target>
+        <target state="final">Kan ikke fuldføre købet</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the AppStore receipt from disk" xml:space="preserve">
-        <source>Cannot read the AppStore receipt from disk</source>
-        <target state="needs-translation">Cannot read the AppStore receipt from disk</target>
+      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
+        <source>Cannot read the App Store receipt from disk</source>
+        <target state="final">Kan ikke læse App Store-kvitteringen fra disken</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot refresh the AppStore receipt: %@" xml:space="preserve">
-        <source>Cannot refresh the AppStore receipt: %@</source>
-        <target state="needs-translation">Cannot refresh the AppStore receipt: %@</target>
+      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
+        <source>Cannot refresh the App Store receipt: %@</source>
+        <target state="final">Kan ikke genindlæse App Store-kvitteringen: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+      <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
-        <target state="needs-translation">Cannot restore purchases</target>
+        <target state="final">Kan ikke gendanne køb</target>
         <note/>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
@@ -485,19 +490,19 @@
         <target state="final">Rydning af de importerede tilsidesættelser sætter server-IP'erne i visningen Vælg placering tilbage til standard.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
+      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
         <source>Client is not allowed to issue the request.</source>
-        <target state="needs-translation">Client is not allowed to issue the request.</target>
+        <target state="final">Klienten må ikke udstede anmodningen.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapse %@" xml:space="preserve">
+      <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
-        <target state="needs-translation">Collapse %@</target>
+        <target state="final">Skjul %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapses this location." xml:space="preserve">
+      <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
-        <target state="needs-translation">Collapses this location.</target>
+        <target state="final">Skjuler denne placering.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Colombia" xml:space="preserve" approved="yes">
@@ -515,14 +520,14 @@
         <target state="final">Opret forbindelse</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected to %@" xml:space="preserve">
+      <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
         <source>Connected to %@</source>
-        <target state="needs-translation">Connected to %@</target>
+        <target state="final">Tilsluttet %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connecting to %@" xml:space="preserve">
+      <trans-unit id="Connecting to %@" xml:space="preserve" approved="yes">
         <source>Connecting to %@</source>
-        <target state="needs-translation">Connecting to %@</target>
+        <target state="final">Tilslutter til %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connection details" xml:space="preserve" approved="yes">
@@ -540,9 +545,9 @@
         <target state="final">København</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
+      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve" approved="yes">
         <source>Copied Mullvad account number to pasteboard</source>
-        <target state="needs-translation">Copied Mullvad account number to pasteboard</target>
+        <target state="final">Kopierede Mullvad-kontonummer til pasteboard</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -565,9 +570,9 @@
         <target state="final">Opret ny liste</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Created: %@" xml:space="preserve">
+      <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
         <source>Created: %@</source>
-        <target state="needs-translation">Created: %@</target>
+        <target state="final">Oprettet: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
@@ -610,19 +615,19 @@
         <target state="final">Tjekkiet</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA" xml:space="preserve">
+      <trans-unit id="DAITA" xml:space="preserve" approved="yes">
         <source>DAITA</source>
-        <target state="needs-translation">DAITA</target>
+        <target state="final">DAITA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</target>
+        <target state="final">DAITA er ikke tilgængeligt på den aktuelt valgte placering. Når du har aktiveret, skal du gå til visningen "Vælg placering" og vælge en placering, der understøtter DAITA.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</target>
+        <target state="final">DAITA er ikke tilgængeligt på den aktuelle indgangsserver. Når du har aktiveret det, skal du gå til visningen "Vælg placering" og vælge en indgangsplacering, der understøtter DAITA.</target>
         <note/>
       </trans-unit>
       <trans-unit id="DISCONNECTED" xml:space="preserve" approved="yes">
@@ -640,9 +645,9 @@
         <target state="final">DNS-indholdsblokkere</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DNS settings" xml:space="preserve">
+      <trans-unit id="DNS settings" xml:space="preserve" approved="yes">
         <source>DNS settings</source>
-        <target state="needs-translation">DNS settings</target>
+        <target state="final">DNS-indstillinger</target>
         <note/>
       </trans-unit>
       <trans-unit id="Dallas, TX" xml:space="preserve" approved="yes">
@@ -655,14 +660,14 @@
         <target state="final">Slet</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete %@?" xml:space="preserve">
+      <trans-unit id="Delete %@?" xml:space="preserve" approved="yes">
         <source>Delete %@?</source>
-        <target state="needs-translation">Delete %@?</target>
+        <target state="final">Vil du slette %@?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete account" xml:space="preserve">
+      <trans-unit id="Delete account" xml:space="preserve" approved="yes">
         <source>Delete account</source>
-        <target state="needs-translation">Delete account</target>
+        <target state="final">Slet konto</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete list" xml:space="preserve" approved="yes">
@@ -675,9 +680,9 @@
         <target state="final">Slet metode</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve">
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
         <source>Deleting account...</source>
-        <target state="needs-translation">Deleting account...</target>
+        <target state="final">Sletter konto ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
@@ -705,9 +710,9 @@
         <target state="final">Enhedsnavn</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Device name: %@" xml:space="preserve">
+      <trans-unit id="Device name: %@" xml:space="preserve" approved="yes">
         <source>Device name: %@</source>
-        <target state="needs-translation">Device name: %@</target>
+        <target state="final">Enhedsnavn: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Direct only" xml:space="preserve" approved="yes">
@@ -720,9 +725,9 @@
         <target state="final">Deaktiver alle "%@" ovenfor for at aktivere denne indstilling.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve">
+      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
         <source>Disabling</source>
-        <target state="needs-translation">Disabling</target>
+        <target state="final">Deaktiverer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -735,9 +740,9 @@
         <target state="final">Afbryd forbindelse</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
+      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve" approved="yes">
         <source>Do you agree to remaining anonymous?</source>
-        <target state="needs-translation">Do you agree to remaining anonymous?</target>
+        <target state="final">Accepterer du at være anonym?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Do you want to create a new account?" xml:space="preserve" approved="yes">
@@ -745,14 +750,14 @@
         <target state="final">Vil du oprette en ny konto?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve">
+      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve" approved="yes">
         <source>Do you want to delete the list **%@**?</source>
-        <target state="needs-translation">Do you want to delete the list **%@**?</target>
+        <target state="final">Vil du slette listen **%@**?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Done" xml:space="preserve">
+      <trans-unit id="Done" xml:space="preserve" approved="yes">
         <source>Done</source>
-        <target state="needs-translation">Done</target>
+        <target state="final">Færdig</target>
         <note/>
       </trans-unit>
       <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
@@ -770,9 +775,9 @@
         <target state="final">Düsseldorf</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit custom list" xml:space="preserve">
+      <trans-unit id="Edit custom list" xml:space="preserve" approved="yes">
         <source>Edit custom list</source>
-        <target state="needs-translation">Edit custom list</target>
+        <target state="final">Rediger tilpasset liste</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit custom lists" xml:space="preserve" approved="yes">
@@ -790,9 +795,9 @@
         <target state="final">Rediger metode</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
+      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve" approved="yes">
         <source>Either buy credit on our website or make an in-app purchase via the **Add time** button below.</source>
-        <target state="needs-translation">Either buy credit on our website or make an in-app purchase via the **Add time** button below.</target>
+        <target state="final">Køb enten kreditter på vores hjemmeside eller foretag et køb i appen via knappen **Tilføj tid** nedenfor.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve" approved="yes">
@@ -810,9 +815,9 @@
         <target state="final">Aktiver metode</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve">
+      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
         <source>Enabling</source>
-        <target state="needs-translation">Enabling</target>
+        <target state="final">Aktiverer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -845,19 +850,19 @@
         <target state="final">Udgang</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expand %@" xml:space="preserve">
+      <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
-        <target state="needs-translation">Expand %@</target>
+        <target state="final">Udvid %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expands this location." xml:space="preserve">
+      <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
-        <target state="needs-translation">Expands this location.</target>
+        <target state="final">Udvider denne placering.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve" approved="yes">
         <source>FAQs &amp; Guides</source>
-        <target state="needs-translation">FAQs &amp; Guides</target>
+        <target state="final">Ofte stillede spørgsmål og vejledninger</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to load products, please try again" xml:space="preserve" approved="yes">
@@ -870,34 +875,34 @@
         <target state="final">Kunne ikke sende</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
+      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
         <source>Failed to send the receipt to server: %@</source>
-        <target state="needs-translation">Failed to send the receipt to server: %@</target>
+        <target state="final">Kvitteringen kunne ikke sendes til serveren: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel.</source>
-        <target state="needs-translation">Failed to start the tunnel.</target>
+        <target state="final">Tunnelen kunne ikke startes.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel: %@.</source>
-        <target state="needs-translation">Failed to start the tunnel: %@.</target>
+        <target state="final">Kunne ikke starte tunnelen: %@.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel.</source>
-        <target state="needs-translation">Failed to stop the tunnel.</target>
+        <target state="final">Kunne ikke stoppe tunnelen.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel: %@.</source>
-        <target state="needs-translation">Failed to stop the tunnel: %@.</target>
+        <target state="final">Kunne ikke stoppe tunnelen: %@.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Fetching devices..." xml:space="preserve">
+      <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
         <source>Fetching devices...</source>
-        <target state="needs-translation">Fetching devices...</target>
+        <target state="final">Henter enheder ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Filter" xml:space="preserve" approved="yes">
@@ -1030,9 +1035,9 @@
         <target state="final">Hvis du ikke er tilsluttet vores VPN, vil den krypterede DNS-proxy bruge din egen ikke-VPN IP,-adresse når du opretter forbindelse. DoH-serverne hostes af en af følgende udbydere: Quad9 eller CloudFlare.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve">
+      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
         <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
-        <target state="needs-translation">If you disconnect now, you won’t be able to secure your connection until the device is online.</target>
+        <target state="final">Hvis du afbryder forbindelsen nu, vil du ikke kunne sikre din forbindelse, før enheden er online.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
@@ -1040,9 +1045,9 @@
         <target state="final">Hvis du lukker formularen og prøver igen senere, vil de oplysninger, du allerede har indtastet, stadig være her.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve">
+      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve" approved="yes">
         <source>If you haven’t received additional VPN time after purchasing</source>
-        <target state="needs-translation">If you haven’t received additional VPN time after purchasing</target>
+        <target state="final">Hvis du ikke har modtaget yderligere VPN-tid efter købet</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve" approved="yes">
@@ -1050,9 +1055,9 @@
         <target state="final">Hvis du logger ud, fjernes enheden og enhedsnavnet. Når du logger på igen, får enheden et nyt navn.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
+      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve" approved="yes">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
-        <target state="needs-translation">If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</target>
+        <target state="final">Hvis du stadig oplever problemer, kan du sende en e-mail direkte til vores support på **%@**. Vedhæft din apps logfil til din e-mail.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve" approved="yes">
@@ -1070,14 +1075,14 @@
         <target state="final">Importer filer eller tekst med nye IP-adresser til serverne i visningen Vælg placering.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve">
+      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve" approved="yes">
         <source>Import of %@ was successful, overrides are now active.</source>
-        <target state="needs-translation">Import of %@ was successful, overrides are now active.</target>
+        <target state="final">Import af %@ gennemført, tilsidesættelser er nu aktive.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve">
+      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve" approved="yes">
         <source>Import of %@ was unsuccessful, please try again.</source>
-        <target state="needs-translation">Import of %@ was unsuccessful, please try again.</target>
+        <target state="final">Import af %@ mislykkedes. Prøv igen.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import of text was successful, overrides are now active." xml:space="preserve" approved="yes">
@@ -1105,9 +1110,14 @@
         <target state="final">I brug</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve">
+      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
         <source>Include all networks</source>
-        <target state="needs-translation">Include all networks</target>
+        <target state="final">Inkluder alle netværk</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
+        <source>Include my account token for faster help with payment or account related issues</source>
+        <target state="final">Inkluder min konto-token for hurtigere hjælp med betalings- eller kontorelaterede problemer</target>
         <note/>
       </trans-unit>
       <trans-unit id="Indonesia" xml:space="preserve" approved="yes">
@@ -1115,9 +1125,9 @@
         <target state="final">Indonesien</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
+      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
-        <target state="needs-translation">Internal error occurred. Settings will be reset to defaults and device logged out.</target>
+        <target state="final">Der opstod en intern fejl. Indstillingerne nulstilles til standard, og enheden bliver logget af.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Internal error." xml:space="preserve" approved="yes">
@@ -1130,19 +1140,19 @@
         <target state="final">Ugyldigt kontonummer</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve">
+      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
         <source>Invalid account number: %@</source>
-        <target state="needs-translation">Invalid account number: %@</target>
+        <target state="final">Ugyldigt kontonummer: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid device state." xml:space="preserve">
+      <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
-        <target state="needs-translation">Invalid device state.</target>
+        <target state="final">Ugyldig enhedstilstand.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve">
+      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
         <source>Invalid purchase identifier.</source>
-        <target state="needs-translation">Invalid purchase identifier.</target>
+        <target state="final">Ugyldig købsidentifikator.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1215,14 +1225,14 @@
         <target state="final">Sprog</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve">
+      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve" approved="yes">
         <source>Last four digits of the account number are incorrect</source>
-        <target state="needs-translation">Last four digits of the account number are incorrect</target>
+        <target state="final">De sidste fire cifre i kontonummeret er forkerte</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve">
+      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
         <source>Last used account</source>
-        <target state="needs-translation">Last used account</target>
+        <target state="final">Sidst anvendte konto</target>
         <note/>
       </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
@@ -1230,9 +1240,9 @@
         <target state="final">Lær mere om privatlivets fred</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Less than a day" xml:space="preserve">
+      <trans-unit id="Less than a day" xml:space="preserve" approved="yes">
         <source>Less than a day</source>
-        <target state="needs-translation">Less than a day</target>
+        <target state="final">Mindre end én dag</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lima" xml:space="preserve" approved="yes">
@@ -1275,9 +1285,9 @@
         <target state="final">Logger ind...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logging out..." xml:space="preserve">
+      <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
         <source>Logging out...</source>
-        <target state="needs-translation">Logging out...</target>
+        <target state="final">Logger af ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Login" xml:space="preserve" approved="yes">
@@ -1305,9 +1315,9 @@
         <target state="final">Madrid</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Make a purchase with StoreKit2</source>
-        <target state="needs-translation">Make a purchase with StoreKit2</target>
+        <target state="final">Foretag et køb med StoreKit2</target>
         <note/>
       </trans-unit>
       <trans-unit id="Malaysia" xml:space="preserve" approved="yes">
@@ -1400,9 +1410,9 @@
         <target state="final">Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NETWORK ISSUES" xml:space="preserve">
+      <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
         <source>NETWORK ISSUES</source>
-        <target state="needs-translation">NETWORK ISSUES</target>
+        <target state="final">NETVÆRKSPROBLEMER</target>
         <note/>
       </trans-unit>
       <trans-unit id="NEW DEVICE CREATED" xml:space="preserve" approved="yes">
@@ -1415,9 +1425,9 @@
         <target state="final">NY VERSION INSTALLERET</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NO NETWORK" xml:space="preserve">
+      <trans-unit id="NO NETWORK" xml:space="preserve" approved="yes">
         <source>NO NETWORK</source>
-        <target state="needs-translation">NO NETWORK</target>
+        <target state="final">INTET NETVÆRK</target>
         <note/>
       </trans-unit>
       <trans-unit id="NO OVERRIDES IMPORTED" xml:space="preserve" approved="yes">
@@ -1435,9 +1445,9 @@
         <target state="final">Navnet er allerede taget.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
+      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
         <source>Name should be no longer than %i characters.</source>
-        <target state="needs-translation">Name should be no longer than %i characters.</target>
+        <target state="final">Navnet bør ikke være længere end %i tegn.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Netherlands" xml:space="preserve" approved="yes">
@@ -1445,9 +1455,9 @@
         <target state="final">Holland</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Network error: %@" xml:space="preserve">
+      <trans-unit id="Network error: %@" xml:space="preserve" approved="yes">
         <source>Network error: %@</source>
-        <target state="needs-translation">Network error: %@</target>
+        <target state="final">Netværksfejl: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="New York, NY" xml:space="preserve" approved="yes">
@@ -1475,14 +1485,14 @@
         <target state="final">Nigeria</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
+      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve" approved="yes">
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
-        <target state="needs-translation">No DAITA compatible servers match your location settings. Try changing location.</target>
+        <target state="final">Ingen DAITA-kompatible servere matcher dine placeringsindstillinger. Prøv at ændre placering.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve">
+      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve" approved="yes">
         <source>No matching relays found, check your filter settings.</source>
-        <target state="needs-translation">No matching relays found, check your filter settings.</target>
+        <target state="final">Ingen matchende relæer blev fundet, tjek dine filterindstillinger.</target>
         <note/>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
@@ -1490,14 +1500,14 @@
         <target state="final">Der blev ikke fundet nogen matchende servere.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
+      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
         <source>No servers match your location filter. Try changing filter settings.</source>
-        <target state="needs-translation">No servers match your location filter. Try changing filter settings.</target>
+        <target state="final">Ingen servere matcher dit placeringsfilter. Prøv at ændre filterindstillingerne.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve">
+      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve" approved="yes">
         <source>No servers match your obfuscation settings. Try changing location or obfuscation method.</source>
-        <target state="needs-translation">No servers match your obfuscation settings. Try changing location or obfuscation method.</target>
+        <target state="final">Ingen servere matcher dine tilsløringsindstillinger. Prøv at ændre placering eller tilsløringsmetode.</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve" approved="yes">
@@ -1535,9 +1545,9 @@
         <target state="final">Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obscured" xml:space="preserve">
+      <trans-unit id="Obscured" xml:space="preserve" approved="yes">
         <source>Obscured</source>
-        <target state="needs-translation">Obscured</target>
+        <target state="final">Tilsløret</target>
         <note/>
       </trans-unit>
       <trans-unit id="Off" xml:space="preserve" approved="yes">
@@ -1580,14 +1590,14 @@
         <target state="final">Oslo</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv4" xml:space="preserve">
+      <trans-unit id="Out IPv4" xml:space="preserve" approved="yes">
         <source>Out IPv4</source>
-        <target state="needs-translation">Out IPv4</target>
+        <target state="final">Ud IPv4</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv6" xml:space="preserve">
+      <trans-unit id="Out IPv6" xml:space="preserve" approved="yes">
         <source>Out IPv6</source>
-        <target state="needs-translation">Out IPv6</target>
+        <target state="final">Ud IPv6</target>
         <note/>
       </trans-unit>
       <trans-unit id="Out of time" xml:space="preserve" approved="yes">
@@ -1620,9 +1630,9 @@
         <target state="final">Adgangskode</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
+      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve" approved="yes">
         <source>Performs a connection test to a Mullvad API server via this access method.</source>
-        <target state="needs-translation">Performs a connection test to a Mullvad API server via this access method.</target>
+        <target state="final">Udfører en forbindelsestest til en Mullvad API-server via denne adgangsmetode.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Perth" xml:space="preserve" approved="yes">
@@ -1660,9 +1670,9 @@
         <target state="final">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
+      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
         <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="needs-translation">Please retry by using the "Restore purchases" button.</target>
+        <target state="final">Prøv igen ved at bruge knappen "Gendan køb".</target>
         <note/>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
@@ -1675,9 +1685,9 @@
         <target state="final">Port</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Port: %@" xml:space="preserve">
+      <trans-unit id="Port: %@" xml:space="preserve" approved="yes">
         <source>Port: %@</source>
-        <target state="needs-translation">Port: %@</target>
+        <target state="final">Port: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Portugal" xml:space="preserve" approved="yes">
@@ -1700,9 +1710,9 @@
         <target state="final">Udbydere</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Providers: %d" xml:space="preserve">
+      <trans-unit id="Providers: %d" xml:space="preserve" approved="yes">
         <source>Providers: %d</source>
-        <target state="needs-translation">Providers: %d</target>
+        <target state="final">Udbydere: %d</target>
         <note/>
       </trans-unit>
       <trans-unit id="QUIC" xml:space="preserve" approved="yes">
@@ -1725,9 +1735,9 @@
         <target state="final">Queretaro</target>
         <note/>
       </trans-unit>
-      <trans-unit id="RECONNECTING" xml:space="preserve">
+      <trans-unit id="RECONNECTING" xml:space="preserve" approved="yes">
         <source>RECONNECTING</source>
-        <target state="needs-translation">RECONNECTING</target>
+        <target state="final">GENOPRETTER FORBINDELSE</target>
         <note/>
       </trans-unit>
       <trans-unit id="Raleigh, NC" xml:space="preserve" approved="yes">
@@ -1735,9 +1745,9 @@
         <target state="final">Raleigh, NC</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Reconnecting to %@" xml:space="preserve">
+      <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
-        <target state="needs-translation">Reconnecting to %@</target>
+        <target state="final">Genopretter forbindelse til %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Redeem" xml:space="preserve" approved="yes">
@@ -1750,14 +1760,14 @@
         <target state="final">Indløs kupon</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Refund last purchase with StoreKit2</source>
-        <target state="needs-translation">Refund last purchase with StoreKit2</target>
+        <target state="final">Refusion af sidste køb med StoreKit2</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund successful" xml:space="preserve">
+      <trans-unit id="Refund successful" xml:space="preserve" approved="yes">
         <source>Refund successful</source>
-        <target state="needs-translation">Refund successful</target>
+        <target state="final">Refusion lykkedes</target>
         <note/>
       </trans-unit>
       <trans-unit id="Remove" xml:space="preserve" approved="yes">
@@ -1770,16 +1780,16 @@
         <target state="final">Fjern %@?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve">
+      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
         <source>Remove last used account</source>
-        <target state="needs-translation">Remove last used account</target>
+        <target state="final">Fjern sidst brugte konto</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve">
+      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
         <source>Removing the saved account number from this device cannot be undone.
 Do you want to remove the saved account number?</source>
-        <target state="needs-translation">Removing the saved account number from this device cannot be undone.
-Do you want to remove the saved account number?</target>
+        <target state="final">Hvis du fjerner det gemte kontonummer fra denne enhed, kan du ikke gøre fortryde det.
+Vil du fjerne det gemte kontonummer?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Rented only" xml:space="preserve" approved="yes">
@@ -1797,9 +1807,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Påkrævet</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Restore purchases" xml:space="preserve">
+      <trans-unit id="Restore purchases" xml:space="preserve" approved="yes">
         <source>Restore purchases</source>
-        <target state="needs-translation">Restore purchases</target>
+        <target state="final">Gendan køb</target>
         <note/>
       </trans-unit>
       <trans-unit id="Romania" xml:space="preserve" approved="yes">
@@ -1832,9 +1842,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Gem</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Saving changes..." xml:space="preserve">
+      <trans-unit id="Saving changes..." xml:space="preserve" approved="yes">
         <source>Saving changes...</source>
-        <target state="needs-translation">Saving changes...</target>
+        <target state="final">Gemmer ændringer ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Search for..." xml:space="preserve" approved="yes">
@@ -1857,9 +1867,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Vælg placering</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Selected" xml:space="preserve">
+      <trans-unit id="Selected" xml:space="preserve" approved="yes">
         <source>Selected</source>
-        <target state="needs-translation">Selected</target>
+        <target state="final">Valgt</target>
         <note/>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve" approved="yes">
@@ -1902,9 +1912,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Info om server</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Setting: %@" xml:space="preserve">
+      <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
-        <target state="needs-translation">Setting: %@</target>
+        <target state="final">Indstilling: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Settings" xml:space="preserve" approved="yes">
@@ -1912,9 +1922,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Indstillinger</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Settings migration error" xml:space="preserve">
+      <trans-unit id="Settings migration error" xml:space="preserve" approved="yes">
         <source>Settings migration error</source>
-        <target state="needs-translation">Settings migration error</target>
+        <target state="final">Fejl under migrering af indstillinger</target>
         <note/>
       </trans-unit>
       <trans-unit id="Shadowsocks" xml:space="preserve" approved="yes">
@@ -1947,9 +1957,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Sociale medier</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Socks5" xml:space="preserve">
+      <trans-unit id="Socks5" xml:space="preserve" approved="yes">
         <source>Socks5</source>
-        <target state="needs-translation">Socks5</target>
+        <target state="final">Socks5</target>
         <note/>
       </trans-unit>
       <trans-unit id="Sofia" xml:space="preserve" approved="yes">
@@ -2012,9 +2022,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">TCP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="TUNNEL ERROR" xml:space="preserve">
+      <trans-unit id="TUNNEL ERROR" xml:space="preserve" approved="yes">
         <source>TUNNEL ERROR</source>
-        <target state="needs-translation">TUNNEL ERROR</target>
+        <target state="final">TUNNELFEJL</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
@@ -2022,9 +2032,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Tallinn</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve">
+      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve" approved="yes">
         <source>Tap **Edit** to add at least one DNS server.</source>
-        <target state="needs-translation">Tap **Edit** to add at least one DNS server.</target>
+        <target state="final">Tryk på **Rediger** for at tilføje mindst én DNS-server.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2047,9 +2057,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Thailand</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+      <trans-unit id="Thanks for your purchase" xml:space="preserve" approved="yes">
         <source>Thanks for your purchase</source>
-        <target state="needs-translation">Thanks for your purchase</target>
+        <target state="final">Tak for dit køb</target>
         <note/>
       </trans-unit>
       <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
@@ -2057,19 +2067,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">Tak!</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server directly.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server directly.</target>
+        <target state="final">Appen kommunikerer direkte med en Mullvad API-server.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a Mullvad bridge server.</target>
+        <target state="final">Appen kommunikerer med en Mullvad API-server via en Mullvad-broserver.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a proxy address.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a proxy address.</target>
+        <target state="final">Appen kommunikerer med en Mullvad API-server via en proxy-adresse.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve" approved="yes">
@@ -2077,9 +2087,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app will test the method before saving." xml:space="preserve">
+      <trans-unit id="The app will test the method before saving." xml:space="preserve" approved="yes">
         <source>The app will test the method before saving.</source>
-        <target state="needs-translation">The app will test the method before saving.</target>
+        <target state="final">Appen tester metoden, inden den gemmes.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below." xml:space="preserve" approved="yes">
@@ -2097,29 +2107,29 @@ Do you want to remove the saved account number?</target>
         <target state="final">Enheden fjernes fra listen og logges ud.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve">
+      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve" approved="yes">
         <source>The entry and exit servers cannot be the same. Try changing one to a new server or location.</source>
-        <target state="needs-translation">The entry and exit servers cannot be the same. Try changing one to a new server or location.</target>
+        <target state="final">Indgangs- og udgangsserverne kan ikke være ens. Prøv at ændre en af dem til en ny server eller placering.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve">
+      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve" approved="yes">
         <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</source>
-        <target state="needs-translation">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</target>
+        <target state="final">Indgangsserveren for %1$@ tilsidesættes i øjeblikket af %2$@. Du skal først aktivere "%3$@" eller deaktivere "%4$@" i indstillingerne for at vælge en indgangsserver.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve">
+      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
         <source>The payment request was cancelled.</source>
-        <target state="needs-translation">The payment request was cancelled.</target>
+        <target state="final">Betalingsanmodningen blev annulleret.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve">
+      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
-        <target state="needs-translation">The selected WireGuard port is not supported, please change it under **VPN settings**.</target>
+        <target state="final">Den valgte WireGuard-port understøttes ikke, skift den under **VPN-indstillinger**.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve">
+      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
-        <target state="needs-translation">The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</target>
+        <target state="final">Den version af indstillingerne, der er gemt på enheden, kan ikke genkendes. Indstillingerne nulstilles til standardindstillingerne, og enheden bliver logget af.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
@@ -2132,14 +2142,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">Dette kan være nyttigt, når du ikke er berørt af censur.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
+      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
         <source>This device is not allowed to make the payment.</source>
-        <target state="needs-translation">This device is not allowed to make the payment.</target>
+        <target state="final">Denne enhed har ikke tilladelse til at foretage betalingen.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="needs-translation">This device is now named **%@**. See more under "Manage devices" in Account.</target>
+        <target state="final">Denne enhed har nu navnet **%@**. Få mere at vide under "Administrer enheder" under Konto.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve" approved="yes">
@@ -2157,14 +2167,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">Denne funktion gør WireGuard-tunnelen modstandsdygtig over for potentielle angreb fra kvantecomputere.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This impacts your anonymity" xml:space="preserve" approved="yes">
+        <source>This impacts your anonymity</source>
+        <target state="final">Dette påvirker din anonymitet</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve" approved="yes">
         <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</source>
         <target state="final">Dette er det navn, der er tildelt enheden. Hver enhed, der er logget på en Mullvad-konto, får et unikt navn, der hjælper dig med at identificere den, når du administrerer dine enheder i appen eller på webstedet.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="needs-translation">This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</target>
+        <target state="final">Dette vil medføre, at alle enheder, der bruger denne konto, bliver logget af, og al VPN-adgang vil blive afvist, selv om der er tid tilbage på kontoen. Indtast de sidste 4 cifre i kontonummeret, og tryk på "Slet konto", hvis du virkelig ønsker at slette kontoen:</target>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -2172,9 +2187,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Dette kan forårsage problemer på visse websteder, tjenester og apps.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Time left: %@" xml:space="preserve">
+      <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
-        <target state="needs-translation">Time left: %@</target>
+        <target state="final">Tid tilbage: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tirana" xml:space="preserve" approved="yes">
@@ -2202,14 +2217,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">For at fortsætte med at leve som en privatlivs-ninja skal du besøge vores websted for at lære om andre vaner og værktøjer, der værner om fortroligheden.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
+      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve" approved="yes">
         <source>To create a custom list, tap on "..." </source>
-        <target state="needs-translation">To create a custom list, tap on "..." </target>
+        <target state="final">For at oprette en brugerdefineret liste skal du trykke på "..." </target>
         <note/>
       </trans-unit>
-      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve">
+      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
         <source>To enable this setting, add at least one server.</source>
-        <target state="needs-translation">To enable this setting, add at least one server.</target>
+        <target state="final">For at aktivere denne indstilling skal du tilføje mindst én server.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve" approved="yes">
@@ -2247,9 +2262,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Prøv igen</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tunnel is unset." xml:space="preserve">
+      <trans-unit id="Tunnel is unset." xml:space="preserve" approved="yes">
         <source>Tunnel is unset.</source>
-        <target state="needs-translation">Tunnel is unset.</target>
+        <target state="final">Tunnel er ikke indstillet.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Turkey" xml:space="preserve" approved="yes">
@@ -2287,14 +2302,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">Ukraine</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve">
+      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve" approved="yes">
         <source>Unable to authenticate account. Please log out and log back in.</source>
-        <target state="needs-translation">Unable to authenticate account. Please log out and log back in.</target>
+        <target state="final">Kunne ikke godkende konto. Log af og log på igen.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve">
+      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve" approved="yes">
         <source>Unable to start tunnel connection after update. Please disconnect and reconnect.</source>
-        <target state="needs-translation">Unable to start tunnel connection after update. Please disconnect and reconnect.</target>
+        <target state="final">Kan ikke starte tunnelforbindelse efter opdatering. Afbryd forbindelsen, og opret den igen.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve" approved="yes">
@@ -2302,14 +2317,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">Kan ikke starte tunnelforbindelse. Indsend en problemrapport.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %1$@ (HTTP status: %2$d)</source>
-        <target state="needs-translation">Unexpected server response: %1$@ (HTTP status: %2$d)</target>
+        <target state="final">Uventet serverrespons: %1$@ (HTTP-status: %2$d)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %d" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %d" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %d</source>
-        <target state="needs-translation">Unexpected server response: %d</target>
+        <target state="final">Uventet serverrespons: %d</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
@@ -2402,9 +2417,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Washington DC</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
+      <trans-unit id="We are having some issues, please try again later" xml:space="preserve" approved="yes">
         <source>We are having some issues, please try again later</source>
-        <target state="needs-translation">We are having some issues, please try again later</target>
+        <target state="final">Vi har nogle problemer, prøv igen senere</target>
         <note/>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -2422,9 +2437,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve">
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve" approved="yes">
         <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
-        <target state="needs-translation">When using DAITA, one provider with DAITA-enabled servers is required.</target>
+        <target state="final">Når du bruger DAITA, skal du have en udbyder med DAITA-kompatible servere.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
@@ -2457,9 +2472,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Med "Mullvad-broer" metoden kommunikerer appen med en Mullvad API-server via en Mullvad-broserver. Det gør den ved at sende trafikken sløret af Shadowsocks.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Yes, continue" xml:space="preserve">
+      <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
         <source>Yes, continue</source>
-        <target state="needs-translation">Yes, continue</target>
+        <target state="final">Ja, fortsæt</target>
         <note/>
       </trans-unit>
       <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
@@ -2482,9 +2497,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">Du er logget ind med et ugyldigt kontonummer. Log ud og prøv et andet.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You can add more time via the account view or website to continue using the VPN.</source>
-        <target state="needs-translation">You can add more time via the account view or website to continue using the VPN.</target>
+        <target state="final">Du kan tilføje mere tid via kontoens visning eller hjemmeside for at blive ved med at bruge VPN'en.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve" approved="yes">
@@ -2497,27 +2512,27 @@ Do you want to remove the saved account number?</target>
         <target state="final">Du kan nu fortsætte med at logge ind på denne enhed.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="needs-translation">You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</target>
+        <target state="final">Du kan bruge funktionen "Gendan køb for at tjekke for eventuelle betalinger i appen, der er foretaget via Apple-tjenester. Hvis der er en betaling, som ikke er blevet krediteret, vil den blive tilføjet til den aktuelle Mullvad-konto, som du er logget på.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have %@ left on this account." xml:space="preserve">
+      <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
         <source>You have %@ left on this account.</source>
-        <target state="needs-translation">You have %@ left on this account.</target>
+        <target state="final">Du har %@ tilbage på denne konto.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve">
+      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve" approved="yes">
         <source>You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
 
 In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
 
 We strongly believe in retaining as little data as possible because we want you to remain anonymous.</source>
-        <target state="needs-translation">You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+        <target state="final">Du har ret til privatliv. Derfor lagrer vi aldrig aktivitetslogfiler, vi beder ikke om personoplysninger, og vi opfordrer til anonyme betalinger.
 
-In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+I nogle situationer, som beskrevet i vores privatlivspolitik, kan vi behandle personoplysninger, som du vælger at sende, f.eks. hvis du sender os en e-mail.
 
-We strongly believe in retaining as little data as possible because we want you to remain anonymous.</target>
+Vi er overbeviste om, at vi skal opbevare så få data som muligt, da vi ønsker, at du forbliver anonym.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve" approved="yes">
@@ -2525,9 +2540,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">Du har ikke mere VPN-tid tilbage på denne konto. </target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You have one day left on this account. Please add more time to continue using the VPN.</source>
-        <target state="needs-translation">You have one day left on this account. Please add more time to continue using the VPN.</target>
+        <target state="final">Du har en dag tilbage på denne konto. Tilføj mere tid for at fortsætte med at bruge VPN'en.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve" approved="yes">
@@ -2535,9 +2550,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have unsaved changes." xml:space="preserve">
+      <trans-unit id="You have unsaved changes." xml:space="preserve" approved="yes">
         <source>You have unsaved changes.</source>
-        <target state="needs-translation">You have unsaved changes.</target>
+        <target state="final">Du har ændringer, som ikke er gemt.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2545,9 +2560,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve">
+      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve" approved="yes">
         <source>Your device is offline. Try connecting again when the device has access to Internet.</source>
-        <target state="needs-translation">Your device is offline. Try connecting again when the device has access to Internet.</target>
+        <target state="final">Din enhed er offline. Prøv at oprette forbindelse igen, når enheden har adgang til internettet.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your email (optional)" xml:space="preserve" approved="yes">
@@ -2555,14 +2570,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">Din e-mail (valgfrit)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have already been added to this account.</source>
-        <target state="needs-translation">Your previous purchases have already been added to this account.</target>
+        <target state="final">Dine tidligere køb er allerede blevet føjet til denne konto.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve">
+      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">
         <source>Your purchase was successfully refunded.</source>
-        <target state="needs-translation">Your purchase was successfully refunded.</target>
+        <target state="final">Dit køb er blevet refunderet.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You’re all set!" xml:space="preserve" approved="yes">
@@ -2585,18 +2600,23 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">multihop</target>
         <note/>
       </trans-unit>
-      <trans-unit id="value" xml:space="preserve">
-        <source>value</source>
-        <target state="needs-translation">value</target>
+      <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
+        <source>privacy policy</source>
+        <target state="final">fortrolighedspolitik</target>
         <note/>
       </trans-unit>
-      <trans-unit id="“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
-        <source>“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+      <trans-unit id="value" xml:space="preserve" approved="yes">
+        <source>value</source>
+        <target state="final">værdi</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
+        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
 To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
 Would you like to continue to enable “Local network sharing”?</source>
-        <target state="needs-translation">“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</target>
+        <target state="final">"%@ Lokal netværksdeling" kræver genstart af VPN-forbindelsen, hvilket vil afbryde forbindelsen og kortvarigt blotlægge din trafik.
+For at undgå dette skal du manuelt aktivere flytilstand og slukke for wi-fi, inden du fortsætter.
+Vil du fortsætte med at aktivere "Lokal netværksdeling"?</target>
         <note/>
       </trans-unit>
     </body>
@@ -2648,9 +2668,9 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
+      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
         <source>The app needs this to connect and test a new method.</source>
-        <target state="needs-translation">The app needs this to connect and test a new method.</target>
+        <target state="final">Appen skal bruge dette til at oprette forbindelse og teste en ny metode.</target>
         <note>Privacy - Local Network Usage Description</note>
       </trans-unit>
     </body>

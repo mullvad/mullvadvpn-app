@@ -5,9 +5,9 @@
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="%@" xml:space="preserve">
+      <trans-unit id="%@" xml:space="preserve" approved="yes">
         <source>%@</source>
-        <target state="needs-translation">%@</target>
+        <target state="final">%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
@@ -15,9 +15,9 @@
         <target state="final">%1$@ (%2$@) 會在您的加密 VPN 流量中隱藏模式。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ cannot be empty." xml:space="preserve">
+      <trans-unit id="%@ cannot be empty." xml:space="preserve" approved="yes">
         <source>%@ cannot be empty.</source>
-        <target state="needs-translation">%@ cannot be empty.</target>
+        <target state="final">%@ 不得為空。</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve" approved="yes">
@@ -25,9 +25,9 @@
         <target state="final">%@ 會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ left on this account" xml:space="preserve">
+      <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
         <source>%@ left on this account</source>
-        <target state="needs-translation">%@ left on this account</target>
+        <target state="final">此帳戶剩餘 %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ via %@" xml:space="preserve" approved="yes">
@@ -40,14 +40,14 @@
         <target state="final">%@ 已新增至您的帳戶。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@, %@" xml:space="preserve">
+      <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
-        <target state="needs-translation">%1$@, %2$@</target>
+        <target state="final">%1$@，%2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve">
+      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
         <source>%@-enabled</source>
-        <target state="needs-translation">%@-enabled</target>
+        <target state="final">已啟用 %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
@@ -60,14 +60,14 @@
         <target state="final">其他 %lld 個…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve">
+      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve" approved="yes">
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
-        <target state="needs-translation">**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</target>
+        <target state="final">**請注意：這會增加網路流量，並對速度、延遲與電池耗電產生負面影響。若方案流量有限，請謹慎使用。**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve">
+      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
         <source>**Tap here** to see what’s new</source>
-        <target state="needs-translation">**Tap here** to see what’s new</target>
+        <target state="final">**輕點此處**查看最新動態</target>
         <note/>
       </trans-unit>
       <trans-unit id="API access" xml:space="preserve" approved="yes">
@@ -90,19 +90,19 @@
         <target state="final">無法透過 API 存取，仍要儲存方式嗎？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About %@ method..." xml:space="preserve">
+      <trans-unit id="About %@ method..." xml:space="preserve" approved="yes">
         <source>About %@ method...</source>
-        <target state="needs-translation">About %@ method...</target>
+        <target state="final">關於 %@ 方式…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About API access…" xml:space="preserve">
+      <trans-unit id="About API access…" xml:space="preserve" approved="yes">
         <source>About API access…</source>
-        <target state="needs-translation">About API access…</target>
+        <target state="final">關於 API 存取…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About Server IP override..." xml:space="preserve">
+      <trans-unit id="About Server IP override..." xml:space="preserve" approved="yes">
         <source>About Server IP override...</source>
-        <target state="needs-translation">About Server IP override...</target>
+        <target state="final">關於伺服器 IP 覆寫…</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account" xml:space="preserve" approved="yes">
@@ -120,14 +120,14 @@
         <target state="final">帳戶點數即將到期</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account credit has expired" xml:space="preserve">
+      <trans-unit id="Account credit has expired" xml:space="preserve" approved="yes">
         <source>Account credit has expired</source>
-        <target state="needs-translation">Account credit has expired</target>
+        <target state="final">帳戶點數已過期</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account deletion" xml:space="preserve">
+      <trans-unit id="Account deletion" xml:space="preserve" approved="yes">
         <source>Account deletion</source>
-        <target state="needs-translation">Account deletion</target>
+        <target state="final">帳戶刪除</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account number" xml:space="preserve" approved="yes">
@@ -220,14 +220,14 @@
         <target state="final">任何</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve">
+      <trans-unit id="App logs" xml:space="preserve" approved="yes">
         <source>App logs</source>
-        <target state="needs-translation">App logs</target>
+        <target state="final">應用程式日誌</target>
         <note/>
       </trans-unit>
-      <trans-unit id="AppStore receipt is not found on disk." xml:space="preserve">
-        <source>AppStore receipt is not found on disk.</source>
-        <target state="needs-translation">AppStore receipt is not found on disk.</target>
+      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
+        <source>App Store receipt is not found on disk.</source>
+        <target state="final">未在磁碟上找到 App Store 收據。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve" approved="yes">
@@ -235,9 +235,9 @@
         <target state="final">確定要將 %@ 登出嗎？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Argentina" xml:space="preserve">
+      <trans-unit id="Argentina" xml:space="preserve" approved="yes">
         <source>Argentina</source>
-        <target state="needs-translation">Argentina</target>
+        <target state="final">阿根廷</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ashburn, VA" xml:space="preserve" approved="yes">
@@ -260,14 +260,14 @@
         <target state="final">喬治亞州，亞特蘭大</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
+      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
-        <target state="needs-translation">Attention: this setting cannot be used in combination with **%@**</target>
+        <target state="final">注意：此設定不能與 **%@** 共同使用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
+      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="needs-translation">Attention: toggling “Local network sharing” requires restarting the VPN connection.</target>
+        <target state="final">注意：切換「本機網路分享」時需重新啟動 VPN 連線。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve" approved="yes">
@@ -330,9 +330,9 @@
         <target state="final">柏林</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
+      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve" approved="yes">
         <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
-        <target state="needs-translation">Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</target>
+        <target state="final">已封鎖網際網路：您帳戶中的時間已到期。若要繼續使用網際網路，請增加時間或中斷 VPN 連線。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bogota" xml:space="preserve" approved="yes">
@@ -380,9 +380,9 @@
         <target state="final">布達佩斯</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Buenos Aires" xml:space="preserve">
+      <trans-unit id="Buenos Aires" xml:space="preserve" approved="yes">
         <source>Buenos Aires</source>
-        <target state="needs-translation">Buenos Aires</target>
+        <target state="final">布宜諾斯艾利斯</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bulgaria" xml:space="preserve" approved="yes">
@@ -390,9 +390,14 @@
         <target state="final">保加利亞</target>
         <note/>
       </trans-unit>
-      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve">
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
+        <target state="final">附加您的帳戶權杖後，此回報就會和您的帳戶相連，這能讓我們更快為您解決問題。所有回報都會在一段時間後自動刪除。如需詳細資訊，請參閱我們的 </target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve" approved="yes">
         <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
-        <target state="needs-translation">By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</target>
+        <target state="final">啟用「%1$@」後，您必須手動選擇已啟用 %2$@ 的伺服器。系統不會自動使用 %3$@ 來啟用任何伺服器的 DAITA。</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -425,24 +430,24 @@
         <target state="final">取消</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve" approved="yes">
         <source>Cannot complete the purchase</source>
-        <target state="needs-translation">Cannot complete the purchase</target>
+        <target state="final">無法完成購買</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the AppStore receipt from disk" xml:space="preserve">
-        <source>Cannot read the AppStore receipt from disk</source>
-        <target state="needs-translation">Cannot read the AppStore receipt from disk</target>
+      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
+        <source>Cannot read the App Store receipt from disk</source>
+        <target state="final">無法從磁碟讀取 App Store 收據</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot refresh the AppStore receipt: %@" xml:space="preserve">
-        <source>Cannot refresh the AppStore receipt: %@</source>
-        <target state="needs-translation">Cannot refresh the AppStore receipt: %@</target>
+      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
+        <source>Cannot refresh the App Store receipt: %@</source>
+        <target state="final">無法重新整理 App Store 收據：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+      <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
-        <target state="needs-translation">Cannot restore purchases</target>
+        <target state="final">無法恢復購買項目</target>
         <note/>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
@@ -485,19 +490,19 @@
         <target state="final">清除已匯入的覆蓋，會將「選取位置」視圖中的伺服器 IP 變更回預設值。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
+      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
         <source>Client is not allowed to issue the request.</source>
-        <target state="needs-translation">Client is not allowed to issue the request.</target>
+        <target state="final">不允許用戶端送出此請求。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapse %@" xml:space="preserve">
+      <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
-        <target state="needs-translation">Collapse %@</target>
+        <target state="final">收合 %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapses this location." xml:space="preserve">
+      <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
-        <target state="needs-translation">Collapses this location.</target>
+        <target state="final">收合此位置。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Colombia" xml:space="preserve" approved="yes">
@@ -515,14 +520,14 @@
         <target state="final">Connect (連線)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected to %@" xml:space="preserve">
+      <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
         <source>Connected to %@</source>
-        <target state="needs-translation">Connected to %@</target>
+        <target state="final">已連線到 %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connecting to %@" xml:space="preserve">
+      <trans-unit id="Connecting to %@" xml:space="preserve" approved="yes">
         <source>Connecting to %@</source>
-        <target state="needs-translation">Connecting to %@</target>
+        <target state="final">正在連線到 %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connection details" xml:space="preserve" approved="yes">
@@ -540,9 +545,9 @@
         <target state="final">哥本哈根</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
+      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve" approved="yes">
         <source>Copied Mullvad account number to pasteboard</source>
-        <target state="needs-translation">Copied Mullvad account number to pasteboard</target>
+        <target state="final">已將 Mullvad 帳號複製到剪貼簿</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -565,9 +570,9 @@
         <target state="final">建立新清單</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Created: %@" xml:space="preserve">
+      <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
         <source>Created: %@</source>
-        <target state="needs-translation">Created: %@</target>
+        <target state="final">建立：%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
@@ -610,19 +615,19 @@
         <target state="final">捷克共和國</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA" xml:space="preserve">
+      <trans-unit id="DAITA" xml:space="preserve" approved="yes">
         <source>DAITA</source>
-        <target state="needs-translation">DAITA</target>
+        <target state="final">DAITA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</target>
+        <target state="final">無法在目前所選位置使用 DAITA。啟用後，請前往「選擇位置」畫面，選擇支援 DAITA 的位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</target>
+        <target state="final">無法在目前的入口伺服器使用 DAITA。啟用後，請前往「選擇位置」畫面，選擇支援 DAITA 的入口位置。</target>
         <note/>
       </trans-unit>
       <trans-unit id="DISCONNECTED" xml:space="preserve" approved="yes">
@@ -640,9 +645,9 @@
         <target state="final">DNS 內容封鎖程式</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DNS settings" xml:space="preserve">
+      <trans-unit id="DNS settings" xml:space="preserve" approved="yes">
         <source>DNS settings</source>
-        <target state="needs-translation">DNS settings</target>
+        <target state="final">DNS 設定</target>
         <note/>
       </trans-unit>
       <trans-unit id="Dallas, TX" xml:space="preserve" approved="yes">
@@ -655,14 +660,14 @@
         <target state="final">刪除</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete %@?" xml:space="preserve">
+      <trans-unit id="Delete %@?" xml:space="preserve" approved="yes">
         <source>Delete %@?</source>
-        <target state="needs-translation">Delete %@?</target>
+        <target state="final">是否刪除 %@？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete account" xml:space="preserve">
+      <trans-unit id="Delete account" xml:space="preserve" approved="yes">
         <source>Delete account</source>
-        <target state="needs-translation">Delete account</target>
+        <target state="final">刪除帳戶</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete list" xml:space="preserve" approved="yes">
@@ -675,9 +680,9 @@
         <target state="final">刪除方式</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve">
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
         <source>Deleting account...</source>
-        <target state="needs-translation">Deleting account...</target>
+        <target state="final">正在刪除帳戶…</target>
         <note/>
       </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
@@ -705,9 +710,9 @@
         <target state="final">裝置名稱</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Device name: %@" xml:space="preserve">
+      <trans-unit id="Device name: %@" xml:space="preserve" approved="yes">
         <source>Device name: %@</source>
-        <target state="needs-translation">Device name: %@</target>
+        <target state="final">裝置名稱：%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Direct only" xml:space="preserve" approved="yes">
@@ -720,14 +725,14 @@
         <target state="final">停用上方所有「%@」以啟動此設定。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve">
+      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
         <source>Disabling</source>
-        <target state="needs-translation">Disabling</target>
+        <target state="final">正在停用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Discard changes" xml:space="preserve">
+      <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
         <source>Discard changes</source>
-        <target state="needs-translation">Discard changes</target>
+        <target state="final">捨棄變更</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disconnect" xml:space="preserve" approved="yes">
@@ -735,9 +740,9 @@
         <target state="final">中斷連線</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
+      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve" approved="yes">
         <source>Do you agree to remaining anonymous?</source>
-        <target state="needs-translation">Do you agree to remaining anonymous?</target>
+        <target state="final">您是否同意維持匿名？</target>
         <note/>
       </trans-unit>
       <trans-unit id="Do you want to create a new account?" xml:space="preserve" approved="yes">
@@ -745,14 +750,14 @@
         <target state="final">要建立新帳戶嗎？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve">
+      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve" approved="yes">
         <source>Do you want to delete the list **%@**?</source>
-        <target state="needs-translation">Do you want to delete the list **%@**?</target>
+        <target state="final">是否刪除清單 **%@**？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Done" xml:space="preserve">
+      <trans-unit id="Done" xml:space="preserve" approved="yes">
         <source>Done</source>
-        <target state="needs-translation">Done</target>
+        <target state="final">完成</target>
         <note/>
       </trans-unit>
       <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
@@ -770,9 +775,9 @@
         <target state="final">杜塞道夫</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit custom list" xml:space="preserve">
+      <trans-unit id="Edit custom list" xml:space="preserve" approved="yes">
         <source>Edit custom list</source>
-        <target state="needs-translation">Edit custom list</target>
+        <target state="final">編輯自訂清單</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit custom lists" xml:space="preserve" approved="yes">
@@ -790,9 +795,9 @@
         <target state="final">編輯方式</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
+      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve" approved="yes">
         <source>Either buy credit on our website or make an in-app purchase via the **Add time** button below.</source>
-        <target state="needs-translation">Either buy credit on our website or make an in-app purchase via the **Add time** button below.</target>
+        <target state="final">您可以在我們的網站上購買點數，也可以透過下方**增加時間**按鈕進行應用程式內購買。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve" approved="yes">
@@ -810,9 +815,9 @@
         <target state="final">啟用方式</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve">
+      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
         <source>Enabling</source>
-        <target state="needs-translation">Enabling</target>
+        <target state="final">正在啟用</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -845,19 +850,19 @@
         <target state="final">出口</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expand %@" xml:space="preserve">
+      <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
-        <target state="needs-translation">Expand %@</target>
+        <target state="final">展開 %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expands this location." xml:space="preserve">
+      <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
-        <target state="needs-translation">Expands this location.</target>
+        <target state="final">展開此位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve" approved="yes">
         <source>FAQs &amp; Guides</source>
-        <target state="needs-translation">FAQs &amp; Guides</target>
+        <target state="final">常見問題集與指南</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to load products, please try again" xml:space="preserve" approved="yes">
@@ -870,34 +875,34 @@
         <target state="final">無法傳送</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
+      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
         <source>Failed to send the receipt to server: %@</source>
-        <target state="needs-translation">Failed to send the receipt to server: %@</target>
+        <target state="final">無法傳送收據至伺服器：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel.</source>
-        <target state="needs-translation">Failed to start the tunnel.</target>
+        <target state="final">啟動通道失敗。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel: %@.</source>
-        <target state="needs-translation">Failed to start the tunnel: %@.</target>
+        <target state="final">啟動通道失敗：%@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel.</source>
-        <target state="needs-translation">Failed to stop the tunnel.</target>
+        <target state="final">停止通道失敗。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel: %@.</source>
-        <target state="needs-translation">Failed to stop the tunnel: %@.</target>
+        <target state="final">停止通道失敗：%@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Fetching devices..." xml:space="preserve">
+      <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
         <source>Fetching devices...</source>
-        <target state="needs-translation">Fetching devices...</target>
+        <target state="final">正在取得裝置…</target>
         <note/>
       </trans-unit>
       <trans-unit id="Filter" xml:space="preserve" approved="yes">
@@ -1030,9 +1035,9 @@
         <target state="final">如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad9 或 CloudFlare。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve">
+      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
         <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
-        <target state="needs-translation">If you disconnect now, you won’t be able to secure your connection until the device is online.</target>
+        <target state="final">如果您現在中斷連線，在裝置重新上線前將無法保護連線安全。</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
@@ -1040,9 +1045,9 @@
         <target state="final">如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve">
+      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve" approved="yes">
         <source>If you haven’t received additional VPN time after purchasing</source>
-        <target state="needs-translation">If you haven’t received additional VPN time after purchasing</target>
+        <target state="final">如果您在購買後未收到額外 VPN 時間，請與我們聯繫</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve" approved="yes">
@@ -1050,9 +1055,9 @@
         <target state="final">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
+      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve" approved="yes">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
-        <target state="needs-translation">If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</target>
+        <target state="final">如果您持續遇到問題，可直接傳送電子郵件至 **%@** 聯絡支援團隊。請在電子郵件中附上您的應用程式日誌。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve" approved="yes">
@@ -1070,14 +1075,14 @@
         <target state="final">為「選取位置」視圖中的伺服器，匯入具有新 IP 位址的檔案或文字。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve">
+      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve" approved="yes">
         <source>Import of %@ was successful, overrides are now active.</source>
-        <target state="needs-translation">Import of %@ was successful, overrides are now active.</target>
+        <target state="final">成功匯入 %@，現已啟用覆寫。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve">
+      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve" approved="yes">
         <source>Import of %@ was unsuccessful, please try again.</source>
-        <target state="needs-translation">Import of %@ was unsuccessful, please try again.</target>
+        <target state="final">匯入 %@ 失敗，請再試一次。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import of text was successful, overrides are now active." xml:space="preserve" approved="yes">
@@ -1105,9 +1110,14 @@
         <target state="final">正在使用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve">
+      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
         <source>Include all networks</source>
-        <target state="needs-translation">Include all networks</target>
+        <target state="final">加入所有網路</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
+        <source>Include my account token for faster help with payment or account related issues</source>
+        <target state="final">加入我的帳戶權杖，就能更快取得付款或帳戶等相關問題的協助</target>
         <note/>
       </trans-unit>
       <trans-unit id="Indonesia" xml:space="preserve" approved="yes">
@@ -1115,9 +1125,9 @@
         <target state="final">印尼</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
+      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
-        <target state="needs-translation">Internal error occurred. Settings will be reset to defaults and device logged out.</target>
+        <target state="final">發生內部錯誤。設定將重設為預設，裝置將登出。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Internal error." xml:space="preserve" approved="yes">
@@ -1130,19 +1140,19 @@
         <target state="final">帳號無效</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve">
+      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
         <source>Invalid account number: %@</source>
-        <target state="needs-translation">Invalid account number: %@</target>
+        <target state="final">帳號無效：%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid device state." xml:space="preserve">
+      <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
-        <target state="needs-translation">Invalid device state.</target>
+        <target state="final">裝置狀態無效。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve">
+      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
         <source>Invalid purchase identifier.</source>
-        <target state="needs-translation">Invalid purchase identifier.</target>
+        <target state="final">購買識別碼無效。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1215,14 +1225,14 @@
         <target state="final">語言</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve">
+      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve" approved="yes">
         <source>Last four digits of the account number are incorrect</source>
-        <target state="needs-translation">Last four digits of the account number are incorrect</target>
+        <target state="final">帳號後四碼不正確</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve">
+      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
         <source>Last used account</source>
-        <target state="needs-translation">Last used account</target>
+        <target state="final">上次使用的帳戶</target>
         <note/>
       </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
@@ -1230,9 +1240,9 @@
         <target state="final">瞭解隱私權</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Less than a day" xml:space="preserve">
+      <trans-unit id="Less than a day" xml:space="preserve" approved="yes">
         <source>Less than a day</source>
-        <target state="needs-translation">Less than a day</target>
+        <target state="final">不到 1 天</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lima" xml:space="preserve" approved="yes">
@@ -1275,9 +1285,9 @@
         <target state="final">登入中…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logging out..." xml:space="preserve">
+      <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
         <source>Logging out...</source>
-        <target state="needs-translation">Logging out...</target>
+        <target state="final">正在登出…</target>
         <note/>
       </trans-unit>
       <trans-unit id="Login" xml:space="preserve" approved="yes">
@@ -1305,9 +1315,9 @@
         <target state="final">馬德里</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Make a purchase with StoreKit2</source>
-        <target state="needs-translation">Make a purchase with StoreKit2</target>
+        <target state="final">透過 StoreKit2 購買</target>
         <note/>
       </trans-unit>
       <trans-unit id="Malaysia" xml:space="preserve" approved="yes">
@@ -1400,9 +1410,9 @@
         <target state="final">多點跳躍可將您的流量傳入一個 WireGuard 伺服器，再傳出至另一個伺服器，使其更難以追蹤。雖然這會導致延遲時間增加，卻能提高線上的匿名程度。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NETWORK ISSUES" xml:space="preserve">
+      <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
         <source>NETWORK ISSUES</source>
-        <target state="needs-translation">NETWORK ISSUES</target>
+        <target state="final">網路問題</target>
         <note/>
       </trans-unit>
       <trans-unit id="NEW DEVICE CREATED" xml:space="preserve" approved="yes">
@@ -1415,9 +1425,9 @@
         <target state="final">已安裝新版本</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NO NETWORK" xml:space="preserve">
+      <trans-unit id="NO NETWORK" xml:space="preserve" approved="yes">
         <source>NO NETWORK</source>
-        <target state="needs-translation">NO NETWORK</target>
+        <target state="final">無網路</target>
         <note/>
       </trans-unit>
       <trans-unit id="NO OVERRIDES IMPORTED" xml:space="preserve" approved="yes">
@@ -1435,9 +1445,9 @@
         <target state="final">名稱已在別處使用。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
+      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
         <source>Name should be no longer than %i characters.</source>
-        <target state="needs-translation">Name should be no longer than %i characters.</target>
+        <target state="final">名稱不得超過 %i 個字元。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Netherlands" xml:space="preserve" approved="yes">
@@ -1445,9 +1455,9 @@
         <target state="final">荷蘭</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Network error: %@" xml:space="preserve">
+      <trans-unit id="Network error: %@" xml:space="preserve" approved="yes">
         <source>Network error: %@</source>
-        <target state="needs-translation">Network error: %@</target>
+        <target state="final">網路錯誤：%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="New York, NY" xml:space="preserve" approved="yes">
@@ -1475,14 +1485,14 @@
         <target state="final">奈及利亞</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
+      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve" approved="yes">
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
-        <target state="needs-translation">No DAITA compatible servers match your location settings. Try changing location.</target>
+        <target state="final">沒有符合您的位置設定的 DAITA 相容伺服器。請嘗試變更位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve">
+      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve" approved="yes">
         <source>No matching relays found, check your filter settings.</source>
-        <target state="needs-translation">No matching relays found, check your filter settings.</target>
+        <target state="final">找不到相符的中繼，請檢查您的篩選器設定。</target>
         <note/>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
@@ -1490,14 +1500,14 @@
         <target state="final">找不到相符的伺服器。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
+      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
         <source>No servers match your location filter. Try changing filter settings.</source>
-        <target state="needs-translation">No servers match your location filter. Try changing filter settings.</target>
+        <target state="final">沒有符合您位置篩選器的伺服器。請嘗試變更篩選器設定。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve">
+      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve" approved="yes">
         <source>No servers match your obfuscation settings. Try changing location or obfuscation method.</source>
-        <target state="needs-translation">No servers match your obfuscation settings. Try changing location or obfuscation method.</target>
+        <target state="final">沒有符合您混淆設定的伺服器。請嘗試變更伺服器位置或混淆方式。</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve" approved="yes">
@@ -1535,9 +1545,9 @@
         <target state="final">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obscured" xml:space="preserve">
+      <trans-unit id="Obscured" xml:space="preserve" approved="yes">
         <source>Obscured</source>
-        <target state="needs-translation">Obscured</target>
+        <target state="final">已混淆</target>
         <note/>
       </trans-unit>
       <trans-unit id="Off" xml:space="preserve" approved="yes">
@@ -1580,14 +1590,14 @@
         <target state="final">奧斯陸</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv4" xml:space="preserve">
+      <trans-unit id="Out IPv4" xml:space="preserve" approved="yes">
         <source>Out IPv4</source>
-        <target state="needs-translation">Out IPv4</target>
+        <target state="final">出站 IPv4</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv6" xml:space="preserve">
+      <trans-unit id="Out IPv6" xml:space="preserve" approved="yes">
         <source>Out IPv6</source>
-        <target state="needs-translation">Out IPv6</target>
+        <target state="final">出站 IPv6</target>
         <note/>
       </trans-unit>
       <trans-unit id="Out of time" xml:space="preserve" approved="yes">
@@ -1620,9 +1630,9 @@
         <target state="final">密碼</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
+      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve" approved="yes">
         <source>Performs a connection test to a Mullvad API server via this access method.</source>
-        <target state="needs-translation">Performs a connection test to a Mullvad API server via this access method.</target>
+        <target state="final">透過此存取方式為 Mullvad API 伺服器執行連線測試。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Perth" xml:space="preserve" approved="yes">
@@ -1660,9 +1670,9 @@
         <target state="final">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
+      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
         <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="needs-translation">Please retry by using the "Restore purchases" button.</target>
+        <target state="final">請使用「恢復購買」按鈕重試。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
@@ -1675,9 +1685,9 @@
         <target state="final">連接埠</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Port: %@" xml:space="preserve">
+      <trans-unit id="Port: %@" xml:space="preserve" approved="yes">
         <source>Port: %@</source>
-        <target state="needs-translation">Port: %@</target>
+        <target state="final">連接埠：%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Portugal" xml:space="preserve" approved="yes">
@@ -1700,9 +1710,9 @@
         <target state="final">供應商</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Providers: %d" xml:space="preserve">
+      <trans-unit id="Providers: %d" xml:space="preserve" approved="yes">
         <source>Providers: %d</source>
-        <target state="needs-translation">Providers: %d</target>
+        <target state="final">供應商：%d</target>
         <note/>
       </trans-unit>
       <trans-unit id="QUIC" xml:space="preserve" approved="yes">
@@ -1725,9 +1735,9 @@
         <target state="final">克雷塔羅</target>
         <note/>
       </trans-unit>
-      <trans-unit id="RECONNECTING" xml:space="preserve">
+      <trans-unit id="RECONNECTING" xml:space="preserve" approved="yes">
         <source>RECONNECTING</source>
-        <target state="needs-translation">RECONNECTING</target>
+        <target state="final">正在重新連線</target>
         <note/>
       </trans-unit>
       <trans-unit id="Raleigh, NC" xml:space="preserve" approved="yes">
@@ -1735,9 +1745,9 @@
         <target state="final">羅利，NC</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Reconnecting to %@" xml:space="preserve">
+      <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
-        <target state="needs-translation">Reconnecting to %@</target>
+        <target state="final">正在重新連線到 %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Redeem" xml:space="preserve" approved="yes">
@@ -1750,14 +1760,14 @@
         <target state="final">兌換憑證</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Refund last purchase with StoreKit2</source>
-        <target state="needs-translation">Refund last purchase with StoreKit2</target>
+        <target state="final">透過 StoreKit2 為上次購買進行退款</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund successful" xml:space="preserve">
+      <trans-unit id="Refund successful" xml:space="preserve" approved="yes">
         <source>Refund successful</source>
-        <target state="needs-translation">Refund successful</target>
+        <target state="final">成功退款</target>
         <note/>
       </trans-unit>
       <trans-unit id="Remove" xml:space="preserve" approved="yes">
@@ -1770,16 +1780,16 @@
         <target state="final">是否移除 %@？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve">
+      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
         <source>Remove last used account</source>
-        <target state="needs-translation">Remove last used account</target>
+        <target state="final">移除上次使用的帳戶</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve">
+      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
         <source>Removing the saved account number from this device cannot be undone.
 Do you want to remove the saved account number?</source>
-        <target state="needs-translation">Removing the saved account number from this device cannot be undone.
-Do you want to remove the saved account number?</target>
+        <target state="final">從此裝置移除已儲存的帳號後，此操作將無法復原。
+是否要移除已儲存的帳號？</target>
         <note/>
       </trans-unit>
       <trans-unit id="Rented only" xml:space="preserve" approved="yes">
@@ -1797,9 +1807,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">必填</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Restore purchases" xml:space="preserve">
+      <trans-unit id="Restore purchases" xml:space="preserve" approved="yes">
         <source>Restore purchases</source>
-        <target state="needs-translation">Restore purchases</target>
+        <target state="final">恢復購買</target>
         <note/>
       </trans-unit>
       <trans-unit id="Romania" xml:space="preserve" approved="yes">
@@ -1832,9 +1842,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">儲存</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Saving changes..." xml:space="preserve">
+      <trans-unit id="Saving changes..." xml:space="preserve" approved="yes">
         <source>Saving changes...</source>
-        <target state="needs-translation">Saving changes...</target>
+        <target state="final">正在儲存變更…</target>
         <note/>
       </trans-unit>
       <trans-unit id="Search for..." xml:space="preserve" approved="yes">
@@ -1857,9 +1867,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">選取位置</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Selected" xml:space="preserve">
+      <trans-unit id="Selected" xml:space="preserve" approved="yes">
         <source>Selected</source>
-        <target state="needs-translation">Selected</target>
+        <target state="final">已選</target>
         <note/>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve" approved="yes">
@@ -1902,9 +1912,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">伺服器詳細資訊</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Setting: %@" xml:space="preserve">
+      <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
-        <target state="needs-translation">Setting: %@</target>
+        <target state="final">設定：%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Settings" xml:space="preserve" approved="yes">
@@ -1912,9 +1922,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">設定</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Settings migration error" xml:space="preserve">
+      <trans-unit id="Settings migration error" xml:space="preserve" approved="yes">
         <source>Settings migration error</source>
-        <target state="needs-translation">Settings migration error</target>
+        <target state="final">設定遷移錯誤</target>
         <note/>
       </trans-unit>
       <trans-unit id="Shadowsocks" xml:space="preserve" approved="yes">
@@ -1947,9 +1957,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">社群媒體</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Socks5" xml:space="preserve">
+      <trans-unit id="Socks5" xml:space="preserve" approved="yes">
         <source>Socks5</source>
-        <target state="needs-translation">Socks5</target>
+        <target state="final">Socks5</target>
         <note/>
       </trans-unit>
       <trans-unit id="Sofia" xml:space="preserve" approved="yes">
@@ -2012,9 +2022,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">TCP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="TUNNEL ERROR" xml:space="preserve">
+      <trans-unit id="TUNNEL ERROR" xml:space="preserve" approved="yes">
         <source>TUNNEL ERROR</source>
-        <target state="needs-translation">TUNNEL ERROR</target>
+        <target state="final">通道錯誤</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
@@ -2022,9 +2032,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">塔林</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve">
+      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve" approved="yes">
         <source>Tap **Edit** to add at least one DNS server.</source>
-        <target state="needs-translation">Tap **Edit** to add at least one DNS server.</target>
+        <target state="final">輕點**編輯**以新增至少一個 DNS 伺服器。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2047,9 +2057,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">泰國</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+      <trans-unit id="Thanks for your purchase" xml:space="preserve" approved="yes">
         <source>Thanks for your purchase</source>
-        <target state="needs-translation">Thanks for your purchase</target>
+        <target state="final">感謝您的購買</target>
         <note/>
       </trans-unit>
       <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
@@ -2057,19 +2067,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">謝謝！</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server directly.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server directly.</target>
+        <target state="final">本應用程式直接和 Mullvad API 伺服器通訊。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a Mullvad bridge server.</target>
+        <target state="final">本應用程式透過 Mullvad 橋接器伺服器與 Mullvad API 伺服器通訊。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a proxy address.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a proxy address.</target>
+        <target state="final">本應用程式透過代理伺服器位址與 Mullvad API 伺服器通訊。</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve" approved="yes">
@@ -2077,9 +2087,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app will test the method before saving." xml:space="preserve">
+      <trans-unit id="The app will test the method before saving." xml:space="preserve" approved="yes">
         <source>The app will test the method before saving.</source>
-        <target state="needs-translation">The app will test the method before saving.</target>
+        <target state="final">應用程式會在儲存前測試該方式。</target>
         <note/>
       </trans-unit>
       <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below." xml:space="preserve" approved="yes">
@@ -2097,29 +2107,29 @@ Do you want to remove the saved account number?</target>
         <target state="final">裝置將從清單中移除並登出。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve">
+      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve" approved="yes">
         <source>The entry and exit servers cannot be the same. Try changing one to a new server or location.</source>
-        <target state="needs-translation">The entry and exit servers cannot be the same. Try changing one to a new server or location.</target>
+        <target state="final">入口伺服器和出口伺服器不能相同。請嘗試將其中一個伺服器變更為新伺服器或位置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve">
+      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve" approved="yes">
         <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</source>
-        <target state="needs-translation">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</target>
+        <target state="final">%1$@ 的入口伺服器目前已由 %2$@ 覆寫。若要選擇入口伺服器，請先在設定中啟用「%3$@」或停用「%4$@」。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve">
+      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
         <source>The payment request was cancelled.</source>
-        <target state="needs-translation">The payment request was cancelled.</target>
+        <target state="final">已取消付款請求。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve">
+      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
-        <target state="needs-translation">The selected WireGuard port is not supported, please change it under **VPN settings**.</target>
+        <target state="final">不支援所選的 WireGuard 連接埠，請至**VPN 設定**下變更。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve">
+      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
-        <target state="needs-translation">The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</target>
+        <target state="final">無法辨識裝置上儲存的設定版本。設定將重設為預設，裝置將登出。</target>
         <note/>
       </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
@@ -2132,14 +2142,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">當您不受審查影響時，此方式可能會很有用。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
+      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
         <source>This device is not allowed to make the payment.</source>
-        <target state="needs-translation">This device is not allowed to make the payment.</target>
+        <target state="final">不允許此裝置進行付款。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="needs-translation">This device is now named **%@**. See more under "Manage devices" in Account.</target>
+        <target state="final">現在此裝置的名稱是 **%@**。如需更多資訊，請參閱「帳戶」中的「管理裝置」。</target>
         <note/>
       </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve" approved="yes">
@@ -2157,14 +2167,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This impacts your anonymity" xml:space="preserve" approved="yes">
+        <source>This impacts your anonymity</source>
+        <target state="final">這會影響您是否能維持匿名</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve" approved="yes">
         <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</source>
         <target state="final">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="needs-translation">This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</target>
+        <target state="final">這會登出所有使用此帳戶的裝置，而且所有 VPN 存取也會遭拒，即使帳戶還有剩餘的使用時間。如果您確定要刪除帳戶，請輸入帳號末四碼，然後輕點「刪除帳戶」。</target>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -2172,9 +2187,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">這可能會導致某些網站、服務和應用程式出現問題。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Time left: %@" xml:space="preserve">
+      <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
-        <target state="needs-translation">Time left: %@</target>
+        <target state="final">剩餘時間：%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tirana" xml:space="preserve" approved="yes">
@@ -2202,14 +2217,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">若要以忍者身份繼續您的旅程，歡迎造訪我們網站，以選擇其他對隱私權有利的習慣和工具。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
+      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve" approved="yes">
         <source>To create a custom list, tap on "..." </source>
-        <target state="needs-translation">To create a custom list, tap on "..." </target>
+        <target state="final">要建立自訂清單，請輕按「…」 </target>
         <note/>
       </trans-unit>
-      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve">
+      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
         <source>To enable this setting, add at least one server.</source>
-        <target state="needs-translation">To enable this setting, add at least one server.</target>
+        <target state="final">要啟用此設定，請新增至少一個伺服器。</target>
         <note/>
       </trans-unit>
       <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve" approved="yes">
@@ -2247,9 +2262,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">再試一次</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tunnel is unset." xml:space="preserve">
+      <trans-unit id="Tunnel is unset." xml:space="preserve" approved="yes">
         <source>Tunnel is unset.</source>
-        <target state="needs-translation">Tunnel is unset.</target>
+        <target state="final">未設定通道。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Turkey" xml:space="preserve" approved="yes">
@@ -2287,14 +2302,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">烏克蘭</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve">
+      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve" approved="yes">
         <source>Unable to authenticate account. Please log out and log back in.</source>
-        <target state="needs-translation">Unable to authenticate account. Please log out and log back in.</target>
+        <target state="final">帳戶驗證失敗。請登出並重新登入。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve">
+      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve" approved="yes">
         <source>Unable to start tunnel connection after update. Please disconnect and reconnect.</source>
-        <target state="needs-translation">Unable to start tunnel connection after update. Please disconnect and reconnect.</target>
+        <target state="final">更新後無法建立通道連線。請中斷連線並重新連線。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve" approved="yes">
@@ -2302,14 +2317,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">無法啟動通道連線。請傳送問題回報。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %1$@ (HTTP status: %2$d)</source>
-        <target state="needs-translation">Unexpected server response: %1$@ (HTTP status: %2$d)</target>
+        <target state="final">意外的伺服器回應：%1$@（HTTP 狀態：%2$d）</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %d" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %d" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %d</source>
-        <target state="needs-translation">Unexpected server response: %d</target>
+        <target state="final">意外的伺服器回應：%d</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
@@ -2402,9 +2417,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">華盛頓特區</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
+      <trans-unit id="We are having some issues, please try again later" xml:space="preserve" approved="yes">
         <source>We are having some issues, please try again later</source>
-        <target state="needs-translation">We are having some issues, please try again later</target>
+        <target state="final">我們遇到一些問題，請稍後再試</target>
         <note/>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -2422,9 +2437,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve">
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve" approved="yes">
         <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
-        <target state="needs-translation">When using DAITA, one provider with DAITA-enabled servers is required.</target>
+        <target state="final">使用 DAITA 時，至少需要一個擁有 DAITA 啟用伺服器的供應商。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
@@ -2457,9 +2472,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">使用「Mullvad 橋接」方式，則應用程式會透過 Mullvad 橋接伺服器，與 Mullvad API 伺服器進行通訊。應用程式會透過 Shadowsocks 將流量混淆再加以送出，從而實現這種通訊方式。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Yes, continue" xml:space="preserve">
+      <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
         <source>Yes, continue</source>
-        <target state="needs-translation">Yes, continue</target>
+        <target state="final">是的，繼續</target>
         <note/>
       </trans-unit>
       <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
@@ -2482,9 +2497,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">您登入時所使用的帳號無效。請登出並嘗試其他帳號。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You can add more time via the account view or website to continue using the VPN.</source>
-        <target state="needs-translation">You can add more time via the account view or website to continue using the VPN.</target>
+        <target state="final">您可以在帳戶畫面或網站中增加時間，以繼續使用 VPN。</target>
         <note/>
       </trans-unit>
       <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve" approved="yes">
@@ -2497,37 +2512,37 @@ Do you want to remove the saved account number?</target>
         <target state="final">現在，您可以繼續在此裝置上登入。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="needs-translation">You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</target>
+        <target state="final">您可以使用「恢復購買」功能來確認透過 Apple 服務的應用程式內付款。如果存在尚未入帳的付款，則系統會將時間增加至目前登入的 Mullvad 帳戶。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have %@ left on this account." xml:space="preserve">
+      <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
         <source>You have %@ left on this account.</source>
-        <target state="needs-translation">You have %@ left on this account.</target>
+        <target state="final">您的帳戶剩餘 %@。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve">
+      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve" approved="yes">
         <source>You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
 
 In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
 
 We strongly believe in retaining as little data as possible because we want you to remain anonymous.</source>
-        <target state="needs-translation">You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+        <target state="final">您保有隱私權。因此，我們絕不儲存活動記錄、不會索取個人資訊，並且鼓勵使用匿名付款。
 
-In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+在某些情況下，如我們的隱私權政策所述，我們可能會處理您選擇傳送的個人資料，例如您寄給我們的電子郵件。
 
-We strongly believe in retaining as little data as possible because we want you to remain anonymous.</target>
+因為我們希望您維持匿名，所以會盡量減少保留資料。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve">
+      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve" approved="yes">
         <source>You have no more VPN time left on this account. </source>
-        <target state="needs-translation">You have no more VPN time left on this account. </target>
+        <target state="final">您這個帳戶已經沒有剩餘的 VPN 時間了。 </target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You have one day left on this account. Please add more time to continue using the VPN.</source>
-        <target state="needs-translation">You have one day left on this account. Please add more time to continue using the VPN.</target>
+        <target state="final">您的帳戶還剩一天的時間。請增加時間以繼續使用 VPN。</target>
         <note/>
       </trans-unit>
       <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve" approved="yes">
@@ -2535,9 +2550,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">您已移除此裝置。若要重新連線，您需要重新登入。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have unsaved changes." xml:space="preserve">
+      <trans-unit id="You have unsaved changes." xml:space="preserve" approved="yes">
         <source>You have unsaved changes.</source>
-        <target state="needs-translation">You have unsaved changes.</target>
+        <target state="final">您有未儲存的變更。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2545,9 +2560,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve">
+      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve" approved="yes">
         <source>Your device is offline. Try connecting again when the device has access to Internet.</source>
-        <target state="needs-translation">Your device is offline. Try connecting again when the device has access to Internet.</target>
+        <target state="final">您的裝置已離線。請在裝置連至網際網路後重試。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your email (optional)" xml:space="preserve" approved="yes">
@@ -2555,14 +2570,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">您的電子郵件 (選填)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have already been added to this account.</source>
-        <target state="needs-translation">Your previous purchases have already been added to this account.</target>
+        <target state="final">您之前的購買記錄已新增至此帳戶。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve">
+      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">
         <source>Your purchase was successfully refunded.</source>
-        <target state="needs-translation">Your purchase was successfully refunded.</target>
+        <target state="final">您的購買已成功退款。</target>
         <note/>
       </trans-unit>
       <trans-unit id="You’re all set!" xml:space="preserve" approved="yes">
@@ -2585,18 +2600,23 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">多點跳躍</target>
         <note/>
       </trans-unit>
-      <trans-unit id="value" xml:space="preserve">
-        <source>value</source>
-        <target state="needs-translation">value</target>
+      <trans-unit id="privacy policy" xml:space="preserve">
+        <source>privacy policy</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">隱私權政策</target>
         <note/>
       </trans-unit>
-      <trans-unit id="“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
-        <source>“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+      <trans-unit id="value" xml:space="preserve" approved="yes">
+        <source>value</source>
+        <target state="final">值</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
+        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
 To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
 Would you like to continue to enable “Local network sharing”?</source>
-        <target state="needs-translation">“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</target>
+        <target state="final">「%@ 本機網路分享」需要重新啟動 VPN 連線，這會導致您中斷連線，並短暫暴露您的網路流量。
+為避免此情形，請在繼續操作前手動啟用飛行模式並關閉 Wi-Fi。
+您是否要繼續啟用「本機網路分享」？</target>
         <note/>
       </trans-unit>
     </body>
@@ -2648,9 +2668,9 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
+      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
         <source>The app needs this to connect and test a new method.</source>
-        <target state="needs-translation">The app needs this to connect and test a new method.</target>
+        <target state="final">本應用程式需要此項目來連線並測試新方式。</target>
         <note>Privacy - Local Network Usage Description</note>
       </trans-unit>
     </body>

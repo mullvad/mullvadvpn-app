@@ -5,9 +5,9 @@
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="%@" xml:space="preserve">
+      <trans-unit id="%@" xml:space="preserve" approved="yes">
         <source>%@</source>
-        <target state="needs-translation">%@</target>
+        <target state="final">%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
@@ -15,9 +15,9 @@
         <target state="final">%1$@ (%2$@) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ cannot be empty." xml:space="preserve">
+      <trans-unit id="%@ cannot be empty." xml:space="preserve" approved="yes">
         <source>%@ cannot be empty.</source>
-        <target state="needs-translation">%@ cannot be empty.</target>
+        <target state="final">%@ ไม่สามารถว่างเปล่าได้</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ does this by carefully adding network noise and making all network packets the same size." xml:space="preserve" approved="yes">
@@ -25,9 +25,9 @@
         <target state="final">%@ ได้ดำเนินการนี้ ด้วยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากัน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ left on this account" xml:space="preserve">
+      <trans-unit id="%@ left on this account" xml:space="preserve" approved="yes">
         <source>%@ left on this account</source>
-        <target state="needs-translation">%@ left on this account</target>
+        <target state="final">%@ เหลืออยู่ในบัญชีนี้</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ via %@" xml:space="preserve" approved="yes">
@@ -40,14 +40,14 @@
         <target state="final">%@ ถูกเพิ่มลงในบัญชีของคุณแล้ว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@, %@" xml:space="preserve">
+      <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
-        <target state="needs-translation">%1$@, %2$@</target>
+        <target state="final">%1$@, %2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve">
+      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
         <source>%@-enabled</source>
-        <target state="needs-translation">%@-enabled</target>
+        <target state="final">เปิดใช้งาน %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
@@ -60,14 +60,14 @@
         <target state="final">อีก %lld...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve">
+      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve" approved="yes">
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
-        <target state="needs-translation">**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</target>
+        <target state="final">**หมายเหตุ: การดำเนินการนี้จะเพิ่มปริมาณการใช้งานเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังสำหรับแพกเกจที่มีจำนวนจำกัด**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve">
+      <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
         <source>**Tap here** to see what’s new</source>
-        <target state="needs-translation">**Tap here** to see what’s new</target>
+        <target state="final">**แตะที่นี่** เพื่อดูว่ามีอะไรใหม่</target>
         <note/>
       </trans-unit>
       <trans-unit id="API access" xml:space="preserve" approved="yes">
@@ -90,19 +90,19 @@
         <target state="final">เข้าถึง API ไม่ได้ บันทึกวิธีการหรือไม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About %@ method..." xml:space="preserve">
+      <trans-unit id="About %@ method..." xml:space="preserve" approved="yes">
         <source>About %@ method...</source>
-        <target state="needs-translation">About %@ method...</target>
+        <target state="final">เกี่ยวกับวิธีการ %@...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About API access…" xml:space="preserve">
+      <trans-unit id="About API access…" xml:space="preserve" approved="yes">
         <source>About API access…</source>
-        <target state="needs-translation">About API access…</target>
+        <target state="final">เกี่ยวกับการเข้าถึง API…</target>
         <note/>
       </trans-unit>
-      <trans-unit id="About Server IP override..." xml:space="preserve">
+      <trans-unit id="About Server IP override..." xml:space="preserve" approved="yes">
         <source>About Server IP override...</source>
-        <target state="needs-translation">About Server IP override...</target>
+        <target state="final">เกี่ยวกับการแทนที่ IP ของเซิร์ฟเวอร์...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account" xml:space="preserve" approved="yes">
@@ -120,14 +120,14 @@
         <target state="final">เครดิตของบัญชีจะหมดอายุในเร็วๆ นี้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account credit has expired" xml:space="preserve">
+      <trans-unit id="Account credit has expired" xml:space="preserve" approved="yes">
         <source>Account credit has expired</source>
-        <target state="needs-translation">Account credit has expired</target>
+        <target state="final">เครดิตบัญชีหมดอายุแล้ว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Account deletion" xml:space="preserve">
+      <trans-unit id="Account deletion" xml:space="preserve" approved="yes">
         <source>Account deletion</source>
-        <target state="needs-translation">Account deletion</target>
+        <target state="final">การลบบัญชี</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account number" xml:space="preserve" approved="yes">
@@ -220,14 +220,14 @@
         <target state="final">อะไรก็ได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve">
+      <trans-unit id="App logs" xml:space="preserve" approved="yes">
         <source>App logs</source>
-        <target state="needs-translation">App logs</target>
+        <target state="final">บันทึกแอป</target>
         <note/>
       </trans-unit>
-      <trans-unit id="AppStore receipt is not found on disk." xml:space="preserve">
-        <source>AppStore receipt is not found on disk.</source>
-        <target state="needs-translation">AppStore receipt is not found on disk.</target>
+      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
+        <source>App Store receipt is not found on disk.</source>
+        <target state="final">ไม่พบใบเสร็จ App Store บนดิสก์</target>
         <note/>
       </trans-unit>
       <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve" approved="yes">
@@ -235,9 +235,9 @@
         <target state="final">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Argentina" xml:space="preserve">
+      <trans-unit id="Argentina" xml:space="preserve" approved="yes">
         <source>Argentina</source>
-        <target state="needs-translation">Argentina</target>
+        <target state="final">อาร์เจนตินา</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ashburn, VA" xml:space="preserve" approved="yes">
@@ -260,14 +260,14 @@
         <target state="final">แอตแลนตา รัฐจอร์เจีย</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
+      <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
-        <target state="needs-translation">Attention: this setting cannot be used in combination with **%@**</target>
+        <target state="final">หมายเหตุ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ **%@** ได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
+      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="needs-translation">Attention: toggling “Local network sharing” requires restarting the VPN connection.</target>
+        <target state="final">หมายเหตุ: การสลับ "การแชร์เครือข่ายท้องถิ่น" จำเป็นต้องเริ่มการเชื่อมต่อ VPN ใหม่</target>
         <note/>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve" approved="yes">
@@ -330,9 +330,9 @@
         <target state="final">เบอร์ลิน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
+      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve" approved="yes">
         <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
-        <target state="needs-translation">Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</target>
+        <target state="final">การบล็อกอินเทอร์เน็ต: เวลาของคุณในบัญชีนี้หมดลงแล้ว หากต้องการใช้อินเทอร์เน็ตต่อ โปรดเพิ่มเวลาหรือยกเลิกการเชื่อมต่อ VPN</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bogota" xml:space="preserve" approved="yes">
@@ -380,9 +380,9 @@
         <target state="final">บูดาเปสต์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Buenos Aires" xml:space="preserve">
+      <trans-unit id="Buenos Aires" xml:space="preserve" approved="yes">
         <source>Buenos Aires</source>
-        <target state="needs-translation">Buenos Aires</target>
+        <target state="final">บัวโนสไอเรส</target>
         <note/>
       </trans-unit>
       <trans-unit id="Bulgaria" xml:space="preserve" approved="yes">
@@ -390,9 +390,14 @@
         <target state="final">บัลแกเรีย</target>
         <note/>
       </trans-unit>
-      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve">
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
+        <target state="final">การแนบโทเค็นบัญชีของคุณจะเชื่อมโยงรายงานนี้เข้ากับบัญชีของคุณ ซึ่งจะช่วยให้เราแก้ไขปัญหาของคุณได้เร็วขึ้น รายงานทั้งหมดจะถูกลบโดยอัตโนมัติหลังจากผ่านไประยะเวลาหนึ่ง หากต้องการดูรายละเอียด โปรดเข้าไปดู</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve" approved="yes">
         <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
-        <target state="needs-translation">By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</target>
+        <target state="final">เมื่อเปิดใช้งาน “%1$@” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$@ ด้วยตนเอง %3$@ จะไม่ถูกใช้เพื่อเปิดใช้งาน DAITA กับเซิร์ฟเวอร์ใดๆ โดยอัตโนมัติ</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -425,24 +430,24 @@
         <target state="final">ยกเลิก</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve" approved="yes">
         <source>Cannot complete the purchase</source>
-        <target state="needs-translation">Cannot complete the purchase</target>
+        <target state="final">ไม่สามารถดำเนินการสั่งซื้อให้เสร็จสมบูรณ์ได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the AppStore receipt from disk" xml:space="preserve">
-        <source>Cannot read the AppStore receipt from disk</source>
-        <target state="needs-translation">Cannot read the AppStore receipt from disk</target>
+      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
+        <source>Cannot read the App Store receipt from disk</source>
+        <target state="final">ไม่สามารถอ่านใบเสร็จ App Store จากดิสก์ได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot refresh the AppStore receipt: %@" xml:space="preserve">
-        <source>Cannot refresh the AppStore receipt: %@</source>
-        <target state="needs-translation">Cannot refresh the AppStore receipt: %@</target>
+      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
+        <source>Cannot refresh the App Store receipt: %@</source>
+        <target state="final">ไม่สามารถรีเฟรชใบเสร็จ App Store ได้: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+      <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
-        <target state="needs-translation">Cannot restore purchases</target>
+        <target state="final">ไม่สามารถคืนค่าการซื้อได้</target>
         <note/>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
@@ -485,19 +490,19 @@
         <target state="final">การล้างโอเวอร์ไรด์ที่นำเข้า จะเป็นการเปลี่ยน IP ของเซิร์ฟเวอร์ ในมุมมองเลือกตำแหน่งที่ตั้ง ให้กลับไปเป็นค่าเริ่มต้น</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
+      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
         <source>Client is not allowed to issue the request.</source>
-        <target state="needs-translation">Client is not allowed to issue the request.</target>
+        <target state="final">ลูกค้าไม่สามารถออกคำร้องได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapse %@" xml:space="preserve">
+      <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
-        <target state="needs-translation">Collapse %@</target>
+        <target state="final">ยุบ %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Collapses this location." xml:space="preserve">
+      <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
-        <target state="needs-translation">Collapses this location.</target>
+        <target state="final">ยุบตำแหน่งนี้</target>
         <note/>
       </trans-unit>
       <trans-unit id="Colombia" xml:space="preserve" approved="yes">
@@ -515,14 +520,14 @@
         <target state="final">Connect (เชื่อมต่อ)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connected to %@" xml:space="preserve">
+      <trans-unit id="Connected to %@" xml:space="preserve" approved="yes">
         <source>Connected to %@</source>
-        <target state="needs-translation">Connected to %@</target>
+        <target state="final">เชื่อมต่อกับ %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Connecting to %@" xml:space="preserve">
+      <trans-unit id="Connecting to %@" xml:space="preserve" approved="yes">
         <source>Connecting to %@</source>
-        <target state="needs-translation">Connecting to %@</target>
+        <target state="final">กำลังเชื่อมต่อกับ %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connection details" xml:space="preserve" approved="yes">
@@ -540,9 +545,9 @@
         <target state="final">โคเปนเฮเกน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve">
+      <trans-unit id="Copied Mullvad account number to pasteboard" xml:space="preserve" approved="yes">
         <source>Copied Mullvad account number to pasteboard</source>
-        <target state="needs-translation">Copied Mullvad account number to pasteboard</target>
+        <target state="final">คัดลอกหมายเลขบัญชี Mullvad ลงในกระดาษโน้ต</target>
         <note/>
       </trans-unit>
       <trans-unit id="Create" xml:space="preserve" approved="yes">
@@ -565,9 +570,9 @@
         <target state="final">สร้างรายการใหม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Created: %@" xml:space="preserve">
+      <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
         <source>Created: %@</source>
-        <target state="needs-translation">Created: %@</target>
+        <target state="final">สร้างแล้ว: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
@@ -610,19 +615,19 @@
         <target state="final">สาธารณรัฐเช็ก</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA" xml:space="preserve">
+      <trans-unit id="DAITA" xml:space="preserve" approved="yes">
         <source>DAITA</source>
-        <target state="needs-translation">DAITA</target>
+        <target state="final">DAITA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</target>
+        <target state="final">DAITA ไม่สามารถใช้งานได้ ณ ตำแหน่งที่เลือกไว้ในปัจจุบัน หลังจากเปิดใช้งานแล้ว โปรดไปที่มุมมอง "เลือกตำแหน่ง" และเลือกตำแหน่งที่รองรับ DAITA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve">
+      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve" approved="yes">
         <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
-        <target state="needs-translation">DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</target>
+        <target state="final">DAITA ไม่สามารถใช้งานได้บนเซิร์ฟเวอร์ปัจจุบัน หลังจากเปิดใช้งานแล้ว โปรดไปที่มุมมอง "เลือกตำแหน่ง" และเลือกตำแหน่งที่รองรับ DAITA</target>
         <note/>
       </trans-unit>
       <trans-unit id="DISCONNECTED" xml:space="preserve" approved="yes">
@@ -640,9 +645,9 @@
         <target state="final">ตัวบล็อกเนื้อหา DNS</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DNS settings" xml:space="preserve">
+      <trans-unit id="DNS settings" xml:space="preserve" approved="yes">
         <source>DNS settings</source>
-        <target state="needs-translation">DNS settings</target>
+        <target state="final">การตั้งค่า DNS</target>
         <note/>
       </trans-unit>
       <trans-unit id="Dallas, TX" xml:space="preserve" approved="yes">
@@ -655,14 +660,14 @@
         <target state="final">ลบ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete %@?" xml:space="preserve">
+      <trans-unit id="Delete %@?" xml:space="preserve" approved="yes">
         <source>Delete %@?</source>
-        <target state="needs-translation">Delete %@?</target>
+        <target state="final">ลบ %@ หรือไม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Delete account" xml:space="preserve">
+      <trans-unit id="Delete account" xml:space="preserve" approved="yes">
         <source>Delete account</source>
-        <target state="needs-translation">Delete account</target>
+        <target state="final">ลบบัญชี</target>
         <note/>
       </trans-unit>
       <trans-unit id="Delete list" xml:space="preserve" approved="yes">
@@ -675,9 +680,9 @@
         <target state="final">ลบวิธีการ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve">
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
         <source>Deleting account...</source>
-        <target state="needs-translation">Deleting account...</target>
+        <target state="final">กำลังลบบัญชี...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
@@ -705,9 +710,9 @@
         <target state="final">ชื่ออุปกรณ์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Device name: %@" xml:space="preserve">
+      <trans-unit id="Device name: %@" xml:space="preserve" approved="yes">
         <source>Device name: %@</source>
-        <target state="needs-translation">Device name: %@</target>
+        <target state="final">ชื่ออุปกรณ์: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Direct only" xml:space="preserve" approved="yes">
@@ -720,14 +725,14 @@
         <target state="final">ปิดใช้งาน "%@" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve">
+      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
         <source>Disabling</source>
-        <target state="needs-translation">Disabling</target>
+        <target state="final">การปิดใช้งาน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Discard changes" xml:space="preserve">
+      <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
         <source>Discard changes</source>
-        <target state="needs-translation">Discard changes</target>
+        <target state="final">ละทิ้งการเปลี่ยนแปลงหรือไม่</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disconnect" xml:space="preserve" approved="yes">
@@ -735,9 +740,9 @@
         <target state="final">ตัดการเชื่อมต่อ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
+      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve" approved="yes">
         <source>Do you agree to remaining anonymous?</source>
-        <target state="needs-translation">Do you agree to remaining anonymous?</target>
+        <target state="final">คุณยินยอมที่จะไม่เปิดเผยตัวตนใช่ไหม</target>
         <note/>
       </trans-unit>
       <trans-unit id="Do you want to create a new account?" xml:space="preserve" approved="yes">
@@ -745,14 +750,14 @@
         <target state="final">คุณต้องการสร้างบัญชีใหม่หรือไม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve">
+      <trans-unit id="Do you want to delete the list **%@**?" xml:space="preserve" approved="yes">
         <source>Do you want to delete the list **%@**?</source>
-        <target state="needs-translation">Do you want to delete the list **%@**?</target>
+        <target state="final">คุณต้องการลบรายการ **%@** หรือไม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Done" xml:space="preserve">
+      <trans-unit id="Done" xml:space="preserve" approved="yes">
         <source>Done</source>
-        <target state="needs-translation">Done</target>
+        <target state="final">เสร็จสิ้น</target>
         <note/>
       </trans-unit>
       <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
@@ -770,9 +775,9 @@
         <target state="final">ดึสเซิลดอร์ฟ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Edit custom list" xml:space="preserve">
+      <trans-unit id="Edit custom list" xml:space="preserve" approved="yes">
         <source>Edit custom list</source>
-        <target state="needs-translation">Edit custom list</target>
+        <target state="final">แก้ไขรายการที่กำหนดเอง</target>
         <note/>
       </trans-unit>
       <trans-unit id="Edit custom lists" xml:space="preserve" approved="yes">
@@ -790,9 +795,9 @@
         <target state="final">แก้ไขวิธี</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
+      <trans-unit id="Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve" approved="yes">
         <source>Either buy credit on our website or make an in-app purchase via the **Add time** button below.</source>
-        <target state="needs-translation">Either buy credit on our website or make an in-app purchase via the **Add time** button below.</target>
+        <target state="final">ซื้อเครดิตบนเว็บไซต์ของเรา หรือซื้อในแอปผ่านปุ่ม **เพิ่มเวลา** ด้านล่าง</target>
         <note/>
       </trans-unit>
       <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve" approved="yes">
@@ -810,9 +815,9 @@
         <target state="final">เปิดใช้งานวิธีการ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve">
+      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
         <source>Enabling</source>
-        <target state="needs-translation">Enabling</target>
+        <target state="final">การเปิดใช้งาน</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -845,19 +850,19 @@
         <target state="final">ออก</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expand %@" xml:space="preserve">
+      <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
-        <target state="needs-translation">Expand %@</target>
+        <target state="final">ขยาย %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Expands this location." xml:space="preserve">
+      <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
-        <target state="needs-translation">Expands this location.</target>
+        <target state="final">ขยายตำแหน่งนี้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve" approved="yes">
         <source>FAQs &amp; Guides</source>
-        <target state="needs-translation">FAQs &amp; Guides</target>
+        <target state="final">คำถามที่พบบ่อยและคำแนะนำ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to load products, please try again" xml:space="preserve" approved="yes">
@@ -870,34 +875,34 @@
         <target state="final">ไม่สามารถส่งได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
+      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
         <source>Failed to send the receipt to server: %@</source>
-        <target state="needs-translation">Failed to send the receipt to server: %@</target>
+        <target state="final">ไม่สามารถส่งใบเสร็จไปยังเซิร์ฟเวอร์: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel.</source>
-        <target state="needs-translation">Failed to start the tunnel.</target>
+        <target state="final">ไม่สามารถเริ่มอุโมงค์ได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel: %@.</source>
-        <target state="needs-translation">Failed to start the tunnel: %@.</target>
+        <target state="final">ไม่สามารถเริ่มอุโมงค์ได้: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel.</source>
-        <target state="needs-translation">Failed to stop the tunnel.</target>
+        <target state="final">ไม่สามารถหยุดอุโมงค์ได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve">
+      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve" approved="yes">
         <source>Failed to stop the tunnel: %@.</source>
-        <target state="needs-translation">Failed to stop the tunnel: %@.</target>
+        <target state="final">ไม่สามารถหยุดอุโมงค์ได้: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Fetching devices..." xml:space="preserve">
+      <trans-unit id="Fetching devices..." xml:space="preserve" approved="yes">
         <source>Fetching devices...</source>
-        <target state="needs-translation">Fetching devices...</target>
+        <target state="final">กำลังดึงข้อมูลอุปกรณ์...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Filter" xml:space="preserve" approved="yes">
@@ -1030,9 +1035,9 @@
         <target state="final">หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve">
+      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
         <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
-        <target state="needs-translation">If you disconnect now, you won’t be able to secure your connection until the device is online.</target>
+        <target state="final">หากคุณตัดการเชื่อมต่อตอนนี้ คุณจะไม่สามารถรักษาความปลอดภัยการเชื่อมต่อได้จนกว่าอุปกรณ์จะออนไลน์</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
@@ -1040,9 +1045,9 @@
         <target state="final">หากคุณออกจากแบบฟอร์มแล้วเข้ามาใหม่ในภายหลัง ข้อมูลที่คุณกรอกไว้จะยังคงอยู่ที่นี่ดังเดิม</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve">
+      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve" approved="yes">
         <source>If you haven’t received additional VPN time after purchasing</source>
-        <target state="needs-translation">If you haven’t received additional VPN time after purchasing</target>
+        <target state="final">หากคุณไม่ได้รับเวลา VPN เพิ่มเติมหลังจากการซื้อ</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve" approved="yes">
@@ -1050,9 +1055,9 @@
         <target state="final">หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
+      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve" approved="yes">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
-        <target state="needs-translation">If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</target>
+        <target state="final">หากคุณยังพบปัญหาอยู่ คุณสามารถส่งอีเมลถึงฝ่ายสนับสนุนของเราได้โดยตรงที่ **%@** โปรดแนบบันทึกแอปของคุณไปกับอีเมล</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve" approved="yes">
@@ -1070,14 +1075,14 @@
         <target state="final">นำเข้าไฟล์หรือข้อความที่มีที่อยู่ IP ใหม่ สำหรับเซิร์ฟเวอร์ในมุมมองเลือกตำแหน่งที่ตั้ง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve">
+      <trans-unit id="Import of %@ was successful, overrides are now active." xml:space="preserve" approved="yes">
         <source>Import of %@ was successful, overrides are now active.</source>
-        <target state="needs-translation">Import of %@ was successful, overrides are now active.</target>
+        <target state="final">การนำเข้า %@ สำเร็จแล้ว การแทนที่กำลังทำงานอยู่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve">
+      <trans-unit id="Import of %@ was unsuccessful, please try again." xml:space="preserve" approved="yes">
         <source>Import of %@ was unsuccessful, please try again.</source>
-        <target state="needs-translation">Import of %@ was unsuccessful, please try again.</target>
+        <target state="final">การนำเข้า %@ ไม่สำเร็จ โปรดลองอีกครั้ง</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import of text was successful, overrides are now active." xml:space="preserve" approved="yes">
@@ -1105,9 +1110,14 @@
         <target state="final">ใช้งานอยู่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve">
+      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
         <source>Include all networks</source>
-        <target state="needs-translation">Include all networks</target>
+        <target state="final">รวมทุกเครือข่าย</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
+        <source>Include my account token for faster help with payment or account related issues</source>
+        <target state="final">รวมโทเค็นบัญชีของฉันเพื่อความช่วยเหลือที่รวดเร็วยิ่งขึ้นเกี่ยวกับการชำระเงินหรือปัญหาที่เกี่ยวข้องกับบัญชี</target>
         <note/>
       </trans-unit>
       <trans-unit id="Indonesia" xml:space="preserve" approved="yes">
@@ -1115,14 +1125,14 @@
         <target state="final">อินโดนีเซีย</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
+      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
-        <target state="needs-translation">Internal error occurred. Settings will be reset to defaults and device logged out.</target>
+        <target state="final">เกิดข้อผิดพลาดภายใน การตั้งค่าจะถูกรีเซ็ตเป็นค่าเริ่มต้นและอุปกรณ์จะถูกออกจากระบบ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Internal error." xml:space="preserve">
+      <trans-unit id="Internal error." xml:space="preserve" approved="yes">
         <source>Internal error.</source>
-        <target state="needs-translation">Internal error.</target>
+        <target state="final">ข้อผิดพลาดภายใน</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
@@ -1130,19 +1140,19 @@
         <target state="final">หมายเลขบัญชีไม่ถูกต้อง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve">
+      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
         <source>Invalid account number: %@</source>
-        <target state="needs-translation">Invalid account number: %@</target>
+        <target state="final">หมายเลขบัญชีไม่ถูกต้อง: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid device state." xml:space="preserve">
+      <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
-        <target state="needs-translation">Invalid device state.</target>
+        <target state="final">สถานะอุปกรณ์ไม่ถูกต้อง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve">
+      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
         <source>Invalid purchase identifier.</source>
-        <target state="needs-translation">Invalid purchase identifier.</target>
+        <target state="final">รหัสการซื้อไม่ถูกต้อง</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1215,14 +1225,14 @@
         <target state="final">ภาษา</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve">
+      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve" approved="yes">
         <source>Last four digits of the account number are incorrect</source>
-        <target state="needs-translation">Last four digits of the account number are incorrect</target>
+        <target state="final">สี่หลักสุดท้ายของหมายเลขบัญชีไม่ถูกต้อง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve">
+      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
         <source>Last used account</source>
-        <target state="needs-translation">Last used account</target>
+        <target state="final">บัญชีที่ใช้ล่าสุด</target>
         <note/>
       </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
@@ -1230,9 +1240,9 @@
         <target state="final">เรียนรู้เกี่ยวกับความเป็นส่วนตัว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Less than a day" xml:space="preserve">
+      <trans-unit id="Less than a day" xml:space="preserve" approved="yes">
         <source>Less than a day</source>
-        <target state="needs-translation">Less than a day</target>
+        <target state="final">น้อยกว่าหนึ่งวัน</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lima" xml:space="preserve" approved="yes">
@@ -1275,9 +1285,9 @@
         <target state="final">กำลังเข้าสู่ระบบ...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logging out..." xml:space="preserve">
+      <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
         <source>Logging out...</source>
-        <target state="needs-translation">Logging out...</target>
+        <target state="final">กำลังออกจากระบบ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Login" xml:space="preserve" approved="yes">
@@ -1305,9 +1315,9 @@
         <target state="final">มาดริด</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Make a purchase with StoreKit2</source>
-        <target state="needs-translation">Make a purchase with StoreKit2</target>
+        <target state="final">สั่งซื้อด้วย StoreKit2</target>
         <note/>
       </trans-unit>
       <trans-unit id="Malaysia" xml:space="preserve" approved="yes">
@@ -1400,9 +1410,9 @@
         <target state="final">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NETWORK ISSUES" xml:space="preserve">
+      <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
         <source>NETWORK ISSUES</source>
-        <target state="needs-translation">NETWORK ISSUES</target>
+        <target state="final">ปัญหาเครือข่าย</target>
         <note/>
       </trans-unit>
       <trans-unit id="NEW DEVICE CREATED" xml:space="preserve" approved="yes">
@@ -1415,9 +1425,9 @@
         <target state="final">ติดตั้งเวอร์ชันใหม่แล้ว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="NO NETWORK" xml:space="preserve">
+      <trans-unit id="NO NETWORK" xml:space="preserve" approved="yes">
         <source>NO NETWORK</source>
-        <target state="needs-translation">NO NETWORK</target>
+        <target state="final">ไม่มีเครือข่าย</target>
         <note/>
       </trans-unit>
       <trans-unit id="NO OVERRIDES IMPORTED" xml:space="preserve" approved="yes">
@@ -1435,9 +1445,9 @@
         <target state="final">ชื่อนี้ถูกใช้ไปแล้ว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
+      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
         <source>Name should be no longer than %i characters.</source>
-        <target state="needs-translation">Name should be no longer than %i characters.</target>
+        <target state="final">ชื่อไม่ควรยาวเกิน %i อักขระ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Netherlands" xml:space="preserve" approved="yes">
@@ -1445,9 +1455,9 @@
         <target state="final">เนเธอร์แลนด์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Network error: %@" xml:space="preserve">
+      <trans-unit id="Network error: %@" xml:space="preserve" approved="yes">
         <source>Network error: %@</source>
-        <target state="needs-translation">Network error: %@</target>
+        <target state="final">ข้อผิดพลาดของเครือข่าย: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="New York, NY" xml:space="preserve" approved="yes">
@@ -1475,14 +1485,14 @@
         <target state="final">ไนจีเรีย</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
+      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve" approved="yes">
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
-        <target state="needs-translation">No DAITA compatible servers match your location settings. Try changing location.</target>
+        <target state="final">ไม่มีเซิร์ฟเวอร์ที่รองรับ DAITA ที่ตรงกับการตั้งค่าตำแหน่งของคุณ ลองเปลี่ยนตำแหน่งดู</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve">
+      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve" approved="yes">
         <source>No matching relays found, check your filter settings.</source>
-        <target state="needs-translation">No matching relays found, check your filter settings.</target>
+        <target state="final">ไม่พบรีเลย์ที่ตรงกัน ตรวจสอบการตั้งค่าตัวกรองของคุณ</target>
         <note/>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
@@ -1490,14 +1500,14 @@
         <target state="final">ไม่พบเซิร์ฟเวอร์ที่ตรงกัน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
+      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
         <source>No servers match your location filter. Try changing filter settings.</source>
-        <target state="needs-translation">No servers match your location filter. Try changing filter settings.</target>
+        <target state="final">ไม่มีเซิร์ฟเวอร์ที่ตรงกับตัวกรองตำแหน่งของคุณ ลองเปลี่ยนการตั้งค่าตัวกรองดู</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve">
+      <trans-unit id="No servers match your obfuscation settings. Try changing location or obfuscation method." xml:space="preserve" approved="yes">
         <source>No servers match your obfuscation settings. Try changing location or obfuscation method.</source>
-        <target state="needs-translation">No servers match your obfuscation settings. Try changing location or obfuscation method.</target>
+        <target state="final">ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าการบดบังข้อมูลของคุณ ลองเปลี่ยนตำแหน่งหรือวิธีการบดบังข้อมูล</target>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve" approved="yes">
@@ -1535,9 +1545,9 @@
         <target state="final">การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obscured" xml:space="preserve">
+      <trans-unit id="Obscured" xml:space="preserve" approved="yes">
         <source>Obscured</source>
-        <target state="needs-translation">Obscured</target>
+        <target state="final">บดบัง</target>
         <note/>
       </trans-unit>
       <trans-unit id="Off" xml:space="preserve" approved="yes">
@@ -1580,14 +1590,14 @@
         <target state="final">ออสโล</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv4" xml:space="preserve">
+      <trans-unit id="Out IPv4" xml:space="preserve" approved="yes">
         <source>Out IPv4</source>
-        <target state="needs-translation">Out IPv4</target>
+        <target state="final">Out IPv4</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Out IPv6" xml:space="preserve">
+      <trans-unit id="Out IPv6" xml:space="preserve" approved="yes">
         <source>Out IPv6</source>
-        <target state="needs-translation">Out IPv6</target>
+        <target state="final">Out IPv6</target>
         <note/>
       </trans-unit>
       <trans-unit id="Out of time" xml:space="preserve" approved="yes">
@@ -1620,9 +1630,9 @@
         <target state="final">รหัสผ่าน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
+      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve" approved="yes">
         <source>Performs a connection test to a Mullvad API server via this access method.</source>
-        <target state="needs-translation">Performs a connection test to a Mullvad API server via this access method.</target>
+        <target state="final">ดำเนินการทดสอบการเชื่อมต่อกับเซิร์ฟเวอร์ Mullvad API ผ่านวิธีการเข้าถึงนี้</target>
         <note/>
       </trans-unit>
       <trans-unit id="Perth" xml:space="preserve" approved="yes">
@@ -1660,9 +1670,9 @@
         <target state="final">โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
+      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
         <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="needs-translation">Please retry by using the "Restore purchases" button.</target>
+        <target state="final">โปรดลองอีกครั้งโดยใช้ปุ่ม "คืนค่าการซื้อ"</target>
         <note/>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
@@ -1675,9 +1685,9 @@
         <target state="final">พอร์ต</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Port: %@" xml:space="preserve">
+      <trans-unit id="Port: %@" xml:space="preserve" approved="yes">
         <source>Port: %@</source>
-        <target state="needs-translation">Port: %@</target>
+        <target state="final">พอร์ต: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Portugal" xml:space="preserve" approved="yes">
@@ -1700,9 +1710,9 @@
         <target state="final">ผู้ให้บริการ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Providers: %d" xml:space="preserve">
+      <trans-unit id="Providers: %d" xml:space="preserve" approved="yes">
         <source>Providers: %d</source>
-        <target state="needs-translation">Providers: %d</target>
+        <target state="final">ผู้ให้บริการ: %d</target>
         <note/>
       </trans-unit>
       <trans-unit id="QUIC" xml:space="preserve" approved="yes">
@@ -1725,9 +1735,9 @@
         <target state="final">เกเรตาโร</target>
         <note/>
       </trans-unit>
-      <trans-unit id="RECONNECTING" xml:space="preserve">
+      <trans-unit id="RECONNECTING" xml:space="preserve" approved="yes">
         <source>RECONNECTING</source>
-        <target state="needs-translation">RECONNECTING</target>
+        <target state="final">กำลังเชื่อมต่อใหม่</target>
         <note/>
       </trans-unit>
       <trans-unit id="Raleigh, NC" xml:space="preserve" approved="yes">
@@ -1735,9 +1745,9 @@
         <target state="final">ราลี นอร์ทแคโรไลนา</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Reconnecting to %@" xml:space="preserve">
+      <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
-        <target state="needs-translation">Reconnecting to %@</target>
+        <target state="final">กำลังเชื่อมต่อใหม่กับ %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Redeem" xml:space="preserve" approved="yes">
@@ -1750,14 +1760,14 @@
         <target state="final">แลกบัตรกำนัล</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
+      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve" approved="yes">
         <source>Refund last purchase with StoreKit2</source>
-        <target state="needs-translation">Refund last purchase with StoreKit2</target>
+        <target state="final">คืนเงินการซื้อครั้งสุดท้ายกับ StoreKit2</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Refund successful" xml:space="preserve">
+      <trans-unit id="Refund successful" xml:space="preserve" approved="yes">
         <source>Refund successful</source>
-        <target state="needs-translation">Refund successful</target>
+        <target state="final">การคืนเงินสำเร็จ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Remove" xml:space="preserve" approved="yes">
@@ -1770,16 +1780,16 @@
         <target state="final">ลบ %@ หรือไม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve">
+      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
         <source>Remove last used account</source>
-        <target state="needs-translation">Remove last used account</target>
+        <target state="final">ลบบัญชีที่ใช้ล่าสุด</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve">
+      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
         <source>Removing the saved account number from this device cannot be undone.
 Do you want to remove the saved account number?</source>
-        <target state="needs-translation">Removing the saved account number from this device cannot be undone.
-Do you want to remove the saved account number?</target>
+        <target state="final">การลบหมายเลขบัญชีที่บันทึกไว้ออกจากอุปกรณ์นี้ไม่สามารถย้อนกลับได้
+คุณต้องการลบหมายเลขบัญชีที่บันทึกไว้หรือไม่</target>
         <note/>
       </trans-unit>
       <trans-unit id="Rented only" xml:space="preserve" approved="yes">
@@ -1797,9 +1807,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">จำเป็น</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Restore purchases" xml:space="preserve">
+      <trans-unit id="Restore purchases" xml:space="preserve" approved="yes">
         <source>Restore purchases</source>
-        <target state="needs-translation">Restore purchases</target>
+        <target state="final">คืนค่าการซื้อ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Romania" xml:space="preserve" approved="yes">
@@ -1832,9 +1842,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">บันทึก</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Saving changes..." xml:space="preserve">
+      <trans-unit id="Saving changes..." xml:space="preserve" approved="yes">
         <source>Saving changes...</source>
-        <target state="needs-translation">Saving changes...</target>
+        <target state="final">กำลังบันทึกการเปลี่ยนแปลง...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Search for..." xml:space="preserve" approved="yes">
@@ -1857,9 +1867,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">เลือกตำแหน่งที่ตั้ง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Selected" xml:space="preserve">
+      <trans-unit id="Selected" xml:space="preserve" approved="yes">
         <source>Selected</source>
-        <target state="needs-translation">Selected</target>
+        <target state="final">เลือกแล้ว</target>
         <note/>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve" approved="yes">
@@ -1902,9 +1912,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">รายละเอียดเซิร์ฟเวอร์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Setting: %@" xml:space="preserve">
+      <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
-        <target state="needs-translation">Setting: %@</target>
+        <target state="final">การตั้งค่า: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Settings" xml:space="preserve" approved="yes">
@@ -1912,9 +1922,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">การตั้งค่า</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Settings migration error" xml:space="preserve">
+      <trans-unit id="Settings migration error" xml:space="preserve" approved="yes">
         <source>Settings migration error</source>
-        <target state="needs-translation">Settings migration error</target>
+        <target state="final">ข้อผิดพลาดในการโยกย้ายการตั้งค่า</target>
         <note/>
       </trans-unit>
       <trans-unit id="Shadowsocks" xml:space="preserve" approved="yes">
@@ -1947,9 +1957,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">โซเชียลมีเดีย</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Socks5" xml:space="preserve">
+      <trans-unit id="Socks5" xml:space="preserve" approved="yes">
         <source>Socks5</source>
-        <target state="needs-translation">Socks5</target>
+        <target state="final">Socks5</target>
         <note/>
       </trans-unit>
       <trans-unit id="Sofia" xml:space="preserve" approved="yes">
@@ -2012,9 +2022,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">TCP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="TUNNEL ERROR" xml:space="preserve">
+      <trans-unit id="TUNNEL ERROR" xml:space="preserve" approved="yes">
         <source>TUNNEL ERROR</source>
-        <target state="needs-translation">TUNNEL ERROR</target>
+        <target state="final">ข้อผิดพลาดอุโมงค์</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
@@ -2022,9 +2032,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ทาลลินน์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve">
+      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve" approved="yes">
         <source>Tap **Edit** to add at least one DNS server.</source>
-        <target state="needs-translation">Tap **Edit** to add at least one DNS server.</target>
+        <target state="final">แตะ **แก้ไข** เพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งเครื่อง</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2047,9 +2057,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ไทย</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+      <trans-unit id="Thanks for your purchase" xml:space="preserve" approved="yes">
         <source>Thanks for your purchase</source>
-        <target state="needs-translation">Thanks for your purchase</target>
+        <target state="final">ขอบคุณสำหรับการซื้อของคุณ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
@@ -2057,19 +2067,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">ขอบคุณ!</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server directly.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server directly.</target>
+        <target state="final">แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API โดยตรง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a Mullvad bridge server.</target>
+        <target state="final">แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API ผ่านทางเซิร์ฟเวอร์บริดจ์ Mullvad</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve">
+      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a proxy address.</source>
-        <target state="needs-translation">The app communicates with a Mullvad API server via a proxy address.</target>
+        <target state="final">แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API ผ่านทางที่อยู่พร็อกซี</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve" approved="yes">
@@ -2077,9 +2087,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The app will test the method before saving." xml:space="preserve">
+      <trans-unit id="The app will test the method before saving." xml:space="preserve" approved="yes">
         <source>The app will test the method before saving.</source>
-        <target state="needs-translation">The app will test the method before saving.</target>
+        <target state="final">แอปจะทดสอบวิธีการก่อนบันทึก</target>
         <note/>
       </trans-unit>
       <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below." xml:space="preserve" approved="yes">
@@ -2097,29 +2107,29 @@ Do you want to remove the saved account number?</target>
         <target state="final">อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve">
+      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve" approved="yes">
         <source>The entry and exit servers cannot be the same. Try changing one to a new server or location.</source>
-        <target state="needs-translation">The entry and exit servers cannot be the same. Try changing one to a new server or location.</target>
+        <target state="final">เซิร์ฟเวอร์ขาเข้าและขาออกไม่สามารถเป็นเซิร์ฟเวอร์เดียวกันได้ ลองเปลี่ยนเซิร์ฟเวอร์หรือตำแหน่งใหม่</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve">
+      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@“ in the settings." xml:space="preserve" approved="yes">
         <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</source>
-        <target state="needs-translation">The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@“ in the settings.</target>
+        <target state="final">ขณะนี้เซิร์ฟเวอร์สำหรับ %1$@ ถูกแทนที่โดย %2$@ หากต้องการเลือกเซิร์ฟเวอร์สำหรับรายการ โปรดเปิดใช้งาน “%3$@” หรือปิดใช้งาน “%4$@” ในการตั้งค่าก่อน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve">
+      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
         <source>The payment request was cancelled.</source>
-        <target state="needs-translation">The payment request was cancelled.</target>
+        <target state="final">คำขอชำระเงินถูกยกเลิก</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve">
+      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
-        <target state="needs-translation">The selected WireGuard port is not supported, please change it under **VPN settings**.</target>
+        <target state="final">พอร์ต WireGuard ที่เลือกไม่ได้รับการรองรับ โปรดเปลี่ยนแปลงภายใต้ **การตั้งค่า VPN**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve">
+      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
-        <target state="needs-translation">The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</target>
+        <target state="final">เวอร์ชันของการตั้งค่าที่เก็บไว้ในอุปกรณ์ไม่ได้รับการรู้จัก การตั้งค่าจะถูกรีเซ็ตเป็นค่าเริ่มต้น และอุปกรณ์จะถูกนำออกจากระบบ</target>
         <note/>
       </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
@@ -2132,14 +2142,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">ตัวเลือกนี้อาจมีประโยชน์ในกรณีที่คุณไม่ได้ถูกเซ็นเซอร์ใดๆ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
+      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
         <source>This device is not allowed to make the payment.</source>
-        <target state="needs-translation">This device is not allowed to make the payment.</target>
+        <target state="final">อุปกรณ์นี้ไม่ได้รับอนุญาตให้ทำการชำระเงิน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="needs-translation">This device is now named **%@**. See more under "Manage devices" in Account.</target>
+        <target state="final">อุปกรณ์นี้ได้รับการตั้งชื่อว่า **%@** แล้ว ดูเพิ่มเติมได้ภายใต้หัวข้อ "จัดการอุปกรณ์" ในบัญชี</target>
         <note/>
       </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve" approved="yes">
@@ -2157,14 +2167,19 @@ Do you want to remove the saved account number?</target>
         <target state="final">คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This impacts your anonymity" xml:space="preserve" approved="yes">
+        <source>This impacts your anonymity</source>
+        <target state="final">สิ่งนี้ส่งผลต่อความไม่เปิดเผยตัวตนของคุณ</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve" approved="yes">
         <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</source>
         <target state="final">นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="needs-translation">This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</target>
+        <target state="final">การดำเนินการนี้จะออกจากระบบอุปกรณ์ทั้งหมดที่ใช้บัญชีนี้ และการเข้าถึง VPN ทั้งหมดจะถูกปฏิเสธแม้ว่าจะมีเวลาเหลืออยู่ในบัญชีก็ตาม กรอก 4 หลักสุดท้ายของหมายเลขบัญชีและคลิก "ลบบัญชี" หากคุณต้องการลบบัญชีจริงๆ:</target>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -2172,9 +2187,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Time left: %@" xml:space="preserve">
+      <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
-        <target state="needs-translation">Time left: %@</target>
+        <target state="final">เวลาที่เหลือ: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tirana" xml:space="preserve" approved="yes">
@@ -2202,14 +2217,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">เยี่ยมชมเว็บไซต์ของเรา เพื่อฝึกนิสัยและรับเครื่องมือต่างๆ ที่เป็นมิตรต่อความเป็นส่วนตัว เพื่อเดินทางต่อไปในฐานะนินจาผู้มีความเป็นส่วนตัว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
+      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve" approved="yes">
         <source>To create a custom list, tap on "..." </source>
-        <target state="needs-translation">To create a custom list, tap on "..." </target>
+        <target state="final">ในการสร้างรายการที่กำหนดเอง ให้แตะที่ "..."</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve">
+      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve" approved="yes">
         <source>To enable this setting, add at least one server.</source>
-        <target state="needs-translation">To enable this setting, add at least one server.</target>
+        <target state="final">หากต้องการเปิดใช้งานการตั้งค่านี้ ให้เพิ่มเซิร์ฟเวอร์อย่างน้อยหนึ่งเครื่อง</target>
         <note/>
       </trans-unit>
       <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve" approved="yes">
@@ -2247,9 +2262,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ลองอีกครั้ง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Tunnel is unset." xml:space="preserve">
+      <trans-unit id="Tunnel is unset." xml:space="preserve" approved="yes">
         <source>Tunnel is unset.</source>
-        <target state="needs-translation">Tunnel is unset.</target>
+        <target state="final">ยังไม่ได้ตั้งค่าอุโมงค์</target>
         <note/>
       </trans-unit>
       <trans-unit id="Turkey" xml:space="preserve" approved="yes">
@@ -2287,14 +2302,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">ยูเครน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve">
+      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve" approved="yes">
         <source>Unable to authenticate account. Please log out and log back in.</source>
-        <target state="needs-translation">Unable to authenticate account. Please log out and log back in.</target>
+        <target state="final">ไม่สามารถยืนยันบัญชีได้ โปรดออกจากระบบและเข้าสู่ระบบใหม่อีกครั้ง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve">
+      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve" approved="yes">
         <source>Unable to start tunnel connection after update. Please disconnect and reconnect.</source>
-        <target state="needs-translation">Unable to start tunnel connection after update. Please disconnect and reconnect.</target>
+        <target state="final">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้หลังจากอัปเดต โปรดตัดการเชื่อมต่อและเชื่อมต่อใหม่</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve" approved="yes">
@@ -2302,14 +2317,14 @@ Do you want to remove the saved account number?</target>
         <target state="final">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดส่งรายงานปัญหา</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %1$@ (HTTP status: %2$d)</source>
-        <target state="needs-translation">Unexpected server response: %1$@ (HTTP status: %2$d)</target>
+        <target state="final">การตอบสนองของเซิร์ฟเวอร์ที่ไม่คาดคิด: %1$@ (สถานะ HTTP: %2$d)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unexpected server response: %d" xml:space="preserve">
+      <trans-unit id="Unexpected server response: %d" xml:space="preserve" approved="yes">
         <source>Unexpected server response: %d</source>
-        <target state="needs-translation">Unexpected server response: %d</target>
+        <target state="final">การตอบสนองของเซิร์ฟเวอร์ที่ไม่คาดคิด: %d</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
@@ -2402,9 +2417,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">วอชิงตัน ดี.ซี.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
+      <trans-unit id="We are having some issues, please try again later" xml:space="preserve" approved="yes">
         <source>We are having some issues, please try again later</source>
-        <target state="needs-translation">We are having some issues, please try again later</target>
+        <target state="final">เรากำลังประสบปัญหาบางอย่าง โปรดลองอีกครั้งในภายหลัง</target>
         <note/>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -2422,9 +2437,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve">
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve" approved="yes">
         <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
-        <target state="needs-translation">When using DAITA, one provider with DAITA-enabled servers is required.</target>
+        <target state="final">เมื่อใช้ DAITA จำเป็นต้องมีผู้ให้บริการหนึ่งรายที่มีเซิร์ฟเวอร์ที่เปิดใช้งาน DAITA</target>
         <note/>
       </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
@@ -2457,9 +2472,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">การใช้วิธี "Mullvad bridges" จะทำให้แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API ผ่านเซิร์ฟเวอร์ Mullvad bridge โดยการรับส่งข้อมูลที่ Shadowsocks ทำให้ข้อมูลยุ่งเหยิง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Yes, continue" xml:space="preserve">
+      <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
         <source>Yes, continue</source>
-        <target state="needs-translation">Yes, continue</target>
+        <target state="final">ใช่ ดำเนินการต่อ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
@@ -2482,9 +2497,9 @@ Do you want to remove the saved account number?</target>
         <target state="final">คุณกำลังเข้าสู่ระบบโดยใช้หมายเลขบัญชีที่ไม่ถูกต้อง โปรดออกจากระบบแล้วลองใช้บัญชีอื่น</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You can add more time via the account view or website to continue using the VPN.</source>
-        <target state="needs-translation">You can add more time via the account view or website to continue using the VPN.</target>
+        <target state="final">คุณสามารถเพิ่มเวลาเพิ่มเติมได้โดยการดูบัญชีหรือเว็บไซต์เพื่อใช้งาน VPN ต่อไป</target>
         <note/>
       </trans-unit>
       <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve" approved="yes">
@@ -2497,37 +2512,37 @@ Do you want to remove the saved account number?</target>
         <target state="final">คุณสามารถดำเนินการเข้าสู่ระบบต่อบนอุปกรณ์เครื่องนี้ได้แล้ว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="needs-translation">You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</target>
+        <target state="final">คุณสามารถใช้ฟังก์ชัน "กู้คืนการซื้อ" เพื่อตรวจสอบการชำระเงินในแอปผ่านบริการของ Apple หากมีการชำระเงินที่ยังไม่ได้เครดิต ระบบจะเพิ่มเวลาในบัญชี Mullvad ที่ลงชื่อเข้าใช้อยู่ในปัจจุบัน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have %@ left on this account." xml:space="preserve">
+      <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
         <source>You have %@ left on this account.</source>
-        <target state="needs-translation">You have %@ left on this account.</target>
+        <target state="final">คุณมี %@ เหลือในบัญชีนี้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve">
+      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve" approved="yes">
         <source>You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
 
 In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
 
 We strongly believe in retaining as little data as possible because we want you to remain anonymous.</source>
-        <target state="needs-translation">You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+        <target state="final">คุณมีสิทธิ์ในความเป็นส่วนตัว นั่นคือเหตุผลที่เราไม่เคยเก็บบันทึกกิจกรรม ไม่ขอข้อมูลส่วนบุคคล และสนับสนุนการชำระเงินแบบไม่ระบุตัวตน
 
-In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+ในบางกรณี ตามที่ระบุไว้ในนโยบายความเป็นส่วนตัวของเรา เราอาจประมวลผลข้อมูลส่วนบุคคลที่คุณเลือกส่ง เช่น หากคุณส่งอีเมลถึงเรา
 
-We strongly believe in retaining as little data as possible because we want you to remain anonymous.</target>
+เราเชื่อมั่นอย่างยิ่งในการเก็บรักษาข้อมูลให้น้อยที่สุดเท่าที่จะทำได้ เพราะเราต้องการให้คุณยังคงไม่เปิดเผยตัวตน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve">
+      <trans-unit id="You have no more VPN time left on this account. " xml:space="preserve" approved="yes">
         <source>You have no more VPN time left on this account. </source>
-        <target state="needs-translation">You have no more VPN time left on this account. </target>
+        <target state="final">คุณไม่มีเวลาใช้งาน VPN เหลืออยู่ในบัญชีนี้แล้ว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve">
+      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve" approved="yes">
         <source>You have one day left on this account. Please add more time to continue using the VPN.</source>
-        <target state="needs-translation">You have one day left on this account. Please add more time to continue using the VPN.</target>
+        <target state="final">คุณเหลือเวลาใช้งานบัญชีนี้อีกหนึ่งวัน โปรดเพิ่มเวลาเพื่อใช้ VPN ต่อไป</target>
         <note/>
       </trans-unit>
       <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve" approved="yes">
@@ -2535,9 +2550,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You have unsaved changes." xml:space="preserve">
+      <trans-unit id="You have unsaved changes." xml:space="preserve" approved="yes">
         <source>You have unsaved changes.</source>
-        <target state="needs-translation">You have unsaved changes.</target>
+        <target state="final">คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve" approved="yes">
@@ -2545,9 +2560,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve">
+      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve" approved="yes">
         <source>Your device is offline. Try connecting again when the device has access to Internet.</source>
-        <target state="needs-translation">Your device is offline. Try connecting again when the device has access to Internet.</target>
+        <target state="final">อุปกรณ์ของคุณออฟไลน์ ลองเชื่อมต่ออีกครั้งเมื่ออุปกรณ์เข้าถึงอินเทอร์เน็ตได้</target>
         <note/>
       </trans-unit>
       <trans-unit id="Your email (optional)" xml:space="preserve" approved="yes">
@@ -2555,14 +2570,14 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">อีเมลของคุณ (ไม่บังคับ)</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have already been added to this account.</source>
-        <target state="needs-translation">Your previous purchases have already been added to this account.</target>
+        <target state="final">การซื้อครั้งก่อนของคุณถูกเพิ่มลงในบัญชีนี้แล้ว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve">
+      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve" approved="yes">
         <source>Your purchase was successfully refunded.</source>
-        <target state="needs-translation">Your purchase was successfully refunded.</target>
+        <target state="final">การซื้อของคุณได้รับการคืนเงินเรียบร้อยแล้ว</target>
         <note/>
       </trans-unit>
       <trans-unit id="You’re all set!" xml:space="preserve" approved="yes">
@@ -2585,18 +2600,23 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">มัลติฮอป</target>
         <note/>
       </trans-unit>
-      <trans-unit id="value" xml:space="preserve">
-        <source>value</source>
-        <target state="needs-translation">value</target>
+      <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
+        <source>privacy policy</source>
+        <target state="final">นโยบายความเป็นส่วนตัว</target>
         <note/>
       </trans-unit>
-      <trans-unit id="“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
-        <source>“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+      <trans-unit id="value" xml:space="preserve" approved="yes">
+        <source>value</source>
+        <target state="final">ค่า</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
+        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
 To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
 Would you like to continue to enable “Local network sharing”?</source>
-        <target state="needs-translation">“%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</target>
+        <target state="final">%@ “การแชร์เครือข่ายท้องถิ่น” จำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อของคุณถูกตัดและเปิดเผยการรับส่งข้อมูลของคุณชั่วครู่
+เพื่อป้องกันปัญหานี้ โปรดเปิดใช้งานโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อ
+คุณต้องการเปิดใช้งาน “การแชร์เครือข่ายท้องถิ่น” ต่อไปหรือไม่</target>
         <note/>
       </trans-unit>
     </body>
@@ -2648,9 +2668,9 @@ Would you like to continue to enable “Local network sharing”?</target>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
     </header>
     <body>
-      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
+      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
         <source>The app needs this to connect and test a new method.</source>
-        <target state="needs-translation">The app needs this to connect and test a new method.</target>
+        <target state="final">แอปต้องการสิ่งนี้เพื่อเชื่อมต่อและทดสอบวิธีการใหม่</target>
         <note>Privacy - Local Network Usage Description</note>
       </trans-unit>
     </body>
