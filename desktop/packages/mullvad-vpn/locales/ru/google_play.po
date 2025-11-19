@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2025-10-20 06:58\n"
+"PO-Revision-Date: 2025-11-19 12:19\n"
 
 msgid "Mullvad VPN – a service, for a monthly fee, that helps keep your online activity, identity, and location private."
 msgstr "Mullvad VPN — сервис с ежемесячной оплатой, который помогает сохранить в секрете вашу личность, местоположение и действия в сети."
