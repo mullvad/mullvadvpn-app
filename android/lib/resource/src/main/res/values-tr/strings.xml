@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">TCP üzerinden UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
-    <string name="unable_to_reach_api_dialog_action_create">yeni hesap oluşturma</string>
-    <string name="unable_to_reach_api_dialog_action_login">oturum açma</string>
-    <string name="unable_to_reach_api_dialog_message_first">Uygulama, Mullvad API\'sine erişemediği için %1$s işlemini gerçekleştiremedi. Bu, sansür veya ağ sorunlarından kaynaklanıyor olabilir. Lütfen şunları deneyin:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Cihazınızı yeniden başlatın</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Farklı bir ağa bağlan</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Uygulamadaki tüm erişim yöntemlerini etkinleştir</string>
-    <string name="unable_to_reach_api_dialog_message_second">Bu adımlar işe yaramazsa, lütfen aşağıdaki düğmeyi kullanarak destek ekibine bir e-posta gönderin. Anonimleştirilmiş kayıtlar otomatik olarak eklenerek gönderilir.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Bu adımlar işe yaramazsa, lütfen aşağıdaki düğmeyi kullanarak destek ekibine bir e-posta gönderin. Anonimleştirilmiş kayıtlar otomatik olarak eklenerek gönderilir.</string>
     <string name="unable_to_reach_api_dialog_title">API\'ye erişilemiyor</string>
     <string name="undo">Geri al</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>

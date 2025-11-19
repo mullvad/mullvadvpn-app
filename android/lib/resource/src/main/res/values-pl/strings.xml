@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-przez-TCP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
-    <string name="unable_to_reach_api_dialog_action_create">utworzyć konta</string>
-    <string name="unable_to_reach_api_dialog_action_login">zalogować</string>
-    <string name="unable_to_reach_api_dialog_message_first">Aplikacja nie mogła %1$s z powodu braku połączenia z interfejsem API Mullvad. Może to wynikać z cenzury lub problemów z siecią. Spróbuj:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Ponownie uruchom urządzenie</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Połącz się z inną siecią</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Włącz wszystkie metody dostępu w aplikacji</string>
-    <string name="unable_to_reach_api_dialog_message_second">Jeśli te kroki nie pomogą, wyślij wiadomość e-mail do działu pomocy technicznej, korzystając z poniższego przycisku. Spowoduje to automatyczne dołączenie zanonimizowanych dzienników.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Jeśli te kroki nie pomogą, wyślij wiadomość e-mail do działu pomocy technicznej, korzystając z poniższego przycisku. Spowoduje to automatyczne dołączenie zanonimizowanych dzienników.</string>
     <string name="unable_to_reach_api_dialog_title">Nie można osiągnąć interfejsu API</string>
     <string name="undo">Cofnij</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>

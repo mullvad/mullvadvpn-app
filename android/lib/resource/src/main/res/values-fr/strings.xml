@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
-    <string name="unable_to_reach_api_dialog_action_create">créer un compte</string>
-    <string name="unable_to_reach_api_dialog_action_login">connexion</string>
-    <string name="unable_to_reach_api_dialog_message_first">L\'application n\'a pas pu %1$s, car elle n\'a pas pu joindre l\'API de Mullvad. Cela peut être dû à des problèmes de censure ou de réseau. Veuillez essayer de :</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Redémarrez votre appareil</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Connectez-vous à un réseau différent</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Activer tous les modes d\'accès dans l\'application</string>
-    <string name="unable_to_reach_api_dialog_message_second">Si ces étapes ne fonctionnent pas, veuillez envoyer un e-mail à l\'assistance à l\'aide du bouton ci-dessous. Les fichiers journaux anonymisés y seront automatiquement joints.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Si ces étapes ne fonctionnent pas, veuillez envoyer un e-mail à l\'assistance à l\'aide du bouton ci-dessous. Les fichiers journaux anonymisés y seront automatiquement joints.</string>
     <string name="unable_to_reach_api_dialog_title">Impossible de joindre l\'API</string>
     <string name="undo">Annuler</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>

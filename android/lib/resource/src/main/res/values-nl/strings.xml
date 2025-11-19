@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
-    <string name="unable_to_reach_api_dialog_action_create">een account aanmaken</string>
-    <string name="unable_to_reach_api_dialog_action_login">aanmelden</string>
-    <string name="unable_to_reach_api_dialog_message_first">De app kan niet %1$s omdat de Mullvad API niet kan worden bereikt. Dit wordt mogelijk veroorzaakt door censuur of netwerkproblemen. Probeer het volgende:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Start het apparaat opnieuw op</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Verbinding maken met een ander netwerk</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Schakel alle toegangsmethoden in de app in</string>
-    <string name="unable_to_reach_api_dialog_message_second">Als deze stappen niet werken, kunt u het ondersteuningsteam een e-mail sturen via de knop hieronder. De (geanonimiseerde) logboeken worden automatisch bijgevoegd.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Als deze stappen niet werken, kunt u het ondersteuningsteam een e-mail sturen via de knop hieronder. De (geanonimiseerde) logboeken worden automatisch bijgevoegd.</string>
     <string name="unable_to_reach_api_dialog_title">Kan API niet bereiken</string>
     <string name="undo">Ongedaan maken</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>

@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
-    <string name="unable_to_reach_api_dialog_action_create">계정 생성</string>
-    <string name="unable_to_reach_api_dialog_action_login">로그인</string>
-    <string name="unable_to_reach_api_dialog_message_first">Mullvad API에 연결할 수 없어 앱에서 %1$s이 불가능했습니다. 검열이나 네트워크 이슈가 원인일 수 있습니다. 다음을 시도해 보세요:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">장치 재시작</string>
     <string name="unable_to_reach_api_dialog_message_list_second">다른 네트워크에 연결</string>
     <string name="unable_to_reach_api_dialog_message_list_third">앱의 모든 액세스 방법을 활성화합니다</string>
-    <string name="unable_to_reach_api_dialog_message_second">이 단계가 통하지 않는 경우 아래 버튼을 사용해 지원팀에 이메일로 문의해 주세요. 익명 처리된 로그가 자동으로 첨부됩니다.</string>
+    <string name="unable_to_reach_api_dialog_message_third">이 단계가 통하지 않는 경우 아래 버튼을 사용해 지원팀에 이메일로 문의해 주세요. 익명 처리된 로그가 자동으로 첨부됩니다.</string>
     <string name="unable_to_reach_api_dialog_title">API에 연결할 수 없습니다</string>
     <string name="undo">실행 취소</string>
     <string name="unsupported_version">지원되지 않는 버전</string>

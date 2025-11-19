@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
-    <string name="unable_to_reach_api_dialog_action_create">アカウントを作成</string>
-    <string name="unable_to_reach_api_dialog_action_login">ログイン</string>
-    <string name="unable_to_reach_api_dialog_message_first">Mullvad APIに接続できなかったため、アプリは%1$sできませんでした。検閲やネットワークに関するエラーが原因である可能性があります。次の操作をお試しください。</string>
     <string name="unable_to_reach_api_dialog_message_list_first">デバイスを再起動する</string>
     <string name="unable_to_reach_api_dialog_message_list_second">別のネットワークに接続する</string>
     <string name="unable_to_reach_api_dialog_message_list_third">アプリですべてのアクセス方法を有効にする</string>
-    <string name="unable_to_reach_api_dialog_message_second">これらの手順で問題が解決しない場合には、以下のボタンを使ってサポートまでメールをお送りください。匿名化されたログが自動で添付されます。</string>
+    <string name="unable_to_reach_api_dialog_message_third">これらの手順で問題が解決しない場合には、以下のボタンを使ってサポートまでメールをお送りください。匿名化されたログが自動で添付されます。</string>
     <string name="unable_to_reach_api_dialog_title">APIに接続できません</string>
     <string name="undo">元に戻す</string>
     <string name="unsupported_version">未対応のバージョン</string>

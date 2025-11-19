@@ -415,13 +415,10 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP через TCP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
-    <string name="unable_to_reach_api_dialog_action_create">создать учетную запись</string>
-    <string name="unable_to_reach_api_dialog_action_login">выполнить вход</string>
-    <string name="unable_to_reach_api_dialog_message_first">Приложению не удалось %1$s из-за невозможности подключиться к API Mullvad. Это может быть связано с цензурой или проблемами с сетью. Попробуйте выполнить следующие шаги:</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Перезагрузить устройство.</string>
     <string name="unable_to_reach_api_dialog_message_list_second">Подключиться к другой сети.</string>
     <string name="unable_to_reach_api_dialog_message_list_third">Включить все методы доступа в приложении</string>
-    <string name="unable_to_reach_api_dialog_message_second">Если описанные выше шаги не помогли, отправьте письмо в службу поддержки, нажав кнопку ниже. К письму будут автоматически прикреплены анонимизированные журналы активности.</string>
+    <string name="unable_to_reach_api_dialog_message_third">Если описанные выше шаги не помогли, отправьте письмо в службу поддержки, нажав кнопку ниже. К письму будут автоматически прикреплены анонимизированные журналы активности.</string>
     <string name="unable_to_reach_api_dialog_title">Невозможно подключиться к API</string>
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
