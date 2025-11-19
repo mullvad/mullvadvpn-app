@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.zip
 import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.relaylist.isTheSameAs
@@ -26,7 +27,7 @@ class RelayItemCanBeSelectedUseCase(
             entry to exit
         }
 
-    operator fun invoke(selectedAs: MultihopRelayListType): Flow<Set<RelayItem.Location>> =
+    operator fun invoke(selectedAs: MultihopRelayListType): Flow<Set<GeoLocationId>> =
         combine(
             relayListRepository.relayList,
             filteredRelayListUseCase(RelayListType.Multihop(selectedAs)),
@@ -52,12 +53,13 @@ class RelayItemCanBeSelectedUseCase(
                         filteredRelayCountries = filteredRelayCountries,
                         selectedRelayItem =
                             when (selectedAs) {
-                                MultihopRelayListType.ENTRY -> hopSelection.entry()
-                                MultihopRelayListType.EXIT -> hopSelection.exit()
+                                MultihopRelayListType.EXIT -> hopSelection.entry()
+                                MultihopRelayListType.ENTRY -> hopSelection.exit()
                             },
                         relayItem = relayItem,
                     )
                 }
+                .map { it.id }
                 .toSet()
         }
 
