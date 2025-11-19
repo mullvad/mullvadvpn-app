@@ -13,6 +13,8 @@ workspace = true
 [features]
 wireguard-go = ["talpid-wireguard/wireguard-go"]
 multihop-pcap = ["talpid-wireguard/multihop-pcap"]
+cgroups_v2 = []
+default = ["cgroups_v2"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -37,7 +39,7 @@ triggered = "0.1.1"
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = { workspace = true, features = ["mount"] }
+nix = { workspace = true, features = ["mount", "fs", "process"] }
 inotify = "0.10"
 resolv-conf = "0.7"
 nftnl = { version = "0.8.0", features = ["nftnl-1-1-0"] }
