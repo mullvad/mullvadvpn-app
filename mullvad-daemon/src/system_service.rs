@@ -439,8 +439,9 @@ impl HibernationDetector {
     fn is_interactive_session(session_id: u32) -> bool {
         let mut logon_session_count = 0u32;
         let mut logon_session_list: *mut LUID = ptr::null_mut();
-        let status =
-            unsafe { LsaEnumerateLogonSessions(&mut logon_session_count, &mut logon_session_list) };
+        let status = unsafe {
+            LsaEnumerateLogonSessions(&raw mut logon_session_count, &raw mut logon_session_list)
+        };
         if status != STATUS_SUCCESS {
             log::warn!("LsaEnumerateLogonSessions() failed, error code: {}", status);
             return false;
@@ -452,7 +453,7 @@ impl HibernationDetector {
         for logon in logons {
             let mut session_data: *mut SECURITY_LOGON_SESSION_DATA = ptr::null_mut();
             // SAFETY: `LsaGetLogonSessionData` does not mutate `logon`
-            let status = unsafe { LsaGetLogonSessionData(logon, &mut session_data) };
+            let status = unsafe { LsaGetLogonSessionData(logon, &raw mut session_data) };
             if status != STATUS_SUCCESS {
                 log::warn!("LsaGetLogonSessionData() failed, error code: {}", status);
                 continue;

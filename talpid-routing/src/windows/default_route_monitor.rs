@@ -61,7 +61,7 @@ impl DefaultRouteMonitorContext {
             let route_luid = best_route.iface;
             // SAFETY: No clear safety specifications
             match win32_err!(unsafe {
-                ConvertInterfaceLuidToIndex(&route_luid, &mut default_interface_index)
+                ConvertInterfaceLuidToIndex(&raw const route_luid, &raw mut default_interface_index)
             }) {
                 Ok(()) => self.refresh_current_route = index == default_interface_index,
                 Err(_) => self.refresh_current_route = true,
@@ -246,7 +246,7 @@ impl DefaultRouteMonitor {
                 Some(route_change_callback),
                 context_ptr as *const _,
                 false,
-                &mut handle_ptr,
+                &raw mut handle_ptr,
             )
         })
         .map_err(Error::RegisterNotifyRouteCallback)?;
@@ -261,7 +261,7 @@ impl DefaultRouteMonitor {
                 Some(interface_change_callback),
                 context_ptr as *const _,
                 false,
-                &mut handle_ptr,
+                &raw mut handle_ptr,
             )
         })
         .map_err(Error::RegisterNotifyIpInterfaceCallback)?;
@@ -276,7 +276,7 @@ impl DefaultRouteMonitor {
                 Some(ip_address_change_callback),
                 context_ptr as *const _,
                 false,
-                &mut handle_ptr,
+                &raw mut handle_ptr,
             )
         })
         .map_err(Error::RegisterNotifyUnicastIpAddressCallback)?;

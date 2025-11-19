@@ -1,4 +1,3 @@
-use core::ffi::c_void;
 use std::io;
 use std::os::windows::io::AsRawHandle;
 use std::ptr;
@@ -23,11 +22,11 @@ pub fn is_admin_owned<T: AsRawHandle>(handle: T) -> io::Result<bool> {
             handle.as_raw_handle(),
             SE_FILE_OBJECT,
             OWNER_SECURITY_INFORMATION,
-            (&mut owner) as *mut *mut SID as *mut *mut c_void,
+            (&raw mut owner).cast(),
             ptr::null_mut(),
             ptr::null_mut(),
             ptr::null_mut(),
-            (&mut security_descriptor) as *mut *mut SECURITY_DESCRIPTOR as *mut *mut c_void,
+            (&raw mut security_descriptor).cast(),
         )
     };
 
