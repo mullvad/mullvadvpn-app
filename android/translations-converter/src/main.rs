@@ -451,6 +451,7 @@ fn android_plural_quantities_from_gettext_plural_form(
         PluralForm::Single => vec![Other],
         PluralForm::SingularForOne | PluralForm::SingularForZeroAndOne => vec![One, Other],
         PluralForm::Polish | PluralForm::Russian => vec![One, Few, Many, Other],
+        PluralForm::Arabic => vec![Zero, One, Two, Few, Many, Other],
     }
     .into_iter()
 }
