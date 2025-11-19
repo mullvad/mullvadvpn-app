@@ -20,23 +20,26 @@ pub struct TlsStream<S: AsyncRead + AsyncWrite + Unpin> {
     stream: tokio_rustls::client::TlsStream<S>,
 }
 
-impl<S> TlsStream<S>
-where
-    S: AsyncRead + AsyncWrite + Unpin,
-{
-    pub async fn connect_https(stream: S, domain: &str) -> io::Result<TlsStream<S>> {
-        static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
-            let config = ClientConfig::builder_with_provider(Arc::new(
-                rustls::crypto::ring::default_provider(),
-            ))
+pub static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(move || {
+    let config =
+        ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
             .with_protocol_versions(&[&rustls::version::TLS13])
             .expect("ring crypt-prover should support TLS 1.3")
             .with_root_certificates(read_cert_store())
             .with_no_client_auth();
-            Arc::new(config)
-        });
+    Arc::new(config)
+});
 
-        let connector = TlsConnector::from(TLS_CONFIG.clone());
+impl<S> TlsStream<S>
+where
+    S: AsyncRead + AsyncWrite + Unpin,
+{
+    pub async fn connect_https(
+        stream: S,
+        domain: &str,
+        client_config: Arc<ClientConfig>,
+    ) -> io::Result<TlsStream<S>> {
+        let connector = TlsConnector::from(client_config);
 
         let host = match ServerName::try_from(domain.to_owned()) {
             Ok(n) => n,
@@ -54,6 +57,8 @@ where
     }
 }
 
+// Make this so we can call it from everywhere, then provide the store certificate via a function instead
+// of calling this directly inside connect_https
 fn read_cert_store() -> rustls::RootCertStore {
     let mut cert_store = rustls::RootCertStore::empty();
 
