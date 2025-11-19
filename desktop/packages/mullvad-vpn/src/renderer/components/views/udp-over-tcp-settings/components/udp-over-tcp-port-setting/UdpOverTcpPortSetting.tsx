@@ -13,7 +13,7 @@ import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 
-const UDP2TCP_PORTS = [80, 5001];
+const UDP2TCP_PORTS = [80, 443, 5001];
 
 function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };

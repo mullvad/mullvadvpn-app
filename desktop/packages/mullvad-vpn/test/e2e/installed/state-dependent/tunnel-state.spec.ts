@@ -128,10 +128,10 @@ test.describe('Tunnel state and settings', () => {
       await routes.main.expandConnectionPanel();
 
       const inIp = routes.main.getInIp();
-      await expect(inIp).toHaveText(new RegExp(`${escapeRegExp(IN_IP!)}:(80|5001) TCP`));
+      await expect(inIp).toHaveText(new RegExp(`${escapeRegExp(IN_IP!)}:(80|443|5001) TCP`));
     });
 
-    for (const port of [80, 5001]) {
+    for (const port of [80, 443, 5001]) {
       test(`App should show port ${port}`, async () => {
         await gotoUdpOverTcpSettings();
         await routes.udpOverTcpSettings.selectPort(port);
