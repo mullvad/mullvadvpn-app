@@ -216,13 +216,24 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppVersionInfo) => {
       const reduxStore = this.reduxStore.getState();
+      const currentSuggestedUpgrade = reduxStore.version.suggestedUpgrade;
+      const newSuggestedUpgrade = upgradeVersion.suggestedUpgrade;
 
-      const currentSuggestedUpgradeVersion = reduxStore.version.suggestedUpgrade?.version;
-      const newSuggestedUpgradeVersion = upgradeVersion.suggestedUpgrade?.version;
-      if (
-        currentSuggestedUpgradeVersion &&
-        currentSuggestedUpgradeVersion !== newSuggestedUpgradeVersion
-      ) {
+      if (currentSuggestedUpgrade && newSuggestedUpgrade) {
+        if (currentSuggestedUpgrade.version !== newSuggestedUpgrade.version) {
+          log.info('Resetting app upgrade state as suggested upgrade version changed.');
+          this.reduxActions.appUpgrade.resetAppUpgrade();
+        } else if (
+          currentSuggestedUpgrade?.verifiedInstallerPath !==
+          newSuggestedUpgrade.verifiedInstallerPath
+        ) {
+          log.info(
+            'Resetting app upgrade state as verified installer path was cleared in new suggested upgrade.',
+          );
+          this.reduxActions.appUpgrade.resetAppUpgrade();
+        }
+      } else {
+        log.info('Resetting app upgrade state as suggested upgrade was cleared.');
         this.reduxActions.appUpgrade.resetAppUpgrade();
       }
 
@@ -252,7 +263,11 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(visibility);
     });
 
-    IpcRendererEventChannel.app.listenSuspendEvent(() => this.history.pop(true));
+    IpcRendererEventChannel.app.listenSuspendEvent(() => {
+      log.info('System is suspending. Resetting UI state.');
+      this.reduxActions.appUpgrade.resetAppUpgrade();
+      this.history.pop(true);
+    });
 
     IpcRendererEventChannel.app.listenOpenRoute((route: RoutePath) => {
       this.history.push({
@@ -486,6 +501,8 @@ export default class AppRenderer {
       this.reduxActions.appUpgrade.resetAppUpgradeError();
 
       IpcRendererEventChannel.app.upgradeInstallerStart(verifiedInstallerPath);
+    } else {
+      log.error('App upgrade was invoked without a valid verified installer path.');
     }
   };
 
