@@ -3492,9 +3492,9 @@ dependencies = [
 
 [[package]]
 name = "nftnl-sys"
-version = "0.6.3"
+version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38d8e4f1cfbbeb744087d1f22debb590266417eb0a2e8a171800ae3694bdac81"
+checksum = "cffa28b4c81eea6a8a4fd454634d425e1a559250a50a926de4517dd9607fe9a4"
 dependencies = [
  "cfg-if",
  "libc",
