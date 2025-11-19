@@ -38,11 +38,11 @@ class EditAccessMethodPage: Page {
     @discardableResult func verifyTestStatus(_ status: TestStatus) -> Self {
         switch status {
         case .reachable:
-            XCTAssertTrue(app.staticTexts["API reachable"].waitForExistence(timeout: BaseUITestCase.longTimeout))
+            XCTAssertTrue(app.staticTexts["API reachable"].existsAfterWait(timeout: .long))
         case .unreachable:
-            XCTAssertTrue(app.staticTexts["API unreachable"].waitForExistence(timeout: BaseUITestCase.longTimeout))
+            XCTAssertTrue(app.staticTexts["API unreachable"].existsAfterWait(timeout: .long))
         case .testing:
-            XCTAssertTrue(app.staticTexts["Testing..."].waitForExistence(timeout: BaseUITestCase.longTimeout))
+            XCTAssertTrue(app.staticTexts["Testing..."].existsAfterWait(timeout: .long))
         }
 
         return self
