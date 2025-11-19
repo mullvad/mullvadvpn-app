@@ -106,7 +106,7 @@ impl IphlpApi {
 
         Ok(Self {
             set_interface_dns_settings: unsafe {
-                *(&set_interface_dns_settings as *const _ as *const _)
+                *((&raw const set_interface_dns_settings).cast())
             },
         })
     }
@@ -214,7 +214,7 @@ fn set_interface_dns_servers<T: ToString>(
     };
 
     win32_err!(unsafe {
-        (iphlpapi.set_interface_dns_settings)(guid.to_owned(), &dns_interface_settings)
+        (iphlpapi.set_interface_dns_settings)(guid.to_owned(), &raw const dns_interface_settings)
     })
     .map_err(Error::SetInterfaceDnsSettings)
 }

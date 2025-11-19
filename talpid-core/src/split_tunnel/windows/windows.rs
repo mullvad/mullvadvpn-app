@@ -153,10 +153,10 @@ pub fn get_process_creation_time(handle: HANDLE) -> Result<u64, io::Error> {
     if unsafe {
         GetProcessTimes(
             handle,
-            &mut creation_time as *mut _,
-            &mut dummy as *mut _,
-            &mut dummy as *mut _,
-            &mut dummy as *mut _,
+            &raw mut creation_time,
+            &raw mut dummy,
+            &raw mut dummy,
+            &raw mut dummy,
         )
     } == 0
     {

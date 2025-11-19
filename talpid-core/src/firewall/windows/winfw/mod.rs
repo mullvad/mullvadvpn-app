@@ -201,7 +201,7 @@ pub(super) fn apply_policy_connecting(
             relay_client_wstr_ptrs.as_ptr(),
             relay_client_wstr_ptrs_len,
             interface_wstr_ptr,
-            &allowed_endpoint,
+            &raw const allowed_endpoint,
             &allowed_tunnel_traffic,
         )
     };

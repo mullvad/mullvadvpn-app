@@ -745,7 +745,7 @@ impl WgNtDll {
         let mut config = vec![];
         loop {
             let succeeded = unsafe {
-                (self.func_get_configuration)(adapter, config.as_mut_ptr(), &mut config_size)
+                (self.func_get_configuration)(adapter, config.as_mut_ptr(), &raw mut config_size)
             };
             if !succeeded {
                 let last_error = io::Error::last_os_error();

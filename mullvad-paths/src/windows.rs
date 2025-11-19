@@ -162,7 +162,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             WinBuiltinAdministratorsSid,
             ptr::null_mut(),
             admin_psid.as_mut_ptr() as _,
-            &mut admin_psid_len,
+            &raw mut admin_psid_len,
         )
     } == 0
     {
@@ -196,7 +196,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             WinAuthenticatedUserSid,
             ptr::null_mut(),
             au_psid.as_mut_ptr() as _,
-            &mut au_psid_len,
+            &raw mut au_psid_len,
         )
     } == 0
     {
@@ -231,7 +231,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             u32::try_from(ea_entries.len()).expect("number of entries fits in u32"),
             ea_entries.as_ptr(),
             ptr::null(),
-            &mut new_dacl,
+            &raw mut new_dacl,
         )
     };
     if result != ERROR_SUCCESS {
@@ -337,7 +337,7 @@ fn get_system_user_token() -> io::Result<Option<OwnedHandle>> {
 fn open_process_token(process: &impl AsRawHandle, access: u32) -> io::Result<OwnedHandle> {
     let mut process_token = ptr::null_mut();
     // SAFETY: `process` is a valid handle
-    if unsafe { OpenProcessToken(process.as_raw_handle(), access, &mut process_token) } == 0 {
+    if unsafe { OpenProcessToken(process.as_raw_handle(), access, &raw mut process_token) } == 0 {
         return Err(io::Error::last_os_error());
     }
     // SAFETY: `process_token` is a valid handle since `OpenProcessToken` succeeded
@@ -360,7 +360,7 @@ fn get_current_thread_token() -> std::io::Result<OwnedHandle> {
             GetCurrentThread(),
             TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
             0,
-            &mut token_handle,
+            &raw mut token_handle,
         )
     } == 0
     {
@@ -403,7 +403,9 @@ fn adjust_token_privilege(
     let mut privilege_luid = LUID::default();
 
     // SAFETY: `privilege` is a valid null-terminated string, and `privilege_luid` points to a LUID
-    if unsafe { LookupPrivilegeValueW(ptr::null(), privilege.as_ptr(), &mut privilege_luid) } == 0 {
+    if unsafe { LookupPrivilegeValueW(ptr::null(), privilege.as_ptr(), &raw mut privilege_luid) }
+        == 0
+    {
         return Err(std::io::Error::last_os_error());
     }
 
@@ -419,7 +421,7 @@ fn adjust_token_privilege(
         AdjustTokenPrivileges(
             token_handle.as_raw_handle(),
             0,
-            &privileges,
+            &raw const privileges,
             0,
             ptr::null_mut(),
             ptr::null_mut(),
@@ -454,7 +456,7 @@ unsafe fn get_known_folder_path(
             user_token
                 .map(|h| h.as_raw_handle())
                 .unwrap_or(ptr::null_mut()),
-            &mut folder_path,
+            &raw mut folder_path,
         )
     };
     let result = if status == S_OK {
@@ -484,7 +486,14 @@ fn find_process<T>(handle_process: impl Fn(BorrowedHandle<'_>) -> Option<T>) -> 
     let mut bytes_written = 0;
 
     // SAFETY: `pid_buffer` is valid for writes of `bytes_available` bytes
-    if unsafe { EnumProcesses(pid_buffer.as_mut_ptr(), bytes_available, &mut bytes_written) } == 0 {
+    if unsafe {
+        EnumProcesses(
+            pid_buffer.as_mut_ptr(),
+            bytes_available,
+            &raw mut bytes_written,
+        )
+    } == 0
+    {
         return Err(io::Error::last_os_error());
     }
 
@@ -523,7 +532,7 @@ fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
                 TokenUser,
                 token_info.as_mut_ptr() as _,
                 u32::try_from(token_info.len()).expect("len must fit in u32"),
-                &mut returned_info_len,
+                &raw mut returned_info_len,
             )
         };
 
@@ -556,7 +565,7 @@ fn is_local_system_user_token(token: &impl AsRawHandle) -> io::Result<bool> {
             WinLocalSystemSid,
             std::ptr::null_mut(),
             local_system_sid.as_mut_ptr() as _,
-            &mut local_system_size,
+            &raw mut local_system_size,
         )
     } == 0
     {
