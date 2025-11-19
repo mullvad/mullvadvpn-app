@@ -259,7 +259,7 @@ fn send_packet(
                 packet.packet().as_ptr() as *const c_void,
                 packet.packet().len(),
                 0,
-                (&destination as *const libc::sockaddr_ll).cast(),
+                (&raw const destination).cast(),
                 size_of::<libc::sockaddr_ll>() as u32,
             )
         }
