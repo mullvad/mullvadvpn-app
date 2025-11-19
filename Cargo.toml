@@ -79,6 +79,7 @@ single_use_lifetimes = "warn"
 unused_async = "deny"
 undocumented_unsafe_blocks = "warn"
 implicit_clone = "warn"
+borrow_as_ptr = "warn"
 
 [workspace.dependencies]
 dirs = "6.0.0"
