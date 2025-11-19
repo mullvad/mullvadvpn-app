@@ -13,7 +13,7 @@ import Operations
 @preconcurrency import StoreKit
 import UIKit
 
-/// Manager responsible for handling AppStore payments and passing StoreKit receipts to the backend.
+/// Manager responsible for handling App Store payments and passing StoreKit receipts to the backend.
 ///
 /// - Warning: only interact with this object on the main queue.
 final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchecked Sendable {
@@ -106,7 +106,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
 
     // MARK: - Products and payments
 
-    /// Fetch products from AppStore using product identifiers.
+    /// Fetch products from App Store using product identifiers.
     ///
     /// - Parameters:
     ///   - productIdentifiers: a set of product identifiers.
@@ -177,7 +177,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         }
     }
 
-    /// Restore purchases by sending the AppStore receipt to backend.
+    /// Restore purchases by sending the App Store receipt to backend.
     ///
     /// - Parameters:
     ///   - accountNumber: the account number to credit.
@@ -256,11 +256,11 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         operationQueue.addOperation(accountOperation)
     }
 
-    /// Send the AppStore receipt stored on device to the backend.
+    /// Send the App Store receipt stored on device to the backend.
     ///
     /// - Parameters:
     ///   - accountNumber: the account number to credit.
-    ///   - forceRefresh: indicates whether the receipt should be downloaded from AppStore even when it's present on device.
+    ///   - forceRefresh: indicates whether the receipt should be downloaded from App Store even when it's present on device.
     ///   - completionHandler: a completion handler invoked on main queue.
     /// - Returns: the request cancellation token.
     private func sendStoreReceipt(
@@ -279,7 +279,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         operation.addObserver(
             BackgroundObserver(
                 backgroundTaskProvider: backgroundTaskProvider,
-                name: "Send AppStore receipt",
+                name: "Send App Store receipt",
                 cancelUponExpiration: true
             )
         )
@@ -363,7 +363,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
     /// - Consults with transaction log before handling the transaction. Transactions that are already processed are removed from the payment queue,
     ///   observers are not notified as they had already received the corresponding events.
     /// - Keeps transaction in the queue if association between transaction payment and account number cannot be established. Notifies observers with the error.
-    /// - Sends the AppStore receipt to backend.
+    /// - Sends the App Store receipt to backend.
     ///
     /// - Parameter transaction: the transaction that's in purchased or restored state.
     private func didFinishOrRestorePurchase(transaction: SKPaymentTransaction) {
@@ -399,7 +399,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
             return
         }
 
-        // Send the AppStore receipt to the backend.
+        // Send the App Store receipt to the backend.
         _ = sendStoreReceipt(accountNumber: accountNumber, forceRefresh: false) { result in
             self.didSendStoreReceipt(
                 accountNumber: accountNumber,
@@ -410,7 +410,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         }
     }
 
-    /// Handles the result of uploading the AppStore receipt to the backend.
+    /// Handles the result of uploading the App Store receipt to the backend.
     ///
     /// If the server response is successful, this function adds the transaction identifier to the transaction log to make sure that the same transaction is not
     /// processed twice, then finishes the transaction.
@@ -427,7 +427,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
     ///   - accountNumber: the account number to credit
     ///   - transactionIdentifier: the transaction identifier
     ///   - transaction: the transaction object
-    ///   - result: the result of uploading the AppStore receipt to the backend.
+    ///   - result: the result of uploading the App Store receipt to the backend.
     private func didSendStoreReceipt(
         accountNumber: String,
         transactionIdentifier: String,

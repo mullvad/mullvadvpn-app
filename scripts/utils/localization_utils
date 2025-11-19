@@ -1,0 +1,9 @@
+function commit_changes {
+  if ! git diff-index --quiet HEAD --; then
+    git commit -a -S -m "$1"
+  fi
+}
+
+function ensure_crowdin_api_key {
+  test ! -z "$CROWDIN_API_KEY"
+}
