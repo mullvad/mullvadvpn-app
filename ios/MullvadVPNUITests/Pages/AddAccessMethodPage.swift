@@ -65,7 +65,7 @@ class AddAccessMethodPage: Page {
     @discardableResult func waitForAPIUnreachableLabel() -> Self {
         XCTAssertTrue(
             app.staticTexts[AccessibilityIdentifier.addAccessMethodTestStatusUnreachableLabel]
-                .waitForExistence(timeout: BaseUITestCase.longTimeout)
+                .existsAfterWait(timeout: .long)
         )
         return self
     }

@@ -114,7 +114,7 @@ class TunnelControlPage: Page {
 
     @discardableResult func waitForConnectedLabel() -> Self {
         let labelFound = app.staticTexts[.connectionStatusConnectedLabel]
-            .waitForExistence(timeout: BaseUITestCase.extremelyLongTimeout)
+            .existsAfterWait(timeout: .extremelyLong)
         XCTAssertTrue(labelFound, "Secure connection label presented")
 
         return self
@@ -122,9 +122,7 @@ class TunnelControlPage: Page {
 
     @discardableResult func tapRelayStatusExpandCollapseButton() -> Self {
         let button = app.buttons[AccessibilityIdentifier.relayStatusCollapseButton]
-
-        _ = button.waitForExistence(timeout: BaseUITestCase.defaultTimeout)
-        button.tap()
+        button.tapWhenHittable()
 
         return self
     }
