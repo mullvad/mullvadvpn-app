@@ -312,6 +312,8 @@ impl<'a> PolicyBatch<'a> {
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
 
+        // TODO: cgroups v2
+
         // if cgroups v1 doesn't exist, split tunneling won't work.
         // checking if the `net_cls` mount exists is a cheeky way of checking this.
         if find_net_cls_mount()
