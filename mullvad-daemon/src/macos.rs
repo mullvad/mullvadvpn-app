@@ -18,7 +18,7 @@ pub fn bump_filehandle_limit() {
         rlim_max: 0,
     };
     // SAFETY: `&mut limits` is a valid pointer parameter for the getrlimit syscall
-    let status = unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limits) };
+    let status = unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &raw mut limits) };
     if status != 0 {
         log::error!(
             "Failed to get file handle limits: {}-{}",
@@ -36,7 +36,7 @@ pub fn bump_filehandle_limit() {
 
     limits.rlim_cur = INCREASED_FILEHANDLE_LIMIT;
     // SAFETY: `&limits` is a valid pointer parameter for the getrlimit syscall
-    let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &limits) };
+    let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &raw const limits) };
     if status != 0 {
         log::error!(
             "Failed to set file handle limit to {}: {}-{}",

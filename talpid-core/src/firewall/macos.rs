@@ -5,7 +5,7 @@ use std::ptr;
 use std::sync::LazyLock;
 
 use ipnetwork::IpNetwork;
-use libc::{c_int, sysctlbyname};
+use libc::{c_int, c_void, sysctlbyname};
 use pfctl::{DropAction, FilterRuleAction, Ip, Uid};
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{
@@ -1032,7 +1032,7 @@ fn enable_forwarding_for_family(ipv4: bool) -> io::Result<()> {
             option.as_ptr(),
             ptr::null_mut(),
             ptr::null_mut(),
-            &mut val as *mut _ as _,
+            (&raw mut val).cast::<c_void>(),
             std::mem::size_of_val(&val),
         )
     };
