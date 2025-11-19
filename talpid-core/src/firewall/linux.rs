@@ -312,16 +312,21 @@ impl<'a> PolicyBatch<'a> {
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
 
-        // if cgroups v1 doesn't exist, split tunneling won't work.
-        // checking if the `net_cls` mount exists is a cheeky way of checking this.
-        if find_net_cls_mount()
-            .map_err(Error::FindNetClsMount)?
-            .is_some()
-        {
+        if cfg!(feature = "cgroups_v2") {
+            // TODO: check if the cgroup exist
             self.add_split_tunneling_rules(policy, fwmark)?;
         } else {
-            // skipping add_split_tunneling_rules as it won't cause traffic to leak
-            log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
+            // if cgroups v1 doesn't exist, split tunneling won't work.
+            // checking if the `net_cls` mount exists is a cheeky way of checking this.
+            if find_net_cls_mount()
+                .map_err(Error::FindNetClsMount)?
+                .is_some()
+            {
+                self.add_split_tunneling_rules(policy, fwmark)?;
+            } else {
+                // skipping add_split_tunneling_rules as it won't cause traffic to leak
+                log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
+            }
         }
 
         self.add_dhcp_client_rules();
@@ -366,8 +371,19 @@ impl<'a> PolicyBatch<'a> {
         // The `split_tunnel::MARK` as a connection tracking mark and the `fwmark` as packet
         // metadata.
         let mut rule = Rule::new(&self.mangle_chain);
-        rule.add_expr(&nft_expr!(meta cgroup));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+
+        #[cfg(feature = "cgroups_v2")]
+        {
+            use talpid_types::cgroup::SPLIT_TUNNEL_CGROUP_NAME_C;
+            rule.add_expr(&nft_expr!(socket cgroupv2 level 1));
+            rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_CGROUP_NAME_C));
+        }
+        #[cfg(not(feature = "cgroups_v2"))]
+        {
+            rule.add_expr(&nft_expr!(meta cgroup));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+        }
+
         // Loads `split_tunnel::MARK` into first nftnl register
         rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
         // Sets `split_tunnel::MARK` as connection tracker mark
