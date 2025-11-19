@@ -134,7 +134,7 @@ impl RoutingSocket {
         // SAFETY: `msg_buffer` is guaranteed to be at least as large as `rt_msghdr`.
         unsafe {
             std::ptr::copy_nonoverlapping(
-                &header as *const _ as *const u8,
+                (&raw const header).cast::<u8>(),
                 msg_buffer.as_mut_ptr(),
                 size_of::<libc::rt_msghdr>(),
             );

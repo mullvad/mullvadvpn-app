@@ -136,7 +136,7 @@ impl Bpf {
         unsafe {
             std::ptr::copy_nonoverlapping(
                 name_bytes.as_ptr(),
-                &mut ifr.ifr_name as *mut _ as *mut _,
+                ifr.ifr_name.as_mut_ptr().cast::<u8>(),
                 name_bytes.len(),
             )
         };
