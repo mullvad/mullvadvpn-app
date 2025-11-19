@@ -12,11 +12,6 @@ import XCTest
 @MainActor
 class BaseUITestCase: XCTestCase {
     let app = XCUIApplication()
-    static let defaultTimeout = 5.0
-    static let longTimeout = 15.0
-    static let veryLongTimeout = 20.0
-    static let extremelyLongTimeout = 180.0
-    static let shortTimeout = 1.0
 
     /// The apps default country - the preselected country location after fresh install
     static let appDefaultCountry = "Sweden"
@@ -140,33 +135,15 @@ class BaseUITestCase: XCTestCase {
         }
     }
 
-    /// Handle iOS add VPN configuration permission alert - allow and enter device PIN code
-    func allowAddVPNConfigurations() {
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-
-        let alertAllowButton = springboard.buttons.element(boundBy: 0)
-        if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
-            alertAllowButton.tap()
-        }
-
-        if iOSDevicePinCode.isEmpty == false {
-            _ = springboard.buttons["1"].waitForExistence(timeout: Self.defaultTimeout)
-            springboard.typeText(iOSDevicePinCode)
-        }
-    }
-
     /// Handle iOS add VPN configuration permission alert if presented, otherwise ignore
     func allowAddVPNConfigurationsIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
-        if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
-            let alertAllowButton = springboard.buttons["Allow"]
-            if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
-                alertAllowButton.tap()
-            }
+        let alertAllowButton = springboard.buttons["Allow"]
+        if alertAllowButton.existsAfterWait(timeout: .short) {
+            alertAllowButton.tap()
 
-            if iOSDevicePinCode.isEmpty == false {
-                _ = springboard.buttons["1"].waitForExistence(timeout: Self.defaultTimeout)
+            if !iOSDevicePinCode.isEmpty, springboard.buttons["1"].existsAfterWait() {
                 springboard.typeText(iOSDevicePinCode)
             }
         }
@@ -175,13 +152,7 @@ class BaseUITestCase: XCTestCase {
     /// Handle iOS local network access permission alert if presented, otherwise ignore
     func allowLocalNetworkAccessIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-
-        if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
-            let alertAllowButton = springboard.buttons["Allow"]
-            if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
-                alertAllowButton.tap()
-            }
-        }
+        springboard.buttons["Allow"].tapWhenHittable(timeout: .short, failOnUnmetCondition: false)
     }
 
     /// Start packet capture for this test case
@@ -296,7 +267,7 @@ class BaseUITestCase: XCTestCase {
         return
             !app
             .otherElements[.loginView]
-            .waitForExistence(timeout: 1.0)
+            .existsAfterWait(timeout: .short)
     }
 
     func isPresentingSettings() -> Bool {
@@ -307,12 +278,7 @@ class BaseUITestCase: XCTestCase {
     }
 
     func agreeToTermsOfServiceIfShown() {
-        let termsOfServiceIsShown = app.otherElements[
-            .termsOfServiceView
-        ]
-        .waitForExistence(timeout: Self.shortTimeout)
-
-        if termsOfServiceIsShown {
+        if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: .short) {
             TermsOfServicePage(app)
                 .tapAgreeButton()
         }
@@ -385,7 +351,7 @@ class BaseUITestCase: XCTestCase {
                 with: ""
             )  // With space in the query Spotlight search sometimes don't match the Mullvad VPN app
 
-        let timeout = TimeInterval(5)
+        let timeout: XCUIElement.Timeout = .default
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         let spotlight = XCUIApplication(bundleIdentifier: "com.apple.Spotlight")
 
@@ -411,24 +377,13 @@ class BaseUITestCase: XCTestCase {
         }
 
         // The rest of the delete app flow is same for iPhone and iPad with the exception that iPhone uses spotlight and iPad uses springboard
-        if mullvadAppIcon.waitForExistence(timeout: timeout) {
+        if mullvadAppIcon.existsAfterWait() {
             mullvadAppIcon.press(forDuration: 2)
         } else {
             XCTFail("Failed to find app icon named \(appName)")
         }
 
-        let deleteAppButton = spotlightOrSpringboard.buttons["Delete App"]
-        if deleteAppButton.waitForExistence(timeout: timeout) {
-            deleteAppButton.tap()
-        } else {
-            XCTFail("Failed to find 'Delete App'")
-        }
-
-        let finalDeleteButton = springboard.alerts.buttons["Delete"]
-        if finalDeleteButton.waitForExistence(timeout: timeout) {
-            finalDeleteButton.tap()
-        } else {
-            XCTFail("Failed to find 'Delete'")
-        }
+        spotlightOrSpringboard.buttons["Delete App"].tapWhenHittable()
+        springboard.alerts.buttons["Delete"].tapWhenHittable()
     }
 }
