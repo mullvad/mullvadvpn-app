@@ -125,7 +125,7 @@ pub fn get_file_desc_vnode_path(pid: pid_t, info: &proc_fdinfo) -> io::Result<CS
             pid,
             info.proc_fd,
             PROC_PIDFDVNODEPATHINFO as _,
-            &mut vnode as *mut _ as _,
+            &raw mut vnode,
             std::mem::size_of_val(&vnode) as _,
         )
     };
@@ -149,7 +149,7 @@ pub fn process_bsdinfo(pid: pid_t) -> io::Result<proc_bsdinfo> {
             pid,
             PROC_PIDTBSDINFO as _,
             0,
-            &mut info as *mut proc_bsdinfo as *mut c_void,
+            &raw mut info as *mut c_void,
             std::mem::size_of_val(&info) as _,
         )
     };
