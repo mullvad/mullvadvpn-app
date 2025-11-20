@@ -58,7 +58,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
             }
             .disabled(!isActive)
             Button {
-                withAnimation {
+                withAnimation(.default.speed(3)) {
                     isExpanded.toggle()
                 }
             } label: {
@@ -86,10 +86,10 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
                 )
             )
         )
-        .padding(.top, level == 0 ? 4 : 1)
         .contextMenu {
             contextMenu()
         }
+        .padding(.top, level == 0 ? 4 : 1)
 
         if isExpanded {
             content()

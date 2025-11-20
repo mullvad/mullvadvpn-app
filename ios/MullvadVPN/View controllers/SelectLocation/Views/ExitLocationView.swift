@@ -20,48 +20,39 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     var body: some View {
         ScrollViewReader { proxy in
             // All items in the list are arranged in a flat hierarchy
-            List {
-                Group {
-                    if !context.filter.isEmpty {
-                        ActiveFilterView(
-                            activeFilter: context.filter
-                        ) { filter in
-                            viewModel.onFilterTapped(filter)
-                        } onRemove: { filter in
-                            viewModel.onFilterRemoved(filter)
-                        }
-                        .listRowInsets(
-                            EdgeInsets(top: 8, leading: 0, bottom: 16, trailing: 0)
-                        )
-                    }
-
+            ScrollView {
+                LazyVStack(spacing: 0) {
                     Group {
-                        if isShowingCustomListsSection {
-                            customListSection(isShowingHeader: isShowingAllLocationsSection)
+                        if !context.filter.isEmpty {
+                            ActiveFilterView(
+                                activeFilter: context.filter
+                            ) { filter in
+                                viewModel.onFilterTapped(filter)
+                            } onRemove: { filter in
+                                viewModel.onFilterRemoved(filter)
+                            }
+                            .padding(.bottom, 16)
                         }
-                        if isShowingAllLocationsSection {
-                            allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                        Group {
+                            if isShowingCustomListsSection {
+                                customListSection(isShowingHeader: isShowingAllLocationsSection)
+                            }
+                            if isShowingAllLocationsSection {
+                                allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                            }
+                            if !isShowingCustomListsSection && !isShowingAllLocationsSection {
+                                Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
+                                    .font(.mullvadMiniSemiBold)
+                                    .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                                    .padding(.vertical)
+                            }
                         }
-                        if !isShowingCustomListsSection && !isShowingAllLocationsSection {
-                            Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
-                                .font(.mullvadMiniSemiBold)
-                                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                                .padding(.vertical)
-                        }
+                        .padding(.horizontal, 16)
                     }
-                    .listRowInsets(
-                        EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
-                    )
+                    .zIndex(3)  // prevent wrong overlapping during animations
                 }
-                .zIndex(3)  // prevent wrong overlapping during animations
-                .listRowSeparator(.hidden)
-                .buttonStyle(.plain)  //  disables default list row pressed state and enables multiple buttons per row
-                .listRowBackground(Color.clear)
-
             }
             .accessibilityIdentifier(.selectLocationView)
-            .environment(\.defaultMinListRowHeight, 0)
-            .listStyle(.plain)
             .onAppear {
                 guard viewModel.searchText.isEmpty else { return }
                 let selectedLocation = (context.locations + context.customLists)
@@ -139,7 +130,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .font(.mullvadMini)
             .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
             .padding(.horizontal, context.customLists.isEmpty ? 0 : 16)
-            .padding(.top, context.customLists.isEmpty ? 0 : 2)
+            .padding(.top, context.customLists.isEmpty ? 0 : 4)
             .padding(.bottom, 24)
     }
 }

@@ -33,13 +33,13 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 .transition(
                     .move(edge: .trailing).combined(with: .opacity)
                 )
-                .geometryGroup()
+//                .geometryGroup()
             case .entry:
                 EntryLocationView(viewModel: viewModel)
                     .transition(
                         .move(edge: .leading).combined(with: .opacity)
                     )
-                    .geometryGroup()
+//                    .geometryGroup()
             }
         }
         .animation(.default, value: viewModel.multihopContext)
